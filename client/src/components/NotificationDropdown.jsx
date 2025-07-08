@@ -97,14 +97,14 @@ export default function NotificationDropdown() {
     if (unseenCount > 0) {
       items.push(
         <li key="mark-all">
-          <button
+        <button
             className="btn btn-link btn-xs"
-            onClick={handleMarkAllAsRead}
-            disabled={markingAll}
+          onClick={handleMarkAllAsRead}
+          disabled={markingAll}
             style={{ width: '100%', textAlign: 'left' }}
-          >
-            {markingAll ? 'Marking all...' : 'Mark all as read'}
-          </button>
+        >
+          {markingAll ? 'Marking all...' : 'Mark all as read'}
+        </button>
         </li>
       );
       items.push(<li key="divider" className="divider" />);
@@ -137,11 +137,11 @@ export default function NotificationDropdown() {
         aria-expanded="false"
       >
         <i className="fa fa-bell" style={{ fontSize: 20 }} />
-        {unseenCount > 0 && (
+          {unseenCount > 0 && (
           <span className="badge nav-item-with-counter counter" style={{ position: 'absolute', top: -5, right: -10 }}>
-            {unseenCount}
-          </span>
-        )}
+              {unseenCount}
+            </span>
+          )}
       </a>
       <ul className="dropdown-menu" style={{ minWidth: 300, maxHeight: 400, overflowY: 'auto' }}>
         {items}

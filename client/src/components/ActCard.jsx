@@ -89,27 +89,27 @@ export default function ActCard({
       </div>
       <div className="panel-body">
         <div style={{ color: '#AAAAAA', fontSize: 14, marginBottom: 8 }}>
-          {shownDescription}
-          {isLong && (
-            <button
+        {shownDescription}
+        {isLong && (
+          <button
               className="btn btn-link btn-xs"
               style={{ marginLeft: 8 }}
-              onClick={() => setExpanded(e => !e)}
-            >
-              {expanded ? 'Show less' : 'Show more'}
-            </button>
-          )}
-        </div>
+            onClick={() => setExpanded(e => !e)}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+          </button>
+        )}
+      </div>
         <div style={{ marginBottom: 8 }}>
-          {tags.map(tag => <Tag key={tag} tag={tag} />)}
-        </div>
+        {tags.map(tag => <Tag key={tag} tag={tag} />)}
+      </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {user?.avatar && (
+          {user?.avatar && (
               <img src={user.avatar} alt="avatar" className="img-circle" style={{ width: 28, height: 28, marginRight: 8 }} />
-            )}
+          )}
             <span style={{ fontSize: 14, color: '#EEEEEE' }}>{user?.username}</span>
-          </div>
+        </div>
           <div>{actions}</div>
         </div>
       </div>

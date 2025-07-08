@@ -9,19 +9,19 @@ export default function Accordion({ title, children, defaultOpen = false, classN
       <div className="panel panel-default">
         <div className="panel-heading" onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer' }}>
           <h4 className="panel-title">
-            <span>{title}</span>
+        <span>{title}</span>
             <span style={{ float: 'right', transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'none' }}>
               ▼
             </span>
           </h4>
         </div>
-        <div
+      <div
           className={`panel-collapse collapse${open ? ' in' : ''}`}
-          ref={contentRef}
-          aria-hidden={!open}
-        >
+        ref={contentRef}
+        aria-hidden={!open}
+      >
           <div className="panel-body">
-            {children}
+        {children}
           </div>
         </div>
       </div>

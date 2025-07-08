@@ -55,14 +55,14 @@ export default function Dropdown({
             <a
               href="#"
               className={item.disabled ? 'disabled' : ''}
-              onClick={e => {
+            onClick={e => {
                 e.preventDefault();
-                setOpen(false);
+              setOpen(false);
                 if (!item.disabled) item.onClick?.(e);
-              }}
-              tabIndex={0}
-            >
-              {item.label}
+            }}
+            tabIndex={0}
+          >
+            {item.label}
             </a>
           </li>
         );
@@ -79,10 +79,10 @@ export default function Dropdown({
         onClick={() => setOpen(v => !v)}
         tabIndex={0}
         onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setOpen(v => !v);
-          }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setOpen(v => !v);
+        }
         }}
         aria-haspopup="true"
         aria-expanded={open}
@@ -91,14 +91,14 @@ export default function Dropdown({
         {trigger} <span className="caret" />
       </span>
       <ul
-        ref={menuRef}
+          ref={menuRef}
         className={`dropdown-menu${alignRight ? ' pull-right' : ''} ${menuClassName}`.trim()}
-        role="menu"
-        tabIndex={-1}
-        onKeyDown={handleKeyDown}
+          role="menu"
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
         style={{ display: open ? 'block' : 'none' }}
-      >
-        {renderItems()}
+        >
+          {renderItems()}
       </ul>
     </div>
   );

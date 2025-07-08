@@ -35,20 +35,20 @@ export default function Register() {
           <div className="form-group">
             <label>Username</label>
             <input type="text" className="form-control" value={username} onChange={e => setUsername(e.target.value)} required />
-          </div>
+        </div>
           <div className="form-group">
             <label>Email</label>
             <input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} required />
-          </div>
+        </div>
           <div className="form-group">
             <label>Password</label>
             <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required />
-          </div>
+        </div>
           {error && <div className="text-danger" style={{ marginBottom: 10 }}>{error}</div>}
           <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default function Leaderboard() {
         <h1 className="panel-title">Leaderboard</h1>
       </div>
       <div className="panel-body">
-        <LeaderboardWidget leaders={leaders} loading={loading} title="Leaderboard" />
+      <LeaderboardWidget leaders={leaders} loading={loading} title="Leaderboard" />
       </div>
     </div>
   );

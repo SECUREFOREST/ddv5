@@ -19,11 +19,11 @@ export default function Credits() {
         <h1 className="panel-title">Credits</h1>
       </div>
       <div className="panel-body">
-        {loading ? (
-          <div>Loading credits...</div>
+      {loading ? (
+        <div>Loading credits...</div>
         ) : credits.length === 0 ? (
           <div className="text-muted">No credit data available.</div>
-        ) : (
+          ) : (
           <div className="table-responsive">
             <table className="table table-striped">
               <thead>
@@ -51,8 +51,8 @@ export default function Credits() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+          )}
+        </div>
     </div>
   );
 } 

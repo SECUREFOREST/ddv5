@@ -6,6 +6,9 @@ const Comment = require('../models/Comment');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
+const { logAudit } = require('../utils/auditLog');
+const { logActivity } = require('../utils/activity');
+const { checkPermission } = require('../utils/permissions');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -89,6 +92,7 @@ router.post('/', auth, async (req, res) => {
       creator: req.userId,
     });
     await act.save();
+    await logActivity({ type: 'act_created', user: req.userId, act: act._id });
     res.status(201).json(act);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create act.' });
@@ -121,20 +125,15 @@ router.patch('/:id', auth, async (req, res) => {
 router.post('/:id/grade', auth, async (req, res) => {
   try {
     const { grade, feedback } = req.body;
-    if (typeof grade !== 'number') return res.status(400).json({ error: 'Grade is required.' });
     const act = await Act.findById(req.params.id);
     if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (act.proofExpiresAt && new Date() > act.proofExpiresAt) {
-      return res.status(400).json({ error: 'Proof review period has expired. Grading is no longer allowed.' });
-    }
-    // Remove previous grade by this user if exists
-    act.grades = act.grades.filter(g => g.user.toString() !== req.userId);
+    act.grades = act.grades || [];
     act.grades.push({ user: req.userId, grade, feedback });
-    act.status = 'graded';
     await act.save();
-    res.json({ message: 'Grade submitted.' });
+    await logActivity({ type: 'grade_given', user: req.userId, act: act._id, details: { grade, feedback } });
+    res.json({ message: 'Grade submitted.', act });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to grade act.' });
+    res.status(500).json({ error: 'Failed to submit grade.' });
   }
 });
 
@@ -210,6 +209,20 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
   }
 });
 
+// POST /acts/:id/accept - user consents to perform an act
+router.post('/:id/accept', auth, async (req, res) => {
+  try {
+    const act = await Act.findById(req.params.id);
+    if (!act) return res.status(404).json({ error: 'Act not found.' });
+    if (act.performer) return res.status(400).json({ error: 'Act already has a performer.' });
+    act.performer = req.userId;
+    await act.save();
+    res.json({ message: 'You are now the performer for this act.', act });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to accept act.' });
+  }
+});
+
 // DELETE /api/acts/:id (admin only)
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {
@@ -220,46 +233,27 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
   }
 });
 
-// POST /api/acts/:id/approve (admin only)
-router.post('/:id/approve', auth, isAdmin, async (req, res) => {
+// POST /api/acts/:id/approve (admin/moderator)
+router.post('/:id/approve', auth, checkPermission('approve_act'), async (req, res) => {
   try {
-    const act = await Act.findById(req.params.id);
+    const act = await Act.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
     if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (act.proofExpiresAt && new Date() > act.proofExpiresAt) {
-      return res.status(400).json({ error: 'Proof review period has expired. Approval is no longer allowed.' });
-    }
-    act.status = 'approved';
-    await act.save();
+    await logAudit({ action: 'approve_act', user: req.userId, target: req.params.id });
     res.json({ message: 'Act approved.', act });
   } catch (err) {
     res.status(500).json({ error: 'Failed to approve act.' });
   }
 });
 
-// POST /api/acts/:id/reject (participant only, slot/cooldown enforced)
-router.post('/:id/reject', auth, async (req, res) => {
+// POST /api/acts/:id/reject (admin/moderator)
+router.post('/:id/reject', auth, checkPermission('reject_act'), async (req, res) => {
   try {
-    const { reason } = req.body;
-    const cooldownHours = 24;
-    const now = new Date();
-    const cooldownUntil = new Date(now.getTime() + cooldownHours * 60 * 60 * 1000);
-    const act = await Act.findById(req.params.id);
+    const act = await Act.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
     if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (!act.performer || act.performer.toString() !== req.userId) {
-      return res.status(403).json({ error: 'Only the performer can reject this act.' });
-    }
-    act.status = 'rejected';
-    act.rejection = {
-      reason: reason || 'No reason provided.',
-      rejectedAt: now,
-      cooldownUntil,
-    };
-    act.updatedAt = now;
-    await act.save();
-    await User.findByIdAndUpdate(req.userId, { actCooldownUntil: cooldownUntil, $inc: { openActs: -1 } });
+    await logAudit({ action: 'reject_act', user: req.userId, target: req.params.id });
     res.json({ message: 'Act rejected.', act });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to reject act.' });
+    res.status(500).json({ error: 'Failed to reject act.' });
   }
 });
 

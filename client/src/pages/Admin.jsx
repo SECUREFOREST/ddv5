@@ -76,6 +76,15 @@ export default function Admin() {
   const [auditLogPage, setAuditLogPage] = useState(0);
   const AUDIT_LOGS_PER_PAGE = 10;
   const [userStatusFilter, setUserStatusFilter] = useState('all');
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
+  const [reportsError, setReportsError] = useState('');
+  const [resolvingReportId, setResolvingReportId] = useState(null);
+  const [appeals, setAppeals] = useState([]);
+  const [appealsLoading, setAppealsLoading] = useState(false);
+  const [appealsError, setAppealsError] = useState('');
+  const [resolvingAppealId, setResolvingAppealId] = useState(null);
+  const [appealOutcome, setAppealOutcome] = useState('');
 
   const fetchUsers = () => {
     setLoading(true);
@@ -91,6 +100,43 @@ export default function Admin() {
       .then(res => setActs(res.data))
       .catch(() => setActs([]))
       .finally(() => setActsLoading(false));
+  };
+
+  const fetchReports = () => {
+    setReportsLoading(true);
+    setReportsError('');
+    api.get('/reports')
+      .then(res => setReports(res.data))
+      .catch(() => setReportsError('Failed to load reports.'))
+      .finally(() => setReportsLoading(false));
+  };
+
+  const handleResolveReport = async (id) => {
+    setResolvingReportId(id);
+    try {
+      await api.patch(`/reports/${id}`);
+      fetchReports();
+    } catch {}
+    setResolvingReportId(null);
+  };
+
+  const fetchAppeals = () => {
+    setAppealsLoading(true);
+    setAppealsError('');
+    api.get('/appeals')
+      .then(res => setAppeals(res.data))
+      .catch(() => setAppealsError('Failed to load appeals.'))
+      .finally(() => setAppealsLoading(false));
+  };
+
+  const handleResolveAppeal = async (id) => {
+    setResolvingAppealId(id);
+    try {
+      await api.patch(`/appeals/${id}`, { outcome: appealOutcome });
+      setAppealOutcome('');
+      fetchAppeals();
+    } catch {}
+    setResolvingAppealId(null);
   };
 
   useEffect(() => {
@@ -114,6 +160,8 @@ export default function Admin() {
         .catch(() => setAuditLogError('Failed to load audit log.'))
         .finally(() => setAuditLogLoading(false));
     }
+    if (tabIdx === 4) fetchReports();
+    if (tabIdx === 5) fetchAppeals();
     // eslint-disable-next-line
   }, [tabIdx]);
 
@@ -172,12 +220,12 @@ export default function Admin() {
         <h1 className="panel-title">Admin Panel</h1>
       </div>
       <div className="panel-body">
-        <Tabs
-          tabs={[
-            {
-              label: 'Users',
-              content: (
-                <div>
+      <Tabs
+        tabs={[
+          {
+            label: 'Users',
+            content: (
+              <div>
                   <div className="form-inline" style={{ marginBottom: 12 }}>
                     <div className="form-group" style={{ marginRight: 8 }}>
                       <input
@@ -194,49 +242,49 @@ export default function Admin() {
                         <option value="inactive">Inactive</option>
                       </select>
                     </div>
-                    <button
+                  <button
                       className="btn btn-danger btn-sm"
-                      disabled={selectedUsers.length === 0 || actionLoading}
-                      onClick={async () => {
-                        if (!window.confirm('Delete selected users?')) return;
-                        setActionLoading(true);
-                        for (const id of selectedUsers) {
-                          try { await api.delete(`/users/${id}`); } catch {}
-                        }
-                        fetchUsers();
-                        clearSelectedUsers();
-                        setActionLoading(false);
-                      }}
-                    >
-                      Delete Selected
-                    </button>
-                    <button
+                    disabled={selectedUsers.length === 0 || actionLoading}
+                    onClick={async () => {
+                      if (!window.confirm('Delete selected users?')) return;
+                      setActionLoading(true);
+                      for (const id of selectedUsers) {
+                        try { await api.delete(`/users/${id}`); } catch {}
+                      }
+                      fetchUsers();
+                      clearSelectedUsers();
+                      setActionLoading(false);
+                    }}
+                  >
+                    Delete Selected
+                  </button>
+                  <button
                       className="btn btn-primary btn-sm"
-                      disabled={selectedUsers.length === 0 || actionLoading}
-                      onClick={async () => {
-                        const value = window.prompt('Enter new credit value for selected users:');
-                        if (value === null) return;
-                        setActionLoading(true);
-                        for (const id of selectedUsers) {
+                    disabled={selectedUsers.length === 0 || actionLoading}
+                    onClick={async () => {
+                      const value = window.prompt('Enter new credit value for selected users:');
+                      if (value === null) return;
+                      setActionLoading(true);
+                      for (const id of selectedUsers) {
                           try { await api.put(`/credits/${id}`, { credits: parseInt(value, 10) }); } catch {}
-                        }
-                        fetchUsers();
-                        clearSelectedUsers();
-                        setActionLoading(false);
-                      }}
-                    >
+                      }
+                      fetchUsers();
+                      clearSelectedUsers();
+                      setActionLoading(false);
+                    }}
+                  >
                       Adjust Credits
-                    </button>
-                    <button
+                  </button>
+                  <button
                       className="btn btn-default btn-sm"
                       onClick={() => exportToCsv('users.csv', users)}
-                    >
-                      Export CSV
-                    </button>
-                  </div>
+                  >
+                    Export CSV
+                  </button>
+                </div>
                   <div className="table-responsive">
                     <table className="table table-striped table-hover">
-                      <thead>
+                          <thead>
                         <tr>
                           <th><input type="checkbox" checked={isAllSelected} onChange={toggleAll} /></th>
                           <th>Username</th>
@@ -244,13 +292,13 @@ export default function Admin() {
                           <th>Status</th>
                           <th>Credits</th>
                           <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                            </tr>
+                          </thead>
+                          <tbody>
                         {users
                           .filter(u =>
                             (userStatusFilter === 'all' || (userStatusFilter === 'active' ? u.active : !u.active)) &&
-                            (u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+                              (u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
                               u.email.toLowerCase().includes(userSearch.toLowerCase()))
                           )
                           .slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE)
@@ -264,20 +312,20 @@ export default function Admin() {
                               <td>
                                 <button className="btn btn-danger btn-xs" disabled={actionLoading} onClick={() => handleDelete(u._id)}>Delete</button>{' '}
                                 <button className="btn btn-primary btn-xs" disabled={actionLoading} onClick={() => handleAdjustCredits(u._id, u.credits)}>Adjust Credits</button>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                   </div>
                   {/* Pagination and other controls can be similarly refactored */}
-                </div>
-              ),
-            },
-            {
-              label: 'Acts',
-              content: (
-                <div>
+              </div>
+            ),
+          },
+          {
+            label: 'Acts',
+            content: (
+              <div>
                   <div className="form-inline" style={{ marginBottom: 12 }}>
                     <div className="form-group" style={{ marginRight: 8 }}>
                       <input
@@ -287,68 +335,68 @@ export default function Admin() {
                         onChange={e => setActSearch(e.target.value)}
                       />
                     </div>
-                    <button
+                  <button
                       className="btn btn-green btn-sm"
-                      disabled={selectedActs.length === 0 || actionLoading}
-                      onClick={async () => {
-                        setActionLoading(true);
-                        for (const id of selectedActs) {
-                          const act = acts.find(a => a._id === id);
-                          if (act?.status === 'pending') {
-                            try { await api.post(`/acts/${id}/approve`); } catch {}
-                          }
+                    disabled={selectedActs.length === 0 || actionLoading}
+                    onClick={async () => {
+                      setActionLoading(true);
+                      for (const id of selectedActs) {
+                        const act = acts.find(a => a._id === id);
+                        if (act?.status === 'pending') {
+                          try { await api.post(`/acts/${id}/approve`); } catch {}
                         }
-                        fetchActs();
-                        clearSelectedActs();
-                        setActionLoading(false);
-                      }}
-                    >
-                      Approve Selected
-                    </button>
-                    <button
+                      }
+                      fetchActs();
+                      clearSelectedActs();
+                      setActionLoading(false);
+                    }}
+                  >
+                    Approve Selected
+                  </button>
+                  <button
                       className="btn btn-yellow btn-sm"
-                      disabled={selectedActs.length === 0 || actionLoading}
-                      onClick={async () => {
-                        setActionLoading(true);
-                        for (const id of selectedActs) {
-                          const act = acts.find(a => a._id === id);
-                          if (act?.status === 'pending') {
-                            try { await api.post(`/acts/${id}/reject`); } catch {}
-                          }
+                    disabled={selectedActs.length === 0 || actionLoading}
+                    onClick={async () => {
+                      setActionLoading(true);
+                      for (const id of selectedActs) {
+                        const act = acts.find(a => a._id === id);
+                        if (act?.status === 'pending') {
+                          try { await api.post(`/acts/${id}/reject`); } catch {}
                         }
-                        fetchActs();
-                        clearSelectedActs();
-                        setActionLoading(false);
-                      }}
-                    >
-                      Reject Selected
-                    </button>
-                    <button
+                      }
+                      fetchActs();
+                      clearSelectedActs();
+                      setActionLoading(false);
+                    }}
+                  >
+                    Reject Selected
+                  </button>
+                  <button
                       className="btn btn-red btn-sm"
-                      disabled={selectedActs.length === 0 || actionLoading}
-                      onClick={async () => {
-                        if (!window.confirm('Delete selected acts?')) return;
-                        setActionLoading(true);
-                        for (const id of selectedActs) {
-                          try { await api.delete(`/acts/${id}`); } catch {}
-                        }
-                        fetchActs();
-                        clearSelectedActs();
-                        setActionLoading(false);
-                      }}
-                    >
-                      Delete Selected
-                    </button>
-                    <button
+                    disabled={selectedActs.length === 0 || actionLoading}
+                    onClick={async () => {
+                      if (!window.confirm('Delete selected acts?')) return;
+                      setActionLoading(true);
+                      for (const id of selectedActs) {
+                        try { await api.delete(`/acts/${id}`); } catch {}
+                      }
+                      fetchActs();
+                      clearSelectedActs();
+                      setActionLoading(false);
+                    }}
+                  >
+                    Delete Selected
+                  </button>
+                  <button
                       className="btn btn-default btn-sm"
                       onClick={() => exportToCsv('acts.csv', acts)}
-                    >
-                      Export CSV
-                    </button>
-                  </div>
+                  >
+                    Export CSV
+                  </button>
+                </div>
                   <div className="table-responsive">
                     <table className="table table-striped table-hover">
-                      <thead>
+                          <thead>
                         <tr>
                           <th><input type="checkbox" checked={isAllActsSelected} onChange={toggleAllActs} /></th>
                           <th>Title</th>
@@ -356,13 +404,13 @@ export default function Admin() {
                           <th>Status</th>
                           <th>Difficulty</th>
                           <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                            </tr>
+                          </thead>
+                          <tbody>
                         {acts
                           .filter(a =>
-                            a.title.toLowerCase().includes(actSearch.toLowerCase()) ||
-                            (a.creator?.username || '').toLowerCase().includes(actSearch.toLowerCase())
+                              a.title.toLowerCase().includes(actSearch.toLowerCase()) ||
+                              (a.creator?.username || '').toLowerCase().includes(actSearch.toLowerCase())
                           )
                           .slice(actPage * ACTS_PER_PAGE, (actPage + 1) * ACTS_PER_PAGE)
                           .map(a => (
@@ -374,57 +422,57 @@ export default function Admin() {
                               <td>{a.difficulty}</td>
                               <td>
                                 {a.status === 'pending' && (
-                                  <>
+                                    <>
                                     <button className="btn btn-green btn-xs" disabled={actionLoading} onClick={() => handleApprove(a._id)}>Approve</button>{' '}
                                     <button className="btn btn-yellow btn-xs" disabled={actionLoading} onClick={() => handleReject(a._id)}>Reject</button>
-                                  </>
-                                )}
+                                    </>
+                                  )}
                                 <button className="btn btn-red btn-xs" disabled={actionLoading} onClick={() => handleDeleteAct(a._id)}>Delete</button>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                   </div>
                   {/* Pagination and other controls can be similarly refactored */}
+              </div>
+            ),
+          },
+          {
+            label: 'Stats',
+            content: (
+              siteStatsLoading ? (
+                <div>Loading site stats...</div>
+              ) : siteStatsError ? (
+                <div className="text-red-500">{siteStatsError}</div>
+              ) : siteStats ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Card>
+                    <div className="text-lg font-semibold">Total Users</div>
+                    <div className="text-2xl">{siteStats.totalUsers}</div>
+                  </Card>
+                  <Card>
+                    <div className="text-lg font-semibold">Total Acts</div>
+                    <div className="text-2xl">{siteStats.totalActs}</div>
+                  </Card>
+                  <Card>
+                    <div className="text-lg font-semibold">Total Comments</div>
+                    <div className="text-2xl">{siteStats.totalComments}</div>
+                  </Card>
+                  <Card>
+                    <div className="text-lg font-semibold">Total Credits Awarded</div>
+                    <div className="text-2xl">{siteStats.totalCredits}</div>
+                  </Card>
                 </div>
-              ),
-            },
-            {
-              label: 'Stats',
-              content: (
-                siteStatsLoading ? (
-                  <div>Loading site stats...</div>
-                ) : siteStatsError ? (
-                  <div className="text-red-500">{siteStatsError}</div>
-                ) : siteStats ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card>
-                      <div className="text-lg font-semibold">Total Users</div>
-                      <div className="text-2xl">{siteStats.totalUsers}</div>
-                    </Card>
-                    <Card>
-                      <div className="text-lg font-semibold">Total Acts</div>
-                      <div className="text-2xl">{siteStats.totalActs}</div>
-                    </Card>
-                    <Card>
-                      <div className="text-lg font-semibold">Total Comments</div>
-                      <div className="text-2xl">{siteStats.totalComments}</div>
-                    </Card>
-                    <Card>
-                      <div className="text-lg font-semibold">Total Credits Awarded</div>
-                      <div className="text-2xl">{siteStats.totalCredits}</div>
-                    </Card>
-                  </div>
-                ) : (
-                  <div className="text-gray-500">No site stats available.</div>
-                )
-              ),
-            },
-            {
-              label: 'Audit Log',
-              content: (
-                <div>
+              ) : (
+                <div className="text-gray-500">No site stats available.</div>
+              )
+            ),
+          },
+          {
+            label: 'Audit Log',
+            content: (
+              <div>
                   <div className="form-inline" style={{ marginBottom: 12 }}>
                     <div className="form-group" style={{ marginRight: 8 }}>
                       <input
@@ -434,19 +482,19 @@ export default function Admin() {
                         onChange={e => setAuditLogSearch(e.target.value)}
                       />
                     </div>
-                    <button
+                  <button
                       className="btn btn-default btn-sm"
                       onClick={() => exportToCsv('audit_log.csv', auditLog)}
-                    >
-                      Export CSV
-                    </button>
-                    <button
+                  >
+                    Export CSV
+                  </button>
+                  <button
                       className="btn btn-default btn-sm"
                       onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
-                    >
-                      Export All
-                    </button>
-                  </div>
+                  >
+                    Export All
+                  </button>
+                </div>
                   <div className="table-responsive">
                     <table className="table table-striped table-hover">
                       <thead>
@@ -460,30 +508,141 @@ export default function Admin() {
                       <tbody>
                         {auditLog
                           .filter(log =>
-                            log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
-                            (log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
-                            (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
+                          log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
+                          (log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
+                          (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
                           )
                           .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
-                          .map((log, i) => (
+                        .map((log, i) => (
                             <tr key={i}>
                               <td>{log.action}</td>
                               <td>{log.user?.username || 'System'}</td>
                               <td>{log.target}</td>
                               <td>{new Date(log.timestamp).toLocaleString()}</td>
-                            </tr>
-                          ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    </div>
+                  {/* Pagination and other controls can be similarly refactored */}
+              </div>
+            ),
+          },
+          {
+            label: 'Reports',
+            content: (
+              <div>
+                {reportsLoading ? (
+                  <div>Loading reports...</div>
+                ) : reportsError ? (
+                  <div className="text-danger">{reportsError}</div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Target ID</th>
+                          <th>Reporter</th>
+                          <th>Reason</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reports.map(r => (
+                          <tr key={r._id}>
+                            <td>{r.type}</td>
+                            <td>{r.targetId}</td>
+                            <td>{r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
+                            <td>{r.reason}</td>
+                            <td><span className={`label label-${r.status === 'open' ? 'warning' : 'success'}`}>{r.status}</span></td>
+                            <td>
+                              {r.status === 'open' && (
+                                <button
+                                  className="btn btn-xs btn-success"
+                                  disabled={resolvingReportId === r._id}
+                                  onClick={() => handleResolveReport(r._id)}
+                                >
+                                  {resolvingReportId === r._id ? 'Resolving...' : 'Resolve'}
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
-                  {/* Pagination and other controls can be similarly refactored */}
-                </div>
-              ),
-            },
-          ]}
-          value={tabIdx}
-          onChange={setTabIdx}
-        />
+                )}
+              </div>
+            ),
+          },
+          {
+            label: 'Appeals',
+            content: (
+              <div>
+                {appealsLoading ? (
+                  <div>Loading appeals...</div>
+                ) : appealsError ? (
+                  <div className="text-danger">{appealsError}</div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Target ID</th>
+                          <th>User</th>
+                          <th>Reason</th>
+                          <th>Status</th>
+                          <th>Outcome</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {appeals.map(a => (
+                          <tr key={a._id}>
+                            <td>{a.type}</td>
+                            <td>{a.targetId}</td>
+                            <td>{a.user?.username || a.user?.email || 'Unknown'}</td>
+                            <td>{a.reason}</td>
+                            <td><span className={`label label-${a.status === 'open' ? 'warning' : 'success'}`}>{a.status}</span></td>
+                            <td>{a.outcome || '-'}</td>
+                            <td>
+                              {a.status === 'open' && (
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <input
+                                    type="text"
+                                    className="form-control input-sm"
+                                    placeholder="Outcome (required)"
+                                    value={resolvingAppealId === a._id ? appealOutcome : ''}
+                                    onChange={e => setAppealOutcome(e.target.value)}
+                                    style={{ width: 120 }}
+                                    disabled={resolvingAppealId !== a._id}
+                                  />
+                                  <button
+                                    className="btn btn-xs btn-success"
+                                    disabled={resolvingAppealId === a._id && !appealOutcome}
+                                    onClick={() => handleResolveAppeal(a._id)}
+                                  >
+                                    {resolvingAppealId === a._id ? 'Resolving...' : 'Resolve'}
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        value={tabIdx}
+        onChange={setTabIdx}
+      />
       </div>
     </div>
   );

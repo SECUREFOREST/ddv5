@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { logAudit } = require('../utils/auditLog');
+const { checkPermission } = require('../utils/permissions');
 
 // GET /api/users
 router.get('/', async (req, res) => {
@@ -44,6 +46,7 @@ router.patch('/:id', auth, async (req, res) => {
     if (avatar) update.avatar = avatar;
     if (bio !== undefined) update.bio = bio;
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
+    await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update profile.' });
@@ -61,6 +64,7 @@ router.post('/:id/block', auth, async (req, res) => {
     if (!user.blockedUsers.includes(req.params.id)) {
       user.blockedUsers.push(req.params.id);
       await user.save();
+      await logAudit({ action: 'block_user', user: req.userId, target: req.params.id });
     }
     res.json({ message: 'User blocked.' });
   } catch (err) {
@@ -77,9 +81,10 @@ function isAdmin(req, res, next) {
 }
 
 // DELETE /api/users/:id (admin only)
-router.delete('/:id', auth, isAdmin, async (req, res) => {
+router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
+    await logAudit({ action: 'delete_user', user: req.userId, target: req.params.id });
     res.json({ message: 'User deleted.' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete user.' });
@@ -87,10 +92,11 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
 });
 
 // POST /api/users/:id/ban (admin only)
-router.post('/:id/ban', auth, isAdmin, async (req, res) => {
+router.post('/:id/ban', auth, checkPermission('ban_user'), async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, { banned: true }, { new: true });
     if (!user) return res.status(404).json({ error: 'User not found.' });
+    await logAudit({ action: 'ban_user', user: req.userId, target: req.params.id });
     res.json({ message: 'User banned.', user });
   } catch (err) {
     res.status(500).json({ error: 'Failed to ban user.' });

@@ -45,35 +45,35 @@ export default function Tabs({
         {tabs.map((tab, idx) => (
           <li key={tab.label} className={selectedIndex === idx ? 'active' : tab.disabled ? 'disabled' : ''} role="presentation">
             <a
-              ref={el => tabRefs.current[idx] = el}
+            ref={el => tabRefs.current[idx] = el}
               href="#"
-              role="tab"
-              aria-selected={selectedIndex === idx}
-              aria-controls={`tabpanel-${idx}`}
-              id={`tab-${idx}`}
-              tabIndex={selectedIndex === idx ? 0 : -1}
+            role="tab"
+            aria-selected={selectedIndex === idx}
+            aria-controls={`tabpanel-${idx}`}
+            id={`tab-${idx}`}
+            tabIndex={selectedIndex === idx ? 0 : -1}
               onClick={e => { e.preventDefault(); handleTabClick(idx); }}
-              onKeyDown={handleKeyDown}
+            onKeyDown={handleKeyDown}
               style={tab.disabled ? { pointerEvents: 'none', color: '#888', cursor: 'not-allowed' } : {}}
-            >
-              {tab.label}
+          >
+            {tab.label}
             </a>
           </li>
         ))}
       </ul>
       <div className="tab-content">
-        {tabs.map((tab, idx) => (
-          <div
-            key={tab.label}
+      {tabs.map((tab, idx) => (
+        <div
+          key={tab.label}
             className={`tab-pane${selectedIndex === idx ? ' active' : ''}`}
             id={`tabpanel-${idx}`}
-            role="tabpanel"
-            aria-labelledby={`tab-${idx}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${idx}`}
             style={{ display: selectedIndex === idx ? 'block' : 'none', background: 'transparent', padding: 15 }}
-          >
-            {selectedIndex === idx && tab.content}
-          </div>
-        ))}
+        >
+          {selectedIndex === idx && tab.content}
+        </div>
+      ))}
       </div>
     </div>
   );

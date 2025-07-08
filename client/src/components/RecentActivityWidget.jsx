@@ -46,23 +46,23 @@ export default function RecentActivityWidget({ activities = [], loading = false,
         <h3 className="panel-title">{title}</h3>
       </div>
       <div className="panel-body" style={{ padding: 0 }}>
-        {loading ? (
+      {loading ? (
           <div style={{ padding: 15 }}>Loading activity...</div>
-        ) : activities.length === 0 ? (
+      ) : activities.length === 0 ? (
           <div className="text-muted" style={{ padding: 15 }}>No recent activity.</div>
-        ) : (
+      ) : (
           <ul className="list-group">
-            {activities.map((a, i) => (
+          {activities.map((a, i) => (
               <li key={i} className="list-group-item" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {ICONS[a.type] || ICONS.default}
+              {ICONS[a.type] || ICONS.default}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, color: '#EEEEEE' }}>{getLegacyActivityMessage(a)}</div>
                   <div style={{ fontSize: 12, color: '#888' }}>{timeAgo(a.createdAt)}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       </div>
     </div>
   );

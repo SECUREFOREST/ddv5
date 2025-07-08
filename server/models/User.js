@@ -13,6 +13,9 @@ const UserSchema = new mongoose.Schema({
   actCooldownUntil: { type: Date },
   openActs: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
+  passwordResetToken: { type: String },
+  passwordResetExpires: { type: Date },
+  refreshTokens: [{ type: String }],
 });
 
 module.exports = mongoose.model('User', UserSchema); 

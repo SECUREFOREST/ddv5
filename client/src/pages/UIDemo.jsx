@@ -27,158 +27,158 @@ export default function UIDemo() {
         <h1 className="panel-title">UI Primitives Demo</h1>
       </div>
       <div className="panel-body">
-        {/* Button */}
+      {/* Button */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Button</h2>
-          <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
-        </section>
+        <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
+      </section>
 
-        {/* Modal */}
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+      {/* Modal */}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
           <div style={{ padding: 16 }}>
             <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Modal Title</h3>
-            <p>This is a modal dialog. Click outside or press Escape to close.</p>
+          <p>This is a modal dialog. Click outside or press Escape to close.</p>
             <div style={{ marginTop: 16, textAlign: 'right' }}>
-              <Button onClick={() => setModalOpen(false)}>Close</Button>
-            </div>
+            <Button onClick={() => setModalOpen(false)}>Close</Button>
           </div>
-        </Modal>
+        </div>
+      </Modal>
 
-        {/* Card */}
+      {/* Card */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Card</h2>
-          <Card
-            header="Card Header"
-            image="https://placekitten.com/400/200"
-            footer={<span>Card Footer</span>}
-          >
-            <p>This is the card body. You can put any content here.</p>
-          </Card>
-        </section>
+        <Card
+          header="Card Header"
+          image="https://placekitten.com/400/200"
+          footer={<span>Card Footer</span>}
+        >
+          <p>This is the card body. You can put any content here.</p>
+        </Card>
+      </section>
 
-        {/* Tabs */}
+      {/* Tabs */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Tabs</h2>
-          <Tabs
-            tabs={[
-              { label: 'Tab 1', content: <div>Content for Tab 1</div> },
-              { label: 'Tab 2', content: <div>Content for Tab 2</div> },
-              { label: 'Tab 3', content: <div>Content for Tab 3</div>, disabled: true },
-            ]}
-            value={tabIdx}
-            onChange={setTabIdx}
-          />
-        </section>
+        <Tabs
+          tabs={[
+            { label: 'Tab 1', content: <div>Content for Tab 1</div> },
+            { label: 'Tab 2', content: <div>Content for Tab 2</div> },
+            { label: 'Tab 3', content: <div>Content for Tab 3</div>, disabled: true },
+          ]}
+          value={tabIdx}
+          onChange={setTabIdx}
+        />
+      </section>
 
-        {/* Dropdown */}
+      {/* Dropdown */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Dropdown</h2>
-          <Dropdown
-            trigger={<Button>Open Dropdown</Button>}
-            items={[
-              { label: 'Action 1', onClick: () => alert('Action 1') },
-              { label: 'Action 2', onClick: () => alert('Action 2') },
-              { label: 'Disabled', disabled: true },
-            ]}
-          />
-        </section>
+        <Dropdown
+          trigger={<Button>Open Dropdown</Button>}
+          items={[
+            { label: 'Action 1', onClick: () => alert('Action 1') },
+            { label: 'Action 2', onClick: () => alert('Action 2') },
+            { label: 'Disabled', disabled: true },
+          ]}
+        />
+      </section>
 
-        {/* Tooltip */}
+      {/* Tooltip */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Tooltip</h2>
-          <Tooltip content="This is a tooltip!">
-            <Button>Hover or focus me</Button>
-          </Tooltip>
-        </section>
+        <Tooltip content="This is a tooltip!">
+          <Button>Hover or focus me</Button>
+        </Tooltip>
+      </section>
 
-        {/* ActCard */}
+      {/* ActCard */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>ActCard</h2>
-          <ActCard
-            title="Complete the React migration"
-            description="Migrate the legacy jQuery/Bootstrap app to a modern React/Node.js stack, preserving all features and improving maintainability."
-            difficulty="hard"
-            tags={["migration", "react", "legacy"]}
-            user={{ username: "alice", avatar: "https://i.pravatar.cc/40?img=1" }}
-            actions={[
+        <ActCard
+          title="Complete the React migration"
+          description="Migrate the legacy jQuery/Bootstrap app to a modern React/Node.js stack, preserving all features and improving maintainability."
+          difficulty="hard"
+          tags={["migration", "react", "legacy"]}
+          user={{ username: "alice", avatar: "https://i.pravatar.cc/40?img=1" }}
+          actions={[
               <button key="view" className="btn btn-primary btn-xs">View</button>,
               <button key="complete" className="btn btn-success btn-xs">Complete</button>
-            ]}
-          />
-        </section>
+          ]}
+        />
+      </section>
 
-        {/* TagsInput */}
+      {/* TagsInput */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>TagsInput</h2>
           <label style={{ display: 'block', marginBottom: 4 }}>Tags</label>
-          <TagsInput value={tags} onChange={setTags} placeholder="Add a tag..." />
+        <TagsInput value={tags} onChange={setTags} placeholder="Add a tag..." />
           <div style={{ marginTop: 8, fontSize: 13, color: '#888' }}>Current tags: {tags.join(', ') || 'None'}</div>
-        </section>
+      </section>
 
-        {/* ProgressBar */}
+      {/* ProgressBar */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>ProgressBar</h2>
-          <ProgressBar value={progress} label={`Progress: ${progress}%`} />
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={progress}
-            onChange={e => setProgress(Number(e.target.value))}
+        <ProgressBar value={progress} label={`Progress: ${progress}%`} />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={progress}
+          onChange={e => setProgress(Number(e.target.value))}
             className="form-control"
             style={{ marginTop: 8 }}
-          />
-        </section>
+        />
+      </section>
 
-        {/* Markdown */}
+      {/* Markdown */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Markdown</h2>
-          <textarea
+        <textarea
             className="form-control"
-            rows={6}
-            value={markdown}
-            onChange={e => setMarkdown(e.target.value)}
-            placeholder="Enter markdown..."
+          rows={6}
+          value={markdown}
+          onChange={e => setMarkdown(e.target.value)}
+          placeholder="Enter markdown..."
             style={{ marginBottom: 8, fontFamily: 'monospace', fontSize: 14 }}
-          />
+        />
           <div className="well">
-            <Markdown>{markdown}</Markdown>
-          </div>
-        </section>
+          <Markdown>{markdown}</Markdown>
+        </div>
+      </section>
 
-        {/* Countdown */}
+      {/* Countdown */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Countdown</h2>
-          <button
+        <button
             className="btn btn-primary"
             style={{ marginBottom: 8 }}
-            onClick={() => {
-              setCountdownTarget(Date.now() + 2 * 60 * 1000);
-              setCountdownDone(false);
-            }}
-          >
-            Start 2-Minute Countdown
-          </button>
-          {countdownTarget && !countdownDone && (
-            <Countdown
-              target={countdownTarget}
-              onComplete={() => setCountdownDone(true)}
+          onClick={() => {
+            setCountdownTarget(Date.now() + 2 * 60 * 1000);
+            setCountdownDone(false);
+          }}
+        >
+          Start 2-Minute Countdown
+        </button>
+        {countdownTarget && !countdownDone && (
+          <Countdown
+            target={countdownTarget}
+            onComplete={() => setCountdownDone(true)}
               className="text-info"
-            />
-          )}
+          />
+        )}
           {countdownDone && <div className="text-success" style={{ fontWeight: 600, marginTop: 8 }}>Countdown complete!</div>}
-        </section>
+      </section>
 
-        {/* Accordion */}
+      {/* Accordion */}
         <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontWeight: 600, marginBottom: 8 }}>Accordion</h2>
-          <Accordion title="What is this app?" defaultOpen>
-            <p>This is a modern React app with a custom UI component library, admin panel, and full-featured backend.</p>
-          </Accordion>
-          <Accordion title="How does the countdown work?">
-            <p>The countdown component uses setInterval to update the time remaining every second, and calls an onComplete callback when finished.</p>
-          </Accordion>
-        </section>
+        <Accordion title="What is this app?" defaultOpen>
+          <p>This is a modern React app with a custom UI component library, admin panel, and full-featured backend.</p>
+        </Accordion>
+        <Accordion title="How does the countdown work?">
+          <p>The countdown component uses setInterval to update the time remaining every second, and calls an onComplete callback when finished.</p>
+        </Accordion>
+      </section>
       </div>
     </div>
   );

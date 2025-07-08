@@ -29,6 +29,7 @@ const ActSchema = new mongoose.Schema({
   public: { type: Boolean, default: false },
   actType: { type: String, enum: ['submission', 'domination', 'switch'], default: 'submission' },
   allowedRoles: [{ type: String }],
+  performer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 module.exports = mongoose.model('Act', ActSchema); 

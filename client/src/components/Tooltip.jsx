@@ -41,7 +41,7 @@ export default function Tooltip({
       if (position === 'left' || position === 'right') {
         // left and right already set
       } else {
-        left = triggerRect.left + window.scrollX + (triggerRect.width - tooltipRect.width) / 2;
+      left = triggerRect.left + window.scrollX + (triggerRect.width - tooltipRect.width) / 2;
       }
       setCoords({ top, left });
     }

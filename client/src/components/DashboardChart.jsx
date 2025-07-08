@@ -50,7 +50,7 @@ export default function DashboardChart({ stats = {}, className = '' }) {
         <h4 className="panel-title">User Stats</h4>
       </div>
       <div className="panel-body">
-        <Bar data={data} options={options} height={220} />
+      <Bar data={data} options={options} height={220} />
       </div>
     </div>
   );

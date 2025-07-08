@@ -10,15 +10,16 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken') || '');
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken') || '');
 
   useEffect(() => {
     // Try to load user from localStorage
-    const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     async function fetchUser() {
-      if (token) {
+      if (accessToken) {
         try {
-          const res = await api.get('/users/me', { headers: { Authorization: `Bearer ${token}` } });
+          const res = await api.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
         } catch {
@@ -30,34 +31,58 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
     fetchUser();
-  }, []);
+  }, [accessToken]);
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('accessToken', res.data.accessToken);
+    localStorage.setItem('refreshToken', res.data.refreshToken);
+    setAccessToken(res.data.accessToken);
+    setRefreshToken(res.data.refreshToken);
     // Fetch user info after login
-    const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.token}` } });
+    const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
     localStorage.setItem('user', JSON.stringify(userRes.data));
     setUser(userRes.data);
   };
 
   const register = async (username, email, password) => {
     const res = await api.post('/auth/register', { username, email, password });
-    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('accessToken', res.data.accessToken);
+    localStorage.setItem('refreshToken', res.data.refreshToken);
+    setAccessToken(res.data.accessToken);
+    setRefreshToken(res.data.refreshToken);
     // Fetch user info after register
-    const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.token}` } });
+    const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
     localStorage.setItem('user', JSON.stringify(userRes.data));
     setUser(userRes.data);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const refreshAccessToken = async () => {
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    if (!storedRefreshToken) throw new Error('No refresh token');
+    const res = await api.post('/auth/refresh-token', { refreshToken: storedRefreshToken });
+    localStorage.setItem('accessToken', res.data.accessToken);
+    localStorage.setItem('refreshToken', res.data.refreshToken);
+    setAccessToken(res.data.accessToken);
+    setRefreshToken(res.data.refreshToken);
+    return res.data.accessToken;
+  };
+
+  const logout = async () => {
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    if (storedRefreshToken) {
+      try { await api.post('/auth/logout', { refreshToken: storedRefreshToken }); } catch {}
+    }
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    setAccessToken('');
+    setRefreshToken('');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, accessToken, refreshAccessToken }}>
       {children}
     </AuthContext.Provider>
   );

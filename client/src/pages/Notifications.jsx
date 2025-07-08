@@ -61,35 +61,35 @@ export default function Notifications() {
         <h1 className="panel-title">Notifications</h1>
       </div>
       <div className="panel-body">
-        {loading ? (
-          <div>Loading notifications...</div>
-        ) : notifications.length === 0 ? (
+      {loading ? (
+        <div>Loading notifications...</div>
+      ) : notifications.length === 0 ? (
           <div className="text-muted">No notifications.</div>
-        ) : (
+      ) : (
           <ul className="list-group">
-            {notifications.map((n) => (
+          {notifications.map((n) => (
               <li
                 key={n._id}
                 className={`list-group-item${n.read ? '' : ' active'}`}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
-                <div>
+              <div>
                   <div style={{ fontWeight: 500 }}>{getLegacyNotificationMessage(n)}</div>
                   <div className="text-muted" style={{ fontSize: 12 }}>{n.type} &middot; {new Date(n.createdAt).toLocaleString()}</div>
-                </div>
-                {!n.read && (
-                  <button
+              </div>
+              {!n.read && (
+                <button
                     className="btn btn-primary btn-xs"
-                    onClick={() => handleMarkRead(n._id)}
-                    disabled={actionLoading}
-                  >
-                    Mark as read
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+                  onClick={() => handleMarkRead(n._id)}
+                  disabled={actionLoading}
+                >
+                  Mark as read
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       </div>
     </div>
   );

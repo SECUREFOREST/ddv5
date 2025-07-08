@@ -29,6 +29,51 @@ export default function ActDetails() {
   const [rejectReason, setRejectReason] = useState('');
   const [rejectError, setRejectError] = useState('');
   const [rejecting, setRejecting] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportCommentId, setReportCommentId] = useState(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [reportError, setReportError] = useState('');
+  const [showAppealModal, setShowAppealModal] = useState(false);
+  const [appealReason, setAppealReason] = useState('');
+  const [appealLoading, setAppealLoading] = useState(false);
+  const [appealMessage, setAppealMessage] = useState('');
+  const [appealError, setAppealError] = useState('');
+  const [editCommentId, setEditCommentId] = useState(null);
+  const [editCommentText, setEditCommentText] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [showModerateModal, setShowModerateModal] = useState(false);
+  const [moderateCommentId, setModerateCommentId] = useState(null);
+  const [moderationReason, setModerationReason] = useState('');
+  const [moderateLoading, setModerateLoading] = useState(false);
+  const [moderateError, setModerateError] = useState('');
+
+  const openReportModal = (commentId) => {
+    setReportCommentId(commentId);
+    setReportReason('');
+    setReportMessage('');
+    setReportError('');
+    setShowReportModal(true);
+  };
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    setReportLoading(true);
+    setReportMessage('');
+    setReportError('');
+    try {
+      await api.post(`/comments/${reportCommentId}/report`, { reason: reportReason });
+      setReportMessage('Report submitted. Thank you for helping keep the community safe.');
+      setReportReason('');
+      setTimeout(() => setShowReportModal(false), 1500);
+    } catch (err) {
+      setReportError(err.response?.data?.error || 'Failed to submit report.');
+    } finally {
+      setReportLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -67,29 +112,22 @@ export default function ActDetails() {
   };
 
   // Assume act.performer is the username of the performer
-  const isPerformer = user && act && user.username === act.performer;
+  const isPerformer = user && act && user.id === (act.performer?._id || act.performer);
+  const canAccept = user && act && !act.performer && act.status === 'open' && !roleRestricted;
   const canSubmitProof = isPerformer && act.status !== 'completed' && !submittedProof;
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const [acceptError, setAcceptError] = useState('');
 
-  const handleProofSubmit = async (e) => {
-    e.preventDefault();
-    if (!proof.trim() && !proofFile) {
-      setProofError('Please enter proof of completion or upload a file.');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('text', proof);
-    if (proofFile) formData.append('file', proofFile);
+  const handleAcceptAct = async () => {
+    setAcceptLoading(true);
+    setAcceptError('');
     try {
-      const res = await api.post(`/acts/${act._id}/proof`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${user.token}` },
-      });
-      setSubmittedProof(res.data.proof);
-      setShowProofModal(false);
-      setProof('');
-      setProofFile(null);
-      setProofError('');
+      await api.post(`/acts/${act._id}/accept`);
+      setRefresh(r => r + 1);
     } catch (err) {
-      setProofError('Failed to submit proof.');
+      setAcceptError(err.response?.data?.error || 'Failed to accept act.');
+    } finally {
+      setAcceptLoading(false);
     }
   };
 
@@ -137,6 +175,87 @@ export default function ActDetails() {
   const inCooldown = user && user.actCooldownUntil && new Date(user.actCooldownUntil) > new Date();
   const atSlotLimit = user && user.openActs >= 5;
 
+  const openAppealModal = () => {
+    setAppealReason('');
+    setAppealMessage('');
+    setAppealError('');
+    setShowAppealModal(true);
+  };
+
+  const handleAppealSubmit = async (e) => {
+    e.preventDefault();
+    setAppealLoading(true);
+    setAppealMessage('');
+    setAppealError('');
+    try {
+      await api.post('/appeals', { type: 'act', targetId: act._id, reason: appealReason });
+      setAppealMessage('Appeal submitted. An admin will review your request.');
+      setAppealReason('');
+      setTimeout(() => setShowAppealModal(false), 1500);
+    } catch (err) {
+      setAppealError(err.response?.data?.error || 'Failed to submit appeal.');
+    } finally {
+      setAppealLoading(false);
+    }
+  };
+
+  const isAdmin = user && user.roles && user.roles.includes('admin');
+  const isModerator = user && user.roles && user.roles.includes('moderator');
+
+  const openEditModal = (comment) => {
+    setEditCommentId(comment._id);
+    setEditCommentText(comment.text);
+    setEditError('');
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
+    setEditError('');
+    try {
+      await api.patch(`/comments/${editCommentId}`, { text: editCommentText });
+      setEditCommentId(null);
+      setEditCommentText('');
+      setRefresh(r => r + 1);
+    } catch (err) {
+      setEditError(err.response?.data?.error || 'Failed to edit comment.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Delete this comment?')) return;
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setRefresh(r => r + 1);
+    } catch {}
+  };
+
+  const openModerateModal = (commentId) => {
+    setModerateCommentId(commentId);
+    setModerationReason('');
+    setModerateError('');
+    setShowModerateModal(true);
+  };
+
+  const handleModerateSubmit = async (e) => {
+    e.preventDefault();
+    setModerateLoading(true);
+    setModerateError('');
+    try {
+      await api.patch(`/comments/${moderateCommentId}/moderate`, { reason: moderationReason });
+      setShowModerateModal(false);
+      setModerateCommentId(null);
+      setModerationReason('');
+      setRefresh(r => r + 1);
+    } catch (err) {
+      setModerateError(err.response?.data?.error || 'Failed to moderate comment.');
+    } finally {
+      setModerateLoading(false);
+    }
+  };
+
   return (
     <div className="panel panel-default">
       <div className="panel-heading">
@@ -160,6 +279,14 @@ export default function ActDetails() {
         <div className="well">
           <Markdown>{act.description}</Markdown>
         </div>
+        {canAccept && (
+          <div style={{ margin: '20px 0' }}>
+            <button className="btn btn-success" onClick={handleAcceptAct} disabled={acceptLoading}>
+              {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
+            </button>
+            {acceptError && <div className="text-danger help-block" style={{ marginTop: 8 }}>{acceptError}</div>}
+          </div>
+        )}
         <div className="text-muted" style={{ marginBottom: 10 }}>
           By {act.creator?.username || 'Unknown'} | Status: <StatusBadge status={act.status} /> | Difficulty: {act.difficulty}
         </div>
@@ -180,65 +307,128 @@ export default function ActDetails() {
             <h2 className="panel-title" style={{ fontSize: 18 }}>Grades</h2>
           </div>
           <div className="panel-body">
-            {act.grades && act.grades.length > 0 ? (
+        {act.grades && act.grades.length > 0 ? (
               <ul className="list-group">
-                {act.grades.map((g, i) => (
+            {act.grades.map((g, i) => (
                   <li key={i} className="list-group-item">
                     <span className="label label-primary">Grade:</span> {g.grade} {g.feedback && <span className="text-muted">({g.feedback})</span>}
-                  </li>
-                ))}
-              </ul>
-            ) : (
+              </li>
+            ))}
+          </ul>
+        ) : (
               <div className="text-muted">No grades yet.</div>
-            )}
+        )}
             {user && !proofExpired && (
               <form onSubmit={handleGrade} style={{ marginTop: 16 }}>
                 <div className="form-group">
                   <label>Your Grade (1-10)</label>
                   <input type="number" min="1" max="10" className="form-control" value={grade} onChange={e => setGrade(e.target.value)} required />
-                </div>
+            </div>
                 <div className="form-group">
                   <label>Feedback (optional)</label>
                   <input className="form-control" value={feedback} onChange={e => setFeedback(e.target.value)} />
-                </div>
+            </div>
                 {gradeError && <div className="text-danger help-block">{gradeError}</div>}
                 <button type="submit" className="btn btn-primary" disabled={grading}>
-                  {grading ? 'Submitting...' : 'Submit Grade'}
-                </button>
-              </form>
-            )}
-          </div>
+              {grading ? 'Submitting...' : 'Submit Grade'}
+            </button>
+          </form>
+        )}
+      </div>
         </div>
         <div className="panel panel-default">
           <div className="panel-heading">
             <h2 className="panel-title" style={{ fontSize: 18 }}>Comments</h2>
           </div>
           <div className="panel-body">
-            {act.comments && act.comments.length > 0 ? (
+        {act.comments && act.comments.length > 0 ? (
               <ul className="list-group">
-                {act.comments.map((c, i) => (
+            {act.comments.map((c, i) => (
                   <li key={i} className="list-group-item">
-                    <span className="label label-default">{c.author?.username || 'Unknown'}:</span> <Markdown className="inline">{c.text}</Markdown>
-                    <span className="text-muted" style={{ marginLeft: 8, fontSize: 12 }}>{new Date(c.createdAt).toLocaleString()}</span>
+                    {c.deleted ? (
+                      <span className="text-muted">This comment was deleted.</span>
+                    ) : c.hidden ? (
+                      <span className="text-muted">This comment was hidden by a moderator.</span>
+                    ) : editCommentId === c._id ? (
+                      <form onSubmit={handleEditSubmit} style={{ display: 'inline' }}>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={editCommentText}
+                          onChange={e => setEditCommentText(e.target.value)}
+                          required
+                          style={{ width: 220, display: 'inline-block', marginRight: 8 }}
+                        />
+                        <button type="submit" className="btn btn-xs btn-primary" disabled={editLoading}>
+                          {editLoading ? 'Saving...' : 'Save'}
+                        </button>
+                        <button type="button" className="btn btn-xs btn-default" onClick={() => setEditCommentId(null)}>
+                          Cancel
+                        </button>
+                        {editError && <div className="text-danger help-block">{editError}</div>}
+                      </form>
+                    ) : (
+                      <>
+                        <span className="label label-default">{c.author?.username || 'Unknown'}:</span> <Markdown className="inline">{c.text}</Markdown>
+                        <span className="text-muted" style={{ marginLeft: 8, fontSize: 12 }}>{new Date(c.createdAt).toLocaleString()}</span>
+                        {c.editedAt && <span className="text-muted" style={{ marginLeft: 8, fontSize: 11 }}>(edited)</span>}
+                        {user && (user.id === c.author?._id || isAdmin) && !c.deleted && !c.hidden && (
+                          <>
+                            <button
+                              className="btn btn-xs btn-link"
+                              style={{ marginLeft: 8 }}
+                              onClick={() => openEditModal(c)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-xs btn-link text-danger"
+                              style={{ marginLeft: 4 }}
+                              onClick={() => handleDeleteComment(c._id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                        {(isAdmin || isModerator) && !c.deleted && !c.hidden && (
+                          <button
+                            className="btn btn-xs btn-link text-warning"
+                            style={{ marginLeft: 4 }}
+                            onClick={() => openModerateModal(c._id)}
+                          >
+                            Hide
+                          </button>
+                        )}
+                        {user && (
+                          <button
+                            className="btn btn-xs btn-link text-danger"
+                            style={{ marginLeft: 12 }}
+                            onClick={() => openReportModal(c._id)}
+                          >
+                            Report
+                          </button>
+                        )}
+                      </>
+                    )}
                   </li>
-                ))}
-              </ul>
-            ) : (
+            ))}
+          </ul>
+        ) : (
               <div className="text-muted">No comments yet.</div>
-            )}
-            {user && (
+        )}
+        {user && (
               <form onSubmit={handleComment} style={{ marginTop: 16 }}>
                 <div className="form-group">
                   <label>Add a Comment</label>
                   <textarea className="form-control" value={comment} onChange={e => setComment(e.target.value)} required />
-                </div>
+            </div>
                 {commentError && <div className="text-danger help-block">{commentError}</div>}
                 <button type="submit" className="btn btn-primary">
-                  Submit Comment
-                </button>
-              </form>
-            )}
-          </div>
+              Submit Comment
+            </button>
+          </form>
+        )}
+      </div>
         </div>
         {/* Slot/cooldown enforcement messages */}
         {inCooldown && (
@@ -331,6 +521,11 @@ export default function ActDetails() {
                 <b>Cooldown until:</b> {new Date(act.rejection.cooldownUntil).toLocaleString()}
               </div>
             )}
+            {user && (
+              <button className="btn btn-warning" style={{ marginTop: 12 }} onClick={openAppealModal}>
+                Appeal This Decision
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -365,6 +560,102 @@ export default function ActDetails() {
             </button>
             <button type="submit" className="btn btn-primary">
               Submit Proof
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={showReportModal} onClose={() => setShowReportModal(false)} title="Report Comment">
+        <form onSubmit={handleReportSubmit}>
+          <div className="form-group">
+            <label>Reason for reporting:</label>
+            <textarea
+              className="form-control"
+              value={reportReason}
+              onChange={e => setReportReason(e.target.value)}
+              rows={3}
+              placeholder="Enter the reason for reporting (required)"
+              required
+            />
+          </div>
+          {reportMessage && <div className="text-success help-block">{reportMessage}</div>}
+          {reportError && <div className="text-danger help-block">{reportError}</div>}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-default" onClick={() => setShowReportModal(false)}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-danger" disabled={reportLoading}>
+              {reportLoading ? 'Reporting...' : 'Report'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act">
+        <form onSubmit={handleAppealSubmit}>
+          <div className="form-group">
+            <label>Reason for appeal:</label>
+            <textarea
+              className="form-control"
+              value={appealReason}
+              onChange={e => setAppealReason(e.target.value)}
+              rows={3}
+              placeholder="Enter the reason for your appeal (required)"
+              required
+            />
+          </div>
+          {appealMessage && <div className="text-success help-block">{appealMessage}</div>}
+          {appealError && <div className="text-danger help-block">{appealError}</div>}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-default" onClick={() => setShowAppealModal(false)}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={appealLoading}>
+              {appealLoading ? 'Submitting...' : 'Submit Appeal'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={editCommentId !== null} onClose={() => setEditCommentId(null)} title="Edit Comment">
+        <form onSubmit={handleEditSubmit}>
+          <div className="form-group">
+            <label>Edit your comment:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={editCommentText}
+              onChange={e => setEditCommentText(e.target.value)}
+              required
+            />
+          </div>
+          {editError && <div className="text-danger help-block">{editError}</div>}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-default" onClick={() => setEditCommentId(null)}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={editLoading}>
+              {editLoading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={showModerateModal} onClose={() => setShowModerateModal(false)} title="Moderate/Hide Comment">
+        <form onSubmit={handleModerateSubmit}>
+          <div className="form-group">
+            <label>Reason for hiding/moderating:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={moderationReason}
+              onChange={e => setModerationReason(e.target.value)}
+              required
+            />
+          </div>
+          {moderateError && <div className="text-danger help-block">{moderateError}</div>}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-default" onClick={() => setShowModerateModal(false)}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-warning" disabled={moderateLoading}>
+              {moderateLoading ? 'Hiding...' : 'Hide'}
             </button>
           </div>
         </form>

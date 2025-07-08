@@ -16,6 +16,10 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/credits', require('./routes/credits'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/switches', require('./routes/switches'));
+app.use('/api/reports', require('./routes/reports'));
+app.use('/api/appeals', require('./routes/appeals'));
+app.use('/api/audit-log', require('./routes/auditLog'));
+app.use('/api/activity-feed', require('./routes/activityFeed'));
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');

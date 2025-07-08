@@ -10,11 +10,14 @@ import Credits from './pages/Credits';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import UIDemo from './pages/UIDemo';
 import SwitchGames from './pages/SwitchGames';
 import SwitchGameDetails from './pages/SwitchGameDetails';
+import ActivityFeed from './pages/ActivityFeed';
 
 function App() {
   return (
@@ -32,9 +35,12 @@ function App() {
             <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/ui-demo" element={<UIDemo />} />
             <Route path="/switches" element={<SwitchGames />} />
             <Route path="/switches/:id" element={<SwitchGameDetails />} />
+            <Route path="/activity-feed" element={<ActivityFeed />} />
           </Routes>
         </main>
         <Footer />

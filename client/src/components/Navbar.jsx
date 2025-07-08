@@ -50,24 +50,24 @@ export default function Navbar() {
           <li><Link to="/admin">Admin</Link></li>
         </ul>
         <ul className="nav navbar-nav navbar-right">
-          {user ? (
-            <>
+        {user ? (
+          <>
               <li><NotificationDropdown /></li>
               <li className="avatar-and-user-info">
-                {user.avatar ? (
+              {user.avatar ? (
                   <img src={user.avatar} alt="avatar" className="avatar img-circle" style={{width: 32, height: 32, marginRight: 8}} />
-                ) : (
+              ) : (
                   <span className="details name" style={{marginRight: 8}}>{user.username}</span>
-                )}
+              )}
                 <button onClick={handleLogout} className="btn btn-danger btn-xs" style={{marginLeft: 8}}>Logout</button>
               </li>
-            </>
-          ) : (
-            <>
+          </>
+        ) : (
+          <>
               <li><Link to="/login">Login</Link></li>
               <li><Link to="/register">Register</Link></li>
-            </>
-          )}
+          </>
+        )}
         </ul>
       </div>
     </nav>
