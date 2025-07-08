@@ -34,18 +34,19 @@ export default function Login() {
           <div className="form-group">
             <label>Email</label>
             <input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} required />
-        </div>
+          </div>
           <div className="form-group">
             <label>Password</label>
             <input type="password" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required />
-        </div>
+          </div>
           {error && <div className="text-danger" style={{ marginBottom: 10 }}>{error}</div>}
           <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ width: '100%' }}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-      <div style={{ marginTop: 16, textAlign: 'center' }}>
-        <a href="/forgot-password">Forgot Password?</a>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <a href="/forgot-password">Forgot Password?</a>
+        </div>
       </div>
     </div>
   );

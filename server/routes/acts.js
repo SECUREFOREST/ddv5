@@ -209,12 +209,14 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
   }
 });
 
-// POST /acts/:id/accept - user consents to perform an act
+// POST /acts/:id/accept - user consents to perform an act, optionally sets difficulty
 router.post('/:id/accept', auth, async (req, res) => {
   try {
+    const { difficulty } = req.body;
     const act = await Act.findById(req.params.id);
     if (!act) return res.status(404).json({ error: 'Act not found.' });
     if (act.performer) return res.status(400).json({ error: 'Act already has a performer.' });
+    if (!act.difficulty && difficulty) act.difficulty = difficulty;
     act.performer = req.userId;
     await act.save();
     res.json({ message: 'You are now the performer for this act.', act });

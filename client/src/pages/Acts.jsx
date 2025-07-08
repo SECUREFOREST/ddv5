@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ActCard from '../components/ActCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/ActCard';
@@ -35,6 +35,7 @@ const ROLE_OPTIONS = [
 export default function Acts() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [acts, setActs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
@@ -54,6 +55,11 @@ export default function Acts() {
   const [createPublic, setCreatePublic] = useState(false);
   const [createAllowedRoles, setCreateAllowedRoles] = useState([]);
   const [consentChecked, setConsentChecked] = useState(false);
+  const [acceptActId, setAcceptActId] = useState(null);
+  const [acceptDifficulty, setAcceptDifficulty] = useState('');
+  const [acceptConsent, setAcceptConsent] = useState(false);
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const [acceptError, setAcceptError] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -125,6 +131,30 @@ export default function Acts() {
     }
   };
 
+  const openAcceptModal = (act) => {
+    setAcceptActId(act._id);
+    setAcceptDifficulty(act.difficulty || '');
+    setAcceptConsent(false);
+    setAcceptError('');
+  };
+
+  const handleAcceptSubmit = async (e) => {
+    e.preventDefault();
+    setAcceptLoading(true);
+    setAcceptError('');
+    try {
+      await api.post(`/acts/${acceptActId}/accept`, { difficulty: acceptDifficulty });
+      setAcceptActId(null);
+      setAcceptDifficulty('');
+      setAcceptConsent(false);
+      navigate(`/acts/${acceptActId}`);
+    } catch (err) {
+      setAcceptError(err.response?.data?.error || 'Failed to accept act.');
+    } finally {
+      setAcceptLoading(false);
+    }
+  };
+
   return (
     <div className="panel panel-default">
       <div className="panel-heading">
@@ -193,7 +223,17 @@ export default function Acts() {
                         >
                           View
                         </Link>,
-                        <StatusBadge key="status" status={act.status} />
+                        <StatusBadge key="status" status={act.status} />,
+                        user && act.status === 'open' && !act.performer && (
+                          <button
+                            key="accept"
+                            className="btn btn-success btn-xs"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => openAcceptModal(act)}
+                          >
+                            Start / Accept
+                          </button>
+                        )
                       ]}
                     />
                   </li>
@@ -305,6 +345,45 @@ export default function Acts() {
                     Done
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {acceptActId && (
+        <div>
+          <div className="modal-backdrop fade in" style={{ zIndex: 1040 }} />
+          <div className="modal fade in" tabIndex="-1" role="dialog" style={{ display: 'block', zIndex: 1050 }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <button type="button" className="close" onClick={() => setAcceptActId(null)}>&times;</button>
+                  <h2 className="modal-title">Start / Accept Act</h2>
+                </div>
+                <form onSubmit={handleAcceptSubmit}>
+                  <div className="modal-body">
+                    <div className="form-group">
+                      <label>Difficulty</label>
+                      <select className="form-control" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
+                        {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <div className="checkbox">
+                        <label>
+                          <input type="checkbox" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
+                          I consent to perform or participate in this act as described.
+                        </label>
+                      </div>
+                    </div>
+                    {acceptError && <div className="text-danger help-block">{acceptError}</div>}
+                  </div>
+                  <div className="modal-footer">
+                    <button type="submit" className="btn btn-primary btn-block" disabled={acceptLoading || !acceptConsent}>
+                      {acceptLoading ? 'Starting...' : 'Start / Accept'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

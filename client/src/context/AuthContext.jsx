@@ -34,15 +34,19 @@ export function AuthProvider({ children }) {
   }, [accessToken]);
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('accessToken', res.data.accessToken);
-    localStorage.setItem('refreshToken', res.data.refreshToken);
-    setAccessToken(res.data.accessToken);
-    setRefreshToken(res.data.refreshToken);
-    // Fetch user info after login
-    const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
-    localStorage.setItem('user', JSON.stringify(userRes.data));
-    setUser(userRes.data);
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      localStorage.setItem('accessToken', res.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.refreshToken);
+      setAccessToken(res.data.accessToken);
+      setRefreshToken(res.data.refreshToken);
+      // Fetch user info after login
+      const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
+      localStorage.setItem('user', JSON.stringify(userRes.data));
+      setUser(userRes.data);
+    } catch (err) {
+      throw err;
+    }
   };
 
   const register = async (username, email, password) => {
