@@ -106,6 +106,22 @@ export default function SwitchGameDetails() {
   const isLoser = loser === username;
   const isWinner = winner === username;
 
+  // Calculate proof expiration
+  let proofExpiresAt = game.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
+  let proofExpired = false;
+  let proofExpiresIn = null;
+  if (proofExpiresAt) {
+    const now = new Date();
+    proofExpired = now > proofExpiresAt;
+    if (!proofExpired) {
+      const diff = proofExpiresAt - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      proofExpiresIn = `${hours}h ${minutes}m ${seconds}s`;
+    }
+  }
+
   const handleJoin = async () => {
     if (hasJoined) return;
     setJoining(true);
@@ -195,23 +211,48 @@ export default function SwitchGameDetails() {
         {bothMoves && winner && (
           <div style={{ marginTop: 20 }} className="alert alert-success">
             <b>{winner} wins!</b> {loser} must submit proof of the demanded act.
+            {proofExpiresAt && (
+              <div style={{ marginTop: 10 }}>
+                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
+              </div>
+            )}
           </div>
         )}
-        {bothMoves && isLoser && !game.proof && (
+        {bothMoves && isLoser && !game.proof && proofExpiresAt && proofExpired && (
+          <div style={{ marginTop: 20 }} className="alert alert-danger">
+            <b>Proof submission window has expired. You can no longer submit proof.</b>
+          </div>
+        )}
+        {bothMoves && isLoser && !game.proof && (!proofExpiresAt || !proofExpired) && (
           <div style={{ marginTop: 20 }}>
             <button className="btn btn-warning" onClick={() => setShowProofModal(true)}>
               Submit Proof of Demanded Act
             </button>
+            {proofExpiresAt && (
+              <div style={{ marginTop: 10 }}>
+                <b>Proof submission window:</b> {proofExpiresIn ? <span>{proofExpiresIn} remaining</span> : null}
+              </div>
+            )}
           </div>
         )}
         {bothMoves && isLoser && game.proof && (
           <div style={{ marginTop: 20 }} className="alert alert-info">
             <b>Proof submitted:</b> {game.proof.text}
+            {proofExpiresAt && (
+              <div style={{ marginTop: 10 }}>
+                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
+              </div>
+            )}
           </div>
         )}
         {bothMoves && isWinner && game.proof && (
           <div style={{ marginTop: 20 }} className="alert alert-info">
             <b>{loser} has submitted proof:</b> {game.proof.text}
+            {proofExpiresAt && (
+              <div style={{ marginTop: 10 }}>
+                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
+              </div>
+            )}
           </div>
         )}
         <button className="btn btn-default" style={{ marginTop: 30 }} onClick={() => navigate('/switches')}>Back to Switch Games</button>

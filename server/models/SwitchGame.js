@@ -10,6 +10,7 @@ const SwitchGameSchema = new mongoose.Schema({
     user: String, // username of loser
     text: String, // proof text or link
   },
+  proofExpiresAt: { type: Date }, // 48h after proof submission
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 

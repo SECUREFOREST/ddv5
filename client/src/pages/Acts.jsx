@@ -14,9 +14,11 @@ const STATUS_OPTIONS = [
 ];
 const DIFFICULTY_OPTIONS = [
   { value: '', label: 'All' },
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
+  { value: 'titillating', label: 'Titillating' },
+  { value: 'arousing', label: 'Arousing' },
+  { value: 'explicit', label: 'Explicit' },
+  { value: 'edgy', label: 'Edgy' },
+  { value: 'hardcore', label: 'Hardcore' },
 ];
 const ACT_TYPE_OPTIONS = [
   { value: '', label: 'All Types' },
@@ -41,7 +43,7 @@ export default function Acts() {
   const [showCreate, setShowCreate] = useState(false);
   const [createTitle, setCreateTitle] = useState('');
   const [createDescription, setCreateDescription] = useState('');
-  const [createDifficulty, setCreateDifficulty] = useState('easy');
+  const [createDifficulty, setCreateDifficulty] = useState('titillating');
   const [createError, setCreateError] = useState('');
   const [creating, setCreating] = useState(false);
   const [createTags, setCreateTags] = useState([]);
@@ -51,6 +53,7 @@ export default function Acts() {
   const [createActType, setCreateActType] = useState('submission');
   const [createPublic, setCreatePublic] = useState(false);
   const [createAllowedRoles, setCreateAllowedRoles] = useState([]);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -86,7 +89,7 @@ export default function Acts() {
       setShowCreate(false);
       setCreateTitle('');
       setCreateDescription('');
-      setCreateDifficulty('easy');
+      setCreateDifficulty('titillating');
       setCreateTags([]);
       setCreateActType('submission');
       setCreatePublic(false);
@@ -250,10 +253,18 @@ export default function Acts() {
                       </select>
                       <small className="form-text text-muted">If set, only users with these roles can participate.</small>
                     </div>
+                    <div className="form-group">
+                      <div className="checkbox">
+                        <label>
+                          <input type="checkbox" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
+                          I consent to perform or participate in this act as described.
+                        </label>
+                      </div>
+                    </div>
                     {createError && <div className="text-danger help-block">{createError}</div>}
                   </div>
                   <div className="modal-footer">
-                    <button type="submit" className="btn btn-primary btn-block" disabled={creating}>
+                    <button type="submit" className="btn btn-primary btn-block" disabled={creating || !consentChecked}>
                       {creating ? 'Creating...' : 'Create'}
                     </button>
                   </div>

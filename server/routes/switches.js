@@ -89,8 +89,12 @@ router.post('/:id/proof', async (req, res) => {
     return res.status(403).json({ error: 'Only the loser can submit proof' });
   }
   game.proof = { user: username, text };
+  // Set proofExpiresAt to 48h from now
+  game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
   await game.save();
   res.json(game);
 });
+
+// TODO: If grading/approval endpoints are added, block if proofExpiresAt < now
 
 module.exports = router; 
