@@ -1,0 +1,151 @@
+import React, { useState, useEffect } from 'react';
+import Dropdown from './Dropdown';
+import api from '../api/axios';
+
+function timeAgo(date) {
+  const now = new Date();
+  const d = new Date(date);
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// Legacy-style notification message generator
+function getLegacyNotificationMessage(n) {
+  // Example mapping based on type and params
+  if (n.type === 'fulfill') {
+    return `${n.actor?.username || 'Someone'} fulfilled your demand`;
+  }
+  if (n.type === 'grade') {
+    return `${n.actor?.username || 'Someone'} graded your task: ${n.grade}`;
+  }
+  if (n.type === 'reject') {
+    const reasonMap = {
+      chicken: "chickened out",
+      impossible: "think it's not possible or safe for anyone to do",
+      incomprehensible: "couldn't understand what was being demanded",
+      abuse: "have reported the demand as abuse"
+    };
+    const reason = reasonMap[n.reason] || 'rejected it';
+    return `${n.actor?.username || 'Someone'} rejected your demand because they ${reason}.`;
+  }
+  // Fallback
+  return n.message || n.type || 'Notification';
+}
+
+export default function NotificationDropdown() {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [markingAll, setMarkingAll] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    api.get('/notifications')
+      .then(res => {
+        if (mounted) {
+          setNotifications(res.data);
+          setLoading(false);
+        }
+      })
+      .catch(err => {
+        if (mounted) {
+          setError('Failed to load notifications');
+          setLoading(false);
+        }
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  const unseenCount = notifications.filter(n => !n.read).length;
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await api.post('/notifications/read', { ids: [id] });
+      setNotifications(notifications =>
+        notifications.map(n => n._id === id ? { ...n, read: true } : n)
+      );
+    } catch (e) {
+      // Optionally show error
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    setMarkingAll(true);
+    try {
+      await api.post('/notifications/read', { all: true });
+      setNotifications(notifications => notifications.map(n => ({ ...n, read: true })));
+    } catch (e) {
+      // Optionally show error
+    } finally {
+      setMarkingAll(false);
+    }
+  };
+
+  let items;
+  if (loading) {
+    items = [<li key="loading"><span className="text-muted">Loading...</span></li>];
+  } else if (error) {
+    items = [<li key="error"><span className="label label-danger">{error}</span></li>];
+  } else if (notifications.length === 0) {
+    items = [<li key="none"><span className="text-muted">No notifications</span></li>];
+  } else {
+    items = [];
+    if (unseenCount > 0) {
+      items.push(
+        <li key="mark-all">
+          <button
+            className="btn btn-link btn-xs"
+            onClick={handleMarkAllAsRead}
+            disabled={markingAll}
+            style={{ width: '100%', textAlign: 'left' }}
+          >
+            {markingAll ? 'Marking all...' : 'Mark all as read'}
+          </button>
+        </li>
+      );
+      items.push(<li key="divider" className="divider" />);
+    }
+    items = items.concat(
+      notifications.map(n => (
+        <li key={n._id} className={`notification-nav-item${n.read ? ' opacity-60' : ''}`}>
+          <a href="#" onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}>
+            <span className="inner">
+              <span className="contents">
+                <span className="description">{getLegacyNotificationMessage(n)}</span>
+                <span className="age">{timeAgo(n.createdAt)}</span>
+              </span>
+            </span>
+          </a>
+        </li>
+      ))
+    );
+  }
+
+  return (
+    <div className="dropdown notifications-nav" style={{ display: 'inline-block' }}>
+      <a
+        className="dropdown-toggle"
+        data-toggle="dropdown"
+        href="#"
+        style={{ position: 'relative', cursor: 'pointer' }}
+        tabIndex={0}
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <i className="fa fa-bell" style={{ fontSize: 20 }} />
+        {unseenCount > 0 && (
+          <span className="badge nav-item-with-counter counter" style={{ position: 'absolute', top: -5, right: -10 }}>
+            {unseenCount}
+          </span>
+        )}
+      </a>
+      <ul className="dropdown-menu" style={{ minWidth: 300, maxHeight: 400, overflowY: 'auto' }}>
+        {items}
+      </ul>
+    </div>
+  );
+} 
