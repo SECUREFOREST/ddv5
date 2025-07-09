@@ -58,9 +58,9 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
-      <div className="border-b border-neutral-900 pb-2 mb-4">
-        <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
+    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
       </div>
       <div>
         {stats && (
@@ -69,74 +69,20 @@ export default function Dashboard() {
               <DashboardChart stats={stats} />
             </div>
             <div className="flex flex-wrap gap-4 mb-6">
-              <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold text-primary">Acts Completed</div>
-                <div className="text-2xl text-primary">{stats.actsCount}</div>
-              </Card>
-              <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold text-primary">Credits</div>
-                <div className="text-2xl text-primary">{stats.totalCredits}</div>
-              </Card>
-              <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold text-primary">Avg. Grade</div>
-                <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
-              </Card>
-              <div className="flex-1 min-w-[180px] flex flex-col gap-4">
-                <ProgressBar
-                  value={Math.min(100, Math.round((stats.actsCount / 100) * 100))}
-                  label={`Progress to 100 Acts Completed (${stats.actsCount}/100)`}
-                />
-                <LeaderboardWidget leaders={leaders} loading={leadersLoading} title="Top 5 Leaderboard" />
-                <div className="mt-2 text-right">
-                  <Link to="/leaderboard" className="text-primary text-sm underline">View full leaderboard &rarr;</Link>
-                </div>
-              </div>
+              <Card className="flex-1 min-w-[180px]" />
+              <Card className="flex-1 min-w-[180px]" />
+              <Card className="flex-1 min-w-[180px]" />
             </div>
           </>
         )}
-        <div className="flex flex-wrap gap-8 mb-8">
-          <Card className="flex-1">
-            <RecentActivityWidget activities={activities} loading={activitiesLoading} title="Recent Activity" />
-          </Card>
-        </div>
-        <ul className="flex border-b border-neutral-900 mb-4">
-          {TABS.map(t => (
-            <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-neutral-400'}>
-              <a
-                href="#"
-                className="px-4 py-2 inline-block focus:outline-none"
-                onClick={e => { e.preventDefault(); setTab(t.key); }}
-              >
-                {t.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        {loading ? (
-          <div className="text-neutral-400">Loading acts...</div>
-        ) : (
-          <div>
-            {acts.length === 0 ? (
-              <div className="text-neutral-400">No acts found for this tab.</div>
-            ) : (
-              <ul className="space-y-4">
-                {acts.map(act => (
-                  <li key={act._id} className="act">
-                    <ActCard
-                      title={act.title}
-                      description={act.description}
-                      difficulty={act.difficulty}
-                      tags={act.tags || []}
-                      status={act.status}
-                      user={act.creator}
-                      actions={[]}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1">
+            <RecentActivityWidget activities={activities} loading={activitiesLoading} />
           </div>
-        )}
+          <div className="flex-1">
+            <LeaderboardWidget leaders={leaders} loading={leadersLoading} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -50,9 +50,9 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
-      <div className="border-b border-neutral-900 pb-2 mb-4">
-        <h1 className="text-2xl font-bold text-primary">Profile</h1>
+    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h1 className="text-2xl font-bold">Profile</h1>
       </div>
       <div>
         <Tabs
