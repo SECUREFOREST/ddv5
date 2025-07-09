@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function SwitchGames() {
+  const { user } = useAuth ? useAuth() : { user: null };
   const [switchGames, setSwitchGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -38,8 +40,16 @@ export default function SwitchGames() {
 
   return (
     <div className="max-w-2xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none flex items-center justify-between">
         <h1 className="text-2xl font-bold">Switch Games</h1>
+        {user && (
+          <button
+            className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark"
+            onClick={() => setShowCreate(true)}
+          >
+            + Create Switch Game
+          </button>
+        )}
       </div>
       {loading ? (
         <div className="text-center text-neutral-400">Loading switch games...</div>
