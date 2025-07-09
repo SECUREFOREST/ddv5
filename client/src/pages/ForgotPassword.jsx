@@ -23,14 +23,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-neutral-800 rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold text-center mb-6 text-primary">Forgot Password</h1>
+    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Forgot Password</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-semibold mb-1 text-primary">Email</label>
           <input
             type="email"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required

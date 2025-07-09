@@ -28,18 +28,18 @@ export default function ResetPassword() {
   };
 
   if (!token) {
-    return <div className="max-w-sm mx-auto mt-16 bg-neutral-800 rounded-lg shadow p-6"><div className="text-danger font-semibold text-center">Invalid or missing token.</div></div>;
+    return <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5"><div className="text-danger font-semibold text-center">Invalid or missing token.</div></div>;
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-neutral-800 rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold text-center mb-6 text-primary">Reset Password</h1>
+    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Reset Password</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-semibold mb-1 text-primary">New Password</label>
           <input
             type="password"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
             required
