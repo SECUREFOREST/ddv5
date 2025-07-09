@@ -108,11 +108,6 @@ process.on('uncaughtException', (err) => {
   // Optionally exit process or perform cleanup
 });
 
-// Log MongoDB connection status
-function logMongoStatus() {
-  const status = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  console.log(`[MongoDB] Status: ${status}`);
-}
 // Enhanced MongoDB connection event logging
 mongoose.connection.on('connected', () => {
   console.log(`[${new Date().toISOString()}] [MongoDB] Connected`);
