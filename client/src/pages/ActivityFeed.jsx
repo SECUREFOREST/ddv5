@@ -15,9 +15,9 @@ export default function ActivityFeed() {
   }, []);
 
   return (
-    <div className="panel panel-default" style={{ maxWidth: 700, margin: '40px auto' }}>
-      <div className="panel-heading">
-        <h1 className="panel-title">Global Activity Feed</h1>
+    <div className="max-w-xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h1 className="text-2xl font-bold">Global Activity Feed</h1>
       </div>
       <div className="panel-body">
         {loading ? (

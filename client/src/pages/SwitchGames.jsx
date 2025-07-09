@@ -37,12 +37,9 @@ export default function SwitchGames() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-primary">Switch Games</h1>
-        <button className="bg-primary text-primary-contrast rounded px-4 py-2 text-sm font-semibold hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
-          Switch battle
-        </button>
+    <div className="max-w-2xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h1 className="text-2xl font-bold">Switch Games</h1>
       </div>
       {loading ? (
         <div className="text-center text-neutral-400">Loading switch games...</div>

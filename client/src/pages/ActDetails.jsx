@@ -158,7 +158,7 @@ export default function ActDetails() {
   // Proof expiration logic
   const proofExpired = act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
 
-  if (loading) return <div className="text-neutral-400">Loading...</div>;
+  if (loading) return <div className="text-[#888]">Loading...</div>;
   if (!act) return <div className="text-danger font-semibold">Act not found.</div>;
 
   // Sharable link logic
@@ -257,8 +257,8 @@ export default function ActDetails() {
   };
 
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
-      <div className="border-b pb-2 mb-4 flex flex-col gap-2">
+    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold flex items-center gap-2">{act.title} <StatusBadge status={act.status} /></h1>
         <div className="flex items-center gap-2">
           <input
@@ -336,7 +336,7 @@ export default function ActDetails() {
           </div>
         </div>
         {/* Comments Section */}
-        <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-6">
+        <div className="bg-[#282828] text-[#eee] border-[#282828] px-[15px] py-[10px] rounded-lg shadow-sm p-4 mb-6">
           <div className="border-b pb-2 mb-4">
             <h2 className="text-lg font-semibold">Comments</h2>
           </div>
