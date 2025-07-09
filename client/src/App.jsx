@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 
 // Dynamic imports for code-splitting
@@ -23,37 +23,49 @@ const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 const Landing = React.lazy(() => import('./pages/Landing'));
 
+function AppContent() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  // Hide Navbar if not logged in and on the landing page
+  const showNavbar = user || location.pathname !== '/';
+
+  return (
+    <div className="flex flex-col min-h-screen bg-[#060606]">
+      {showNavbar && <Navbar />}
+      <main className="flex-1">
+        <div className="container mx-auto px-4 max-w-[1170px] sm:max-w-[750px] md:max-w-[970px] lg:max-w-[1170px] w-full">
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/acts" element={<Acts />} />
+              <Route path="/acts/:id" element={<ActDetails />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
+              <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/ui-demo" element={<UIDemo />} />
+              <Route path="/switches" element={<SwitchGames />} />
+              <Route path="/switches/:id" element={<SwitchGameDetails />} />
+              <Route path="/activity-feed" element={<ActivityFeed />} />
+            </Routes>
+          </Suspense>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
-      <div className="flex flex-col min-h-screen bg-[#060606]">
-        <Navbar />
-        <main className="flex-1">
-          <div className="container mx-auto px-4 max-w-[1170px] sm:max-w-[750px] md:max-w-[970px] lg:max-w-[1170px] w-full">
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-                <Route path="/acts" element={<Acts />} />
-                <Route path="/acts/:id" element={<ActDetails />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
-                <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/ui-demo" element={<UIDemo />} />
-                <Route path="/switches" element={<SwitchGames />} />
-                <Route path="/switches/:id" element={<SwitchGameDetails />} />
-                <Route path="/activity-feed" element={<ActivityFeed />} />
-              </Routes>
-            </Suspense>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <AppContent />
     </AuthProvider>
   );
 }
