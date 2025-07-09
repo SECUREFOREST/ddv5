@@ -10,7 +10,7 @@ import React from 'react';
  */
 export default function Card({ header, image, children, footer, className = '', ...props }) {
   return (
-    <div className={`bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4 ${className}`.trim()} {...props}>
+    <div className={`bg-neutral-800 rounded-lg shadow p-4 mb-4 ${className}`.trim()} {...props}>
       {image && (
         <div className="mb-4">
           {typeof image === 'string' ? (
@@ -19,13 +19,13 @@ export default function Card({ header, image, children, footer, className = '', 
         </div>
       )}
       {header && (
-        <div className="border-b pb-2 mb-2">
-          <span className="text-lg font-semibold">{header}</span>
+        <div className="border-b border-neutral-900 pb-2 mb-2">
+          <span className="text-lg font-semibold text-primary">{header}</span>
         </div>
       )}
       <div className="mb-2">{children}</div>
       {footer && (
-        <div className="pt-2 mt-2 border-t text-sm text-gray-500 dark:text-gray-400">{footer}</div>
+        <div className="pt-2 mt-2 border-t border-neutral-900 text-sm text-neutral-400">{footer}</div>
       )}
     </div>
   );

@@ -8,9 +8,9 @@ import React from 'react';
  * @param {React.ReactNode} children
  */
 const variantClasses = {
-  primary: 'bg-primary text-white hover:bg-primary-dark',
-  danger: 'bg-red-500 text-white hover:bg-red-600',
-  default: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+  primary: 'bg-primary text-primary-contrast hover:bg-primary-dark',
+  danger: 'bg-danger text-danger-contrast hover:bg-danger-dark',
+  default: 'bg-neutral-700 text-neutral-100 hover:bg-neutral-900',
   link: 'bg-transparent text-primary underline hover:text-primary-dark',
 };
 

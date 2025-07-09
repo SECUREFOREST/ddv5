@@ -47,9 +47,9 @@ export default function RecentActivityWidget({ activities = [], loading = false,
     setRefreshing(false);
   };
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
-      <div className="flex items-center justify-between border-b pb-2 mb-2">
-        <h3 className="text-lg font-semibold">{title}</h3>
+    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
+      <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-2">
+        <h3 className="text-lg font-semibold text-primary">{title}</h3>
         {onRefresh && (
           <button className="text-primary text-xs underline hover:text-primary-dark" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? 'Refreshing...' : 'Refresh'}
@@ -58,17 +58,17 @@ export default function RecentActivityWidget({ activities = [], loading = false,
       </div>
       <div>
         {loading ? (
-          <div className="text-gray-500 dark:text-gray-400 py-4">Loading activity...</div>
+          <div className="text-neutral-400 py-4">Loading activity...</div>
         ) : activities.length === 0 ? (
-          <div className="text-gray-400 py-4">No recent activity.</div>
+          <div className="text-neutral-400 py-4">No recent activity.</div>
         ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+          <ul className="divide-y divide-neutral-900">
             {activities.map((a, i) => (
               <li key={i} className="flex items-center gap-3 py-3">
                 {ICONS[a.type] || ICONS.default}
                 <div className="flex-1">
-                  <div className="text-sm text-gray-800 dark:text-gray-200">{getLegacyActivityMessage(a)}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{timeAgo(a.createdAt)}</div>
+                  <div className="text-sm text-neutral-100">{getLegacyActivityMessage(a)}</div>
+                  <div className="text-xs text-neutral-400">{timeAgo(a.createdAt)}</div>
                 </div>
               </li>
             ))}
