@@ -60,24 +60,20 @@ export default function SwitchGameDetails() {
   }, [id, game && game.status, game && game.winner]);
 
   if (loading) {
-    return <div className="panel panel-default" style={{ maxWidth: 500, margin: '40px auto' }}><div className="panel-body">Loading...</div></div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6 text-center text-gray-500">Loading...</div>;
   }
   if (!game) {
     return (
-      <div className="panel panel-default" style={{ maxWidth: 500, margin: '40px auto' }}>
-        <div className="panel-heading">
-          <h1 className="panel-title">Switch Game Not Found</h1>
-        </div>
-        <div className="panel-body">
-          <div className="text-danger">No switch game with this ID exists.</div>
-          <button className="btn btn-default" onClick={() => navigate('/switches')}>Back to Switch Games</button>
-        </div>
+      <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6">
+        <h1 className="text-xl font-bold mb-4">Switch Game Not Found</h1>
+        <div className="text-red-500 font-medium mb-4">No switch game with this ID exists.</div>
+        <button className="bg-gray-200 text-gray-700 rounded px-4 py-2 font-semibold hover:bg-gray-300" onClick={() => navigate('/switches')}>Back to Switch Games</button>
       </div>
     );
   }
 
   if (!user) {
-    return <div className="panel panel-default" style={{ maxWidth: 500, margin: '40px auto' }}><div className="panel-body">Please log in to participate in switch games.</div></div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6 text-center text-gray-500">Please log in to participate in switch games.</div>;
   }
 
   const username = user.username;
@@ -165,117 +161,109 @@ export default function SwitchGameDetails() {
   };
 
   return (
-    <div className="panel panel-default" style={{ maxWidth: 500, margin: '40px auto' }}>
-      <div className="panel-heading">
-        <h1 className="panel-title">{game.name}</h1>
-      </div>
-      <div className="panel-body">
-        <div><b>Status:</b> {game.status}</div>
-        <div><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
-        <div><b>Winner:</b> {game.winner || winner || '-'}</div>
-        <hr />
-        {!hasJoined && (
-          <button className="btn btn-primary" onClick={handleJoin} disabled={joining}>
-            {joining ? 'Joining...' : 'Join Switch Game'}
-          </button>
-        )}
-        {hasJoined && canPlayRps && !userMove && (
-          <div style={{ marginTop: 20 }}>
-            <b>Rock-Paper-Scissors: Choose your move</b>
-            <div style={{ marginTop: 10 }}>
-              {MOVES.map(move => (
-                <button
-                  key={move}
-                  className="btn btn-default"
-                  style={{ marginRight: 8 }}
-                  onClick={() => handleMove(move)}
-                  disabled={moveSubmitting}
-                >
-                  {move.charAt(0).toUpperCase() + move.slice(1)}
-                </button>
-              ))}
+    <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold mb-4">{game.name}</h1>
+      <div className="mb-2"><b>Status:</b> {game.status}</div>
+      <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
+      <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
+      <hr className="my-4" />
+      {!hasJoined && (
+        <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={handleJoin} disabled={joining}>
+          {joining ? 'Joining...' : 'Join Switch Game'}
+        </button>
+      )}
+      {hasJoined && canPlayRps && !userMove && (
+        <div className="mt-6">
+          <b>Rock-Paper-Scissors: Choose your move</b>
+          <div className="mt-3 flex gap-2">
+            {MOVES.map(move => (
+              <button
+                key={move}
+                className="bg-gray-200 text-gray-700 rounded px-4 py-2 font-semibold hover:bg-gray-300 disabled:opacity-50"
+                onClick={() => handleMove(move)}
+                disabled={moveSubmitting}
+              >
+                {move.charAt(0).toUpperCase() + move.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {hasJoined && canPlayRps && userMove && !bothMoves && (
+        <div className="mt-6 text-blue-600 font-semibold">Waiting for the other participant to choose...</div>
+      )}
+      {bothMoves && rpsResult === 'draw' && (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
+          <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
+        </div>
+      )}
+      {bothMoves && winner && (
+        <div className="mt-6 bg-green-50 border border-green-200 rounded p-4">
+          <b>{winner} wins!</b> {loser} must submit proof of the demanded act.
+          {proofExpiresAt && (
+            <div className="mt-2">
+              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
             </div>
-          </div>
-        )}
-        {hasJoined && canPlayRps && userMove && !bothMoves && (
-          <div style={{ marginTop: 20 }}>
-            <b>Waiting for the other participant to choose...</b>
-          </div>
-        )}
-        {bothMoves && rpsResult === 'draw' && (
-          <div style={{ marginTop: 20 }} className="alert alert-info">
-            <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
-            {/* Optionally, add a button to reset moves if backend supports it */}
-          </div>
-        )}
-        {bothMoves && winner && (
-          <div style={{ marginTop: 20 }} className="alert alert-success">
-            <b>{winner} wins!</b> {loser} must submit proof of the demanded act.
-            {proofExpiresAt && (
-              <div style={{ marginTop: 10 }}>
-                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-              </div>
-            )}
-          </div>
-        )}
-        {bothMoves && isLoser && !game.proof && proofExpiresAt && proofExpired && (
-          <div style={{ marginTop: 20 }} className="alert alert-danger">
-            <b>Proof submission window has expired. You can no longer submit proof.</b>
-          </div>
-        )}
-        {bothMoves && isLoser && !game.proof && (!proofExpiresAt || !proofExpired) && (
-          <div style={{ marginTop: 20 }}>
-            <button className="btn btn-warning" onClick={() => setShowProofModal(true)}>
-              Submit Proof of Demanded Act
-            </button>
-            {proofExpiresAt && (
-              <div style={{ marginTop: 10 }}>
-                <b>Proof submission window:</b> {proofExpiresIn ? <span>{proofExpiresIn} remaining</span> : null}
-              </div>
-            )}
-          </div>
-        )}
-        {bothMoves && isLoser && game.proof && (
-          <div style={{ marginTop: 20 }} className="alert alert-info">
-            <b>Proof submitted:</b> {game.proof.text}
-            {proofExpiresAt && (
-              <div style={{ marginTop: 10 }}>
-                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-              </div>
-            )}
-          </div>
-        )}
-        {bothMoves && isWinner && game.proof && (
-          <div style={{ marginTop: 20 }} className="alert alert-info">
-            <b>{loser} has submitted proof:</b> {game.proof.text}
-            {proofExpiresAt && (
-              <div style={{ marginTop: 10 }}>
-                <b>Proof review window:</b> {proofExpired ? <span className="text-danger">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-              </div>
-            )}
-          </div>
-        )}
-        <button className="btn btn-default" style={{ marginTop: 30 }} onClick={() => navigate('/switches')}>Back to Switch Games</button>
-      </div>
-      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof of Demanded Act">
-        <form onSubmit={handleProofSubmit}>
-          <div className="form-group">
-            <label>Describe or upload proof of the demanded act:</label>
+          )}
+        </div>
+      )}
+      {bothMoves && isLoser && !game.proof && proofExpiresAt && proofExpired && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded p-4">
+          <b>Proof submission window has expired. You can no longer submit proof.</b>
+        </div>
+      )}
+      {bothMoves && isLoser && !game.proof && (!proofExpiresAt || !proofExpired) && (
+        <div className="mt-6">
+          <button className="bg-yellow-400 text-gray-900 rounded px-4 py-2 font-semibold hover:bg-yellow-300" onClick={() => setShowProofModal(true)}>
+            Submit Proof of Demanded Act
+          </button>
+          {proofExpiresAt && (
+            <div className="mt-2">
+              <b>Proof submission window:</b> {proofExpiresIn ? <span>{proofExpiresIn} remaining</span> : null}
+            </div>
+          )}
+        </div>
+      )}
+      {bothMoves && isLoser && game.proof && (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
+          <b>Proof submitted:</b> {game.proof.text}
+          {proofExpiresAt && (
+            <div className="mt-2">
+              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
+            </div>
+          )}
+        </div>
+      )}
+      {bothMoves && isWinner && game.proof && (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
+          <b>{loser} has submitted proof:</b> {game.proof.text}
+          {proofExpiresAt && (
+            <div className="mt-2">
+              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
+            </div>
+          )}
+        </div>
+      )}
+      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof">
+        <form onSubmit={handleProofSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Proof of Demanded Act</label>
             <textarea
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={proof}
               onChange={e => setProof(e.target.value)}
               rows={4}
-              placeholder="Describe what you did, or paste a link to a photo, etc."
+              placeholder="Describe or link to your proof..."
+              required
             />
           </div>
-          {proofError && <div className="text-danger help-block">{proofError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowProofModal(false)}>
+          {proofError && <div className="text-red-500 text-sm font-medium">{proofError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Submit Proof
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50">
+              Submit
             </button>
           </div>
         </form>

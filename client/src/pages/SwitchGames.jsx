@@ -37,64 +37,66 @@ export default function SwitchGames() {
   };
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className="panel-title">Switch Games</h1>
-        <button className="btn btn-primary btn-xs" onClick={() => setShowCreate(true)}>Switch battle</button>
+    <div className="max-w-4xl mx-auto mt-12 bg-white rounded-lg shadow p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Switch Games</h1>
+        <button className="bg-primary text-white rounded px-4 py-2 text-sm font-semibold hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
+          Switch battle
+        </button>
       </div>
-      <div className="panel-body">
-        {loading ? (
-          <div>Loading switch games...</div>
-        ) : switchGames.length === 0 ? (
-          <div className="text-muted">No switch games available.</div>
-        ) : (
-          <div className="table-responsive">
-            <table className="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th>Participants</th>
-                  <th>Winner</th>
-                  <th>Actions</th>
+      {loading ? (
+        <div className="text-center text-gray-500">Loading switch games...</div>
+      ) : switchGames.length === 0 ? (
+        <div className="text-center text-gray-400">No switch games available.</div>
+      ) : (
+        <div className="overflow-x-auto rounded shadow">
+          <table className="min-w-full bg-white text-sm">
+            <thead>
+              <tr className="bg-gray-100 text-gray-700">
+                <th className="p-2 text-left">ID</th>
+                <th className="p-2 text-left">Name</th>
+                <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left">Participants</th>
+                <th className="p-2 text-left">Winner</th>
+                <th className="p-2 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {switchGames.map(game => (
+                <tr key={game.id} className="border-b last:border-b-0 hover:bg-gray-50">
+                  <td className="p-2">{game.id}</td>
+                  <td className="p-2">{game.name || '-'}</td>
+                  <td className="p-2">{game.status}</td>
+                  <td className="p-2">{game.participants ? game.participants.join(', ') : '-'}</td>
+                  <td className="p-2">{game.winner || '-'}</td>
+                  <td className="p-2">
+                    <button className="bg-gray-200 text-gray-700 rounded px-3 py-1 text-xs font-semibold hover:bg-gray-300" onClick={() => navigate(`/switches/${game.id}`)}>
+                      View
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {switchGames.map(game => (
-                  <tr key={game.id}>
-                    <td>{game.id}</td>
-                    <td>{game.name || '-'}</td>
-                    <td>{game.status}</td>
-                    <td>{game.participants ? game.participants.join(', ') : '-'}</td>
-                    <td>{game.winner || '-'}</td>
-                    <td>
-                      <button className="btn btn-default btn-xs" onClick={() => navigate(`/switches/${game.id}`)}>View</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Switch battle">
-        <form onSubmit={handleCreate}>
-          <div className="form-group">
-            <label>Game Name (optional)</label>
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Game Name (optional)</label>
             <input
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={newGameName}
               onChange={e => setNewGameName(e.target.value)}
               placeholder="Enter a name for your switch game..."
             />
           </div>
-          {createError && <div className="text-danger help-block">{createError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowCreate(false)} disabled={creating}>
+          {createError && <div className="text-red-500 text-sm font-medium">{createError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowCreate(false)} disabled={creating}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={creating}>
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50" disabled={creating}>
               {creating ? 'Creating...' : 'Create'}
             </button>
           </div>
