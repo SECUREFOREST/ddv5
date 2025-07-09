@@ -50,9 +50,9 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
-      <div className="border-b pb-2 mb-4">
-        <h1 className="text-2xl font-bold">Profile</h1>
+    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
+      <div className="border-b border-neutral-900 pb-2 mb-4">
+        <h1 className="text-2xl font-bold text-primary">Profile</h1>
       </div>
       <div>
         <Tabs
@@ -65,14 +65,14 @@ export default function Profile() {
                     {user.avatar ? (
                       <img src={user.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover" />
                     ) : (
-                      <div className="w-24 h-24 rounded-full bg-gray-700 text-white flex items-center justify-center text-4xl font-bold mb-2">
+                      <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2">
                         {user.username[0].toUpperCase()}
                       </div>
                     )}
-                    <button className="bg-gray-200 text-gray-800 rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-gray-300" onClick={() => setTabIdx(2)}>
+                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => setTabIdx(2)}>
                       Edit Profile
                     </button>
-                    <button className="bg-red-500 text-white rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-red-600" onClick={logout}>
+                    <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
                       Logout
                     </button>
                   </div>
@@ -84,22 +84,22 @@ export default function Profile() {
                       {user.bio ? (
                         <div className="mt-1"><Markdown>{user.bio}</Markdown></div>
                       ) : (
-                        <span className="text-gray-400 ml-2">No bio provided.</span>
+                        <span className="text-neutral-400 ml-2">No bio provided.</span>
                       )}
                     </div>
                     {stats && (
                       <div className="flex gap-4 mt-4">
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
-                          <div className="text-base font-semibold">Acts Completed</div>
-                          <div className="text-2xl">{stats.actsCount}</div>
+                        <div className="bg-neutral-900 rounded p-3 flex-1">
+                          <div className="text-base font-semibold text-primary">Acts Completed</div>
+                          <div className="text-2xl text-primary">{stats.actsCount}</div>
                         </div>
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
-                          <div className="text-base font-semibold">Credits</div>
-                          <div className="text-2xl">{stats.totalCredits}</div>
+                        <div className="bg-neutral-900 rounded p-3 flex-1">
+                          <div className="text-base font-semibold text-primary">Credits</div>
+                          <div className="text-2xl text-primary">{stats.totalCredits}</div>
                         </div>
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
-                          <div className="text-base font-semibold">Avg. Grade</div>
-                          <div className="text-2xl">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+                        <div className="bg-neutral-900 rounded p-3 flex-1">
+                          <div className="text-base font-semibold text-primary">Avg. Grade</div>
+                          <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
                         </div>
                       </div>
                     )}
@@ -114,17 +114,17 @@ export default function Profile() {
               label: 'Your Acts',
               content: (
                 <div>
-                  <h2 className="text-xl font-bold mb-2">Your Acts</h2>
+                  <h2 className="text-xl font-bold mb-2 text-primary">Your Acts</h2>
                   {acts.length === 0 ? (
-                    <div className="text-gray-400">No acts found.</div>
+                    <div className="text-neutral-400">No acts found.</div>
                   ) : (
                     <ul className="space-y-4">
                       {acts.map(act => (
-                        <li key={act._id} className="bg-gray-50 dark:bg-gray-800 rounded p-4">
-                          <div className="font-bold text-lg">{act.title}</div>
-                          <div className="text-gray-500 dark:text-gray-400">{act.description}</div>
+                        <li key={act._id} className="bg-neutral-900 rounded p-4">
+                          <div className="font-bold text-lg text-primary">{act.title}</div>
+                          <div className="text-neutral-400">{act.description}</div>
                           <div className="text-sm mt-1">Status: <StatusBadge status={act.status} /></div>
-                          <span className="inline-block bg-gray-200 text-gray-700 rounded px-2 py-1 text-xs font-semibold mt-1">{act.difficulty}</span>
+                          <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold mt-1">{act.difficulty}</span>
                         </li>
                       ))}
                     </ul>
@@ -138,33 +138,33 @@ export default function Profile() {
                 <div className="max-w-md">
                   <form onSubmit={handleSave} className="space-y-4">
                     <div>
-                      <label className="block font-semibold mb-1">Username</label>
-                      <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                      <label className="block font-semibold mb-1 text-primary">Username</label>
+                      <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
                     </div>
                     <div>
-                      <label className="block font-semibold mb-1">Avatar URL</label>
-                      <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
+                      <label className="block font-semibold mb-1 text-primary">Avatar URL</label>
+                      <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
                     </div>
                     <div>
-                      <label className="block font-semibold mb-1">Bio (Markdown supported)</label>
+                      <label className="block font-semibold mb-1 text-primary">Bio (Markdown supported)</label>
                       <textarea
-                        className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                        className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                         rows={5}
                         value={bio}
                         onChange={e => setBio(e.target.value)}
                         placeholder="Tell us about yourself..."
                       />
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded p-2 mt-2">
-                        <span className="text-gray-400 text-xs">Preview:</span>
+                      <div className="bg-neutral-900 rounded p-2 mt-2">
+                        <span className="text-neutral-400 text-xs">Preview:</span>
                         <Markdown>{bio}</Markdown>
                       </div>
                     </div>
-                    {error && <div className="text-red-500 mb-2">{error}</div>}
-                    <button type="submit" className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
+                    {error && <div className="text-danger mb-2 font-medium">{error}</div>}
+                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
                       {saving ? 'Saving...' : 'Save'}
                     </button>
                   </form>
-                  <hr className="my-8" />
+                  <hr className="my-8 border-neutral-900" />
                   <ChangePasswordForm />
                 </div>
               ),

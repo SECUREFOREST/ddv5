@@ -156,55 +156,55 @@ export default function Acts() {
   };
 
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
-      <div className="border-b pb-2 mb-4">
-        <h1 className="text-2xl font-bold">Acts</h1>
+    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
+      <div className="border-b border-neutral-900 pb-2 mb-4">
+        <h1 className="text-2xl font-bold text-primary">Acts</h1>
       </div>
       <div>
         <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()}>
           <div className="flex flex-col">
-            <label className="font-semibold mb-1">Status</label>
-            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
+            <label className="font-semibold mb-1 text-primary">Status</label>
+            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold mb-1">Difficulty</label>
-            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+            <label className="font-semibold mb-1 text-primary">Difficulty</label>
+            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
               {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold mb-1">Search</label>
-            <input className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Title or description" />
+            <label className="font-semibold mb-1 text-primary">Search</label>
+            <input className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Title or description" />
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold mb-1">Type</label>
-            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={actType} onChange={e => setActType(e.target.value)}>
+            <label className="font-semibold mb-1 text-primary">Type</label>
+            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={actType} onChange={e => setActType(e.target.value)}>
               {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold mb-1">Visibility</label>
-            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
+            <label className="font-semibold mb-1 text-primary">Visibility</label>
+            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
               <option value="">All</option>
               <option value="true">Public</option>
               <option value="false">Private</option>
             </select>
           </div>
           {user && (
-            <button type="button" className="ml-auto bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
+            <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
               + Create Act
             </button>
           )}
         </form>
         {/* Acts List Section */}
         {loading ? (
-          <div>Loading acts...</div>
+          <div className="text-neutral-400">Loading acts...</div>
         ) : (
           <div>
             {acts.length === 0 ? (
-              <div className="text-gray-400">No acts found.</div>
+              <div className="text-neutral-400">No acts found.</div>
             ) : (
               <ul className="space-y-4">
                 {acts.map(act => (
@@ -228,50 +228,50 @@ export default function Acts() {
       {/* Create Act Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-surface-dark rounded-lg shadow-lg w-full max-w-lg mx-4 relative">
-            <div className="flex items-center justify-between border-b px-6 py-4">
-              <h2 className="text-lg font-semibold">Create New Act</h2>
-              <button type="button" className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none" onClick={() => setShowCreate(false)}>&times;</button>
+          <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-lg mx-4 relative">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+              <h2 className="text-lg font-semibold text-primary">Create New Act</h2>
+              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setShowCreate(false)}>&times;</button>
             </div>
             <form onSubmit={handleCreate}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1">Title</label>
-                  <input className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={createTitle} onChange={e => setCreateTitle(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Title</label>
+                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createTitle} onChange={e => setCreateTitle(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Description</label>
-                  <textarea className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Description</label>
+                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Difficulty</label>
-                  <select className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
+                  <label className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Tags</label>
+                  <label className="block font-semibold mb-1 text-primary">Tags</label>
                   <TagsInput value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Type</label>
-                  <select className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={createActType} onChange={e => setCreateActType(e.target.value)}>
+                  <label className="block font-semibold mb-1 text-primary">Type</label>
+                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createActType} onChange={e => setCreateActType(e.target.value)}>
                     {ACT_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Visibility</label>
-                  <select className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
+                  <label className="block font-semibold mb-1 text-primary">Visibility</label>
+                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
                     <option value="true">Public</option>
                     <option value="false">Private</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Allowed Roles (optional)</label>
-                  <select className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
+                  <label className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
+                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
                     {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
-                  <small className="text-gray-400">If set, only users with these roles can participate.</small>
+                  <small className="text-neutral-400">If set, only users with these roles can participate.</small>
                 </div>
                 <div>
                   <label className="inline-flex items-center">
@@ -279,11 +279,11 @@ export default function Acts() {
                     I consent to perform or participate in this act as described.
                   </label>
                 </div>
-                {createError && <div className="text-red-500 text-sm">{createError}</div>}
+                {createError && <div className="text-danger text-sm font-medium">{createError}</div>}
               </div>
-              <div className="border-t px-6 py-3 flex justify-end space-x-2">
-                <button type="submit" className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={creating || !consentChecked}>
-                  {creating ? 'Creating...' : 'Create'}
+              <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={creating}>
+                  {creating ? 'Creating...' : 'Create Act'}
                 </button>
               </div>
             </form>
@@ -293,29 +293,29 @@ export default function Acts() {
       {/* Post-create sharing modal */}
       {createdActId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-surface-dark rounded-lg shadow-lg w-full max-w-md mx-4 relative">
-            <div className="flex items-center justify-between border-b px-6 py-4">
-              <h2 className="text-lg font-semibold">Share Your Act</h2>
-              <button type="button" className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none" onClick={() => setCreatedActId(null)}>&times;</button>
+          <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+              <h2 className="text-lg font-semibold text-primary">Share Your Act</h2>
+              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedActId(null)}>&times;</button>
             </div>
             <div className="px-6 py-4">
-              <label className="block font-semibold mb-1">Sharable Link</label>
+              <label className="block font-semibold mb-1 text-primary">Sharable Link</label>
               <div className="flex items-center gap-2">
                 <input
                   id="sharable-link-input-modal"
-                  className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
                   value={actUrl}
                   readOnly
                   onFocus={e => e.target.select()}
                 />
-                <button className="bg-gray-200 text-gray-800 rounded px-3 py-1 font-semibold text-xs hover:bg-gray-300" onClick={handleShareClick}>
+                <button className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-600" onClick={handleShareClick}>
                   Copy
                 </button>
               </div>
             </div>
-            <div className="border-t px-6 py-3 flex justify-end">
-              <button className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setCreatedActId(null)}>
+            <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
+              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setCreatedActId(null)}>
                 Done
               </button>
             </div>
@@ -325,16 +325,16 @@ export default function Acts() {
       {/* Accept Act Modal */}
       {acceptActId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-surface-dark rounded-lg shadow-lg w-full max-w-md mx-4 relative">
-            <div className="flex items-center justify-between border-b px-6 py-4">
-              <h2 className="text-lg font-semibold">Start / Accept Act</h2>
-              <button type="button" className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none" onClick={() => setAcceptActId(null)}>&times;</button>
+          <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
+              <h2 className="text-lg font-semibold text-primary">Start / Accept Act</h2>
+              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setAcceptActId(null)}>&times;</button>
             </div>
             <form onSubmit={handleAcceptSubmit}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1">Difficulty</label>
-                  <select className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
+                  <label className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
@@ -344,10 +344,10 @@ export default function Acts() {
                     I consent to perform or participate in this act as described.
                   </label>
                 </div>
-                {acceptError && <div className="text-red-500 text-sm">{acceptError}</div>}
+                {acceptError && <div className="text-danger text-sm font-medium">{acceptError}</div>}
               </div>
-              <div className="border-t px-6 py-3 flex justify-end">
-                <button type="submit" className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={acceptLoading || !acceptConsent}>
+              <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={acceptLoading || !acceptConsent}>
                   {acceptLoading ? 'Starting...' : 'Start / Accept'}
                 </button>
               </div>

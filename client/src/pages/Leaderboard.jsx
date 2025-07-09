@@ -15,13 +15,9 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">Leaderboard</h1>
-      </div>
-      <div className="panel-body">
+    <div className="max-w-2xl mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold text-center mb-6 text-primary">Leaderboard</h1>
       <LeaderboardWidget leaders={leaders} loading={loading} title="Leaderboard" />
-      </div>
     </div>
   );
 } 

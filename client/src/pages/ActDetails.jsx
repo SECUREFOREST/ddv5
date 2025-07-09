@@ -158,8 +158,8 @@ export default function ActDetails() {
   // Proof expiration logic
   const proofExpired = act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
 
-  if (loading) return <div>Loading...</div>;
-  if (!act) return <div className="text-danger">Act not found.</div>;
+  if (loading) return <div className="text-neutral-400">Loading...</div>;
+  if (!act) return <div className="text-danger font-semibold">Act not found.</div>;
 
   // Sharable link logic
   const actUrl = typeof window !== 'undefined' ? `${window.location.origin}/acts/${id}` : `/acts/${id}`;
@@ -275,28 +275,28 @@ export default function ActDetails() {
         </div>
       </div>
       <div>
-        <div className="bg-gray-50 dark:bg-gray-800 rounded p-4 mb-4">
+        <div className="bg-neutral-900 rounded p-4 mb-4">
           <Markdown>{act.description}</Markdown>
         </div>
         {canAccept && (
-          <div style={{ margin: '20px 0' }}>
-            <button className="btn btn-success" onClick={handleAcceptAct} disabled={acceptLoading}>
+          <div className="my-5">
+            <button className="bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={handleAcceptAct} disabled={acceptLoading}>
               {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
             </button>
-            {acceptError && <div className="text-danger help-block" style={{ marginTop: 8 }}>{acceptError}</div>}
+            {acceptError && <div className="text-danger text-sm font-medium mt-2">{acceptError}</div>}
           </div>
         )}
-        <div className="text-muted" style={{ marginBottom: 10 }}>
+        <div className="text-neutral-400 mb-4">
           By {act.creator?.username || 'Unknown'} | Status: <StatusBadge status={act.status} /> | Difficulty: {act.difficulty}
         </div>
         {/* Proof expiration countdown and message */}
         {act.proofExpiresAt && !proofExpired && (
-          <div className="alert alert-info" style={{ margin: '20px 0' }}>
+          <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5">
             <b>Proof review period:</b> <Countdown target={act.proofExpiresAt} />
           </div>
         )}
         {proofExpired && (
-          <div className="alert alert-warning" style={{ margin: '20px 0' }}>
+          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
           </div>
         )}
@@ -414,11 +414,11 @@ export default function ActDetails() {
             {user && (
               <form onSubmit={handleComment} className="space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1">Add a Comment</label>
-                  <textarea className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Add a Comment</label>
+                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
                 </div>
-                {commentError && <div className="text-red-500 text-sm">{commentError}</div>}
-                <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
+                {commentError && <div className="text-danger text-sm font-medium">{commentError}</div>}
+                <button type="submit" className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
                   Submit Comment
                 </button>
               </form>
@@ -427,28 +427,28 @@ export default function ActDetails() {
         </div>
         {/* Slot/cooldown enforcement messages */}
         {inCooldown && (
-          <div className="alert alert-warning" style={{ margin: '20px 0' }}>
+          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You are in cooldown after a recent rejection.</b><br />
             You can start or perform new acts after your cooldown expires:
             <Countdown target={user.actCooldownUntil} />
           </div>
         )}
         {atSlotLimit && (
-          <div className="alert alert-warning" style={{ margin: '20px 0' }}>
+          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You have reached the maximum of 5 open acts.</b><br />
             Complete or reject an act to free up a slot.
           </div>
         )}
         {roleRestricted && (
-          <div className="alert alert-warning" style={{ margin: '20px 0' }}>
+          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You do not have the required role to participate in this act.</b><br />
             Allowed roles: {act.allowedRoles.join(', ')}
           </div>
         )}
         {/* Only show proof submission if not in cooldown, not at slot limit, and not role restricted */}
         {canSubmitProof && !inCooldown && !atSlotLimit && !roleRestricted && (
-          <div style={{ margin: '20px 0' }}>
-            <button className="btn btn-warning" onClick={() => setShowProofModal(true)}>
+          <div className="my-5">
+            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
               Submit Proof of Completion
             </button>
           </div>
@@ -569,9 +569,9 @@ export default function ActDetails() {
       <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act">
         <form onSubmit={handleAppealSubmit} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1">Reason for appeal:</label>
+            <label className="block font-semibold mb-1 text-primary">Reason for appeal:</label>
             <textarea
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={appealReason}
               onChange={e => setAppealReason(e.target.value)}
               rows={3}
@@ -579,13 +579,13 @@ export default function ActDetails() {
               required
             />
           </div>
-          {appealMessage && <div className="text-green-600 text-sm">{appealMessage}</div>}
-          {appealError && <div className="text-red-500 text-sm">{appealError}</div>}
+          {appealMessage && <div className="text-success text-sm font-medium">{appealMessage}</div>}
+          {appealError && <div className="text-danger text-sm font-medium">{appealError}</div>}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowAppealModal(false)}>
+            <button type="button" className="bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold text-sm hover:bg-neutral-900" onClick={() => setShowAppealModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={appealLoading}>
+            <button type="submit" className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={appealLoading}>
               {appealLoading ? 'Submitting...' : 'Submit Appeal'}
             </button>
           </div>
