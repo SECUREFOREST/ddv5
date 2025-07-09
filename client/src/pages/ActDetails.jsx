@@ -49,6 +49,8 @@ export default function ActDetails() {
   const [moderationReason, setModerationReason] = useState('');
   const [moderateLoading, setModerateLoading] = useState(false);
   const [moderateError, setModerateError] = useState('');
+  const [proofLoading, setProofLoading] = useState(false);
+  const [proofProgress, setProofProgress] = useState(0);
 
   const openReportModal = (commentId) => {
     setReportCommentId(commentId);
@@ -253,6 +255,44 @@ export default function ActDetails() {
       setModerateError(err.response?.data?.error || 'Failed to moderate comment.');
     } finally {
       setModerateLoading(false);
+    }
+  };
+
+  const handleProofSubmit = async (e) => {
+    e.preventDefault();
+    setProofError("");
+    setProofLoading(true);
+    setProofProgress(0);
+    try {
+      if (!proof && !proofFile) {
+        setProofError("Please provide proof text or upload a file.");
+        setProofLoading(false);
+        return;
+      }
+      const formData = new FormData();
+      if (proof) formData.append("text", proof);
+      if (proofFile) formData.append("file", proofFile);
+      await api.post(`/acts/${id}/proof`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            setProofProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+          }
+        },
+      });
+      setShowProofModal(false);
+      setProof("");
+      setProofFile(null);
+      setSubmittedProof(null); // Will refresh below
+      setRefresh(r => r + 1);
+    } catch (err) {
+      setProofError(err.response?.data?.error || "Failed to submit proof.");
+    } finally {
+      setProofLoading(false);
+      setProofProgress(0);
     }
   };
 
@@ -530,13 +570,18 @@ export default function ActDetails() {
             />
             <small className="text-gray-400">Accepted file types: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
           </div>
+          {proofLoading && (
+            <div className="w-full bg-gray-200 rounded h-2 mb-2">
+              <div className="bg-primary h-2 rounded" style={{ width: `${proofProgress}%` }} />
+            </div>
+          )}
           {proofError && <div className="text-red-500 text-sm">{proofError}</div>}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
-              Submit Proof
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={proofLoading}>
+              {proofLoading ? (proofProgress > 0 ? `Uploading... ${proofProgress}%` : 'Submitting...') : 'Submit Proof'}
             </button>
           </div>
         </form>
