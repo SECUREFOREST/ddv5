@@ -10,22 +10,22 @@ import React from 'react';
  */
 export default function Card({ header, image, children, footer, className = '', ...props }) {
   return (
-    <div className={`bg-neutral-800 rounded-lg shadow p-4 mb-4 ${className}`.trim()} {...props}>
+    <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()} {...props}>
       {image && (
         <div className="mb-4">
           {typeof image === 'string' ? (
-            <img src={image} alt="" className="w-full rounded-t-lg object-cover" />
+            <img src={image} alt="" className="w-full object-cover" />
           ) : image}
         </div>
       )}
       {header && (
-        <div className="border-b border-neutral-900 pb-2 mb-2">
-          <span className="text-lg font-semibold text-primary">{header}</span>
+        <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+          <span className="text-lg font-semibold">{header}</span>
         </div>
       )}
       <div className="mb-2">{children}</div>
       {footer && (
-        <div className="pt-2 mt-2 border-t border-neutral-900 text-sm text-neutral-400">{footer}</div>
+        <div className="bg-[#3c3c3c] text-[#888] border-t border-[#282828] px-[15px] py-[10px] -mx-[15px] mb-[-15px] mt-4 rounded-b-none text-sm">{footer}</div>
       )}
     </div>
   );
