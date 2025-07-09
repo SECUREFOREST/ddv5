@@ -300,40 +300,40 @@ export default function ActDetails() {
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
           </div>
         )}
-        {/* Disable grading/approval after proof expiration */}
-        <div className="panel panel-default">
-          <div className="panel-heading">
-            <h2 className="panel-title" style={{ fontSize: 18 }}>Grades</h2>
+        {/* Grades Section */}
+        <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-6">
+          <div className="border-b pb-2 mb-4">
+            <h2 className="text-lg font-semibold">Grades</h2>
           </div>
-          <div className="panel-body">
-        {act.grades && act.grades.length > 0 ? (
-              <ul className="list-group">
-            {act.grades.map((g, i) => (
-                  <li key={i} className="list-group-item">
-                    <span className="label label-primary">Grade:</span> {g.grade} {g.feedback && <span className="text-muted">({g.feedback})</span>}
-              </li>
-            ))}
-          </ul>
-        ) : (
-              <div className="text-muted">No grades yet.</div>
-        )}
+          <div>
+            {act.grades && act.grades.length > 0 ? (
+              <ul className="space-y-2 mb-4">
+                {act.grades.map((g, i) => (
+                  <li key={i} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
+                    <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-500 dark:text-gray-400 ml-2">({g.feedback})</span>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-400 mb-4">No grades yet.</div>
+            )}
             {user && !proofExpired && (
-              <form onSubmit={handleGrade} style={{ marginTop: 16 }}>
-                <div className="form-group">
-                  <label>Your Grade (1-10)</label>
-                  <input type="number" min="1" max="10" className="form-control" value={grade} onChange={e => setGrade(e.target.value)} required />
-            </div>
-                <div className="form-group">
-                  <label>Feedback (optional)</label>
-                  <input className="form-control" value={feedback} onChange={e => setFeedback(e.target.value)} />
-            </div>
-                {gradeError && <div className="text-danger help-block">{gradeError}</div>}
-                <button type="submit" className="btn btn-primary" disabled={grading}>
-              {grading ? 'Submitting...' : 'Submit Grade'}
-            </button>
-          </form>
-        )}
-      </div>
+              <form onSubmit={handleGrade} className="space-y-4">
+                <div>
+                  <label className="block font-semibold mb-1">Your Grade (1-10)</label>
+                  <input type="number" min="1" max="10" className="w-24 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">Feedback (optional)</label>
+                  <input className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
+                </div>
+                {gradeError && <div className="text-red-500 text-sm">{gradeError}</div>}
+                <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
+                  {grading ? 'Submitting...' : 'Submit Grade'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
         <div className="panel panel-default">
           <div className="panel-heading">
