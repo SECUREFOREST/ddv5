@@ -124,8 +124,6 @@ mongoose.connection.on('reconnected', () => {
 mongoose.connection.on('reconnectFailed', () => {
   console.error(`[${new Date().toISOString()}] [MongoDB] Reconnection failed`);
 });
-// Log initial status after connecting
-mongoose.connection.once('open', logMongoStatus);
 
 // Server will use PORT from environment or default to 4000
 const PORT = process.env.PORT || 4000;
