@@ -43,13 +43,13 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
   };
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded p-2 min-h-[44px] ${className}`.trim()} {...props}>
+    <div className={`flex flex-wrap items-center gap-2 bg-neutral-900 rounded p-2 min-h-[44px] ${className}`.trim()} {...props}>
       {value.map(tag => (
-        <span key={tag} className="flex items-center bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
+        <span key={tag} className="flex items-center bg-primary text-primary-contrast px-2 py-1 rounded text-xs font-semibold">
           {tag}
           <button
             type="button"
-            className="ml-1 text-white hover:text-red-200 focus:outline-none"
+            className="ml-1 text-primary-contrast hover:text-danger-contrast focus:outline-none"
             aria-label={`Remove tag ${tag}`}
             onClick={e => { e.preventDefault(); removeTag(tag); }}
           >
@@ -66,7 +66,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
         onPaste={handlePaste}
         placeholder={placeholder}
         aria-label="Add tag"
-        className="bg-transparent outline-none border-none text-sm px-2 py-1 flex-1 min-w-[80px]"
+        className="bg-transparent outline-none border-none text-sm px-2 py-1 flex-1 min-w-[80px] text-neutral-100"
       />
     </div>
   );

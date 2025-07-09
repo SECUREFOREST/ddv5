@@ -9,8 +9,8 @@ export default function ProgressBar({ value = 0, label, className = '', ...props
   pct = Math.max(0, Math.min(100, pct));
   return (
     <div className={`w-full ${className}`.trim()} {...props}>
-      {label && <div className="mb-1 text-sm text-gray-600 dark:text-gray-300">{label}</div>}
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+      {label && <div className="mb-1 text-sm text-neutral-400">{label}</div>}
+      <div className="w-full bg-neutral-900 rounded-full h-4 overflow-hidden">
         <div
           className="bg-primary h-4 rounded-full transition-all duration-300"
           style={{ width: pct + '%' }}

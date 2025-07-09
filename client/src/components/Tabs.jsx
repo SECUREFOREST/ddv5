@@ -45,10 +45,10 @@ export default function Tabs({
   return (
     <div className={className} {...props}>
       {allDisabled ? (
-        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
+        <div className="bg-warning bg-opacity-10 text-warning p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          <ul className="flex border-b mb-4" role="tablist">
+          <ul className="flex border-b border-neutral-900 mb-4" role="tablist">
             {tabs.map((tab, idx) => (
               <li key={tab.label} className="mr-2" role="presentation">
                 <button
@@ -63,17 +63,17 @@ export default function Tabs({
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
                   className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx ? 'bg-white dark:bg-surface-dark border-l border-t border-r border-b-0 text-primary' :
-                      tab.disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+                    ${selectedIndex === idx ? 'bg-neutral-800 border-l border-t border-r border-b-0 border-neutral-900 text-primary' :
+                      tab.disabled ? 'bg-neutral-900 text-neutral-400 cursor-not-allowed' : 'bg-neutral-900 text-neutral-100 hover:bg-neutral-700'}
                   `}
-                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #e5e7eb' }}
+                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #262626' }}
                 >
                   {tab.label}
                 </button>
               </li>
             ))}
           </ul>
-          <div className="bg-white dark:bg-surface-dark rounded-b-lg shadow p-4">
+          <div className="bg-neutral-800 rounded-b-lg shadow p-4">
             {tabs.map((tab, idx) => (
               <div
                 key={tab.label}
