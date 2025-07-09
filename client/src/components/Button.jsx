@@ -15,7 +15,7 @@ const variantClasses = {
 };
 
 export default function Button({ children, variant = 'default', className = '', ...props }) {
-  const base = 'rounded-none px-[12px] py-[6px] font-bold text-[14px] uppercase transition-colors focus:outline-none border-0 shadow-none';
+  const base = 'rounded-none px-[12px] py-[8px] font-bold text-[14px] uppercase transition-colors focus:outline-none border-0 shadow-none';
   const variantClass = variantClasses[variant] || variantClasses.default;
   return (
     <button

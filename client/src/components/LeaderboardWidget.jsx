@@ -12,7 +12,7 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
         ) : leaders.length === 0 ? (
           <div className="text-neutral-400 py-4">No leaderboard data available.</div>
         ) : (
-          <table className="min-w-full text-sm text-left bg-transparent text-[#eee] border border-[#282828]">
+          <table className="min-w-full text-sm text-left bg-transparent text-[#fff] border border-[#282828]">
             <thead>
               <tr className="bg-[#282828] text-primary">
                 <th className="px-4 py-2 font-semibold border-b border-[#282828]">#</th>

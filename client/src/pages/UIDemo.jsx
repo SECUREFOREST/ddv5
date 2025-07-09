@@ -57,7 +57,7 @@ export default function UIDemo() {
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Table</h2>
         <div className="overflow-x-auto rounded shadow">
-          <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+          <table className="min-w-full bg-neutral-800 text-sm text-[#fff] border border-neutral-900">
             <thead>
               <tr className="bg-neutral-900 text-primary">
                 <th className="p-2 text-left font-semibold">Name</th>
@@ -84,11 +84,11 @@ export default function UIDemo() {
       {/* Badge */}
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Badges</h2>
-        <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold mr-2">Primary</span>
-        <span className="inline-block bg-success text-success-contrast rounded px-3 py-1 text-xs font-semibold mr-2">Success</span>
-        <span className="inline-block bg-info text-info-contrast rounded px-3 py-1 text-xs font-semibold mr-2">Info</span>
-        <span className="inline-block bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold mr-2">Warning</span>
-        <span className="inline-block bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold">Danger</span>
+        <span className="inline-block bg-primary text-primary-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Primary</span>
+        <span className="inline-block bg-success text-success-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Success</span>
+        <span className="inline-block bg-info text-info-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Info</span>
+        <span className="inline-block bg-warning text-warning-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Warning</span>
+        <span className="inline-block bg-danger text-danger-contrast rounded-none px-3 py-1 text-xs font-semibold">Danger</span>
       </section>
 
       {/* Inputs */}

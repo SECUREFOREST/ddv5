@@ -2,63 +2,63 @@ import React from 'react';
 import Card from './Card';
 
 function DifficultyBadge({ level }) {
-  let badgeClass = 'bg-neutral-700 text-neutral-100';
-  if (level === 'easy') badgeClass = 'bg-success text-success-contrast';
-  else if (level === 'medium') badgeClass = 'bg-warning text-warning-contrast';
-  else if (level === 'hard') badgeClass = 'bg-danger text-danger-contrast';
+  let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
+  if (level === 'easy') badgeClass = 'bg-success text-success-contrast rounded-none';
+  else if (level === 'medium') badgeClass = 'bg-warning text-warning-contrast rounded-none';
+  else if (level === 'hard') badgeClass = 'bg-danger text-danger-contrast rounded-none';
   return (
-    <span className={`px-2 py-1 rounded text-xs font-semibold mr-2 ${badgeClass}`}>{level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown'}</span>
+    <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown'}</span>
   );
 }
 
 function StatusBadge({ status }) {
-  let badgeClass = 'bg-neutral-700 text-neutral-100';
+  let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
   let text = 'Unknown';
   switch (status) {
     case 'pending':
     case 'soliciting':
-      badgeClass = 'bg-warning text-warning-contrast';
+      badgeClass = 'bg-warning text-warning-contrast rounded-none';
       text = 'Awaiting participants';
       break;
     case 'in_progress':
-      badgeClass = 'bg-info text-info-contrast';
+      badgeClass = 'bg-info text-info-contrast rounded-none';
       text = 'Awaiting pic';
       break;
     case 'completed':
-      badgeClass = 'bg-success text-success-contrast';
+      badgeClass = 'bg-success text-success-contrast rounded-none';
       text = 'Completed';
       break;
     case 'rejected':
-      badgeClass = 'bg-danger text-danger-contrast';
+      badgeClass = 'bg-danger text-danger-contrast rounded-none';
       text = 'Rejected';
       break;
     case 'graded':
-      badgeClass = 'bg-info text-info-contrast';
+      badgeClass = 'bg-info text-info-contrast rounded-none';
       text = 'Graded';
       break;
     case 'approved':
-      badgeClass = 'bg-success text-success-contrast';
+      badgeClass = 'bg-success text-success-contrast rounded-none';
       text = 'Approved';
       break;
     case 'cancelled':
-      badgeClass = 'bg-neutral-700 text-neutral-100';
+      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
       text = 'Cancelled';
       break;
     case 'user_deleted':
-      badgeClass = 'bg-neutral-700 text-neutral-100';
+      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
       text = 'User deleted';
       break;
     default:
       text = status ? status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
   }
   return (
-    <span className={`px-2 py-1 rounded text-xs font-semibold ml-2 ${badgeClass}`}>{text}</span>
+    <span className={`px-2 py-1 rounded-none text-xs font-semibold ml-2 ${badgeClass}`}>{text}</span>
   );
 }
 
 function Tag({ tag }) {
   return (
-    <span className="bg-primary text-primary-contrast px-2 py-1 rounded text-xs font-semibold mr-2">{tag}</span>
+    <span className="bg-primary text-primary-contrast px-2 py-1 rounded-none text-xs font-semibold mr-2">{tag}</span>
   );
 }
 

@@ -62,7 +62,7 @@ export default function RecentActivityWidget({ activities = [], loading = false,
         ) : activities.length === 0 ? (
           <div className="text-[#888] py-4">No recent activity.</div>
         ) : (
-          <ul className="divide-y divide-[#282828] text-[#eee]">
+          <ul className="divide-y divide-[#282828] text-[#fff]">
             {activities.map((a, i) => (
               <li key={i} className="flex items-center gap-3 py-3">
                 {ICONS[a.type] || ICONS.default}

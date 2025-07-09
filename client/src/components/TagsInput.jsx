@@ -45,7 +45,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
   return (
     <div className={`flex flex-wrap items-center gap-2 bg-neutral-900 rounded p-2 min-h-[44px] ${className}`.trim()} {...props}>
       {value.map(tag => (
-        <span key={tag} className="flex items-center bg-primary text-primary-contrast px-2 py-1 rounded text-xs font-semibold">
+        <span key={tag} className="flex items-center bg-primary text-primary-contrast px-2 py-1 rounded-none text-xs font-semibold">
           {tag}
           <button
             type="button"
