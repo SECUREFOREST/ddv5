@@ -2,65 +2,63 @@ import React from 'react';
 import Card from './Card';
 
 function DifficultyBadge({ level }) {
-  let labelClass = 'label label-default';
-  if (level === 'easy') labelClass = 'label label-success';
-  else if (level === 'medium') labelClass = 'label label-warning';
-  else if (level === 'hard') labelClass = 'label label-danger';
+  let badgeClass = 'bg-gray-400 text-white';
+  if (level === 'easy') badgeClass = 'bg-green-500 text-white';
+  else if (level === 'medium') badgeClass = 'bg-yellow-500 text-white';
+  else if (level === 'hard') badgeClass = 'bg-red-500 text-white';
   return (
-    <span className={labelClass} style={{ marginRight: 4 }}>
-      {level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown'}
-    </span>
+    <span className={`px-2 py-1 rounded text-xs font-semibold mr-2 ${badgeClass}`}>{level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown'}</span>
   );
 }
 
 function StatusBadge({ status }) {
-  let labelClass = 'label label-default';
+  let badgeClass = 'bg-gray-400 text-white';
   let text = 'Unknown';
   switch (status) {
     case 'pending':
     case 'soliciting':
-      labelClass = 'label label-warning';
+      badgeClass = 'bg-yellow-500 text-white';
       text = 'Awaiting participants';
       break;
     case 'in_progress':
-      labelClass = 'label label-info';
+      badgeClass = 'bg-blue-400 text-white';
       text = 'Awaiting pic';
       break;
     case 'completed':
-      labelClass = 'label label-success';
+      badgeClass = 'bg-green-500 text-white';
       text = 'Completed';
       break;
     case 'rejected':
-      labelClass = 'label label-danger';
+      badgeClass = 'bg-red-500 text-white';
       text = 'Rejected';
       break;
     case 'graded':
-      labelClass = 'label label-primary';
+      badgeClass = 'bg-blue-600 text-white';
       text = 'Graded';
       break;
     case 'approved':
-      labelClass = 'label label-success';
+      badgeClass = 'bg-green-600 text-white';
       text = 'Approved';
       break;
     case 'cancelled':
-      labelClass = 'label label-default';
+      badgeClass = 'bg-gray-400 text-white';
       text = 'Cancelled';
       break;
     case 'user_deleted':
-      labelClass = 'label label-default';
+      badgeClass = 'bg-gray-400 text-white';
       text = 'User deleted';
       break;
     default:
       text = status ? status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
   }
   return (
-    <span className={labelClass} style={{ marginLeft: 4 }}>{text}</span>
+    <span className={`px-2 py-1 rounded text-xs font-semibold ml-2 ${badgeClass}`}>{text}</span>
   );
 }
 
 function Tag({ tag }) {
   return (
-    <span className="label label-primary" style={{ marginRight: 4 }}>{tag}</span>
+    <span className="bg-primary text-white px-2 py-1 rounded text-xs font-semibold mr-2">{tag}</span>
   );
 }
 
@@ -79,39 +77,36 @@ export default function ActCard({
   const isLong = description && description.length > 120;
   const shownDescription = !isLong || expanded ? description : description.slice(0, 120) + '...';
   return (
-    <div className={`panel panel-default ${className}`.trim()} {...props}>
-      <div className="panel-heading">
-        <h3 className="panel-title" title={title} style={{ display: 'inline-block', width: '80%' }}>{title}</h3>
-        <span style={{ float: 'right' }}>
+    <div className={`bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4 ${className}`.trim()} {...props}>
+      <div className="flex items-center justify-between border-b pb-2 mb-2">
+        <h3 className="text-lg font-semibold truncate w-4/5" title={title}>{title}</h3>
+        <div className="flex items-center">
           <DifficultyBadge level={difficulty} />
           <StatusBadge status={status} />
-        </span>
+        </div>
       </div>
-      <div className="panel-body">
-        <div style={{ color: '#AAAAAA', fontSize: 14, marginBottom: 8 }}>
+      <div className="mb-2 text-gray-700 dark:text-gray-300 text-sm">
         {shownDescription}
         {isLong && (
           <button
-              className="btn btn-link btn-xs"
-              style={{ marginLeft: 8 }}
+            className="ml-2 text-primary underline text-xs focus:outline-none"
             onClick={() => setExpanded(e => !e)}
           >
             {expanded ? 'Show less' : 'Show more'}
           </button>
         )}
       </div>
-        <div style={{ marginBottom: 8 }}>
+      <div className="mb-2 flex flex-wrap">
         {tags.map(tag => <Tag key={tag} tag={tag} />)}
       </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center">
           {user?.avatar && (
-              <img src={user.avatar} alt="avatar" className="img-circle" style={{ width: 28, height: 28, marginRight: 8 }} />
+            <img src={user.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2" />
           )}
-            <span style={{ fontSize: 14, color: '#EEEEEE' }}>{user?.username}</span>
+          <span className="text-gray-800 dark:text-gray-200 text-sm font-medium">{user?.username}</span>
         </div>
-          <div>{actions}</div>
-        </div>
+        <div>{actions}</div>
       </div>
     </div>
   );

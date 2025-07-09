@@ -30,53 +30,52 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-default">
-      <div className="container-fluid">
-        <div className="navbar-header">
-          <Link className="navbar-brand" to="/">DDV5</Link>
+    <nav className="bg-primary text-white shadow mb-6">
+      <div className="container mx-auto flex items-center justify-between px-4 py-3">
+        <div className="flex items-center space-x-4">
+          <Link className="text-2xl font-bold tracking-tight" to="/">DDV5</Link>
         </div>
         {isImpersonating && (
-          <div className="important-message bg-warning text-center" style={{marginBottom: 0}}>
+          <div className="bg-yellow-400 text-black px-4 py-2 rounded flex items-center space-x-2 ml-4">
             <span>You are impersonating another user.</span>
             <button
-              className="btn btn-default btn-xs"
+              className="bg-white text-black rounded px-2 py-1 text-xs font-semibold hover:bg-gray-100"
               onClick={handleReturnToAdmin}
-              style={{marginLeft: 8}}
             >
               Return to Admin
             </button>
             {impersonationError && (
-              <div className="label label-danger" style={{marginLeft: 8}}>{impersonationError}</div>
+              <div className="bg-red-500 text-white rounded px-2 py-1 text-xs ml-2">{impersonationError}</div>
             )}
           </div>
         )}
-        <ul className="nav navbar-nav">
-          <li><Link to="/acts">Acts</Link></li>
-          <li><Link to="/switches">Switch Games</Link></li>
-          <li><Link to="/leaderboard">Leaderboard</Link></li>
-          <li><Link to="/credits">Credits</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/admin">Admin</Link></li>
+        <ul className="flex space-x-4 items-center">
+          <li><Link className="hover:underline" to="/acts">Acts</Link></li>
+          <li><Link className="hover:underline" to="/switches">Switch Games</Link></li>
+          <li><Link className="hover:underline" to="/leaderboard">Leaderboard</Link></li>
+          <li><Link className="hover:underline" to="/credits">Credits</Link></li>
+          <li><Link className="hover:underline" to="/profile">Profile</Link></li>
+          <li><Link className="hover:underline" to="/admin">Admin</Link></li>
         </ul>
-        <ul className="nav navbar-nav navbar-right">
-        {user ? (
-          <>
+        <ul className="flex space-x-4 items-center">
+          {user ? (
+            <>
               <li><NotificationDropdown /></li>
-              <li className="avatar-and-user-info">
-              {user.avatar ? (
-                  <img src={user.avatar} alt="avatar" className="avatar img-circle" style={{width: 32, height: 32, marginRight: 8}} />
-              ) : (
-                  <span className="details name" style={{marginRight: 8}}>{user.username}</span>
-              )}
-                <button onClick={handleLogout} className="btn btn-danger btn-xs" style={{marginLeft: 8}}>Logout</button>
+              <li className="flex items-center space-x-2">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <span className="font-semibold">{user.username}</span>
+                )}
+                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
               </li>
-          </>
-        ) : (
-          <>
-              <li><Link to="/login">Login</Link></li>
-              <li><Link to="/register">Register</Link></li>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              <li><Link className="hover:underline" to="/login">Login</Link></li>
+              <li><Link className="hover:underline" to="/register">Register</Link></li>
+            </>
+          )}
         </ul>
       </div>
     </nav>

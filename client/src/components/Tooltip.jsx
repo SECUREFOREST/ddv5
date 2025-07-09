@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 /**
- * Tooltip component (legacy CSS)
+ * Tooltip component (Tailwind refactor)
  * @param {React.ReactNode} children - The trigger element
  * @param {React.ReactNode} content - Tooltip content
  * @param {string} className - Additional classes for the tooltip
@@ -41,7 +41,7 @@ export default function Tooltip({
       if (position === 'left' || position === 'right') {
         // left and right already set
       } else {
-      left = triggerRect.left + window.scrollX + (triggerRect.width - tooltipRect.width) / 2;
+        left = triggerRect.left + window.scrollX + (triggerRect.width - tooltipRect.width) / 2;
       }
       // Clamp to viewport
       const vw = window.innerWidth, vh = window.innerHeight;
@@ -92,12 +92,12 @@ export default function Tooltip({
           ref={tooltipRef}
           id="tooltip"
           role="tooltip"
-          className={`tooltip ${position} in ${className}`.trim()}
-          style={{ top: coords.top, left: coords.left, position: 'absolute', opacity: 0.9, zIndex: 1070 }}
+          className={`pointer-events-none z-50 px-3 py-2 rounded bg-gray-900 text-white text-xs shadow-lg fixed transition-opacity duration-200 opacity-90 ${className}`.trim()}
+          style={{ top: coords.top, left: coords.left }}
           {...props}
         >
-          <div className="tooltip-arrow" />
-          <div className="tooltip-inner">{content}</div>
+          <div className="absolute w-2 h-2 bg-gray-900 rotate-45 -mt-1 left-1/2 -translate-x-1/2" style={{ top: '100%' }} />
+          <div>{content}</div>
         </div>
       )}
     </>

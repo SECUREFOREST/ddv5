@@ -19,7 +19,7 @@ export default function Markdown({ children, content, className = '', ...props }
 
   return (
     <div
-      className={`well ${className}`.trim()}
+      className={`prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none ${className}`.trim()}
       dangerouslySetInnerHTML={{ __html: html }}
       {...props}
     />

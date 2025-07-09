@@ -31,7 +31,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
 
   const handlePaste = (e) => {
     const pasted = e.clipboardData.getData('text');
-    const tags = pasted.split(/[,\s]+/).map(t => t.trim()).filter(Boolean);
+    const tags = pasted.split(/[\,\s]+/).map(t => t.trim()).filter(Boolean);
     let added = false;
     tags.forEach(tag => {
       if (tag && !value.some(t => t.toLowerCase() === tag.toLowerCase())) {
@@ -43,18 +43,18 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
   };
 
   return (
-    <div className={`tagsinput ${className}`.trim()} {...props}>
+    <div className={`flex flex-wrap items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded p-2 min-h-[44px] ${className}`.trim()} {...props}>
       {value.map(tag => (
-        <span key={tag} className="tag">
+        <span key={tag} className="flex items-center bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
           {tag}
-          <a
-            href="#remove"
-            style={{ marginLeft: 4, textDecoration: 'none', cursor: 'pointer' }}
+          <button
+            type="button"
+            className="ml-1 text-white hover:text-red-200 focus:outline-none"
             aria-label={`Remove tag ${tag}`}
             onClick={e => { e.preventDefault(); removeTag(tag); }}
           >
             &times;
-          </a>
+          </button>
         </span>
       ))}
       <input
@@ -66,9 +66,8 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
         onPaste={handlePaste}
         placeholder={placeholder}
         aria-label="Add tag"
-        style={{ border: '1px solid transparent', padding: 5, background: 'transparent', color: '#000', outline: 0, marginRight: 5, marginBottom: 5, width: 80 }}
+        className="bg-transparent outline-none border-none text-sm px-2 py-1 flex-1 min-w-[80px]"
       />
-      <div className="tags_clear" />
     </div>
   );
 } 

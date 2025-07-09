@@ -11,10 +11,10 @@ function timeAgo(date) {
 }
 
 const ICONS = {
-  comment: <i className="fa fa-comment text-info" style={{ marginRight: 8 }} />,
-  act: <i className="fa fa-check-circle text-success" style={{ marginRight: 8 }} />,
-  grade: <i className="fa fa-star text-warning" style={{ marginRight: 8 }} />,
-  default: <i className="fa fa-circle text-muted" style={{ marginRight: 8 }} />,
+  comment: <i className="fa fa-comment text-blue-400 mr-2" />,
+  act: <i className="fa fa-check-circle text-green-500 mr-2" />,
+  grade: <i className="fa fa-star text-yellow-400 mr-2" />,
+  default: <i className="fa fa-circle text-gray-400 mr-2" />,
 };
 
 // Legacy-style activity message generator
@@ -47,33 +47,33 @@ export default function RecentActivityWidget({ activities = [], loading = false,
     setRefreshing(false);
   };
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 className="panel-title">{title}</h3>
+    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
+      <div className="flex items-center justify-between border-b pb-2 mb-2">
+        <h3 className="text-lg font-semibold">{title}</h3>
         {onRefresh && (
-          <button className="btn btn-link btn-xs" onClick={handleRefresh} disabled={refreshing}>
+          <button className="text-primary text-xs underline hover:text-primary-dark" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
         )}
       </div>
-      <div className="panel-body" style={{ padding: 0 }}>
-      {loading ? (
-          <div style={{ padding: 15 }}>Loading activity...</div>
-      ) : activities.length === 0 ? (
-          <div className="text-muted" style={{ padding: 15 }}>No recent activity.</div>
-      ) : (
-          <ul className="list-group">
-          {activities.map((a, i) => (
-              <li key={i} className="list-group-item" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {ICONS[a.type] || ICONS.default}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, color: '#EEEEEE' }}>{getLegacyActivityMessage(a)}</div>
-                  <div style={{ fontSize: 12, color: '#888' }}>{timeAgo(a.createdAt)}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div>
+        {loading ? (
+          <div className="text-gray-500 dark:text-gray-400 py-4">Loading activity...</div>
+        ) : activities.length === 0 ? (
+          <div className="text-gray-400 py-4">No recent activity.</div>
+        ) : (
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+            {activities.map((a, i) => (
+              <li key={i} className="flex items-center gap-3 py-3">
+                {ICONS[a.type] || ICONS.default}
+                <div className="flex-1">
+                  <div className="text-sm text-gray-800 dark:text-gray-200">{getLegacyActivityMessage(a)}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{timeAgo(a.createdAt)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

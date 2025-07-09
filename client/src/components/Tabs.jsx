@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 
 /**
- * Tabs component (legacy CSS)
+ * Tabs component (Tailwind refactor)
  * @param {Array<{label: string, content: React.ReactNode, disabled?: boolean}>} tabs - Tab definitions
  * @param {number} value - Controlled selected tab index
  * @param {function} onChange - Controlled tab change handler
@@ -45,38 +45,42 @@ export default function Tabs({
   return (
     <div className={className} {...props}>
       {allDisabled ? (
-        <div className="alert alert-warning" role="alert">All tabs are disabled.</div>
+        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          <ul className="nav nav-tabs" role="tablist">
+          <ul className="flex border-b mb-4" role="tablist">
             {tabs.map((tab, idx) => (
-              <li key={tab.label} className={selectedIndex === idx ? 'active' : tab.disabled ? 'disabled' : ''} role="presentation">
-                <a
+              <li key={tab.label} className="mr-2" role="presentation">
+                <button
                   ref={el => tabRefs.current[idx] = el}
-                  href="#"
+                  type="button"
                   role="tab"
                   aria-selected={selectedIndex === idx}
                   aria-controls={`tabpanel-${idx}`}
                   id={`tab-${idx}`}
                   tabIndex={selectedIndex === idx ? 0 : -1}
-                  onClick={e => { e.preventDefault(); handleTabClick(idx); }}
+                  onClick={() => handleTabClick(idx)}
                   onKeyDown={handleKeyDown}
-                  style={tab.disabled ? { pointerEvents: 'none', color: '#888', cursor: 'not-allowed' } : {}}
+                  disabled={tab.disabled}
+                  className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none transition-colors duration-200
+                    ${selectedIndex === idx ? 'bg-white dark:bg-surface-dark border-l border-t border-r border-b-0 text-primary' :
+                      tab.disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+                  `}
+                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #e5e7eb' }}
                 >
                   {tab.label}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
-          <div className="tab-content">
+          <div className="bg-white dark:bg-surface-dark rounded-b-lg shadow p-4">
             {tabs.map((tab, idx) => (
               <div
                 key={tab.label}
-                className={`tab-pane${selectedIndex === idx ? ' active' : ''}`}
+                className={selectedIndex === idx ? '' : 'hidden'}
                 id={`tabpanel-${idx}`}
                 role="tabpanel"
                 aria-labelledby={`tab-${idx}`}
-                style={{ display: selectedIndex === idx ? 'block' : 'none', background: 'transparent', padding: 15 }}
               >
                 {selectedIndex === idx && tab.content}
               </div>

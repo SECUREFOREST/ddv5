@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Button from './Button';
 
 /**
- * Modal component (legacy CSS)
+ * Modal component (Tailwind refactor)
  * @param {boolean} open - Whether the modal is open
  * @param {function} onClose - Function to call when closing
  * @param {string} title - Modal title
@@ -35,26 +35,23 @@ export default function Modal({ open, onClose, title, children, actions, classNa
   if (!show) return null;
 
   // Modal size class
-  let sizeClass = '';
-  if (size === 'sm') sizeClass = 'modal-sm';
-  else if (size === 'lg') sizeClass = 'modal-lg';
+  let sizeClass = 'max-w-lg';
+  if (size === 'sm') sizeClass = 'max-w-sm';
+  else if (size === 'lg') sizeClass = 'max-w-2xl';
 
   return (
-    <div className={`modal fade in ${className}`} style={{ display: open ? 'block' : 'none' }} tabIndex={-1} role="dialog" aria-modal="true" {...props}>
-      <div className="modal-backdrop fade in" ref={overlayRef} onClick={onClose} aria-hidden="true" />
-      <div className={`modal-dialog ${sizeClass}`} role="document">
-        <div className="modal-content">
-          {title && (
-            <div className="modal-header">
-              <button type="button" className="close" aria-label="Close" onClick={onClose}>
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <h4 className="modal-title">{title}</h4>
-            </div>
-          )}
-          <div className="modal-body">{children}</div>
-          {actions && <div className="modal-footer">{actions}</div>}
-        </div>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${open ? 'opacity-100' : 'opacity-0'} ${className}`} tabIndex={-1} role="dialog" aria-modal="true" {...props}>
+      <div className={`bg-white dark:bg-surface-dark rounded-lg shadow-lg w-full ${sizeClass} mx-4 relative`} role="document">
+        {title && (
+          <div className="flex items-center justify-between border-b px-6 py-4">
+            <h4 className="text-lg font-semibold">{title}</h4>
+            <button type="button" className="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none" aria-label="Close" onClick={onClose}>
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        )}
+        <div className="px-6 py-4">{children}</div>
+        {actions && <div className="border-t px-6 py-3 flex justify-end space-x-2">{actions}</div>}
       </div>
     </div>
   );

@@ -167,24 +167,21 @@ export default function NotificationDropdown() {
   }
 
   return (
-    <div className="dropdown notifications-nav" style={{ display: 'inline-block' }}>
+    <div className="relative inline-block">
       <a
-        className="dropdown-toggle"
+        className="cursor-pointer relative"
         data-toggle="dropdown"
         href="#"
-        style={{ position: 'relative', cursor: 'pointer' }}
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded="false"
       >
-        <i className="fa fa-bell" style={{ fontSize: 20 }} />
-          {unseenCount > 0 && (
-          <span className="badge nav-item-with-counter counter" style={{ position: 'absolute', top: -5, right: -10 }}>
-              {unseenCount}
-            </span>
-          )}
+        <i className="fa fa-bell text-xl" />
+        {unseenCount > 0 && (
+          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold">{unseenCount}</span>
+        )}
       </a>
-      <ul className="dropdown-menu" style={{ minWidth: 300, maxHeight: 400, overflowY: 'auto' }}>
+      <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50 py-1">
         {items}
       </ul>
     </div>

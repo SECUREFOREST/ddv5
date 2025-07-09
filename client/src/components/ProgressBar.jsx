@@ -8,10 +8,19 @@ export default function ProgressBar({ value = 0, label, className = '', ...props
   }
   pct = Math.max(0, Math.min(100, pct));
   return (
-    <div className={`progress ${className}`.trim()} {...props}>
-      {label && <div style={{ marginBottom: 4, fontSize: 12, color: '#888' }}>{label}</div>}
-      <div className="progress-bar" role="progressbar" style={{ width: pct + '%' }} aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-          {pct}%
+    <div className={`w-full ${className}`.trim()} {...props}>
+      {label && <div className="mb-1 text-sm text-gray-600 dark:text-gray-300">{label}</div>}
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+        <div
+          className="bg-primary h-4 rounded-full transition-all duration-300"
+          style={{ width: pct + '%' }}
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span className="sr-only">{pct}%</span>
+        </div>
       </div>
     </div>
   );

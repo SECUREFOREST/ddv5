@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 /**
- * Dropdown component
+ * Dropdown component (Tailwind refactor)
  * @param {React.ReactNode} trigger - The element that toggles the dropdown
  * @param {React.ReactNode[]} items - Array of menu items (can be elements or objects with label/onClick)
  * @param {string} className - Additional classes for the menu
@@ -51,18 +51,18 @@ export default function Dropdown({
         return React.cloneElement(item, { key: idx, tabIndex: 0 });
       } else if (typeof item === 'object' && item.label) {
         return (
-          <li key={item.label} className={item.disabled ? 'disabled' : ''}>
+          <li key={item.label} className={item.disabled ? 'opacity-50 cursor-not-allowed' : ''}>
             <a
               href="#"
-              className={item.disabled ? 'disabled' : ''}
-            onClick={e => {
+              className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors ${item.disabled ? 'pointer-events-none' : ''}`}
+              onClick={e => {
                 e.preventDefault();
-              setOpen(false);
+                setOpen(false);
                 if (!item.disabled) item.onClick?.(e);
-            }}
-            tabIndex={0}
-          >
-            {item.label}
+              }}
+              tabIndex={0}
+            >
+              {item.label}
             </a>
           </li>
         );
@@ -72,33 +72,32 @@ export default function Dropdown({
     });
 
   return (
-    <div className={`dropdown${open ? ' open' : ''} ${className}`.trim()} {...props}>
+    <div className={`relative inline-block ${className}`.trim()} {...props}>
       <span
         ref={triggerRef}
-        className="dropdown-toggle"
+        className="cursor-pointer select-none"
         onClick={() => setOpen(v => !v)}
         tabIndex={0}
         onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setOpen(v => !v);
-        }
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen(v => !v);
+          }
         }}
         aria-haspopup="true"
         aria-expanded={open}
         role="button"
       >
-        {trigger} <span className="caret" />
+        {trigger} <span className="ml-1">▼</span>
       </span>
       <ul
-          ref={menuRef}
-        className={`dropdown-menu${alignRight ? ' pull-right' : ''} ${menuClassName}`.trim()}
-          role="menu"
-          tabIndex={-1}
-          onKeyDown={handleKeyDown}
-        style={{ display: open ? 'block' : 'none' }}
-        >
-          {renderItems()}
+        ref={menuRef}
+        className={`absolute z-50 mt-2 min-w-[160px] bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded shadow-lg py-1 ${alignRight ? 'right-0' : 'left-0'} ${open ? '' : 'hidden'} ${menuClassName}`.trim()}
+        role="menu"
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
+      >
+        {renderItems()}
       </ul>
     </div>
   );

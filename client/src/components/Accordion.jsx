@@ -5,25 +5,21 @@ export default function Accordion({ title, children, defaultOpen = false, classN
   const contentRef = useRef(null);
 
   return (
-    <div className={`panel-group ${className}`.trim()}>
-      <div className="panel panel-default">
-        <div className="panel-heading" onClick={() => setOpen(o => !o)} style={{ cursor: 'pointer' }}>
-          <h4 className="panel-title">
+    <div className={`rounded-lg border bg-white dark:bg-surface-dark shadow mb-4 ${className}`.trim()}>
+      <button
+        className="w-full flex justify-between items-center px-4 py-3 text-left text-lg font-semibold focus:outline-none focus:ring"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
         <span>{title}</span>
-            <span style={{ float: 'right', transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'none' }}>
-              ▼
-            </span>
-          </h4>
-        </div>
+        <span className={`transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
+      </button>
       <div
-          className={`panel-collapse collapse${open ? ' in' : ''}`}
         ref={contentRef}
+        className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 py-2 px-4' : 'max-h-0 py-0 px-4'}`}
         aria-hidden={!open}
       >
-          <div className="panel-body">
-        {children}
-          </div>
-        </div>
+        <div>{children}</div>
       </div>
     </div>
   );
