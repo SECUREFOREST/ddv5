@@ -16,7 +16,7 @@ const Landing = () => {
 
   return (
     <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <img src="/logo.png" alt="DDv5 Logo" className="w-16 h-16 mx-auto mb-4" />
+      <img src="/logo.svg" alt="DDv5 Logo" className="w-16 h-16 mx-auto mb-4" />
       <h1 className="text-2xl font-bold text-center mb-4 text-[#888]">Welcome to DDv5!</h1>
       <p className="text-base mb-6 text-center text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
       <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">

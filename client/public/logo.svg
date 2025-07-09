@@ -1,0 +1,8 @@
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="220" height="60" rx="12" fill="#181818"/>
+  <text x="20" y="40" font-family="Roboto, Arial, sans-serif" font-size="32" font-weight="bold" fill="#fff">Deviant</text>
+  <text x="120" y="40" font-family="Roboto, Arial, sans-serif" font-size="32" font-weight="bold" fill="#D60B20">Dare</text>
+  <g>
+    <polygon points="10,15 18,30 12,30 20,45" fill="#D60B20"/>
+  </g>
+</svg> 
