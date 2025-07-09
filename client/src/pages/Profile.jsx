@@ -205,9 +205,9 @@ function ChangePasswordForm() {
   };
 
   return (
-    <div className="max-w-sm mx-auto bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mt-8">
-      <h3 className="text-2xl font-bold text-center mb-6 text-[#888]">Change Password</h3>
+    <div className="max-w-md">
       <form onSubmit={handleChangePassword} className="space-y-4">
+        <h3 className="text-2xl font-bold text-center mb-6 text-[#888]">Change Password</h3>
         <div>
           <label className="block font-semibold mb-1 text-primary">Old Password</label>
           <input
