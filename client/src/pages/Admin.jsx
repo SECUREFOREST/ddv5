@@ -92,9 +92,11 @@ export default function Admin() {
   const [editUserData, setEditUserData] = useState({ username: '', email: '', role: '' });
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [editUserError, setEditUserError] = useState('');
+  const [deleteUserError, setDeleteUserError] = useState('');
 
   const fetchUsers = () => {
     setLoading(true);
+    setDeleteUserError('');
     api.get('/users')
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUsers([]))
@@ -175,10 +177,13 @@ export default function Admin() {
   const handleDelete = async (userId) => {
     if (!window.confirm('Delete this user?')) return;
     setActionLoading(true);
+    setDeleteUserError('');
     try {
       await api.delete(`/users/${userId}`);
       fetchUsers();
-    } catch {}
+    } catch (err) {
+      setDeleteUserError(err.response?.data?.error || 'Failed to delete user');
+    }
     setActionLoading(false);
   };
 
@@ -300,6 +305,9 @@ export default function Admin() {
                         Search
                       </button>
                     </div>
+                    {deleteUserError && (
+                      <div className="mb-4 text-danger text-sm font-semibold">{deleteUserError}</div>
+                    )}
                     <div className="overflow-x-auto rounded shadow">
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
                         <thead>
