@@ -5,9 +5,9 @@ export default function Accordion({ title, children, defaultOpen = false, classN
   const contentRef = useRef(null);
 
   return (
-    <div className={`rounded-lg border border-neutral-900 bg-neutral-800 shadow mb-4 ${className}`.trim()}>
+    <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-4 ${className}`.trim()}>
       <button
-        className="w-full flex justify-between items-center px-4 py-3 text-left text-lg font-semibold text-primary focus:outline-none focus:ring"
+        className="w-full flex justify-between items-center px-[15px] py-[10px] text-left text-lg font-semibold text-[#888] bg-[#3c3c3c] border-b border-[#282828] focus:outline-none focus:ring rounded-none -mt-[15px] -mx-[15px] mb-4"
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
       >

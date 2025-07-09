@@ -41,17 +41,17 @@ export default function Modal({ open, onClose, title, children, actions, classNa
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${open ? 'opacity-100' : 'opacity-0'} ${className}`} tabIndex={-1} role="dialog" aria-modal="true" {...props}>
-      <div className={`bg-neutral-800 rounded-lg shadow-lg w-full ${sizeClass} mx-4 relative`} role="document">
+      <div className={`bg-[#202020] border border-[#999] rounded-none shadow-[0_3px_9px_rgba(0,0,0,0.5)] w-full ${sizeClass} mx-4 relative`} role="document">
         {title && (
-          <div className="flex items-center justify-between border-b border-neutral-900 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-[#282828] px-[15px] py-[15px] -mx-[15px] mt-[-15px]">
             <h4 className="text-lg font-semibold text-primary">{title}</h4>
             <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" aria-label="Close" onClick={onClose}>
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
         )}
-        <div className="px-6 py-4">{children}</div>
-        {actions && <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">{actions}</div>}
+        <div className="p-[20px]">{children}</div>
+        {actions && <div className="border-t border-[#282828] px-[15px] py-[15px] -mx-[15px] mb-[-15px] flex justify-end space-x-2">{actions}</div>}
       </div>
     </div>
   );

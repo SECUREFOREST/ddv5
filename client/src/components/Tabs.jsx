@@ -48,7 +48,7 @@ export default function Tabs({
         <div className="bg-warning bg-opacity-10 text-warning p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          <ul className="flex border-b border-neutral-900 mb-4" role="tablist">
+          <ul className="flex border-b border-[#666] mb-4 rounded-none" role="tablist">
             {tabs.map((tab, idx) => (
               <li key={tab.label} className="mr-2" role="presentation">
                 <button
@@ -62,18 +62,18 @@ export default function Tabs({
                   onClick={() => handleTabClick(idx)}
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
-                  className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx ? 'bg-neutral-800 border-l border-t border-r border-b-0 border-neutral-900 text-primary' :
-                      tab.disabled ? 'bg-neutral-900 text-neutral-400 cursor-not-allowed' : 'bg-neutral-900 text-neutral-100 hover:bg-neutral-700'}
+                  className={`px-[20px] py-[10px] font-bold rounded-none focus:outline-none transition-colors duration-200
+                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666]' :
+                      tab.disabled ? 'bg-[#222] text-[#888] cursor-not-allowed' : 'bg-[#222] text-[#888] hover:bg-[#333]'}
                   `}
-                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #262626' }}
+                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #666' }}
                 >
                   {tab.label}
                 </button>
               </li>
             ))}
           </ul>
-          <div className="bg-neutral-800 rounded-b-lg shadow p-4">
+          <div className="bg-[#222] rounded-none p-[15px]">
             {tabs.map((tab, idx) => (
               <div
                 key={tab.label}

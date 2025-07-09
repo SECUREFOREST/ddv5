@@ -92,11 +92,11 @@ export default function Tooltip({
           ref={tooltipRef}
           id="tooltip"
           role="tooltip"
-          className={`pointer-events-none z-50 px-3 py-2 rounded bg-neutral-900 text-neutral-100 text-xs shadow-lg fixed transition-opacity duration-200 opacity-90 ${className}`.trim()}
+          className={`pointer-events-none z-50 px-[12px] py-[8px] rounded-none bg-[#222] text-white text-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.2)] fixed transition-opacity duration-200 opacity-90 ${className}`.trim()}
           style={{ top: coords.top, left: coords.left }}
           {...props}
         >
-          <div className="absolute w-2 h-2 bg-neutral-900 rotate-45 -mt-1 left-1/2 -translate-x-1/2" style={{ top: '100%' }} />
+          <div className="absolute w-2 h-2 bg-[#222] rotate-45 -mt-1 left-1/2 -translate-x-1/2" style={{ top: '100%' }} />
           <div>{content}</div>
         </div>
       )}

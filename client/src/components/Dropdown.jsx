@@ -54,7 +54,7 @@ export default function Dropdown({
           <li key={item.label} className={item.disabled ? 'opacity-50 cursor-not-allowed' : ''}>
             <a
               href="#"
-              className={`block px-4 py-2 text-sm text-neutral-100 hover:bg-neutral-900 rounded transition-colors ${item.disabled ? 'pointer-events-none' : ''}`}
+              className={`block px-[20px] py-[3px] text-[14px] text-white hover:bg-[#D60B20] rounded-none transition-colors ${item.disabled ? 'pointer-events-none' : ''}`}
               onClick={e => {
                 e.preventDefault();
                 setOpen(false);
@@ -92,7 +92,7 @@ export default function Dropdown({
       </span>
       <ul
         ref={menuRef}
-        className={`absolute z-50 mt-2 min-w-[160px] bg-neutral-800 border border-neutral-900 rounded shadow-lg py-1 ${alignRight ? 'right-0' : 'left-0'} ${open ? '' : 'hidden'} ${menuClassName}`.trim()}
+        className={`absolute z-50 mt-2 min-w-[160px] bg-[#222] border border-[#444] rounded-none shadow-[0_6px_12px_rgba(0,0,0,0.175)] py-1 ${alignRight ? 'right-0' : 'left-0'} ${open ? '' : 'hidden'} ${menuClassName}`.trim()}
         role="menu"
         tabIndex={-1}
         onKeyDown={handleKeyDown}
