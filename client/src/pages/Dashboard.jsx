@@ -64,79 +64,85 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">Dashboard</h1>
+    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
+      <div className="border-b pb-2 mb-4">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
       </div>
-      <div className="panel-body">
-      {stats && (
-        <>
-            <div style={{ marginBottom: 24 }}>
+      <div>
+        {stats && (
+          <>
+            <div className="mb-6">
               <DashboardChart stats={stats} />
-          </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
-              <Card style={{ flex: 1, minWidth: 180 }}>
-                <div style={{ fontSize: 16, fontWeight: 600 }}>Acts Completed</div>
-                <div style={{ fontSize: 24 }}>{stats.actsCount}</div>
-            </Card>
-              <Card style={{ flex: 1, minWidth: 180 }}>
-                <div style={{ fontSize: 16, fontWeight: 600 }}>Credits</div>
-                <div style={{ fontSize: 24 }}>{stats.totalCredits}</div>
-            </Card>
-              <Card style={{ flex: 1, minWidth: 180 }}>
-                <div style={{ fontSize: 16, fontWeight: 600 }}>Avg. Grade</div>
-                <div style={{ fontSize: 24 }}>{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
-            </Card>
-              <div style={{ flex: 1, minWidth: 180 }}>
-              <ProgressBar
-                value={Math.min(100, Math.round((stats.actsCount / 100) * 100))}
-                label={`Progress to 100 Acts Completed (${stats.actsCount}/100)`}
-              />
-              <LeaderboardWidget leaders={leaders} loading={leadersLoading} title="Top 5 Leaderboard" />
-                <div style={{ marginTop: 8, textAlign: 'right' }}>
-                  <Link to="/leaderboard" style={{ color: '#D60B20', fontSize: 13, textDecoration: 'underline' }}>View full leaderboard &rarr;</Link>
+            </div>
+            <div className="flex flex-wrap gap-4 mb-6">
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold">Acts Completed</div>
+                <div className="text-2xl">{stats.actsCount}</div>
+              </Card>
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold">Credits</div>
+                <div className="text-2xl">{stats.totalCredits}</div>
+              </Card>
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold">Avg. Grade</div>
+                <div className="text-2xl">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+              </Card>
+              <div className="flex-1 min-w-[180px] flex flex-col gap-4">
+                <ProgressBar
+                  value={Math.min(100, Math.round((stats.actsCount / 100) * 100))}
+                  label={`Progress to 100 Acts Completed (${stats.actsCount}/100)`}
+                />
+                <LeaderboardWidget leaders={leaders} loading={leadersLoading} title="Top 5 Leaderboard" />
+                <div className="mt-2 text-right">
+                  <Link to="/leaderboard" className="text-primary text-sm underline">View full leaderboard &rarr;</Link>
+                </div>
               </div>
             </div>
-          </div>
-        </>
-      )}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, marginBottom: 32 }}>
-          <Card style={{ flex: 1 }}>
-          <RecentActivityWidget activities={activities} loading={activitiesLoading} title="Recent Activity" />
-        </Card>
-      </div>
-        <ul className="nav nav-tabs" style={{ marginBottom: 16 }}>
-        {TABS.map(t => (
-            <li key={t.key} className={tab === t.key ? 'active' : ''}>
-              <a href="#" onClick={e => { e.preventDefault(); setTab(t.key); }}>{t.label}</a>
-            </li>
-        ))}
-        </ul>
-      {loading ? (
-        <div>Loading acts...</div>
-      ) : (
-        <div>
-          {acts.length === 0 ? (
-              <div className="text-muted">No acts found for this tab.</div>
-          ) : (
-              <ul className="acts-list">
-              {acts.map(act => (
-                  <li key={act._id} className="act">
-                  <ActCard
-                    title={act.title}
-                    description={act.description}
-                    difficulty={act.difficulty}
-                    tags={act.tags || []}
-                    status={act.status}
-                    user={act.creator}
-                    actions={[]}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+          </>
+        )}
+        <div className="flex flex-wrap gap-8 mb-8">
+          <Card className="flex-1">
+            <RecentActivityWidget activities={activities} loading={activitiesLoading} title="Recent Activity" />
+          </Card>
         </div>
-      )}
+        <ul className="flex border-b mb-4">
+          {TABS.map(t => (
+            <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-gray-500'}>
+              <a
+                href="#"
+                className="px-4 py-2 inline-block focus:outline-none"
+                onClick={e => { e.preventDefault(); setTab(t.key); }}
+              >
+                {t.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        {loading ? (
+          <div>Loading acts...</div>
+        ) : (
+          <div>
+            {acts.length === 0 ? (
+              <div className="text-gray-400">No acts found for this tab.</div>
+            ) : (
+              <ul className="space-y-4">
+                {acts.map(act => (
+                  <li key={act._id} className="act">
+                    <ActCard
+                      title={act.title}
+                      description={act.description}
+                      difficulty={act.difficulty}
+                      tags={act.tags || []}
+                      status={act.status}
+                      user={act.creator}
+                      actions={[]}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
