@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import Tabs from '../components/Tabs';
 import Card from '../components/Card';
+import Modal from '../components/Modal';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -39,8 +40,8 @@ export default function Admin() {
   const ACTS_PER_PAGE = 10;
   const [selectedUsers, setSelectedUsers] = useState([]);
   const allFilteredUserIds = users.filter(u =>
-    u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
-    u.email.toLowerCase().includes(userSearch.toLowerCase())
+    (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+    (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
   ).map(u => u._id);
   const isAllSelected = allFilteredUserIds.length > 0 && allFilteredUserIds.every(id => selectedUsers.includes(id));
   const toggleAll = () => {
@@ -85,6 +86,12 @@ export default function Admin() {
   const [appealsError, setAppealsError] = useState('');
   const [resolvingAppealId, setResolvingAppealId] = useState(null);
   const [appealOutcome, setAppealOutcome] = useState('');
+
+  // State for user edit modal
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserData, setEditUserData] = useState({ username: '', email: '', role: '' });
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [editUserError, setEditUserError] = useState('');
 
   const fetchUsers = () => {
     setLoading(true);
@@ -225,9 +232,46 @@ export default function Admin() {
     handleDelete(userId);
   };
 
-  // Add handleEditUser as a placeholder to prevent ReferenceError
+  // Open modal and populate data
   const handleEditUser = (userId) => {
-    alert('Edit user functionality is not implemented yet.');
+    const user = users.find(u => u._id === userId);
+    if (user) {
+      setEditUserId(userId);
+      setEditUserData({
+        username: user.username || '',
+        email: user.email || '',
+        role: user.role || '',
+      });
+      setEditUserError('');
+    }
+  };
+
+  // Close modal
+  const closeEditUserModal = () => {
+    setEditUserId(null);
+    setEditUserData({ username: '', email: '', role: '' });
+    setEditUserError('');
+  };
+
+  // Handle form changes
+  const handleEditUserChange = (e) => {
+    const { name, value } = e.target;
+    setEditUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Save user changes
+  const handleEditUserSave = async () => {
+    setEditUserLoading(true);
+    setEditUserError('');
+    try {
+      await api.patch(`/users/${editUserId}`, editUserData);
+      fetchUsers();
+      closeEditUserModal();
+    } catch (err) {
+      setEditUserError(err.response?.data?.error || 'Failed to update user');
+    } finally {
+      setEditUserLoading(false);
+    }
   };
 
   return (
@@ -615,6 +659,52 @@ export default function Admin() {
           onChange={setTabIdx}
         />
       </div>
+      <Modal
+        open={!!editUserId}
+        onClose={closeEditUserModal}
+        title="Edit User"
+        actions={[
+          <button key="cancel" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>,
+          <button key="save" className="bg-primary text-primary-contrast px-4 py-2 rounded font-semibold" onClick={handleEditUserSave} disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>,
+        ]}
+        size="sm"
+      >
+        <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Username</label>
+            <input
+              type="text"
+              name="username"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={editUserData.username}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Email</label>
+            <input
+              type="email"
+              name="email"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={editUserData.email}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Role</label>
+            <input
+              type="text"
+              name="role"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={editUserData.role}
+              onChange={handleEditUserChange}
+            />
+          </div>
+          {editUserError && <div className="text-danger text-sm font-medium">{editUserError}</div>}
+        </form>
+      </Modal>
     </div>
   );
 } 
