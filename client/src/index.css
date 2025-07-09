@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    color: #888;
+    background-color: #060606;
+  }
+  body {
+    color: #888;
+    background-color: #060606;
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.43;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #fff;
+    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 1.1;
+  }
+  a {
+    color: #D60B20;
+    text-decoration: none;
+  }
+  a:hover, a:focus {
+    color: #D60B20;
+    text-decoration: underline;
+  }
+  strong {
+    color: #fff;
+  }
+} 

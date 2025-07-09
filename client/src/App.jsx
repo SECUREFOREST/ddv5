@@ -25,7 +25,7 @@ const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 function App() {
   return (
     <AuthProvider>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen bg-[#060606]">
         <Navbar />
         <main className="flex-1 container mx-auto px-4 py-6">
           <Suspense fallback={<div>Loading...</div>}>
