@@ -11,6 +11,7 @@ const { logActivity } = require('../utils/activity');
 const { checkPermission } = require('../utils/permissions');
 const fs = require('fs');
 const { sendNotification } = require('../utils/notification');
+const { v4: uuidv4 } = require('uuid');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -54,7 +55,7 @@ async function checkSlotAndCooldownAtomic(userId) {
 }
 
 // GET /api/acts - list acts (optionally filter by status, difficulty, public, actType, allowedRoles)
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const { status, difficulty, public: isPublic, actType, role } = req.query;
     const filter = {};
@@ -73,7 +74,7 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(acts);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to list acts.' });
+    next(err);
   }
 });
 

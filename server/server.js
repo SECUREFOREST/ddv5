@@ -6,6 +6,7 @@ const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -84,8 +85,16 @@ app.get('/status', (req, res) => {
 
 // Centralized error handler
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error.' });
+  const errorId = uuidv4();
+  console.error(`[${errorId}] Server error:`, err, {
+    method: req.method,
+    url: req.originalUrl,
+    body: req.body,
+    query: req.query,
+    params: req.params,
+    stack: err.stack,
+  });
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error.', errorId });
 });
 
 // Global process-level error handlers
