@@ -86,6 +86,8 @@ app.get('/status', (req, res) => {
 
 // Centralized error handler
 app.use((err, req, res, next) => {
+  res.header('Access-Control-Allow-Origin', FRONTEND_URL);
+  res.header('Access-Control-Allow-Credentials', 'true');
   const errorId = uuidv4();
   console.error(`[${errorId}] Server error:`, err, {
     method: req.method,
