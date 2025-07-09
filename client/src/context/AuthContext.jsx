@@ -41,7 +41,17 @@ export function AuthProvider({ children }) {
       setAccessToken(res.data.accessToken);
       setRefreshToken(res.data.refreshToken);
       // Fetch user info after login
-      const userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
+      let userRes;
+      try {
+        userRes = await api.get('/users/me', { headers: { Authorization: `Bearer ${res.data.accessToken}` } });
+      } catch (userErr) {
+        // If fetching user info fails, clear tokens and throw error
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        setAccessToken('');
+        setRefreshToken('');
+        throw new Error('Login succeeded but failed to load user profile. Please try again.');
+      }
       localStorage.setItem('user', JSON.stringify(userRes.data));
       setUser(userRes.data);
     } catch (err) {
