@@ -8,16 +8,37 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const validate = () => {
+    if (!username || !email || !password) {
+      setError('All fields are required.');
+      return false;
+    }
+    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Invalid email format.');
+      return false;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    if (!validate()) return;
     setLoading(true);
     try {
       await register(username, email, password);
-      navigate('/');
+      setSuccess('Registration successful! Redirecting...');
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed');
     } finally {
@@ -60,6 +81,7 @@ export default function Register() {
           />
         </div>
         {error && <div className="text-danger text-sm font-medium">{error}</div>}
+        {success && <div className="text-success text-sm font-medium">{success}</div>}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
