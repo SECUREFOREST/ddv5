@@ -9,10 +9,9 @@ const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const { sendNotification } = require('../utils/notification');
 
-// GET /api/users
-router.get('/', async (req, res) => {
-  // Optionally: list users (public info only)
-  const users = await User.find({}, 'username avatar roles');
+// GET /api/users (admin only)
+router.get('/', auth, checkPermission('view_users'), async (req, res) => {
+  const users = await User.find({}, 'username email avatar roles');
   res.json(users);
 });
 
