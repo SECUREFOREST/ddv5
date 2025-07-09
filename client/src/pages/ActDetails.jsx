@@ -153,7 +153,7 @@ export default function ActDetails() {
   };
 
   // Role restriction logic
-  const roleRestricted = act.allowedRoles && act.allowedRoles.length > 0 && (!user || !user.roles || !user.roles.some(r => act.allowedRoles.includes(r)));
+  const roleRestricted = act && act.allowedRoles && act.allowedRoles.length > 0 && (!user || !user.roles || !user.roles.some(r => act.allowedRoles.includes(r)));
 
   // Proof expiration logic
   const proofExpired = act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
@@ -442,7 +442,7 @@ export default function ActDetails() {
         {roleRestricted && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You do not have the required role to participate in this act.</b><br />
-            Allowed roles: {act.allowedRoles.join(', ')}
+            Allowed roles: {act && act.allowedRoles ? act.allowedRoles.join(', ') : ''}
           </div>
         )}
         {/* Only show proof submission if not in cooldown, not at slot limit, and not role restricted */}
