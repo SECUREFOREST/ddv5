@@ -21,6 +21,7 @@ const UIDemo = React.lazy(() => import('./pages/UIDemo'));
 const SwitchGames = React.lazy(() => import('./pages/SwitchGames'));
 const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
+const Landing = React.lazy(() => import('./pages/Landing'));
 
 function App() {
   return (
@@ -31,7 +32,8 @@ function App() {
           <div className="container mx-auto px-4 max-w-[1170px] sm:max-w-[750px] md:max-w-[970px] lg:max-w-[1170px] w-full">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                 <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
                 <Route path="/acts" element={<Acts />} />
                 <Route path="/acts/:id" element={<ActDetails />} />

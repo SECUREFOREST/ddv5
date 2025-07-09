@@ -18,22 +18,32 @@ router.get('/', async (req, res) => {
 
 // GET /api/users/:id
 router.get('/:id', async (req, res) => {
+  console.log('GET /users/:id called with id:', req.params.id);
   try {
     const user = await User.findById(req.params.id).select('-passwordHash');
-    if (!user) return res.status(404).json({ error: 'User not found.' });
+    if (!user) {
+      console.log('User not found for id:', req.params.id);
+      return res.status(404).json({ error: 'User not found.' });
+    }
     res.json(user);
   } catch (err) {
+    console.error('Error in GET /users/:id:', err);
     res.status(500).json({ error: 'Failed to get user.' });
   }
 });
 
 // GET /api/users/me - get current user info (auth required)
 router.get('/me', auth, async (req, res) => {
+  console.log('GET /users/me called with userId:', req.userId);
   try {
     const user = await User.findById(req.userId).select('-passwordHash');
-    if (!user) return res.status(404).json({ error: 'User not found.' });
+    if (!user) {
+      console.log('User not found for userId:', req.userId);
+      return res.status(404).json({ error: 'User not found.' });
+    }
     res.json(user);
   } catch (err) {
+    console.error('Error in GET /users/me:', err);
     res.status(500).json({ error: 'Failed to get user info.' });
   }
 });
