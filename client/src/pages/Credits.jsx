@@ -24,7 +24,7 @@ export default function Credits() {
         <div className="text-center text-[#888]">No credit data available.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
-          <table className="min-w-full bg-transparent text-sm text-[#eee] border border-[#282828]">
+          <table className="min-w-full bg-transparent text-sm text-[#fff] border border-[#282828]">
             <thead>
               <tr className="bg-[#282828] text-primary">
                 <th className="p-2 text-left font-semibold border-b border-[#282828]">User</th>

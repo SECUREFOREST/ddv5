@@ -69,10 +69,10 @@ export default function Profile() {
                         {user.username[0].toUpperCase()}
                       </div>
                     )}
-                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => setTabIdx(2)}>
+                    <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => setTabIdx(2)}>
                       Edit Profile
                     </button>
-                    <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
+                    <button className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
                       Logout
                     </button>
                   </div>
