@@ -23,23 +23,29 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="panel panel-default" style={{ maxWidth: 400, margin: '40px auto' }}>
-      <div className="panel-heading">
-        <h1 className="panel-title">Forgot Password</h1>
-      </div>
-      <div className="panel-body">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} required />
-          </div>
-          {message && <div className="text-success" style={{ marginBottom: 10 }}>{message}</div>}
-          {error && <div className="text-danger" style={{ marginBottom: 10 }}>{error}</div>}
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Sending...' : 'Send Reset Link'}
-          </button>
-        </form>
-      </div>
+    <div className="max-w-sm mx-auto mt-16 bg-white rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold text-center mb-6">Forgot Password</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-semibold mb-1">Email</label>
+          <input
+            type="email"
+            className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        {message && <div className="text-green-600 text-sm font-medium">{message}</div>}
+        {error && <div className="text-red-500 text-sm font-medium">{error}</div>}
+        <button
+          type="submit"
+          className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? 'Sending...' : 'Send Reset Link'}
+        </button>
+      </form>
     </div>
   );
 } 

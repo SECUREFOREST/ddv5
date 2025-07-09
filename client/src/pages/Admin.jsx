@@ -215,35 +215,31 @@ export default function Admin() {
   };
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">Admin Panel</h1>
+    <div className="max-w-7xl mx-auto p-4">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
       </div>
-      <div className="panel-body">
+      <div className="bg-white rounded-lg shadow p-4">
       <Tabs
         tabs={[
           {
             label: 'Users',
             content: (
               <div>
-                  <div className="form-inline" style={{ marginBottom: 12 }}>
-                    <div className="form-group" style={{ marginRight: 8 }}>
-                      <input
-                        className="form-control"
-                        placeholder="Search users..."
-                        value={userSearch}
-                        onChange={e => setUserSearch(e.target.value)}
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginRight: 8 }}>
-                      <select className="form-control" value={userStatusFilter} onChange={e => setUserStatusFilter(e.target.value)}>
-                        <option value="all">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <input
+                      className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring focus:border-blue-400"
+                      placeholder="Search users..."
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                    />
+                    <select className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring focus:border-blue-400" value={userStatusFilter} onChange={e => setUserStatusFilter(e.target.value)}>
+                      <option value="all">All Statuses</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
                   <button
-                      className="btn btn-danger btn-sm"
+                      className="bg-red-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                     disabled={selectedUsers.length === 0 || actionLoading}
                     onClick={async () => {
                       if (!window.confirm('Delete selected users?')) return;
@@ -259,7 +255,7 @@ export default function Admin() {
                     Delete Selected
                   </button>
                   <button
-                      className="btn btn-primary btn-sm"
+                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                     disabled={selectedUsers.length === 0 || actionLoading}
                     onClick={async () => {
                       const value = window.prompt('Enter new credit value for selected users:');
@@ -276,22 +272,22 @@ export default function Admin() {
                       Adjust Credits
                   </button>
                   <button
-                      className="btn btn-default btn-sm"
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-300"
                       onClick={() => exportToCsv('users.csv', users)}
                   >
                     Export CSV
                   </button>
                 </div>
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover">
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-white text-sm">
                           <thead>
-                        <tr>
-                          <th><input type="checkbox" checked={isAllSelected} onChange={toggleAll} /></th>
-                          <th>Username</th>
-                          <th>Email</th>
-                          <th>Status</th>
-                          <th>Credits</th>
-                          <th>Actions</th>
+                        <tr className="bg-gray-100 text-gray-700">
+                          <th className="p-2"><input type="checkbox" checked={isAllSelected} onChange={toggleAll} /></th>
+                          <th className="p-2 text-left">Username</th>
+                          <th className="p-2 text-left">Email</th>
+                          <th className="p-2 text-left">Status</th>
+                          <th className="p-2 text-left">Credits</th>
+                          <th className="p-2 text-left">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -303,15 +299,15 @@ export default function Admin() {
                           )
                           .slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE)
                           .map(u => (
-                            <tr key={u._id}>
-                              <td><input type="checkbox" checked={selectedUsers.includes(u._id)} onChange={() => toggleUser(u._id)} /></td>
-                              <td>{u.username}</td>
-                              <td>{u.email}</td>
-                              <td><span className={`label label-${u.active ? 'success' : 'default'}`}>{u.active ? 'Active' : 'Inactive'}</span></td>
-                              <td>{u.credits}</td>
-                              <td>
-                                <button className="btn btn-danger btn-xs" disabled={actionLoading} onClick={() => handleDelete(u._id)}>Delete</button>{' '}
-                                <button className="btn btn-primary btn-xs" disabled={actionLoading} onClick={() => handleAdjustCredits(u._id, u.credits)}>Adjust Credits</button>
+                            <tr key={u._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                              <td className="p-2"><input type="checkbox" checked={selectedUsers.includes(u._id)} onChange={() => toggleUser(u._id)} /></td>
+                              <td className="p-2">{u.username}</td>
+                              <td className="p-2">{u.email}</td>
+                              <td className="p-2"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>{u.active ? 'Active' : 'Inactive'}</span></td>
+                              <td className="p-2">{u.credits}</td>
+                              <td className="p-2 space-x-2">
+                                <button className="bg-red-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50" disabled={actionLoading} onClick={() => handleDelete(u._id)}>Delete</button>
+                                <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50" disabled={actionLoading} onClick={() => handleAdjustCredits(u._id, u.credits)}>Adjust Credits</button>
                                 </td>
                               </tr>
                             ))}
@@ -326,17 +322,15 @@ export default function Admin() {
             label: 'Acts',
             content: (
               <div>
-                  <div className="form-inline" style={{ marginBottom: 12 }}>
-                    <div className="form-group" style={{ marginRight: 8 }}>
-                      <input
-                        className="form-control"
-                        placeholder="Search acts..."
-                        value={actSearch}
-                        onChange={e => setActSearch(e.target.value)}
-                      />
-                    </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <input
+                      className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring focus:border-blue-400"
+                      placeholder="Search acts..."
+                      value={actSearch}
+                      onChange={e => setActSearch(e.target.value)}
+                    />
                   <button
-                      className="btn btn-green btn-sm"
+                      className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                     disabled={selectedActs.length === 0 || actionLoading}
                     onClick={async () => {
                       setActionLoading(true);
@@ -354,7 +348,7 @@ export default function Admin() {
                     Approve Selected
                   </button>
                   <button
-                      className="btn btn-yellow btn-sm"
+                      className="bg-yellow-400 text-gray-900 px-3 py-1 rounded text-sm disabled:opacity-50"
                     disabled={selectedActs.length === 0 || actionLoading}
                     onClick={async () => {
                       setActionLoading(true);
@@ -372,7 +366,7 @@ export default function Admin() {
                     Reject Selected
                   </button>
                   <button
-                      className="btn btn-red btn-sm"
+                      className="bg-red-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                     disabled={selectedActs.length === 0 || actionLoading}
                     onClick={async () => {
                       if (!window.confirm('Delete selected acts?')) return;
@@ -388,22 +382,22 @@ export default function Admin() {
                     Delete Selected
                   </button>
                   <button
-                      className="btn btn-default btn-sm"
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-300"
                       onClick={() => exportToCsv('acts.csv', acts)}
                   >
                     Export CSV
                   </button>
                 </div>
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover">
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-white text-sm">
                           <thead>
-                        <tr>
-                          <th><input type="checkbox" checked={isAllActsSelected} onChange={toggleAllActs} /></th>
-                          <th>Title</th>
-                          <th>Creator</th>
-                          <th>Status</th>
-                          <th>Difficulty</th>
-                          <th>Actions</th>
+                        <tr className="bg-gray-100 text-gray-700">
+                          <th className="p-2"><input type="checkbox" checked={isAllActsSelected} onChange={toggleAllActs} /></th>
+                          <th className="p-2 text-left">Title</th>
+                          <th className="p-2 text-left">Creator</th>
+                          <th className="p-2 text-left">Status</th>
+                          <th className="p-2 text-left">Difficulty</th>
+                          <th className="p-2 text-left">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -414,20 +408,20 @@ export default function Admin() {
                           )
                           .slice(actPage * ACTS_PER_PAGE, (actPage + 1) * ACTS_PER_PAGE)
                           .map(a => (
-                            <tr key={a._id}>
-                              <td><input type="checkbox" checked={selectedActs.includes(a._id)} onChange={() => toggleAct(a._id)} /></td>
-                              <td>{a.title}</td>
-                              <td>{a.creator?.username || 'Unknown'}</td>
-                              <td>{a.status}</td>
-                              <td>{a.difficulty}</td>
-                              <td>
+                            <tr key={a._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                              <td className="p-2"><input type="checkbox" checked={selectedActs.includes(a._id)} onChange={() => toggleAct(a._id)} /></td>
+                              <td className="p-2">{a.title}</td>
+                              <td className="p-2">{a.creator?.username || 'Unknown'}</td>
+                              <td className="p-2"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${a.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : a.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
+                              <td className="p-2">{a.difficulty}</td>
+                              <td className="p-2 space-x-2">
                                 {a.status === 'pending' && (
                                     <>
-                                    <button className="btn btn-green btn-xs" disabled={actionLoading} onClick={() => handleApprove(a._id)}>Approve</button>{' '}
-                                    <button className="btn btn-yellow btn-xs" disabled={actionLoading} onClick={() => handleReject(a._id)}>Reject</button>
+                                    <button className="bg-green-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50" disabled={actionLoading} onClick={() => handleApprove(a._id)}>Approve</button>
+                                    <button className="bg-yellow-400 text-gray-900 px-2 py-1 rounded text-xs disabled:opacity-50" disabled={actionLoading} onClick={() => handleReject(a._id)}>Reject</button>
                                     </>
                                   )}
-                                <button className="btn btn-red btn-xs" disabled={actionLoading} onClick={() => handleDeleteAct(a._id)}>Delete</button>
+                                <button className="bg-red-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50" disabled={actionLoading} onClick={() => handleDeleteAct(a._id)}>Delete</button>
                                 </td>
                               </tr>
                             ))}
@@ -442,26 +436,26 @@ export default function Admin() {
             label: 'Stats',
             content: (
               siteStatsLoading ? (
-                <div>Loading site stats...</div>
+                <div className="text-gray-500">Loading site stats...</div>
               ) : siteStatsError ? (
                 <div className="text-red-500">{siteStatsError}</div>
               ) : siteStats ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Card>
-                    <div className="text-lg font-semibold">Total Users</div>
-                    <div className="text-2xl">{siteStats.totalUsers}</div>
+                    <div className="text-lg font-semibold text-gray-700">Total Users</div>
+                    <div className="text-2xl font-bold text-blue-700">{siteStats.totalUsers}</div>
                   </Card>
                   <Card>
-                    <div className="text-lg font-semibold">Total Acts</div>
-                    <div className="text-2xl">{siteStats.totalActs}</div>
+                    <div className="text-lg font-semibold text-gray-700">Total Acts</div>
+                    <div className="text-2xl font-bold text-blue-700">{siteStats.totalActs}</div>
                   </Card>
                   <Card>
-                    <div className="text-lg font-semibold">Total Comments</div>
-                    <div className="text-2xl">{siteStats.totalComments}</div>
+                    <div className="text-lg font-semibold text-gray-700">Total Comments</div>
+                    <div className="text-2xl font-bold text-blue-700">{siteStats.totalComments}</div>
                   </Card>
                   <Card>
-                    <div className="text-lg font-semibold">Total Credits Awarded</div>
-                    <div className="text-2xl">{siteStats.totalCredits}</div>
+                    <div className="text-lg font-semibold text-gray-700">Total Credits Awarded</div>
+                    <div className="text-2xl font-bold text-blue-700">{siteStats.totalCredits}</div>
                   </Card>
                 </div>
               ) : (
@@ -473,36 +467,34 @@ export default function Admin() {
             label: 'Audit Log',
             content: (
               <div>
-                  <div className="form-inline" style={{ marginBottom: 12 }}>
-                    <div className="form-group" style={{ marginRight: 8 }}>
-                      <input
-                        className="form-control"
-                        placeholder="Search audit log..."
-                        value={auditLogSearch}
-                        onChange={e => setAuditLogSearch(e.target.value)}
-                      />
-                    </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <input
+                      className="border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring focus:border-blue-400"
+                      placeholder="Search audit log..."
+                      value={auditLogSearch}
+                      onChange={e => setAuditLogSearch(e.target.value)}
+                    />
                   <button
-                      className="btn btn-default btn-sm"
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-300"
                       onClick={() => exportToCsv('audit_log.csv', auditLog)}
                   >
                     Export CSV
                   </button>
                   <button
-                      className="btn btn-default btn-sm"
+                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm border border-gray-300 hover:bg-gray-300"
                       onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
                   >
                     Export All
                   </button>
                 </div>
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover">
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-white text-sm">
                       <thead>
-                        <tr>
-                          <th>Action</th>
-                          <th>User</th>
-                          <th>Target</th>
-                          <th>Timestamp</th>
+                        <tr className="bg-gray-100 text-gray-700">
+                          <th className="p-2 text-left">Action</th>
+                          <th className="p-2 text-left">User</th>
+                          <th className="p-2 text-left">Target</th>
+                          <th className="p-2 text-left">Timestamp</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -514,11 +506,11 @@ export default function Admin() {
                           )
                           .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
                         .map((log, i) => (
-                            <tr key={i}>
-                              <td>{log.action}</td>
-                              <td>{log.user?.username || 'System'}</td>
-                              <td>{log.target}</td>
-                              <td>{new Date(log.timestamp).toLocaleString()}</td>
+                            <tr key={i} className="border-b last:border-b-0 hover:bg-gray-50">
+                              <td className="p-2">{log.action}</td>
+                              <td className="p-2">{log.user?.username || 'System'}</td>
+                              <td className="p-2">{log.target}</td>
+                              <td className="p-2">{new Date(log.timestamp).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -533,34 +525,34 @@ export default function Admin() {
             content: (
               <div>
                 {reportsLoading ? (
-                  <div>Loading reports...</div>
+                  <div className="text-gray-500">Loading reports...</div>
                 ) : reportsError ? (
-                  <div className="text-danger">{reportsError}</div>
+                  <div className="text-red-500">{reportsError}</div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover">
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-white text-sm">
                       <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Target ID</th>
-                          <th>Reporter</th>
-                          <th>Reason</th>
-                          <th>Status</th>
-                          <th>Actions</th>
+                        <tr className="bg-gray-100 text-gray-700">
+                          <th className="p-2 text-left">Type</th>
+                          <th className="p-2 text-left">Target ID</th>
+                          <th className="p-2 text-left">Reporter</th>
+                          <th className="p-2 text-left">Reason</th>
+                          <th className="p-2 text-left">Status</th>
+                          <th className="p-2 text-left">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {reports.map(r => (
-                          <tr key={r._id}>
-                            <td>{r.type}</td>
-                            <td>{r.targetId}</td>
-                            <td>{r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
-                            <td>{r.reason}</td>
-                            <td><span className={`label label-${r.status === 'open' ? 'warning' : 'success'}`}>{r.status}</span></td>
-                            <td>
+                          <tr key={r._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                            <td className="p-2">{r.type}</td>
+                            <td className="p-2">{r.targetId}</td>
+                            <td className="p-2">{r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
+                            <td className="p-2">{r.reason}</td>
+                            <td className="p-2"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${r.status === 'open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{r.status}</span></td>
+                            <td className="p-2">
                               {r.status === 'open' && (
                                 <button
-                                  className="btn btn-xs btn-success"
+                                  className="bg-green-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
                                   disabled={resolvingReportId === r._id}
                                   onClick={() => handleResolveReport(r._id)}
                                 >
@@ -582,38 +574,38 @@ export default function Admin() {
             content: (
               <div>
                 {appealsLoading ? (
-                  <div>Loading appeals...</div>
+                  <div className="text-gray-500">Loading appeals...</div>
                 ) : appealsError ? (
-                  <div className="text-danger">{appealsError}</div>
+                  <div className="text-red-500">{appealsError}</div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover">
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-white text-sm">
                       <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Target ID</th>
-                          <th>User</th>
-                          <th>Reason</th>
-                          <th>Status</th>
-                          <th>Outcome</th>
-                          <th>Actions</th>
+                        <tr className="bg-gray-100 text-gray-700">
+                          <th className="p-2 text-left">Type</th>
+                          <th className="p-2 text-left">Target ID</th>
+                          <th className="p-2 text-left">User</th>
+                          <th className="p-2 text-left">Reason</th>
+                          <th className="p-2 text-left">Status</th>
+                          <th className="p-2 text-left">Outcome</th>
+                          <th className="p-2 text-left">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {appeals.map(a => (
-                          <tr key={a._id}>
-                            <td>{a.type}</td>
-                            <td>{a.targetId}</td>
-                            <td>{a.user?.username || a.user?.email || 'Unknown'}</td>
-                            <td>{a.reason}</td>
-                            <td><span className={`label label-${a.status === 'open' ? 'warning' : 'success'}`}>{a.status}</span></td>
-                            <td>{a.outcome || '-'}</td>
-                            <td>
+                          <tr key={a._id} className="border-b last:border-b-0 hover:bg-gray-50">
+                            <td className="p-2">{a.type}</td>
+                            <td className="p-2">{a.targetId}</td>
+                            <td className="p-2">{a.user?.username || a.user?.email || 'Unknown'}</td>
+                            <td className="p-2">{a.reason}</td>
+                            <td className="p-2"><span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${a.status === 'open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{a.status}</span></td>
+                            <td className="p-2">{a.outcome || '-'}</td>
+                            <td className="p-2">
                               {a.status === 'open' && (
-                                <div style={{ display: 'flex', gap: 8 }}>
+                                <div className="flex items-center gap-2">
                                   <input
                                     type="text"
-                                    className="form-control input-sm"
+                                    className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring focus:border-blue-400"
                                     placeholder="Outcome (required)"
                                     value={resolvingAppealId === a._id ? appealOutcome : ''}
                                     onChange={e => setAppealOutcome(e.target.value)}
@@ -621,7 +613,7 @@ export default function Admin() {
                                     disabled={resolvingAppealId !== a._id}
                                   />
                                   <button
-                                    className="btn btn-xs btn-success"
+                                    className="bg-green-500 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
                                     disabled={resolvingAppealId === a._id && !appealOutcome}
                                     onClick={() => handleResolveAppeal(a._id)}
                                   >
