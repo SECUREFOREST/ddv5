@@ -43,7 +43,12 @@ io.on('connection', (socket) => {
 module.exports.io = io;
 module.exports.userSockets = userSockets;
 
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://www.localhost:3000';
+app.use(cors({
+  origin: [FRONTEND_URL],
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
