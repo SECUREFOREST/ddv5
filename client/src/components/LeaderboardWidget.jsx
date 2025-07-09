@@ -2,9 +2,9 @@ import React from 'react';
 
 export default function LeaderboardWidget({ leaders = [], loading = false, title = 'Leaderboard' }) {
   return (
-    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
-      <div className="border-b border-neutral-900 pb-2 mb-2">
-        <h3 className="text-lg font-semibold text-primary">{title}</h3>
+    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h3 className="text-lg font-semibold">{title}</h3>
       </div>
       <div>
         {loading ? (
@@ -12,17 +12,17 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
         ) : leaders.length === 0 ? (
           <div className="text-neutral-400 py-4">No leaderboard data available.</div>
         ) : (
-          <table className="min-w-full text-sm text-left">
+          <table className="min-w-full text-sm text-left bg-transparent text-[#eee] border border-[#282828]">
             <thead>
-              <tr className="bg-neutral-900 text-primary">
-                <th className="px-4 py-2 font-semibold">#</th>
-                <th className="px-4 py-2 font-semibold">User</th>
-                <th className="px-4 py-2 font-semibold">Acts Completed</th>
+              <tr className="bg-[#282828] text-primary">
+                <th className="px-4 py-2 font-semibold border-b border-[#282828]">#</th>
+                <th className="px-4 py-2 font-semibold border-b border-[#282828]">User</th>
+                <th className="px-4 py-2 font-semibold border-b border-[#282828]">Acts Completed</th>
               </tr>
             </thead>
             <tbody>
               {leaders.map((entry, i) => (
-                <tr key={entry.user?.id || i} className="border-b border-neutral-900 last:border-b-0">
+                <tr key={entry.user?.id || i} className="border-b border-[#282828] last:border-b-0">
                   <td className="px-4 py-2 font-bold text-primary">{i + 1}</td>
                   <td className="px-4 py-2 flex items-center">
                     {entry.user?.avatar ? (

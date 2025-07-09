@@ -77,15 +77,15 @@ export default function ActCard({
   const isLong = description && description.length > 120;
   const shownDescription = !isLong || expanded ? description : description.slice(0, 120) + '...';
   return (
-    <div className={`bg-neutral-800 rounded-lg shadow p-4 mb-4 ${className}`.trim()} {...props}>
-      <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-2">
-        <h3 className="text-lg font-semibold truncate w-4/5 text-primary" title={title}>{title}</h3>
+    <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()} {...props}>
+      <div className="flex items-center justify-between bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <h3 className="text-lg font-semibold truncate w-4/5" title={title}>{title}</h3>
         <div className="flex items-center">
           <DifficultyBadge level={difficulty} />
           <StatusBadge status={status} />
         </div>
       </div>
-      <div className="mb-2 text-neutral-100 text-sm">
+      <div className="mb-2 text-[#eee] text-sm">
         {shownDescription}
         {isLong && (
           <button
@@ -104,7 +104,7 @@ export default function ActCard({
           {user?.avatar && (
             <img src={user.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2" />
           )}
-          <span className="text-neutral-100 text-sm font-medium">{user?.username}</span>
+          <span className="text-[#eee] text-sm font-medium">{user?.username}</span>
         </div>
         <div>{actions}</div>
       </div>
