@@ -112,14 +112,21 @@ function logMongoStatus() {
   const status = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   console.log(`[MongoDB] Status: ${status}`);
 }
+// Enhanced MongoDB connection event logging
 mongoose.connection.on('connected', () => {
-  console.log('[MongoDB] Connected');
+  console.log(`[${new Date().toISOString()}] [MongoDB] Connected`);
 });
 mongoose.connection.on('disconnected', () => {
-  console.log('[MongoDB] Disconnected');
+  console.log(`[${new Date().toISOString()}] [MongoDB] Disconnected`);
 });
 mongoose.connection.on('error', (err) => {
-  console.error('[MongoDB] Connection error:', err);
+  console.error(`[${new Date().toISOString()}] [MongoDB] Connection error:`, err);
+});
+mongoose.connection.on('reconnected', () => {
+  console.log(`[${new Date().toISOString()}] [MongoDB] Reconnected`);
+});
+mongoose.connection.on('reconnectFailed', () => {
+  console.error(`[${new Date().toISOString()}] [MongoDB] Reconnection failed`);
 });
 // Log initial status after connecting
 mongoose.connection.once('open', logMongoStatus);
