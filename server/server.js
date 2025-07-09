@@ -5,6 +5,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const app = express();
 const server = http.createServer(app);
@@ -59,10 +60,39 @@ app.use('/api/reports', require('./routes/reports'));
 app.use('/api/appeals', require('./routes/appeals'));
 app.use('/api/audit-log', require('./routes/auditLog'));
 app.use('/api/activity-feed', require('./routes/activityFeed'));
+app.use('/api/status', require('./routes/status'));
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');
 });
+
+// Health check endpoint for server and MongoDB status
+app.get('/api/status', (req, res) => {
+  const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({
+    status: 'ok',
+    mongo: mongoStatus,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Log MongoDB connection status
+function logMongoStatus() {
+  const status = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  console.log(`[MongoDB] Status: ${status}`);
+}
+mongoose.connection.on('connected', () => {
+  console.log('[MongoDB] Connected');
+});
+mongoose.connection.on('disconnected', () => {
+  console.log('[MongoDB] Disconnected');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('[MongoDB] Connection error:', err);
+});
+// Log initial status after connecting
+mongoose.connection.once('open', logMongoStatus);
 
 // Server will use PORT from environment or default to 4000
 const PORT = process.env.PORT || 4000;
