@@ -156,7 +156,7 @@ export default function ActDetails() {
   const roleRestricted = act && act.allowedRoles && act.allowedRoles.length > 0 && (!user || !user.roles || !user.roles.some(r => act.allowedRoles.includes(r)));
 
   // Proof expiration logic
-  const proofExpired = act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
+  const proofExpired = act && act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
 
   if (loading) return <div className="text-[#888]">Loading...</div>;
   if (!act) return <div className="text-danger font-semibold">Act not found.</div>;
@@ -259,7 +259,7 @@ export default function ActDetails() {
   return (
     <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold flex items-center gap-2">{act.title} <StatusBadge status={act.status} /></h1>
+        <h1 className="text-2xl font-bold flex items-center gap-2">{act?.title} <StatusBadge status={act?.status} /></h1>
         <div className="flex items-center gap-2">
           <input
             id="sharable-link-input"
@@ -276,26 +276,26 @@ export default function ActDetails() {
       </div>
       <div>
         <div className="bg-neutral-900 rounded p-4 mb-4">
-          <Markdown>{act.description}</Markdown>
+          <Markdown>{act?.description || ''}</Markdown>
         </div>
         {canAccept && (
           <div className="my-5">
-            <button className="bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={handleAcceptAct} disabled={acceptLoading}>
+            <button className="bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={act ? handleAcceptAct : undefined} disabled={acceptLoading || !act}>
               {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
             </button>
             {acceptError && <div className="text-danger text-sm font-medium mt-2">{acceptError}</div>}
           </div>
         )}
         <div className="text-neutral-400 mb-4">
-          By {act.creator?.username || 'Unknown'} | Status: <StatusBadge status={act.status} /> | Difficulty: {act.difficulty}
+          By {act?.creator?.username || 'Unknown'} | Status: <StatusBadge status={act?.status} /> | Difficulty: {act?.difficulty}
         </div>
         {/* Proof expiration countdown and message */}
-        {act.proofExpiresAt && !proofExpired && (
+        {act && act.proofExpiresAt && !proofExpired && (
           <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5">
             <b>Proof review period:</b> <Countdown target={act.proofExpiresAt} />
           </div>
         )}
-        {proofExpired && (
+        {act && proofExpired && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
           </div>
@@ -306,7 +306,7 @@ export default function ActDetails() {
             <h2 className="text-lg font-semibold">Grades</h2>
           </div>
           <div>
-            {act.grades && act.grades.length > 0 ? (
+            {act?.grades && act.grades.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {act.grades.map((g, i) => (
                   <li key={i} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
@@ -341,7 +341,7 @@ export default function ActDetails() {
             <h2 className="text-lg font-semibold">Comments</h2>
           </div>
           <div>
-            {act.comments && act.comments.length > 0 ? (
+            {act?.comments && act.comments.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {act.comments.map((c, i) => (
                   <li key={i} className="bg-gray-50 dark:bg-gray-800 rounded p-3">
