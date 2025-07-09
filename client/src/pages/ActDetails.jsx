@@ -303,7 +303,7 @@ export default function ActDetails() {
         <div className="flex items-center gap-2">
           <input
             id="sharable-link-input"
-            className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
+            className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
             type="text"
             value={actUrl}
             readOnly
@@ -361,11 +361,11 @@ export default function ActDetails() {
               <form onSubmit={handleGrade} className="space-y-4">
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Your Grade (1-10)</label>
-                  <input type="number" min="1" max="10" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
+                  <input type="number" min="1" max="10" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
                 </div>
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
+                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
                 </div>
                 {gradeError && <div className="text-danger text-sm font-medium">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
@@ -393,7 +393,7 @@ export default function ActDetails() {
                       <form onSubmit={handleEditSubmit} className="flex items-center gap-2 w-full">
                         <input
                           type="text"
-                          className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                          className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                           value={editCommentText}
                           onChange={e => setEditCommentText(e.target.value)}
                           required
@@ -455,7 +455,7 @@ export default function ActDetails() {
               <form onSubmit={handleComment} className="space-y-4">
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Add a Comment</label>
-                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
+                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
                 </div>
                 {commentError && <div className="text-danger text-sm font-medium">{commentError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
@@ -616,7 +616,7 @@ export default function ActDetails() {
           <div>
             <label className="block font-semibold mb-1 text-primary">Reason for appeal:</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={appealReason}
               onChange={e => setAppealReason(e.target.value)}
               rows={3}
