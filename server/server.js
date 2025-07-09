@@ -6,6 +6,7 @@ const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const mongoose = require('mongoose');
+require('./db');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
