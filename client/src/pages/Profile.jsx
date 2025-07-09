@@ -203,21 +203,39 @@ function ChangePasswordForm() {
   };
 
   return (
-    <form onSubmit={handleChangePassword} style={{ marginTop: 24 }}>
-      <h3>Change Password</h3>
-      <div className="form-group">
-        <label>Old Password</label>
-        <input type="password" className="form-control" value={oldPassword} onChange={e => setOldPassword(e.target.value)} required />
-      </div>
-      <div className="form-group">
-        <label>New Password</label>
-        <input type="password" className="form-control" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
-      </div>
-      {message && <div className="text-success" style={{ marginBottom: 10 }}>{message}</div>}
-      {error && <div className="text-danger" style={{ marginBottom: 10 }}>{error}</div>}
-      <button type="submit" className="btn btn-secondary btn-block" disabled={loading} style={{ width: '100%' }}>
-        {loading ? 'Changing...' : 'Change Password'}
-      </button>
-    </form>
+    <div className="max-w-sm mx-auto bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mt-8">
+      <h3 className="text-2xl font-bold text-center mb-6 text-[#888]">Change Password</h3>
+      <form onSubmit={handleChangePassword} className="space-y-4">
+        <div>
+          <label className="block font-semibold mb-1 text-primary">Old Password</label>
+          <input
+            type="password"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            value={oldPassword}
+            onChange={e => setOldPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1 text-primary">New Password</label>
+          <input
+            type="password"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            required
+          />
+        </div>
+        {message && <div className="text-success text-sm font-medium">{message}</div>}
+        {error && <div className="text-danger text-sm font-medium">{error}</div>}
+        <button
+          type="submit"
+          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+          disabled={loading}
+        >
+          {loading ? 'Changing...' : 'Change Password'}
+        </button>
+      </form>
+    </div>
   );
 } 
