@@ -47,6 +47,9 @@ export default function NotificationDropdown() {
   const [markAllError, setMarkAllError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Calculate unseenCount
+  const unseenCount = notifications.filter(n => !n.read).length;
+
   const fetchNotifications = async () => {
     setLoading(true);
     setError(null);
