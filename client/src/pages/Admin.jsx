@@ -214,6 +214,12 @@ export default function Admin() {
     setActionLoading(false);
   };
 
+  // Add a no-op handleUserSearch to prevent ReferenceError
+  const handleUserSearch = () => {
+    // Optionally, you could refetch users from the server here if needed
+    // For now, this is a no-op since filtering is local
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
@@ -252,7 +258,10 @@ export default function Admin() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredUsers.map((u) => (
+                          {users.filter(u =>
+                            u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+                            u.email.toLowerCase().includes(userSearch.toLowerCase())
+                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((u) => (
                             <tr key={u._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                               <td className="p-2 font-medium text-primary">{u.username}</td>
                               <td className="p-2 text-neutral-400">{u.email}</td>
