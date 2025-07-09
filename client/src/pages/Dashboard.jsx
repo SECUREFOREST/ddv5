@@ -58,9 +58,9 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
-      <div className="border-b pb-2 mb-4">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
+      <div className="border-b border-neutral-900 pb-2 mb-4">
+        <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
       </div>
       <div>
         {stats && (
@@ -70,16 +70,16 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-wrap gap-4 mb-6">
               <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold">Acts Completed</div>
-                <div className="text-2xl">{stats.actsCount}</div>
+                <div className="text-base font-semibold text-primary">Acts Completed</div>
+                <div className="text-2xl text-primary">{stats.actsCount}</div>
               </Card>
               <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold">Credits</div>
-                <div className="text-2xl">{stats.totalCredits}</div>
+                <div className="text-base font-semibold text-primary">Credits</div>
+                <div className="text-2xl text-primary">{stats.totalCredits}</div>
               </Card>
               <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold">Avg. Grade</div>
-                <div className="text-2xl">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+                <div className="text-base font-semibold text-primary">Avg. Grade</div>
+                <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
               </Card>
               <div className="flex-1 min-w-[180px] flex flex-col gap-4">
                 <ProgressBar
@@ -99,9 +99,9 @@ export default function Dashboard() {
             <RecentActivityWidget activities={activities} loading={activitiesLoading} title="Recent Activity" />
           </Card>
         </div>
-        <ul className="flex border-b mb-4">
+        <ul className="flex border-b border-neutral-900 mb-4">
           {TABS.map(t => (
-            <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-gray-500'}>
+            <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-neutral-400'}>
               <a
                 href="#"
                 className="px-4 py-2 inline-block focus:outline-none"
@@ -113,11 +113,11 @@ export default function Dashboard() {
           ))}
         </ul>
         {loading ? (
-          <div>Loading acts...</div>
+          <div className="text-neutral-400">Loading acts...</div>
         ) : (
           <div>
             {acts.length === 0 ? (
-              <div className="text-gray-400">No acts found for this tab.</div>
+              <div className="text-neutral-400">No acts found for this tab.</div>
             ) : (
               <ul className="space-y-4">
                 {acts.map(act => (
