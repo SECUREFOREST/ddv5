@@ -25,16 +25,10 @@ export default function Profile() {
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
     api.get('/acts', { params: { creator: user.id } })
-      .then(res => setActs(res.data))
+      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActs([]));
     api.get('/activities', { params: { userId: user.id, limit: 10 } })
-      .then(res => {
-        if (Array.isArray(res.data)) {
-          setUserActivities(res.data);
-        } else {
-          setUserActivities([]);
-        }
-      })
+      .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUserActivities([]))
       .finally(() => setUserActivitiesLoading(false));
   }, [user]);

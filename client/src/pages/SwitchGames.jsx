@@ -15,7 +15,7 @@ export default function SwitchGames() {
   useEffect(() => {
     setLoading(true);
     api.get('/api/switches')
-      .then(res => setSwitchGames(res.data))
+      .then(res => setSwitchGames(Array.isArray(res.data) ? res.data : []))
       .catch(() => setSwitchGames([]))
       .finally(() => setLoading(false));
   }, []);

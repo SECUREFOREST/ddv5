@@ -11,7 +11,7 @@ export default function Notifications() {
   const fetchNotifications = () => {
     setLoading(true);
     api.get('/notifications')
-      .then(res => setNotifications(res.data))
+      .then(res => setNotifications(Array.isArray(res.data) ? res.data : []))
       .catch(() => setNotifications([]))
       .finally(() => setLoading(false));
   };

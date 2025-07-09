@@ -89,7 +89,7 @@ export default function Admin() {
   const fetchUsers = () => {
     setLoading(true);
     api.get('/users')
-      .then(res => setUsers(res.data))
+      .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUsers([]))
       .finally(() => setLoading(false));
   };
@@ -97,7 +97,7 @@ export default function Admin() {
   const fetchActs = () => {
     setActsLoading(true);
     api.get('/acts')
-      .then(res => setActs(res.data))
+      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActs([]))
       .finally(() => setActsLoading(false));
   };
@@ -106,7 +106,7 @@ export default function Admin() {
     setReportsLoading(true);
     setReportsError('');
     api.get('/reports')
-      .then(res => setReports(res.data))
+      .then(res => setReports(Array.isArray(res.data) ? res.data : []))
       .catch(() => setReportsError('Failed to load reports.'))
       .finally(() => setReportsLoading(false));
   };
@@ -124,7 +124,7 @@ export default function Admin() {
     setAppealsLoading(true);
     setAppealsError('');
     api.get('/appeals')
-      .then(res => setAppeals(res.data))
+      .then(res => setAppeals(Array.isArray(res.data) ? res.data : []))
       .catch(() => setAppealsError('Failed to load appeals.'))
       .finally(() => setAppealsLoading(false));
   };
@@ -156,7 +156,7 @@ export default function Admin() {
       setAuditLogLoading(true);
       setAuditLogError('');
       api.get('/audit-log')
-        .then(res => setAuditLog(res.data))
+        .then(res => setAuditLog(Array.isArray(res.data) ? res.data : []))
         .catch(() => setAuditLogError('Failed to load audit log.'))
         .finally(() => setAuditLogLoading(false));
     }

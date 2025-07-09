@@ -8,7 +8,7 @@ export default function Credits() {
   useEffect(() => {
     setLoading(true);
     api.get('/credits')
-      .then(res => setCredits(res.data))
+      .then(res => setCredits(Array.isArray(res.data) ? res.data : []))
       .catch(() => setCredits([]))
       .finally(() => setLoading(false));
   }, []);

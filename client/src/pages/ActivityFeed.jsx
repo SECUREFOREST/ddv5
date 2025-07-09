@@ -9,7 +9,7 @@ export default function ActivityFeed() {
   useEffect(() => {
     setLoading(true);
     api.get('/activity-feed?limit=30')
-      .then(res => setActivities(res.data))
+      .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError('Failed to load activity feed.'))
       .finally(() => setLoading(false));
   }, []);

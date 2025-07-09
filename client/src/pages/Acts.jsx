@@ -73,7 +73,7 @@ export default function Acts() {
         role: user?.roles?.[0] || undefined,
       },
     })
-      .then(res => setActs(res.data))
+      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActs([]))
       .finally(() => setLoading(false));
   }, [status, difficulty, search, isPublic, actType, user]);
@@ -113,7 +113,7 @@ export default function Acts() {
           role: user?.roles?.[0] || undefined,
         },
       });
-      setActs(actsRes.data);
+      setActs(Array.isArray(actsRes.data) ? actsRes.data : []);
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create act');
     } finally {

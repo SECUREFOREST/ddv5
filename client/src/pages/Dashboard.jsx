@@ -30,7 +30,7 @@ export default function Dashboard() {
     if (!user) return;
     setLoading(true);
     api.get('/acts', { params: { status: tab } })
-      .then(res => setActs(res.data))
+      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActs([]))
       .finally(() => setLoading(false));
   }, [tab, user]);
@@ -44,7 +44,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     api.get('/stats/leaderboard', { params: { limit: 5 } })
-      .then(res => setLeaders(res.data))
+      .then(res => setLeaders(Array.isArray(res.data) ? res.data : []))
       .catch(() => setLeaders([]))
       .finally(() => setLeadersLoading(false));
   }, []);
@@ -52,13 +52,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return;
     api.get('/activities', { params: { limit: 10, userId: user.id } })
-      .then(res => {
-        if (Array.isArray(res.data)) {
-          setActivities(res.data);
-        } else {
-          setActivities([]);
-        }
-      })
+      .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActivities([]))
       .finally(() => setActivitiesLoading(false));
   }, []);

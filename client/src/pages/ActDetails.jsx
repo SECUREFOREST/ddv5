@@ -335,54 +335,52 @@ export default function ActDetails() {
             )}
           </div>
         </div>
-        <div className="panel panel-default">
-          <div className="panel-heading">
-            <h2 className="panel-title" style={{ fontSize: 18 }}>Comments</h2>
+        {/* Comments Section */}
+        <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-6">
+          <div className="border-b pb-2 mb-4">
+            <h2 className="text-lg font-semibold">Comments</h2>
           </div>
-          <div className="panel-body">
-        {act.comments && act.comments.length > 0 ? (
-              <ul className="list-group">
-            {act.comments.map((c, i) => (
-                  <li key={i} className="list-group-item">
+          <div>
+            {act.comments && act.comments.length > 0 ? (
+              <ul className="space-y-2 mb-4">
+                {act.comments.map((c, i) => (
+                  <li key={i} className="bg-gray-50 dark:bg-gray-800 rounded p-3">
                     {c.deleted ? (
-                      <span className="text-muted">This comment was deleted.</span>
+                      <span className="text-gray-400">This comment was deleted.</span>
                     ) : c.hidden ? (
-                      <span className="text-muted">This comment was hidden by a moderator.</span>
+                      <span className="text-gray-400">This comment was hidden by a moderator.</span>
                     ) : editCommentId === c._id ? (
-                      <form onSubmit={handleEditSubmit} style={{ display: 'inline' }}>
+                      <form onSubmit={handleEditSubmit} className="flex items-center gap-2">
                         <input
                           type="text"
-                          className="form-control"
+                          className="w-56 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
                           value={editCommentText}
                           onChange={e => setEditCommentText(e.target.value)}
                           required
-                          style={{ width: 220, display: 'inline-block', marginRight: 8 }}
                         />
-                        <button type="submit" className="btn btn-xs btn-primary" disabled={editLoading}>
+                        <button type="submit" className="bg-primary text-white rounded px-3 py-1 font-semibold text-xs hover:bg-primary-dark" disabled={editLoading}>
                           {editLoading ? 'Saving...' : 'Save'}
                         </button>
-                        <button type="button" className="btn btn-xs btn-default" onClick={() => setEditCommentId(null)}>
+                        <button type="button" className="bg-gray-200 text-gray-800 rounded px-3 py-1 font-semibold text-xs hover:bg-gray-300" onClick={() => setEditCommentId(null)}>
                           Cancel
                         </button>
-                        {editError && <div className="text-danger help-block">{editError}</div>}
+                        {editError && <div className="text-red-500 text-xs">{editError}</div>}
                       </form>
                     ) : (
                       <>
-                        <span className="label label-default">{c.author?.username || 'Unknown'}:</span> <Markdown className="inline">{c.text}</Markdown>
-                        <span className="text-muted" style={{ marginLeft: 8, fontSize: 12 }}>{new Date(c.createdAt).toLocaleString()}</span>
-                        {c.editedAt && <span className="text-muted" style={{ marginLeft: 8, fontSize: 11 }}>(edited)</span>}
+                        <span className="bg-gray-200 text-gray-700 rounded px-2 py-1 text-xs font-semibold mr-2">{c.author?.username || 'Unknown'}:</span> <Markdown className="inline">{c.text}</Markdown>
+                        <span className="text-gray-400 ml-2 text-xs">{new Date(c.createdAt).toLocaleString()}</span>
+                        {c.editedAt && <span className="text-gray-400 ml-2 text-xs">(edited)</span>}
                         {user && (user.id === c.author?._id || isAdmin) && !c.deleted && !c.hidden && (
                           <>
                             <button
-                              className="btn btn-xs btn-link"
-                              style={{ marginLeft: 8 }}
+                              className="ml-2 text-primary underline text-xs focus:outline-none"
                               onClick={() => openEditModal(c)}
                             >
                               Edit
                             </button>
                             <button
-                              className="btn btn-xs btn-link text-danger"
-                              style={{ marginLeft: 4 }}
+                              className="ml-2 text-red-500 underline text-xs focus:outline-none"
                               onClick={() => handleDeleteComment(c._id)}
                             >
                               Delete
@@ -391,8 +389,7 @@ export default function ActDetails() {
                         )}
                         {(isAdmin || isModerator) && !c.deleted && !c.hidden && (
                           <button
-                            className="btn btn-xs btn-link text-warning"
-                            style={{ marginLeft: 4 }}
+                            className="ml-2 text-yellow-500 underline text-xs focus:outline-none"
                             onClick={() => openModerateModal(c._id)}
                           >
                             Hide
@@ -400,8 +397,7 @@ export default function ActDetails() {
                         )}
                         {user && (
                           <button
-                            className="btn btn-xs btn-link text-danger"
-                            style={{ marginLeft: 12 }}
+                            className="ml-4 text-red-500 underline text-xs focus:outline-none"
                             onClick={() => openReportModal(c._id)}
                           >
                             Report
@@ -410,24 +406,24 @@ export default function ActDetails() {
                       </>
                     )}
                   </li>
-            ))}
-          </ul>
-        ) : (
-              <div className="text-muted">No comments yet.</div>
-        )}
-        {user && (
-              <form onSubmit={handleComment} style={{ marginTop: 16 }}>
-                <div className="form-group">
-                  <label>Add a Comment</label>
-                  <textarea className="form-control" value={comment} onChange={e => setComment(e.target.value)} required />
-            </div>
-                {commentError && <div className="text-danger help-block">{commentError}</div>}
-                <button type="submit" className="btn btn-primary">
-              Submit Comment
-            </button>
-          </form>
-        )}
-      </div>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-400 mb-4">No comments yet.</div>
+            )}
+            {user && (
+              <form onSubmit={handleComment} className="space-y-4">
+                <div>
+                  <label className="block font-semibold mb-1">Add a Comment</label>
+                  <textarea className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
+                </div>
+                {commentError && <div className="text-red-500 text-sm">{commentError}</div>}
+                <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
+                  Submit Comment
+                </button>
+              </form>
+            )}
+          </div>
         </div>
         {/* Slot/cooldown enforcement messages */}
         {inCooldown && (
@@ -486,89 +482,71 @@ export default function ActDetails() {
             </button>
           </div>
         )}
-        <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Act">
-          <form onSubmit={handleReject}>
-            <div className="form-group">
-              <label>Reason for rejection:</label>
-              <textarea
-                className="form-control"
-                value={rejectReason}
-                onChange={e => setRejectReason(e.target.value)}
-                rows={3}
-                placeholder="Enter the reason for rejection (required)"
-                required
-              />
-            </div>
-            {rejectError && <div className="text-danger help-block">{rejectError}</div>}
-            <div className="modal-footer">
-              <button type="button" className="btn btn-default" onClick={() => setShowRejectModal(false)}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-danger" disabled={rejecting}>
-                {rejecting ? 'Rejecting...' : 'Reject Act'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-        {/* Show rejection reason and cooldown if rejected */}
-        {act.status === 'rejected' && act.rejection && (
-          <div className="alert alert-danger" style={{ margin: '20px 0' }}>
-            <b>Act was rejected.</b>
-            <div><b>Reason:</b> {act.rejection.reason}</div>
-            {act.rejection.cooldownUntil && (
-              <div>
-                <b>Cooldown until:</b> {new Date(act.rejection.cooldownUntil).toLocaleString()}
-              </div>
-            )}
-            {user && (
-              <button className="btn btn-warning" style={{ marginTop: 12 }} onClick={openAppealModal}>
-                Appeal This Decision
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof of Completion">
-        <form onSubmit={handleProofSubmit}>
-          <div className="form-group">
-            <label>Describe what you did (optional):</label>
+      </div> {/* <-- Close main content div before modals */}
+      {/* Modals Section */}
+      <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Act">
+        <form onSubmit={handleReject} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Reason for rejection:</label>
             <textarea
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              rows={3}
+              placeholder="Enter the reason for rejection (required)"
+              required
+            />
+          </div>
+          {rejectError && <div className="text-red-500 text-sm">{rejectError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowRejectModal(false)}>
+              Cancel
+            </button>
+            <button type="submit" className="bg-red-500 text-white rounded px-4 py-2 font-semibold text-sm hover:bg-red-600" disabled={rejecting}>
+              {rejecting ? 'Rejecting...' : 'Reject Act'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof of Completion">
+        <form onSubmit={handleProofSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Describe what you did (optional):</label>
+            <textarea
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={proof}
               onChange={e => setProof(e.target.value)}
               rows={4}
               placeholder="Describe your proof, add context, or leave blank if uploading a file."
             />
           </div>
-          <div className="form-group">
-            <label>Upload image or video proof:</label>
+          <div>
+            <label className="block font-semibold mb-1">Upload image or video proof:</label>
             <input
               type="file"
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               onChange={e => setProofFile(e.target.files[0])}
               accept="image/*,video/mp4,video/webm,video/quicktime"
             />
-            <small className="form-text text-muted">
-              Accepted file types: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.
-            </small>
+            <small className="text-gray-400">Accepted file types: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
           </div>
-          {proofError && <div className="text-danger help-block">{proofError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowProofModal(false)}>
+          {proofError && <div className="text-red-500 text-sm">{proofError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
               Submit Proof
             </button>
           </div>
         </form>
       </Modal>
       <Modal open={showReportModal} onClose={() => setShowReportModal(false)} title="Report Comment">
-        <form onSubmit={handleReportSubmit}>
-          <div className="form-group">
-            <label>Reason for reporting:</label>
+        <form onSubmit={handleReportSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Reason for reporting:</label>
             <textarea
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={reportReason}
               onChange={e => setReportReason(e.target.value)}
               rows={3}
@@ -576,24 +554,24 @@ export default function ActDetails() {
               required
             />
           </div>
-          {reportMessage && <div className="text-success help-block">{reportMessage}</div>}
-          {reportError && <div className="text-danger help-block">{reportError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowReportModal(false)}>
+          {reportMessage && <div className="text-green-600 text-sm">{reportMessage}</div>}
+          {reportError && <div className="text-red-500 text-sm">{reportError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowReportModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-danger" disabled={reportLoading}>
+            <button type="submit" className="bg-red-500 text-white rounded px-4 py-2 font-semibold text-sm hover:bg-red-600" disabled={reportLoading}>
               {reportLoading ? 'Reporting...' : 'Report'}
             </button>
           </div>
         </form>
       </Modal>
       <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act">
-        <form onSubmit={handleAppealSubmit}>
-          <div className="form-group">
-            <label>Reason for appeal:</label>
+        <form onSubmit={handleAppealSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Reason for appeal:</label>
             <textarea
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={appealReason}
               onChange={e => setAppealReason(e.target.value)}
               rows={3}
@@ -601,59 +579,59 @@ export default function ActDetails() {
               required
             />
           </div>
-          {appealMessage && <div className="text-success help-block">{appealMessage}</div>}
-          {appealError && <div className="text-danger help-block">{appealError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowAppealModal(false)}>
+          {appealMessage && <div className="text-green-600 text-sm">{appealMessage}</div>}
+          {appealError && <div className="text-red-500 text-sm">{appealError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowAppealModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={appealLoading}>
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={appealLoading}>
               {appealLoading ? 'Submitting...' : 'Submit Appeal'}
             </button>
           </div>
         </form>
       </Modal>
       <Modal open={editCommentId !== null} onClose={() => setEditCommentId(null)} title="Edit Comment">
-        <form onSubmit={handleEditSubmit}>
-          <div className="form-group">
-            <label>Edit your comment:</label>
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Edit your comment:</label>
             <input
               type="text"
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={editCommentText}
               onChange={e => setEditCommentText(e.target.value)}
               required
             />
           </div>
-          {editError && <div className="text-danger help-block">{editError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setEditCommentId(null)}>
+          {editError && <div className="text-red-500 text-sm">{editError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setEditCommentId(null)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={editLoading}>
+            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={editLoading}>
               {editLoading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>
       </Modal>
       <Modal open={showModerateModal} onClose={() => setShowModerateModal(false)} title="Moderate/Hide Comment">
-        <form onSubmit={handleModerateSubmit}>
-          <div className="form-group">
-            <label>Reason for hiding/moderating:</label>
+        <form onSubmit={handleModerateSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Reason for hiding/moderating:</label>
             <input
               type="text"
-              className="form-control"
+              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={moderationReason}
               onChange={e => setModerationReason(e.target.value)}
               required
             />
           </div>
-          {moderateError && <div className="text-danger help-block">{moderateError}</div>}
-          <div className="modal-footer">
-            <button type="button" className="btn btn-default" onClick={() => setShowModerateModal(false)}>
+          {moderateError && <div className="text-red-500 text-sm">{moderateError}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowModerateModal(false)}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-warning" disabled={moderateLoading}>
+            <button type="submit" className="bg-yellow-500 text-white rounded px-4 py-2 font-semibold text-sm hover:bg-yellow-600" disabled={moderateLoading}>
               {moderateLoading ? 'Hiding...' : 'Hide'}
             </button>
           </div>

@@ -9,7 +9,7 @@ export default function Leaderboard() {
   useEffect(() => {
     setLoading(true);
     api.get('/stats/leaderboard')
-      .then(res => setLeaders(res.data))
+      .then(res => setLeaders(Array.isArray(res.data) ? res.data : []))
       .catch(() => setLeaders([]))
       .finally(() => setLoading(false));
   }, []);
