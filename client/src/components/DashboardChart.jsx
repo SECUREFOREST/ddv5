@@ -9,6 +9,11 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '../../../client/tailwind.config.js';
+
+const fullConfig = resolveConfig(tailwindConfig);
+const colors = fullConfig.theme.colors;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,9 +30,9 @@ export default function DashboardChart({ stats = {}, className = '' }) {
         label: 'User Stats',
         data: [stats.actsCount || 0, stats.totalCredits || 0, stats.avgGrade || 0],
         backgroundColor: [
-          '#3b82f6', // blue
-          '#10b981', // green
-          '#eab308',  // yellow
+          colors.primary.DEFAULT,
+          colors.success.DEFAULT,
+          colors.warning.DEFAULT,
         ],
         borderRadius: 0,
       },
