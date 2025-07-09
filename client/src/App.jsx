@@ -27,26 +27,28 @@ function App() {
     <AuthProvider>
       <div className="flex flex-col min-h-screen bg-[#060606]">
         <Navbar />
-        <main className="flex-1 container mx-auto px-4 py-6">
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/acts" element={<Acts />} />
-              <Route path="/acts/:id" element={<ActDetails />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
-              <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/ui-demo" element={<UIDemo />} />
-              <Route path="/switches" element={<SwitchGames />} />
-              <Route path="/switches/:id" element={<SwitchGameDetails />} />
-              <Route path="/activity-feed" element={<ActivityFeed />} />
-            </Routes>
-          </Suspense>
+        <main className="flex-1">
+          <div className="container mx-auto px-4 max-w-[1170px] sm:max-w-[750px] md:max-w-[970px] lg:max-w-[1170px] w-full">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                <Route path="/acts" element={<Acts />} />
+                <Route path="/acts/:id" element={<ActDetails />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
+                <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/ui-demo" element={<UIDemo />} />
+                <Route path="/switches" element={<SwitchGames />} />
+                <Route path="/switches/:id" element={<SwitchGameDetails />} />
+                <Route path="/activity-feed" element={<ActivityFeed />} />
+              </Routes>
+            </Suspense>
+          </div>
         </main>
         <Footer />
       </div>
