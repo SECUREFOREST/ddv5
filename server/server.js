@@ -60,7 +60,6 @@ app.use('/api/reports', require('./routes/reports'));
 app.use('/api/appeals', require('./routes/appeals'));
 app.use('/api/audit-log', require('./routes/auditLog'));
 app.use('/api/activity-feed', require('./routes/activityFeed'));
-app.use('/api/status', require('./routes/status'));
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');
