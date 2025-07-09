@@ -297,13 +297,13 @@ export default function ActDetails() {
   };
 
   return (
-    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-2xl mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold flex items-center gap-2">{act?.title} <StatusBadge status={act?.status} /></h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{act?.title} <StatusBadge status={act?.status} /></h1>
         <div className="flex items-center gap-2">
           <input
             id="sharable-link-input"
-            className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary mr-2"
+            className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
             type="text"
             value={actUrl}
             readOnly
@@ -320,7 +320,7 @@ export default function ActDetails() {
         </div>
         {canAccept && (
           <div className="my-5">
-            <button className="bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={act ? handleAcceptAct : undefined} disabled={acceptLoading || !act}>
+            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={act ? handleAcceptAct : undefined} disabled={acceptLoading || !act}>
               {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
             </button>
             {acceptError && <div className="text-danger text-sm font-medium mt-2">{acceptError}</div>}
@@ -360,15 +360,15 @@ export default function ActDetails() {
             {user && !proofExpired && (
               <form onSubmit={handleGrade} className="space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1">Your Grade (1-10)</label>
-                  <input type="number" min="1" max="10" className="w-24 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Your Grade (1-10)</label>
+                  <input type="number" min="1" max="10" className="w-24 rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Feedback (optional)</label>
-                  <input className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
+                  <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
+                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
                 </div>
-                {gradeError && <div className="text-red-500 text-sm">{gradeError}</div>}
-                <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
+                {gradeError && <div className="text-danger text-sm font-medium">{gradeError}</div>}
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
@@ -393,7 +393,7 @@ export default function ActDetails() {
                       <form onSubmit={handleEditSubmit} className="flex items-center gap-2">
                         <input
                           type="text"
-                          className="w-56 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                          className="w-56 rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                           value={editCommentText}
                           onChange={e => setEditCommentText(e.target.value)}
                           required
@@ -458,7 +458,7 @@ export default function ActDetails() {
                   <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
                 </div>
                 {commentError && <div className="text-danger text-sm font-medium">{commentError}</div>}
-                <button type="submit" className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
                   Submit Comment
                 </button>
               </form>
