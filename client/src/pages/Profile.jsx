@@ -164,10 +164,12 @@ export default function Profile() {
                       {saving ? 'Saving...' : 'Save'}
                     </button>
                   </form>
-                  <hr className="my-8 border-neutral-900" />
-                  <ChangePasswordForm />
                 </div>
               ),
+            },
+            {
+              label: 'Change Password',
+              content: <ChangePasswordForm />,
             },
           ]}
           value={tabIdx}
