@@ -19,6 +19,27 @@ router.get('/', async (req, res) => {
 // GET /api/users/:id
 router.get('/:id', async (req, res) => {
   console.log('GET /users/:id called with id:', req.params.id);
+  if (req.params.id === 'me') {
+    // If 'me', use the /me logic (requires auth)
+    if (!req.headers.authorization) {
+      return res.status(401).json({ error: 'Authorization required.' });
+    }
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-passwordHash');
+      if (!user) {
+        console.log('User not found for userId:', decoded.id);
+        return res.status(404).json({ error: 'User not found.' });
+      }
+      return res.json(user);
+    } catch (err) {
+      console.error('Error in GET /users/:id (me):', err);
+      return res.status(401).json({ error: 'Invalid or expired token.' });
+    }
+  }
   try {
     const user = await User.findById(req.params.id).select('-passwordHash');
     if (!user) {

@@ -15,27 +15,23 @@ const Landing = () => {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#060606] p-6">
-      <div className="bg-[#181818] border border-[#282828] rounded-xl shadow-lg p-8 max-w-lg w-full text-center">
-        {/* Branding: Logo and Tagline */}
-        <img src="/logo.png" alt="DDv5 Logo" className="w-20 h-20 mx-auto mb-4" />
-        <h1 className="text-4xl font-extrabold mb-2 text-white">Welcome to DDv5!</h1>
-        <p className="text-xl mb-6 text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
-        <ul className="text-left mb-8 text-gray-400 list-disc list-inside">
-          <li>✔️ Log your daily acts and progress</li>
-          <li>✔️ Compete on the leaderboard</li>
-          <li>✔️ Earn credits and rewards</li>
-          <li>✔️ Get notified about new activities</li>
-        </ul>
-        {/* Enhanced Call-to-Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-          <Link to="/login" className="w-full sm:w-auto">
-            <button className="w-full sm:w-auto bg-[#D60B20] text-white px-8 py-3 rounded-xl text-lg font-bold shadow-lg hover:bg-[#b80e1c] transition-all duration-200">Log In</button>
-          </Link>
-          <Link to="/register" className="w-full sm:w-auto">
-            <button className="w-full sm:w-auto bg-transparent border-2 border-[#D60B20] text-[#D60B20] px-8 py-3 rounded-xl text-lg font-bold shadow-lg hover:bg-[#1a1a1a] hover:border-[#b80e1c] hover:text-[#b80e1c] transition-all duration-200">Register</button>
-          </Link>
-        </div>
+    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <img src="/logo.png" alt="DDv5 Logo" className="w-16 h-16 mx-auto mb-4" />
+      <h1 className="text-2xl font-bold text-center mb-4 text-[#888]">Welcome to DDv5!</h1>
+      <p className="text-base mb-6 text-center text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
+      <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">
+        <li>✔️ Log your daily acts and progress</li>
+        <li>✔️ Compete on the leaderboard</li>
+        <li>✔️ Earn credits and rewards</li>
+        <li>✔️ Get notified about new activities</li>
+      </ul>
+      <div className="flex flex-col gap-3 mt-6">
+        <Link to="/login">
+          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Log In</button>
+        </Link>
+        <Link to="/register">
+          <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-semibold hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark">Register</button>
+        </Link>
       </div>
     </div>
   );

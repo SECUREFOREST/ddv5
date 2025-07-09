@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Register() {
   const { register } = useAuth();
@@ -48,6 +48,9 @@ export default function Register() {
 
   return (
     <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <Link to="/" className="inline-block mb-4">
+        <button className="text-primary hover:text-primary-dark text-sm font-semibold">&larr; Back to Home</button>
+      </Link>
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
