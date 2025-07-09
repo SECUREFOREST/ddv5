@@ -665,56 +665,48 @@ export default function Admin() {
         title={null}
         actions={null}
         size="sm"
-        className="p-0"
       >
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="bg-white dark:bg-[#23272f] rounded-2xl shadow-2xl w-full max-w-md mx-auto border border-neutral-200 dark:border-[#282828]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-[#282828] rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit User</h2>
-              <button type="button" className="text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold focus:outline-none" aria-label="Close" onClick={closeEditUserModal}>&times;</button>
+        <div className="max-w-sm mx-auto bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px]">
+          <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Edit User</h1>
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
+            <div>
+              <label className="block font-semibold mb-1 text-primary">Username</label>
+              <input
+                type="text"
+                name="username"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                value={editUserData.username}
+                onChange={handleEditUserChange}
+                required
+              />
             </div>
-            <form onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
-              <div className="px-6 py-6 space-y-5">
-                <div>
-                  <label className="block font-semibold mb-1 text-gray-700 dark:text-gray-200">Username</label>
-                  <input
-                    type="text"
-                    name="username"
-                    className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    value={editUserData.username}
-                    onChange={handleEditUserChange}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold mb-1 text-gray-700 dark:text-gray-200">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    value={editUserData.email}
-                    onChange={handleEditUserChange}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold mb-1 text-gray-700 dark:text-gray-200">Role</label>
-                  <input
-                    type="text"
-                    name="role"
-                    className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2 bg-neutral-100 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    value={editUserData.role}
-                    onChange={handleEditUserChange}
-                  />
-                </div>
-                {editUserError && <div className="bg-red-100 text-red-700 rounded-lg px-4 py-2 text-sm font-medium">{editUserError}</div>}
-              </div>
-              <div className="flex justify-end gap-3 px-6 py-4 border-t border-neutral-200 dark:border-[#282828] rounded-b-2xl">
-                <button type="button" className="px-5 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 font-semibold hover:bg-neutral-300 dark:hover:bg-neutral-600 transition" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
-                <button type="submit" className="px-5 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
-              </div>
-            </form>
-          </div>
+            <div>
+              <label className="block font-semibold mb-1 text-primary">Email</label>
+              <input
+                type="email"
+                name="email"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                value={editUserData.email}
+                onChange={handleEditUserChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1 text-primary">Role</label>
+              <input
+                type="text"
+                name="role"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                value={editUserData.role}
+                onChange={handleEditUserChange}
+              />
+            </div>
+            {editUserError && <div className="text-danger text-sm font-medium">{editUserError}</div>}
+            <div className="flex gap-2 mt-4">
+              <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
+              <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
+            </div>
+          </form>
         </div>
       </Modal>
     </div>
