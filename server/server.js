@@ -53,25 +53,25 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Placeholder routes
-app.use('/api/users', require('./routes/users'));
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/acts', require('./routes/acts'));
-app.use('/api/comments', require('./routes/comments'));
-app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/credits', require('./routes/credits'));
-app.use('/api/stats', require('./routes/stats'));
-app.use('/api/switches', require('./routes/switches'));
-app.use('/api/reports', require('./routes/reports'));
-app.use('/api/appeals', require('./routes/appeals'));
-app.use('/api/audit-log', require('./routes/auditLog'));
-app.use('/api/activity-feed', require('./routes/activityFeed'));
+app.use('/users', require('./routes/users'));
+app.use('/auth', require('./routes/auth'));
+app.use('/acts', require('./routes/acts'));
+app.use('/comments', require('./routes/comments'));
+app.use('/notifications', require('./routes/notifications'));
+app.use('/credits', require('./routes/credits'));
+app.use('/stats', require('./routes/stats'));
+app.use('/switches', require('./routes/switches'));
+app.use('/reports', require('./routes/reports'));
+app.use('/appeals', require('./routes/appeals'));
+app.use('/audit-log', require('./routes/auditLog'));
+app.use('/activity-feed', require('./routes/activityFeed'));
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');
 });
 
 // Health check endpoint for server and MongoDB status
-app.get('/api/status', (req, res) => {
+app.get('/status', (req, res) => {
   const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.json({
     status: 'ok',
