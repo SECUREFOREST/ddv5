@@ -56,129 +56,129 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">Profile</h1>
+    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
+      <div className="border-b pb-2 mb-4">
+        <h1 className="text-2xl font-bold">Profile</h1>
       </div>
-      <div className="panel-body">
-      <Tabs
-        tabs={[
-          {
-            label: 'Overview',
-            content: (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, marginBottom: 32 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 160 }}>
-                  {user.avatar ? (
-                      <img src={user.avatar} alt="avatar" className="avatar" style={{ width: 96, height: 96, borderRadius: '50%', marginBottom: 8 }} />
-                  ) : (
-                      <div className="avatar" style={{ width: 96, height: 96, borderRadius: '50%', background: '#333', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 'bold', marginBottom: 8 }}>
-                      {user.username[0].toUpperCase()}
-                    </div>
-                  )}
-                    <button className="btn btn-default" style={{ marginTop: 8, width: 120 }} onClick={() => setTabIdx(2)}>
-                    Edit Profile
-                  </button>
-                    <button className="btn btn-danger" style={{ marginTop: 8, width: 120 }} onClick={logout}>
+      <div>
+        <Tabs
+          tabs={[
+            {
+              label: 'Overview',
+              content: (
+                <div className="flex flex-wrap gap-8 mb-8">
+                  <div className="flex flex-col items-center min-w-[160px]">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover" />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-gray-700 text-white flex items-center justify-center text-4xl font-bold mb-2">
+                        {user.username[0].toUpperCase()}
+                      </div>
+                    )}
+                    <button className="bg-gray-200 text-gray-800 rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-gray-300" onClick={() => setTabIdx(2)}>
+                      Edit Profile
+                    </button>
+                    <button className="bg-red-500 text-white rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-red-600" onClick={logout}>
                       Logout
                     </button>
-                </div>
-                  <div style={{ flex: 1, minWidth: 220 }}>
+                  </div>
+                  <div className="flex-1 min-w-[220px]">
                     <div><strong>Username:</strong> {user.username}</div>
                     <div><strong>Email:</strong> {user.email}</div>
-                  <div>
+                    <div>
                       <strong>Bio:</strong>
-                    {user.bio ? (
-                        <div style={{ marginTop: 4 }}><Markdown>{user.bio}</Markdown></div>
-                    ) : (
-                        <span className="text-muted" style={{ marginLeft: 8 }}>No bio provided.</span>
-                    )}
-                  </div>
-                  {stats && (
-                      <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
-                        <div className="panel panel-default" style={{ flex: 1, padding: 12 }}>
-                          <div style={{ fontSize: 16, fontWeight: 600 }}>Acts Completed</div>
-                          <div style={{ fontSize: 24 }}>{stats.actsCount}</div>
+                      {user.bio ? (
+                        <div className="mt-1"><Markdown>{user.bio}</Markdown></div>
+                      ) : (
+                        <span className="text-gray-400 ml-2">No bio provided.</span>
+                      )}
+                    </div>
+                    {stats && (
+                      <div className="flex gap-4 mt-4">
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
+                          <div className="text-base font-semibold">Acts Completed</div>
+                          <div className="text-2xl">{stats.actsCount}</div>
                         </div>
-                        <div className="panel panel-default" style={{ flex: 1, padding: 12 }}>
-                          <div style={{ fontSize: 16, fontWeight: 600 }}>Credits</div>
-                          <div style={{ fontSize: 24 }}>{stats.totalCredits}</div>
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
+                          <div className="text-base font-semibold">Credits</div>
+                          <div className="text-2xl">{stats.totalCredits}</div>
+                        </div>
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 flex-1">
+                          <div className="text-base font-semibold">Avg. Grade</div>
+                          <div className="text-2xl">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+                        </div>
                       </div>
-                        <div className="panel panel-default" style={{ flex: 1, padding: 12 }}>
-                          <div style={{ fontSize: 16, fontWeight: 600 }}>Avg. Grade</div>
-                          <div style={{ fontSize: 24 }}>{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
-                      </div>
-                      </div>
-                  )}
-                    <div style={{ marginTop: 24 }}>
-                    <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
-                  </div>
-                </div>
-              </div>
-            ),
-          },
-          {
-            label: 'Your Acts',
-            content: (
-              <div>
-                  <h2 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8 }}>Your Acts</h2>
-                {acts.length === 0 ? (
-                    <div className="text-muted">No acts found.</div>
-                ) : (
-                    <ul className="list-group">
-                    {acts.map(act => (
-                        <li key={act._id} className="list-group-item">
-                          <div style={{ fontWeight: 'bold', fontSize: 18 }}>{act.title}</div>
-                          <div className="text-muted">{act.description}</div>
-                          <div style={{ fontSize: 13, marginTop: 4 }}>Status: <StatusBadge status={act.status} /></div>
-                          <span className="label label-default" style={{ marginTop: 4 }}>{act.difficulty}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ),
-          },
-          {
-            label: 'Settings',
-            content: (
-                <div style={{ maxWidth: 400 }}>
-                  <form onSubmit={handleSave}>
-                    <div className="form-group">
-                      <label>Username</label>
-                      <input type="text" className="form-control" value={username} onChange={e => setUsername(e.target.value)} required />
-                  </div>
-                    <div className="form-group">
-                      <label>Avatar URL</label>
-                      <input type="text" className="form-control" value={avatar} onChange={e => setAvatar(e.target.value)} />
-                  </div>
-                    <div className="form-group">
-                      <label>Bio (Markdown supported)</label>
-                    <textarea
-                        className="form-control"
-                      rows={5}
-                      value={bio}
-                      onChange={e => setBio(e.target.value)}
-                      placeholder="Tell us about yourself..."
-                    />
-                      <div className="well" style={{ marginTop: 8 }}>
-                        <span className="text-muted" style={{ fontSize: 12 }}>Preview:</span>
-                      <Markdown>{bio}</Markdown>
+                    )}
+                    <div className="mt-6">
+                      <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
                     </div>
                   </div>
-                    {error && <div className="text-danger" style={{ marginBottom: 10 }}>{error}</div>}
-                    <button type="submit" className="btn btn-primary btn-block" disabled={saving} style={{ width: '100%' }}>
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                </form>
-                <hr style={{ margin: '32px 0' }} />
-                <ChangePasswordForm />
-              </div>
-            ),
-          },
-        ]}
-        value={tabIdx}
-        onChange={setTabIdx}
-      />
+                </div>
+              ),
+            },
+            {
+              label: 'Your Acts',
+              content: (
+                <div>
+                  <h2 className="text-xl font-bold mb-2">Your Acts</h2>
+                  {acts.length === 0 ? (
+                    <div className="text-gray-400">No acts found.</div>
+                  ) : (
+                    <ul className="space-y-4">
+                      {acts.map(act => (
+                        <li key={act._id} className="bg-gray-50 dark:bg-gray-800 rounded p-4">
+                          <div className="font-bold text-lg">{act.title}</div>
+                          <div className="text-gray-500 dark:text-gray-400">{act.description}</div>
+                          <div className="text-sm mt-1">Status: <StatusBadge status={act.status} /></div>
+                          <span className="inline-block bg-gray-200 text-gray-700 rounded px-2 py-1 text-xs font-semibold mt-1">{act.difficulty}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ),
+            },
+            {
+              label: 'Settings',
+              content: (
+                <div className="max-w-md">
+                  <form onSubmit={handleSave} className="space-y-4">
+                    <div>
+                      <label className="block font-semibold mb-1">Username</label>
+                      <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Avatar URL</label>
+                      <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Bio (Markdown supported)</label>
+                      <textarea
+                        className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                        rows={5}
+                        value={bio}
+                        onChange={e => setBio(e.target.value)}
+                        placeholder="Tell us about yourself..."
+                      />
+                      <div className="bg-gray-100 dark:bg-gray-800 rounded p-2 mt-2">
+                        <span className="text-gray-400 text-xs">Preview:</span>
+                        <Markdown>{bio}</Markdown>
+                      </div>
+                    </div>
+                    {error && <div className="text-red-500 mb-2">{error}</div>}
+                    <button type="submit" className="w-full bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
+                      {saving ? 'Saving...' : 'Save'}
+                    </button>
+                  </form>
+                  <hr className="my-8" />
+                  <ChangePasswordForm />
+                </div>
+              ),
+            },
+          ]}
+          value={tabIdx}
+          onChange={setTabIdx}
+        />
       </div>
     </div>
   );

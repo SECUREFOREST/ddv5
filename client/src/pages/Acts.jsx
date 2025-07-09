@@ -156,58 +156,59 @@ export default function Acts() {
   };
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">Acts</h1>
+    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
+      <div className="border-b pb-2 mb-4">
+        <h1 className="text-2xl font-bold">Acts</h1>
       </div>
-      <div className="panel-body">
-        <form className="form-inline" style={{ marginBottom: 24 }} onSubmit={e => e.preventDefault()}>
-          <div className="form-group" style={{ marginRight: 16 }}>
-            <label>Status</label>
-            <select className="form-control" value={status} onChange={e => setStatus(e.target.value)}>
+      <div>
+        <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()}>
+          <div className="flex flex-col">
+            <label className="font-semibold mb-1">Status</label>
+            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ marginRight: 16 }}>
-            <label>Difficulty</label>
-            <select className="form-control" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+          <div className="flex flex-col">
+            <label className="font-semibold mb-1">Difficulty</label>
+            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
               {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ marginRight: 16 }}>
-            <label>Search</label>
-            <input className="form-control" value={search} onChange={e => setSearch(e.target.value)} placeholder="Title or description" />
+          <div className="flex flex-col">
+            <label className="font-semibold mb-1">Search</label>
+            <input className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Title or description" />
           </div>
-          <div className="form-group" style={{ marginRight: 16 }}>
-            <label>Type</label>
-            <select className="form-control" value={actType} onChange={e => setActType(e.target.value)}>
+          <div className="flex flex-col">
+            <label className="font-semibold mb-1">Type</label>
+            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={actType} onChange={e => setActType(e.target.value)}>
               {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ marginRight: 16 }}>
-            <label>Visibility</label>
-            <select className="form-control" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
+          <div className="flex flex-col">
+            <label className="font-semibold mb-1">Visibility</label>
+            <select className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
               <option value="">All</option>
               <option value="true">Public</option>
               <option value="false">Private</option>
             </select>
           </div>
           {user && (
-            <button type="button" className="btn btn-primary pull-right" style={{ marginLeft: 'auto' }} onClick={() => setShowCreate(true)}>
+            <button type="button" className="ml-auto bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
               + Create Act
             </button>
           )}
         </form>
+        {/* Acts List Section */}
         {loading ? (
           <div>Loading acts...</div>
         ) : (
           <div>
             {acts.length === 0 ? (
-              <div className="text-muted">No acts found.</div>
+              <div className="text-gray-400">No acts found.</div>
             ) : (
-              <ul className="list-group">
+              <ul className="space-y-4">
                 {acts.map(act => (
-                  <li key={act._id} className="list-group-item">
+                  <li key={act._id}>
                     <ActCard
                       title={act.title}
                       description={act.description}
@@ -215,26 +216,7 @@ export default function Acts() {
                       tags={act.tags || []}
                       status={act.status}
                       user={act.creator}
-                      actions={[
-                        <Link
-                          key="view"
-                          to={`/acts/${act._id}`}
-                          className="btn btn-default btn-xs"
-                        >
-                          View
-                        </Link>,
-                        <StatusBadge key="status" status={act.status} />,
-                        user && act.status === 'open' && !act.performer && (
-                          <button
-                            key="accept"
-                            className="btn btn-success btn-xs"
-                            style={{ marginLeft: 8 }}
-                            onClick={() => openAcceptModal(act)}
-                          >
-                            Start / Accept
-                          </button>
-                        )
-                      ]}
+                      actions={[]}
                     />
                   </li>
                 ))}
