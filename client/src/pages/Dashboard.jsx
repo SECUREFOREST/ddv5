@@ -50,8 +50,15 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    api.get('/activities', { params: { limit: 10 } })
-      .then(res => setActivities(res.data))
+    if (!user) return;
+    api.get('/activities', { params: { limit: 10, userId: user.id } })
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          setActivities(res.data);
+        } else {
+          setActivities([]);
+        }
+      })
       .catch(() => setActivities([]))
       .finally(() => setActivitiesLoading(false));
   }, []);

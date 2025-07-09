@@ -28,7 +28,13 @@ export default function Profile() {
       .then(res => setActs(res.data))
       .catch(() => setActs([]));
     api.get('/activities', { params: { userId: user.id, limit: 10 } })
-      .then(res => setUserActivities(res.data))
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          setUserActivities(res.data);
+        } else {
+          setUserActivities([]);
+        }
+      })
       .catch(() => setUserActivities([]))
       .finally(() => setUserActivitiesLoading(false));
   }, [user]);
