@@ -662,48 +662,60 @@ export default function Admin() {
       <Modal
         open={!!editUserId}
         onClose={closeEditUserModal}
-        title="Edit User"
-        actions={[
-          <button key="cancel" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>,
-          <button key="save" className="bg-primary text-primary-contrast px-4 py-2 rounded font-semibold" onClick={handleEditUserSave} disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>,
-        ]}
+        title={null}
+        actions={null}
         size="sm"
+        className="p-0"
       >
-        <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
-          <div>
-            <label className="block font-semibold mb-1 text-primary">Username</label>
-            <input
-              type="text"
-              name="username"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={editUserData.username}
-              onChange={handleEditUserChange}
-              required
-            />
+        <div className="modal-dialog" style={{ margin: 0 }}>
+          <div className="modal-content">
+            <div className="modal-header">
+              <button type="button" className="close" aria-label="Close" onClick={closeEditUserModal}>&times;</button>
+              <h4 className="modal-title">Edit User</h4>
+            </div>
+            <form onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="control-label">Username</label>
+                  <input
+                    type="text"
+                    name="username"
+                    className="form-control"
+                    value={editUserData.username}
+                    onChange={handleEditUserChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="control-label">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    className="form-control"
+                    value={editUserData.email}
+                    onChange={handleEditUserChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="control-label">Role</label>
+                  <input
+                    type="text"
+                    name="role"
+                    className="form-control"
+                    value={editUserData.role}
+                    onChange={handleEditUserChange}
+                  />
+                </div>
+                {editUserError && <div className="alert alert-danger">{editUserError}</div>}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-default" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label className="block font-semibold mb-1 text-primary">Email</label>
-            <input
-              type="email"
-              name="email"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={editUserData.email}
-              onChange={handleEditUserChange}
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-semibold mb-1 text-primary">Role</label>
-            <input
-              type="text"
-              name="role"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={editUserData.role}
-              onChange={handleEditUserChange}
-            />
-          </div>
-          {editUserError && <div className="text-danger text-sm font-medium">{editUserError}</div>}
-        </form>
+        </div>
       </Modal>
     </div>
   );
