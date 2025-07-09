@@ -9,7 +9,9 @@ const mongoose = require('mongoose');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, { cors: { origin: '*' } });
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://www.localhost:3000';
+const allowedOrigins = [FRONTEND_URL];
+const io = socketio(server, { cors: { origin: allowedOrigins, credentials: true } });
 
 // UserID to socket mapping
 const userSockets = new Map();
@@ -43,7 +45,6 @@ io.on('connection', (socket) => {
 module.exports.io = io;
 module.exports.userSockets = userSockets;
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://www.localhost:3000';
 app.use(cors({
   origin: [FRONTEND_URL],
   credentials: true,
@@ -79,6 +80,22 @@ app.get('/status', (req, res) => {
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });
+});
+
+// Centralized error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error.' });
+});
+
+// Global process-level error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+  // Optionally exit process or perform cleanup
 });
 
 // Log MongoDB connection status
