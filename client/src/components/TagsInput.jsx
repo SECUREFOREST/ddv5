@@ -6,7 +6,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
 
   const addTag = (tag) => {
     tag = tag.trim();
-    if (tag && !value.includes(tag)) {
+    if (tag && !value.some(t => t.toLowerCase() === tag.toLowerCase())) {
       onChange([...value, tag]);
     }
   };
@@ -27,6 +27,19 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
     } else if (e.key === 'Backspace' && !input && value.length > 0) {
       removeTag(value[value.length - 1]);
     }
+  };
+
+  const handlePaste = (e) => {
+    const pasted = e.clipboardData.getData('text');
+    const tags = pasted.split(/[,\s]+/).map(t => t.trim()).filter(Boolean);
+    let added = false;
+    tags.forEach(tag => {
+      if (tag && !value.some(t => t.toLowerCase() === tag.toLowerCase())) {
+        onChange([...value, tag]);
+        added = true;
+      }
+    });
+    if (added) setInput('');
   };
 
   return (
@@ -50,6 +63,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
         value={input}
         onChange={handleInput}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
         placeholder={placeholder}
         aria-label="Add tag"
         style={{ border: '1px solid transparent', padding: 5, background: 'transparent', color: '#000', outline: 0, marginRight: 5, marginBottom: 5, width: 80 }}

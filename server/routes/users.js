@@ -4,6 +4,10 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { logAudit } = require('../utils/auditLog');
 const { checkPermission } = require('../utils/permissions');
+const Act = require('../models/Act');
+const Comment = require('../models/Comment');
+const Notification = require('../models/Notification');
+const { sendNotification } = require('../utils/notification');
 
 // GET /api/users
 router.get('/', async (req, res) => {
@@ -65,6 +69,8 @@ router.post('/:id/block', auth, async (req, res) => {
       user.blockedUsers.push(req.params.id);
       await user.save();
       await logAudit({ action: 'block_user', user: req.userId, target: req.params.id });
+      // Notify blocked user
+      await sendNotification(req.params.id, 'user_blocked', 'You have been blocked by another user.');
     }
     res.json({ message: 'User blocked.' });
   } catch (err) {
@@ -83,6 +89,12 @@ function isAdmin(req, res, next) {
 // DELETE /api/users/:id (admin only)
 router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
   try {
+    // Remove or anonymize acts
+    await Act.updateMany({ creator: req.params.id }, { $set: { creator: null, title: '[deleted]', description: '' } });
+    // Remove or anonymize comments
+    await Comment.updateMany({ author: req.params.id }, { $set: { author: null, text: '[deleted]', deleted: true, deletedAt: new Date() } });
+    // Remove notifications
+    await Notification.deleteMany({ user: req.params.id });
     await User.findByIdAndDelete(req.params.id);
     await logAudit({ action: 'delete_user', user: req.userId, target: req.params.id });
     res.json({ message: 'User deleted.' });
@@ -97,6 +109,8 @@ router.post('/:id/ban', auth, checkPermission('ban_user'), async (req, res) => {
     const user = await User.findByIdAndUpdate(req.params.id, { banned: true }, { new: true });
     if (!user) return res.status(404).json({ error: 'User not found.' });
     await logAudit({ action: 'ban_user', user: req.userId, target: req.params.id });
+    // Notify banned user
+    await sendNotification(req.params.id, 'user_banned', 'Your account has been banned by an admin.');
     res.json({ message: 'User banned.', user });
   } catch (err) {
     res.status(500).json({ error: 'Failed to ban user.' });

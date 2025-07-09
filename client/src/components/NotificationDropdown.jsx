@@ -40,27 +40,35 @@ export default function NotificationDropdown() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [markError, setMarkError] = useState(null);
+  const [markAllError, setMarkAllError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchNotifications = async () => {
+    setLoading(true);
+    setError(null);
+    setMarkAllError(null);
+    try {
+      const res = await api.get('/notifications');
+      setNotifications(res.data);
+    } catch (err) {
+      setError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    api.get('/notifications')
-      .then(res => {
-        if (mounted) {
-          setNotifications(res.data);
-          setLoading(false);
-        }
-      })
-      .catch(err => {
-        if (mounted) {
-          setError('Failed to load notifications');
-          setLoading(false);
-        }
-      });
+    fetchNotifications();
     return () => { mounted = false; };
   }, []);
 
-  const unseenCount = notifications.filter(n => !n.read).length;
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchNotifications();
+  };
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -68,18 +76,20 @@ export default function NotificationDropdown() {
       setNotifications(notifications =>
         notifications.map(n => n._id === id ? { ...n, read: true } : n)
       );
+      setMarkError(null);
     } catch (e) {
-      // Optionally show error
+      setMarkError('Failed to mark notification as read.');
     }
   };
 
   const handleMarkAllAsRead = async () => {
     setMarkingAll(true);
+    setMarkAllError(null);
     try {
       await api.post('/notifications/read', { all: true });
       setNotifications(notifications => notifications.map(n => ({ ...n, read: true })));
     } catch (e) {
-      // Optionally show error
+      setMarkAllError('Failed to mark all as read. Please try again.');
     } finally {
       setMarkingAll(false);
     }
@@ -94,20 +104,33 @@ export default function NotificationDropdown() {
     items = [<li key="none"><span className="text-muted">No notifications</span></li>];
   } else {
     items = [];
+    items.push(
+      <li key="refresh">
+        <button className="btn btn-link btn-xs" onClick={handleRefresh} disabled={refreshing} style={{ width: '100%', textAlign: 'left' }}>
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </li>
+    );
     if (unseenCount > 0) {
       items.push(
         <li key="mark-all">
-        <button
+          <button
             className="btn btn-link btn-xs"
-          onClick={handleMarkAllAsRead}
-          disabled={markingAll}
+            onClick={handleMarkAllAsRead}
+            disabled={markingAll}
             style={{ width: '100%', textAlign: 'left' }}
-        >
-          {markingAll ? 'Marking all...' : 'Mark all as read'}
-        </button>
+          >
+            {markingAll ? 'Marking all...' : 'Mark all as read'}
+          </button>
         </li>
       );
       items.push(<li key="divider" className="divider" />);
+    }
+    if (markError) {
+      items.push(<li key="mark-error"><span className="label label-danger">{markError}</span></li>);
+    }
+    if (markAllError) {
+      items.push(<li key="mark-all-error"><span className="label label-danger">{markAllError}</span></li>);
     }
     items = items.concat(
       notifications.map(n => (

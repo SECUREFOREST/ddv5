@@ -26,7 +26,10 @@ export default function Tabs({
     else setSelected(idx);
   };
 
+  const allDisabled = tabs.length > 0 && tabs.every(tab => tab.disabled);
+
   const handleKeyDown = (e) => {
+    if (allDisabled) return;
     let idx = selectedIndex;
     if (e.key === 'ArrowRight') {
       do { idx = (idx + 1) % tabs.length; } while (tabs[idx]?.disabled);
@@ -41,40 +44,46 @@ export default function Tabs({
 
   return (
     <div className={className} {...props}>
-      <ul className="nav nav-tabs" role="tablist">
-        {tabs.map((tab, idx) => (
-          <li key={tab.label} className={selectedIndex === idx ? 'active' : tab.disabled ? 'disabled' : ''} role="presentation">
-            <a
-            ref={el => tabRefs.current[idx] = el}
-              href="#"
-            role="tab"
-            aria-selected={selectedIndex === idx}
-            aria-controls={`tabpanel-${idx}`}
-            id={`tab-${idx}`}
-            tabIndex={selectedIndex === idx ? 0 : -1}
-              onClick={e => { e.preventDefault(); handleTabClick(idx); }}
-            onKeyDown={handleKeyDown}
-              style={tab.disabled ? { pointerEvents: 'none', color: '#888', cursor: 'not-allowed' } : {}}
-          >
-            {tab.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-      <div className="tab-content">
-      {tabs.map((tab, idx) => (
-        <div
-          key={tab.label}
-            className={`tab-pane${selectedIndex === idx ? ' active' : ''}`}
-            id={`tabpanel-${idx}`}
-          role="tabpanel"
-          aria-labelledby={`tab-${idx}`}
-            style={{ display: selectedIndex === idx ? 'block' : 'none', background: 'transparent', padding: 15 }}
-        >
-          {selectedIndex === idx && tab.content}
-        </div>
-      ))}
-      </div>
+      {allDisabled ? (
+        <div className="alert alert-warning" role="alert">All tabs are disabled.</div>
+      ) : (
+        <>
+          <ul className="nav nav-tabs" role="tablist">
+            {tabs.map((tab, idx) => (
+              <li key={tab.label} className={selectedIndex === idx ? 'active' : tab.disabled ? 'disabled' : ''} role="presentation">
+                <a
+                  ref={el => tabRefs.current[idx] = el}
+                  href="#"
+                  role="tab"
+                  aria-selected={selectedIndex === idx}
+                  aria-controls={`tabpanel-${idx}`}
+                  id={`tab-${idx}`}
+                  tabIndex={selectedIndex === idx ? 0 : -1}
+                  onClick={e => { e.preventDefault(); handleTabClick(idx); }}
+                  onKeyDown={handleKeyDown}
+                  style={tab.disabled ? { pointerEvents: 'none', color: '#888', cursor: 'not-allowed' } : {}}
+                >
+                  {tab.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div className="tab-content">
+            {tabs.map((tab, idx) => (
+              <div
+                key={tab.label}
+                className={`tab-pane${selectedIndex === idx ? ' active' : ''}`}
+                id={`tabpanel-${idx}`}
+                role="tabpanel"
+                aria-labelledby={`tab-${idx}`}
+                style={{ display: selectedIndex === idx ? 'block' : 'none', background: 'transparent', padding: 15 }}
+              >
+                {selectedIndex === idx && tab.content}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 } 

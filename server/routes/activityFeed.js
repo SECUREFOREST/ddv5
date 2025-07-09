@@ -11,8 +11,9 @@ router.get('/', async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 20;
     const skip = (page - 1) * limit;
+    // Use stable sorting on createdAt and _id
     const activities = await Activity.find()
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(limit)
       .populate('user', 'username')

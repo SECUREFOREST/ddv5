@@ -43,6 +43,10 @@ export default function Tooltip({
       } else {
       left = triggerRect.left + window.scrollX + (triggerRect.width - tooltipRect.width) / 2;
       }
+      // Clamp to viewport
+      const vw = window.innerWidth, vh = window.innerHeight;
+      left = Math.max(8, Math.min(left, vw - tooltipRect.width - 8));
+      top = Math.max(8, Math.min(top, vh - tooltipRect.height - 8));
       setCoords({ top, left });
     }
   }, [visible, position]);
@@ -55,9 +59,18 @@ export default function Tooltip({
     return () => window.removeEventListener('scroll', hide, true);
   }, [visible]);
 
-  // Accessibility: show on focus/hover/click
+  // Accessibility: show on focus/hover/click, hide on Escape
   const show = () => setVisible(true);
   const hide = () => setVisible(false);
+
+  useEffect(() => {
+    if (!visible) return;
+    const handleKey = (e) => {
+      if (e.key === 'Escape') hide();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [visible]);
 
   return (
     <>

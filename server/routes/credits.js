@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Credit = require('../models/Credit');
 const auth = require('../middleware/auth');
+const { sendNotification } = require('../utils/notification');
 
 // Static offers (could be from DB in production)
 const OFFERS = [
@@ -27,6 +28,8 @@ router.post('/purchase', auth, async (req, res) => {
       offer: offer.id,
     });
     await credit.save();
+    // Notify user
+    await sendNotification(req.userId, 'credits_purchased', `You purchased ${offer.amount} credits.`);
     res.status(201).json({ message: 'Credits purchased.', credit });
   } catch (err) {
     res.status(500).json({ error: 'Failed to purchase credits.' });

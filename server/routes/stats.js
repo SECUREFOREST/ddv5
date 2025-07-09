@@ -17,9 +17,9 @@ router.get('/leaderboard', async (req, res) => {
     const users = await User.find({ _id: { $in: topUsers.map(u => u._id) } }, 'username avatar');
     // Merge stats
     const leaderboard = topUsers.map(u => {
-      const user = users.find(us => us._id.toString() === u._id.toString());
+      const user = users.find(us => us._id.toString() === (u._id ? u._id.toString() : ''));
       return {
-        user: user ? { id: user._id, username: user.username, avatar: user.avatar } : null,
+        user: user ? { id: user._id, username: user.username, avatar: user.avatar } : { id: null, username: '[deleted]', avatar: null },
         actsCount: u.actsCount,
       };
     });

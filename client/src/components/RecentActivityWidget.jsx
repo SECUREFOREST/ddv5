@@ -39,11 +39,22 @@ function getLegacyActivityMessage(a) {
   return a.message || a.type || 'Activity';
 }
 
-export default function RecentActivityWidget({ activities = [], loading = false, title = 'Recent Activity' }) {
+export default function RecentActivityWidget({ activities = [], loading = false, title = 'Recent Activity', onRefresh }) {
+  const [refreshing, setRefreshing] = React.useState(false);
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    if (onRefresh) await onRefresh();
+    setRefreshing(false);
+  };
   return (
     <div className="panel panel-default">
-      <div className="panel-heading">
+      <div className="panel-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 className="panel-title">{title}</h3>
+        {onRefresh && (
+          <button className="btn btn-link btn-xs" onClick={handleRefresh} disabled={refreshing}>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        )}
       </div>
       <div className="panel-body" style={{ padding: 0 }}>
       {loading ? (

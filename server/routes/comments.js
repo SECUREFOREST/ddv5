@@ -6,6 +6,7 @@ const auth = require('../middleware/auth');
 const Report = require('../models/Report');
 const { logActivity } = require('../utils/activity');
 const { checkPermission } = require('../utils/permissions');
+const { sendNotification } = require('../utils/notification');
 
 // GET /api/comments?act=actId - list comments, optionally filter by act
 router.get('/', async (req, res) => {
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
 // POST /api/comments - add comment (auth required, supports replies)
 router.post('/', auth, async (req, res) => {
   try {
-    const { actId, text } = req.body;
+    const { actId, text, parent } = req.body;
     if (!actId || !text) return res.status(400).json({ error: 'act and text are required.' });
     const comment = new Comment({
       act: actId,
@@ -35,12 +36,15 @@ router.post('/', auth, async (req, res) => {
     });
     await comment.save();
     await logActivity({ type: 'comment_added', user: req.userId, act: actId, comment: comment._id });
-    // If this is a reply, add to parent comment's replies
+    // If this is a reply, add to parent comment's replies and notify parent author
     if (parent) {
       const parentComment = await Comment.findById(parent);
       if (parentComment) {
         parentComment.replies.push(comment._id);
         await parentComment.save();
+        if (parentComment.author) {
+          await sendNotification(parentComment.author, 'comment_reply', 'You have a new reply to your comment.');
+        }
       }
     } else {
       // If top-level, add to act's comments
@@ -125,6 +129,10 @@ router.patch('/:id/moderate', auth, checkPermission('resolve_report'), async (re
     comment.moderatedBy = req.userId;
     comment.moderationReason = reason || '';
     await comment.save();
+    // Notify author
+    if (comment.author) {
+      await sendNotification(comment.author, 'comment_moderated', 'Your comment has been moderated/hidden.');
+    }
     res.json({ message: 'Comment moderated/hidden.', comment });
   } catch (err) {
     res.status(500).json({ error: 'Failed to moderate comment.' });

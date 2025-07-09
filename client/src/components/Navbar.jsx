@@ -9,17 +9,23 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem('impersonatorToken');
     navigate('/login');
   };
 
   // Impersonation banner logic
   const isImpersonating = Boolean(localStorage.getItem('impersonatorToken'));
+  const [impersonationError, setImpersonationError] = useState(null);
   const handleReturnToAdmin = () => {
     const adminToken = localStorage.getItem('impersonatorToken');
     if (adminToken) {
       localStorage.setItem('token', adminToken);
       localStorage.removeItem('impersonatorToken');
       window.location.reload();
+    } else {
+      setImpersonationError('Admin token missing. Please log in again.');
+      logout();
+      navigate('/login');
     }
   };
 
@@ -39,6 +45,9 @@ export default function Navbar() {
             >
               Return to Admin
             </button>
+            {impersonationError && (
+              <div className="label label-danger" style={{marginLeft: 8}}>{impersonationError}</div>
+            )}
           </div>
         )}
         <ul className="nav navbar-nav">
