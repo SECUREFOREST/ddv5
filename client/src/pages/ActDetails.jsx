@@ -326,42 +326,42 @@ export default function ActDetails() {
             {acceptError && <div className="text-danger text-sm font-medium mt-2">{acceptError}</div>}
           </div>
         )}
-        <div className="text-neutral-400 mb-4">
+        <div className="text-neutral-400 mb-4 text-center">
           By {act?.creator?.username || 'Unknown'} | Status: <StatusBadge status={act?.status} /> | Difficulty: {act?.difficulty}
         </div>
         {/* Proof expiration countdown and message */}
         {act && act.proofExpiresAt && !proofExpired && (
-          <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5">
+          <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5 text-center">
             <b>Proof review period:</b> <Countdown target={act.proofExpiresAt} />
           </div>
         )}
         {act && proofExpired && (
-          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
+          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5 text-center">
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
           </div>
         )}
         {/* Grades Section */}
-        <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-6">
+        <div className="bg-neutral-900 rounded p-4 mb-6">
           <div className="border-b pb-2 mb-4">
-            <h2 className="text-lg font-semibold">Grades</h2>
+            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
           </div>
           <div>
             {act?.grades && act.grades.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {act.grades.map((g, i) => (
-                  <li key={i} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded p-2">
-                    <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-500 dark:text-gray-400 ml-2">({g.feedback})</span>}
+                  <li key={i} className="flex items-center gap-2 bg-neutral-800 rounded p-2">
+                    <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="text-gray-400 mb-4">No grades yet.</div>
+              <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
             )}
             {user && !proofExpired && (
               <form onSubmit={handleGrade} className="space-y-4">
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Your Grade (1-10)</label>
-                  <input type="number" min="1" max="10" className="w-24 rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
+                  <input type="number" min="1" max="10" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
                 </div>
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
@@ -376,35 +376,35 @@ export default function ActDetails() {
           </div>
         </div>
         {/* Comments Section */}
-        <div className="bg-[#282828] text-[#eee] border-[#282828] px-[15px] py-[10px] rounded-lg shadow-sm p-4 mb-6">
+        <div className="bg-neutral-900 text-neutral-100 border border-[#282828] px-[15px] py-[10px] rounded-lg shadow-sm p-4 mb-6">
           <div className="border-b pb-2 mb-4">
-            <h2 className="text-lg font-semibold">Comments</h2>
+            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Comments</h2>
           </div>
           <div>
             {act?.comments && act.comments.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {act.comments.map((c, i) => (
-                  <li key={i} className="bg-gray-50 dark:bg-gray-800 rounded p-3">
+                  <li key={i} className="bg-neutral-800 rounded p-3">
                     {c.deleted ? (
                       <span className="text-gray-400">This comment was deleted.</span>
                     ) : c.hidden ? (
                       <span className="text-gray-400">This comment was hidden by a moderator.</span>
                     ) : editCommentId === c._id ? (
-                      <form onSubmit={handleEditSubmit} className="flex items-center gap-2">
+                      <form onSubmit={handleEditSubmit} className="flex items-center gap-2 w-full">
                         <input
                           type="text"
-                          className="w-56 rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                          className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                           value={editCommentText}
                           onChange={e => setEditCommentText(e.target.value)}
                           required
                         />
-                        <button type="submit" className="bg-primary text-white rounded px-3 py-1 font-semibold text-xs hover:bg-primary-dark" disabled={editLoading}>
+                        <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-3 py-2 font-semibold text-xs hover:bg-primary-dark" disabled={editLoading}>
                           {editLoading ? 'Saving...' : 'Save'}
                         </button>
-                        <button type="button" className="bg-gray-200 text-gray-800 rounded px-3 py-1 font-semibold text-xs hover:bg-gray-300" onClick={() => setEditCommentId(null)}>
+                        <button type="button" className="w-full bg-gray-200 text-gray-800 rounded px-3 py-2 font-semibold text-xs hover:bg-gray-300" onClick={() => setEditCommentId(null)}>
                           Cancel
                         </button>
-                        {editError && <div className="text-red-500 text-xs">{editError}</div>}
+                        {editError && <div className="text-danger text-xs font-medium">{editError}</div>}
                       </form>
                     ) : (
                       <>
@@ -449,7 +449,7 @@ export default function ActDetails() {
                 ))}
               </ul>
             ) : (
-              <div className="text-gray-400 mb-4">No comments yet.</div>
+              <div className="text-gray-400 mb-4 text-center">No comments yet.</div>
             )}
             {user && (
               <form onSubmit={handleComment} className="space-y-4">
