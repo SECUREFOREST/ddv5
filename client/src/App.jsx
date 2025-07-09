@@ -27,8 +27,9 @@ function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Hide Navbar if not logged in and on the landing page
-  const showNavbar = user || location.pathname !== '/';
+  // Hide Navbar if not logged in and on the landing, login, or registration page
+  const hideNavbarPaths = ['/', '/login', '/register'];
+  const showNavbar = user || !hideNavbarPaths.includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#060606]">
