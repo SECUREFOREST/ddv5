@@ -1,8 +1,46 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const app = express();
+const http = require('http');
+const socketio = require('socket.io');
+const jwt = require('jsonwebtoken');
 const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server, { cors: { origin: '*' } });
+
+// UserID to socket mapping
+const userSockets = new Map();
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) return next(new Error('No token'));
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey');
+    socket.userId = decoded.id;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token'));
+  }
+});
+
+io.on('connection', (socket) => {
+  if (socket.userId) {
+    userSockets.set(socket.userId, socket);
+    console.log(`User ${socket.userId} connected via websocket.`);
+  }
+  socket.on('disconnect', () => {
+    if (socket.userId) {
+      userSockets.delete(socket.userId);
+      console.log(`User ${socket.userId} disconnected from websocket.`);
+    }
+  });
+});
+
+// Export io and userSockets for use in notification utility
+module.exports.io = io;
+module.exports.userSockets = userSockets;
 
 app.use(cors());
 app.use(express.json());
@@ -26,7 +64,8 @@ app.get('/', (req, res) => {
   res.send('DDV5 API is running');
 });
 
+// Server will use PORT from environment or default to 4000
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 }); 

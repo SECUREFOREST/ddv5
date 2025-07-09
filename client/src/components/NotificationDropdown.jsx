@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Dropdown from './Dropdown';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
+import { io } from 'socket.io-client';
 
 function timeAgo(date) {
   const now = new Date();
@@ -36,6 +38,7 @@ function getLegacyNotificationMessage(n) {
 }
 
 export default function NotificationDropdown() {
+  const { accessToken } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,8 +65,23 @@ export default function NotificationDropdown() {
   useEffect(() => {
     let mounted = true;
     fetchNotifications();
-    return () => { mounted = false; };
-  }, []);
+    // Real-time notifications
+    let socket;
+    if (accessToken) {
+      socket = io('/', {
+        auth: { token: accessToken },
+        autoConnect: true,
+        transports: ['websocket'],
+      });
+      socket.on('notification', (notif) => {
+        setNotifications((prev) => [notif, ...prev]);
+      });
+    }
+    return () => {
+      mounted = false;
+      if (socket) socket.disconnect();
+    };
+  }, [accessToken]);
 
   const handleRefresh = () => {
     setRefreshing(true);
