@@ -257,26 +257,25 @@ export default function ActDetails() {
   };
 
   return (
-    <div className="panel panel-default">
-      <div className="panel-heading">
-        <h1 className="panel-title">{act.title} <StatusBadge status={act.status} /></h1>
-        <div style={{ marginTop: 10, marginBottom: 10 }}>
+    <div className="bg-white dark:bg-surface-dark rounded-lg shadow p-4 mb-4">
+      <div className="border-b pb-2 mb-4 flex flex-col gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2">{act.title} <StatusBadge status={act.status} /></h1>
+        <div className="flex items-center gap-2">
           <input
             id="sharable-link-input"
-            className="sharable-link"
+            className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary mr-2"
             type="text"
             value={actUrl}
             readOnly
-            style={{ maxWidth: 320, display: 'inline-block', marginRight: 8 }}
             onFocus={e => e.target.select()}
           />
-          <button className="btn btn-default btn-xs" onClick={handleShareClick} style={{ verticalAlign: 'top' }}>
+          <button className="bg-gray-200 text-gray-800 rounded px-3 py-1 font-semibold text-xs hover:bg-gray-300" onClick={handleShareClick}>
             Share
           </button>
         </div>
       </div>
-      <div className="panel-body">
-        <div className="well">
+      <div>
+        <div className="bg-gray-50 dark:bg-gray-800 rounded p-4 mb-4">
           <Markdown>{act.description}</Markdown>
         </div>
         {canAccept && (
