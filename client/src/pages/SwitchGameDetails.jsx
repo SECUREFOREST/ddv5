@@ -60,20 +60,20 @@ export default function SwitchGameDetails() {
   }, [id, game && game.status, game && game.winner]);
 
   if (loading) {
-    return <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6 text-center text-gray-500">Loading...</div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
   }
   if (!game) {
     return (
-      <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6">
-        <h1 className="text-xl font-bold mb-4">Switch Game Not Found</h1>
-        <div className="text-red-500 font-medium mb-4">No switch game with this ID exists.</div>
-        <button className="bg-gray-200 text-gray-700 rounded px-4 py-2 font-semibold hover:bg-gray-300" onClick={() => navigate('/switches')}>Back to Switch Games</button>
+      <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
+        <h1 className="text-xl font-bold mb-4 text-primary">Switch Game Not Found</h1>
+        <div className="text-danger font-medium mb-4">No switch game with this ID exists.</div>
+        <button className="bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-900" onClick={() => navigate('/switches')}>Back to Switch Games</button>
       </div>
     );
   }
 
   if (!user) {
-    return <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6 text-center text-gray-500">Please log in to participate in switch games.</div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Please log in to view this game.</div>;
   }
 
   const username = user.username;
@@ -161,8 +161,16 @@ export default function SwitchGameDetails() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-12 bg-white rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold mb-4">{game.name}</h1>
+    <div className="max-w-4xl mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-primary">{game.title}</h1>
+        {game.status === 'open' && (
+          <span className="inline-block bg-success text-success-contrast rounded px-3 py-1 text-xs font-semibold">Open</span>
+        )}
+        {game.status === 'closed' && (
+          <span className="inline-block bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold">Closed</span>
+        )}
+      </div>
       <div className="mb-2"><b>Status:</b> {game.status}</div>
       <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>

@@ -52,32 +52,32 @@ export default function Notifications() {
   }
 
   if (!user) {
-    return <div className="text-center mt-12 text-gray-500">Please log in to view notifications.</div>;
+    return <div className="text-center mt-12 text-neutral-400">Please log in to view notifications.</div>;
   }
 
   return (
-    <div className="max-w-lg mx-auto mt-16 bg-white rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Notifications</h1>
+    <div className="max-w-lg mx-auto mt-16 bg-neutral-800 rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold text-center mb-6 text-primary">Notifications</h1>
       {loading ? (
-        <div className="text-center text-gray-500">Loading notifications...</div>
+        <div className="text-center text-neutral-400">Loading notifications...</div>
       ) : notifications.length === 0 ? (
-        <div className="text-center text-gray-400">No notifications.</div>
+        <div className="text-center text-neutral-400">No notifications.</div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-neutral-900">
           {notifications.map((n) => (
             <li
               key={n._id}
-              className={`flex items-center justify-between py-3 px-2 ${n.read ? 'bg-gray-50' : 'bg-blue-50'}`}
+              className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
             >
-              <div>
-                <div className="font-medium text-gray-800">{getLegacyNotificationMessage(n)}</div>
-                <div className="text-xs text-gray-500 mt-0.5">{n.type} &middot; {new Date(n.createdAt).toLocaleString()}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-primary">{n.title}</div>
+                <div className="text-neutral-400 text-sm">{n.body}</div>
+                <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
               </div>
               {!n.read && (
                 <button
-                  className="ml-4 bg-primary text-white rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark disabled:opacity-50"
+                  className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
                   onClick={() => handleMarkRead(n._id)}
-                  disabled={actionLoading}
                 >
                   Mark as read
                 </button>

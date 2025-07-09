@@ -14,35 +14,28 @@ export default function Credits() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-white rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold text-center mb-6">Credits</h1>
+    <div className="max-w-2xl mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold text-center mb-6 text-primary">Credits</h1>
       {loading ? (
-        <div className="text-center text-gray-500">Loading credits...</div>
+        <div className="text-center text-neutral-400">Loading credits...</div>
       ) : credits.length === 0 ? (
-        <div className="text-center text-gray-400">No credit data available.</div>
+        <div className="text-center text-neutral-400">No credit data available.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
-          <table className="min-w-full bg-white text-sm">
+          <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
             <thead>
-              <tr className="bg-gray-100 text-gray-700">
-                <th className="p-2 text-left">User</th>
-                <th className="p-2 text-left">Credits</th>
+              <tr className="bg-neutral-900 text-primary">
+                <th className="p-2 text-left font-semibold">User</th>
+                <th className="p-2 text-left font-semibold">Credits</th>
+                <th className="p-2 text-left font-semibold">Last Updated</th>
               </tr>
             </thead>
             <tbody>
-              {credits.map((entry, i) => (
-                <tr key={entry.user?._id || i} className="border-b last:border-b-0 hover:bg-gray-50">
-                  <td className="p-2 flex items-center gap-2">
-                    {entry.user?.avatar ? (
-                      <img src={entry.user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                    ) : (
-                      <span className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center text-base font-bold">
-                        {entry.user?.username?.[0]?.toUpperCase() || '?'}
-                      </span>
-                    )}
-                    <span>{entry.user?.username || 'Unknown'}</span>
-                  </td>
-                  <td className="p-2">{entry.credits}</td>
+              {credits.map((c) => (
+                <tr key={c._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                  <td className="p-2 font-medium text-primary">{c.user?.username || c.userId}</td>
+                  <td className="p-2 text-success font-bold">{c.amount}</td>
+                  <td className="p-2 text-neutral-400">{new Date(c.updatedAt).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

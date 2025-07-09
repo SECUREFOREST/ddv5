@@ -37,42 +37,38 @@ export default function SwitchGames() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-12 bg-white rounded-lg shadow p-6">
+    <div className="max-w-4xl mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Switch Games</h1>
-        <button className="bg-primary text-white rounded px-4 py-2 text-sm font-semibold hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
+        <h1 className="text-2xl font-bold text-primary">Switch Games</h1>
+        <button className="bg-primary text-primary-contrast rounded px-4 py-2 text-sm font-semibold hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
           Switch battle
         </button>
       </div>
       {loading ? (
-        <div className="text-center text-gray-500">Loading switch games...</div>
+        <div className="text-center text-neutral-400">Loading switch games...</div>
       ) : switchGames.length === 0 ? (
-        <div className="text-center text-gray-400">No switch games available.</div>
+        <div className="text-center text-neutral-400">No switch games available.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
-          <table className="min-w-full bg-white text-sm">
+          <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
             <thead>
-              <tr className="bg-gray-100 text-gray-700">
-                <th className="p-2 text-left">ID</th>
-                <th className="p-2 text-left">Name</th>
-                <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">Participants</th>
-                <th className="p-2 text-left">Winner</th>
-                <th className="p-2 text-left">Actions</th>
+              <tr className="bg-neutral-900 text-primary">
+                <th className="p-2 text-left font-semibold">Title</th>
+                <th className="p-2 text-left font-semibold">Status</th>
+                <th className="p-2 text-left font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {switchGames.map(game => (
-                <tr key={game.id} className="border-b last:border-b-0 hover:bg-gray-50">
-                  <td className="p-2">{game.id}</td>
-                  <td className="p-2">{game.name || '-'}</td>
-                  <td className="p-2">{game.status}</td>
-                  <td className="p-2">{game.participants ? game.participants.join(', ') : '-'}</td>
-                  <td className="p-2">{game.winner || '-'}</td>
+              {switchGames.map((g) => (
+                <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                  <td className="p-2 font-medium text-primary">{g.title}</td>
                   <td className="p-2">
-                    <button className="bg-gray-200 text-gray-700 rounded px-3 py-1 text-xs font-semibold hover:bg-gray-300" onClick={() => navigate(`/switches/${game.id}`)}>
-                      View
-                    </button>
+                    {g.status === 'open' && <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Open</span>}
+                    {g.status === 'closed' && <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Closed</span>}
+                  </td>
+                  <td className="p-2">
+                    <button className="bg-info text-info-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-info-dark mr-2" onClick={() => handleView(g._id)}>View</button>
+                    <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark" onClick={() => handleDelete(g._id)}>Delete</button>
                   </td>
                 </tr>
               ))}
