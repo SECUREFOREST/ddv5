@@ -104,7 +104,20 @@ export default function SwitchGameDetails() {
     setTimeout(() => setErrorToast(''), 4000);
   };
 
-  // Fetch game details (single fetch on mount or id change)
+  // Fetch game details (must be above useEffect)
+  const fetchGame = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/switches/${id}`);
+      setGame(res.data);
+    } catch (err) {
+      setGame(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch game details on mount or id change
   useEffect(() => {
     fetchGame();
     // eslint-disable-next-line
