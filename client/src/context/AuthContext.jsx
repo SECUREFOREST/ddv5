@@ -59,8 +59,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (username, email, password) => {
-    const res = await api.post('/auth/register', { username, email, password });
+  const register = async (data) => {
+    // Ensure dob is a string (YYYY-MM-DD)
+    const payload = { ...data, dob: data.dob ? String(data.dob) : '' };
+    const res = await api.post('/auth/register', payload);
     localStorage.setItem('accessToken', res.data.accessToken);
     localStorage.setItem('refreshToken', res.data.refreshToken);
     setAccessToken(res.data.accessToken);

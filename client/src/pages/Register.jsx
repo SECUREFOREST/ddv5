@@ -45,8 +45,20 @@ export default function Register() {
     setSuccess('');
     if (!validate()) return;
     setLoading(true);
+    // Ensure dob is a string, interestedIn and limits are arrays
+    const payload = {
+      username,
+      fullName,
+      email,
+      password,
+      dob: dob ? String(dob) : '',
+      gender,
+      interestedIn: Array.isArray(interestedIn) ? interestedIn : [],
+      limits: Array.isArray(limits) ? limits : [],
+    };
+    console.log('Register payload:', payload); // For debugging
     try {
-      await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
+      await register(payload);
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
