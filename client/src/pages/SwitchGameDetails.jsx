@@ -77,6 +77,16 @@ export default function SwitchGameDetails() {
       proofExpiresIn = `${hours}h ${minutes}m ${seconds}s`;
     }
   }
+
+  // --- granularStatus logic ---
+  let granularStatus = game?.status;
+  if (game?.status === 'completed' && !game?.proof) {
+    if (isLoser && countdown === 'Expired') {
+      granularStatus = 'expired';
+    } else {
+      granularStatus = 'awaiting_proof';
+    }
+  }
   // Status badge helper
   const statusBadge = (status) => {
     if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
