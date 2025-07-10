@@ -38,6 +38,9 @@ export default function SwitchGames() {
     }
   };
 
+  // Only show games that are open for joining (no participant and status is 'open')
+  const openGames = switchGames.filter(g => g.status === 'open' && !g.participant);
+
   return (
     <div className="max-w-2xl w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none flex items-center justify-between">
@@ -53,7 +56,7 @@ export default function SwitchGames() {
       </div>
       {loading ? (
         <div className="text-center text-neutral-400">Loading switch games...</div>
-      ) : switchGames.length === 0 ? (
+      ) : openGames.length === 0 ? (
         <div className="text-center text-neutral-400">No switch games available.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
@@ -66,12 +69,14 @@ export default function SwitchGames() {
               </tr>
             </thead>
             <tbody>
-              {switchGames.map((g) => (
+              {openGames.map((g) => (
                 <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                  <td className="p-2 font-medium text-primary">{g.title}</td>
+                  <td className="p-2 font-medium text-primary">{g.title || g.name || 'Untitled'}</td>
                   <td className="p-2">
                     {g.status === 'open' && <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Open</span>}
-                    {g.status === 'closed' && <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Closed</span>}
+                    {g.status === 'in_progress' && <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold">In Progress</span>}
+                    {g.status === 'completed' && <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold">Completed</span>}
+                    {g.status === 'proof_submitted' && <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold">Proof Submitted</span>}
                   </td>
                   <td className="p-2">
                     <button className="bg-info text-info-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-info-dark mr-2" onClick={() => handleView(g._id)}>View</button>

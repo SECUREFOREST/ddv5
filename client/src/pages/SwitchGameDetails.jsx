@@ -31,6 +31,15 @@ export default function SwitchGameDetails() {
   const [proofError, setProofError] = useState('');
   const [polling, setPolling] = useState(false);
 
+  // Status badge helper
+  const statusBadge = (status) => {
+    if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
+    if (status === 'in_progress') return <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold ml-2">In Progress</span>;
+    if (status === 'completed') return <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Completed</span>;
+    if (status === 'proof_submitted') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
+    return <span className="inline-block bg-gray-400 text-white rounded px-2 py-1 text-xs font-semibold ml-2">{status}</span>;
+  };
+
   // Fetch game details
   const fetchGame = async () => {
     setLoading(true);
@@ -166,16 +175,18 @@ export default function SwitchGameDetails() {
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
-      <div className="mb-2"><b>Status:</b> {game.status}</div>
+      <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(game.status)}</div>
       <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
       <hr className="my-4" />
-      {!hasJoined && (
+      {/* Only allow join if open and no participant */}
+      {!hasJoined && game.status === 'open' && !game.participant && (
         <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={handleJoin} disabled={joining}>
           {joining ? 'Joining...' : 'Join Switch Game'}
         </button>
       )}
-      {hasJoined && canPlayRps && !userMove && (
+      {/* Only allow moves if in_progress and both users present and no winner */}
+      {hasJoined && game.status === 'in_progress' && canPlayRps && !userMove && (
         <div className="mt-6">
           <b>Rock-Paper-Scissors: Choose your move</b>
           <div className="mt-3 flex gap-2">
@@ -192,86 +203,62 @@ export default function SwitchGameDetails() {
           </div>
         </div>
       )}
-      {hasJoined && canPlayRps && userMove && !bothMoves && (
+      {/* Waiting for other participant's move */}
+      {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
         <div className="mt-6 text-blue-600 font-semibold">Waiting for the other participant to choose...</div>
       )}
+      {/* Show draw message if both moves are the same */}
       {bothMoves && rpsResult === 'draw' && (
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
           <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
         </div>
       )}
-      {bothMoves && winner && (
-        <div className="mt-6 bg-green-50 border border-green-200 rounded p-4">
-          <b>{winner} wins!</b> {loser} must submit proof of the demanded act.
-          {proofExpiresAt && (
-            <div className="mt-2">
-              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-            </div>
+      {/* Show winner/loser and proof submission if completed */}
+      {game.status === 'completed' && (
+        <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
+          <b>Game completed!</b> Winner: {game.winner || winner}.{' '}
+          {isLoser && (
+            <>
+              <button className="ml-2 bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark" onClick={() => setShowProofModal(true)}>
+                Submit Proof
+              </button>
+              <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof" role="dialog" aria-modal="true">
+                <form onSubmit={handleProofSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="proofText" className="block font-semibold mb-1">Proof</label>
+                    <textarea
+                      id="proofText"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                      value={proof}
+                      onChange={e => setProof(e.target.value)}
+                      placeholder="Describe or link your proof..."
+                      rows={4}
+                    />
+                  </div>
+                  {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </Modal>
+            </>
+          )}
+          {game.proof && (
+            <div className="mt-2 text-info">Proof submitted by {game.proof.user}: {game.proof.text}</div>
           )}
         </div>
       )}
-      {bothMoves && isLoser && !game.proof && proofExpiresAt && proofExpired && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded p-4">
-          <b>Proof submission window has expired. You can no longer submit proof.</b>
+      {/* Show proof submitted state */}
+      {game.status === 'proof_submitted' && (
+        <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
+          <b>Proof submitted!</b> Proof by {game.proof?.user}: {game.proof?.text}
         </div>
       )}
-      {bothMoves && isLoser && !game.proof && (!proofExpiresAt || !proofExpired) && (
-        <div className="mt-6">
-          <button className="bg-yellow-400 text-gray-900 rounded px-4 py-2 font-semibold hover:bg-yellow-300" onClick={() => setShowProofModal(true)}>
-            Submit Proof of Demanded Act
-          </button>
-          {proofExpiresAt && (
-            <div className="mt-2">
-              <b>Proof submission window:</b> {proofExpiresIn ? <span>{proofExpiresIn} remaining</span> : null}
-            </div>
-          )}
-        </div>
-      )}
-      {bothMoves && isLoser && game.proof && (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
-          <b>Proof submitted:</b> {game.proof.text}
-          {proofExpiresAt && (
-            <div className="mt-2">
-              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-            </div>
-          )}
-        </div>
-      )}
-      {bothMoves && isWinner && game.proof && (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
-          <b>{loser} has submitted proof:</b> {game.proof.text}
-          {proofExpiresAt && (
-            <div className="mt-2">
-              <b>Proof review window:</b> {proofExpired ? <span className="text-red-500">Expired</span> : <span>{proofExpiresIn} remaining</span>}
-            </div>
-          )}
-        </div>
-      )}
-      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof" role="dialog" aria-modal="true">
-        <form onSubmit={handleProofSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="proof" className="block font-semibold mb-1">Proof of Demanded Act</label>
-            <textarea
-              id="proof"
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
-              value={proof}
-              onChange={e => setProof(e.target.value)}
-              rows={4}
-              placeholder="Describe or link to your proof..."
-              required
-            />
-          </div>
-          {proofError && <div className="text-red-500 text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
-              Cancel
-            </button>
-            <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50">
-              Submit
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 } 
