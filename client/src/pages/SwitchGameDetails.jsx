@@ -35,7 +35,34 @@ export default function SwitchGameDetails() {
   // Add error toast state
   const [errorToast, setErrorToast] = useState('');
 
-  // --- Move proofExpiresAt and related calculations up here ---
+  // --- Move winner/loser/isLoser logic up here ---
+  const username = user?.username;
+  const hasJoined = game?.participants && game.participants.includes(username);
+  const canPlayRps = game?.participants && game.participants.length === 2 && !game.winner;
+  const userMove = game?.moves && game.moves[username];
+  const bothMoves = canPlayRps && game.moves && Object.keys(game.moves).length === 2;
+  let rpsResult = null;
+  let winner = null;
+  let loser = null;
+  if (bothMoves) {
+    const [p1, p2] = game.participants;
+    const move1 = game.moves[p1];
+    const move2 = game.moves[p2];
+    const res1 = getRpsResult(move1, move2);
+    if (res1 === 'draw') {
+      rpsResult = 'draw';
+    } else if (res1 === 'win') {
+      winner = p1;
+      loser = p2;
+    } else {
+      winner = p2;
+      loser = p1;
+    }
+  }
+  const isLoser = loser === username;
+  const isWinner = winner === username;
+
+  // --- proofExpiresAt and related calculations (already moved up) ---
   let proofExpiresAt = game?.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
   let proofExpired = false;
   let proofExpiresIn = null;
@@ -151,42 +178,6 @@ export default function SwitchGameDetails() {
   }
   if (!user) {
     return <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-center text-[#888]">Please log in to view this game.</div>;
-  }
-
-  const username = user.username;
-  const hasJoined = game.participants && game.participants.includes(username);
-  const canPlayRps = game.participants && game.participants.length === 2 && !game.winner;
-  const userMove = game.moves && game.moves[username];
-  const bothMoves = canPlayRps && game.moves && Object.keys(game.moves).length === 2;
-  let rpsResult = null;
-  let winner = null;
-  let loser = null;
-  if (bothMoves) {
-    const [p1, p2] = game.participants;
-    const move1 = game.moves[p1];
-    const move2 = game.moves[p2];
-    const res1 = getRpsResult(move1, move2);
-    if (res1 === 'draw') {
-      rpsResult = 'draw';
-    } else if (res1 === 'win') {
-      winner = p1;
-      loser = p2;
-    } else {
-      winner = p2;
-      loser = p1;
-    }
-  }
-  const isLoser = loser === username;
-  const isWinner = winner === username;
-
-  // More granular status logic
-  let granularStatus = game.status;
-  if (game.status === 'completed' && !game.proof) {
-    if (isLoser && countdown === 'Expired') {
-      granularStatus = 'expired';
-    } else {
-      granularStatus = 'awaiting_proof';
-    }
   }
 
   const handleJoin = async () => {
