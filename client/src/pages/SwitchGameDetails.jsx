@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api from '../api/axios';
@@ -30,7 +30,8 @@ export default function SwitchGameDetails() {
   const [showProofModal, setShowProofModal] = useState(false);
   const [proofError, setProofError] = useState('');
   const [polling, setPolling] = useState(false);
-
+  const [toast, setToast] = useState('');
+  const toastTimeout = useRef(null);
   // Status badge helper
   const statusBadge = (status) => {
     if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
@@ -67,6 +68,46 @@ export default function SwitchGameDetails() {
     };
     // eslint-disable-next-line
   }, [id, game && game.status, game && game.winner]);
+
+  // Show toast on status change
+  useEffect(() => {
+    if (!game) return;
+    if (game.status === 'in_progress') setToast('Game started!');
+    if (game.status === 'completed') setToast('Game completed!');
+    if (game.status === 'proof_submitted') setToast('Proof submitted!');
+    if (toast) {
+      if (toastTimeout.current) clearTimeout(toastTimeout.current);
+      toastTimeout.current = setTimeout(() => setToast(''), 3000);
+    }
+    // eslint-disable-next-line
+  }, [game && game.status]);
+
+  // Live countdown for proof submission
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    let interval = null;
+    if (proofExpiresAt && isLoser && game && game.status === 'completed' && !game.proof) {
+      const updateCountdown = () => {
+        const now = new Date();
+        const diff = proofExpiresAt - now;
+        if (diff <= 0) {
+          setCountdown('Expired');
+          clearInterval(interval);
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+        }
+      };
+      updateCountdown();
+      interval = setInterval(updateCountdown, 1000);
+    } else {
+      setCountdown('');
+    }
+    return () => interval && clearInterval(interval);
+    // eslint-disable-next-line
+  }, [proofExpiresAt, isLoser, game && game.status, game && game.proof]);
 
   if (loading) {
     return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
@@ -179,6 +220,11 @@ export default function SwitchGameDetails() {
       <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
       <hr className="my-4" />
+      {toast && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
+          {toast}
+        </div>
+      )}
       {/* Only allow join if open and no participant */}
       {!hasJoined && game.status === 'open' && !game.participant && (
         <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={handleJoin} disabled={joining}>
@@ -217,8 +263,9 @@ export default function SwitchGameDetails() {
       {game.status === 'completed' && (
         <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
           <b>Game completed!</b> Winner: {game.winner || winner}.{' '}
-          {isLoser && (
+          {isLoser && !game.proof && (
             <>
+              <div className="mt-2 text-warning font-semibold">Proof submission window: {countdown}</div>
               <button className="ml-2 bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark" onClick={() => setShowProofModal(true)}>
                 Submit Proof
               </button>
