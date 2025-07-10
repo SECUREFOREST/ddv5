@@ -104,33 +104,18 @@ export default function SwitchGameDetails() {
     setTimeout(() => setErrorToast(''), 4000);
   };
 
-  // Fetch game details
-  const fetchGame = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/switches/${id}`);
-      setGame(res.data);
-    } catch (err) {
-      setGame(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch game details (single fetch on mount or id change)
   useEffect(() => {
     fetchGame();
-    // Poll for updates every 2s if game is open and not completed
-    let interval = null;
-    if (game && game.status === 'open' && !game.winner) {
-      setPolling(true);
-      interval = setInterval(fetchGame, 2000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-      setPolling(false);
-    };
     // eslint-disable-next-line
-  }, [id, game && game.status, game && game.winner]);
+  }, [id]);
+
+  // Poll for updates every 2s if game is open and not completed
+  useEffect(() => {
+    if (!game || game.status !== 'open' || game.winner) return;
+    const interval = setInterval(fetchGame, 2000);
+    return () => clearInterval(interval);
+  }, [game && game.status, game && game.winner]);
 
   // Show toast on status change
   useEffect(() => {
