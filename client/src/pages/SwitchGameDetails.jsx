@@ -34,6 +34,22 @@ export default function SwitchGameDetails() {
   const toastTimeout = useRef(null);
   // Add error toast state
   const [errorToast, setErrorToast] = useState('');
+
+  // --- Move proofExpiresAt and related calculations up here ---
+  let proofExpiresAt = game?.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
+  let proofExpired = false;
+  let proofExpiresIn = null;
+  if (proofExpiresAt) {
+    const now = new Date();
+    proofExpired = now > proofExpiresAt;
+    if (!proofExpired) {
+      const diff = proofExpiresAt - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      proofExpiresIn = `${hours}h ${minutes}m ${seconds}s`;
+    }
+  }
   // Status badge helper
   const statusBadge = (status) => {
     if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
@@ -162,22 +178,6 @@ export default function SwitchGameDetails() {
   }
   const isLoser = loser === username;
   const isWinner = winner === username;
-
-  // Calculate proof expiration
-  let proofExpiresAt = game.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
-  let proofExpired = false;
-  let proofExpiresIn = null;
-  if (proofExpiresAt) {
-    const now = new Date();
-    proofExpired = now > proofExpiresAt;
-    if (!proofExpired) {
-      const diff = proofExpiresAt - now;
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      proofExpiresIn = `${hours}h ${minutes}m ${seconds}s`;
-    }
-  }
 
   // More granular status logic
   let granularStatus = game.status;
