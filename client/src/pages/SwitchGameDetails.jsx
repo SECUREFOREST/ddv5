@@ -119,8 +119,8 @@ export default function SwitchGameDetails() {
     );
   };
 
-  const fetchGame = async () => {
-    setLoading(true);
+  const fetchGame = async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     try {
       const res = await api.get(`/switches/${id}`);
       // Only update if relevant data is different
@@ -130,20 +130,20 @@ export default function SwitchGameDetails() {
     } catch (err) {
       setGame(null);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   // Fetch game details on mount or id change
   useEffect(() => {
-    fetchGame();
+    fetchGame(true); // show loading spinner on first load
     // eslint-disable-next-line
   }, [id]);
 
   // Poll for updates every 2s if game is open and not completed
   useEffect(() => {
     if (!game || game.status !== 'open' || game.winner) return;
-    const interval = setInterval(fetchGame, 2000);
+    const interval = setInterval(() => fetchGame(false), 2000); // no loading spinner for polling
     return () => clearInterval(interval);
   }, [game && game.status, game && game.winner]);
 
