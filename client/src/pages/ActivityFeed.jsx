@@ -15,7 +15,7 @@ export default function ActivityFeed() {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Global Activity Feed</h1>
       </div>
@@ -23,7 +23,7 @@ export default function ActivityFeed() {
         {loading ? (
           <div>Loading...</div>
         ) : error ? (
-          <div className="text-danger">{error}</div>
+          <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
         ) : activities.length === 0 ? (
           <div className="text-muted">No recent activity.</div>
         ) : (

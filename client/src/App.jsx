@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import DareCreator from './pages/DareCreator';
+import DareParticipant from './pages/DareParticipant';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -54,6 +56,8 @@ function AppContent() {
               <Route path="/switches" element={<SwitchGames />} />
               <Route path="/switches/:id" element={<SwitchGameDetails />} />
               <Route path="/activity-feed" element={<ActivityFeed />} />
+              <Route path="/dare/create" element={<DareCreator />} />
+              <Route path="/dare/:id/perform" element={<DareParticipant />} />
             </Routes>
           </Suspense>
         </div>

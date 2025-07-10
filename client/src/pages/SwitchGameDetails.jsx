@@ -162,7 +162,7 @@ export default function SwitchGameDetails() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-lg w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
@@ -247,11 +247,12 @@ export default function SwitchGameDetails() {
           )}
         </div>
       )}
-      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof">
+      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof" role="dialog" aria-modal="true">
         <form onSubmit={handleProofSubmit} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1">Proof of Demanded Act</label>
+            <label htmlFor="proof" className="block font-semibold mb-1">Proof of Demanded Act</label>
             <textarea
+              id="proof"
               className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={proof}
               onChange={e => setProof(e.target.value)}
@@ -260,7 +261,7 @@ export default function SwitchGameDetails() {
               required
             />
           </div>
-          {proofError && <div className="text-red-500 text-sm font-medium">{proofError}</div>}
+          {proofError && <div className="text-red-500 text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
               Cancel

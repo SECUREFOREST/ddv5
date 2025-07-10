@@ -39,7 +39,7 @@ export default function SwitchGames() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-2xl w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none flex items-center justify-between">
         <h1 className="text-2xl font-bold">Switch Games</h1>
         {user && (
@@ -83,18 +83,19 @@ export default function SwitchGames() {
           </table>
         </div>
       )}
-      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Switch battle">
+      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Switch battle" role="dialog" aria-modal="true">
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1">Game Name (optional)</label>
+            <label htmlFor="newGameName" className="block font-semibold mb-1">Game Name (optional)</label>
             <input
+              id="newGameName"
               className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
               value={newGameName}
               onChange={e => setNewGameName(e.target.value)}
               placeholder="Enter a name for your switch game..."
             />
           </div>
-          {createError && <div className="text-red-500 text-sm font-medium">{createError}</div>}
+          {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowCreate(false)} disabled={creating}>
               Cancel

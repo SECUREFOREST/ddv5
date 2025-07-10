@@ -91,6 +91,40 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Add after other GET endpoints
+router.get('/random', auth, async (req, res) => {
+  try {
+    const { difficulty } = req.query;
+    const userId = req.userId;
+    // Exclude acts already consented to or completed by this user
+    const user = await require('../models/User').findById(userId).select('consentedActs completedActs');
+    const excludeActs = [
+      ...(user.consentedActs || []),
+      ...(user.completedActs || [])
+    ];
+    const filter = { status: 'open', performer: { $exists: false } };
+    if (difficulty) filter.difficulty = difficulty;
+    if (excludeActs.length > 0) filter._id = { $nin: excludeActs };
+    const count = await Act.countDocuments(filter);
+    if (count === 0) return res.json({});
+    const rand = Math.floor(Math.random() * count);
+    // Atomically assign the dare to this user if not already taken
+    const dare = await Act.findOneAndUpdate(
+      filter,
+      { performer: userId, status: 'in_progress', updatedAt: new Date() },
+      { skip: rand, new: true }
+    );
+    if (!dare) return res.json({});
+    // Track consent in user
+    await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedActs: dare._id } });
+    // Audit log
+    await require('../utils/auditLog').logAudit({ action: 'consent_dare', user: userId, target: dare._id });
+    res.json(dare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch random dare.' });
+  }
+});
+
 // POST /api/acts - create act (auth required)
 router.post('/', auth, async (req, res) => {
   try {

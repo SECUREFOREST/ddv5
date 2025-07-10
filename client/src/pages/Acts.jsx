@@ -156,7 +156,7 @@ export default function Acts() {
   };
 
   return (
-    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Acts</h1>
       </div>
@@ -227,7 +227,7 @@ export default function Acts() {
       </div>
       {/* Create Act Modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-lg mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
               <h2 className="text-lg font-semibold text-primary">Create New Act</h2>
@@ -236,50 +236,50 @@ export default function Acts() {
             <form onSubmit={handleCreate}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Title</label>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createTitle} onChange={e => setCreateTitle(e.target.value)} required />
+                  <label htmlFor="createTitle" className="block font-semibold mb-1 text-primary">Title</label>
+                  <input id="createTitle" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createTitle} onChange={e => setCreateTitle(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Description</label>
-                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required />
+                  <label htmlFor="createDescription" className="block font-semibold mb-1 text-primary">Description</label>
+                  <textarea id="createDescription" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Difficulty</label>
-                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
+                  <label htmlFor="createDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select id="createDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Tags</label>
-                  <TagsInput value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
+                  <label htmlFor="createTags" className="block font-semibold mb-1 text-primary">Tags</label>
+                  <TagsInput id="createTags" value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Type</label>
-                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createActType} onChange={e => setCreateActType(e.target.value)}>
+                  <label htmlFor="createActType" className="block font-semibold mb-1 text-primary">Type</label>
+                  <select id="createActType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createActType} onChange={e => setCreateActType(e.target.value)}>
                     {ACT_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Visibility</label>
-                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
+                  <label htmlFor="createPublic" className="block font-semibold mb-1 text-primary">Visibility</label>
+                  <select id="createPublic" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
                     <option value="true">Public</option>
                     <option value="false">Private</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
-                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
+                  <label htmlFor="createAllowedRoles" className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
+                  <select id="createAllowedRoles" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
                     {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                   <small className="text-neutral-400">If set, only users with these roles can participate.</small>
                 </div>
                 <div>
-                  <label className="inline-flex items-center">
-                    <input type="checkbox" className="form-checkbox mr-2" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
+                  <label htmlFor="consentChecked" className="inline-flex items-center">
+                    <input id="consentChecked" type="checkbox" className="form-checkbox mr-2" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
                     I consent to perform or participate in this act as described.
                   </label>
                 </div>
-                {createError && <div className="text-danger text-sm font-medium">{createError}</div>}
+                {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={creating}>
@@ -292,14 +292,14 @@ export default function Acts() {
       )}
       {/* Post-create sharing modal */}
       {createdActId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
               <h2 className="text-lg font-semibold text-primary">Share Your Act</h2>
               <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedActId(null)}>&times;</button>
             </div>
             <div className="px-6 py-4">
-              <label className="block font-semibold mb-1 text-primary">Sharable Link</label>
+              <label htmlFor="sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
               <div className="flex items-center gap-2">
                 <input
                   id="sharable-link-input-modal"
@@ -324,7 +324,7 @@ export default function Acts() {
       )}
       {/* Accept Act Modal */}
       {acceptActId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
               <h2 className="text-lg font-semibold text-primary">Start / Accept Act</h2>
@@ -333,18 +333,18 @@ export default function Acts() {
             <form onSubmit={handleAcceptSubmit}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Difficulty</label>
-                  <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
+                  <label htmlFor="acceptDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select id="acceptDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="inline-flex items-center">
-                    <input type="checkbox" className="form-checkbox mr-2" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
+                  <label htmlFor="acceptConsent" className="inline-flex items-center">
+                    <input id="acceptConsent" type="checkbox" className="form-checkbox mr-2" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
                     I consent to perform or participate in this act as described.
                   </label>
                 </div>
-                {acceptError && <div className="text-danger text-sm font-medium">{acceptError}</div>}
+                {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={acceptLoading || !acceptConsent}>

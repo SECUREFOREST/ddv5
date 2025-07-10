@@ -12,6 +12,8 @@ const UserSchema = new mongoose.Schema({
   banned: { type: Boolean, default: false },
   actCooldownUntil: { type: Date },
   openActs: { type: Number, default: 0 },
+  consentedActs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Act' }],
+  completedActs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Act' }],
   createdAt: { type: Date, default: Date.now },
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },

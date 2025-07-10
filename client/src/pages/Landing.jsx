@@ -15,9 +15,9 @@ const Landing = () => {
   if (loading) return null;
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <img src="/logo.svg" alt="DDv5 Logo" className="w-3/4 mx-auto mb-4" />
-      <h1 className="text-2xl font-bold text-center mb-4 text-[#888]">Welcome to DDv5!</h1>
+    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <img src="/logo.svg" alt="DDv5 Logo" className="w-3/4 mx-auto mb-4" aria-label="DDv5 Logo" />
+      <h1 className="text-2xl font-bold text-center mb-4 text-[#888]" aria-label="Welcome to DDv5!">Welcome to DDv5!</h1>
       <p className="text-base mb-6 text-center text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
       <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">
         <li>✔️ Log your daily acts and progress</li>
@@ -27,10 +27,10 @@ const Landing = () => {
       </ul>
       <div className="flex flex-col gap-3 mt-6">
         <Link to="/login">
-          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Log In</button>
+          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" aria-label="Log In">Log In</button>
         </Link>
         <Link to="/register">
-          <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-semibold hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark">Register</button>
+          <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-semibold hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark" aria-label="Register">Register</button>
         </Link>
       </div>
     </div>

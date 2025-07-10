@@ -47,44 +47,50 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Link to="/" className="inline-block mb-4">
         <button className="text-primary hover:text-primary-dark text-sm font-semibold">&larr; Back to Home</button>
       </Link>
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-semibold mb-1 text-primary">Username</label>
+          <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
           <input
+            id="username"
             type="text"
             className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
             value={username}
             onChange={e => setUsername(e.target.value)}
             required
+            aria-label="Username"
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1 text-primary">Email</label>
+          <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email</label>
           <input
+            id="email"
             type="email"
             className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
+            aria-label="Email address"
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1 text-primary">Password</label>
+          <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
           <input
+            id="password"
             type="password"
             className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
+            aria-label="Password"
           />
         </div>
-        {error && <div className="text-danger text-sm font-medium">{error}</div>}
-        {success && <div className="text-success text-sm font-medium">{success}</div>}
+        {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
+        {success && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{success}</div>}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"

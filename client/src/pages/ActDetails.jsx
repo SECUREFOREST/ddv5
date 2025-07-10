@@ -297,7 +297,7 @@ export default function ActDetails() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{act?.title} <StatusBadge status={act?.status} /></h1>
         <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ export default function ActDetails() {
             <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={act ? handleAcceptAct : undefined} disabled={acceptLoading || !act}>
               {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
             </button>
-            {acceptError && <div className="text-danger text-sm font-medium mt-2">{acceptError}</div>}
+            {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
           </div>
         )}
         <div className="text-neutral-400 mb-4 text-center">
@@ -367,7 +367,7 @@ export default function ActDetails() {
                   <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
                   <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
                 </div>
-                {gradeError && <div className="text-danger text-sm font-medium">{gradeError}</div>}
+                {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
@@ -457,7 +457,7 @@ export default function ActDetails() {
                   <label className="block font-semibold mb-1 text-primary">Add a Comment</label>
                   <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
                 </div>
-                {commentError && <div className="text-danger text-sm font-medium">{commentError}</div>}
+                {commentError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{commentError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
                   Submit Comment
                 </button>
@@ -524,7 +524,7 @@ export default function ActDetails() {
         )}
       </div> {/* <-- Close main content div before modals */}
       {/* Modals Section */}
-      <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Act">
+      <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Act" role="dialog" aria-modal="true">
         <form onSubmit={handleReject} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Reason for rejection:</label>
@@ -548,7 +548,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof of Completion">
+      <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof of Completion" role="dialog" aria-modal="true">
         <form onSubmit={handleProofSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Describe what you did (optional):</label>
@@ -586,7 +586,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={showReportModal} onClose={() => setShowReportModal(false)} title="Report Comment">
+      <Modal open={showReportModal} onClose={() => setShowReportModal(false)} title="Report Comment" role="dialog" aria-modal="true">
         <form onSubmit={handleReportSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Reason for reporting:</label>
@@ -611,7 +611,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act">
+      <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act" role="dialog" aria-modal="true">
         <form onSubmit={handleAppealSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1 text-primary">Reason for appeal:</label>
@@ -636,7 +636,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={editCommentId !== null} onClose={() => setEditCommentId(null)} title="Edit Comment">
+      <Modal open={editCommentId !== null} onClose={() => setEditCommentId(null)} title="Edit Comment" role="dialog" aria-modal="true">
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Edit your comment:</label>
@@ -659,7 +659,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={showModerateModal} onClose={() => setShowModerateModal(false)} title="Moderate/Hide Comment">
+      <Modal open={showModerateModal} onClose={() => setShowModerateModal(false)} title="Moderate/Hide Comment" role="dialog" aria-modal="true">
         <form onSubmit={handleModerateSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Reason for hiding/moderating:</label>

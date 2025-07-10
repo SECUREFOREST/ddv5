@@ -127,7 +127,7 @@ mongoose.connection.on('reconnectFailed', () => {
   console.error(`[${new Date().toISOString()}] [MongoDB] Reconnection failed`);
 });
 
-// Server will use PORT from environment or default to 4000
+// Server will use PORT from environment or default to 5000
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

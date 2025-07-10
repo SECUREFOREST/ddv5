@@ -281,7 +281,7 @@ export default function Admin() {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
         <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
           <h1 className="text-3xl font-bold">Admin Panel</h1>
         </div>
@@ -306,7 +306,7 @@ export default function Admin() {
                       </button>
                     </div>
                     {deleteUserError && (
-                      <div className="mb-4 text-danger text-sm font-semibold">{deleteUserError}</div>
+                      <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
                     )}
                     <div className="overflow-x-auto rounded shadow">
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
@@ -673,15 +673,18 @@ export default function Admin() {
         title={null}
         actions={null}
         size="sm"
+        role="dialog"
+        aria-modal="true"
       >
         <div className="max-w-sm mx-auto bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px]">
           <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Edit User</h1>
           <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
             <div>
-              <label className="block font-semibold mb-1 text-primary">Username</label>
+              <label htmlFor="edit-username" className="block font-semibold mb-1 text-primary">Username</label>
               <input
                 type="text"
                 name="username"
+                id="edit-username"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={editUserData.username}
                 onChange={handleEditUserChange}
@@ -689,10 +692,11 @@ export default function Admin() {
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1 text-primary">Email</label>
+              <label htmlFor="edit-email" className="block font-semibold mb-1 text-primary">Email</label>
               <input
                 type="email"
                 name="email"
+                id="edit-email"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={editUserData.email}
                 onChange={handleEditUserChange}
@@ -700,16 +704,17 @@ export default function Admin() {
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1 text-primary">Role</label>
+              <label htmlFor="edit-role" className="block font-semibold mb-1 text-primary">Role</label>
               <input
                 type="text"
                 name="role"
+                id="edit-role"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={editUserData.role}
                 onChange={handleEditUserChange}
               />
             </div>
-            {editUserError && <div className="text-danger text-sm font-medium">{editUserError}</div>}
+            {editUserError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{editUserError}</div>}
             <div className="flex gap-2 mt-4">
               <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
               <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>

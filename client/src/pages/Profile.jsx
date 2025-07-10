@@ -50,7 +50,7 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Profile</h1>
       </div>
@@ -138,16 +138,17 @@ export default function Profile() {
                 <div className="max-w-md">
                   <form onSubmit={handleSave} className="space-y-4">
                     <div>
-                      <label className="block font-semibold mb-1 text-primary">Username</label>
-                      <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                      <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
+                      <input type="text" id="username" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
                     </div>
                     <div>
-                      <label className="block font-semibold mb-1 text-primary">Avatar URL</label>
-                      <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
+                      <label htmlFor="avatar" className="block font-semibold mb-1 text-primary">Avatar URL</label>
+                      <input type="text" id="avatar" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
                     </div>
                     <div>
-                      <label className="block font-semibold mb-1 text-primary">Bio (Markdown supported)</label>
+                      <label htmlFor="bio" className="block font-semibold mb-1 text-primary">Bio (Markdown supported)</label>
                       <textarea
+                        id="bio"
                         className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                         rows={5}
                         value={bio}
@@ -159,7 +160,7 @@ export default function Profile() {
                         <Markdown>{bio}</Markdown>
                       </div>
                     </div>
-                    {error && <div className="text-danger mb-2 font-medium">{error}</div>}
+                    {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
                     <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
                       {saving ? 'Saving...' : 'Save'}
                     </button>
@@ -209,9 +210,10 @@ function ChangePasswordForm() {
       <form onSubmit={handleChangePassword} className="space-y-4">
         <h3 className="text-2xl font-bold text-center mb-6 text-[#888]">Change Password</h3>
         <div>
-          <label className="block font-semibold mb-1 text-primary">Old Password</label>
+          <label htmlFor="oldPassword" className="block font-semibold mb-1 text-primary">Old Password</label>
           <input
             type="password"
+            id="oldPassword"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={oldPassword}
             onChange={e => setOldPassword(e.target.value)}
@@ -219,17 +221,18 @@ function ChangePasswordForm() {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1 text-primary">New Password</label>
+          <label htmlFor="newPassword" className="block font-semibold mb-1 text-primary">New Password</label>
           <input
             type="password"
+            id="newPassword"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
             required
           />
         </div>
-        {message && <div className="text-success text-sm font-medium">{message}</div>}
-        {error && <div className="text-danger text-sm font-medium">{error}</div>}
+        {message && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{message}</div>}
+        {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
