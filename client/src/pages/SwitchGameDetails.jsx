@@ -32,13 +32,23 @@ export default function SwitchGameDetails() {
   const [polling, setPolling] = useState(false);
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
+  // Add error toast state
+  const [errorToast, setErrorToast] = useState('');
   // Status badge helper
   const statusBadge = (status) => {
     if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
     if (status === 'in_progress') return <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold ml-2">In Progress</span>;
     if (status === 'completed') return <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Completed</span>;
     if (status === 'proof_submitted') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
+    if (status === 'awaiting_proof') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Awaiting Proof</span>;
+    if (status === 'expired') return <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Expired</span>;
     return <span className="inline-block bg-gray-400 text-white rounded px-2 py-1 text-xs font-semibold ml-2">{status}</span>;
+  };
+
+  // Show error toast helper
+  const showErrorToast = (msg) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(''), 4000);
   };
 
   // Fetch game details
@@ -169,6 +179,16 @@ export default function SwitchGameDetails() {
     }
   }
 
+  // More granular status logic
+  let granularStatus = game.status;
+  if (game.status === 'completed' && !game.proof) {
+    if (isLoser && countdown === 'Expired') {
+      granularStatus = 'expired';
+    } else {
+      granularStatus = 'awaiting_proof';
+    }
+  }
+
   const handleJoin = async () => {
     if (hasJoined) return;
     setJoining(true);
@@ -176,7 +196,7 @@ export default function SwitchGameDetails() {
       await api.post(`/api/switches/${id}/join`);
       await fetchGame();
     } catch (err) {
-      // handle error
+      showErrorToast(err.response?.data?.error || 'Failed to join game.');
     } finally {
       setJoining(false);
     }
@@ -188,7 +208,7 @@ export default function SwitchGameDetails() {
       await api.post(`/api/switches/${id}/move`, { move });
       await fetchGame();
     } catch (err) {
-      // handle error
+      showErrorToast(err.response?.data?.error || 'Failed to submit move.');
     } finally {
       setMoveSubmitting(false);
     }
@@ -207,7 +227,7 @@ export default function SwitchGameDetails() {
       setProofError('');
       await fetchGame();
     } catch (err) {
-      setProofError('Failed to submit proof.');
+      showErrorToast(err.response?.data?.error || 'Failed to submit proof.');
     }
   };
 
@@ -216,13 +236,18 @@ export default function SwitchGameDetails() {
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
-      <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(game.status)}</div>
+      <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
       <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
       <hr className="my-4" />
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
           {toast}
+        </div>
+      )}
+      {errorToast && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-danger text-danger-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
+          {errorToast}
         </div>
       )}
       {/* Only allow join if open and no participant */}
@@ -260,9 +285,9 @@ export default function SwitchGameDetails() {
         </div>
       )}
       {/* Show winner/loser and proof submission if completed */}
-      {game.status === 'completed' && (
-        <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
-          <b>Game completed!</b> Winner: {game.winner || winner}.{' '}
+      {granularStatus === 'awaiting_proof' && (
+        <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
+          <b>Awaiting proof from the loser.</b>
           {isLoser && !game.proof && (
             <>
               <div className="mt-2 text-warning font-semibold">Proof submission window: {countdown}</div>
@@ -295,9 +320,11 @@ export default function SwitchGameDetails() {
               </Modal>
             </>
           )}
-          {game.proof && (
-            <div className="mt-2 text-info">Proof submitted by {game.proof.user}: {game.proof.text}</div>
-          )}
+        </div>
+      )}
+      {granularStatus === 'expired' && (
+        <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
+          <b>Proof submission window has expired.</b>
         </div>
       )}
       {/* Show proof submitted state */}
