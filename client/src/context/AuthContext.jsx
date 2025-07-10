@@ -33,9 +33,9 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, [accessToken]);
 
-  const login = async (email, password) => {
+  const login = async (identifier, password) => {
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { identifier, password });
       localStorage.setItem('accessToken', res.data.accessToken);
       localStorage.setItem('refreshToken', res.data.refreshToken);
       setAccessToken(res.data.accessToken);
