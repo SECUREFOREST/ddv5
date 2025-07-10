@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -17,7 +17,7 @@ export default function Login() {
     setSuccess('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(identifier, password);
       setSuccess('Login successful! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
@@ -42,15 +42,15 @@ export default function Login() {
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Login</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email</label>
+          <label htmlFor="identifier" className="block font-semibold mb-1 text-primary">Username or Email</label>
           <input
-            type="email"
-            id="email"
+            type="text"
+            id="identifier"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
             required
-            aria-label="Email address"
+            aria-label="Username or Email"
           />
         </div>
         <div>
@@ -76,7 +76,8 @@ export default function Login() {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <a href="/forgot-password" className="text-primary text-sm underline">Forgot Password?</a>
+        <span className="text-neutral-400">Don't have an account?</span>{' '}
+        <Link to="/register" className="text-primary hover:underline">Register</Link>
       </div>
     </div>
   );

@@ -73,20 +73,26 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required.' });
+    const { identifier, password } = req.body;
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Username/email and password required.' });
     }
-    // Email format validation
-    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Invalid email format.' });
+    // Email format validation (for error message only)
+    if (identifier.includes('@')) {
+      const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      if (!emailRegex.test(identifier)) {
+        return res.status(400).json({ error: 'Invalid email format.' });
+      }
     }
     // Password strength validation
     if (password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters.' });
     }
-    const user = await User.findOne({ email });
+    // Find user by username or email
+    const user = await User.findOne({ $or: [
+      { email: identifier },
+      { username: identifier }
+    ] });
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
