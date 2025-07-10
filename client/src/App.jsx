@@ -21,6 +21,8 @@ const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const UIDemo = React.lazy(() => import('./pages/UIDemo'));
 const SwitchGames = React.lazy(() => import('./pages/SwitchGames'));
+const SwitchGameCreate = React.lazy(() => import('./pages/SwitchGameCreate'));
+const SwitchGameParticipate = React.lazy(() => import('./pages/SwitchGameParticipate'));
 const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 const Landing = React.lazy(() => import('./pages/Landing'));
@@ -54,6 +56,8 @@ function AppContent() {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/ui-demo" element={<UIDemo />} />
               <Route path="/switches" element={<SwitchGames />} />
+              <Route path="/switches/create" element={<SwitchGameCreate />} />
+              <Route path="/switches/participate" element={<SwitchGameParticipate />} />
               <Route path="/switches/:id" element={<SwitchGameDetails />} />
               <Route path="/activity-feed" element={<ActivityFeed />} />
               <Route path="/dare/create" element={<DareCreator />} />

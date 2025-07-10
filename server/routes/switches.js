@@ -26,10 +26,22 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/switches - create new game
 router.post('/', async (req, res) => {
-  const { name } = req.body;
-  const game = new SwitchGame({ name, participants: [], moves: {} });
-  await game.save();
-  res.status(201).json(game);
+  try {
+    const { description, difficulty, move } = req.body;
+    const creator = getUsername(req);
+    if (!description || !difficulty || !move) {
+      return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
+    }
+    const game = new SwitchGame({
+      status: 'open',
+      creator,
+      creatorDare: { description, difficulty, move },
+    });
+    await game.save();
+    res.status(201).json(game);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to create switch game.' });
+  }
 });
 
 // POST /api/switches/:id/join - join a game
@@ -38,28 +50,21 @@ router.post('/:id/join', async (req, res) => {
   session.startTransaction();
   try {
     const username = getUsername(req);
+    const { difficulty, move, consent } = req.body;
     const game = await SwitchGame.findById(req.params.id).session(session);
     if (!game) throw new Error('Not found');
     if (game.participant) throw new Error('This switch game already has a participant.');
     if (game.creator === username) throw new Error('Creator cannot join as participant.');
-    // Assign a random dare (act) to the participant (pseudo-code, replace with your logic)
-    const dare = await Act.findOneAndUpdate(
-      { status: 'pending', performer: { $exists: false }, actType: 'switch' },
-      { status: 'in_progress', performer: game._id },
-      { new: true, session }
-    );
-    if (!dare) throw new Error('No available dare to assign.');
+    if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
     game.participant = username;
-    game.assignedDareId = dare._id;
+    game.participantDare = { difficulty, move, consent };
     game.status = 'in_progress';
-    dare.status = 'in_progress';
     await game.save({ session });
-    await dare.save({ session });
     await session.commitTransaction();
     res.json(game);
   } catch (err) {
     await session.abortTransaction();
-    res.status(400).json({ error: err.message || 'Failed to join and assign dare.' });
+    res.status(400).json({ error: err.message || 'Failed to join switch game.' });
   } finally {
     session.endSession();
   }
@@ -77,14 +82,20 @@ router.post('/:id/move', async (req, res) => {
     if (!game.participant || !game.creator) throw new Error('Game is not ready.');
     if (![game.creator, game.participant].includes(username)) throw new Error('Not a participant');
     if (!['rock', 'paper', 'scissors'].includes(move)) throw new Error('Invalid move');
-    game.moves.set(username, move);
+    // Only allow each user to submit their move once
+    if (username === game.creator && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
+    if (username === game.participant && game.participantDare.move) throw new Error('Participant has already submitted a move.');
+    if (username === game.creator) game.creatorDare.move = move;
+    if (username === game.participant) game.participantDare.move = move;
+    // If both moves present, determine winner
     let winner = null, loser = null;
-    if (game.moves.size === 2 && !game.winner) {
-      const [p1, p2] = [game.creator, game.participant];
-      const m1 = game.moves.get(p1);
-      const m2 = game.moves.get(p2);
+    if (game.creatorDare.move && game.participantDare.move && !game.winner) {
+      const m1 = game.creatorDare.move;
+      const m2 = game.participantDare.move;
       if (m1 === m2) {
-        game.moves = new Map();
+        // Draw: clear moves for replay
+        game.creatorDare.move = undefined;
+        game.participantDare.move = undefined;
       } else {
         function beats(a, b) {
           return (
@@ -94,20 +105,13 @@ router.post('/:id/move', async (req, res) => {
           );
         }
         if (beats(m1, m2)) {
-          game.winner = p1;
-          winner = p1; loser = p2;
+          game.winner = game.creator;
+          winner = game.creator; loser = game.participant;
         } else {
-          game.winner = p2;
-          winner = p2; loser = p1;
+          game.winner = game.participant;
+          winner = game.participant; loser = game.creator;
         }
         game.status = 'completed';
-        if (game.assignedDareId) {
-          const dare = await Act.findById(game.assignedDareId).session(session);
-          if (dare) {
-            dare.status = 'completed';
-            await dare.save({ session });
-          }
-        }
       }
     }
     await game.save({ session });
