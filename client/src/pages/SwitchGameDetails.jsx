@@ -109,7 +109,10 @@ export default function SwitchGameDetails() {
     setLoading(true);
     try {
       const res = await api.get(`/switches/${id}`);
-      setGame(res.data);
+      // Only update if data is different
+      if (JSON.stringify(res.data) !== JSON.stringify(game)) {
+        setGame(res.data);
+      }
     } catch (err) {
       setGame(null);
     } finally {
