@@ -128,10 +128,10 @@ router.get('/random', auth, async (req, res) => {
 // POST /api/acts - create act (auth required)
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, description, difficulty, tags } = req.body;
-    if (!title) return res.status(400).json({ error: 'Title is required.' });
+    const { description, difficulty, tags } = req.body;
+    if (!description) return res.status(400).json({ error: 'Description is required.' });
+    if (!difficulty) return res.status(400).json({ error: 'Difficulty is required.' });
     const act = new Act({
-      title,
       description,
       difficulty,
       tags: Array.isArray(tags) ? tags : [],
@@ -140,7 +140,7 @@ router.post('/', auth, async (req, res) => {
     await act.save();
     await logActivity({ type: 'act_created', user: req.userId, act: act._id });
     // Notify the creator
-    await sendNotification(req.userId, 'act_created', `Your act "${title}" has been created.`);
+    await sendNotification(req.userId, 'act_created', `Your dare has been created.`);
     res.status(201).json(act);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create act.' });
