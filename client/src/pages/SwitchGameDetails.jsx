@@ -104,13 +104,27 @@ export default function SwitchGameDetails() {
     setTimeout(() => setErrorToast(''), 4000);
   };
 
-  // Fetch game details (must be above useEffect)
+  // Custom comparison for relevant fields
+  const isGameEqual = (a, b) => {
+    if (!a || !b) return false;
+    return (
+      a.status === b.status &&
+      a.creator === b.creator &&
+      a.participant === b.participant &&
+      JSON.stringify(a.creatorDare) === JSON.stringify(b.creatorDare) &&
+      JSON.stringify(a.participantDare) === JSON.stringify(b.participantDare) &&
+      a.winner === b.winner &&
+      JSON.stringify(a.proof) === JSON.stringify(b.proof) &&
+      String(a.proofExpiresAt) === String(b.proofExpiresAt)
+    );
+  };
+
   const fetchGame = async () => {
     setLoading(true);
     try {
       const res = await api.get(`/switches/${id}`);
-      // Only update if data is different
-      if (JSON.stringify(res.data) !== JSON.stringify(game)) {
+      // Only update if relevant data is different
+      if (!isGameEqual(res.data, game)) {
         setGame(res.data);
       }
     } catch (err) {
