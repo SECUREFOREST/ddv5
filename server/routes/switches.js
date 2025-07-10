@@ -111,7 +111,8 @@ router.post('/:id/move', async (req, res) => {
           game.winner = game.participant;
           winner = game.participant; loser = game.creator;
         }
-        game.status = 'completed';
+        game.status = 'awaiting_proof';
+        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
       }
     }
     await game.save({ session });
@@ -134,19 +135,19 @@ router.post('/:id/proof', async (req, res) => {
     const { text } = req.body;
     const game = await SwitchGame.findById(req.params.id).session(session);
     if (!game) throw new Error('Not found');
-    if (!game.winner || ![game.creator, game.participant].includes(username) || username === game.winner) {
+    if (!game.winner || ![game.creator, game.participant].includes(username) || username !== game.loser) {
       throw new Error('Only the loser can submit proof');
     }
-    game.proof = { user: username, text };
-    game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
-    await game.save({ session });
-    if (game.assignedDareId) {
-      const dare = await Act.findById(game.assignedDareId).session(session);
-      if (dare) {
-        dare.status = 'proof_submitted';
-        await dare.save({ session });
-      }
+    if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
+    if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {
+      game.status = 'expired';
+      await game.save({ session });
+      await session.commitTransaction();
+      return res.status(400).json({ error: 'Proof submission window has expired.' });
     }
+    game.proof = { user: username, text };
+    game.status = 'proof_submitted';
+    await game.save({ session });
     await session.commitTransaction();
     res.json(game);
   } catch (err) {

@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import TagsInput from '../components/TagsInput';
 
 export default function Register() {
   const { register } = useAuth();
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [interestedIn, setInterestedIn] = useState([]);
+  const [limits, setLimits] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validate = () => {
-    if (!username || !email || !password) {
+    if (!username || !fullName || !email || !password || !dob || !gender || interestedIn.length === 0) {
       setError('All fields are required.');
       return false;
     }
@@ -29,6 +35,10 @@ export default function Register() {
     return true;
   };
 
+  const handleInterestedIn = (val) => {
+    setInterestedIn(prev => prev.includes(val) ? prev.filter(i => i !== val) : [...prev, val]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -36,7 +46,7 @@ export default function Register() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await register(username, email, password);
+      await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
@@ -66,7 +76,19 @@ export default function Register() {
           />
         </div>
         <div>
-          <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email</label>
+          <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
+          <input
+            id="fullName"
+            type="text"
+            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+            value={fullName}
+            onChange={e => setFullName(e.target.value)}
+            required
+            aria-label="Full Name"
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
           <input
             id="email"
             type="email"
@@ -88,6 +110,51 @@ export default function Register() {
             required
             aria-label="Password"
           />
+        </div>
+        <div>
+          <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
+          <input
+            id="dob"
+            type="date"
+            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+            value={dob}
+            onChange={e => setDob(e.target.value)}
+            required
+            aria-label="Date of Birth"
+          />
+        </div>
+        <div>
+          <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
+          <select
+            id="gender"
+            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+            value={gender}
+            onChange={e => setGender(e.target.value)}
+            required
+            aria-label="Gender"
+          >
+            <option value="">Select...</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label className="block font-semibold mb-1 text-primary">Interested in</label>
+          <div className="flex gap-4 mt-1">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
+              Female
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
+              Male
+            </label>
+          </div>
+        </div>
+        <div>
+          <label className="block font-semibold mb-1 text-primary">Limits</label>
+          <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
         </div>
         {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
         {success && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{success}</div>}

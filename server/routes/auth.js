@@ -19,8 +19,8 @@ function generateRefreshToken() {
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    const { username, fullName, email, password, dob, gender, interestedIn, limits } = req.body;
+    if (!username || !fullName || !email || !password || !dob || !gender || !Array.isArray(interestedIn) || interestedIn.length === 0) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
     // Email format validation
@@ -37,12 +37,34 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'User already exists.' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, passwordHash });
+    const user = new User({
+      username,
+      fullName,
+      email,
+      passwordHash,
+      dob,
+      gender,
+      interestedIn,
+      limits: Array.isArray(limits) ? limits : [],
+    });
     const refreshToken = generateRefreshToken();
     user.refreshTokens = [refreshToken];
     await user.save();
     const accessToken = generateAccessToken(user);
-    res.json({ accessToken, refreshToken, user: { id: user._id, username, email } });
+    res.json({
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        username,
+        fullName,
+        email,
+        dob,
+        gender,
+        interestedIn,
+        limits: user.limits,
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Registration failed.' });
   }

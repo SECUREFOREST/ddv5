@@ -38,10 +38,10 @@ export default function SwitchGameDetails() {
   const statusBadge = (status) => {
     if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
     if (status === 'in_progress') return <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold ml-2">In Progress</span>;
-    if (status === 'completed') return <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Completed</span>;
-    if (status === 'proof_submitted') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
     if (status === 'awaiting_proof') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Awaiting Proof</span>;
+    if (status === 'proof_submitted') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
     if (status === 'expired') return <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Expired</span>;
+    if (status === 'completed') return <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Completed</span>;
     return <span className="inline-block bg-gray-400 text-white rounded px-2 py-1 text-xs font-semibold ml-2">{status}</span>;
   };
 
@@ -284,8 +284,8 @@ export default function SwitchGameDetails() {
           <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
         </div>
       )}
-      {/* Show winner/loser and proof submission if completed */}
-      {granularStatus === 'awaiting_proof' && (
+      {/* Show winner/loser and proof submission if awaiting_proof */}
+      {game.status === 'awaiting_proof' && (
         <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
           <b>Awaiting proof from the loser.</b>
           {isLoser && !game.proof && (
@@ -320,17 +320,19 @@ export default function SwitchGameDetails() {
               </Modal>
             </>
           )}
+          {game.proof && (
+            <div className="mt-2 text-info">Proof submitted by {game.proof.user}: {game.proof.text}</div>
+          )}
         </div>
       )}
-      {granularStatus === 'expired' && (
+      {game.status === 'proof_submitted' && (
+        <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
+          <b>Proof submitted!</b> Proof by {game.proof?.user}: {game.proof?.text}
+        </div>
+      )}
+      {game.status === 'expired' && (
         <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
           <b>Proof submission window has expired.</b>
-        </div>
-      )}
-      {/* Show proof submitted state */}
-      {game.status === 'proof_submitted' && (
-        <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
-          <b>Proof submitted!</b> Proof by {game.proof?.user}: {game.proof?.text}
         </div>
       )}
     </div>
