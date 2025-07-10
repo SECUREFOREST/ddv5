@@ -46,12 +46,10 @@ router.post('/', async (req, res) => {
 
 // POST /api/switches/:id/join - join a game
 router.post('/:id/join', async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const username = getUsername(req);
     const { difficulty, move, consent } = req.body;
-    const game = await SwitchGame.findById(req.params.id).session(session);
+    const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (game.participant) throw new Error('This switch game already has a participant.');
     if (game.creator === username) throw new Error('Creator cannot join as participant.');
@@ -59,25 +57,19 @@ router.post('/:id/join', async (req, res) => {
     game.participant = username;
     game.participantDare = { difficulty, move, consent };
     game.status = 'in_progress';
-    await game.save({ session });
-    await session.commitTransaction();
+    await game.save();
     res.json(game);
   } catch (err) {
-    await session.abortTransaction();
     res.status(400).json({ error: err.message || 'Failed to join switch game.' });
-  } finally {
-    session.endSession();
   }
 });
 
 // POST /api/switches/:id/move - submit RPS move
 router.post('/:id/move', async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const username = getUsername(req);
     const { move } = req.body;
-    const game = await SwitchGame.findById(req.params.id).session(session);
+    const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (!game.participant || !game.creator) throw new Error('Game is not ready.');
     if (![game.creator, game.participant].includes(username)) throw new Error('Not a participant');
@@ -115,25 +107,19 @@ router.post('/:id/move', async (req, res) => {
         game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
       }
     }
-    await game.save({ session });
-    await session.commitTransaction();
+    await game.save();
     res.json(game);
   } catch (err) {
-    await session.abortTransaction();
     res.status(400).json({ error: err.message || 'Failed to submit move.' });
-  } finally {
-    session.endSession();
   }
 });
 
 // POST /api/switches/:id/proof - submit proof (by loser)
 router.post('/:id/proof', async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const username = getUsername(req);
     const { text } = req.body;
-    const game = await SwitchGame.findById(req.params.id).session(session);
+    const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (!game.winner || ![game.creator, game.participant].includes(username) || username !== game.loser) {
       throw new Error('Only the loser can submit proof');
@@ -141,20 +127,15 @@ router.post('/:id/proof', async (req, res) => {
     if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
     if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {
       game.status = 'expired';
-      await game.save({ session });
-      await session.commitTransaction();
+      await game.save();
       return res.status(400).json({ error: 'Proof submission window has expired.' });
     }
     game.proof = { user: username, text };
     game.status = 'proof_submitted';
-    await game.save({ session });
-    await session.commitTransaction();
+    await game.save();
     res.json(game);
   } catch (err) {
-    await session.abortTransaction();
     res.status(400).json({ error: err.message || 'Failed to submit proof.' });
-  } finally {
-    session.endSession();
   }
 });
 
