@@ -24,7 +24,7 @@ export default function SwitchGameParticipate() {
 
   useEffect(() => {
     setLoading(true);
-    api.get('/api/switches')
+    api.get('/switches')
       .then(res => setGames(Array.isArray(res.data) ? res.data.filter(g => g.status === 'open' && !g.participant) : []))
       .catch(() => setGames([]))
       .finally(() => setLoading(false));
@@ -48,7 +48,7 @@ export default function SwitchGameParticipate() {
     setError('');
     setToast('');
     try {
-      await api.post(`/api/switches/${selectedGame._id}/join`, { difficulty, move });
+      await api.post(`/switches/${selectedGame._id}/join`, { difficulty, move });
       setToast('Joined switch game!');
       setTimeout(() => navigate(`/switches/${selectedGame._id}`), 1200);
     } catch (err) {

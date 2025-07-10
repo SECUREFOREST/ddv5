@@ -55,7 +55,7 @@ export default function SwitchGameDetails() {
   const fetchGame = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/switches/${id}`);
+      const res = await api.get(`/switches/${id}`);
       setGame(res.data);
     } catch (err) {
       setGame(null);
@@ -193,7 +193,7 @@ export default function SwitchGameDetails() {
     if (hasJoined) return;
     setJoining(true);
     try {
-      await api.post(`/api/switches/${id}/join`);
+      await api.post(`/switches/${id}/join`);
       await fetchGame();
     } catch (err) {
       showErrorToast(err.response?.data?.error || 'Failed to join game.');
@@ -205,7 +205,7 @@ export default function SwitchGameDetails() {
   const handleMove = async move => {
     setMoveSubmitting(true);
     try {
-      await api.post(`/api/switches/${id}/move`, { move });
+      await api.post(`/switches/${id}/move`, { move });
       await fetchGame();
     } catch (err) {
       showErrorToast(err.response?.data?.error || 'Failed to submit move.');
@@ -221,7 +221,7 @@ export default function SwitchGameDetails() {
       return;
     }
     try {
-      await api.post(`/api/switches/${id}/proof`, { text: proof });
+      await api.post(`/switches/${id}/proof`, { text: proof });
       setShowProofModal(false);
       setProof('');
       setProofError('');

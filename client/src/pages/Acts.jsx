@@ -84,12 +84,11 @@ export default function Acts() {
     setCreateError('');
     try {
       const res = await api.post('/acts', {
-        title: createTitle,
         description: createDescription,
         difficulty: createDifficulty,
         tags: createTags,
         actType: createActType,
-        isPublic: createPublic,
+        public: createPublic,
         allowedRoles: createAllowedRoles,
       });
       setShowCreate(false);
@@ -143,7 +142,7 @@ export default function Acts() {
     setAcceptLoading(true);
     setAcceptError('');
     try {
-      await api.post(`/acts/${acceptActId}/accept`, { difficulty: acceptDifficulty });
+      await api.patch(`/acts/${acceptActId}/start`, { difficulty: acceptDifficulty });
       setAcceptActId(null);
       setAcceptDifficulty('');
       setAcceptConsent(false);

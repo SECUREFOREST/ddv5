@@ -24,7 +24,7 @@ export default function SwitchGameCreate() {
     setError('');
     setToast('');
     try {
-      const res = await api.post('/api/switches', { description, difficulty, move });
+      const res = await api.post('/switches', { description, difficulty, move });
       setToast('Switch Game created!');
       setTimeout(() => navigate(`/switches/${res.data._id}`), 1200);
     } catch (err) {
