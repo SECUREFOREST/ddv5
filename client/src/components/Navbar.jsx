@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -35,21 +36,20 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <Link className="text-xl font-bold tracking-tight text-white" to="/">DDV5</Link>
         </div>
-        {isImpersonating && (
-          <div className="bg-yellow-400 text-black px-4 py-2 rounded flex items-center space-x-2 ml-4">
-            <span>You are impersonating another user.</span>
-            <button
-              className="bg-white text-black rounded px-2 py-1 text-xs font-semibold hover:bg-gray-100"
-              onClick={handleReturnToAdmin}
-            >
-              Return to Admin
-            </button>
-            {impersonationError && (
-              <div className="bg-red-500 text-white rounded px-2 py-1 text-xs ml-2">{impersonationError}</div>
-            )}
-          </div>
-        )}
-        <ul className="flex flex-wrap items-center space-x-6 sm:space-x-8 md:space-x-10 lg:space-x-12">
+        {/* Hamburger menu button for mobile */}
+        <div className="flex items-center sm:hidden">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-gray-300 hover:text-white focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        {/* Desktop links */}
+        <ul className="hidden sm:flex flex-wrap items-center space-x-6 sm:space-x-8 md:space-x-10 lg:space-x-12">
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dares">Dares</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
@@ -80,6 +80,27 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
+          <ul className="flex flex-col space-y-2">
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares" onClick={() => setMobileMenuOpen(false)}>Dares</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/123/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/credits" onClick={() => setMobileMenuOpen(false)}>Credits</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
+            {user ? (
+              <li className="text-[#aaa] text-sm">{user.username}</li>
+            ) : null}
+            {user ? (
+              <li><button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="px-3 py-1 rounded bg-[#222] text-[#eee] hover:bg-[#333] text-sm w-full text-left">Logout</button></li>
+            ) : null}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 } 
