@@ -21,7 +21,7 @@ export default function DareCreator() {
     }
     setCreating(true);
     try {
-      const res = await api.post('/acts', {
+      const res = await api.post('/dares', {
         description,
         difficulty,
       });
@@ -36,7 +36,7 @@ export default function DareCreator() {
     }
   };
 
-  const dareUrl = createdDareId && typeof window !== 'undefined' ? `${window.location.origin}/acts/${createdDareId}` : '';
+  const dareUrl = createdDareId && typeof window !== 'undefined' ? `${window.location.origin}/dares/${createdDareId}` : '';
 
   const handleCreateAnother = () => {
     setShowModal(false);
@@ -76,7 +76,7 @@ export default function DareCreator() {
             <Link to="/" className="w-full inline-block mb-2">
               <button className="w-full bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold hover:bg-gray-300">Back to Home</button>
             </Link>
-            <Link to="/acts" className="w-full inline-block">
+            <Link to="/dares" className="w-full inline-block">
               <button className="w-full bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark">View All Dares</button>
             </Link>
           </div>

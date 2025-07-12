@@ -19,8 +19,10 @@ const SwitchGameSchema = new mongoose.Schema({
     user: String, // username of loser
     text: String, // proof text or link
   },
-  proofExpiresAt: { type: Date }, // 48h after proof submission
-  assignedDareId: { type: mongoose.Schema.Types.ObjectId, ref: 'Act' },
+  proofExpiresAt: { type: Date }, // 48h after proof submission or view
+  expireProofAfterView: { type: Boolean, default: false },
+  proofViewedAt: { type: Date },
+  assignedDareId: { type: mongoose.Schema.Types.ObjectId, ref: 'Dare' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 

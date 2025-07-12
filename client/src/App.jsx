@@ -10,8 +10,8 @@ import DareParticipant from './pages/DareParticipant';
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Profile = React.lazy(() => import('./pages/Profile'));
-const Acts = React.lazy(() => import('./pages/Acts'));
-const ActDetails = React.lazy(() => import('./pages/ActDetails'));
+const Dares = React.lazy(() => import('./pages/Dares'));
+const DareDetails = React.lazy(() => import('./pages/DareDetails'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Credits = React.lazy(() => import('./pages/Credits'));
 const Admin = React.lazy(() => import('./pages/Admin'));
@@ -45,8 +45,8 @@ function AppContent() {
               <Route path="/" element={<Landing />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-              <Route path="/acts" element={<Acts />} />
-              <Route path="/acts/:id" element={<ActDetails />} />
+              <Route path="/dares" element={<Dares />} />
+              <Route path="/dares/:id" element={<DareDetails />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />

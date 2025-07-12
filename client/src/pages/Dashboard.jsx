@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
-import ActCard from '../components/ActCard';
+import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import LeaderboardWidget from '../components/LeaderboardWidget';
 import RecentActivityWidget from '../components/RecentActivityWidget';
@@ -17,7 +17,7 @@ const TABS = [
 
 export default function Dashboard() {
   const [tab, setTab] = useState('in_progress');
-  const [acts, setActs] = useState([]);
+  const [dares, setDares] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
   const [leaders, setLeaders] = useState([]);
@@ -29,9 +29,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    api.get('/acts', { params: { status: tab } })
-      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActs([]))
+    api.get('/dares', { params: { status: tab } })
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDares([]))
       .finally(() => setLoading(false));
   }, [tab, user]);
 

@@ -34,6 +34,7 @@ export default function SwitchGameDetails() {
   const toastTimeout = useRef(null);
   // Add error toast state
   const [errorToast, setErrorToast] = useState('');
+  const [expireAfterView, setExpireAfterView] = useState(false);
 
   // --- Move winner/loser/isLoser logic up here ---
   const username = user?.username;
@@ -237,10 +238,11 @@ export default function SwitchGameDetails() {
       return;
     }
     try {
-      await api.post(`/switches/${id}/proof`, { text: proof });
+      await api.post(`/switches/${id}/proof`, { text: proof, expireAfterView });
       setShowProofModal(false);
       setProof('');
       setProofError('');
+      setExpireAfterView(false);
       await fetchGame();
     } catch (err) {
       showErrorToast(err.response?.data?.error || 'Failed to submit proof.');
@@ -322,6 +324,16 @@ export default function SwitchGameDetails() {
                       placeholder="Describe or link your proof..."
                       rows={4}
                     />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <input
+                      id="expireAfterView"
+                      type="checkbox"
+                      checked={expireAfterView}
+                      onChange={e => setExpireAfterView(e.target.checked)}
+                      className="mr-2"
+                    />
+                    <label htmlFor="expireAfterView" className="text-sm">Expire proof 48 hours after it is viewed by the dare creator.</label>
                   </div>
                   {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
                   <div className="flex justify-end gap-2 pt-2">

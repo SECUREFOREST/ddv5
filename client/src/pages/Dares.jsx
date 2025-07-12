@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ActCard from '../components/ActCard';
+import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/ActCard';
 
@@ -32,11 +32,11 @@ const ROLE_OPTIONS = [
   { value: 'switch', label: 'Switch' },
 ];
 
-export default function Acts() {
+export default function Dares() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [acts, setActs] = useState([]);
+  const [dares, setDares] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -48,14 +48,14 @@ export default function Acts() {
   const [createError, setCreateError] = useState('');
   const [creating, setCreating] = useState(false);
   const [createTags, setCreateTags] = useState([]);
-  const [createdActId, setCreatedActId] = useState(null);
-  const [actType, setActType] = useState('');
+  const [createdDareId, setCreatedDareId] = useState(null);
+  const [dareType, setDareType] = useState('');
   const [isPublic, setIsPublic] = useState('');
-  const [createActType, setCreateActType] = useState('submission');
+  const [createDareType, setCreateDareType] = useState('submission');
   const [createPublic, setCreatePublic] = useState(false);
   const [createAllowedRoles, setCreateAllowedRoles] = useState([]);
   const [consentChecked, setConsentChecked] = useState(false);
-  const [acceptActId, setAcceptActId] = useState(null);
+  const [acceptDareId, setAcceptDareId] = useState(null);
   const [acceptDifficulty, setAcceptDifficulty] = useState('');
   const [acceptConsent, setAcceptConsent] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
@@ -63,31 +63,31 @@ export default function Acts() {
 
   useEffect(() => {
     setLoading(true);
-    api.get('/acts', {
+    api.get('/dares', {
       params: {
         status: status || undefined,
         difficulty: difficulty || undefined,
         search: search || undefined,
         public: isPublic || undefined,
-        actType: actType || undefined,
+        dareType: dareType || undefined,
         role: user?.roles?.[0] || undefined,
       },
     })
-      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActs([]))
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDares([]))
       .finally(() => setLoading(false));
-  }, [status, difficulty, search, isPublic, actType, user]);
+  }, [status, difficulty, search, isPublic, dareType, user]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreating(true);
     setCreateError('');
     try {
-      const res = await api.post('/acts', {
+      const res = await api.post('/dares', {
         description: createDescription,
         difficulty: createDifficulty,
         tags: createTags,
-        actType: createActType,
+        dareType: createDareType,
         public: createPublic,
         allowedRoles: createAllowedRoles,
       });
@@ -96,32 +96,32 @@ export default function Acts() {
       setCreateDescription('');
       setCreateDifficulty('titillating');
       setCreateTags([]);
-      setCreateActType('submission');
+      setCreateDareType('submission');
       setCreatePublic(false);
       setCreateAllowedRoles([]);
-      setCreatedActId(res.data._id || res.data.id); // Save new act ID for sharing
-      // Refresh acts
+      setCreatedDareId(res.data._id || res.data.id); // Save new dare ID for sharing
+      // Refresh dares
       setLoading(true);
-      const actsRes = await api.get('/acts', {
+      const daresRes = await api.get('/dares', {
         params: {
           status: status || undefined,
           difficulty: difficulty || undefined,
           search: search || undefined,
           public: isPublic || undefined,
-          actType: actType || undefined,
+          dareType: dareType || undefined,
           role: user?.roles?.[0] || undefined,
         },
       });
-      setActs(Array.isArray(actsRes.data) ? actsRes.data : []);
+      setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
     } catch (err) {
-      setCreateError(err.response?.data?.error || 'Failed to create act');
+      setCreateError(err.response?.data?.error || 'Failed to create dare');
     } finally {
       setCreating(false);
     }
   };
 
   // Sharable link logic for post-create modal
-  const actUrl = createdActId && typeof window !== 'undefined' ? `${window.location.origin}/acts/${createdActId}` : '';
+  const dareUrl = createdDareId && typeof window !== 'undefined' ? `${window.location.origin}/dares/${createdDareId}` : '';
   const handleShareClick = () => {
     const input = document.getElementById('sharable-link-input-modal');
     if (input) {
@@ -130,9 +130,9 @@ export default function Acts() {
     }
   };
 
-  const openAcceptModal = (act) => {
-    setAcceptActId(act._id);
-    setAcceptDifficulty(act.difficulty || '');
+  const openAcceptModal = (dare) => {
+    setAcceptDareId(dare._id);
+    setAcceptDifficulty(dare.difficulty || '');
     setAcceptConsent(false);
     setAcceptError('');
   };
@@ -142,13 +142,13 @@ export default function Acts() {
     setAcceptLoading(true);
     setAcceptError('');
     try {
-      await api.patch(`/acts/${acceptActId}/start`, { difficulty: acceptDifficulty });
-      setAcceptActId(null);
+      await api.patch(`/dares/${acceptDareId}/start`, { difficulty: acceptDifficulty });
+      setAcceptDareId(null);
       setAcceptDifficulty('');
       setAcceptConsent(false);
-      navigate(`/acts/${acceptActId}`);
+      navigate(`/dares/${acceptDareId}`);
     } catch (err) {
-      setAcceptError(err.response?.data?.error || 'Failed to accept act.');
+      setAcceptError(err.response?.data?.error || 'Failed to accept dare.');
     } finally {
       setAcceptLoading(false);
     }
@@ -157,7 +157,7 @@ export default function Acts() {
   return (
     <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold">Acts</h1>
+        <h1 className="text-2xl font-bold">Dares</h1>
       </div>
       <div>
         <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()}>
@@ -179,7 +179,7 @@ export default function Acts() {
           </div>
           <div className="flex flex-col">
             <label className="font-semibold mb-1 text-primary">Type</label>
-            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={actType} onChange={e => setActType(e.target.value)}>
+            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
               {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
@@ -193,28 +193,28 @@ export default function Acts() {
           </div>
           {user && (
             <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
-              + Create Act
+              + Create Dare
             </button>
           )}
         </form>
-        {/* Acts List Section */}
+        {/* Dares List Section */}
         {loading ? (
-          <div className="text-neutral-400">Loading acts...</div>
+          <div className="text-neutral-400">Loading dares...</div>
         ) : (
           <div>
-            {acts.length === 0 ? (
-              <div className="text-neutral-400">No acts found.</div>
+            {dares.length === 0 ? (
+              <div className="text-neutral-400">No dares found.</div>
             ) : (
               <ul className="space-y-4">
-                {acts.map(act => (
-                  <li key={act._id}>
-                    <ActCard
-                      title={act.title}
-                      description={act.description}
-                      difficulty={act.difficulty}
-                      tags={act.tags || []}
-                      status={act.status}
-                      user={act.creator}
+                {dares.map(dare => (
+                  <li key={dare._id}>
+                    <DareCard
+                      title={dare.title}
+                      description={dare.description}
+                      difficulty={dare.difficulty}
+                      tags={dare.tags || []}
+                      status={dare.status}
+                      user={dare.creator}
                       actions={[]}
                     />
                   </li>
@@ -224,12 +224,12 @@ export default function Acts() {
           </div>
         )}
       </div>
-      {/* Create Act Modal */}
+      {/* Create Dare Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-lg mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-              <h2 className="text-lg font-semibold text-primary">Create New Act</h2>
+              <h2 className="text-lg font-semibold text-primary">Create New Dare</h2>
               <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setShowCreate(false)}>&times;</button>
             </div>
             <form onSubmit={handleCreate}>
@@ -253,8 +253,8 @@ export default function Acts() {
                   <TagsInput id="createTags" value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
                 </div>
                 <div>
-                  <label htmlFor="createActType" className="block font-semibold mb-1 text-primary">Type</label>
-                  <select id="createActType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createActType} onChange={e => setCreateActType(e.target.value)}>
+                  <label htmlFor="createDareType" className="block font-semibold mb-1 text-primary">Type</label>
+                  <select id="createDareType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDareType} onChange={e => setCreateDareType(e.target.value)}>
                     {ACT_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
@@ -275,14 +275,14 @@ export default function Acts() {
                 <div>
                   <label htmlFor="consentChecked" className="inline-flex items-center">
                     <input id="consentChecked" type="checkbox" className="form-checkbox mr-2" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
-                    I consent to perform or participate in this act as described.
+                    I consent to perform or participate in this dare as described.
                   </label>
                 </div>
                 {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={creating}>
-                  {creating ? 'Creating...' : 'Create Act'}
+                  {creating ? 'Creating...' : 'Create Dare'}
                 </button>
               </div>
             </form>
@@ -290,12 +290,12 @@ export default function Acts() {
         </div>
       )}
       {/* Post-create sharing modal */}
-      {createdActId && (
+      {createdDareId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-              <h2 className="text-lg font-semibold text-primary">Share Your Act</h2>
-              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedActId(null)}>&times;</button>
+              <h2 className="text-lg font-semibold text-primary">Share Your Dare</h2>
+              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedDareId(null)}>&times;</button>
             </div>
             <div className="px-6 py-4">
               <label htmlFor="sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
@@ -304,7 +304,7 @@ export default function Acts() {
                   id="sharable-link-input-modal"
                   className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
-                  value={actUrl}
+                  value={dareUrl}
                   readOnly
                   onFocus={e => e.target.select()}
                 />
@@ -314,20 +314,20 @@ export default function Acts() {
               </div>
             </div>
             <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setCreatedActId(null)}>
+              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setCreatedDareId(null)}>
                 Done
               </button>
             </div>
           </div>
         </div>
       )}
-      {/* Accept Act Modal */}
-      {acceptActId && (
+      {/* Accept Dare Modal */}
+      {acceptDareId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-              <h2 className="text-lg font-semibold text-primary">Start / Accept Act</h2>
-              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setAcceptActId(null)}>&times;</button>
+              <h2 className="text-lg font-semibold text-primary">Start / Accept Dare</h2>
+              <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setAcceptDareId(null)}>&times;</button>
             </div>
             <form onSubmit={handleAcceptSubmit}>
               <div className="px-6 py-4 space-y-4">
@@ -340,7 +340,7 @@ export default function Acts() {
                 <div>
                   <label htmlFor="acceptConsent" className="inline-flex items-center">
                     <input id="acceptConsent" type="checkbox" className="form-checkbox mr-2" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
-                    I consent to perform or participate in this act as described.
+                    I consent to perform or participate in this dare as described.
                   </label>
                 </div>
                 {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}

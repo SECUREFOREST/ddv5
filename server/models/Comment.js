@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CommentSchema = new mongoose.Schema({
-  act: { type: mongoose.Schema.Types.ObjectId, ref: 'Act', required: true },
+  dare: { type: mongoose.Schema.Types.ObjectId, ref: 'Dare', required: true },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   text: { type: String, required: true },
   replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],

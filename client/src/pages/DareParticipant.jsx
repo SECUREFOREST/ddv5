@@ -13,6 +13,7 @@ export default function DareParticipant() {
   const [proofError, setProofError] = useState('');
   const [proofSuccess, setProofSuccess] = useState('');
   const [noDare, setNoDare] = useState(false);
+  const [expireAfterView, setExpireAfterView] = useState(false);
 
   const handleConsent = async () => {
     setLoading(true);
@@ -23,7 +24,7 @@ export default function DareParticipant() {
     setProofError('');
     setProofSuccess('');
     try {
-      const res = await api.get(`/acts/random?difficulty=${difficulty}`);
+      const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
         setDare(res.data);
         setConsented(true);
@@ -48,14 +49,21 @@ export default function DareParticipant() {
         setProofLoading(false);
         return;
       }
-      const formData = new FormData();
-      if (proof) formData.append('text', proof);
-      if (proofFile) formData.append('file', proofFile);
-      await api.post(`/acts/${dare._id}/proof`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      let formData;
+      if (proofFile) {
+        formData = new FormData();
+        if (proof) formData.append('text', proof);
+        formData.append('file', proofFile);
+        formData.append('expireAfterView', expireAfterView);
+        await api.post(`/dares/${dare._id}/proof`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        await api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView });
+      }
       setProof('');
       setProofFile(null);
+      setExpireAfterView(false);
       setProofSuccess('Proof submitted successfully!');
     } catch (err) {
       setProofError(err.response?.data?.error || 'Failed to submit proof.');
@@ -152,6 +160,16 @@ export default function DareParticipant() {
                 rows={3}
                 placeholder="Describe your proof, add a link, or leave blank if uploading a file."
               />
+            </div>
+            <div className="flex items-center mt-2">
+              <input
+                id="expireAfterView"
+                type="checkbox"
+                checked={expireAfterView}
+                onChange={e => setExpireAfterView(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="expireAfterView" className="text-sm">Expire proof 48 hours after it is viewed by the dare creator.</label>
             </div>
             <div>
               <label className="block font-semibold mb-1 text-primary" htmlFor="proof-file">Upload image or video proof (optional)</label>

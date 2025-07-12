@@ -58,7 +58,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Placeholder routes
 app.use('/users', require('./routes/users'));
 app.use('/auth', require('./routes/auth'));
-app.use('/acts', require('./routes/acts'));
+app.use('/dares', require('./routes/dares'));
 app.use('/comments', require('./routes/comments'));
 app.use('/notifications', require('./routes/notifications'));
 app.use('/credits', require('./routes/credits'));

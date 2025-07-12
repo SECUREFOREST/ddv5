@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const SwitchGame = require('../models/SwitchGame');
-const Act = require('../models/Act');
+const Dare = require('../models/Dare');
 const { sendNotification } = require('../utils/notification');
 const mongoose = require('mongoose');
 
@@ -118,7 +118,7 @@ router.post('/:id/move', async (req, res) => {
 router.post('/:id/proof', async (req, res) => {
   try {
     const username = getUsername(req);
-    const { text } = req.body;
+    const { text, expireAfterView } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (!game.winner || ![game.creator, game.participant].includes(username) || username !== game.loser) {
@@ -132,10 +132,35 @@ router.post('/:id/proof', async (req, res) => {
     }
     game.proof = { user: username, text };
     game.status = 'proof_submitted';
+    if (expireAfterView) {
+      game.expireProofAfterView = true;
+      game.proofExpiresAt = undefined;
+    } else {
+      game.expireProofAfterView = false;
+      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    }
     await game.save();
     res.json(game);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to submit proof.' });
+  }
+});
+
+// PATCH /api/switches/:id/proof-viewed - mark proof as viewed by creator and set expiration if needed
+router.patch('/:id/proof-viewed', async (req, res) => {
+  try {
+    const username = getUsername(req);
+    const game = await SwitchGame.findById(req.params.id);
+    if (!game) throw new Error('Not found');
+    if (username !== game.creator) throw new Error('Only the creator can mark proof as viewed.');
+    if (game.expireProofAfterView && !game.proofViewedAt) {
+      game.proofViewedAt = new Date();
+      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+      await game.save();
+    }
+    res.json(game);
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Failed to mark proof as viewed.' });
   }
 });
 

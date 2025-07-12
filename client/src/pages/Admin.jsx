@@ -27,17 +27,17 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [tabIdx, setTabIdx] = useState(0);
-  const [acts, setActs] = useState([]);
-  const [actsLoading, setActsLoading] = useState(true);
+  const [dares, setDares] = useState([]);
+  const [daresLoading, setDaresLoading] = useState(true);
   const [siteStats, setSiteStats] = useState(null);
   const [siteStatsLoading, setSiteStatsLoading] = useState(true);
   const [siteStatsError, setSiteStatsError] = useState('');
   const [userSearch, setUserSearch] = useState('');
-  const [actSearch, setActSearch] = useState('');
+  const [dareSearch, setDareSearch] = useState('');
   const [userPage, setUserPage] = useState(0);
   const USERS_PER_PAGE = 10;
-  const [actPage, setActPage] = useState(0);
-  const ACTS_PER_PAGE = 10;
+  const [darePage, setDarePage] = useState(0);
+  const DARES_PER_PAGE = 10;
   const [selectedUsers, setSelectedUsers] = useState([]);
   const allFilteredUserIds = users.filter(u =>
     (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
@@ -54,22 +54,22 @@ export default function Admin() {
       : [...selectedUsers, id]);
   };
   const clearSelectedUsers = () => setSelectedUsers([]);
-  const [selectedActs, setSelectedActs] = useState([]);
-  const allFilteredActIds = acts.filter(a =>
-    a.title.toLowerCase().includes(actSearch.toLowerCase()) ||
-    (a.creator?.username || '').toLowerCase().includes(actSearch.toLowerCase())
-  ).map(a => a._id);
-  const isAllActsSelected = allFilteredActIds.length > 0 && allFilteredActIds.every(id => selectedActs.includes(id));
-  const toggleAllActs = () => {
-    if (isAllActsSelected) setSelectedActs(selectedActs.filter(id => !allFilteredActIds.includes(id)));
-    else setSelectedActs([...new Set([...selectedActs, ...allFilteredActIds])]);
+  const [selectedDares, setSelectedDares] = useState([]);
+  const allFilteredDareIds = dares.filter(d =>
+    d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
+    (d.creator?.username || '').toLowerCase().includes(dareSearch.toLowerCase())
+  ).map(d => d._id);
+  const isAllDaresSelected = allFilteredDareIds.length > 0 && allFilteredDareIds.every(id => selectedDares.includes(id));
+  const toggleAllDares = () => {
+    if (isAllDaresSelected) setSelectedDares(selectedDares.filter(id => !allFilteredDareIds.includes(id)));
+    else setSelectedDares([...new Set([...selectedDares, ...allFilteredDareIds])]);
   };
-  const toggleAct = (id) => {
-    setSelectedActs(selectedActs.includes(id)
-      ? selectedActs.filter(aid => aid !== id)
-      : [...selectedActs, id]);
+  const toggleDare = (id) => {
+    setSelectedDares(selectedDares.includes(id)
+      ? selectedDares.filter(did => did !== id)
+      : [...selectedDares, id]);
   };
-  const clearSelectedActs = () => setSelectedActs([]);
+  const clearSelectedDares = () => setSelectedDares([]);
   const [auditLog, setAuditLog] = useState([]);
   const [auditLogLoading, setAuditLogLoading] = useState(true);
   const [auditLogError, setAuditLogError] = useState('');
@@ -93,30 +93,41 @@ export default function Admin() {
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [editUserError, setEditUserError] = useState('');
   const [deleteUserError, setDeleteUserError] = useState('');
+  const [error, setError] = useState('');
 
   const fetchUsers = () => {
     setLoading(true);
-    setDeleteUserError('');
+    setError('');
     api.get('/users')
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setUsers([]))
+      .catch(err => {
+        setUsers([]);
+        setError(err.response?.data?.error || 'Failed to load users.');
+      })
       .finally(() => setLoading(false));
   };
 
-  const fetchActs = () => {
-    setActsLoading(true);
-    api.get('/acts')
-      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActs([]))
-      .finally(() => setActsLoading(false));
+  const fetchDares = () => {
+    setDaresLoading(true);
+    setError('');
+    api.get('/dares')
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(err => {
+        setDares([]);
+        setError(err.response?.data?.error || 'Failed to load dares.');
+      })
+      .finally(() => setDaresLoading(false));
   };
 
   const fetchReports = () => {
     setReportsLoading(true);
-    setReportsError('');
+    setError('');
     api.get('/reports')
       .then(res => setReports(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setReportsError('Failed to load reports.'))
+      .catch(err => {
+        setReports([]);
+        setError(err.response?.data?.error || 'Failed to load reports.');
+      })
       .finally(() => setReportsLoading(false));
   };
 
@@ -131,10 +142,13 @@ export default function Admin() {
 
   const fetchAppeals = () => {
     setAppealsLoading(true);
-    setAppealsError('');
+    setError('');
     api.get('/appeals')
       .then(res => setAppeals(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setAppealsError('Failed to load appeals.'))
+      .catch(err => {
+        setAppeals([]);
+        setError(err.response?.data?.error || 'Failed to load appeals.');
+      })
       .finally(() => setAppealsLoading(false));
   };
 
@@ -152,7 +166,7 @@ export default function Admin() {
     fetchUsers();
   }, []);
   useEffect(() => {
-    if (tabIdx === 1) fetchActs();
+    if (tabIdx === 1) fetchDares();
     if (tabIdx === 2) {
       setSiteStatsLoading(true);
       setSiteStatsError('');
@@ -172,6 +186,11 @@ export default function Admin() {
     if (tabIdx === 4) fetchReports();
     if (tabIdx === 5) fetchAppeals();
     // eslint-disable-next-line
+  }, [tabIdx]);
+
+  // Clear error when switching tabs
+  useEffect(() => {
+    setError('');
   }, [tabIdx]);
 
   const handleDelete = async (userId) => {
@@ -200,28 +219,28 @@ export default function Admin() {
     setActionLoading(false);
   };
 
-  const handleApprove = async (actId) => {
+  const handleApprove = async (dareId) => {
     setActionLoading(true);
     try {
-      await api.post(`/acts/${actId}/approve`);
-      fetchActs();
+      await api.post(`/dares/${dareId}/approve`);
+      fetchDares();
     } catch {}
     setActionLoading(false);
   };
-  const handleReject = async (actId) => {
+  const handleReject = async (dareId) => {
     setActionLoading(true);
     try {
-      await api.post(`/acts/${actId}/reject`);
-      fetchActs();
+      await api.post(`/dares/${dareId}/reject`);
+      fetchDares();
     } catch {}
     setActionLoading(false);
   };
-  const handleDeleteAct = async (actId) => {
-    if (!window.confirm('Delete this act?')) return;
+  const handleDeleteDare = async (dareId) => {
+    if (!window.confirm('Delete this dare?')) return;
     setActionLoading(true);
     try {
-      await api.delete(`/acts/${actId}`);
-      fetchActs();
+      await api.delete(`/dares/${dareId}`);
+      fetchDares();
     } catch {}
     setActionLoading(false);
   };
@@ -281,6 +300,12 @@ export default function Admin() {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
+      {/* Error display at the top */}
+      {error && (
+        <div className="text-danger text-sm font-medium mb-2" role="alert" aria-live="assertive">
+          {error}
+        </div>
+      )}
       <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
         <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
           <h1 className="text-3xl font-bold">Admin Panel</h1>
@@ -344,29 +369,29 @@ export default function Admin() {
               ),
             },
             {
-              label: 'Acts',
+              label: 'Dares',
               content: (
                 <div>
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                       <input
                         className="border border-neutral-900 rounded px-3 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                        placeholder="Search acts..."
-                        value={actSearch}
-                        onChange={e => setActSearch(e.target.value)}
+                        placeholder="Search dares..."
+                        value={dareSearch}
+                        onChange={e => setDareSearch(e.target.value)}
                       />
                     <button
                         className="bg-primary text-primary-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-primary-dark"
-                      disabled={selectedActs.length === 0 || actionLoading}
+                      disabled={selectedDares.length === 0 || actionLoading}
                       onClick={async () => {
                         setActionLoading(true);
-                        for (const id of selectedActs) {
-                          const act = acts.find(a => a._id === id);
-                          if (act?.status === 'pending') {
-                            try { await api.post(`/acts/${id}/approve`); } catch {}
+                        for (const id of selectedDares) {
+                          const dare = dares.find(d => d._id === id);
+                          if (dare?.status === 'pending') {
+                            try { await api.post(`/dares/${id}/approve`); } catch {}
                           }
                         }
-                        fetchActs();
-                        clearSelectedActs();
+                        fetchDares();
+                        clearSelectedDares();
                         setActionLoading(false);
                       }}
                     >
@@ -374,17 +399,17 @@ export default function Admin() {
                     </button>
                     <button
                         className="bg-warning text-warning-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-warning-dark"
-                      disabled={selectedActs.length === 0 || actionLoading}
+                      disabled={selectedDares.length === 0 || actionLoading}
                       onClick={async () => {
                         setActionLoading(true);
-                        for (const id of selectedActs) {
-                          const act = acts.find(a => a._id === id);
-                          if (act?.status === 'pending') {
-                            try { await api.post(`/acts/${id}/reject`); } catch {}
+                        for (const id of selectedDares) {
+                          const dare = dares.find(d => d._id === id);
+                          if (dare?.status === 'pending') {
+                            try { await api.post(`/dares/${id}/reject`); } catch {}
                           }
                         }
-                        fetchActs();
-                        clearSelectedActs();
+                        fetchDares();
+                        clearSelectedDares();
                         setActionLoading(false);
                       }}
                     >
@@ -392,15 +417,15 @@ export default function Admin() {
                     </button>
                     <button
                         className="bg-danger text-danger-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-danger-dark"
-                      disabled={selectedActs.length === 0 || actionLoading}
+                      disabled={selectedDares.length === 0 || actionLoading}
                       onClick={async () => {
-                        if (!window.confirm('Delete selected acts?')) return;
+                        if (!window.confirm('Delete selected dares?')) return;
                         setActionLoading(true);
-                        for (const id of selectedActs) {
-                          try { await api.delete(`/acts/${id}`); } catch {}
+                        for (const id of selectedDares) {
+                          try { await api.delete(`/dares/${id}`); } catch {}
                         }
-                        fetchActs();
-                        clearSelectedActs();
+                        fetchDares();
+                        clearSelectedDares();
                         setActionLoading(false);
                       }}
                     >
@@ -408,7 +433,7 @@ export default function Admin() {
                     </button>
                     <button
                         className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                        onClick={() => exportToCsv('acts.csv', acts)}
+                        onClick={() => exportToCsv('dares.csv', dares)}
                     >
                       Export CSV
                     </button>
@@ -417,7 +442,7 @@ export default function Admin() {
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
                             <thead>
                           <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2"><input type="checkbox" checked={isAllActsSelected} onChange={toggleAllActs} /></th>
+                            <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} /></th>
                             <th className="p-2 text-left font-semibold">Title</th>
                             <th className="p-2 text-left font-semibold">Creator</th>
                             <th className="p-2 text-left font-semibold">Status</th>
@@ -426,29 +451,29 @@ export default function Admin() {
                               </tr>
                             </thead>
                             <tbody>
-                          {acts
-                            .filter(a =>
-                                a.title.toLowerCase().includes(actSearch.toLowerCase()) ||
-                                (a.creator?.username || '').toLowerCase().includes(actSearch.toLowerCase())
+                          {dares
+                            .filter(d =>
+                                d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
+                                (d.creator?.username || '').toLowerCase().includes(dareSearch.toLowerCase())
                             )
-                            .slice(actPage * ACTS_PER_PAGE, (actPage + 1) * ACTS_PER_PAGE)
-                            .map(a => (
-                              <tr key={a._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                <td className="p-2"><input type="checkbox" checked={selectedActs.includes(a._id)} onChange={() => toggleAct(a._id)} /></td>
-                                <td className="p-2 font-medium text-primary">{a.title}</td>
-                                <td className="p-2 text-neutral-400">{a.creator?.username || 'Unknown'}</td>
+                            .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
+                            .map(d => (
+                              <tr key={d._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d._id)} onChange={() => toggleDare(d._id)} /></td>
+                                <td className="p-2 font-medium text-primary">{d.title}</td>
+                                <td className="p-2 text-neutral-400">{d.creator?.username || 'Unknown'}</td>
                                 <td className="p-2">
-                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${a.status === 'pending' ? 'bg-warning text-warning-contrast' : a.status === 'approved' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{a.status}</span>
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d.status === 'pending' ? 'bg-warning text-warning-contrast' : d.status === 'approved' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d.status}</span>
                                 </td>
-                                <td className="p-2 text-neutral-400">{a.difficulty}</td>
+                                <td className="p-2 text-neutral-400">{d.difficulty}</td>
                                 <td className="p-2 space-x-2">
-                                  {a.status === 'pending' && (
+                                  {d.status === 'pending' && (
                                       <>
-                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(a._id)}>Approve</button>
-                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(a._id)}>Reject</button>
+                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
+                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
                                       </>
                                     )}
-                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteAct(a._id)}>Delete</button>
+                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
                                   </td>
                                 </tr>
                               ))}
@@ -473,8 +498,8 @@ export default function Admin() {
                       <div className="text-2xl font-bold text-primary">{siteStats.totalUsers}</div>
                     </Card>
                     <Card>
-                      <div className="text-lg font-semibold text-neutral-700">Total Acts</div>
-                      <div className="text-2xl font-bold text-primary">{siteStats.totalActs}</div>
+                      <div className="text-lg font-semibold text-neutral-700">Total Dares</div>
+                      <div className="text-2xl font-bold text-primary">{siteStats.totalDares}</div>
                     </Card>
                     <Card>
                       <div className="text-lg font-semibold text-neutral-700">Total Comments</div>

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Act = require('../models/Act');
+const Dare = require('../models/Dare');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
 const auth = require('../middleware/auth');
@@ -68,11 +68,11 @@ router.get('/', async (req, res, next) => {
       { allowedRoles: { $size: 0 } },
       { allowedRoles: role }
     ];
-    const acts = await Act.find(filter)
+    const dares = await Dare.find(filter)
       .populate('creator', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } })
       .sort({ createdAt: -1 });
-    res.json(acts);
+    res.json(dares);
   } catch (err) {
     next(err);
   }
@@ -81,13 +81,13 @@ router.get('/', async (req, res, next) => {
 // GET /api/acts/:id - get act details
 router.get('/:id', async (req, res) => {
   try {
-    const act = await Act.findById(req.params.id)
+    const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    res.json(act);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    res.json(dare);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to get act.' });
+    res.status(500).json({ error: 'Failed to get dare.' });
   }
 });
 
@@ -96,20 +96,20 @@ router.get('/random', auth, async (req, res) => {
   try {
     const { difficulty } = req.query;
     const userId = req.userId;
-    // Exclude acts already consented to or completed by this user
+    // Exclude dares already consented to or completed by this user
     const user = await require('../models/User').findById(userId).select('consentedActs completedActs');
-    const excludeActs = [
+    const excludeDares = [
       ...(user.consentedActs || []),
       ...(user.completedActs || [])
     ];
     const filter = { status: 'open', performer: { $exists: false } };
     if (difficulty) filter.difficulty = difficulty;
-    if (excludeActs.length > 0) filter._id = { $nin: excludeActs };
-    const count = await Act.countDocuments(filter);
+    if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
+    const count = await Dare.countDocuments(filter);
     if (count === 0) return res.json({});
     const rand = Math.floor(Math.random() * count);
     // Atomically assign the dare to this user if not already taken
-    const dare = await Act.findOneAndUpdate(
+    const dare = await Dare.findOneAndUpdate(
       filter,
       { performer: userId, status: 'in_progress', updatedAt: new Date() },
       { skip: rand, new: true }
@@ -131,41 +131,41 @@ router.post('/', auth, async (req, res) => {
     const { description, difficulty, tags } = req.body;
     if (!description) return res.status(400).json({ error: 'Description is required.' });
     if (!difficulty) return res.status(400).json({ error: 'Difficulty is required.' });
-    const act = new Act({
+    const dare = new Dare({
       description,
       difficulty,
       tags: Array.isArray(tags) ? tags : [],
       creator: req.userId,
     });
-    await act.save();
-    await logActivity({ type: 'act_created', user: req.userId, act: act._id });
+    await dare.save();
+    await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
     // Notify the creator
-    await sendNotification(req.userId, 'act_created', `Your dare has been created.`);
-    res.status(201).json(act);
+    await sendNotification(req.userId, 'dare_created', `Your dare has been created.`);
+    res.status(201).json(dare);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create act.' });
+    res.status(500).json({ error: 'Failed to create dare.' });
   }
 });
 
 // PATCH /api/acts/:id - update act (auth required, only creator)
 router.patch('/:id', auth, async (req, res) => {
   try {
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (act.creator.toString() !== req.userId) {
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    if (dare.creator.toString() !== req.userId) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
     const { title, description, difficulty, status, tags } = req.body;
-    if (title) act.title = title;
-    if (description) act.description = description;
-    if (difficulty) act.difficulty = difficulty;
-    if (status) act.status = status;
-    if (tags) act.tags = Array.isArray(tags) ? tags : [];
-    act.updatedAt = new Date();
-    await act.save();
-    res.json(act);
+    if (title) dare.title = title;
+    if (description) dare.description = description;
+    if (difficulty) dare.difficulty = difficulty;
+    if (status) dare.status = status;
+    if (tags) dare.tags = Array.isArray(tags) ? tags : [];
+    dare.updatedAt = new Date();
+    await dare.save();
+    res.json(dare);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update act.' });
+    res.status(500).json({ error: 'Failed to update dare.' });
   }
 });
 
@@ -173,17 +173,17 @@ router.patch('/:id', auth, async (req, res) => {
 router.post('/:id/grade', auth, async (req, res) => {
   try {
     const { grade, feedback } = req.body;
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    act.grades = act.grades || [];
-    act.grades.push({ user: req.userId, grade, feedback });
-    await act.save();
-    await logActivity({ type: 'grade_given', user: req.userId, act: act._id, details: { grade, feedback } });
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    dare.grades = dare.grades || [];
+    dare.grades.push({ user: req.userId, grade, feedback });
+    await dare.save();
+    await logActivity({ type: 'grade_given', user: req.userId, dare: dare._id, details: { grade, feedback } });
     // Notify performer if exists
-    if (act.performer) {
-      await sendNotification(act.performer, 'act_graded', `Your act "${act.title}" has been graded.`);
+    if (dare.performer) {
+      await sendNotification(dare.performer, 'dare_graded', `Your dare "${dare.title}" has been graded.`);
     }
-    res.json({ message: 'Grade submitted.', act });
+    res.json({ message: 'Grade submitted.', dare });
   } catch (err) {
     res.status(500).json({ error: 'Failed to submit grade.' });
   }
@@ -194,16 +194,16 @@ router.post('/:id/comment', auth, async (req, res) => {
   try {
     const { text } = req.body;
     if (!text) return res.status(400).json({ error: 'Text is required.' });
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
     const comment = new Comment({
-      act: act._id,
+      dare: dare._id,
       author: req.userId,
       text,
     });
     await comment.save();
-    act.comments.push(comment._id);
-    await act.save();
+    dare.comments.push(comment._id);
+    await dare.save();
     res.status(201).json(comment);
   } catch (err) {
     res.status(500).json({ error: 'Failed to add comment.' });
@@ -214,23 +214,23 @@ router.post('/:id/comment', auth, async (req, res) => {
 router.patch('/:id/start', auth, async (req, res) => {
   try {
     await checkSlotAndCooldownAtomic(req.userId);
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (act.performer) return res.status(400).json({ error: 'Act already has a performer.' });
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    if (dare.performer) return res.status(400).json({ error: 'Dare already has a performer.' });
     // Role enforcement
-    if (Array.isArray(act.allowedRoles) && act.allowedRoles.length > 0) {
+    if (Array.isArray(dare.allowedRoles) && dare.allowedRoles.length > 0) {
       const user = await User.findById(req.userId);
-      const hasRole = user.roles && user.roles.some(r => act.allowedRoles.includes(r));
-      if (!hasRole) return res.status(403).json({ error: 'You do not have the required role to perform this act.' });
+      const hasRole = user.roles && user.roles.some(r => dare.allowedRoles.includes(r));
+      if (!hasRole) return res.status(403).json({ error: 'You do not have the required role to perform this dare.' });
     }
-    act.performer = req.userId;
-    act.status = 'in_progress';
-    act.updatedAt = new Date();
-    await act.save();
+    dare.performer = req.userId;
+    dare.status = 'in_progress';
+    dare.updatedAt = new Date();
+    await dare.save();
     await User.findByIdAndUpdate(req.userId, { $inc: { openActs: 1 } });
-    res.json({ message: 'Act started.', act });
+    res.json({ message: 'Dare started.', dare });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to start act.' });
+    res.status(400).json({ error: err.message || 'Failed to start dare.' });
   }
 });
 
@@ -240,9 +240,9 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
     // Use UTC for all date calculations
     const now = new Date();
     await checkSlotAndCooldownAtomic(req.userId);
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (!act.performer || act.performer.toString() !== req.userId) {
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    if (!dare.performer || dare.performer.toString() !== req.userId) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
     const text = req.body.text || '';
@@ -251,15 +251,15 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
       fileName = req.file.originalname;
       fileUrl = `/uploads/${req.file.filename}`;
     }
-    act.proof = { text, fileUrl, fileName };
-    act.status = 'completed';
-    act.updatedAt = now;
-    act.proofExpiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48h from now, UTC
-    await act.save();
+    dare.proof = { text, fileUrl, fileName };
+    dare.status = 'completed';
+    dare.updatedAt = now;
+    dare.proofExpiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48h from now, UTC
+    await dare.save();
     await User.findByIdAndUpdate(req.userId, { $inc: { openActs: -1 } });
     // Notify creator
-    await sendNotification(act.creator, 'proof_submitted', `Proof has been submitted for your act "${act.title}".`);
-    res.json({ message: 'Proof submitted.', proof: act.proof });
+    await sendNotification(dare.creator, 'proof_submitted', `Proof has been submitted for your dare "${dare.title}".`);
+    res.json({ message: 'Proof submitted.', proof: dare.proof });
   } catch (err) {
     // If file was uploaded but DB update failed, delete the file
     if (req.file) {
@@ -277,57 +277,57 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
 router.post('/:id/accept', auth, async (req, res) => {
   try {
     const { difficulty } = req.body;
-    const act = await Act.findById(req.params.id);
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    if (act.performer) return res.status(400).json({ error: 'Act already has a performer.' });
-    if (!act.difficulty && difficulty) act.difficulty = difficulty;
-    act.performer = req.userId;
-    await act.save();
-    res.json({ message: 'You are now the performer for this act.', act });
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    if (dare.performer) return res.status(400).json({ error: 'Dare already has a performer.' });
+    if (!dare.difficulty && difficulty) dare.difficulty = difficulty;
+    dare.performer = req.userId;
+    await dare.save();
+    res.json({ message: 'You are now the performer for this dare.', dare });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to accept act.' });
+    res.status(500).json({ error: 'Failed to accept dare.' });
   }
 });
 
 // DELETE /api/acts/:id (admin only)
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {
-    await Act.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Act deleted.' });
+    await Dare.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Dare deleted.' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete act.' });
+    res.status(500).json({ error: 'Failed to delete dare.' });
   }
 });
 
 // POST /api/acts/:id/approve (admin/moderator)
-router.post('/:id/approve', auth, checkPermission('approve_act'), async (req, res) => {
+router.post('/:id/approve', auth, checkPermission('approve_dare'), async (req, res) => {
   try {
-    const act = await Act.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    await logAudit({ action: 'approve_act', user: req.userId, target: req.params.id });
+    const dare = await Dare.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    await logAudit({ action: 'approve_dare', user: req.userId, target: req.params.id });
     // Notify performer if exists
-    if (act.performer) {
-      await sendNotification(act.performer, 'act_approved', `Your act "${act.title}" has been approved.`);
+    if (dare.performer) {
+      await sendNotification(dare.performer, 'dare_approved', `Your dare "${dare.title}" has been approved.`);
     }
-    res.json({ message: 'Act approved.', act });
+    res.json({ message: 'Dare approved.', dare });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to approve act.' });
+    res.status(500).json({ error: 'Failed to approve dare.' });
   }
 });
 
 // POST /api/acts/:id/reject (admin/moderator)
-router.post('/:id/reject', auth, checkPermission('reject_act'), async (req, res) => {
+router.post('/:id/reject', auth, checkPermission('reject_dare'), async (req, res) => {
   try {
-    const act = await Act.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
-    if (!act) return res.status(404).json({ error: 'Act not found.' });
-    await logAudit({ action: 'reject_act', user: req.userId, target: req.params.id });
+    const dare = await Dare.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    await logAudit({ action: 'reject_dare', user: req.userId, target: req.params.id });
     // Notify performer if exists
-    if (act.performer) {
-      await sendNotification(act.performer, 'act_rejected', `Your act "${act.title}" has been rejected.`);
+    if (dare.performer) {
+      await sendNotification(dare.performer, 'dare_rejected', `Your dare "${dare.title}" has been rejected.`);
     }
-    res.json({ message: 'Act rejected.', act });
+    res.json({ message: 'Dare rejected.', dare });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to reject act.' });
+    res.status(500).json({ error: 'Failed to reject dare.' });
   }
 });
 

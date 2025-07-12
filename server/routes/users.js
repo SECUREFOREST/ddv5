@@ -4,7 +4,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { logAudit } = require('../utils/auditLog');
 const { checkPermission } = require('../utils/permissions');
-const Act = require('../models/Act');
+const Dare = require('../models/Dare');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const { sendNotification } = require('../utils/notification');
@@ -119,8 +119,8 @@ function isAdmin(req, res, next) {
 // DELETE /api/users/:id (admin only)
 router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
   try {
-    // Remove or anonymize acts
-    await Act.updateMany({ creator: req.params.id }, { $set: { creator: null, title: '[deleted]', description: '' } });
+    // Remove or anonymize dares
+    await Dare.updateMany({ creator: req.params.id }, { $set: { creator: null, title: '[deleted]', description: '' } });
     // Remove or anonymize comments
     await Comment.updateMany({ author: req.params.id }, { $set: { author: null, text: '[deleted]', deleted: true, deletedAt: new Date() } });
     // Remove notifications

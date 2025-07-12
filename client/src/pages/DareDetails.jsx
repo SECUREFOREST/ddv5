@@ -5,13 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import Markdown from '../components/Markdown';
 import Modal from '../components/Modal';
 import Countdown from '../components/Countdown';
-import StatusBadge from '../components/ActCard';
+import StatusBadge from '../components/DareCard';
 
-export default function ActDetails() {
+export default function DareDetails() {
   const { id } = useParams();
   const { user } = useAuth();
   const location = useLocation();
-  const [act, setAct] = useState(null);
+  const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState('');
   const [commentError, setCommentError] = useState('');
@@ -23,7 +23,7 @@ export default function ActDetails() {
   const [showProofModal, setShowProofModal] = useState(false);
   const [proof, setProof] = useState('');
   const [proofError, setProofError] = useState('');
-  const [submittedProof, setSubmittedProof] = useState(act?.proof || null);
+  const [submittedProof, setSubmittedProof] = useState(dare?.proof || null);
   const [proofFile, setProofFile] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -79,9 +79,9 @@ export default function ActDetails() {
 
   useEffect(() => {
     setLoading(true);
-    api.get(`/acts/${id}`)
-      .then(res => setAct(res.data))
-      .catch(() => setAct(null))
+    api.get(`/dares/${id}`)
+      .then(res => setDare(res.data))
+      .catch(() => setDare(null))
       .finally(() => setLoading(false));
   }, [id, refresh]);
 
@@ -89,7 +89,7 @@ export default function ActDetails() {
     e.preventDefault();
     setCommentError('');
     try {
-      await api.post(`/acts/${id}/comment`, { text: comment });
+      await api.post(`/dares/${id}/comment`, { text: comment });
       setComment('');
       setRefresh(r => r + 1);
     } catch (err) {
@@ -102,7 +102,7 @@ export default function ActDetails() {
     setGradeError('');
     setGrading(true);
     try {
-      await api.post(`/acts/${id}/grade`, { grade: Number(grade), feedback });
+      await api.post(`/dares/${id}/grade`, { grade: Number(grade), feedback });
       setGrade('');
       setFeedback('');
       setRefresh(r => r + 1);
@@ -113,58 +113,58 @@ export default function ActDetails() {
     }
   };
 
-  // Assume act.performer is the username of the performer
-  const isPerformer = user && act && user.id === (act.performer?._id || act.performer);
-  const canAccept = user && act && !act.performer && act.status === 'open' && !roleRestricted;
-  const canSubmitProof = isPerformer && act.status !== 'completed' && !submittedProof;
+  // Assume dare.performer is the username of the performer
+  const isPerformer = user && dare && user.id === (dare.performer?._id || dare.performer);
+  const canAccept = user && dare && !dare.performer && dare.status === 'open' && !roleRestricted;
+  const canSubmitProof = isPerformer && dare.status !== 'completed' && !submittedProof;
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [acceptError, setAcceptError] = useState('');
 
-  const handleAcceptAct = async () => {
+  const handleAcceptDare = async () => {
     setAcceptLoading(true);
     setAcceptError('');
     try {
-      await api.post(`/acts/${act._id}/accept`);
+      await api.post(`/dares/${dare._id}/accept`);
       setRefresh(r => r + 1);
     } catch (err) {
-      setAcceptError(err.response?.data?.error || 'Failed to accept act.');
+      setAcceptError(err.response?.data?.error || 'Failed to accept dare.');
     } finally {
       setAcceptLoading(false);
     }
   };
 
   // Only the performer is considered a participant for rejection
-  const isPerformerParticipant = user && act && act.performer && user.username === act.performer;
+  const isPerformerParticipant = user && dare && dare.performer && user.username === dare.performer;
 
   const handleReject = async (e) => {
     e.preventDefault();
     setRejectError('');
     setRejecting(true);
     try {
-      const res = await api.post(`/acts/${act._id}/reject`, { reason: rejectReason }, {
+      const res = await api.post(`/dares/${dare._id}/reject`, { reason: rejectReason }, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
-      setAct(res.data.act);
+      setDare(res.data.dare);
       setShowRejectModal(false);
       setRejectReason('');
     } catch (err) {
-      setRejectError(err.response?.data?.error || 'Failed to reject act.');
+      setRejectError(err.response?.data?.error || 'Failed to reject dare.');
     } finally {
       setRejecting(false);
     }
   };
 
   // Role restriction logic
-  const roleRestricted = act && act.allowedRoles && act.allowedRoles.length > 0 && (!user || !user.roles || !user.roles.some(r => act.allowedRoles.includes(r)));
+  const roleRestricted = dare && dare.allowedRoles && dare.allowedRoles.length > 0 && (!user || !user.roles || !user.roles.some(r => dare.allowedRoles.includes(r)));
 
   // Proof expiration logic
-  const proofExpired = act && act.proofExpiresAt && new Date() > new Date(act.proofExpiresAt);
+  const proofExpired = dare && dare.proofExpiresAt && new Date() > new Date(dare.proofExpiresAt);
 
   if (loading) return <div className="text-[#888]">Loading...</div>;
-  if (!act) return <div className="text-danger font-semibold">Act not found.</div>;
+  if (!dare) return <div className="text-danger font-semibold">Dare not found.</div>;
 
   // Sharable link logic
-  const actUrl = typeof window !== 'undefined' ? `${window.location.origin}/acts/${id}` : `/acts/${id}`;
+  const dareUrl = typeof window !== 'undefined' ? `${window.location.origin}/dares/${id}` : `/dares/${id}`;
   const handleShareClick = () => {
     const input = document.getElementById('sharable-link-input');
     if (input) {
@@ -190,7 +190,7 @@ export default function ActDetails() {
     setAppealMessage('');
     setAppealError('');
     try {
-      await api.post('/appeals', { type: 'act', targetId: act._id, reason: appealReason });
+      await api.post('/appeals', { type: 'dare', targetId: dare._id, reason: appealReason });
       setAppealMessage('Appeal submitted. An admin will review your request.');
       setAppealReason('');
       setTimeout(() => setShowAppealModal(false), 1500);
@@ -272,7 +272,7 @@ export default function ActDetails() {
       const formData = new FormData();
       if (proof) formData.append("text", proof);
       if (proofFile) formData.append("file", proofFile);
-      await api.post(`/acts/${id}/proof`, formData, {
+      await api.post(`/dares/${id}/proof`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
@@ -299,13 +299,13 @@ export default function ActDetails() {
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{act?.title} <StatusBadge status={act?.status} /></h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{dare?.title} <StatusBadge status={dare?.status} /></h1>
         <div className="flex items-center gap-2">
           <input
             id="sharable-link-input"
             className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
             type="text"
-            value={actUrl}
+            value={dareUrl}
             readOnly
             onFocus={e => e.target.select()}
           />
@@ -316,26 +316,26 @@ export default function ActDetails() {
       </div>
       <div>
         <div className="bg-neutral-900 rounded p-4 mb-4">
-          <Markdown>{act?.description || ''}</Markdown>
+          <Markdown>{dare?.description || ''}</Markdown>
         </div>
         {canAccept && (
           <div className="my-5">
-            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={act ? handleAcceptAct : undefined} disabled={acceptLoading || !act}>
-              {acceptLoading ? 'Accepting...' : 'Accept & Perform This Act'}
+            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
+              {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}
             </button>
             {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
           </div>
         )}
         <div className="text-neutral-400 mb-4 text-center">
-          By {act?.creator?.username || 'Unknown'} | Status: <StatusBadge status={act?.status} /> | Difficulty: {act?.difficulty}
+          By {dare?.creator?.username || 'Unknown'} | Status: <StatusBadge status={dare?.status} /> | Difficulty: {dare?.difficulty}
         </div>
         {/* Proof expiration countdown and message */}
-        {act && act.proofExpiresAt && !proofExpired && (
+        {dare && dare.proofExpiresAt && !proofExpired && (
           <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5 text-center">
-            <b>Proof review period:</b> <Countdown target={act.proofExpiresAt} />
+            <b>Proof review period:</b> <Countdown target={dare.proofExpiresAt} />
           </div>
         )}
-        {act && proofExpired && (
+        {dare && proofExpired && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5 text-center">
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
           </div>
@@ -346,9 +346,9 @@ export default function ActDetails() {
             <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
           </div>
           <div>
-            {act?.grades && act.grades.length > 0 ? (
+            {dare?.grades && dare.grades.length > 0 ? (
               <ul className="space-y-2 mb-4">
-                {act.grades.map((g, i) => (
+                {dare.grades.map((g, i) => (
                   <li key={i} className="flex items-center gap-2 bg-neutral-800 rounded p-2">
                     <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
                   </li>
@@ -381,9 +381,9 @@ export default function ActDetails() {
             <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Comments</h2>
           </div>
           <div>
-            {act?.comments && act.comments.length > 0 ? (
+            {dare?.comments && dare.comments.length > 0 ? (
               <ul className="space-y-2 mb-4">
-                {act.comments.map((c, i) => (
+                {dare.comments.map((c, i) => (
                   <li key={i} className="bg-neutral-800 rounded p-3">
                     {c.deleted ? (
                       <span className="text-gray-400">This comment was deleted.</span>
@@ -482,7 +482,7 @@ export default function ActDetails() {
         {roleRestricted && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You do not have the required role to participate in this act.</b><br />
-            Allowed roles: {act && act.allowedRoles ? act.allowedRoles.join(', ') : ''}
+            Allowed roles: {dare && dare.allowedRoles ? dare.allowedRoles.join(', ') : ''}
           </div>
         )}
         {/* Only show proof submission if not in cooldown, not at slot limit, and not role restricted */}
@@ -515,16 +515,16 @@ export default function ActDetails() {
             )}
           </div>
         )}
-        {isPerformerParticipant && act.status !== 'rejected' && (
+        {isPerformerParticipant && dare.status !== 'rejected' && (
           <div style={{ margin: '20px 0' }}>
             <button className="btn btn-danger" onClick={() => setShowRejectModal(true)}>
-              Reject Act
+              Reject Dare
             </button>
           </div>
         )}
       </div> {/* <-- Close main content div before modals */}
       {/* Modals Section */}
-      <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Act" role="dialog" aria-modal="true">
+      <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Dare" role="dialog" aria-modal="true">
         <form onSubmit={handleReject} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1">Reason for rejection:</label>
@@ -543,7 +543,7 @@ export default function ActDetails() {
               Cancel
             </button>
             <button type="submit" className="bg-red-500 text-white rounded px-4 py-2 font-semibold text-sm hover:bg-red-600" disabled={rejecting}>
-              {rejecting ? 'Rejecting...' : 'Reject Act'}
+              {rejecting ? 'Rejecting...' : 'Reject Dare'}
             </button>
           </div>
         </form>
@@ -611,7 +611,7 @@ export default function ActDetails() {
           </div>
         </form>
       </Modal>
-      <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Act" role="dialog" aria-modal="true">
+      <Modal open={showAppealModal} onClose={() => setShowAppealModal(false)} title="Appeal Rejected Dare" role="dialog" aria-modal="true">
         <form onSubmit={handleAppealSubmit} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1 text-primary">Reason for appeal:</label>

@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/Comment');
-const Act = require('../models/Act');
+const Dare = require('../models/Dare');
 const auth = require('../middleware/auth');
 const Report = require('../models/Report');
 const { logActivity } = require('../utils/activity');
 const { checkPermission } = require('../utils/permissions');
 const { sendNotification } = require('../utils/notification');
 
-// GET /api/comments?act=actId - list comments, optionally filter by act
+// GET /api/comments?dare=dareId - list comments, optionally filter by dare
 router.get('/', async (req, res) => {
   try {
-    const { act } = req.query;
+    const { dare } = req.query;
     const filter = {};
-    if (act) filter.act = act;
+    if (dare) filter.dare = dare;
     const comments = await Comment.find(filter)
       .populate('author', 'username avatar')
       .populate({ path: 'replies', populate: { path: 'author', select: 'username avatar' } })
@@ -27,15 +27,15 @@ router.get('/', async (req, res) => {
 // POST /api/comments - add comment (auth required, supports replies)
 router.post('/', auth, async (req, res) => {
   try {
-    const { actId, text, parent } = req.body;
-    if (!actId || !text) return res.status(400).json({ error: 'act and text are required.' });
+    const { dareId, text, parent } = req.body;
+    if (!dareId || !text) return res.status(400).json({ error: 'dare and text are required.' });
     const comment = new Comment({
-      act: actId,
+      dare: dareId,
       author: req.userId,
       text,
     });
     await comment.save();
-    await logActivity({ type: 'comment_added', user: req.userId, act: actId, comment: comment._id });
+    await logActivity({ type: 'comment_added', user: req.userId, dare: dareId, comment: comment._id });
     // If this is a reply, add to parent comment's replies and notify parent author
     if (parent) {
       const parentComment = await Comment.findById(parent);
@@ -47,11 +47,11 @@ router.post('/', auth, async (req, res) => {
         }
       }
     } else {
-      // If top-level, add to act's comments
-      const actDoc = await Act.findById(actId);
-      if (actDoc) {
-        actDoc.comments.push(comment._id);
-        await actDoc.save();
+      // If top-level, add to dare's comments
+      const dareDoc = await Dare.findById(dareId);
+      if (dareDoc) {
+        dareDoc.comments.push(comment._id);
+        await dareDoc.save();
       }
     }
     res.status(201).json(comment);

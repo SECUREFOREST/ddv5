@@ -62,7 +62,7 @@ function Tag({ tag }) {
   );
 }
 
-export default function ActCard({
+export default function DareCard({
   title,
   description,
   difficulty,

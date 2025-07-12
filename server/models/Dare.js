@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ActSchema = new mongoose.Schema({
+const DareSchema = new mongoose.Schema({
   description: { type: String },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, enum: ['pending', 'completed', 'in_progress', 'graded'], default: 'pending' },
@@ -31,4 +31,4 @@ const ActSchema = new mongoose.Schema({
   performer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
-module.exports = mongoose.model('Act', ActSchema); 
+module.exports = mongoose.model('Dare', DareSchema); 

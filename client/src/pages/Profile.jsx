@@ -4,12 +4,12 @@ import api from '../api/axios';
 import Markdown from '../components/Markdown';
 import Tabs from '../components/Tabs';
 import RecentActivityWidget from '../components/RecentActivityWidget';
-import StatusBadge from '../components/ActCard';
+import StatusBadge from '../components/DareCard';
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const [stats, setStats] = useState(null);
-  const [acts, setActs] = useState([]);
+  const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
   const [username, setUsername] = useState(user?.username || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
@@ -24,9 +24,9 @@ export default function Profile() {
     api.get(`/stats/users/${user.id}`)
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
-    api.get('/acts', { params: { creator: user.id } })
-      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActs([]));
+    api.get('/dares', { params: { creator: user.id } })
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDares([]));
     api.get('/activities', { params: { userId: user.id, limit: 10 } })
       .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUserActivities([]))
@@ -90,8 +90,8 @@ export default function Profile() {
                     {stats && (
                       <div className="flex gap-4 mt-4">
                         <div className="bg-neutral-900 rounded p-3 flex-1">
-                          <div className="text-base font-semibold text-primary">Acts Completed</div>
-                          <div className="text-2xl text-primary">{stats.actsCount}</div>
+                          <div className="text-base font-semibold text-primary">Dares Completed</div>
+                          <div className="text-2xl text-primary">{stats.daresCount}</div>
                         </div>
                         <div className="bg-neutral-900 rounded p-3 flex-1">
                           <div className="text-base font-semibold text-primary">Credits</div>
@@ -111,20 +111,20 @@ export default function Profile() {
               ),
             },
             {
-              label: 'Your Acts',
+              label: 'Your Dares',
               content: (
                 <div>
-                  <h2 className="text-xl font-bold mb-2 text-primary">Your Acts</h2>
-                  {acts.length === 0 ? (
-                    <div className="text-neutral-400">No acts found.</div>
+                  <h2 className="text-xl font-bold mb-2 text-primary">Your Dares</h2>
+                  {dares.length === 0 ? (
+                    <div className="text-neutral-400">No dares found.</div>
                   ) : (
                     <ul className="space-y-4">
-                      {acts.map(act => (
-                        <li key={act._id} className="bg-neutral-900 rounded p-4">
-                          <div className="font-bold text-lg text-primary">{act.title}</div>
-                          <div className="text-neutral-400">{act.description}</div>
-                          <div className="text-sm mt-1">Status: <StatusBadge status={act.status} /></div>
-                          <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold mt-1">{act.difficulty}</span>
+                      {dares.map(dare => (
+                        <li key={dare._id} className="bg-neutral-900 rounded p-4">
+                          <div className="font-bold text-lg text-primary">{dare.title}</div>
+                          <div className="text-neutral-400">{dare.description}</div>
+                          <div className="text-sm mt-1">Status: <StatusBadge status={dare.status} /></div>
+                          <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold mt-1">{dare.difficulty}</span>
                         </li>
                       ))}
                     </ul>
