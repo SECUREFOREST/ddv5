@@ -13,7 +13,6 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 const Dares = React.lazy(() => import('./pages/Dares'));
 const DareDetails = React.lazy(() => import('./pages/DareDetails'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
-const Credits = React.lazy(() => import('./pages/Credits'));
 const Admin = React.lazy(() => import('./pages/Admin'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
@@ -48,7 +47,6 @@ function AppContent() {
               <Route path="/dares" element={<Dares />} />
               <Route path="/dares/:id" element={<DareDetails />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/credits" element={<PrivateRoute><Credits /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
