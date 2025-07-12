@@ -203,7 +203,7 @@ export default function NotificationDropdown() {
         )}
       </button>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#181818] border border-[#282828] rounded shadow-lg z-50 py-1 text-neutral-100">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] rounded-none shadow-sm z-50 py-2 px-0 text-neutral-100">
           {items}
         </ul>
       )}
