@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import Tabs from '../components/Tabs';
 import Dropdown from '../components/Dropdown';
 import Tooltip from '../components/Tooltip';
-import ActCard from '../components/ActCard';
+import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import ProgressBar from '../components/ProgressBar';
 import Markdown from '../components/Markdown';
@@ -145,10 +145,10 @@ export default function UIDemo() {
         </Tooltip>
       </section>
 
-      {/* ActCard */}
+      {/* DareCard */}
       <section className="mb-8">
-        <h2 className="font-semibold text-lg mb-2 text-primary">ActCard</h2>
-        <ActCard
+        <h2 className="font-semibold text-lg mb-2 text-primary">DareCard</h2>
+        <DareCard
           title="Complete the React migration"
           description="Migrate the legacy jQuery/Bootstrap app to a modern React/Node.js stack, preserving all features and improving maintainability."
           difficulty="hard"
