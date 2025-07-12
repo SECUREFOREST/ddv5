@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ReportSchema = new mongoose.Schema({
-  type: { type: String, enum: ['comment', 'act'], required: true },
+  type: { type: String, enum: ['comment', 'dare'], required: true },
   targetId: { type: mongoose.Schema.Types.ObjectId, required: true },
   reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   reason: { type: String, required: true },

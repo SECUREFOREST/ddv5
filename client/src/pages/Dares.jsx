@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
-import StatusBadge from '../components/ActCard';
+import StatusBadge from '../components/DareCard';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All' },

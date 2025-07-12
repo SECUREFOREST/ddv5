@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Activity = require('../models/Activity');
 const User = require('../models/User');
-const Act = require('../models/Act');
+// const Dare = require('../models/Dare');
 const Comment = require('../models/Comment');
 
 // GET /activity-feed - global activity feed (paginated)
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate('user', 'username')
-      .populate('act', 'title')
+      .populate('dare', 'title')
       .populate('comment', 'text');
     res.json(activities);
   } catch (err) {

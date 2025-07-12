@@ -50,19 +50,19 @@ async function checkSlotAndCooldownAtomic(userId) {
     { new: true }
   );
   if (!user) {
-    throw new Error('You are in cooldown or have reached the maximum of 5 open acts.');
+    throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
   }
 }
 
-// GET /api/acts - list acts (optionally filter by status, difficulty, public, actType, allowedRoles)
+// GET /api/dares - list dares (optionally filter by status, difficulty, public, dareType, allowedRoles)
 router.get('/', async (req, res, next) => {
   try {
-    const { status, difficulty, public: isPublic, actType, role } = req.query;
+    const { status, difficulty, public: isPublic, dareType, role } = req.query;
     const filter = {};
     if (status) filter.status = status;
     if (difficulty) filter.difficulty = difficulty;
     if (isPublic !== undefined) filter.public = isPublic === 'true';
-    if (actType) filter.actType = actType;
+    if (dareType) filter.dareType = dareType;
     if (role) filter.$or = [
       { allowedRoles: { $exists: false } },
       { allowedRoles: { $size: 0 } },
@@ -78,7 +78,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// GET /api/acts/:id - get act details
+// GET /api/dares/:id - get dare details
 router.get('/:id', async (req, res) => {
   try {
     const dare = await Dare.findById(req.params.id)
@@ -125,7 +125,7 @@ router.get('/random', auth, async (req, res) => {
   }
 });
 
-// POST /api/acts - create act (auth required)
+// POST /api/dares - create dare (auth required)
 router.post('/', auth, async (req, res) => {
   try {
     const { description, difficulty, tags } = req.body;
@@ -147,7 +147,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// PATCH /api/acts/:id - update act (auth required, only creator)
+// PATCH /api/dares/:id - update dare (auth required, only creator)
 router.patch('/:id', auth, async (req, res) => {
   try {
     const dare = await Dare.findById(req.params.id);
@@ -169,7 +169,7 @@ router.patch('/:id', auth, async (req, res) => {
   }
 });
 
-// POST /api/acts/:id/grade - grade an act (auth required)
+// POST /api/dares/:id/grade - grade a dare (auth required)
 router.post('/:id/grade', auth, async (req, res) => {
   try {
     const { grade, feedback } = req.body;
@@ -189,7 +189,7 @@ router.post('/:id/grade', auth, async (req, res) => {
   }
 });
 
-// POST /api/acts/:id/comment - add comment to act (auth required)
+// POST /api/dares/:id/comment - add comment to dare (auth required)
 router.post('/:id/comment', auth, async (req, res) => {
   try {
     const { text } = req.body;
@@ -210,7 +210,7 @@ router.post('/:id/comment', auth, async (req, res) => {
   }
 });
 
-// PATCH /api/acts/:id/start - start/accept an act (auth required, slot/cooldown enforced, role enforced)
+// PATCH /api/dares/:id/start - start/accept a dare (auth required, slot/cooldown enforced, role enforced)
 router.patch('/:id/start', auth, async (req, res) => {
   try {
     await checkSlotAndCooldownAtomic(req.userId);
@@ -234,7 +234,7 @@ router.patch('/:id/start', auth, async (req, res) => {
   }
 });
 
-// POST /api/acts/:id/proof - submit proof (auth required, performer only, slot/cooldown enforced)
+// POST /api/dares/:id/proof - submit proof (auth required, performer only, slot/cooldown enforced)
 router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
   try {
     // Use UTC for all date calculations
@@ -273,7 +273,7 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
   }
 });
 
-// POST /acts/:id/accept - user consents to perform an act, optionally sets difficulty
+// POST /dares/:id/accept - user consents to perform a dare, optionally sets difficulty
 router.post('/:id/accept', auth, async (req, res) => {
   try {
     const { difficulty } = req.body;
@@ -289,7 +289,7 @@ router.post('/:id/accept', auth, async (req, res) => {
   }
 });
 
-// DELETE /api/acts/:id (admin only)
+// DELETE /api/dares/:id (admin only)
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {
     await Dare.findByIdAndDelete(req.params.id);
@@ -299,7 +299,7 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
   }
 });
 
-// POST /api/acts/:id/approve (admin/moderator)
+// POST /api/dares/:id/approve (admin/moderator)
 router.post('/:id/approve', auth, checkPermission('approve_dare'), async (req, res) => {
   try {
     const dare = await Dare.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
@@ -315,7 +315,7 @@ router.post('/:id/approve', auth, checkPermission('approve_dare'), async (req, r
   }
 });
 
-// POST /api/acts/:id/reject (admin/moderator)
+// POST /api/dares/:id/reject (admin/moderator)
 router.post('/:id/reject', auth, checkPermission('reject_dare'), async (req, res) => {
   try {
     const dare = await Dare.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });

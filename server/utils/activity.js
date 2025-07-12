@@ -1,11 +1,11 @@
 const Activity = require('../models/Activity');
 
-async function logActivity({ type, user, act, comment, details }) {
+async function logActivity({ type, user, dare, comment, details }) {
   try {
     await Activity.create({
       type,
       user,
-      act,
+      dare,
       comment,
       details,
     });
