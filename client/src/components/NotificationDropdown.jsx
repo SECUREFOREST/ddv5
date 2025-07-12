@@ -146,7 +146,11 @@ export default function NotificationDropdown() {
     items = [];
     items.push(
       <li key="refresh">
-        <button className="btn btn-link btn-xs" onClick={handleRefresh} disabled={refreshing} style={{ width: '100%', textAlign: 'left' }}>
+        <button
+          className="w-full text-left py-2 px-0 text-neutral-100 hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
+          onClick={handleRefresh}
+          disabled={refreshing}
+        >
           {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </li>
@@ -155,16 +159,15 @@ export default function NotificationDropdown() {
       items.push(
         <li key="mark-all">
           <button
-            className="btn btn-link btn-xs"
+            className="w-full text-left py-2 px-0 text-neutral-100 hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
             onClick={handleMarkAllAsRead}
             disabled={markingAll}
-            style={{ width: '100%', textAlign: 'left' }}
           >
             {markingAll ? 'Marking all...' : 'Mark all as read'}
           </button>
         </li>
       );
-      items.push(<li key="divider" className="divider" />);
+      items.push(<li key="divider" className="border-b border-[#282828] my-1" />);
     }
     if (markError) {
       items.push(<li key="mark-error"><span className="label label-danger">{markError}</span></li>);
@@ -176,11 +179,11 @@ export default function NotificationDropdown() {
       notifications.map((n, idx) => (
         <li
           key={n._id}
-          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''} mb-2`}
+          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''}`}
         >
           <button
             onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
-            className="w-full text-left focus:outline-none"
+            className="w-full text-left py-2 px-0 focus:outline-none hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
           >
             <span className="block">
               <span className="description font-medium">{getLegacyNotificationMessage(n)}</span>
