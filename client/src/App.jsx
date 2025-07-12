@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import DareCreator from './pages/DareCreator';
 import DareParticipant from './pages/DareParticipant';
+import ProfileView from './pages/ProfileView';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -44,6 +45,7 @@ function AppContent() {
               <Route path="/" element={<Landing />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
               <Route path="/dares" element={<Dares />} />
               <Route path="/dares/:id" element={<DareDetails />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
