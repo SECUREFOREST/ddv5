@@ -83,7 +83,7 @@ export default function Navbar() {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
-          <ul className="flex flex-col space-y-2">
+          <ul className="flex flex-col space-y-1">
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares" onClick={() => setMobileMenuOpen(false)}>Dares</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
