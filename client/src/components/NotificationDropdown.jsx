@@ -141,7 +141,7 @@ export default function NotificationDropdown() {
   } else if (error) {
     items = [<li key="error"><span className="label label-danger">{error}</span></li>];
   } else if (notifications.length === 0) {
-    items = [<li key="none" className="py-2 text-neutral-300">No notifications</li>];
+    items = [<li key="none" className="mb-2 text-neutral-300">No notifications</li>];
   } else {
     items = [];
     items.push(
@@ -176,7 +176,7 @@ export default function NotificationDropdown() {
       notifications.map((n, idx) => (
         <li
           key={n._id}
-          className={`px-4 py-2 ${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''}`}
+          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''} mb-2`}
         >
           <button
             onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
@@ -207,7 +207,7 @@ export default function NotificationDropdown() {
         )}
       </button>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-lg rounded-md z-50 px-4 py-3 text-neutral-100">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-sm rounded-none z-50 p-[15px] text-neutral-100">
           {items}
         </ul>
       )}
