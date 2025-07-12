@@ -191,7 +191,7 @@ export default function NotificationDropdown() {
   return (
     <div className="relative inline-block" ref={dropdownRef}>
       <button
-        className="cursor-pointer relative focus:outline-none"
+        className="cursor-pointer relative focus:outline-none text-neutral-100 hover:text-primary transition-colors"
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -199,11 +199,11 @@ export default function NotificationDropdown() {
       >
         <i className="fa fa-bell text-xl" />
         {unseenCount > 0 && (
-          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold">{unseenCount}</span>
+          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold border border-[#060606]">{unseenCount}</span>
         )}
       </button>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50 py-1">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#181818] border border-[#282828] rounded shadow-lg z-50 py-1 text-neutral-100">
           {items}
         </ul>
       )}
