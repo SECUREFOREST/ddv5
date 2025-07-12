@@ -173,16 +173,20 @@ export default function NotificationDropdown() {
       items.push(<li key="mark-all-error"><span className="label label-danger">{markAllError}</span></li>);
     }
     items = items.concat(
-      notifications.map(n => (
-        <li key={n._id} className={`notification-nav-item${n.read ? ' opacity-60' : ''}`}>
-          <a href="#" onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}>
-            <span className="inner">
-              <span className="contents">
-                <span className="description">{getLegacyNotificationMessage(n)}</span>
-                <span className="age">{timeAgo(n.createdAt)}</span>
-              </span>
+      notifications.map((n, idx) => (
+        <li
+          key={n._id}
+          className={`px-4 py-2 ${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''}`}
+        >
+          <button
+            onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
+            className="w-full text-left focus:outline-none"
+          >
+            <span className="block">
+              <span className="description font-medium">{getLegacyNotificationMessage(n)}</span>
+              <span className="age ml-2 text-xs text-neutral-400">{timeAgo(n.createdAt)}</span>
             </span>
-          </a>
+          </button>
         </li>
       ))
     );
@@ -191,13 +195,13 @@ export default function NotificationDropdown() {
   return (
     <div className="relative inline-block" ref={dropdownRef}>
       <button
-        className="cursor-pointer relative focus:outline-none text-neutral-100 hover:text-primary transition-colors"
+        className="cursor-pointer relative focus:outline-none transition-colors"
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         tabIndex={0}
       >
-        <i className="fa fa-bell text-xl" />
+        <i className={`fa fa-bell text-xl ${unseenCount > 0 ? 'text-primary' : 'text-neutral-100'}`} />
         {unseenCount > 0 && (
           <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold border border-[#060606]">{unseenCount}</span>
         )}
