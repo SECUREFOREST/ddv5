@@ -195,13 +195,17 @@ export default function NotificationDropdown() {
   return (
     <div className="relative inline-block" ref={dropdownRef}>
       <button
-        className="cursor-pointer relative focus:outline-none transition-colors"
+        className="cursor-pointer relative focus:outline-none transition-colors group"
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         tabIndex={0}
       >
-        <i className={`fa fa-bell text-xl ${unseenCount > 0 ? 'text-primary' : 'text-neutral-100'}`} />
+        <i className={`fa fa-bell text-xl transition-colors duration-150
+          ${unseenCount > 0
+            ? 'text-primary group-hover:text-primary-dark'
+            : 'text-neutral-100 group-hover:text-neutral-400'}
+        `} />
         {unseenCount > 0 && (
           <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold border border-[#060606]">{unseenCount}</span>
         )}
