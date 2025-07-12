@@ -205,25 +205,24 @@ export default function Dares() {
           <div className="text-neutral-400">Loading dares...</div>
         ) : (
           <div>
-            {dares.length === 0 ? (
-              <div className="text-neutral-400">No dares found.</div>
-            ) : (
-              <ul className="space-y-4">
-                {dares.map(dare => (
-                  <li key={dare._id}>
-                    <DareCard
-                      title={dare.title}
-                      description={dare.description}
-                      difficulty={dare.difficulty}
-                      tags={dare.tags || []}
-                      status={dare.status}
-                      user={dare.creator}
-                      actions={[]}
-                    />
-                  </li>
-                ))}
-              </ul>
+            {dares.length === 0 && !loading && (
+              <div className="text-neutral-400 text-center py-8">No dares found.</div>
             )}
+            {dares.map(dare => (
+              <DareCard
+                key={dare._id}
+                title={dare.title}
+                description={dare.description}
+                difficulty={dare.difficulty}
+                tags={dare.tags}
+                status={dare.status}
+                creator={dare.creator}
+                performer={dare.performer}
+                assignedSwitch={dare.assignedSwitch}
+                actions={[]}
+                currentUserId={user?.id}
+              />
+            ))}
           </div>
         )}
       </div>

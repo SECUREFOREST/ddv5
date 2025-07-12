@@ -70,6 +70,8 @@ router.get('/', async (req, res, next) => {
     ];
     const dares = await Dare.find(filter)
       .populate('creator', 'username avatar')
+      .populate('performer', 'username avatar')
+      .populate('assignedSwitch', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } })
       .sort({ createdAt: -1 });
     res.json(dares);
@@ -83,6 +85,8 @@ router.get('/:id', async (req, res) => {
   try {
     const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username avatar')
+      .populate('performer', 'username avatar')
+      .populate('assignedSwitch', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
     res.json(dare);
@@ -128,7 +132,7 @@ router.get('/random', auth, async (req, res) => {
 // POST /api/dares - create dare (auth required)
 router.post('/', auth, async (req, res) => {
   try {
-    const { description, difficulty, tags } = req.body;
+    const { description, difficulty, tags, assignedSwitch } = req.body;
     if (!description) return res.status(400).json({ error: 'Description is required.' });
     if (!difficulty) return res.status(400).json({ error: 'Difficulty is required.' });
     const dare = new Dare({
@@ -136,6 +140,7 @@ router.post('/', auth, async (req, res) => {
       difficulty,
       tags: Array.isArray(tags) ? tags : [],
       creator: req.userId,
+      assignedSwitch: assignedSwitch || undefined,
     });
     await dare.save();
     await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
@@ -155,12 +160,13 @@ router.patch('/:id', auth, async (req, res) => {
     if (dare.creator.toString() !== req.userId) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
-    const { title, description, difficulty, status, tags } = req.body;
+    const { title, description, difficulty, status, tags, assignedSwitch } = req.body;
     if (title) dare.title = title;
     if (description) dare.description = description;
     if (difficulty) dare.difficulty = difficulty;
     if (status) dare.status = status;
     if (tags) dare.tags = Array.isArray(tags) ? tags : [];
+    if (assignedSwitch !== undefined) dare.assignedSwitch = assignedSwitch;
     dare.updatedAt = new Date();
     await dare.save();
     res.json(dare);
