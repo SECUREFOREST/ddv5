@@ -36,7 +36,7 @@ function isAdmin(req, res, next) {
 // Helper: enforce slot/cooldown (atomic)
 async function checkSlotAndCooldownAtomic(userId) {
   const now = new Date();
-  // Use findOneAndUpdate to atomically check and update openActs and cooldown
+  // Use findOneAndUpdate to atomically check and update openDares and cooldown
   const user = await User.findOneAndUpdate(
     {
       _id: userId,
@@ -44,9 +44,9 @@ async function checkSlotAndCooldownAtomic(userId) {
         { actCooldownUntil: { $exists: false } },
         { actCooldownUntil: { $lte: now } }
       ],
-      openActs: { $lt: 5 }
+      openDares: { $lt: 5 }
     },
-    { $inc: { openActs: 1 } },
+    { $inc: { openDares: 1 } },
     { new: true }
   );
   if (!user) {
@@ -97,10 +97,10 @@ router.get('/random', auth, async (req, res) => {
     const { difficulty } = req.query;
     const userId = req.userId;
     // Exclude dares already consented to or completed by this user
-    const user = await require('../models/User').findById(userId).select('consentedActs completedActs');
+    const user = await require('../models/User').findById(userId).select('consentedDares completedDares');
     const excludeDares = [
-      ...(user.consentedActs || []),
-      ...(user.completedActs || [])
+      ...(user.consentedDares || []),
+      ...(user.completedDares || [])
     ];
     const filter = { status: 'open', performer: { $exists: false } };
     if (difficulty) filter.difficulty = difficulty;
@@ -116,7 +116,7 @@ router.get('/random', auth, async (req, res) => {
     );
     if (!dare) return res.json({});
     // Track consent in user
-    await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedActs: dare._id } });
+    await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedDares: dare._id } });
     // Audit log
     await require('../utils/auditLog').logAudit({ action: 'consent_dare', user: userId, target: dare._id });
     res.json(dare);
@@ -227,7 +227,7 @@ router.patch('/:id/start', auth, async (req, res) => {
     dare.status = 'in_progress';
     dare.updatedAt = new Date();
     await dare.save();
-    await User.findByIdAndUpdate(req.userId, { $inc: { openActs: 1 } });
+    await User.findByIdAndUpdate(req.userId, { $inc: { openDares: 1 } });
     res.json({ message: 'Dare started.', dare });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to start dare.' });
@@ -256,7 +256,7 @@ router.post('/:id/proof', auth, upload.single('file'), async (req, res) => {
     dare.updatedAt = now;
     dare.proofExpiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48h from now, UTC
     await dare.save();
-    await User.findByIdAndUpdate(req.userId, { $inc: { openActs: -1 } });
+    await User.findByIdAndUpdate(req.userId, { $inc: { openDares: -1 } });
     // Notify creator
     await sendNotification(dare.creator, 'proof_submitted', `Proof has been submitted for your dare "${dare.title}".`);
     res.json({ message: 'Proof submitted.', proof: dare.proof });

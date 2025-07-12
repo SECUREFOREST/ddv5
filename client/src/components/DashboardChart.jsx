@@ -15,16 +15,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 /**
  * DashboardChart component
- * @param {object} stats - { actsCount, totalCredits, avgGrade }
+ * @param {object} stats - { daresCount, totalCredits, avgGrade }
  * @param {string} className - Additional classes
  */
 export default function DashboardChart({ stats = {}, className = '' }) {
   const data = {
-    labels: ['Acts Completed', 'Credits', 'Avg. Grade'],
+    labels: ['Dares Completed', 'Credits', 'Avg. Grade'],
     datasets: [
       {
         label: 'User Stats',
-        data: [stats.actsCount || 0, stats.totalCredits || 0, stats.avgGrade || 0],
+        data: [stats.daresCount || 0, stats.totalCredits || 0, stats.avgGrade || 0],
         backgroundColor: [
           chartColors.red, // primary
           chartColors.green, // success

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const AppealSchema = new mongoose.Schema({
   type: { type: String, enum: ['unblock', 'refund', 'dare'], required: true },
-  targetId: { type: mongoose.Schema.Types.ObjectId }, // e.g., actId or userId
+  targetId: { type: mongoose.Schema.Types.ObjectId }, // e.g., dareId or userId
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   reason: { type: String, required: true },
   status: { type: String, enum: ['open', 'resolved'], default: 'open' },

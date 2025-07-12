@@ -17,7 +17,7 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
               <tr className="bg-[#282828] text-primary">
                 <th className="px-4 py-2 font-semibold border-b border-[#282828]">#</th>
                 <th className="px-4 py-2 font-semibold border-b border-[#282828]">User</th>
-                <th className="px-4 py-2 font-semibold border-b border-[#282828]">Acts Completed</th>
+                <th className="px-4 py-2 font-semibold border-b border-[#282828]">Dares Completed</th>
               </tr>
             </thead>
             <tbody>
@@ -34,7 +34,7 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
                     )}
                     <span>{entry.user?.username || 'Unknown'}</span>
                   </td>
-                  <td className="px-4 py-2 text-neutral-100">{entry.actsCount}</td>
+                  <td className="px-4 py-2 text-neutral-100">{entry.daresCount}</td>
                 </tr>
               ))}
             </tbody>

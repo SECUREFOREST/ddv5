@@ -44,14 +44,14 @@ export default function ActivityFeed() {
 
 function renderActivityText(a) {
   switch (a.type) {
-    case 'act_created':
-      return <>created a new act{a.act ? <>: <b>{a.act.title}</b></> : null}.</>;
+    case 'dare_created':
+      return <>created a new dare{a.dare ? <>: <b>{a.dare.title}</b></> : null}.</>;
+    case 'dare_completed':
+      return <>completed a dare{a.dare ? <>: <b>{a.dare.title}</b></> : null}.</>;
+    case 'dare_graded':
+      return <>graded dare{a.dare ? <>: <b>{a.dare.title}</b></> : null}{a.details?.grade ? <> (grade: {a.details.grade})</> : null}.</>;
     case 'comment_added':
-      return <>commented on act{a.act ? <>: <b>{a.act.title}</b></> : null}{a.comment ? <>: "{a.comment.text}"</> : null}.</>;
-    case 'act_completed':
-      return <>completed an act{a.act ? <>: <b>{a.act.title}</b></> : null}.</>;
-    case 'grade_given':
-      return <>graded act{a.act ? <>: <b>{a.act.title}</b></> : null}{a.details?.grade ? <> (grade: {a.details.grade})</> : null}.</>;
+      return <>commented on dare{a.dare ? <>: <b>{a.dare.title}</b></> : null}{a.comment ? <>: "{a.comment.text}"</> : null}.</>;
     default:
       return <>did something.</>;
   }

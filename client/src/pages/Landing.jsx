@@ -20,7 +20,7 @@ const Landing = () => {
       <h1 className="text-2xl font-bold text-center mb-4 text-[#888]" aria-label="Welcome to DDv5!">Welcome to DDv5!</h1>
       <p className="text-base mb-6 text-center text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
       <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">
-        <li>✔️ Log your daily acts and progress</li>
+        <li>✔️ Log your daily dares and progress</li>
         <li>✔️ Compete on the leaderboard</li>
         <li>✔️ Earn credits and rewards</li>
         <li>✔️ Get notified about new activities</li>

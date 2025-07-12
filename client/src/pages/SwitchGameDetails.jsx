@@ -234,7 +234,7 @@ export default function SwitchGameDetails() {
   const handleProofSubmit = async e => {
     e.preventDefault();
     if (!proof.trim()) {
-      setProofError('Please enter proof of the demanded act.');
+      setProofError('Please enter proof of the demanded dare.');
       return;
     }
     try {

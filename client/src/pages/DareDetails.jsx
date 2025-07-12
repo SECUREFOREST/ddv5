@@ -175,7 +175,7 @@ export default function DareDetails() {
 
   // Slot/cooldown logic
   const inCooldown = user && user.actCooldownUntil && new Date(user.actCooldownUntil) > new Date();
-  const atSlotLimit = user && user.openActs >= 5;
+  const atSlotLimit = user && user.openDares >= 5;
 
   const openAppealModal = () => {
     setAppealReason('');
@@ -469,13 +469,13 @@ export default function DareDetails() {
         {inCooldown && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You are in cooldown after a recent rejection.</b><br />
-            You can start or perform new acts after your cooldown expires:
+            You can start or perform new dares after your cooldown expires:
             <Countdown target={user.actCooldownUntil} />
           </div>
         )}
         {atSlotLimit && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
-            <b>You have reached the maximum of 5 open acts.</b><br />
+            <b>You have reached the maximum of 5 open dares.</b><br />
             Complete or reject an act to free up a slot.
           </div>
         )}

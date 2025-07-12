@@ -50,7 +50,7 @@ export default function Navbar() {
           </div>
         )}
         <ul className="flex space-x-4 items-center">
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/acts">Acts</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares">Dares</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create">Create Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches">Switch Games</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/123/perform">Perform Dare</Link></li>
