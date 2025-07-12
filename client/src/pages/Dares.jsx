@@ -62,21 +62,24 @@ export default function Dares() {
   const [acceptError, setAcceptError] = useState('');
 
   useEffect(() => {
+    if (!user) return;
     setLoading(true);
-    api.get('/dares', {
-      params: {
-        status: status || undefined,
-        difficulty: difficulty || undefined,
-        search: search || undefined,
-        public: isPublic || undefined,
-        dareType: dareType || undefined,
-        role: user?.roles?.[0] || undefined,
-      },
-    })
-      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+    // Fetch dares created by user
+    const fetchCreated = api.get('/dares', { params: { creator: user.id } });
+    // Fetch dares where user is a participant
+    const fetchParticipating = api.get('/dares', { params: { participant: user.id } });
+    // Fetch dares assigned via switch games
+    const fetchSwitch = api.get('/dares', { params: { assignedSwitch: user.id } });
+    Promise.all([fetchCreated, fetchParticipating, fetchSwitch])
+      .then(([createdRes, partRes, switchRes]) => {
+        // Merge and deduplicate by _id
+        const all = [...(createdRes.data || []), ...(partRes.data || []), ...(switchRes.data || [])];
+        const unique = Array.from(new Map(all.map(d => [d._id, d])).values());
+        setDares(unique);
+      })
       .catch(() => setDares([]))
       .finally(() => setLoading(false));
-  }, [status, difficulty, search, isPublic, dareType, user]);
+  }, [user]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
