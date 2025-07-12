@@ -56,7 +56,6 @@ export default function Navbar() {
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/123/perform">Perform Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/credits">Credits</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/profile">Profile</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
         </ul>
         <div className="flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
