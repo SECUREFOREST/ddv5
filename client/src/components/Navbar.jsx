@@ -31,7 +31,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-[#060606] border-b border-[#282828] min-h-[50px] mb-6">
-      <div className="container mx-auto flex items-center justify-between px-4" style={{ minHeight: '50px' }}>
+      <div className="container mx-auto flex flex-wrap items-center justify-between px-4 py-2 min-h-[50px]">
         <div className="flex items-center space-x-4">
           <Link className="text-xl font-bold tracking-tight text-white" to="/">DDV5</Link>
         </div>
@@ -49,36 +49,36 @@ export default function Navbar() {
             )}
           </div>
         )}
-        <ul className="flex space-x-4 items-center">
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares">Dares</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create">Create Dare</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches">Switch Games</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/123/perform">Perform Dare</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/leaderboard">Leaderboard</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/credits">Credits</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/profile">Profile</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin">Admin</Link></li>
+        <ul className="flex flex-wrap items-center space-x-6 sm:space-x-8 md:space-x-10 lg:space-x-12">
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dares">Dares</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/123/perform">Perform Dare</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/credits">Credits</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/profile">Profile</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
         </ul>
-        <ul className="flex space-x-4 items-center">
+        <div className="flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
           {user ? (
             <>
-              <li><NotificationDropdown /></li>
-              <li className="flex items-center space-x-2">
+              <NotificationDropdown />
+              <div className="flex items-center space-x-2">
                 {user.avatar ? (
                   <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
                   <span className="font-semibold text-white">{user.username}</span>
                 )}
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
-              </li>
+              </div>
             </>
           ) : (
             <>
-              <li><Link className="text-[#888] hover:text-white transition-colors" to="/login">Login</Link></li>
-              <li><Link className="text-[#888] hover:text-white transition-colors" to="/register">Register</Link></li>
+              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/login">Login</Link>
+              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/register">Register</Link>
             </>
           )}
-        </ul>
+        </div>
       </div>
     </nav>
   );

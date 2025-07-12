@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Dropdown from './Dropdown';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -46,6 +46,8 @@ export default function NotificationDropdown() {
   const [markError, setMarkError] = useState(null);
   const [markAllError, setMarkAllError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Calculate unseenCount
   const unseenCount = notifications.filter(n => !n.read).length;
@@ -85,6 +87,23 @@ export default function NotificationDropdown() {
       if (socket) socket.disconnect();
     };
   }, [accessToken]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -170,23 +189,24 @@ export default function NotificationDropdown() {
   }
 
   return (
-    <div className="relative inline-block">
-      <a
-        className="cursor-pointer relative"
-        data-toggle="dropdown"
-        href="#"
-        tabIndex={0}
+    <div className="relative inline-block" ref={dropdownRef}>
+      <button
+        className="cursor-pointer relative focus:outline-none"
         aria-haspopup="true"
-        aria-expanded="false"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        tabIndex={0}
       >
         <i className="fa fa-bell text-xl" />
         {unseenCount > 0 && (
           <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold">{unseenCount}</span>
         )}
-      </a>
-      <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50 py-1">
-        {items}
-      </ul>
+      </button>
+      {open && (
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50 py-1">
+          {items}
+        </ul>
+      )}
     </div>
   );
 } 

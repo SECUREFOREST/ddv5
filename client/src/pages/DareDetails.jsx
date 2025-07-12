@@ -476,12 +476,12 @@ export default function DareDetails() {
         {atSlotLimit && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
             <b>You have reached the maximum of 5 open dares.</b><br />
-            Complete or reject an act to free up a slot.
+            Complete or reject a dare to free up a slot.
           </div>
         )}
         {roleRestricted && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
-            <b>You do not have the required role to participate in this act.</b><br />
+            <b>You do not have the required role to participate in this dare.</b><br />
             Allowed roles: {dare && dare.allowedRoles ? dare.allowedRoles.join(', ') : ''}
           </div>
         )}

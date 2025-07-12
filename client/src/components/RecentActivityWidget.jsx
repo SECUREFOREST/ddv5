@@ -12,7 +12,7 @@ function timeAgo(date) {
 
 const ICONS = {
   comment: <i className="fa fa-comment text-blue-400 mr-2" />,
-  act: <i className="fa fa-check-circle text-green-500 mr-2" />,
+  dare: <i className="fa fa-check-circle text-green-500 mr-2" />,
   grade: <i className="fa fa-star text-yellow-400 mr-2" />,
   default: <i className="fa fa-circle text-gray-400 mr-2" />,
 };
