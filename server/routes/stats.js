@@ -99,6 +99,7 @@ router.get('/activities', async (req, res) => {
     ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
     res.json(activities);
   } catch (err) {
+    console.error('Failed to get activities:', err);
     res.status(500).json({ error: 'Failed to get activities.' });
   }
 });
