@@ -74,11 +74,16 @@ router.patch('/:id', auth, async (req, res) => {
     if (req.userId !== req.params.id) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
-    const { username, avatar, bio } = req.body;
+    const { username, avatar, bio, fullName, gender, dob, interestedIn, limits } = req.body;
     const update = {};
     if (username) update.username = username;
     if (avatar) update.avatar = avatar;
     if (bio !== undefined) update.bio = bio;
+    if (fullName) update.fullName = fullName;
+    if (gender) update.gender = gender;
+    if (dob) update.dob = dob;
+    if (Array.isArray(interestedIn)) update.interestedIn = interestedIn;
+    if (Array.isArray(limits)) update.limits = limits;
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
     await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
     res.json(user);
