@@ -134,7 +134,8 @@ router.get('/random', auth, async (req, res) => {
     await require('../utils/auditLog').logAudit({ action: 'consent_dare', user: userId, target: dare._id });
     res.json(dare);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch random dare.' });
+    console.error('Error in /random endpoint:', err.message, err.stack);
+    res.status(500).json({ error: 'Failed to get dare.' });
   }
 });
 
