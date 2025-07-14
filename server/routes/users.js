@@ -8,6 +8,23 @@ const Dare = require('../models/Dare');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const { sendNotification } = require('../utils/notification');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Set up storage for avatars
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = path.join(__dirname, '..', 'uploads', 'avatars');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, req.params.id + '-' + Date.now() + ext);
+  }
+});
+const upload = multer({ storage: avatarStorage });
 
 // GET /api/users (admin only)
 router.get('/', auth, checkPermission('view_users'), async (req, res) => {
@@ -133,6 +150,16 @@ router.post('/:id/unblock', auth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to unblock user.' });
   }
+});
+
+// POST /api/users/:id/avatar
+router.post('/:id/avatar', auth, upload.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded.' });
+  }
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  await User.findByIdAndUpdate(req.params.id, { avatar: avatarUrl });
+  res.json({ url: avatarUrl });
 });
 
 // Helper: check if user is admin
