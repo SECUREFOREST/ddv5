@@ -349,9 +349,12 @@ export default function SwitchGameDetails() {
       </div>
       <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
       <div className="mb-2"><b>Participants:</b> {[
-        <span className="inline-flex items-center gap-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
-        <span className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
-      ].filter(Boolean).join(', ') || '-'}</div>
+        game.creator && <span key="creator" className="inline-flex items-center gap-2 mr-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
+        game.participant && <span key="participant" className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
+      ].filter(Boolean).length > 0 ? [
+        game.creator && <span key="creator" className="inline-flex items-center gap-2 mr-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
+        game.participant && <span key="participant" className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
+      ].filter(Boolean) : '-'}</div>
       {/* Difficulty display */}
       <div className="mb-2"><b>Difficulty:</b> {game.creatorDare && game.creatorDare.difficulty ? game.creatorDare.difficulty.charAt(0).toUpperCase() + game.creatorDare.difficulty.slice(1) : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner ? <span className="inline-flex items-center gap-2"><Avatar user={game.winner} size={28} />{game.winner?.username || '[deleted]'}</span> : '-'}</div>
