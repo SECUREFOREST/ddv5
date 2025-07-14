@@ -63,7 +63,7 @@ export default function Tabs({
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
                   className={`w-full flex-grow px-[20px] py-[10px] font-bold text-center focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666] rounded-t-md shadow-md' :
+                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666]' :
                       tab.disabled ? 'bg-[#222] text-[#888] cursor-not-allowed' : 'bg-[#222] text-[#888] hover:bg-[#333]'}
                   `}
                   style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #666' }}
