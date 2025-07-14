@@ -429,21 +429,21 @@ export default function Admin() {
                             <tbody>
                           {dares
                             .filter(d =>
-                                d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
-                                (d.creator?.username || '').toLowerCase().includes(dareSearch.toLowerCase())
+                              (d && typeof d.title === 'string' && d.title.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
                             )
                             .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                             .map(d => (
-                              <tr key={d._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d._id)} onChange={() => toggleDare(d._id)} /></td>
-                                <td className="p-2 font-medium text-primary">{d.title}</td>
-                                <td className="p-2 text-neutral-400">{d.creator?.username || 'Unknown'}</td>
+                              <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
+                                <td className="p-2 font-medium text-primary">{d && typeof d.title === 'string' ? d.title : '-'}</td>
+                                <td className="p-2 text-neutral-400">{d && d.creator?.username ? d.creator.username : 'Unknown'}</td>
                                 <td className="p-2">
-                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d.status === 'pending' ? 'bg-warning text-warning-contrast' : d.status === 'approved' ? 'bg-success text-success-contrast' : d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d.status}</span>
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
                                 </td>
-                                <td className="p-2 text-neutral-400">{d.difficulty}</td>
+                                <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
                                 <td className="p-2 space-x-2">
-                                  {d.status === 'pending' && (
+                                  {d && d.status === 'pending' && (
                                       <>
                                       <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
                                       <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
