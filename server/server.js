@@ -75,7 +75,8 @@ app.use('/switches', require('./routes/switches'));
 app.use('/reports', require('./routes/reports'));
 app.use('/appeals', require('./routes/appeals'));
 app.use('/audit-log', require('./routes/auditLog'));
-app.use('/activity-feed', require('./routes/activityFeed'));
+// Remove the line below, as the activityFeed route has been deleted
+// app.use('/activity-feed', require('./routes/activityFeed'));
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');
