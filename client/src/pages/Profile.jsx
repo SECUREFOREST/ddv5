@@ -7,7 +7,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import StatusBadge from '../components/DareCard';
 
 export default function Profile() {
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, logout } = useAuth();
   const [stats, setStats] = useState(null);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);

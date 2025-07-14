@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
   stats: { type: mongoose.Schema.Types.Mixed },
   blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   banned: { type: Boolean, default: false },
-  actCooldownUntil: { type: Date },
+  dareCooldownUntil: { type: Date },
   openDares: { type: Number, default: 0 },
   consentedDares: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dare' }],
   completedDares: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dare' }],
