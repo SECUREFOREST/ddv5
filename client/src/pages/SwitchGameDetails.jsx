@@ -90,7 +90,7 @@ export default function SwitchGameDetails() {
   }
   // Status badge helper
   const statusBadge = (status) => {
-    if (status === 'open') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Open</span>;
+    if (status === 'waiting_for_participant') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Waiting for Participant</span>;
     if (status === 'in_progress') return <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold ml-2">In Progress</span>;
     if (status === 'awaiting_proof') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Awaiting Proof</span>;
     if (status === 'proof_submitted') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
@@ -141,9 +141,9 @@ export default function SwitchGameDetails() {
     // eslint-disable-next-line
   }, [id]);
 
-  // Poll for updates every 2s if game is open and not completed
+  // Poll for updates every 2s if game is waiting for participant and not completed
   useEffect(() => {
-    if (!game || game.status !== 'open' || game.winner) return;
+    if (!game || game.status !== 'waiting_for_participant' || game.winner) return;
     const interval = setInterval(() => fetchGame(false), 2000); // no loading spinner for polling
     return () => clearInterval(interval);
   }, [game && game.status, game && game.winner]);
@@ -273,8 +273,8 @@ export default function SwitchGameDetails() {
           {errorToast}
         </div>
       )}
-      {/* Only allow join if open and no participant */}
-      {!hasJoined && game.status === 'open' && !game.participant && (
+      {/* Only allow join if waiting for participant and no participant */}
+      {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && (
         <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={handleJoin} disabled={joining}>
           {joining ? 'Joining...' : 'Join Switch Game'}
         </button>

@@ -115,7 +115,7 @@ router.get('/random', auth, async (req, res) => {
       ...(user.consentedDares || []),
       ...(user.completedDares || [])
     ];
-    const filter = { status: 'open', performer: { $exists: false } };
+    const filter = { status: 'waiting_for_participant', performer: { $exists: false } };
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
     const count = await Dare.countDocuments(filter);
@@ -150,6 +150,7 @@ router.post('/', auth, async (req, res) => {
       tags: Array.isArray(tags) ? tags : [],
       creator: req.userId,
       assignedSwitch: assignedSwitch || undefined,
+      status: 'waiting_for_participant', // Updated to match new status
     });
     await dare.save();
     await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
@@ -297,6 +298,7 @@ router.post('/:id/accept', auth, async (req, res) => {
     if (dare.performer) return res.status(400).json({ error: 'Dare already has a performer.' });
     if (!dare.difficulty && difficulty) dare.difficulty = difficulty;
     dare.performer = req.userId;
+    dare.status = 'waiting_for_participant'; // Reset to available
     await dare.save();
     res.json({ message: 'You are now the performer for this dare.', dare });
   } catch (err) {

@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
     }
     const game = new SwitchGame({
-      status: 'open',
+      status: 'waiting_for_participant',
       creator,
       creatorDare: { description, difficulty, move },
     });

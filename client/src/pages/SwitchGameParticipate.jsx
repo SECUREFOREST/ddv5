@@ -23,7 +23,7 @@ export default function SwitchGameParticipate() {
   useEffect(() => {
     setLoading(true);
     api.get('/switches')
-      .then(res => setGames(Array.isArray(res.data) ? res.data.filter(g => g.status === 'open' && !g.participant) : []))
+      .then(res => setGames(Array.isArray(res.data) ? res.data.filter(g => g.status === 'waiting_for_participant' && !g.participant) : []))
       .catch(() => setGames([]))
       .finally(() => setLoading(false));
   }, []);
@@ -64,9 +64,9 @@ export default function SwitchGameParticipate() {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">{toast}</div>
       )}
       {loading ? (
-        <div className="text-center text-neutral-400">Loading open switch games...</div>
+        <div className="text-center text-neutral-400">Loading available switch games...</div>
       ) : games.length === 0 ? (
-        <div className="text-center text-neutral-400">No open switch games available.</div>
+        <div className="text-center text-neutral-400">No switch games are currently waiting for a participant.</div>
       ) : (
         <div className="overflow-x-auto rounded shadow">
           <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
