@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Dare = require('../models/Dare');
+const auth = require('../middleware/auth');
 
 // GET /api/stats/leaderboard - top users by dares created
-router.get('/leaderboard', async (req, res) => {
+router.get('/leaderboard', auth, async (req, res) => {
   try {
     // Aggregate users by number of dares created
     const topUsers = await Dare.aggregate([
@@ -14,14 +15,19 @@ router.get('/leaderboard', async (req, res) => {
     ]);
     // Populate user info
     const users = await User.find({ _id: { $in: topUsers.map(u => u._id) } }, 'username avatar');
+    // Fetch blocked users for filtering
+    const currentUser = await User.findById(req.userId).select('blockedUsers');
     // Merge stats
-    const leaderboard = topUsers.map(u => {
+    let leaderboard = topUsers.map(u => {
       const user = users.find(us => us._id.toString() === (u._id ? u._id.toString() : ''));
       return {
         user: user ? { id: user._id, username: user.username, avatar: user.avatar } : { id: null, username: '[deleted]', avatar: null },
         daresCount: u.daresCount,
       };
     });
+    if (currentUser && currentUser.blockedUsers && currentUser.blockedUsers.length > 0) {
+      leaderboard = leaderboard.filter(entry => entry.user && entry.user.id && !currentUser.blockedUsers.map(bu => bu.toString()).includes(entry.user.id.toString()));
+    }
     res.json(leaderboard);
   } catch (err) {
     res.status(500).json({ error: 'Failed to get leaderboard.' });

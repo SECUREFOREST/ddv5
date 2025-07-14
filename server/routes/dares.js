@@ -55,7 +55,7 @@ async function checkSlotAndCooldownAtomic(userId) {
 }
 
 // GET /api/dares - list dares (optionally filter by status, difficulty, public, dareType, allowedRoles)
-router.get('/', async (req, res, next) => {
+router.get('/', auth, async (req, res, next) => {
   try {
     const { status, difficulty, public: isPublic, dareType, role } = req.query;
     const filter = {};
@@ -68,13 +68,22 @@ router.get('/', async (req, res, next) => {
       { allowedRoles: { $size: 0 } },
       { allowedRoles: role }
     ];
+    // Fetch blocked users for filtering
+    const user = await User.findById(req.userId).select('blockedUsers');
     const dares = await Dare.find(filter)
       .populate('creator', 'username avatar')
       .populate('performer', 'username avatar')
       .populate('assignedSwitch', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } })
       .sort({ createdAt: -1 });
-    res.json(dares);
+    // Filter out dares involving blocked users
+    const filteredDares = user && user.blockedUsers && user.blockedUsers.length > 0
+      ? dares.filter(dare => {
+          const ids = [dare.creator?._id?.toString(), dare.performer?._id?.toString(), dare.assignedSwitch?._id?.toString()];
+          return !ids.some(id => id && user.blockedUsers.map(bu => bu.toString()).includes(id));
+        })
+      : dares;
+    res.json(filteredDares);
   } catch (err) {
     next(err);
   }

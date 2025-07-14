@@ -11,9 +11,21 @@ function getUsername(req) {
   return req.body.username || req.query.username || 'anonymous';
 }
 
-// GET /api/switches - list all switch games
-router.get('/', async (req, res) => {
-  const games = await SwitchGame.find().sort({ createdAt: -1 });
+// GET /api/switches - list all switch games (auth required, filter out blocked users)
+const User = require('../models/User');
+const auth = require('../middleware/auth');
+router.get('/', auth, async (req, res) => {
+  const user = await User.findById(req.userId).select('blockedUsers');
+  let games = await SwitchGame.find().sort({ createdAt: -1 });
+  if (user && user.blockedUsers && user.blockedUsers.length > 0) {
+    games = games.filter(g => {
+      // If creator or participant is blocked, filter out
+      const creatorId = g.creator?._id?.toString() || g.creator?.toString();
+      const participantId = g.participant?._id?.toString() || g.participant?.toString();
+      return !user.blockedUsers.map(bu => bu.toString()).includes(creatorId) &&
+             (!participantId || !user.blockedUsers.map(bu => bu.toString()).includes(participantId));
+    });
+  }
   res.json(games);
 });
 

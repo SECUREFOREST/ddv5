@@ -3,13 +3,14 @@ const router = express.Router();
 const Comment = require('../models/Comment');
 const Dare = require('../models/Dare');
 const auth = require('../middleware/auth');
+const User = require('../models/User');
 const Report = require('../models/Report');
 const { logActivity } = require('../utils/activity');
 const { checkPermission } = require('../utils/permissions');
 const { sendNotification } = require('../utils/notification');
 
 // GET /api/comments?dare=dareId - list comments, optionally filter by dare
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const { dare } = req.query;
     const filter = {};
@@ -18,7 +19,12 @@ router.get('/', async (req, res) => {
       .populate('author', 'username avatar')
       .populate({ path: 'replies', populate: { path: 'author', select: 'username avatar' } })
       .sort({ createdAt: -1 });
-    res.json(comments);
+    // Fetch blocked users for filtering
+    const currentUser = await User.findById(req.userId).select('blockedUsers');
+    const filteredComments = currentUser && currentUser.blockedUsers && currentUser.blockedUsers.length > 0
+      ? comments.filter(c => c.author && c.author._id && !currentUser.blockedUsers.map(bu => bu.toString()).includes(c.author._id.toString()))
+      : comments;
+    res.json(filteredComments);
   } catch (err) {
     res.status(500).json({ error: 'Failed to list comments.' });
   }

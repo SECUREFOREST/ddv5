@@ -108,6 +108,26 @@ router.post('/:id/block', auth, async (req, res) => {
   }
 });
 
+// POST /api/users/:id/unblock (unblock another user)
+router.post('/:id/unblock', auth, async (req, res) => {
+  try {
+    if (req.userId === req.params.id) {
+      return res.status(400).json({ error: 'Cannot unblock yourself.' });
+    }
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    const idx = user.blockedUsers.indexOf(req.params.id);
+    if (idx !== -1) {
+      user.blockedUsers.splice(idx, 1);
+      await user.save();
+      await logAudit({ action: 'unblock_user', user: req.userId, target: req.params.id });
+    }
+    res.json({ message: 'User unblocked.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to unblock user.' });
+  }
+});
+
 // Helper: check if user is admin
 function isAdmin(req, res, next) {
   User.findById(req.userId).then(user => {

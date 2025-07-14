@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
@@ -11,6 +12,7 @@ const DIFFICULTIES = [
 ];
 
 export default function SwitchGameParticipate() {
+  const { user } = useAuth();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -82,7 +84,7 @@ export default function SwitchGameParticipate() {
               {games.map((g) => (
                 <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                   <td className="p-2 font-medium text-primary">{g.title || g.name || 'Untitled'}</td>
-                  <td className="p-2">{g.creator || '-'}</td>
+                  <td className="p-2">{g.creator?.username || g.creator || '-'}</td>
                   <td className="p-2">
                     <button className="bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark" onClick={() => handleParticipate(g)}>
                       Participate

@@ -7,7 +7,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import StatusBadge from '../components/DareCard';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, accessToken } = useAuth();
   const [stats, setStats] = useState(null);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
@@ -18,6 +18,8 @@ export default function Profile() {
   const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
   const [userActivitiesLoading, setUserActivitiesLoading] = useState(true);
+  const [blockedUsersInfo, setBlockedUsersInfo] = useState([]);
+  const [unblockStatus, setUnblockStatus] = useState({}); // { userId: 'idle' | 'unblocking' | 'error' }
 
   useEffect(() => {
     if (!user) return;
@@ -31,6 +33,14 @@ export default function Profile() {
       .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUserActivities([]))
       .finally(() => setUserActivitiesLoading(false));
+    // Fetch info for blocked users
+    if (user.blockedUsers && user.blockedUsers.length > 0) {
+      Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
+        .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data)))
+        .catch(() => setBlockedUsersInfo([]));
+    } else {
+      setBlockedUsersInfo([]);
+    }
   }, [user]);
 
   const handleSave = async (e) => {
@@ -44,6 +54,22 @@ export default function Profile() {
       setError(err.response?.data?.error || 'Failed to update profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUnblock = async (blockedUserId) => {
+    setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
+    try {
+      await api.post(`/users/${blockedUserId}/unblock`);
+      // Remove from local blockedUsers and blockedUsersInfo
+      if (user && user.blockedUsers) {
+        const idx = user.blockedUsers.indexOf(blockedUserId);
+        if (idx !== -1) user.blockedUsers.splice(idx, 1);
+      }
+      setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
+      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
+    } catch (err) {
+      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
     }
   };
 
@@ -173,6 +199,36 @@ export default function Profile() {
           onChange={setTabIdx}
         />
       </div>
+      {/* Blocked Users Section */}
+      {blockedUsersInfo.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold mb-2 text-primary">Blocked Users</h2>
+          <ul className="space-y-3">
+            {blockedUsersInfo.map(bu => (
+              <li key={bu._id} className="flex items-center gap-3 bg-neutral-900 rounded p-3">
+                {bu.avatar ? (
+                  <img src={bu.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-lg font-bold">
+                    {bu.username[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="font-medium text-[#eee]">{bu.username}</span>
+                <button
+                  className="ml-auto px-3 py-1 rounded bg-warning text-warning-contrast font-semibold text-xs hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={() => handleUnblock(bu._id)}
+                  disabled={unblockStatus[bu._id] === 'unblocking'}
+                >
+                  {unblockStatus[bu._id] === 'unblocking' ? 'Unblocking...' : 'Unblock'}
+                </button>
+                {unblockStatus[bu._id] === 'error' && (
+                  <span className="text-danger text-xs ml-2">Error</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
