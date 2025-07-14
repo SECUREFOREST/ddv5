@@ -10,7 +10,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
   const user = await User.findById(req.userId).select('blockedUsers');
-  let games = await SwitchGame.find().sort({ createdAt: -1 });
+  let games = await SwitchGame.find().populate('creator participant winner proof.user').sort({ createdAt: -1 });
   if (user && user.blockedUsers && user.blockedUsers.length > 0) {
     games = games.filter(g => {
       // If creator or participant is blocked, filter out
@@ -25,7 +25,7 @@ router.get('/', auth, async (req, res) => {
 
 // GET /api/switches/:id - get game details (auth required)
 router.get('/:id', auth, async (req, res) => {
-  const game = await SwitchGame.findById(req.params.id);
+  const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
   if (!game) return res.status(404).json({ error: 'Not found' });
   res.json(game);
 });
@@ -34,7 +34,7 @@ router.get('/:id', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const { description, difficulty, move } = req.body;
-    const creator = req.user.username; // Use authenticated user's username
+    const creator = req.userId; // Use authenticated user's ID
     if (!description || !difficulty || !move) {
       return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
     }
@@ -44,6 +44,7 @@ router.post('/', auth, async (req, res) => {
       creatorDare: { description, difficulty, move },
     });
     await game.save();
+    await game.populate('creator');
     res.status(201).json(game);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to create switch game.' });
@@ -53,17 +54,18 @@ router.post('/', auth, async (req, res) => {
 // POST /api/switches/:id/join - join a game (auth required)
 router.post('/:id/join', auth, async (req, res) => {
   try {
-    const username = req.user.username; // Use authenticated user's username
+    const userId = req.userId;
     const { difficulty, move, consent } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (game.participant) throw new Error('This switch game already has a participant.');
-    if (game.creator === username) throw new Error('Creator cannot join as participant.');
+    if (game.creator.equals(userId)) throw new Error('Creator cannot join as participant.');
     if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
-    game.participant = username;
+    game.participant = userId;
     game.participantDare = { difficulty, move, consent };
     game.status = 'in_progress';
     await game.save();
+    await game.populate('participant');
     res.json(game);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to join switch game.' });
@@ -73,18 +75,18 @@ router.post('/:id/join', auth, async (req, res) => {
 // POST /api/switches/:id/move - submit RPS move (auth required)
 router.post('/:id/move', auth, async (req, res) => {
   try {
-    const username = req.user.username; // Use authenticated user's username
+    const userId = req.userId;
     const { move } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (!game.participant || !game.creator) throw new Error('Game is not ready.');
-    if (![game.creator, game.participant].includes(username)) throw new Error('Not a participant');
+    if (![game.creator.toString(), game.participant?.toString()].includes(userId)) throw new Error('Not a participant');
     if (!['rock', 'paper', 'scissors'].includes(move)) throw new Error('Invalid move');
     // Only allow each user to submit their move once
-    if (username === game.creator && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
-    if (username === game.participant && game.participantDare.move) throw new Error('Participant has already submitted a move.');
-    if (username === game.creator) game.creatorDare.move = move;
-    if (username === game.participant) game.participantDare.move = move;
+    if (userId === game.creator.toString() && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
+    if (userId === game.participant?.toString() && game.participantDare.move) throw new Error('Participant has already submitted a move.');
+    if (userId === game.creator.toString()) game.creatorDare.move = move;
+    if (userId === game.participant?.toString()) game.participantDare.move = move;
     // If both moves present, determine winner
     let winner = null, loser = null;
     if (game.creatorDare.move && game.participantDare.move && !game.winner) {
@@ -114,6 +116,7 @@ router.post('/:id/move', auth, async (req, res) => {
       }
     }
     await game.save();
+    await game.populate('creator participant winner');
     res.json(game);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to submit move.' });
@@ -123,11 +126,11 @@ router.post('/:id/move', auth, async (req, res) => {
 // POST /api/switches/:id/proof - submit proof (auth required)
 router.post('/:id/proof', auth, async (req, res) => {
   try {
-    const username = req.user.username; // Use authenticated user's username
+    const userId = req.userId;
     const { text, expireAfterView } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
-    if (!game.winner || ![game.creator, game.participant].includes(username) || username !== game.loser) {
+    if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
       throw new Error('Only the loser can submit proof');
     }
     if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
@@ -136,7 +139,7 @@ router.post('/:id/proof', auth, async (req, res) => {
       await game.save();
       return res.status(400).json({ error: 'Proof submission window has expired.' });
     }
-    game.proof = { user: username, text };
+    game.proof = { user: userId, text };
     game.status = 'proof_submitted';
     if (expireAfterView) {
       game.expireProofAfterView = true;
@@ -146,6 +149,7 @@ router.post('/:id/proof', auth, async (req, res) => {
       game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
     }
     await game.save();
+    await game.populate('proof.user');
     res.json(game);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to submit proof.' });
@@ -155,10 +159,10 @@ router.post('/:id/proof', auth, async (req, res) => {
 // PATCH /api/switches/:id/proof-viewed - mark proof as viewed (auth required)
 router.patch('/:id/proof-viewed', auth, async (req, res) => {
   try {
-    const username = req.user.username; // Use authenticated user's username
+    const userId = req.userId;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
-    if (username !== game.creator) throw new Error('Only the creator can mark proof as viewed.');
+    if (!game.creator.equals(userId)) throw new Error('Only the creator can mark proof as viewed.');
     if (game.expireProofAfterView && !game.proofViewedAt) {
       game.proofViewedAt = new Date();
       game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -173,25 +177,25 @@ router.patch('/:id/proof-viewed', auth, async (req, res) => {
 // POST /api/switches/:id/forfeit - creator or participant forfeits (chickens out) of a switch game
 router.post('/:id/forfeit', auth, async (req, res) => {
   try {
-    const username = req.user.username;
+    const userId = req.userId;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) return res.status(404).json({ error: 'Switch game not found.' });
     if (game.status !== 'in_progress') {
       return res.status(400).json({ error: 'Only in-progress games can be forfeited.' });
     }
-    if (![game.creator, game.participant].includes(username)) {
+    if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
       return res.status(403).json({ error: 'Only the creator or participant can forfeit this game.' });
     }
     game.status = 'forfeited';
     game.updatedAt = new Date();
     await game.save();
     // Notify the other user
-    const otherUser = username === game.creator ? game.participant : game.creator;
+    const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
     if (otherUser) {
       await sendNotification(
         otherUser,
         'switchgame_forfeited',
-        `${username} has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
+        `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
       );
     }
     // Optionally log the action (if you have a logActivity util for switch games)

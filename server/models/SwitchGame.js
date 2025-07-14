@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const SwitchGameSchema = new mongoose.Schema({
   status: { type: String, enum: ['open', 'in_progress', 'completed', 'proof_submitted', 'awaiting_proof', 'expired', 'forfeited'], default: 'open' },
-  creator: { type: String, required: true }, // username
-  participant: { type: String }, // username
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  participant: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   creatorDare: {
     description: { type: String, required: true },
     difficulty: { type: String, required: true },
@@ -14,9 +14,9 @@ const SwitchGameSchema = new mongoose.Schema({
     move: { type: String, enum: ['rock', 'paper', 'scissors'] },
     consent: { type: Boolean }
   },
-  winner: { type: String }, // username
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   proof: {
-    user: String, // username of loser
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // userId of loser
     text: String, // proof text or link
   },
   proofExpiresAt: { type: Date }, // 48h after proof submission or view

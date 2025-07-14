@@ -279,8 +279,8 @@ export default function SwitchGameDetails() {
       </div>
       <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
       <div className="mb-2"><b>Participants:</b> {[
-        game.creator,
-        game.participant
+        game.creator?.username || '[deleted]',
+        game.participant?.username || '[deleted]'
       ].filter(Boolean).join(', ') || '-'}</div>
       {/* Difficulty display */}
       <div className="mb-2"><b>Difficulty:</b> {game.creatorDare && game.creatorDare.difficulty ? game.creatorDare.difficulty.charAt(0).toUpperCase() + game.creatorDare.difficulty.slice(1) : '-'}</div>
@@ -392,7 +392,7 @@ export default function SwitchGameDetails() {
         </div>
       )}
       {/* Chicken Out button for creator or participant when in progress */}
-      {game.status === 'in_progress' && (username === game.creator || username === game.participant) && (
+      {game.status === 'in_progress' && (user?._id === game.creator?._id || user?._id === game.participant?._id) && (
         <div className="mt-6">
           <button
             className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"

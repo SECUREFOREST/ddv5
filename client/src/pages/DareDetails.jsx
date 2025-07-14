@@ -352,7 +352,10 @@ export default function DareDetails() {
           </div>
         )}
         <div className="text-neutral-400 mb-4 text-center">
-          By {dare?.creator?.username || 'Unknown'} | Status: <StatusBadge status={dare?.status} /> | Difficulty: {dare?.difficulty}
+          By {dare?.creator?.username || 'Unknown'} |
+          Participant: {dare?.performer?.username || 'None yet'} |
+          Status: <StatusBadge status={dare?.status} /> |
+          Difficulty: {dare?.difficulty}
         </div>
         {/* Proof expiration countdown and message */}
         {dare && dare.proofExpiresAt && !proofExpired && (

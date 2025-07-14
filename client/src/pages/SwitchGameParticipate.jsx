@@ -91,7 +91,7 @@ export default function SwitchGameParticipate() {
               {games.map((g) => (
                 <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                   <td className="p-2 font-medium text-primary">{g.title || g.name || 'Untitled'}</td>
-                  <td className="p-2">{g.creator?.username || g.creator || '-'}</td>
+                  <td className="p-2">{g.creator && typeof g.creator === 'object' ? (g.creator.username || '[deleted]') : '-'}</td>
                   <td className="p-2">
                     <button className="bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark" onClick={() => handleParticipate(g)}>
                       Participate
