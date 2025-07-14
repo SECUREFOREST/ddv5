@@ -118,7 +118,10 @@ router.get('/random', auth, async (req, res) => {
     const filter = { status: 'waiting_for_participant', performer: null };
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
+    console.log('Random dare filter:', filter);
+    console.log('Exclude dares:', excludeDares);
     const count = await Dare.countDocuments(filter);
+    console.log('Matching dare count:', count);
     if (count === 0) {
       console.warn('No dares found matching filter:', filter);
       return res.json({});
