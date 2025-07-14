@@ -48,36 +48,41 @@ export default function Tabs({
         <div className="bg-warning bg-opacity-10 text-warning p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          <ul className="flex border-b border-[#888] mb-4" role="tablist">
-            {tabs.map((tab, idx) => (
-              <li key={tab.label} className="flex-1" role="presentation">
-                <button
-                  ref={el => tabRefs.current[idx] = el}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedIndex === idx}
-                  aria-controls={`tabpanel-${idx}`}
-                  id={`tab-${idx}`}
-                  tabIndex={selectedIndex === idx ? 0 : -1}
-                  onClick={() => handleTabClick(idx)}
-                  onKeyDown={handleKeyDown}
-                  disabled={tab.disabled}
-                  className={`w-full flex-grow px-0 py-3 font-bold text-center focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx
-                      ? 'bg-[#D60B20] text-white border-x border-t border-[#D60B20] border-b-0 z-10'
-                      : 'bg-transparent text-[#aaa] border-0'}
-                  `}
-                  style={{
-                    borderBottom: selectedIndex === idx ? 'none' : '2px solid #888',
-                    marginBottom: selectedIndex === idx ? '-2px' : '0',
-                    borderRadius: 0,
-                  }}
-                >
-                  {tab.label}
-                </button>
-              </li>
-            ))}
-          </ul>
+          {/* Tab bar with continuous line */}
+          <div className="relative mb-4">
+            <ul className="flex z-10 relative" role="tablist">
+              {tabs.map((tab, idx) => (
+                <li key={tab.label} className="flex-1" role="presentation">
+                  <button
+                    ref={el => tabRefs.current[idx] = el}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedIndex === idx}
+                    aria-controls={`tabpanel-${idx}`}
+                    id={`tab-${idx}`}
+                    tabIndex={selectedIndex === idx ? 0 : -1}
+                    onClick={() => handleTabClick(idx)}
+                    onKeyDown={handleKeyDown}
+                    disabled={tab.disabled}
+                    className={`w-full flex-grow px-0 py-3 font-bold text-center focus:outline-none transition-colors duration-200 whitespace-nowrap
+                      ${selectedIndex === idx
+                        ? 'bg-[#D60B20] text-white border-x border-t border-[#D60B20] border-b-0 z-10'
+                        : 'bg-transparent text-[#aaa] border-0'}
+                    `}
+                    style={{
+                      borderBottom: selectedIndex === idx ? 'none' : '2px solid transparent',
+                      marginBottom: selectedIndex === idx ? '-2px' : '0',
+                      borderRadius: 0,
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {/* Continuous line under all tabs */}
+            <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-[#888] z-0" />
+          </div>
           <div className="bg-[#222] rounded-none p-[15px]">
             {tabs.map((tab, idx) => (
               <div
