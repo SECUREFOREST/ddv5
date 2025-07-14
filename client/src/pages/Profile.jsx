@@ -184,6 +184,23 @@ export default function Profile() {
                     <button className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
                       Logout
                     </button>
+                    {/* Add Upgrade to Admin button (temporarily for all users) */}
+                    <button
+                      className="bg-warning text-warning-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark"
+                      onClick={async () => {
+                        if (!user || !(user.id || user._id)) return;
+                        const userId = user.id || user._id;
+                        try {
+                          await api.patch(`/users/${userId}`, { role: 'admin' });
+                          alert('User upgraded to admin!');
+                          window.location.reload();
+                        } catch (err) {
+                          alert('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
+                        }
+                      }}
+                    >
+                      Upgrade to Admin
+                    </button>
                   </div>
                   <div className="flex-1 min-w-[220px]">
                     <div><strong>Username:</strong> {user.username}</div>
