@@ -119,7 +119,10 @@ router.get('/random', auth, async (req, res) => {
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
     const count = await Dare.countDocuments(filter);
-    if (count === 0) return res.json({});
+    if (count === 0) {
+      console.warn('No dares found matching filter:', filter);
+      return res.json({});
+    }
     const rand = Math.floor(Math.random() * count);
     // Atomically assign the dare to this user if not already taken
     const dare = await Dare.findOneAndUpdate(
@@ -127,7 +130,10 @@ router.get('/random', auth, async (req, res) => {
       { performer: userId, status: 'in_progress', updatedAt: new Date() },
       { skip: rand, new: true }
     );
-    if (!dare) return res.json({});
+    if (!dare) {
+      console.warn('No dare could be assigned (possibly race condition), filter:', filter, 'rand:', rand);
+      return res.json({});
+    }
     // Track consent in user
     await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedDares: dare._id } });
     // Audit log
