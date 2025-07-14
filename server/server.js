@@ -88,6 +88,12 @@ app.get('/status', (req, res) => {
   });
 });
 
+// Add before the error handler
+app.all('*', (req, res) => {
+  console.log('server.js catch-all:', req.method, req.originalUrl);
+  res.status(404).json({ error: 'Not found in server.js' });
+});
+
 // Centralized error handler
 app.use((err, req, res, next) => {
   res.header('Access-Control-Allow-Origin', FRONTEND_URL);

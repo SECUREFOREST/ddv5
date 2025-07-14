@@ -188,4 +188,9 @@ router.post('/../auth/impersonate/:id', auth, isAdmin, async (req, res) => {
   }
 });
 
+router.all('*', (req, res) => {
+  console.log('users.js catch-all:', req.method, req.originalUrl);
+  res.status(404).json({ error: 'Not found in users.js' });
+});
+
 module.exports = router; 
