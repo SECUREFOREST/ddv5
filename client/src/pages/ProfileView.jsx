@@ -150,6 +150,18 @@ export default function ProfileView() {
               <div className="mt-1"><Markdown>{profile.bio}</Markdown></div>
             </div>
           )}
+          {profile.gender && (
+            <div className="mt-2"><strong>Gender:</strong> {profile.gender}</div>
+          )}
+          {profile.dob && (
+            <div className="mt-2"><strong>Birth Date:</strong> {new Date(profile.dob).toLocaleDateString()}</div>
+          )}
+          {profile.interestedIn && profile.interestedIn.length > 0 && (
+            <div className="mt-2"><strong>Interested In:</strong> {profile.interestedIn.join(', ')}</div>
+          )}
+          {profile.limits && profile.limits.length > 0 && (
+            <div className="mt-2"><strong>Limits:</strong> {profile.limits.join(', ')}</div>
+          )}
           {stats && (
             <div className="flex gap-4 mt-4">
               <div className="bg-neutral-900 rounded p-3 flex-1">

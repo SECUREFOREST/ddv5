@@ -20,6 +20,10 @@ export default function Profile() {
   const [userActivitiesLoading, setUserActivitiesLoading] = useState(true);
   const [blockedUsersInfo, setBlockedUsersInfo] = useState([]);
   const [unblockStatus, setUnblockStatus] = useState({}); // { userId: 'idle' | 'unblocking' | 'error' }
+  const [gender, setGender] = useState(user?.gender || '');
+  const [dob, setDob] = useState(user?.dob ? user.dob.slice(0, 10) : '');
+  const [interestedIn, setInterestedIn] = useState(user?.interestedIn || []);
+  const [limits, setLimits] = useState(user?.limits || []);
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -48,7 +52,7 @@ export default function Profile() {
     setSaving(true);
     setError('');
     try {
-      await api.patch(`/users/${user.id}`, { username, avatar, bio });
+      await api.patch(`/users/${user.id}`, { username, avatar, bio, gender, dob, interestedIn, limits });
       window.location.reload(); // reload to update context
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
@@ -113,6 +117,18 @@ export default function Profile() {
                         <span className="text-neutral-400 ml-2">No bio provided.</span>
                       )}
                     </div>
+                    {user.gender && (
+                      <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
+                    )}
+                    {user.dob && (
+                      <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
+                    )}
+                    {user.interestedIn && user.interestedIn.length > 0 && (
+                      <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
+                    )}
+                    {user.limits && user.limits.length > 0 && (
+                      <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
+                    )}
                     {stats && (
                       <div className="flex gap-4 mt-4">
                         <div className="bg-neutral-900 rounded p-3 flex-1">
@@ -181,6 +197,22 @@ export default function Profile() {
                         <span className="text-neutral-400 text-xs">Preview:</span>
                         <Markdown>{bio}</Markdown>
                       </div>
+                    </div>
+                    <div>
+                      <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
+                      <input type="text" id="gender" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} />
+                    </div>
+                    <div>
+                      <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Birth Date</label>
+                      <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} />
+                    </div>
+                    <div>
+                      <label htmlFor="interestedIn" className="block font-semibold mb-1 text-primary">Interested In (comma separated)</label>
+                      <input type="text" id="interestedIn" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={interestedIn.join(', ')} onChange={e => setInterestedIn(e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
+                    </div>
+                    <div>
+                      <label htmlFor="limits" className="block font-semibold mb-1 text-primary">Limits (comma separated)</label>
+                      <input type="text" id="limits" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={limits.join(', ')} onChange={e => setLimits(e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
                     </div>
                     {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
                     <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
