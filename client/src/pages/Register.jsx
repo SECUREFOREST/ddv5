@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
+import { Banner } from '../components/Modal';
 
 export default function Register() {
   const { register } = useAuth();
@@ -168,8 +169,8 @@ export default function Register() {
           <label className="block font-semibold mb-1 text-primary">Limits</label>
           <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
         </div>
-        {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
-        {success && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{success}</div>}
+        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+        {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"

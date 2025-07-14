@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { Banner } from '../components/Modal';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -45,8 +46,8 @@ export default function ResetPassword() {
             required
           />
         </div>
-        {message && <div className="text-success text-sm font-medium">{message}</div>}
-        {error && <div className="text-danger text-sm font-medium">{error}</div>}
+        {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
+        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"

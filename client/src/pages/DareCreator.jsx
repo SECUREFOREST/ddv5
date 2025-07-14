@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { Banner } from '../components/Modal';
 
 export default function DareCreator() {
   const [description, setDescription] = useState('');
@@ -11,12 +12,17 @@ export default function DareCreator() {
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
   const navigate = useNavigate();
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreateError('');
+    setGeneralError('');
+    setGeneralSuccess('');
     if (description.trim().length < 10) {
       setCreateError('Description must be at least 10 characters.');
+      setGeneralError('Description must be at least 10 characters.');
       return;
     }
     setCreating(true);
@@ -28,9 +34,11 @@ export default function DareCreator() {
       setCreatedDareId(res.data._id || res.data.id);
       setShowModal(true);
       setToast('Dare created successfully!');
-      setTimeout(() => setToast(''), 3000);
+      setGeneralSuccess('Dare created successfully!');
+      setTimeout(() => { setToast(''); setGeneralSuccess(''); }, 3000);
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create dare');
+      setGeneralError(err.response?.data?.error || 'Failed to create dare');
     } finally {
       setCreating(false);
     }
@@ -47,7 +55,8 @@ export default function DareCreator() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Create a Dare</h1>
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">

@@ -8,6 +8,7 @@ import LeaderboardWidget from '../components/LeaderboardWidget';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import DashboardChart from '../components/DashboardChart';
 import { Link } from 'react-router-dom';
+import { Banner } from '../components/Modal';
 
 const TABS = [
   { key: 'in_progress', label: 'Perform' },
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const [leadersLoading, setLeadersLoading] = useState(true);
   const [activities, setActivities] = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [error, setError] = useState('');
   const { user } = useAuth();
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function Dashboard() {
     setLoading(true);
     api.get('/dares', { params: { status: tab } })
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setDares([]))
+      .catch(() => { setDares([]); setError('Failed to load dares.'); })
       .finally(() => setLoading(false));
   }, [tab, user]);
 
@@ -40,13 +42,13 @@ export default function Dashboard() {
     if (!user) return;
     api.get(`/stats/users/${user.id}`)
       .then(res => setStats(res.data))
-      .catch(() => setStats(null));
+      .catch(() => { setStats(null); setError('Failed to load stats.'); });
   }, [user]);
 
   useEffect(() => {
     api.get('/stats/leaderboard', { params: { limit: 5 } })
       .then(res => setLeaders(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setLeaders([]))
+      .catch(() => { setLeaders([]); setError('Failed to load leaderboard.'); })
       .finally(() => setLeadersLoading(false));
   }, []);
 
@@ -54,7 +56,7 @@ export default function Dashboard() {
     if (!user || !(user.id || user._id)) return;
     api.get('/stats/activities', { params: { limit: 10, userId: user.id || user._id } })
       .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActivities([]))
+      .catch(() => { setActivities([]); setError('Failed to load recent activities.'); })
       .finally(() => setActivitiesLoading(false));
   }, [user]);
 
@@ -64,6 +66,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Dashboard</h1>
       </div>
       <div>
+        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
         {loading && (
           <div className="text-center text-neutral-400 mb-4" role="status" aria-live="polite">Loading...</div>
         )}

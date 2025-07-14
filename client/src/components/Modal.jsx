@@ -55,4 +55,21 @@ export default function Modal({ open, onClose, title, children, actions, classNa
       </div>
     </div>
   );
+}
+
+// Banner component for error/success/info feedback
+export function Banner({ type = 'info', message = '', onClose }) {
+  if (!message) return null;
+  let bg = 'bg-info text-info-contrast';
+  if (type === 'error') bg = 'bg-danger text-danger-contrast';
+  if (type === 'success') bg = 'bg-success text-success-contrast';
+  if (type === 'warning') bg = 'bg-warning text-warning-contrast';
+  return (
+    <div className={`w-full px-4 py-3 mb-4 rounded flex items-center justify-between ${bg}`} role="alert" aria-live="assertive">
+      <span>{message}</span>
+      {onClose && (
+        <button className="ml-4 text-lg font-bold focus:outline-none" onClick={onClose} aria-label="Close">&times;</button>
+      )}
+    </div>
+  );
 } 

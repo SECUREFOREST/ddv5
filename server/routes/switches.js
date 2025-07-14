@@ -5,13 +5,6 @@ const Dare = require('../models/Dare');
 const { sendNotification } = require('../utils/notification');
 const mongoose = require('mongoose');
 
-// TODO: Replace with real auth middleware
-function getUsername(req) {
-  // Use authenticated user's username if available
-  if (req.user && req.user.username) return req.user.username;
-  return req.body.username || req.query.username || 'anonymous';
-}
-
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');
 const auth = require('../middleware/auth');
@@ -30,18 +23,18 @@ router.get('/', auth, async (req, res) => {
   res.json(games);
 });
 
-// GET /api/switches/:id - get game details
-router.get('/:id', async (req, res) => {
+// GET /api/switches/:id - get game details (auth required)
+router.get('/:id', auth, async (req, res) => {
   const game = await SwitchGame.findById(req.params.id);
   if (!game) return res.status(404).json({ error: 'Not found' });
   res.json(game);
 });
 
-// POST /api/switches - create new game
-router.post('/', async (req, res) => {
+// POST /api/switches - create new game (auth required)
+router.post('/', auth, async (req, res) => {
   try {
     const { description, difficulty, move } = req.body;
-    const creator = getUsername(req);
+    const creator = req.user.username; // Use authenticated user's username
     if (!description || !difficulty || !move) {
       return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
     }
@@ -57,10 +50,10 @@ router.post('/', async (req, res) => {
   }
 });
 
-// POST /api/switches/:id/join - join a game
-router.post('/:id/join', async (req, res) => {
+// POST /api/switches/:id/join - join a game (auth required)
+router.post('/:id/join', auth, async (req, res) => {
   try {
-    const username = getUsername(req);
+    const username = req.user.username; // Use authenticated user's username
     const { difficulty, move, consent } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
@@ -77,10 +70,10 @@ router.post('/:id/join', async (req, res) => {
   }
 });
 
-// POST /api/switches/:id/move - submit RPS move
-router.post('/:id/move', async (req, res) => {
+// POST /api/switches/:id/move - submit RPS move (auth required)
+router.post('/:id/move', auth, async (req, res) => {
   try {
-    const username = getUsername(req);
+    const username = req.user.username; // Use authenticated user's username
     const { move } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
@@ -127,10 +120,10 @@ router.post('/:id/move', async (req, res) => {
   }
 });
 
-// POST /api/switches/:id/proof - submit proof (by loser)
-router.post('/:id/proof', async (req, res) => {
+// POST /api/switches/:id/proof - submit proof (auth required)
+router.post('/:id/proof', auth, async (req, res) => {
   try {
-    const username = getUsername(req);
+    const username = req.user.username; // Use authenticated user's username
     const { text, expireAfterView } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
@@ -159,10 +152,10 @@ router.post('/:id/proof', async (req, res) => {
   }
 });
 
-// PATCH /api/switches/:id/proof-viewed - mark proof as viewed by creator and set expiration if needed
-router.patch('/:id/proof-viewed', async (req, res) => {
+// PATCH /api/switches/:id/proof-viewed - mark proof as viewed (auth required)
+router.patch('/:id/proof-viewed', auth, async (req, res) => {
   try {
-    const username = getUsername(req);
+    const username = req.user.username; // Use authenticated user's username
     const game = await SwitchGame.findById(req.params.id);
     if (!game) throw new Error('Not found');
     if (username !== game.creator) throw new Error('Only the creator can mark proof as viewed.');
@@ -174,6 +167,37 @@ router.patch('/:id/proof-viewed', async (req, res) => {
     res.json(game);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to mark proof as viewed.' });
+  }
+});
+
+// POST /api/switches/:id/forfeit - creator or participant forfeits (chickens out) of a switch game
+router.post('/:id/forfeit', auth, async (req, res) => {
+  try {
+    const username = req.user.username;
+    const game = await SwitchGame.findById(req.params.id);
+    if (!game) return res.status(404).json({ error: 'Switch game not found.' });
+    if (game.status !== 'in_progress') {
+      return res.status(400).json({ error: 'Only in-progress games can be forfeited.' });
+    }
+    if (![game.creator, game.participant].includes(username)) {
+      return res.status(403).json({ error: 'Only the creator or participant can forfeit this game.' });
+    }
+    game.status = 'forfeited';
+    game.updatedAt = new Date();
+    await game.save();
+    // Notify the other user
+    const otherUser = username === game.creator ? game.participant : game.creator;
+    if (otherUser) {
+      await sendNotification(
+        otherUser,
+        'switchgame_forfeited',
+        `${username} has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
+      );
+    }
+    // Optionally log the action (if you have a logActivity util for switch games)
+    res.json({ message: 'Switch game forfeited (chickened out).', game });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to forfeit switch game.' });
   }
 });
 

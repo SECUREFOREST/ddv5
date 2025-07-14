@@ -6,6 +6,7 @@ import Tabs from '../components/Tabs';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import StatusBadge from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
+import { Banner } from '../components/Modal';
 
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
@@ -29,6 +30,8 @@ export default function Profile() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(avatar || '');
   const [avatarSaved, setAvatarSaved] = useState(false);
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
 
   useEffect(() => {
     if (loading) return;
@@ -36,11 +39,31 @@ export default function Profile() {
     console.log('user.id:', user?.id, 'user._id:', user?._id);
     if (!user || !(user.id || user._id)) return;
     const userId = user.id || user._id;
-    api.get(`/stats/users/${userId}`)
+    api.get('/stats/users/' + userId)
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
-    api.get('/dares', { params: { creator: userId } })
-      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+    // Fetch dares created by user
+    const fetchCreated = api.get('/dares', { params: { creator: userId } });
+    // Fetch dares where user is a participant
+    const fetchParticipating = api.get('/dares', { params: { participant: userId } });
+    // Fetch dares assigned via switch games
+    const fetchSwitch = api.get('/dares', { params: { assignedSwitch: userId } });
+    Promise.all([fetchCreated, fetchParticipating, fetchSwitch])
+      .then(([createdRes, participatingRes, switchRes]) => {
+        const allDares = [
+          ...(createdRes.data || []),
+          ...(participatingRes.data || []),
+          ...(switchRes.data || [])
+        ];
+        // Deduplicate by _id
+        const uniqueDares = Object.values(
+          allDares.reduce((acc, dare) => {
+            acc[dare._id] = dare;
+            return acc;
+          }, {})
+        );
+        setDares(uniqueDares);
+      })
       .catch(() => setDares([]));
     api.get('/stats/activities', { params: { userId, limit: 10 } })
       .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
@@ -62,17 +85,21 @@ export default function Profile() {
     console.log('user.id:', user?.id, 'user._id:', user?._id);
     if (!user || !(user.id || user._id)) {
       setError('User not loaded. Please refresh and try again.');
+      setGeneralError('User not loaded. Please refresh and try again.');
       return;
     }
     const userId = user.id || user._id;
     setSaving(true);
     setError('');
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
       console.log('user before reload:', user);
       window.location.reload(); // reload to update context
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
+      setGeneralError(err.response?.data?.error || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -80,6 +107,8 @@ export default function Profile() {
 
   const handleUnblock = async (blockedUserId) => {
     setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       await api.post(`/users/${blockedUserId}/unblock`);
       // Remove from local blockedUsers and blockedUsersInfo
@@ -89,8 +118,10 @@ export default function Profile() {
       }
       setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
+      setGeneralSuccess('User unblocked successfully!');
     } catch (err) {
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
+      setGeneralError(err.response?.data?.error || 'Failed to unblock user.');
     }
   };
 
@@ -119,6 +150,8 @@ export default function Profile() {
         setSaving(true);
         setError('');
         setAvatarSaved(false);
+        setGeneralError('');
+        setGeneralSuccess('');
         try {
           const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -126,8 +159,10 @@ export default function Profile() {
           setAvatar(uploadRes.data.url);
           setAvatarSaved(true);
           setTimeout(() => setAvatarSaved(false), 2000);
+          setGeneralSuccess('Profile picture saved!');
         } catch (uploadErr) {
           setError('Failed to upload avatar.');
+          setGeneralError('Failed to upload avatar.');
         } finally {
           setSaving(false);
         }
@@ -139,6 +174,7 @@ export default function Profile() {
 
   return (
     <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Profile</h1>
       </div>

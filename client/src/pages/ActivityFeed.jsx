@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
+import { Banner } from '../components/Modal';
 
 export default function ActivityFeed() {
   const [activities, setActivities] = useState([]);
@@ -23,7 +24,7 @@ export default function ActivityFeed() {
         {loading ? (
           <div>Loading...</div>
         ) : error ? (
-          <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
+          <Banner type="error" message={error} onClose={() => setError('')} />
         ) : activities.length === 0 ? (
           <div className="text-muted">No recent activity.</div>
         ) : (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
+import { Banner } from '../components/Modal';
 
 export default function DareParticipant() {
   const [difficulty, setDifficulty] = useState('titillating');
@@ -14,6 +15,11 @@ export default function DareParticipant() {
   const [proofSuccess, setProofSuccess] = useState('');
   const [noDare, setNoDare] = useState(false);
   const [expireAfterView, setExpireAfterView] = useState(false);
+  const [chickenOutLoading, setChickenOutLoading] = useState(false);
+  const [chickenOutError, setChickenOutError] = useState('');
+  // Add state for general error/success
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
 
   const handleConsent = async () => {
     setLoading(true);
@@ -23,6 +29,8 @@ export default function DareParticipant() {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
@@ -30,9 +38,11 @@ export default function DareParticipant() {
         setConsented(true);
       } else {
         setNoDare(true);
+        setGeneralError('No dares available for this difficulty.');
       }
     } catch (err) {
       setNoDare(true);
+      setGeneralError(err.response?.data?.error || 'Failed to fetch dare.');
     } finally {
       setLoading(false);
     }
@@ -42,6 +52,8 @@ export default function DareParticipant() {
     e.preventDefault();
     setProofError('');
     setProofSuccess('');
+    setGeneralError('');
+    setGeneralSuccess('');
     setProofLoading(true);
     try {
       if (!proof && !proofFile) {
@@ -65,18 +77,44 @@ export default function DareParticipant() {
       setProofFile(null);
       setExpireAfterView(false);
       setProofSuccess('Proof submitted successfully!');
+      setGeneralSuccess('Proof submitted successfully!');
       // Automatically offer a new dare after a short delay
       setTimeout(() => {
         setConsented(false);
         setConsentChecked(false);
         setDare(null);
         setProofSuccess('');
+        setGeneralSuccess('');
         handleConsent();
       }, 1500);
     } catch (err) {
       setProofError(err.response?.data?.error || 'Failed to submit proof.');
+      setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
     } finally {
       setProofLoading(false);
+    }
+  };
+
+  const handleChickenOut = async () => {
+    setChickenOutLoading(true);
+    setChickenOutError('');
+    setGeneralError('');
+    setGeneralSuccess('');
+    try {
+      const res = await api.post(`/dares/${dare._id}/forfeit`);
+      setConsented(false);
+      setConsentChecked(false);
+      setDare(null);
+      setProof('');
+      setProofFile(null);
+      setProofError('');
+      setProofSuccess('');
+      setGeneralSuccess('You have successfully chickened out.');
+    } catch (err) {
+      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
+      setGeneralError(err.response?.data?.error || 'Failed to chicken out.');
+    } finally {
+      setChickenOutLoading(false);
     }
   };
 
@@ -89,10 +127,13 @@ export default function DareParticipant() {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    setGeneralError('');
+    setGeneralSuccess('');
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Perform a Dare</h1>
       {!consented && (
         <div className="space-y-4">
@@ -201,6 +242,18 @@ export default function DareParticipant() {
               ) : 'Submit Proof'}
             </button>
           </form>
+          {/* Chicken Out button, only if dare is in progress */}
+          {dare.status === 'in_progress' && (
+            <button
+              className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
+              onClick={handleChickenOut}
+              disabled={chickenOutLoading}
+              aria-busy={chickenOutLoading}
+            >
+              {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
+            </button>
+          )}
+          {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
         </>
       )}
     </div>

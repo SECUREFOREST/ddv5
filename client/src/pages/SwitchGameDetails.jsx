@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { Banner } from '../components/Modal';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -35,6 +36,10 @@ export default function SwitchGameDetails() {
   // Add error toast state
   const [errorToast, setErrorToast] = useState('');
   const [expireAfterView, setExpireAfterView] = useState(false);
+  const [chickenOutLoading, setChickenOutLoading] = useState(false);
+  const [chickenOutError, setChickenOutError] = useState('');
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
 
   // --- Move winner/loser/isLoser logic up here ---
   const username = user?.username;
@@ -207,50 +212,68 @@ export default function SwitchGameDetails() {
   }
 
   const handleJoin = async () => {
-    if (hasJoined) return;
     setJoining(true);
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
-      await api.post(`/switches/${id}/join`);
-      await fetchGame();
+      await api.post(`/switches/${id}/join`, { difficulty: game.creatorDare.difficulty, move: '', consent: true });
+      setGeneralSuccess('Joined the game successfully!');
+      fetchGame(true);
     } catch (err) {
-      showErrorToast(err.response?.data?.error || 'Failed to join game.');
+      setGeneralError(err.response?.data?.error || 'Failed to join the game.');
     } finally {
       setJoining(false);
     }
   };
 
-  const handleMove = async move => {
+  const handleMoveSubmit = async (move) => {
     setMoveSubmitting(true);
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       await api.post(`/switches/${id}/move`, { move });
-      await fetchGame();
+      setGeneralSuccess('Move submitted!');
+      fetchGame(true);
     } catch (err) {
-      showErrorToast(err.response?.data?.error || 'Failed to submit move.');
+      setGeneralError(err.response?.data?.error || 'Failed to submit move.');
     } finally {
       setMoveSubmitting(false);
     }
   };
 
-  const handleProofSubmit = async e => {
-    e.preventDefault();
-    if (!proof.trim()) {
-      setProofError('Please enter proof of the demanded dare.');
-      return;
-    }
+  const handleProofSubmit = async () => {
+    setProofError('');
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       await api.post(`/switches/${id}/proof`, { text: proof, expireAfterView });
-      setShowProofModal(false);
       setProof('');
-      setProofError('');
-      setExpireAfterView(false);
-      await fetchGame();
+      setShowProofModal(false);
+      setGeneralSuccess('Proof submitted!');
+      fetchGame(true);
     } catch (err) {
-      showErrorToast(err.response?.data?.error || 'Failed to submit proof.');
+      setProofError(err.response?.data?.error || 'Failed to submit proof.');
+      setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
+    }
+  };
+
+  const handleChickenOut = async () => {
+    setChickenOutLoading(true);
+    setChickenOutError('');
+    try {
+      await api.post(`/switches/${id}/forfeit`);
+      await fetchGame();
+      setToast('You have chickened out (forfeited) this switch game.');
+    } catch (err) {
+      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
+    } finally {
+      setChickenOutLoading(false);
     }
   };
 
   return (
-    <div className="max-w-lg w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-2xl mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
@@ -288,7 +311,7 @@ export default function SwitchGameDetails() {
               <button
                 key={move}
                 className="bg-gray-200 text-gray-700 rounded px-4 py-2 font-semibold hover:bg-gray-300 disabled:opacity-50"
-                onClick={() => handleMove(move)}
+                onClick={() => handleMoveSubmit(move)}
                 disabled={moveSubmitting}
               >
                 {move.charAt(0).toUpperCase() + move.slice(1)}
@@ -366,6 +389,20 @@ export default function SwitchGameDetails() {
       {game.status === 'expired' && (
         <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
           <b>Proof submission window has expired.</b>
+        </div>
+      )}
+      {/* Chicken Out button for creator or participant when in progress */}
+      {game.status === 'in_progress' && (username === game.creator || username === game.participant) && (
+        <div className="mt-6">
+          <button
+            className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
+            onClick={handleChickenOut}
+            disabled={chickenOutLoading}
+            aria-busy={chickenOutLoading}
+          >
+            {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
+          </button>
+          {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
         </div>
       )}
     </div>

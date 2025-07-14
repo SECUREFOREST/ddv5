@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const SwitchGameSchema = new mongoose.Schema({
-  status: { type: String, enum: ['open', 'in_progress', 'completed', 'proof_submitted', 'awaiting_proof', 'expired'], default: 'open' },
+  status: { type: String, enum: ['open', 'in_progress', 'completed', 'proof_submitted', 'awaiting_proof', 'expired', 'forfeited'], default: 'open' },
   creator: { type: String, required: true }, // username
   participant: { type: String }, // username
   creatorDare: {

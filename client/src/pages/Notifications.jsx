@@ -1,18 +1,21 @@
 import React, { useEffect, useState, useContext } from 'react';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
+import { Banner } from '../components/Modal';
 
 export default function Notifications() {
   const { user } = useContext(AuthContext);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [generalError, setGeneralError] = useState('');
 
   const fetchNotifications = () => {
     setLoading(true);
+    setGeneralError('');
     api.get('/notifications')
       .then(res => setNotifications(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setNotifications([]))
+      .catch(() => { setNotifications([]); setGeneralError('Failed to load notifications.'); })
       .finally(() => setLoading(false));
   };
 
@@ -22,33 +25,42 @@ export default function Notifications() {
 
   const handleMarkRead = async (id) => {
     setActionLoading(true);
+    setGeneralError('');
     try {
       await api.put(`/notifications/${id}/read`);
       fetchNotifications();
-    } catch {}
+    } catch (err) {
+      setGeneralError(err.response?.data?.error || 'Failed to mark notification as read.');
+    }
     setActionLoading(false);
   };
 
-  // Legacy-style notification message generator
-  function getLegacyNotificationMessage(n) {
-    if (n.type === 'fulfill') {
-      return `${n.actor?.username || 'Someone'} fulfilled your demand`;
+  // Replace legacy notification message generator with the new one
+  function getNotificationMessage(n) {
+    switch (n.type) {
+      case 'dare_created':
+        return 'Your dare has been created.';
+      case 'dare_graded':
+        return `Your dare has been graded.`;
+      case 'proof_submitted':
+        return 'Proof has been submitted for your dare.';
+      case 'dare_approved':
+        return 'Your dare has been approved!';
+      case 'dare_rejected':
+        return 'Your dare has been rejected.';
+      case 'role_change':
+        return n.message || 'Your role has changed.';
+      case 'user_blocked':
+        return 'You have been blocked by another user.';
+      case 'user_banned':
+        return 'Your account has been banned by an admin.';
+      case 'comment_reply':
+        return 'You have a new reply to your comment.';
+      case 'comment_moderated':
+        return 'Your comment has been moderated/hidden.';
+      default:
+        return n.message || n.type || 'Notification';
     }
-    if (n.type === 'grade') {
-      return `${n.actor?.username || 'Someone'} graded your task: ${n.grade}`;
-    }
-    if (n.type === 'reject') {
-      const reasonMap = {
-        chicken: "chickened out",
-        impossible: "think it's not possible or safe for anyone to do",
-        incomprehensible: "couldn't understand what was being demanded",
-        abuse: "have reported the demand as abuse"
-      };
-      const reason = reasonMap[n.reason] || 'rejected it';
-      return `${n.actor?.username || 'Someone'} rejected your demand because they ${reason}.`;
-    }
-    // Fallback
-    return n.message || n.type || 'Notification';
   }
 
   if (!user) {
@@ -56,7 +68,8 @@ export default function Notifications() {
   }
 
   return (
-    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      <Banner type={generalError ? 'error' : 'info'} message={generalError} onClose={() => setGeneralError('')} />
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Notifications</h1>
       </div>

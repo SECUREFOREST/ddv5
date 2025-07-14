@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
+import { Banner } from '../components/Modal';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 // Removed DIFFICULTIES and difficulty state
@@ -18,13 +19,16 @@ export default function SwitchGameParticipate() {
   const [joining, setJoining] = useState(false);
   const [toast, setToast] = useState('');
   const [error, setError] = useState('');
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
+    setGeneralError('');
     api.get('/switches')
       .then(res => setGames(Array.isArray(res.data) ? res.data.filter(g => g.status === 'waiting_for_participant' && !g.participant) : []))
-      .catch(() => setGames([]))
+      .catch(() => { setGames([]); setGeneralError('Failed to load switch games.'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -40,18 +44,23 @@ export default function SwitchGameParticipate() {
     e.preventDefault();
     if (!consent) {
       setError('You must consent to participate.');
+      setGeneralError('You must consent to participate.');
       return;
     }
     setJoining(true);
     setError('');
     setToast('');
+    setGeneralError('');
+    setGeneralSuccess('');
     try {
       // Removed difficulty from join API call
       await api.post(`/switches/${selectedGame._id}/join`, { move });
       setToast('Joined switch game!');
+      setGeneralSuccess('Joined switch game!');
       setTimeout(() => navigate(`/switches/${selectedGame._id}`), 1200);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to join switch game.');
+      setGeneralError(err.response?.data?.error || 'Failed to join switch game.');
     } finally {
       setJoining(false);
     }
@@ -59,6 +68,7 @@ export default function SwitchGameParticipate() {
 
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Participate in a Switch Game</h1>
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">{toast}</div>

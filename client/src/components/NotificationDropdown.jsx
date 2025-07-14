@@ -14,27 +14,33 @@ function timeAgo(date) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-// Legacy-style notification message generator
-function getLegacyNotificationMessage(n) {
-  // Example mapping based on type and params
-  if (n.type === 'fulfill') {
-    return `${n.actor?.username || 'Someone'} fulfilled your demand`;
+// Comprehensive notification message generator
+function getNotificationMessage(n) {
+  switch (n.type) {
+    case 'dare_created':
+      return 'Your dare has been created.';
+    case 'dare_graded':
+      return `Your dare has been graded.`;
+    case 'proof_submitted':
+      return 'Proof has been submitted for your dare.';
+    case 'dare_approved':
+      return 'Your dare has been approved!';
+    case 'dare_rejected':
+      return 'Your dare has been rejected.';
+    case 'role_change':
+      return n.message || 'Your role has changed.';
+    case 'user_blocked':
+      return 'You have been blocked by another user.';
+    case 'user_banned':
+      return 'Your account has been banned by an admin.';
+    case 'comment_reply':
+      return 'You have a new reply to your comment.';
+    case 'comment_moderated':
+      return 'Your comment has been moderated/hidden.';
+    default:
+      // Fallback to legacy handler or message
+      return n.message || n.type || 'Notification';
   }
-  if (n.type === 'grade') {
-    return `${n.actor?.username || 'Someone'} graded your task: ${n.grade}`;
-  }
-  if (n.type === 'reject') {
-    const reasonMap = {
-      chicken: "chickened out",
-      impossible: "think it's not possible or safe for anyone to do",
-      incomprehensible: "couldn't understand what was being demanded",
-      abuse: "have reported the demand as abuse"
-    };
-    const reason = reasonMap[n.reason] || 'rejected it';
-    return `${n.actor?.username || 'Someone'} rejected your demand because they ${reason}.`;
-  }
-  // Fallback
-  return n.message || n.type || 'Notification';
 }
 
 export default function NotificationDropdown() {
@@ -186,7 +192,7 @@ export default function NotificationDropdown() {
             className="w-full text-left py-2 px-0 focus:outline-none hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
           >
             <span className="block">
-              <span className="description font-medium">{getLegacyNotificationMessage(n)}</span>
+              <span className="description font-medium">{getNotificationMessage(n)}</span>
               <span className="age ml-2 text-xs text-neutral-400">{timeAgo(n.createdAt)}</span>
             </span>
           </button>

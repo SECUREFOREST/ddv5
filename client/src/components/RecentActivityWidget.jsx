@@ -17,26 +17,18 @@ const ICONS = {
   default: <i className="fa fa-circle text-gray-400 mr-2" />,
 };
 
-// Legacy-style activity message generator
-function getLegacyActivityMessage(a) {
-  if (a.type === 'fulfill') {
-    return `${a.actor?.username || 'Someone'} fulfilled your demand`;
+// Comprehensive activity message generator
+function getActivityMessage(a) {
+  switch (a.type) {
+    case 'dare_created':
+      return `${a.actor?.username || 'Someone'} created a new dare.`;
+    case 'grade_given':
+      return `${a.actor?.username || 'Someone'} graded a dare: ${a.details?.grade ?? ''}`;
+    case 'comment_added':
+      return `${a.actor?.username || 'Someone'} commented on a dare.`;
+    default:
+      return a.message || a.type || 'Activity';
   }
-  if (a.type === 'grade') {
-    return `${a.actor?.username || 'Someone'} graded your task: ${a.grade}`;
-  }
-  if (a.type === 'reject') {
-    const reasonMap = {
-      chicken: "chickened out",
-      impossible: "think it's not possible or safe for anyone to do",
-      incomprehensible: "couldn't understand what was being demanded",
-      abuse: "have reported the demand as abuse"
-    };
-    const reason = reasonMap[a.reason] || 'rejected it';
-    return `${a.actor?.username || 'Someone'} rejected your demand because they ${reason}.`;
-  }
-  // Fallback
-  return a.message || a.type || 'Activity';
 }
 
 export default function RecentActivityWidget({ activities = [], loading = false, title = 'Recent Activity', onRefresh }) {
@@ -67,7 +59,7 @@ export default function RecentActivityWidget({ activities = [], loading = false,
               <li key={i} className="flex items-center gap-3 py-3">
                 {ICONS[a.type] || ICONS.default}
                 <div className="flex-1">
-                  <div className="text-sm">{getLegacyActivityMessage(a)}</div>
+                  <div className="text-sm">{getActivityMessage(a)}</div>
                   <div className="text-xs text-[#888]">{timeAgo(a.createdAt)}</div>
                 </div>
               </li>

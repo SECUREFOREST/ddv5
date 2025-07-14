@@ -4,6 +4,7 @@ import Tabs from '../components/Tabs';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
+import { Banner } from '../components/Modal';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -96,6 +97,8 @@ export default function Admin() {
   const [appealsError, setAppealsError] = useState('');
   const [resolvingAppealId, setResolvingAppealId] = useState(null);
   const [appealOutcome, setAppealOutcome] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // State for user edit modal
   const [editUserId, setEditUserId] = useState(null);
@@ -103,11 +106,11 @@ export default function Admin() {
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [editUserError, setEditUserError] = useState('');
   const [deleteUserError, setDeleteUserError] = useState('');
-  const [error, setError] = useState('');
 
   const fetchUsers = () => {
     setDataLoading(true);
     setError('');
+    setSuccess('');
     api.get('/users')
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
@@ -120,6 +123,7 @@ export default function Admin() {
   const fetchDares = () => {
     setDaresLoading(true);
     setError('');
+    setSuccess('');
     api.get('/dares')
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
@@ -132,6 +136,7 @@ export default function Admin() {
   const fetchReports = () => {
     setReportsLoading(true);
     setError('');
+    setSuccess('');
     api.get('/reports')
       .then(res => setReports(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
@@ -153,6 +158,7 @@ export default function Admin() {
   const fetchAppeals = () => {
     setAppealsLoading(true);
     setError('');
+    setSuccess('');
     api.get('/appeals')
       .then(res => setAppeals(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
@@ -175,22 +181,28 @@ export default function Admin() {
   // Add handlers for dare actions
   const handleApprove = async (dareId) => {
     setActionLoading(true);
+    setError('');
+    setSuccess('');
     try {
       await api.post(`/dares/${dareId}/approve`);
+      setSuccess('Dare approved successfully!');
       fetchDares();
     } catch (err) {
-      alert('Failed to approve dare.');
+      setError(err.response?.data?.error || 'Failed to approve dare.');
     } finally {
       setActionLoading(false);
     }
   };
   const handleReject = async (dareId) => {
     setActionLoading(true);
+    setError('');
+    setSuccess('');
     try {
       await api.post(`/dares/${dareId}/reject`);
+      setSuccess('Dare rejected successfully!');
       fetchDares();
     } catch (err) {
-      alert('Failed to reject dare.');
+      setError(err.response?.data?.error || 'Failed to reject dare.');
     } finally {
       setActionLoading(false);
     }
@@ -198,11 +210,14 @@ export default function Admin() {
   const handleDeleteDare = async (dareId) => {
     if (!window.confirm('Delete this dare?')) return;
     setActionLoading(true);
+    setError('');
+    setSuccess('');
     try {
       await api.delete(`/dares/${dareId}`);
+      setSuccess('Dare deleted successfully!');
       fetchDares();
     } catch (err) {
-      alert('Failed to delete dare.');
+      setError(err.response?.data?.error || 'Failed to delete dare.');
     } finally {
       setActionLoading(false);
     }
@@ -237,17 +252,21 @@ export default function Admin() {
   // Clear error when switching tabs
   useEffect(() => {
     setError('');
+    setSuccess('');
   }, [tabIdx]);
 
   const handleDelete = async (userId) => {
     if (!window.confirm('Delete this user?')) return;
     setActionLoading(true);
     setDeleteUserError('');
+    setError('');
+    setSuccess('');
     try {
       await api.delete(`/users/${userId}`);
+      setSuccess('User deleted successfully!');
       fetchUsers();
     } catch (err) {
-      setDeleteUserError(err.response?.data?.error || 'Failed to delete user');
+      setError(err.response?.data?.error || 'Failed to delete user');
     }
     setActionLoading(false);
   };
@@ -294,6 +313,8 @@ export default function Admin() {
   const handleEditUserSave = async () => {
     setEditUserLoading(true);
     setEditUserError('');
+    setError('');
+    setSuccess('');
     try {
       // Only send editable fields
       const { username, email, role, roles } = editUserData;
@@ -301,23 +322,19 @@ export default function Admin() {
       if (roles) payload.roles = roles;
       if (role) payload.role = role;
       await api.patch(`/users/${editUserId}`, payload);
+      setSuccess('User updated successfully!');
       fetchUsers();
       closeEditUserModal();
     } catch (err) {
-      setEditUserError(err.response?.data?.error || 'Failed to update user');
+      setError(err.response?.data?.error || 'Failed to update user');
     } finally {
       setEditUserLoading(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
-      {/* Error display at the top */}
-      {error && (
-        <div className="text-danger text-sm font-medium mb-2" role="alert" aria-live="assertive">
-          {error}
-        </div>
-      )}
+    <div className="max-w-5xl mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      <Banner type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
       <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
         <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
           <h1 className="text-3xl font-bold">Admin Panel</h1>

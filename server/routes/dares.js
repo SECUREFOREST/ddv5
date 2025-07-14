@@ -328,6 +328,34 @@ router.post('/:id/accept', auth, async (req, res) => {
   }
 });
 
+// POST /api/dares/:id/forfeit - performer forfeits (chickens out) of a dare
+router.post('/:id/forfeit', auth, async (req, res) => {
+  try {
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    if (!dare.performer || dare.performer.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Only the performer can forfeit this dare.' });
+    }
+    if (dare.status !== 'in_progress') {
+      return res.status(400).json({ error: 'Only in-progress dares can be forfeited.' });
+    }
+    dare.status = 'forfeited';
+    dare.updatedAt = new Date();
+    await dare.save();
+    // Notify creator
+    await sendNotification(
+      dare.creator,
+      'dare_forfeited',
+      'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.'
+    );
+    // Log activity
+    await logActivity({ type: 'dare_forfeited', user: req.userId, dare: dare._id });
+    res.json({ message: 'Dare forfeited (chickened out).', dare });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to forfeit dare.' });
+  }
+});
+
 // DELETE /api/dares/:id (admin only)
 router.delete('/:id', auth, isAdmin, async (req, res) => {
   try {

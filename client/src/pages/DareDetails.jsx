@@ -6,6 +6,7 @@ import Markdown from '../components/Markdown';
 import Modal from '../components/Modal';
 import Countdown from '../components/Countdown';
 import StatusBadge from '../components/DareCard';
+import { Banner } from '../components/Modal';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -51,6 +52,8 @@ export default function DareDetails() {
   const [moderateError, setModerateError] = useState('');
   const [proofLoading, setProofLoading] = useState(false);
   const [proofProgress, setProofProgress] = useState(0);
+  const [generalError, setGeneralError] = useState('');
+  const [generalSuccess, setGeneralSuccess] = useState('');
 
   const openReportModal = (commentId) => {
     setReportCommentId(commentId);
@@ -88,26 +91,47 @@ export default function DareDetails() {
   const handleComment = async (e) => {
     e.preventDefault();
     setCommentError('');
+    setGeneralError('');
+    setGeneralSuccess('');
+    if (!comment.trim()) {
+      setCommentError('Comment cannot be empty.');
+      setGeneralError('Comment cannot be empty.');
+      return;
+    }
+    setCommentLoading(true);
     try {
       await api.post(`/dares/${id}/comment`, { text: comment });
       setComment('');
       setRefresh(r => r + 1);
+      setGeneralSuccess('Comment added!');
     } catch (err) {
       setCommentError(err.response?.data?.error || 'Failed to add comment');
+      setGeneralError(err.response?.data?.error || 'Failed to add comment');
+    } finally {
+      setCommentLoading(false);
     }
   };
 
   const handleGrade = async (e) => {
     e.preventDefault();
     setGradeError('');
+    setGeneralError('');
+    setGeneralSuccess('');
+    if (!grade) {
+      setGradeError('Please select a grade.');
+      setGeneralError('Please select a grade.');
+      return;
+    }
     setGrading(true);
     try {
       await api.post(`/dares/${id}/grade`, { grade: Number(grade), feedback });
       setGrade('');
       setFeedback('');
       setRefresh(r => r + 1);
+      setGeneralSuccess('Grade submitted successfully!');
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
+      setGeneralError(err.response?.data?.error || 'Failed to submit grade');
     } finally {
       setGrading(false);
     }
@@ -298,6 +322,7 @@ export default function DareDetails() {
 
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{dare?.description} <StatusBadge status={dare?.status} /></h1>
         <div className="flex items-center gap-2">
@@ -338,6 +363,44 @@ export default function DareDetails() {
         {dare && proofExpired && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5 text-center">
             <b>Proof review period expired.</b> Grading and approval are no longer allowed.
+          </div>
+        )}
+        {/* Proof Section */}
+        {dare?.proof && (dare.proof.text || dare.proof.fileUrl) && (
+          <div className="bg-neutral-900 rounded p-4 mb-6">
+            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Proof</h2>
+            {dare.proof.text && (
+              <div className="mb-2 text-neutral-100">{dare.proof.text}</div>
+            )}
+            {dare.proof.fileUrl && (
+              <>
+                {/\.(jpg|jpeg|png|gif|webp)$/i.test(dare.proof.fileName || dare.proof.fileUrl) ? (
+                  <img
+                    src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
+                    alt="Proof"
+                    className="max-w-full rounded shadow mb-2"
+                    style={{ maxHeight: 400 }}
+                  />
+                ) : (
+                  <video
+                    src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
+                    controls
+                    className="max-w-full rounded shadow mb-2"
+                    style={{ maxHeight: 400 }}
+                  />
+                )}
+                <div>
+                  <a
+                    href={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline"
+                  >
+                    Download Proof
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         )}
         {/* Grades Section */}

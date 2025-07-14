@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { Banner } from '../components/Modal';
 
 export default function Login() {
   const { login } = useAuth();
@@ -65,8 +66,8 @@ export default function Login() {
             aria-label="Password"
           />
         </div>
-        {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
-        {success && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{success}</div>}
+        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+        {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
         <button
           type="submit"
           className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"

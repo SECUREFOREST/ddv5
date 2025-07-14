@@ -69,27 +69,27 @@ router.get('/activities', async (req, res) => {
     const dares = await require('../models/Dare').find({ creator: uid })
       .sort({ createdAt: -1 })
       .limit(Number(limit))
-      .select('title createdAt')
+      .select('description createdAt')
       .lean();
     // Recent comments made
     const comments = await require('../models/Comment').find({ author: uid })
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .select('text dare createdAt')
-      .populate('dare', 'title')
+      .populate('dare', 'description')
       .lean();
     // Recent grades given
     const daresWithGrades = await require('../models/Dare').find({ 'grades.user': uid })
       .sort({ updatedAt: -1 })
       .limit(Number(limit))
-      .select('title grades updatedAt')
+      .select('description grades updatedAt')
       .lean();
     const grades = [];
     daresWithGrades.forEach(dare => {
       (dare.grades || []).forEach(g => {
         if (g.user && g.user.toString() === userId) {
           grades.push({
-            dare: { _id: dare._id, title: dare.title },
+            dare: { _id: dare._id, description: dare.description },
             grade: g.grade,
             feedback: g.feedback,
             updatedAt: dare.updatedAt
@@ -99,7 +99,7 @@ router.get('/activities', async (req, res) => {
     });
     // Merge and sort all activities by date
     const activities = [
-      ...dares.map(d => ({ type: 'dare', title: d.title, createdAt: d.createdAt })),
+      ...dares.map(d => ({ type: 'dare', description: d.description, createdAt: d.createdAt })),
       ...comments.map(c => ({ type: 'comment', text: c.text, dare: c.dare, createdAt: c.createdAt })),
       ...grades.map(g => ({ type: 'grade', dare: g.dare, grade: g.grade, feedback: g.feedback, createdAt: g.updatedAt }))
     ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
