@@ -72,7 +72,7 @@ export default function Notifications() {
               className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
             >
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-primary">{n.title}</div>
+                <div className="font-semibold text-primary">{n.description}</div>
                 <div className="text-neutral-400 text-sm">{n.body}</div>
                 <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
               </div>

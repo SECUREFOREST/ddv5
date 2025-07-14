@@ -191,7 +191,7 @@ function isAdmin(req, res, next) {
 router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
   try {
     // Remove or anonymize dares
-    await Dare.updateMany({ creator: req.params.id }, { $set: { creator: null, title: '[deleted]', description: '' } });
+    await Dare.updateMany({ creator: req.params.id }, { $set: { creator: null, description: '' } });
     // Remove or anonymize comments
     await Comment.updateMany({ author: req.params.id }, { $set: { author: null, text: '[deleted]', deleted: true, deletedAt: new Date() } });
     // Remove notifications

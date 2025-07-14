@@ -115,7 +115,7 @@ router.get('/random', auth, async (req, res) => {
       ...(user.consentedDares || []),
       ...(user.completedDares || [])
     ];
-    const filter = { status: 'waiting_for_participant', performer: { $exists: false } };
+    const filter = { status: 'waiting_for_participant', performer: null };
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
     const count = await Dare.countDocuments(filter);
