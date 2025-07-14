@@ -55,6 +55,9 @@ router.get('/activities', async (req, res) => {
     const { userId, limit = 10 } = req.query;
     if (!userId) return res.status(400).json({ error: 'userId is required.' });
     const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid userId.' });
+    }
     const uid = mongoose.Types.ObjectId(userId);
     // Recent dares created
     const dares = await require('../models/Dare').find({ creator: uid })
