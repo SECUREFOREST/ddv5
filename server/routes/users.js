@@ -89,10 +89,13 @@ router.get('/me', auth, async (req, res) => {
 router.patch('/:id', auth, async (req, res) => {
   console.log('PATCH /users/:id handler called for', req.params.id, 'body:', req.body);
   try {
-    if (req.userId !== req.params.id) {
+    // Allow user to update their own profile, or admin to update anyone
+    const isSelf = req.userId === req.params.id;
+    const isAdmin = req.user && req.user.roles && req.user.roles.includes('admin');
+    if (!isSelf && !isAdmin) {
       return res.status(403).json({ error: 'Unauthorized.' });
     }
-    const { username, avatar, bio, fullName, gender, dob, interestedIn, limits } = req.body;
+    const { username, avatar, bio, fullName, gender, dob, interestedIn, limits, roles } = req.body;
     const update = {};
     if (username) update.username = username;
     if (avatar) update.avatar = avatar;
@@ -102,6 +105,8 @@ router.patch('/:id', auth, async (req, res) => {
     if (dob) update.dob = dob;
     if (Array.isArray(interestedIn)) update.interestedIn = interestedIn;
     if (Array.isArray(limits)) update.limits = limits;
+    // Only allow admin to update roles
+    if (isAdmin && Array.isArray(roles)) update.roles = roles;
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
     await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
     res.json(user);
