@@ -106,6 +106,7 @@ router.get('/:id', async (req, res) => {
 
 // Add after other GET endpoints
 router.get('/random', auth, async (req, res) => {
+  console.log('--- /random endpoint hit ---');
   try {
     const { difficulty } = req.query;
     const userId = req.userId;
