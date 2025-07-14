@@ -79,7 +79,7 @@ export default function Notifications() {
       ) : notifications.length === 0 ? (
         <div className="text-center text-neutral-400">No notifications.</div>
       ) : (
-        <ul className="divide-y divide-neutral-900">
+        <ul className="divide-y divide-neutral-900 overflow-x-auto">
           {notifications.map((n) => (
             <li
               key={n._id}

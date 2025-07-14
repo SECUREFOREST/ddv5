@@ -79,7 +79,7 @@ export default function SwitchGameParticipate() {
       ) : games.length === 0 ? (
         <div className="text-center text-neutral-400">No switch games are currently waiting for a participant.</div>
       ) : (
-        <div className="overflow-x-auto rounded shadow">
+        <div className="overflow-x-auto rounded shadow mb-4">
           <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
             <thead>
               <tr className="bg-neutral-900 text-primary">

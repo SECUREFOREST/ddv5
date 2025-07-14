@@ -41,6 +41,8 @@ export default function SwitchGameDetails() {
   const [chickenOutError, setChickenOutError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+  const [fetchingGame, setFetchingGame] = useState(false);
+  const [fetchGameError, setFetchGameError] = useState('');
 
   // --- Move winner/loser/isLoser logic up here ---
   const username = user?.username;
@@ -126,31 +128,34 @@ export default function SwitchGameDetails() {
     );
   };
 
-  const fetchGame = async (showLoading = false) => {
+  // Enhanced fetchGame with loading/error state
+  const fetchGameWithFeedback = async (showLoading = false) => {
     if (showLoading) setLoading(true);
+    setFetchingGame(true);
+    setFetchGameError('');
     try {
       const res = await api.get(`/switches/${id}`);
-      // Only update if relevant data is different
       if (!isGameEqual(res.data, game)) {
         setGame(res.data);
       }
     } catch (err) {
-      setGame(null);
+      setFetchGameError('Failed to load updated switch game details. Please refresh the page.');
     } finally {
+      setFetchingGame(false);
       if (showLoading) setLoading(false);
     }
   };
 
-  // Fetch game details on mount or id change
+  // Replace all fetchGame(true) with fetchGameWithFeedback(true)
   useEffect(() => {
-    fetchGame(true); // show loading spinner on first load
+    fetchGameWithFeedback(true); // show loading spinner on first load
     // eslint-disable-next-line
   }, [id]);
 
   // Poll for updates every 2s if game is waiting for participant and not completed
   useEffect(() => {
     if (!game || game.status !== 'waiting_for_participant' || game.winner) return;
-    const interval = setInterval(() => fetchGame(false), 2000); // no loading spinner for polling
+    const interval = setInterval(() => fetchGameWithFeedback(false), 2000); // no loading spinner for polling
     return () => clearInterval(interval);
   }, [game && game.status, game && game.winner]);
 
@@ -214,7 +219,7 @@ export default function SwitchGameDetails() {
       setGrade('');
       setFeedback('');
       setToast('Grade submitted!');
-      fetchGame(true);
+      fetchGameWithFeedback(true);
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
     } finally {
@@ -238,7 +243,7 @@ export default function SwitchGameDetails() {
       setGrade('');
       setFeedback('');
       setToast('Grade submitted!');
-      fetchGame(true);
+      fetchGameWithFeedback(true);
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
     } finally {
@@ -283,7 +288,7 @@ export default function SwitchGameDetails() {
     try {
       await api.post(`/switches/${id}/join`, { difficulty: game.creatorDare.difficulty, move: '', consent: true });
       setGeneralSuccess('Joined the game successfully!');
-      fetchGame(true);
+      fetchGameWithFeedback(true);
     } catch (err) {
       setGeneralError(err.response?.data?.error || 'Failed to join the game.');
     } finally {
@@ -298,7 +303,7 @@ export default function SwitchGameDetails() {
     try {
       await api.post(`/switches/${id}/move`, { move });
       setGeneralSuccess('Move submitted!');
-      fetchGame(true);
+      fetchGameWithFeedback(true);
     } catch (err) {
       setGeneralError(err.response?.data?.error || 'Failed to submit move.');
     } finally {
@@ -315,7 +320,7 @@ export default function SwitchGameDetails() {
       setProof('');
       setShowProofModal(false);
       setGeneralSuccess('Proof submitted!');
-      fetchGame(true);
+      fetchGameWithFeedback(true);
     } catch (err) {
       setProofError(err.response?.data?.error || 'Failed to submit proof.');
       setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
@@ -327,7 +332,7 @@ export default function SwitchGameDetails() {
     setChickenOutError('');
     try {
       await api.post(`/switches/${id}/forfeit`);
-      await fetchGame();
+      await fetchGameWithFeedback();
       setToast('You have chickened out (forfeited) this switch game.');
     } catch (err) {
       setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
@@ -463,6 +468,8 @@ export default function SwitchGameDetails() {
             <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
           </div>
           <div>
+            {fetchingGame && <div className="text-center text-info mb-2">Loading updated switch game details...</div>}
+            {fetchGameError && <div className="text-danger text-center mb-2">{fetchGameError}</div>}
             {game.grades && game.grades.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {game.grades.map((g, i) => (

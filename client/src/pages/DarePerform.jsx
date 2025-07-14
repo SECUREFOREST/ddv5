@@ -23,6 +23,8 @@ export default function DarePerform() {
   const [gradeError, setGradeError] = useState('');
   const [grading, setGrading] = useState(false);
   const [grades, setGrades] = useState([]);
+  const [fetchingDare, setFetchingDare] = useState(false);
+  const [fetchDareError, setFetchDareError] = useState('');
 
   const handleConsent = async () => {
     setLoading(true);
@@ -94,18 +96,23 @@ export default function DarePerform() {
 
   // Fetch dare details with grades after proof submission
   const fetchDare = async (dareId) => {
+    setFetchingDare(true);
+    setFetchDareError('');
     try {
       const res = await api.get(`/dares/${dareId}`);
       setDare(res.data);
       setGrades(res.data.grades || []);
-    } catch {}
+    } catch (err) {
+      setFetchDareError('Failed to load updated dare details. Please refresh the page.');
+    } finally {
+      setFetchingDare(false);
+    }
   };
 
   // After proof submission, fetch dare details
   React.useEffect(() => {
     if (proofSuccess && dare?._id) {
       fetchDare(dare._id);
-      console.log('Fetched dare after proof submission:', dare);
     }
   }, [proofSuccess, dare?._id]);
 
@@ -232,6 +239,8 @@ export default function DarePerform() {
           {proofSuccess && dare && (isCreator || isPerformer) && (
             <div className="mt-6">
               <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grade</h2>
+              {fetchingDare && <div className="text-center text-info mb-2">Loading updated dare details...</div>}
+              {fetchDareError && <div className="text-danger text-center mb-2">{fetchDareError}</div>}
               {/* Creator grades performer */}
               {isCreator && dare.performer && !hasGradedPerformer && (
                 <form onSubmit={e => handleGrade(e, getId(dare.performer))} className="space-y-4">

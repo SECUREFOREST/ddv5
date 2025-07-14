@@ -21,7 +21,7 @@ export default function ActivityFeed() {
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Global Activity Feed</h1>
       </div>
-      <div className="panel-body">
+      <div className="panel-body overflow-x-auto">
         {loading ? (
           <div>Loading...</div>
         ) : error ? (

@@ -185,8 +185,8 @@ export default function Profile() {
             {
               label: 'Overview',
               content: (
-                <div className="flex flex-wrap gap-8 mb-8">
-                  <div className="flex flex-col items-center min-w-[160px]">
+                <div className="flex flex-col md:flex-row gap-8 mb-8">
+                  <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
                     <input
                       id="avatar-upload-input"
                       type="file"

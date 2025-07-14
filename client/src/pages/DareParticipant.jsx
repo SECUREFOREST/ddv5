@@ -132,7 +132,7 @@ export default function DareParticipant() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Perform a Dare</h1>
       {!consented && (

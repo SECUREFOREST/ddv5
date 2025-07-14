@@ -75,10 +75,10 @@ export default function Dashboard() {
             <div className="mb-6">
               <DashboardChart stats={stats} />
             </div>
-            <div className="flex flex-wrap gap-4 mb-6">
-              <Card className="flex-1 min-w-[180px]" />
-              <Card className="flex-1 min-w-[180px]" />
-              <Card className="flex-1 min-w-[180px]" />
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <Card className="flex-1 min-w-0" />
+              <Card className="flex-1 min-w-0" />
+              <Card className="flex-1 min-w-0" />
             </div>
           </>
         )}

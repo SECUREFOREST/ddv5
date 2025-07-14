@@ -14,12 +14,12 @@ export default function SwitchGames() {
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none text-center">
         <h1 className="text-2xl font-bold">Switch Games</h1>
       </div>
-      <div className="flex flex-col gap-6 items-center justify-center mt-8">
+      <div className="flex flex-col md:flex-row gap-6 items-center justify-center mt-8">
         <Link to="/switches/create">
-          <button className="w-64 bg-primary text-primary-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-primary-dark">Create a Switch Game</button>
+          <button className="w-full md:w-64 bg-primary text-primary-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-primary-dark">Create a Switch Game</button>
         </Link>
         <Link to="/switches/participate">
-          <button className="w-64 bg-info text-info-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-info-dark">Participate in a Switch Game</button>
+          <button className="w-full md:w-64 bg-info text-info-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-info-dark">Participate in a Switch Game</button>
         </Link>
       </div>
     </div>

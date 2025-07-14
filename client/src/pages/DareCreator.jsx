@@ -55,7 +55,7 @@ export default function DareCreator() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Create a Dare</h1>
       {toast && (
@@ -92,40 +92,21 @@ export default function DareCreator() {
         </div>
       )}
       {!showModal && (
-        <form onSubmit={handleCreate} className="space-y-4" aria-label="Create Dare Form">
+        <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1 text-primary" htmlFor="dare-description">Description</label>
-            <textarea
-              id="dare-description"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              required
-              minLength={10}
-              aria-required="true"
-              aria-describedby="desc-help"
-            />
-            <small id="desc-help" className="text-neutral-400">At least 10 characters.</small>
+            <label className="block font-semibold mb-1 text-primary">Dare Description</label>
+            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={description} onChange={e => setDescription(e.target.value)} rows={3} required minLength={10} />
           </div>
           <div>
-            <label className="block font-semibold mb-1 text-primary" htmlFor="dare-difficulty">Difficulty</label>
-            <select
-              id="dare-difficulty"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={difficulty}
-              onChange={e => setDifficulty(e.target.value)}
-              required
-              aria-required="true"
-            >
+            <label className="block font-semibold mb-1 text-primary">Difficulty</label>
+            <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
               <option value="titillating">Titillating</option>
-              <option value="arousing">Arousing</option>
-              <option value="explicit">Explicit</option>
-              <option value="edgy">Edgy</option>
-              <option value="hardcore">Hardcore</option>
+              <option value="daring">Daring</option>
+              <option value="diabolical">Diabolical</option>
             </select>
           </div>
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={creating} aria-busy={creating}>
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={creating}>
             {creating ? 'Creating...' : 'Create Dare'}
           </button>
         </form>

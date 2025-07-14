@@ -22,7 +22,9 @@ export default function Leaderboard() {
         <h1 className="text-2xl font-bold text-center">Leaderboard</h1>
       </div>
       {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-      <LeaderboardWidget leaders={leaders} loading={loading} title="Leaderboard" />
+      <div className="overflow-x-auto">
+        <LeaderboardWidget leaders={leaders} loading={loading} title="Leaderboard" />
+      </div>
     </div>
   );
 } 
