@@ -47,6 +47,11 @@ io.on('connection', (socket) => {
 module.exports.io = io;
 module.exports.userSockets = userSockets;
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 app.use(cors({
   origin: [FRONTEND_URL],
   credentials: true,

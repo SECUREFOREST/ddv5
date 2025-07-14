@@ -70,6 +70,7 @@ router.get('/me', auth, async (req, res) => {
 
 // PATCH /api/users/:id (update own profile)
 router.patch('/:id', auth, async (req, res) => {
+  console.log('PATCH /users/:id handler called for', req.params.id, 'body:', req.body);
   try {
     if (req.userId !== req.params.id) {
       return res.status(403).json({ error: 'Unauthorized.' });
