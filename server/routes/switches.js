@@ -7,7 +7,8 @@ const mongoose = require('mongoose');
 
 // TODO: Replace with real auth middleware
 function getUsername(req) {
-  // In production, use req.user.username from auth middleware
+  // Use authenticated user's username if available
+  if (req.user && req.user.username) return req.user.username;
   return req.body.username || req.query.username || 'anonymous';
 }
 
