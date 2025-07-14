@@ -66,7 +66,7 @@ export default function Admin() {
   const clearSelectedUsers = () => setSelectedUsers([]);
   const [selectedDares, setSelectedDares] = useState([]);
   const allFilteredDareIds = dares.filter(d =>
-    d && typeof d.title === 'string' && d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
+    d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase()) ||
     (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
   ).map(d => d._id);
   const isAllDaresSelected = allFilteredDareIds.length > 0 && allFilteredDareIds.every(id => selectedDares.includes(id));
@@ -464,7 +464,7 @@ export default function Admin() {
                             <thead>
                           <tr className="bg-neutral-900 text-primary">
                             <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} /></th>
-                            <th className="p-2 text-left font-semibold">Title</th>
+                            <th className="p-2 text-left font-semibold">Description</th>
                             <th className="p-2 text-left font-semibold">Creator</th>
                             <th className="p-2 text-left font-semibold">Status</th>
                             <th className="p-2 text-left font-semibold">Difficulty</th>
@@ -474,14 +474,14 @@ export default function Admin() {
                             <tbody>
                           {dares
                             .filter(d =>
-                              (d && typeof d.title === 'string' && d.title.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                              (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
                               (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
                             )
                             .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                             .map(d => (
                               <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                                 <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
-                                <td className="p-2 font-medium text-primary">{d && typeof d.title === 'string' ? d.title : '-'}</td>
+                                <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
                                 <td className="p-2 text-neutral-400">{d && d.creator?.username ? d.creator.username : 'Unknown'}</td>
                                 <td className="p-2">
                                   <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>

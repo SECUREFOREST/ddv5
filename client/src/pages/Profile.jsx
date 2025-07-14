@@ -280,7 +280,7 @@ export default function Profile() {
                     <ul className="space-y-4">
                       {dares.map(dare => (
                         <li key={dare._id} className="bg-neutral-900 rounded p-4">
-                          <div className="font-bold text-lg text-primary">{dare.title}</div>
+                          <div className="font-bold text-lg text-primary">{dare.description}</div>
                           <div className="text-neutral-400">{dare.description}</div>
                           <div className="text-sm mt-1">Status: <StatusBadge status={dare.status} /></div>
                           <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold mt-1">{dare.difficulty}</span>

@@ -68,7 +68,6 @@ function Tag({ tag }) {
 }
 
 export default function DareCard({
-  title,
   description,
   difficulty,
   tags = [],
@@ -93,7 +92,7 @@ export default function DareCard({
   return (
     <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()} {...props}>
       <div className="flex items-center justify-between bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h3 className="text-lg font-semibold truncate w-4/5" title={title}>{title}</h3>
+        <h3 className="text-lg font-semibold truncate w-4/5" title={description}>{description}</h3>
         <div className="flex items-center">
           <DifficultyBadge level={difficulty} />
           <StatusBadge status={status} />

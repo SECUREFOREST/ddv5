@@ -42,7 +42,6 @@ export default function Dares() {
   const [difficulty, setDifficulty] = useState('');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [createTitle, setCreateTitle] = useState('');
   const [createDescription, setCreateDescription] = useState('');
   const [createDifficulty, setCreateDifficulty] = useState('titillating');
   const [createError, setCreateError] = useState('');
@@ -95,7 +94,6 @@ export default function Dares() {
         allowedRoles: createAllowedRoles,
       });
       setShowCreate(false);
-      setCreateTitle('');
       setCreateDescription('');
       setCreateDifficulty('titillating');
       setCreateTags([]);
@@ -178,7 +176,7 @@ export default function Dares() {
           </div>
           <div className="flex flex-col">
             <label className="font-semibold mb-1 text-primary">Search</label>
-            <input className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Title or description" />
+            <input className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" />
           </div>
           <div className="flex flex-col">
             <label className="font-semibold mb-1 text-primary">Type</label>
@@ -211,7 +209,6 @@ export default function Dares() {
             {dares.map(dare => (
               <DareCard
                 key={dare._id}
-                title={dare.title}
                 description={dare.description}
                 difficulty={dare.difficulty}
                 tags={dare.tags}
@@ -236,10 +233,6 @@ export default function Dares() {
             </div>
             <form onSubmit={handleCreate}>
               <div className="px-6 py-4 space-y-4">
-                <div>
-                  <label htmlFor="createTitle" className="block font-semibold mb-1 text-primary">Title</label>
-                  <input id="createTitle" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createTitle} onChange={e => setCreateTitle(e.target.value)} required />
-                </div>
                 <div>
                   <label htmlFor="createDescription" className="block font-semibold mb-1 text-primary">Description</label>
                   <textarea id="createDescription" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required />
