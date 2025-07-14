@@ -5,18 +5,14 @@ import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 
 const MOVES = ['rock', 'paper', 'scissors'];
-const DIFFICULTIES = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
-];
+// Removed DIFFICULTIES and difficulty state
 
 export default function SwitchGameParticipate() {
   const { user } = useAuth();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGame, setSelectedGame] = useState(null);
-  const [difficulty, setDifficulty] = useState('easy');
+  // Removed difficulty state
   const [move, setMove] = useState('rock');
   const [consent, setConsent] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -34,7 +30,7 @@ export default function SwitchGameParticipate() {
 
   const handleParticipate = (game) => {
     setSelectedGame(game);
-    setDifficulty('easy');
+    // Removed setDifficulty
     setMove('rock');
     setConsent(false);
     setError('');
@@ -50,7 +46,8 @@ export default function SwitchGameParticipate() {
     setError('');
     setToast('');
     try {
-      await api.post(`/switches/${selectedGame._id}/join`, { difficulty, move });
+      // Removed difficulty from join API call
+      await api.post(`/switches/${selectedGame._id}/join`, { move });
       setToast('Joined switch game!');
       setTimeout(() => navigate(`/switches/${selectedGame._id}`), 1200);
     } catch (err) {
@@ -98,18 +95,7 @@ export default function SwitchGameParticipate() {
       )}
       <Modal open={!!selectedGame} onClose={() => setSelectedGame(null)} title="Participate in Switch Game" role="dialog" aria-modal="true">
         <form onSubmit={handleJoin} className="space-y-4">
-          <div>
-            <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Select Difficulty</label>
-            <select
-              id="difficulty"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={difficulty}
-              onChange={e => setDifficulty(e.target.value)}
-              required
-            >
-              {DIFFICULTIES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-            </select>
-          </div>
+          {/* Removed difficulty selector UI */}
           <div>
             <label className="block font-semibold mb-1 text-primary">Your Move</label>
             <div className="flex gap-3 mt-1">

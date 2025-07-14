@@ -256,6 +256,8 @@ export default function SwitchGameDetails() {
       </div>
       <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
       <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
+      {/* Difficulty display */}
+      <div className="mb-2"><b>Difficulty:</b> {game.difficulty ? game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1) : '-'}</div>
       <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
       <hr className="my-4" />
       {toast && (
