@@ -62,14 +62,11 @@ export default function Tabs({
                   onClick={() => handleTabClick(idx)}
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
-                  className={`w-full flex-1 px-4 py-2 font-bold text-center focus:outline-none transition-colors duration-200 border-b-2
-                    ${selectedIndex === idx
-                      ? 'bg-[#D60B20] text-white border-[#D60B20]'
-                      : tab.disabled
-                        ? 'bg-[#222] text-[#888] border-transparent cursor-not-allowed'
-                        : 'bg-[#222] text-[#888] border-transparent hover:bg-[#333]'}
+                  className={`w-full flex-grow px-[20px] py-[10px] font-bold text-center focus:outline-none transition-colors duration-200
+                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666] rounded-t-md shadow-md' :
+                      tab.disabled ? 'bg-[#222] text-[#888] cursor-not-allowed' : 'bg-[#222] text-[#888] hover:bg-[#333]'}
                   `}
-                  style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
+                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #666' }}
                 >
                   {tab.label}
                 </button>
