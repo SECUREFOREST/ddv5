@@ -155,6 +155,20 @@ router.patch('/:id',
   }
 );
 
+// DELETE /api/users/:id (admin only)
+router.delete('/:id', auth, checkPermission('delete_users'), async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    await logAudit({ action: 'delete_user', user: req.userId, target: req.params.id });
+    res.json({ message: 'User deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete user.' });
+  }
+});
+
 // POST /api/users/:id/block (block another user)
 router.post('/:id/block',
   [param('id').isMongoId()],
