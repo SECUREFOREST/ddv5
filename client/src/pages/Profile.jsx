@@ -94,10 +94,6 @@ export default function Profile() {
                           <div className="text-2xl text-primary">{stats.daresCount}</div>
                         </div>
                         <div className="bg-neutral-900 rounded p-3 flex-1">
-                          <div className="text-base font-semibold text-primary">Credits</div>
-                          <div className="text-2xl text-primary">{stats.totalCredits}</div>
-                        </div>
-                        <div className="bg-neutral-900 rounded p-3 flex-1">
                           <div className="text-base font-semibold text-primary">Avg. Grade</div>
                           <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
                         </div>

@@ -206,45 +206,6 @@ export default function Admin() {
     setActionLoading(false);
   };
 
-  const handleAdjustCredits = async (userId, currentCredits) => {
-    const value = window.prompt('Enter new credit value:', currentCredits);
-    if (value === null) return;
-    const credits = parseInt(value, 10);
-    if (isNaN(credits)) return alert('Invalid number');
-    setActionLoading(true);
-    try {
-      await api.put(`/credits/${userId}`, { credits });
-      fetchUsers();
-    } catch {}
-    setActionLoading(false);
-  };
-
-  const handleApprove = async (dareId) => {
-    setActionLoading(true);
-    try {
-      await api.post(`/dares/${dareId}/approve`);
-      fetchDares();
-    } catch {}
-    setActionLoading(false);
-  };
-  const handleReject = async (dareId) => {
-    setActionLoading(true);
-    try {
-      await api.post(`/dares/${dareId}/reject`);
-      fetchDares();
-    } catch {}
-    setActionLoading(false);
-  };
-  const handleDeleteDare = async (dareId) => {
-    if (!window.confirm('Delete this dare?')) return;
-    setActionLoading(true);
-    try {
-      await api.delete(`/dares/${dareId}`);
-      fetchDares();
-    } catch {}
-    setActionLoading(false);
-  };
-
   // Add a no-op handleUserSearch to prevent ReferenceError
   const handleUserSearch = () => {
     // Optionally, you could refetch users from the server here if needed

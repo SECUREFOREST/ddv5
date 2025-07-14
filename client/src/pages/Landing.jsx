@@ -22,7 +22,6 @@ const Landing = () => {
       <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">
         <li>✔️ Log your daily dares and progress</li>
         <li>✔️ Compete on the leaderboard</li>
-        <li>✔️ Earn credits and rewards</li>
         <li>✔️ Get notified about new activities</li>
       </ul>
       <div className="flex flex-col gap-3 mt-6">

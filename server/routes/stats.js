@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Dare = require('../models/Dare');
-const Credit = require('../models/Credit');
 
 // GET /api/stats/leaderboard - top users by dares created
 router.get('/leaderboard', async (req, res) => {
@@ -34,10 +33,6 @@ router.get('/users/:id', async (req, res) => {
   try {
     const userId = req.params.id;
     const daresCount = await Dare.countDocuments({ creator: userId });
-    const credits = await Credit.aggregate([
-      { $match: { user: require('mongoose').Types.ObjectId(userId) } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
-    ]);
     // Grades: average grade given to user's dares
     const dares = await Dare.find({ creator: userId });
     let grades = [];
@@ -47,7 +42,6 @@ router.get('/users/:id', async (req, res) => {
     const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
     res.json({
       daresCount,
-      totalCredits: credits[0] ? credits[0].total : 0,
       avgGrade,
     });
   } catch (err) {
