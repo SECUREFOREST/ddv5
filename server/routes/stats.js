@@ -58,7 +58,7 @@ router.get('/activities', async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ error: 'Invalid userId.' });
     }
-    const uid = mongoose.Types.ObjectId(userId);
+    const uid = new mongoose.Types.ObjectId(userId);
     // Recent dares created
     const dares = await require('../models/Dare').find({ creator: uid })
       .sort({ createdAt: -1 })
