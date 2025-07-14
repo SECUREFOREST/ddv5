@@ -396,15 +396,18 @@ export default function Admin() {
                       disabled={selectedDares.length === 0 || actionLoading}
                       onClick={async () => {
                         setActionLoading(true);
+                        let success = 0, fail = 0;
                         for (const id of selectedDares) {
                           const dare = dares.find(d => d._id === id);
                           if (dare?.status === 'pending') {
-                            try { await api.post(`/dares/${id}/approve`); } catch {}
+                            try { await api.post(`/dares/${id}/approve`); success++; } catch { fail++; }
                           }
                         }
                         fetchDares();
                         clearSelectedDares();
                         setActionLoading(false);
+                        if (success > 0) alert(`${success} dare(s) approved.`);
+                        if (fail > 0) alert(`${fail} dare(s) failed to approve.`);
                       }}
                     >
                       Approve Selected
@@ -414,15 +417,18 @@ export default function Admin() {
                       disabled={selectedDares.length === 0 || actionLoading}
                       onClick={async () => {
                         setActionLoading(true);
+                        let success = 0, fail = 0;
                         for (const id of selectedDares) {
                           const dare = dares.find(d => d._id === id);
                           if (dare?.status === 'pending') {
-                            try { await api.post(`/dares/${id}/reject`); } catch {}
+                            try { await api.post(`/dares/${id}/reject`); success++; } catch { fail++; }
                           }
                         }
                         fetchDares();
                         clearSelectedDares();
                         setActionLoading(false);
+                        if (success > 0) alert(`${success} dare(s) rejected.`);
+                        if (fail > 0) alert(`${fail} dare(s) failed to reject.`);
                       }}
                     >
                       Reject Selected
@@ -433,12 +439,15 @@ export default function Admin() {
                       onClick={async () => {
                         if (!window.confirm('Delete selected dares?')) return;
                         setActionLoading(true);
+                        let success = 0, fail = 0;
                         for (const id of selectedDares) {
-                          try { await api.delete(`/dares/${id}`); } catch {}
+                          try { await api.delete(`/dares/${id}`); success++; } catch { fail++; }
                         }
                         fetchDares();
                         clearSelectedDares();
                         setActionLoading(false);
+                        if (success > 0) alert(`${success} dare(s) deleted.`);
+                        if (fail > 0) alert(`${fail} dare(s) failed to delete.`);
                       }}
                     >
                       Delete Selected
