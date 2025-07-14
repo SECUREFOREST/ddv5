@@ -51,10 +51,14 @@ export default function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!user || !user.id) {
+      setError('User not loaded. Please refresh and try again.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
-      await api.patch(`/users/${user.id}`, { username, avatar, bio, gender, dob, interestedIn, limits });
+      await api.patch(`/users/${user.id}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
       window.location.reload(); // reload to update context
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
