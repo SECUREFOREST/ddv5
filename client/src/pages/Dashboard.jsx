@@ -50,12 +50,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
-    api.get('/stats/activities', { params: { limit: 10, userId: user.id } })
+    if (!user || !(user.id || user._id)) return;
+    api.get('/stats/activities', { params: { limit: 10, userId: user.id || user._id } })
       .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActivities([]))
       .finally(() => setActivitiesLoading(false));
-  }, []);
+  }, [user]);
 
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">

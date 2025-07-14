@@ -88,6 +88,7 @@ router.patch('/:id', auth, async (req, res) => {
     await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
     res.json(user);
   } catch (err) {
+    console.error('PATCH /users/:id error:', err, '\nRequest body:', req.body);
     res.status(500).json({ error: 'Failed to update profile.' });
   }
 });
