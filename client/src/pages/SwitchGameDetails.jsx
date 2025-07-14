@@ -246,6 +246,18 @@ export default function SwitchGameDetails() {
     }
   };
 
+  // Helper to normalize MongoDB IDs
+  const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj);
+  const isCreator = user && game && getId(game.creator) === user.id;
+  const isParticipant = user && game && getId(game.participant) === user.id;
+
+  // Improved debug log for updated game state
+  useEffect(() => {
+    if (game && (toast || proofError || generalSuccess)) {
+      console.log('Updated switch game after action:', game);
+    }
+  }, [game, toast, proofError, generalSuccess]);
+
   if (loading) {
     return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
   }
@@ -458,13 +470,13 @@ export default function SwitchGameDetails() {
                     <Avatar user={g.user} size={24} />
                     <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
                     <span className="text-xs text-gray-400">
-                      ({g.user && game.creator && (g.user._id === game.creator._id || g.user === game.creator._id || g.user === game.creator) ? 'Creator' : 'Participant'})
+                      ({g.user && game.creator && (getId(g.user) === getId(game.creator) ? 'Creator' : 'Participant')})
                     </span>
                     <span className="mx-2">→</span>
                     <Avatar user={g.target} size={24} />
                     <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
                     <span className="text-xs text-gray-400">
-                      ({g.target && game.creator && (g.target._id === game.creator._id || g.target === game.creator._id || g.target === game.creator) ? 'Creator' : 'Participant'})
+                      ({g.target && game.creator && (getId(g.target) === getId(game.creator) ? 'Creator' : 'Participant')})
                     </span>
                     <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
                       {g.grade}
@@ -480,8 +492,8 @@ export default function SwitchGameDetails() {
               <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
             )}
             {/* Creator grades participant */}
-            {user && game.creator && game.participant && user.id === (game.creator._id || game.creator) && !hasGradedParticipant && (
-              <form onSubmit={e => handleBidirectionalGrade(e, game.participant._id || game.participant)} className="space-y-4">
+            {isCreator && game.participant && !hasGradedParticipant && (
+              <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Avatar user={game.participant} size={32} />
                   <span className="font-semibold">{game.participant?.username || 'Participant'}</span>
@@ -507,8 +519,8 @@ export default function SwitchGameDetails() {
               </form>
             )}
             {/* Participant grades creator */}
-            {user && game.creator && game.participant && user.id === (game.participant._id || game.participant) && !hasGradedCreator && (
-              <form onSubmit={e => handleBidirectionalGrade(e, game.creator._id || game.creator)} className="space-y-4">
+            {isParticipant && game.creator && !hasGradedCreator && (
+              <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Avatar user={game.creator} size={32} />
                   <span className="font-semibold">{game.creator?.username || 'Creator'}</span>
@@ -534,9 +546,9 @@ export default function SwitchGameDetails() {
               </form>
             )}
             {/* Show message if already graded */}
-            {user && ((game.creator && game.participant && user.id === (game.creator._id || game.creator) && hasGradedParticipant) || (game.creator && game.participant && user.id === (game.participant._id || game.participant) && hasGradedCreator)) && (
+            {(isCreator && hasGradedParticipant) || (isParticipant && hasGradedCreator) ? (
               <div className="text-success text-center font-medium mb-2">You have already graded this user for this switch game.</div>
-            )}
+            ) : null}
           </div>
         </div>
       )}

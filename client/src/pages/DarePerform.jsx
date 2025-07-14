@@ -132,6 +132,18 @@ export default function DarePerform() {
     }
   };
 
+  // Helper to normalize MongoDB IDs
+  const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj);
+  const isCreator = user && dare && getId(dare.creator) === user.id;
+  const isPerformer = user && dare && getId(dare.performer) === user.id;
+
+  // Improved debug log for updated dare state
+  React.useEffect(() => {
+    if (dare && proofSuccess) {
+      console.log('Updated dare after proof submission:', dare);
+    }
+  }, [dare, proofSuccess]);
+
   return (
     <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Link to="/" className="inline-block mb-4">
@@ -217,12 +229,12 @@ export default function DarePerform() {
               </button>
             </div>
           </form>
-          {proofSuccess && dare && (
+          {proofSuccess && dare && (isCreator || isPerformer) && (
             <div className="mt-6">
               <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grade</h2>
               {/* Creator grades performer */}
-              {user && dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && !hasGradedPerformer && (
-                <form onSubmit={e => handleGrade(e, dare.performer._id || dare.performer)} className="space-y-4">
+              {isCreator && dare.performer && !hasGradedPerformer && (
+                <form onSubmit={e => handleGrade(e, getId(dare.performer))} className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Avatar user={dare.performer} size={32} />
                     <span className="font-semibold">{dare.performer?.username || 'Participant'}</span>
@@ -248,8 +260,8 @@ export default function DarePerform() {
                 </form>
               )}
               {/* Performer grades creator */}
-              {user && dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && !hasGradedCreator && (
-                <form onSubmit={e => handleGrade(e, dare.creator._id || dare.creator)} className="space-y-4">
+              {isPerformer && dare.creator && !hasGradedCreator && (
+                <form onSubmit={e => handleGrade(e, getId(dare.creator))} className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Avatar user={dare.creator} size={32} />
                     <span className="font-semibold">{dare.creator?.username || 'Creator'}</span>
@@ -275,9 +287,9 @@ export default function DarePerform() {
                 </form>
               )}
               {/* Show message if already graded */}
-              {user && ((dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && hasGradedPerformer) || (dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && hasGradedCreator)) && (
+              {(isCreator && hasGradedPerformer) || (isPerformer && hasGradedCreator) ? (
                 <div className="text-success text-center font-medium mb-2">You have already graded this user for this dare.</div>
-              )}
+              ) : null}
               {/* Show all grades */}
               {grades && grades.length > 0 && (
                 <ul className="space-y-2 mt-4">
@@ -286,13 +298,13 @@ export default function DarePerform() {
                       <Avatar user={g.user} size={24} />
                       <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
                       <span className="text-xs text-gray-400">
-                        ({g.user && dare.creator && (g.user._id === dare.creator._id || g.user === dare.creator._id || g.user === dare.creator) ? 'Creator' : 'Performer'})
+                        ({g.user && dare.creator && (getId(g.user) === getId(dare.creator) ? 'Creator' : 'Performer')})
                       </span>
                       <span className="mx-2">→</span>
                       <Avatar user={g.target} size={24} />
                       <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
                       <span className="text-xs text-gray-400">
-                        ({g.target && dare.creator && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator) ? 'Creator' : 'Performer'})
+                        ({g.target && dare.creator && (getId(g.target) === getId(dare.creator) ? 'Creator' : 'Performer')})
                       </span>
                       <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
                         {g.grade}
