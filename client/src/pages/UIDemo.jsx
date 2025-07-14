@@ -11,6 +11,7 @@ import ProgressBar from '../components/ProgressBar';
 import Markdown from '../components/Markdown';
 import Countdown from '../components/Countdown';
 import Accordion from '../components/Accordion';
+import { Banner } from '../components/Modal';
 
 export default function UIDemo() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,9 +21,11 @@ export default function UIDemo() {
   const [markdown, setMarkdown] = useState(`# Markdown Example\n\n- **Bold** and _italic_\n- [Link](https://example.com)\n- \`inline code\`\n\n1. List item\n2. List item\n\n> Blockquote\n\n\n\n`);
   const [countdownTarget, setCountdownTarget] = useState(null);
   const [countdownDone, setCountdownDone] = useState(false);
+  const [error, setError] = useState('');
 
   return (
     <div className="max-w-2xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      {error && <Banner type="error" message={error} onClose={() => setError('')} />}
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">UI Demo</h1>
       </div>

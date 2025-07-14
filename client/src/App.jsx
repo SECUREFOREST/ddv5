@@ -8,6 +8,7 @@ import DareCreator from './pages/DareCreator';
 import DareParticipant from './pages/DareParticipant';
 import ProfileView from './pages/ProfileView';
 import DarePerform from './pages/DarePerform';
+import NotFound from './pages/NotFound';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -47,23 +48,24 @@ function AppContent() {
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
-              <Route path="/dares" element={<Dares />} />
-              <Route path="/dares/:id" element={<DareDetails />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/dares" element={<PrivateRoute><Dares /></PrivateRoute>} />
+              <Route path="/dares/:id" element={<PrivateRoute><DareDetails /></PrivateRoute>} />
+              <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/ui-demo" element={<UIDemo />} />
-              <Route path="/switches" element={<SwitchGames />} />
-              <Route path="/switches/create" element={<SwitchGameCreate />} />
-              <Route path="/switches/participate" element={<SwitchGameParticipate />} />
-              <Route path="/switches/:id" element={<SwitchGameDetails />} />
-              <Route path="/activity-feed" element={<ActivityFeed />} />
-              <Route path="/dare/create" element={<DareCreator />} />
-              <Route path="/dare/:id/perform" element={<DareParticipant />} />
-              <Route path="/dare/perform" element={<DarePerform />} />
+              <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
+              <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
+              <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
+              <Route path="/switches/participate" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
+              <Route path="/switches/:id" element={<PrivateRoute><SwitchGameDetails /></PrivateRoute>} />
+              <Route path="/activity-feed" element={<PrivateRoute><ActivityFeed /></PrivateRoute>} />
+              <Route path="/dare/create" element={<PrivateRoute><DareCreator /></PrivateRoute>} />
+              <Route path="/dare/:id/perform" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
+              <Route path="/dare/perform" element={<PrivateRoute><DarePerform /></PrivateRoute>} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </div>
