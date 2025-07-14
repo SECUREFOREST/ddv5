@@ -50,7 +50,7 @@ export default function Tabs({
         <>
           <ul className="flex border-b border-[#666] mb-4 rounded-none" role="tablist">
             {tabs.map((tab, idx) => (
-              <li key={tab.label} className="mr-2" role="presentation">
+              <li key={tab.label} className="flex-1" role="presentation">
                 <button
                   ref={el => tabRefs.current[idx] = el}
                   type="button"
@@ -62,11 +62,14 @@ export default function Tabs({
                   onClick={() => handleTabClick(idx)}
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
-                  className={`px-[20px] py-[10px] font-bold rounded-none focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666]' :
-                      tab.disabled ? 'bg-[#222] text-[#888] cursor-not-allowed' : 'bg-[#222] text-[#888] hover:bg-[#333]'}
+                  className={`w-full flex-1 px-4 py-2 font-bold text-center focus:outline-none transition-colors duration-200 border-b-2
+                    ${selectedIndex === idx
+                      ? 'bg-[#D60B20] text-white border-[#D60B20]'
+                      : tab.disabled
+                        ? 'bg-[#222] text-[#888] border-transparent cursor-not-allowed'
+                        : 'bg-[#222] text-[#888] border-transparent hover:bg-[#333]'}
                   `}
-                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #666' }}
+                  style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
                 >
                   {tab.label}
                 </button>
