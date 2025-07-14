@@ -28,6 +28,7 @@ export default function Profile() {
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(avatar || '');
+  const [avatarSaved, setAvatarSaved] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -66,23 +67,8 @@ export default function Profile() {
     const userId = user.id || user._id;
     setSaving(true);
     setError('');
-    let avatarUrl = avatar;
-    if (avatarFile) {
-      const formData = new FormData();
-      formData.append('file', avatarFile);
-      try {
-        const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        avatarUrl = uploadRes.data.url;
-      } catch (uploadErr) {
-        setError('Failed to upload avatar.');
-        setSaving(false);
-        return;
-      }
-    }
     try {
-      await api.patch(`/users/${userId}`, { username, avatar: avatarUrl, bio, gender, dob, interestedIn, limits, fullName });
+      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
       console.log('user before reload:', user);
       window.location.reload(); // reload to update context
     } catch (err) {
@@ -116,7 +102,7 @@ export default function Profile() {
     document.getElementById('avatar-upload-input').click();
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setAvatarFile(file);
@@ -125,6 +111,27 @@ export default function Profile() {
         setAvatarPreview(reader.result);
       };
       reader.readAsDataURL(file);
+      // Auto-upload avatar
+      if (user && (user.id || user._id)) {
+        const userId = user.id || user._id;
+        const formData = new FormData();
+        formData.append('file', file);
+        setSaving(true);
+        setError('');
+        setAvatarSaved(false);
+        try {
+          const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          setAvatar(uploadRes.data.url);
+          setAvatarSaved(true);
+          setTimeout(() => setAvatarSaved(false), 2000);
+        } catch (uploadErr) {
+          setError('Failed to upload avatar.');
+        } finally {
+          setSaving(false);
+        }
+      }
     }
   };
 
@@ -150,20 +157,26 @@ export default function Profile() {
                       style={{ display: 'none' }}
                       onChange={handleAvatarChange}
                     />
-                    {avatarPreview ? (
-                      <img
-                        src={avatarPreview}
-                        alt="avatar"
-                        className="w-24 h-24 rounded-full mb-2 object-cover cursor-pointer"
-                        onClick={handleAvatarClick}
-                      />
-                    ) : (
-                      <div
-                        className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 cursor-pointer"
-                        onClick={handleAvatarClick}
-                      >
-                        {user.username[0].toUpperCase()}
-                      </div>
+                    <div className="relative group">
+                      {avatarPreview ? (
+                        <img
+                          src={avatarPreview}
+                          alt="avatar"
+                          className="w-24 h-24 rounded-full mb-2 object-cover cursor-pointer"
+                          onClick={handleAvatarClick}
+                        />
+                      ) : (
+                        <div
+                          className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 cursor-pointer"
+                          onClick={handleAvatarClick}
+                        >
+                          {user.username[0].toUpperCase()}
+                        </div>
+                      )}
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
+                    </div>
+                    {avatarSaved && (
+                      <div className="text-success text-xs mt-2">Profile picture saved!</div>
                     )}
                     <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => setTabIdx(2)}>
                       Edit Profile
