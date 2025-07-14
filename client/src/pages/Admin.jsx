@@ -3,6 +3,7 @@ import api from '../api/axios';
 import Tabs from '../components/Tabs';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -23,8 +24,17 @@ function exportToCsv(filename, rows) {
 }
 
 export default function Admin() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user || !user.roles?.includes('admin')) {
+    return (
+      <div className="max-w-lg mx-auto mt-20 p-8 bg-[#222] border border-[#282828] rounded shadow text-center text-danger text-xl font-bold">
+        Access Denied: Admins Only
+      </div>
+    );
+  }
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [tabIdx, setTabIdx] = useState(0);
   const [dares, setDares] = useState([]);
@@ -96,7 +106,7 @@ export default function Admin() {
   const [error, setError] = useState('');
 
   const fetchUsers = () => {
-    setLoading(true);
+    setDataLoading(true);
     setError('');
     api.get('/users')
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
@@ -104,7 +114,7 @@ export default function Admin() {
         setUsers([]);
         setError(err.response?.data?.error || 'Failed to load users.');
       })
-      .finally(() => setLoading(false));
+      .finally(() => setDataLoading(false));
   };
 
   const fetchDares = () => {

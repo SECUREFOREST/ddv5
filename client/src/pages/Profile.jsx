@@ -8,7 +8,7 @@ import StatusBadge from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 
 export default function Profile() {
-  const { user, accessToken, logout, loading } = useAuth();
+  const { user, accessToken, logout, loading, setUser } = useAuth();
   const [stats, setStats] = useState(null);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
@@ -185,16 +185,19 @@ export default function Profile() {
                       Logout
                     </button>
                     {/* Add Upgrade/Downgrade Admin button */}
-                    {user.role === 'admin' ? (
+                    {user.roles?.includes('admin') ? (
                       <button
                         className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark"
                         onClick={async () => {
                           if (!user || !(user.id || user._id)) return;
                           const userId = user.id || user._id;
                           try {
-                            await api.patch(`/users/${userId}`, { role: 'user' });
+                            await api.patch(`/users/${userId}`, { roles: ['user'] });
+                            // Update user in AuthContext and localStorage
+                            const updatedUser = { ...user, roles: ['user'] };
+                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                            if (typeof setUser === 'function') setUser(updatedUser);
                             alert('User downgraded to regular user!');
-                            window.location.reload();
                           } catch (err) {
                             alert('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
                           }
@@ -209,9 +212,12 @@ export default function Profile() {
                           if (!user || !(user.id || user._id)) return;
                           const userId = user.id || user._id;
                           try {
-                            await api.patch(`/users/${userId}`, { role: 'admin' });
+                            await api.patch(`/users/${userId}`, { roles: ['admin'] });
+                            // Update user in AuthContext and localStorage
+                            const updatedUser = { ...user, roles: ['admin'] };
+                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                            if (typeof setUser === 'function') setUser(updatedUser);
                             alert('User upgraded to admin!');
-                            window.location.reload();
                           } catch (err) {
                             alert('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
                           }
