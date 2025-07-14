@@ -157,7 +157,8 @@ router.post('/:id/avatar', auth, upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded.' });
   }
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  const apiBase = process.env.API_BASE_URL || 'https://api.deviantdare.com';
+  const avatarUrl = `${apiBase}/uploads/avatars/${req.file.filename}`;
   await User.findByIdAndUpdate(req.params.id, { avatar: avatarUrl });
   res.json({ url: avatarUrl });
 });
