@@ -52,6 +52,8 @@ export default function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    console.log('user at save:', user);
+    console.log('user.id:', user?.id, 'user._id:', user?._id);
     if (!user || !(user.id || user._id)) {
       setError('User not loaded. Please refresh and try again.');
       return;
@@ -61,6 +63,7 @@ export default function Profile() {
     setError('');
     try {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
+      console.log('user before reload:', user);
       window.location.reload(); // reload to update context
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
