@@ -210,7 +210,7 @@ export default function NotificationDropdown() {
         onClick={() => setOpen((v) => !v)}
         tabIndex={0}
       >
-        <i className={`fa fa-bell text-xl transition-colors duration-150
+        <i className={`fas fa-bell text-xl transition-colors duration-150
           ${unseenCount > 0
             ? 'text-primary group-hover:text-primary-dark'
             : 'text-neutral-100 group-hover:text-neutral-400'}

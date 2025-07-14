@@ -71,7 +71,7 @@ export default function Navbar() {
                     <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828]" />
                   ) : (
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-neutral-800 text-neutral-300 border-2 border-[#282828]">
-                      <i className="fa fa-user text-lg" />
+                      <i className="fas fa-user text-lg" />
                     </span>
                   )}
                 </button>
