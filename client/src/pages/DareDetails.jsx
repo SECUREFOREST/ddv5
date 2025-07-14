@@ -378,16 +378,6 @@ export default function DareDetails() {
                     style={{ maxHeight: 400 }}
                   />
                 )}
-                <div>
-                  <a
-                    href={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline"
-                  >
-                    Download Proof
-                  </a>
-                </div>
               </>
             )}
           </div>

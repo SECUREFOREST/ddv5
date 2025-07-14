@@ -105,6 +105,7 @@ export default function DarePerform() {
   React.useEffect(() => {
     if (proofSuccess && dare?._id) {
       fetchDare(dare._id);
+      console.log('Fetched dare after proof submission:', dare);
     }
   }, [proofSuccess, dare?._id]);
 

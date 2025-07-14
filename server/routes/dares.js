@@ -154,6 +154,14 @@ router.get('/:id', async (req, res) => {
       .populate('assignedSwitch', 'username avatar')
       .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    // Ensure creator and performer are always present as objects (not just IDs)
+    // If missing, try to fetch and attach them
+    if (dare.creator && typeof dare.creator === 'string') {
+      dare.creator = await User.findById(dare.creator).select('username avatar');
+    }
+    if (dare.performer && typeof dare.performer === 'string') {
+      dare.performer = await User.findById(dare.performer).select('username avatar');
+    }
     res.json(dare);
   } catch (err) {
     res.status(500).json({ error: 'Failed to get dare.' });
