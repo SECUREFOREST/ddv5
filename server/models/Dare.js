@@ -5,7 +5,6 @@ const DareSchema = new mongoose.Schema({
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, enum: ['pending', 'completed', 'in_progress', 'graded', 'waiting_for_participant', 'forfeited'], default: 'waiting_for_participant' },
   difficulty: { type: String },
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   grades: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     target: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // The person being graded

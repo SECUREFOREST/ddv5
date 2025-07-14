@@ -55,7 +55,7 @@ router.get('/users/:id', async (req, res) => {
   }
 });
 
-// GET /api/stats/activities - recent user activities (dares, comments, grades)
+// GET /api/stats/activities - recent user activities (dares, grades)
 router.get('/activities', async (req, res) => {
   try {
     const { userId, limit = 10 } = req.query;
@@ -70,13 +70,6 @@ router.get('/activities', async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .select('description createdAt')
-      .lean();
-    // Recent comments made
-    const comments = await require('../models/Comment').find({ author: uid })
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .select('text dare createdAt')
-      .populate('dare', 'description')
       .lean();
     // Recent grades given
     const daresWithGrades = await require('../models/Dare').find({ 'grades.user': uid })
@@ -100,7 +93,6 @@ router.get('/activities', async (req, res) => {
     // Merge and sort all activities by date
     const activities = [
       ...dares.map(d => ({ type: 'dare', description: d.description, createdAt: d.createdAt })),
-      ...comments.map(c => ({ type: 'comment', text: c.text, dare: c.dare, createdAt: c.createdAt })),
       ...grades.map(g => ({ type: 'grade', dare: g.dare, grade: g.grade, feedback: g.feedback, createdAt: g.updatedAt }))
     ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
     res.json(activities);

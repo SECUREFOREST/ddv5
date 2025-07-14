@@ -5,7 +5,6 @@ const auth = require('../middleware/auth');
 const { logAudit } = require('../utils/auditLog');
 const { checkPermission } = require('../utils/permissions');
 const Dare = require('../models/Dare');
-const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const { sendNotification } = require('../utils/notification');
 const multer = require('multer');
@@ -193,7 +192,6 @@ router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => 
     // Remove or anonymize dares
     await Dare.updateMany({ creator: req.params.id }, { $set: { creator: null, description: '' } });
     // Remove or anonymize comments
-    await Comment.updateMany({ author: req.params.id }, { $set: { author: null, text: '[deleted]', deleted: true, deletedAt: new Date() } });
     // Remove notifications
     await Notification.deleteMany({ user: req.params.id });
     await User.findByIdAndDelete(req.params.id);

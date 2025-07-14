@@ -69,7 +69,6 @@ app.use('/users', require('./routes/users'));
 app.use('/auth', require('./routes/auth'));
 app.use('/dares', require('./routes/dares'));
 console.log('Dares routes mounted at /dares');
-app.use('/comments', require('./routes/comments'));
 app.use('/notifications', require('./routes/notifications'));
 app.use('/stats', require('./routes/stats'));
 app.use('/switches', require('./routes/switches'));

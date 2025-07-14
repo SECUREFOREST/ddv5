@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const Dare = require('../models/Dare');
 const User = require('../models/User');
-const Comment = require('../models/Comment');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -78,7 +77,6 @@ router.get('/', auth, async (req, res, next) => {
       .populate('creator', 'username avatar')
       .populate('performer', 'username avatar')
       .populate('assignedSwitch', 'username avatar')
-      .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } })
       .sort({ createdAt: -1 });
     // Filter out dares involving blocked users
     const filteredDares = user && user.blockedUsers && user.blockedUsers.length > 0
@@ -151,8 +149,7 @@ router.get('/:id', async (req, res) => {
     const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username avatar')
       .populate('performer', 'username avatar')
-      .populate('assignedSwitch', 'username avatar')
-      .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
+      .populate('assignedSwitch', 'username avatar');
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
     // Ensure creator and performer are always present as objects (not just IDs)
     // If missing, try to fetch and attach them
@@ -240,51 +237,6 @@ router.post('/:id/grade', auth, async (req, res) => {
     res.json({ message: 'Grade submitted.', dare });
   } catch (err) {
     res.status(500).json({ error: 'Failed to submit grade.' });
-  }
-});
-
-// POST /api/dares/:id/comment - add comment to dare (auth required)
-router.post('/:id/comment', auth, async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ error: 'Text is required.' });
-    const dare = await Dare.findById(req.params.id);
-    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-    const comment = new Comment({
-      dare: dare._id,
-      author: req.userId,
-      text,
-    });
-    await comment.save();
-    dare.comments.push(comment._id);
-    await dare.save();
-    res.status(201).json(comment);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to add comment.' });
-  }
-});
-
-// PATCH /api/dares/:id/start - start/accept a dare (auth required, slot/cooldown enforced, role enforced)
-router.patch('/:id/start', auth, async (req, res) => {
-  try {
-    await checkSlotAndCooldownAtomic(req.userId);
-    const dare = await Dare.findById(req.params.id);
-    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-    if (dare.performer) return res.status(400).json({ error: 'Dare already has a performer.' });
-    // Role enforcement
-    if (Array.isArray(dare.allowedRoles) && dare.allowedRoles.length > 0) {
-      const user = await User.findById(req.userId);
-      const hasRole = user.roles && user.roles.some(r => dare.allowedRoles.includes(r));
-      if (!hasRole) return res.status(403).json({ error: 'You do not have the required role to perform this dare.' });
-    }
-    dare.performer = req.userId;
-    dare.status = 'in_progress';
-    dare.updatedAt = new Date();
-    await dare.save();
-    await User.findByIdAndUpdate(req.userId, { $inc: { openDares: 1 } });
-    res.json({ message: 'Dare started.', dare });
-  } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to start dare.' });
   }
 });
 
