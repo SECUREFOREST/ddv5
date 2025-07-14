@@ -48,7 +48,7 @@ export default function Tabs({
         <div className="bg-warning bg-opacity-10 text-warning p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          <ul className="flex border-b border-[#666] mb-4 rounded-none" role="tablist">
+          <ul className="flex border-b border-[#888] mb-4" role="tablist">
             {tabs.map((tab, idx) => (
               <li key={tab.label} className="flex-1" role="presentation">
                 <button
@@ -62,11 +62,16 @@ export default function Tabs({
                   onClick={() => handleTabClick(idx)}
                   onKeyDown={handleKeyDown}
                   disabled={tab.disabled}
-                  className={`w-full flex-grow px-[20px] py-[10px] font-bold text-center focus:outline-none transition-colors duration-200
-                    ${selectedIndex === idx ? 'bg-[#D60B20] text-white border-l border-t border-r border-b-0 border-[#666]' :
-                      tab.disabled ? 'bg-[#222] text-[#888] cursor-not-allowed' : 'bg-[#222] text-[#888] hover:bg-[#333]'}
+                  className={`w-full flex-grow px-0 py-3 font-bold text-center focus:outline-none transition-colors duration-200
+                    ${selectedIndex === idx
+                      ? 'bg-[#D60B20] text-white border-x border-t border-[#D60B20] border-b-0 z-10'
+                      : 'bg-transparent text-[#aaa] border-0'}
                   `}
-                  style={{ borderBottom: selectedIndex === idx ? 'none' : '1px solid #666' }}
+                  style={{
+                    borderBottom: selectedIndex === idx ? 'none' : '2px solid #888',
+                    marginBottom: selectedIndex === idx ? '-2px' : '0',
+                    borderRadius: 0,
+                  }}
                 >
                   {tab.label}
                 </button>
