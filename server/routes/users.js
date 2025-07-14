@@ -231,4 +231,10 @@ router.post('/:id/avatar',
       }
     }
     const apiBase = process.env.API_BASE_URL || 'https://api.deviantdare.com';
-    const avatarUrl = `${apiBase}/uploads/avatars/${req.file.filename}`
+    const avatarUrl = `${apiBase}/uploads/avatars/${req.file.filename}`;
+    await User.findByIdAndUpdate(req.params.id, { avatar: avatarUrl });
+    res.json({ avatar: avatarUrl });
+  }
+);
+
+module.exports = router;
