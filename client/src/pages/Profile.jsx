@@ -5,6 +5,7 @@ import Markdown from '../components/Markdown';
 import Tabs from '../components/Tabs';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import StatusBadge from '../components/DareCard';
+import TagsInput from '../components/TagsInput';
 
 export default function Profile() {
   const { user, accessToken, logout } = useAuth();
@@ -24,6 +25,7 @@ export default function Profile() {
   const [dob, setDob] = useState(user?.dob ? user.dob.slice(0, 10) : '');
   const [interestedIn, setInterestedIn] = useState(user?.interestedIn || []);
   const [limits, setLimits] = useState(user?.limits || []);
+  const [fullName, setFullName] = useState(user?.fullName || '');
 
   useEffect(() => {
     if (!user || !user.id) return;
@@ -75,6 +77,10 @@ export default function Profile() {
     } catch (err) {
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
     }
+  };
+
+  const handleInterestedIn = (val) => {
+    setInterestedIn(prev => prev.includes(val) ? prev.filter(i => i !== val) : [...prev, val]);
   };
 
   if (!user) return null;
@@ -180,6 +186,14 @@ export default function Profile() {
                       <input type="text" id="username" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
                     </div>
                     <div>
+                      <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
+                      <input type="text" id="fullName" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(not editable)</span></label>
+                      <input type="email" id="email" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-400 cursor-not-allowed" value={user.email} disabled />
+                    </div>
+                    <div>
                       <label htmlFor="avatar" className="block font-semibold mb-1 text-primary">Avatar URL</label>
                       <input type="text" id="avatar" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
                     </div>
@@ -193,26 +207,36 @@ export default function Profile() {
                         onChange={e => setBio(e.target.value)}
                         placeholder="Tell us about yourself..."
                       />
-                      <div className="bg-neutral-900 rounded p-2 mt-2">
-                        <span className="text-neutral-400 text-xs">Preview:</span>
-                        <Markdown>{bio}</Markdown>
-                      </div>
                     </div>
                     <div>
                       <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
-                      <input type="text" id="gender" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} />
+                      <select id="gender" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
+                        <option value="">Select...</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                      </select>
                     </div>
                     <div>
                       <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Birth Date</label>
-                      <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} />
+                      <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
                     </div>
                     <div>
-                      <label htmlFor="interestedIn" className="block font-semibold mb-1 text-primary">Interested In (comma separated)</label>
-                      <input type="text" id="interestedIn" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={interestedIn.join(', ')} onChange={e => setInterestedIn(e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
+                      <label className="block font-semibold mb-1 text-primary">Interested in</label>
+                      <div className="flex gap-4 mt-1">
+                        <label className="flex items-center gap-2">
+                          <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
+                          Female
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
+                          Male
+                        </label>
+                      </div>
                     </div>
                     <div>
-                      <label htmlFor="limits" className="block font-semibold mb-1 text-primary">Limits (comma separated)</label>
-                      <input type="text" id="limits" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={limits.join(', ')} onChange={e => setLimits(e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
+                      <label className="block font-semibold mb-1 text-primary">Limits</label>
+                      <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
                     </div>
                     {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
                     <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
