@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 
 const TABS = [
   { key: 'in_progress', label: 'Perform' },
+  { key: 'waiting_for_participant', label: 'Available' },
   { key: 'pending', label: 'Demand' },
   { key: 'completed', label: 'Completed' },
 ];

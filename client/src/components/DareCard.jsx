@@ -16,10 +16,14 @@ function StatusBadge({ status }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
   let text = 'Unknown';
   switch (status) {
+    case 'waiting_for_participant':
+      badgeClass = 'bg-success text-success-contrast rounded-none';
+      text = 'Waiting for Participant';
+      break;
     case 'pending':
     case 'soliciting':
       badgeClass = 'bg-warning text-warning-contrast rounded-none';
-      text = 'Awaiting participants';
+      text = 'Awaiting Approval';
       break;
     case 'in_progress':
       badgeClass = 'bg-info text-info-contrast rounded-none';

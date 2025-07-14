@@ -424,7 +424,7 @@ export default function Admin() {
                                 <td className="p-2 font-medium text-primary">{d.title}</td>
                                 <td className="p-2 text-neutral-400">{d.creator?.username || 'Unknown'}</td>
                                 <td className="p-2">
-                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d.status === 'pending' ? 'bg-warning text-warning-contrast' : d.status === 'approved' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d.status}</span>
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d.status === 'pending' ? 'bg-warning text-warning-contrast' : d.status === 'approved' ? 'bg-success text-success-contrast' : d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d.status}</span>
                                 </td>
                                 <td className="p-2 text-neutral-400">{d.difficulty}</td>
                                 <td className="p-2 space-x-2">
