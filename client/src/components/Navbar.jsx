@@ -55,7 +55,9 @@ export default function Navbar() {
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
+          {user && user.roles?.includes('admin') && (
+            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
+          )}
         </ul>
         <div className="flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
           {user ? (
@@ -96,7 +98,9 @@ export default function Navbar() {
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
+            {user && user.roles?.includes('admin') && (
+              <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
+            )}
             {user ? (
               <li className="text-[#aaa] text-sm">{user.username}</li>
             ) : null}
