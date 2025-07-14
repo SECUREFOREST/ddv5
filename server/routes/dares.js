@@ -138,6 +138,7 @@ router.get('/random', auth, async (req, res) => {
     await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedDares: dare._id } });
     // Audit log
     await require('../utils/auditLog').logAudit({ action: 'consent_dare', user: userId, target: dare._id });
+    console.log('Returning dare:', dare);
     res.json(dare);
   } catch (err) {
     console.error('Error in /random endpoint:', err.message, err.stack);
