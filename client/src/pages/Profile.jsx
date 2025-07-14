@@ -26,6 +26,8 @@ export default function Profile() {
   const [interestedIn, setInterestedIn] = useState(user?.interestedIn || []);
   const [limits, setLimits] = useState(user?.limits || []);
   const [fullName, setFullName] = useState(user?.fullName || '');
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(avatar || '');
 
   useEffect(() => {
     if (loading) return;
@@ -64,8 +66,23 @@ export default function Profile() {
     const userId = user.id || user._id;
     setSaving(true);
     setError('');
+    let avatarUrl = avatar;
+    if (avatarFile) {
+      const formData = new FormData();
+      formData.append('file', avatarFile);
+      try {
+        const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        avatarUrl = uploadRes.data.url;
+      } catch (uploadErr) {
+        setError('Failed to upload avatar.');
+        setSaving(false);
+        return;
+      }
+    }
     try {
-      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
+      await api.patch(`/users/${userId}`, { username, avatar: avatarUrl, bio, gender, dob, interestedIn, limits, fullName });
       console.log('user before reload:', user);
       window.location.reload(); // reload to update context
     } catch (err) {
@@ -95,6 +112,22 @@ export default function Profile() {
     setInterestedIn(prev => prev.includes(val) ? prev.filter(i => i !== val) : [...prev, val]);
   };
 
+  const handleAvatarClick = () => {
+    document.getElementById('avatar-upload-input').click();
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -110,10 +143,25 @@ export default function Profile() {
               content: (
                 <div className="flex flex-wrap gap-8 mb-8">
                   <div className="flex flex-col items-center min-w-[160px]">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover" />
+                    <input
+                      id="avatar-upload-input"
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleAvatarChange}
+                    />
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt="avatar"
+                        className="w-24 h-24 rounded-full mb-2 object-cover cursor-pointer"
+                        onClick={handleAvatarClick}
+                      />
                     ) : (
-                      <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2">
+                      <div
+                        className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 cursor-pointer"
+                        onClick={handleAvatarClick}
+                      >
                         {user.username[0].toUpperCase()}
                       </div>
                     )}
@@ -207,7 +255,7 @@ export default function Profile() {
                     </div>
                     <div>
                       <label htmlFor="avatar" className="block font-semibold mb-1 text-primary">Avatar URL</label>
-                      <input type="text" id="avatar" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => setAvatar(e.target.value)} />
+                      <input type="text" id="avatar" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => { setAvatar(e.target.value); setAvatarPreview(e.target.value); }} />
                     </div>
                     <div>
                       <label htmlFor="bio" className="block font-semibold mb-1 text-primary">Bio (Markdown supported)</label>
