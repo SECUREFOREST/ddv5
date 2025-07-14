@@ -8,7 +8,7 @@ import StatusBadge from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 
 export default function Profile() {
-  const { user, accessToken, logout } = useAuth();
+  const { user, accessToken, logout, loading } = useAuth();
   const [stats, setStats] = useState(null);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
@@ -28,6 +28,9 @@ export default function Profile() {
   const [fullName, setFullName] = useState(user?.fullName || '');
 
   useEffect(() => {
+    if (loading) return;
+    console.log('user in useEffect:', user);
+    console.log('user.id:', user?.id, 'user._id:', user?._id);
     if (!user || !(user.id || user._id)) return;
     const userId = user.id || user._id;
     api.get(`/stats/users/${userId}`)
@@ -48,7 +51,7 @@ export default function Profile() {
     } else {
       setBlockedUsersInfo([]);
     }
-  }, [user]);
+  }, [user, loading]);
 
   const handleSave = async (e) => {
     e.preventDefault();
