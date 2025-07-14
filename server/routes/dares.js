@@ -1,3 +1,4 @@
+console.log('Dares routes loaded');
 const express = require('express');
 const router = express.Router();
 const Dare = require('../models/Dare');
