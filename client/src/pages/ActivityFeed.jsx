@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 export default function ActivityFeed() {
   const [activities, setActivities] = useState([]);
@@ -31,7 +32,10 @@ export default function ActivityFeed() {
           <ul className="list-group">
             {activities.map(a => (
               <li key={a._id} className="list-group-item">
-                <span className="label label-default">{a.user?.username || 'Someone'}</span>{' '}
+                <span className="inline-flex items-center gap-2">
+                  <Avatar user={a.user} size={28} />
+                  <span>{a.user?.username || 'Someone'}</span>
+                </span>
                 {renderActivityText(a)}
                 <span className="text-muted" style={{ marginLeft: 8, fontSize: 12 }}>{new Date(a.createdAt).toLocaleString()}</span>
               </li>

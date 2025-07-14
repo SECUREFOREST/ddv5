@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Avatar from './Avatar';
 
 export default function LeaderboardWidget({ leaders = [], loading = false, title = 'Leaderboard' }) {
   const navigate = useNavigate();
@@ -42,14 +43,8 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
                   >
                     <td className="px-2 py-1 font-bold text-primary text-center">{i + 1}</td>
                     <td className="px-2 py-1 flex items-center">
-                      {entry.user?.avatar ? (
-                        <img src={entry.user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover mr-2" />
-                      ) : (
-                        <span className="w-8 h-8 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center mr-2 font-bold text-base">
-                          {entry.user?.username?.[0]?.toUpperCase() || '?'}
-                        </span>
-                      )}
-                      <span>{entry.user?.username || 'Unknown'}</span>
+                      <Avatar user={entry.user} size={32} />
+                      <span className="ml-2">{entry.user?.username || 'Unknown'}</span>
                     </td>
                     <td className="px-2 py-1 text-neutral-100 text-center">{entry.daresCount}</td>
                   </tr>

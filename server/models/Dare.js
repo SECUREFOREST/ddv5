@@ -8,6 +8,7 @@ const DareSchema = new mongoose.Schema({
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   grades: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    target: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // The person being graded
     grade: { type: Number },
     feedback: { type: String },
   }],

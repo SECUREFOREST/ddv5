@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -87,7 +88,7 @@ export default function SwitchGameDetails() {
   // --- granularStatus logic ---
   let granularStatus = game?.status;
   if (game?.status === 'completed' && !game?.proof) {
-    if (isLoser && countdown === 'Expired') {
+    if (isLoser && proofExpiresAt && !proofExpired) {
       granularStatus = 'expired';
     } else {
       granularStatus = 'awaiting_proof';
@@ -193,6 +194,34 @@ export default function SwitchGameDetails() {
     // eslint-disable-next-line
   }, [proofExpiresAt, isLoser, game && game.status, game && game.proof]);
 
+  // Check if user has already graded this switch game
+  const hasGraded = user && game && game.grades && game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id));
+  const [grade, setGrade] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [gradeError, setGradeError] = useState('');
+  const [grading, setGrading] = useState(false);
+
+  const handleGrade = async (e) => {
+    e.preventDefault();
+    setGradeError('');
+    if (!grade) {
+      setGradeError('Please select a grade.');
+      return;
+    }
+    setGrading(true);
+    try {
+      await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback });
+      setGrade('');
+      setFeedback('');
+      setToast('Grade submitted!');
+      fetchGame(true);
+    } catch (err) {
+      setGradeError(err.response?.data?.error || 'Failed to submit grade');
+    } finally {
+      setGrading(false);
+    }
+  };
+
   if (loading) {
     return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
   }
@@ -279,12 +308,12 @@ export default function SwitchGameDetails() {
       </div>
       <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
       <div className="mb-2"><b>Participants:</b> {[
-        game.creator?.username || '[deleted]',
-        game.participant?.username || '[deleted]'
+        <span className="inline-flex items-center gap-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
+        <span className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
       ].filter(Boolean).join(', ') || '-'}</div>
       {/* Difficulty display */}
       <div className="mb-2"><b>Difficulty:</b> {game.creatorDare && game.creatorDare.difficulty ? game.creatorDare.difficulty.charAt(0).toUpperCase() + game.creatorDare.difficulty.slice(1) : '-'}</div>
-      <div className="mb-4"><b>Winner:</b> {game.winner || '-'}</div>
+      <div className="mb-4"><b>Winner:</b> {game.winner ? <span className="inline-flex items-center gap-2"><Avatar user={game.winner} size={28} />{game.winner?.username || '[deleted]'}</span> : '-'}</div>
       <hr className="my-4" />
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
@@ -377,18 +406,70 @@ export default function SwitchGameDetails() {
             </>
           )}
           {game.proof && (
-            <div className="mt-2 text-info">Proof submitted by {game.proof.user}: {game.proof.text}</div>
+            <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
           )}
         </div>
       )}
       {game.status === 'proof_submitted' && (
         <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
-          <b>Proof submitted!</b> Proof by {game.proof?.user}: {game.proof?.text}
+          <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
         </div>
       )}
       {game.status === 'expired' && (
         <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
           <b>Proof submission window has expired.</b>
+        </div>
+      )}
+      {/* Grades Section */}
+      {game && (
+        <div className="bg-neutral-900 rounded p-4 mb-6 mt-6">
+          <div className="border-b pb-2 mb-4">
+            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
+          </div>
+          <div>
+            {game.grades && game.grades.length > 0 ? (
+              <ul className="space-y-2 mb-4">
+                {game.grades.map((g, i) => (
+                  <li key={i} className="flex items-center gap-2 bg-neutral-800 rounded p-2">
+                    <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
+            )}
+            {user && !hasGraded && (
+              <form onSubmit={handleGrade} className="space-y-4">
+                <div>
+                  <label className="block font-semibold mb-1 text-primary">Your Grade</label>
+                  <div className="flex gap-2 mb-2">
+                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                      <button
+                        type="button"
+                        key={num}
+                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                        onClick={() => setGrade(num)}
+                        aria-label={`Score ${num}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
+                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
+                </div>
+                {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
+                  {grading ? 'Submitting...' : 'Submit Grade'}
+                </button>
+              </form>
+            )}
+            {user && hasGraded && (
+              <div className="text-success text-center font-medium mb-2">You have already graded this switch game.</div>
+            )}
+          </div>
         </div>
       )}
       {/* Chicken Out button for creator or participant when in progress */}

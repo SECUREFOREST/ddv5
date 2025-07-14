@@ -7,6 +7,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import StatusBadge from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
@@ -420,7 +421,10 @@ export default function Profile() {
                     {bu.username[0].toUpperCase()}
                   </div>
                 )}
-                <span className="font-medium text-[#eee]">{bu.username}</span>
+                <span className="inline-flex items-center gap-2">
+                  <Avatar user={bu} size={28} />
+                  {bu.username || '[deleted]'}
+                </span>
                 <button
                   className="ml-auto px-3 py-1 rounded bg-warning text-warning-contrast font-semibold text-xs hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   onClick={() => handleUnblock(bu._id)}

@@ -9,6 +9,8 @@ const { logActivity } = require('../utils/activity');
 const { checkPermission } = require('../utils/permissions');
 const { sendNotification } = require('../utils/notification');
 
+router.use((req, res) => res.status(410).json({ error: 'Comments are disabled.' }));
+
 // GET /api/comments?dare=dareId - list comments, optionally filter by dare
 router.get('/', auth, async (req, res) => {
   try {

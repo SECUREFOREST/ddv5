@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 export default function Notifications() {
   const { user } = useContext(AuthContext);
@@ -84,6 +85,7 @@ export default function Notifications() {
               key={n._id}
               className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
             >
+              {n.sender && <Avatar user={n.sender} size={32} />}
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-primary">{n.description}</div>
                 <div className="text-neutral-400 text-sm">{n.body}</div>

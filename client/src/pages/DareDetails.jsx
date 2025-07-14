@@ -7,6 +7,7 @@ import Modal from '../components/Modal';
 import Countdown from '../components/Countdown';
 import StatusBadge from '../components/DareCard';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -14,8 +15,6 @@ export default function DareDetails() {
   const location = useLocation();
   const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [comment, setComment] = useState('');
-  const [commentError, setCommentError] = useState('');
   const [grading, setGrading] = useState(false);
   const [grade, setGrade] = useState('');
   const [feedback, setFeedback] = useState('');
@@ -54,6 +53,7 @@ export default function DareDetails() {
   const [proofProgress, setProofProgress] = useState(0);
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
 
   const openReportModal = (commentId) => {
     setReportCommentId(commentId);
@@ -88,54 +88,7 @@ export default function DareDetails() {
       .finally(() => setLoading(false));
   }, [id, refresh]);
 
-  const handleComment = async (e) => {
-    e.preventDefault();
-    setCommentError('');
-    setGeneralError('');
-    setGeneralSuccess('');
-    if (!comment.trim()) {
-      setCommentError('Comment cannot be empty.');
-      setGeneralError('Comment cannot be empty.');
-      return;
-    }
-    setCommentLoading(true);
-    try {
-      await api.post(`/dares/${id}/comment`, { text: comment });
-      setComment('');
-      setRefresh(r => r + 1);
-      setGeneralSuccess('Comment added!');
-    } catch (err) {
-      setCommentError(err.response?.data?.error || 'Failed to add comment');
-      setGeneralError(err.response?.data?.error || 'Failed to add comment');
-    } finally {
-      setCommentLoading(false);
-    }
-  };
-
-  const handleGrade = async (e) => {
-    e.preventDefault();
-    setGradeError('');
-    setGeneralError('');
-    setGeneralSuccess('');
-    if (!grade) {
-      setGradeError('Please select a grade.');
-      setGeneralError('Please select a grade.');
-      return;
-    }
-    setGrading(true);
-    try {
-      await api.post(`/dares/${id}/grade`, { grade: Number(grade), feedback });
-      setGrade('');
-      setFeedback('');
-      setRefresh(r => r + 1);
-      setGeneralSuccess('Grade submitted successfully!');
-    } catch (err) {
-      setGradeError(err.response?.data?.error || 'Failed to submit grade');
-      setGeneralError(err.response?.data?.error || 'Failed to submit grade');
-    } finally {
-      setGrading(false);
-    }
-  };
+  // Remove all comment-related state, handlers, and UI
 
   // Assume dare.performer is the username of the performer
   const isPerformer = user && dare && user.id === (dare.performer?._id || dare.performer);
@@ -183,6 +136,39 @@ export default function DareDetails() {
 
   // Proof expiration logic
   const proofExpired = dare && dare.proofExpiresAt && new Date() > new Date(dare.proofExpiresAt);
+
+  // Check if user has already graded this dare
+  const hasGraded = user && dare && dare.grades && dare.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id));
+
+  // Check if user has already graded the other party
+  const hasGradedPerformer = user && dare && dare.grades && dare.performer && dare.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === dare.performer._id || g.target === dare.performer._id || g.target === dare.performer));
+  const hasGradedCreator = user && dare && dare.grades && dare.creator && dare.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator));
+
+  // New handleGrade for bidirectional grading
+  const handleGrade = async (e, targetId) => {
+    e.preventDefault();
+    setGradeError('');
+    setGeneralError('');
+    setGeneralSuccess('');
+    if (!grade) {
+      setGradeError('Please select a grade.');
+      setGeneralError('Please select a grade.');
+      return;
+    }
+    setGrading(true);
+    try {
+      await api.post(`/dares/${id}/grade`, { grade: Number(grade), feedback, target: targetId });
+      setGrade('');
+      setFeedback('');
+      setRefresh(r => r + 1);
+      setGeneralSuccess('Grade submitted successfully!');
+    } catch (err) {
+      setGradeError(err.response?.data?.error || 'Failed to submit grade');
+      setGeneralError(err.response?.data?.error || 'Failed to submit grade');
+    } finally {
+      setGrading(false);
+    }
+  };
 
   if (loading) return <div className="text-[#888]">Loading...</div>;
   if (!dare) return <div className="text-danger font-semibold">Dare not found.</div>;
@@ -415,122 +401,97 @@ export default function DareDetails() {
             {dare?.grades && dare.grades.length > 0 ? (
               <ul className="space-y-2 mb-4">
                 {dare.grades.map((g, i) => (
-                  <li key={i} className="flex items-center gap-2 bg-neutral-800 rounded p-2">
-                    <span className="bg-primary text-white rounded px-2 py-1 text-xs font-semibold">Grade:</span> {g.grade} {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                  <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
+                    <Avatar user={g.user} size={24} />
+                    <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
+                    <span className="text-xs text-gray-400">
+                      ({g.user && dare.creator && (g.user._id === dare.creator._id || g.user === dare.creator._id || g.user === dare.creator) ? 'Creator' : 'Performer'})
+                    </span>
+                    <span className="mx-2">→</span>
+                    <Avatar user={g.target} size={24} />
+                    <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
+                    <span className="text-xs text-gray-400">
+                      ({g.target && dare.creator && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator) ? 'Creator' : 'Performer'})
+                    </span>
+                    <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
+                      {g.grade}
+                    </span>
+                    {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                    {g.createdAt && (
+                      <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : (
               <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
             )}
-            {user && !proofExpired && (
-              <form onSubmit={handleGrade} className="space-y-4">
+            {/* Creator grades performer */}
+            {user && dare && dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && !hasGradedPerformer && !proofExpired && (
+              <form onSubmit={e => handleGrade(e, dare.performer._id || dare.performer)} className="space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Your Grade (1-10)</label>
-                  <input type="number" min="1" max="10" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={grade} onChange={e => setGrade(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Grade the Participant</label>
+                  <div className="flex gap-2 mb-2">
+                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                      <button
+                        type="button"
+                        key={num}
+                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                        onClick={() => setGrade(num)}
+                        aria-label={`Score ${num}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
                   <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
                 </div>
                 {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading}>
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
             )}
-          </div>
-        </div>
-        {/* Comments Section */}
-        <div className="bg-neutral-900 text-neutral-100 border border-[#282828] px-[15px] py-[10px] rounded-lg shadow-sm p-4 mb-6">
-          <div className="border-b pb-2 mb-4">
-            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Comments</h2>
-          </div>
-          <div>
-            {dare?.comments && dare.comments.length > 0 ? (
-              <ul className="space-y-2 mb-4">
-                {dare.comments.map((c, i) => (
-                  <li key={i} className="bg-neutral-800 rounded p-3">
-                    {c.deleted ? (
-                      <span className="text-gray-400">This comment was deleted.</span>
-                    ) : c.hidden ? (
-                      <span className="text-gray-400">This comment was hidden by a moderator.</span>
-                    ) : editCommentId === c._id ? (
-                      <form onSubmit={handleEditSubmit} className="flex items-center gap-2 w-full">
-                        <input
-                          type="text"
-                          className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                          value={editCommentText}
-                          onChange={e => setEditCommentText(e.target.value)}
-                          required
-                        />
-                        <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-3 py-2 font-semibold text-xs hover:bg-primary-dark" disabled={editLoading}>
-                          {editLoading ? 'Saving...' : 'Save'}
-                        </button>
-                        <button type="button" className="w-full bg-gray-200 text-gray-800 rounded px-3 py-2 font-semibold text-xs hover:bg-gray-300" onClick={() => setEditCommentId(null)}>
-                          Cancel
-                        </button>
-                        {editError && <div className="text-danger text-xs font-medium">{editError}</div>}
-                      </form>
-                    ) : (
-                      <>
-                        <span className="bg-gray-200 text-gray-700 rounded px-2 py-1 text-xs font-semibold mr-2">{c.author?.username || 'Unknown'}:</span> <Markdown className="inline">{c.text}</Markdown>
-                        <span className="text-gray-400 ml-2 text-xs">{new Date(c.createdAt).toLocaleString()}</span>
-                        {c.editedAt && <span className="text-gray-400 ml-2 text-xs">(edited)</span>}
-                        {user && (user.id === c.author?._id || isAdmin) && !c.deleted && !c.hidden && (
-                          <>
-                            <button
-                              className="ml-2 text-primary underline text-xs focus:outline-none"
-                              onClick={() => openEditModal(c)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="ml-2 text-red-500 underline text-xs focus:outline-none"
-                              onClick={() => handleDeleteComment(c._id)}
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                        {(isAdmin || isModerator) && !c.deleted && !c.hidden && (
-                          <button
-                            className="ml-2 text-yellow-500 underline text-xs focus:outline-none"
-                            onClick={() => openModerateModal(c._id)}
-                          >
-                            Hide
-                          </button>
-                        )}
-                        {user && (
-                          <button
-                            className="ml-4 text-red-500 underline text-xs focus:outline-none"
-                            onClick={() => openReportModal(c._id)}
-                          >
-                            Report
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-gray-400 mb-4 text-center">No comments yet.</div>
-            )}
-            {user && (
-              <form onSubmit={handleComment} className="space-y-4">
+            {/* Performer grades creator */}
+            {user && dare && dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && !hasGradedCreator && !proofExpired && (
+              <form onSubmit={e => handleGrade(e, dare.creator._id || dare.creator)} className="space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1 text-primary">Add a Comment</label>
-                  <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={comment} onChange={e => setComment(e.target.value)} required />
+                  <label className="block font-semibold mb-1 text-primary">Grade the Creator</label>
+                  <div className="flex gap-2 mb-2">
+                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                      <button
+                        type="button"
+                        key={num}
+                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                        onClick={() => setGrade(num)}
+                        aria-label={`Score ${num}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                {commentError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{commentError}</div>}
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
-                  Submit Comment
+                <div>
+                  <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
+                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
+                </div>
+                {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
+                  {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
             )}
+            {/* Show message if already graded */}
+            {user && ((dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && hasGradedPerformer) || (dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && hasGradedCreator)) && (
+              <div className="text-success text-center font-medium mb-2">You have already graded this user for this dare.</div>
+            )}
           </div>
         </div>
+        {/* Comments Section */}
+        {/* Remove all comment-related state, handlers, and UI */}
         {/* Slot/cooldown enforcement messages */}
         {inCooldown && (
           <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">

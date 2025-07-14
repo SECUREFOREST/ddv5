@@ -210,17 +210,25 @@ router.patch('/:id', auth, async (req, res) => {
 // POST /api/dares/:id/grade - grade a dare (auth required)
 router.post('/:id/grade', auth, async (req, res) => {
   try {
-    const { grade, feedback } = req.body;
+    const { grade, feedback, target } = req.body;
+    if (!target) return res.status(400).json({ error: 'Target user is required for grading.' });
     const dare = await Dare.findById(req.params.id);
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
     dare.grades = dare.grades || [];
-    dare.grades.push({ user: req.userId, grade, feedback });
-    await dare.save();
-    await logActivity({ type: 'grade_given', user: req.userId, dare: dare._id, details: { grade, feedback } });
-    // Notify performer if exists
-    if (dare.performer) {
-      await sendNotification(dare.performer, 'dare_graded', `Your dare "${dare.title}" has been graded.`);
+    // Prevent duplicate grades for the same (user, target) pair
+    if (dare.grades.some(g => g.user.toString() === req.userId && g.target && g.target.toString() === target)) {
+      return res.status(400).json({ error: 'You have already graded this user for this dare.' });
     }
+    dare.grades.push({ user: req.userId, target, grade, feedback });
+    await dare.save();
+    await logActivity({ type: 'grade_given', user: req.userId, dare: dare._id, details: { grade, feedback, target } });
+    // Notify the target user with more detail
+    const graderUser = await User.findById(req.userId).select('username');
+    await sendNotification(
+      target,
+      'dare_graded',
+      `You received a grade of ${grade} from ${graderUser?.username || 'someone'} for dare: "${dare.description}".`
+    );
     res.json({ message: 'Grade submitted.', dare });
   } catch (err) {
     res.status(500).json({ error: 'Failed to submit grade.' });

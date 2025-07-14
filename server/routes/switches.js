@@ -205,6 +205,24 @@ router.post('/:id/forfeit', auth, async (req, res) => {
   }
 });
 
+// POST /api/switches/:id/grade - grade a switch game (auth required)
+router.post('/:id/grade', auth, async (req, res) => {
+  try {
+    const { grade, feedback } = req.body;
+    const game = await SwitchGame.findById(req.params.id);
+    if (!game) return res.status(404).json({ error: 'Switch game not found.' });
+    game.grades = game.grades || [];
+    if (game.grades.some(g => g.user.toString() === req.userId)) {
+      return res.status(400).json({ error: 'You have already graded this switch game.' });
+    }
+    game.grades.push({ user: req.userId, grade, feedback });
+    await game.save();
+    res.json({ message: 'Grade submitted.', game });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit grade.' });
+  }
+});
+
 // TODO: If grading/approval endpoints are added, block if proofExpiresAt < now
 
 module.exports = router; 

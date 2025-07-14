@@ -5,6 +5,7 @@ import Card from '../components/Card';
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
+import Avatar from '../components/Avatar';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -379,7 +380,12 @@ export default function Admin() {
                             (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
                           ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((u) => (
                             <tr key={u._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2 font-medium text-primary">{u.username}</td>
+                              <td className="p-2">
+                                <span className="inline-flex items-center gap-2">
+                                  <Avatar user={u} size={28} />
+                                  {u.username || '[deleted]'}
+                                </span>
+                              </td>
                               <td className="p-2 text-neutral-400">{u.email}</td>
                               <td className="p-2 text-info font-bold">{u.role}</td>
                               <td className="p-2">

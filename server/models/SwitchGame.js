@@ -23,6 +23,14 @@ const SwitchGameSchema = new mongoose.Schema({
   expireProofAfterView: { type: Boolean, default: false },
   proofViewedAt: { type: Date },
   assignedDareId: { type: mongoose.Schema.Types.ObjectId, ref: 'Dare' },
+  grades: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      grade: { type: Number, min: 1, max: 10 },
+      feedback: String,
+      createdAt: { type: Date, default: Date.now }
+    }
+  ],
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 
