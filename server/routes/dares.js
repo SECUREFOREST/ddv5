@@ -114,11 +114,17 @@ router.get('/random', auth, async (req, res) => {
       return res.json({});
     }
     const rand = Math.floor(Math.random() * count);
+    // Find a random dare first
+    const dareDoc = await Dare.find(filter).skip(rand).limit(1);
+    if (!dareDoc.length) {
+      console.warn('No dare could be assigned (possibly race condition), filter:', filter, 'rand:', rand);
+      return res.json({});
+    }
     // Atomically assign the dare to this user if not already taken
     const dare = await Dare.findOneAndUpdate(
-      filter,
+      { _id: dareDoc[0]._id, performer: null },
       { performer: userId, status: 'in_progress', updatedAt: new Date() },
-      { skip: rand, new: true }
+      { new: true }
     );
     if (!dare) {
       console.warn('No dare could be assigned (possibly race condition), filter:', filter, 'rand:', rand);
