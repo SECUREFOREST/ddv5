@@ -207,18 +207,20 @@ export default function Dares() {
               <div className="text-neutral-400 text-center py-8">No dares found.</div>
             )}
             {dares.map(dare => (
-              <DareCard
-                key={dare._id}
-                description={dare.description}
-                difficulty={dare.difficulty}
-                tags={dare.tags}
-                status={dare.status}
-                creator={dare.creator}
-                performer={dare.performer}
-                assignedSwitch={dare.assignedSwitch}
-                actions={[]}
-                currentUserId={user?.id}
-              />
+              <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }}>
+                <DareCard
+                  description={dare.description}
+                  difficulty={dare.difficulty}
+                  tags={dare.tags}
+                  status={dare.status}
+                  creator={dare.creator}
+                  performer={dare.performer}
+                  assignedSwitch={dare.assignedSwitch}
+                  actions={[]}
+                  currentUserId={user?.id}
+                  style={{ cursor: 'pointer' }}
+                />
+              </Link>
             ))}
           </div>
         )}

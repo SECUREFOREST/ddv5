@@ -58,12 +58,15 @@ async function checkSlotAndCooldownAtomic(userId) {
 // GET /api/dares - list dares (optionally filter by status, difficulty, public, dareType, allowedRoles)
 router.get('/', auth, async (req, res, next) => {
   try {
-    const { status, difficulty, public: isPublic, dareType, role } = req.query;
+    const { status, difficulty, public: isPublic, dareType, role, creator, participant, assignedSwitch } = req.query;
     const filter = {};
     if (status) filter.status = status;
     if (difficulty) filter.difficulty = difficulty;
     if (isPublic !== undefined) filter.public = isPublic === 'true';
     if (dareType) filter.dareType = dareType;
+    if (creator) filter.creator = creator;
+    if (participant) filter.performer = participant;
+    if (assignedSwitch) filter.assignedSwitch = assignedSwitch;
     if (role) filter.$or = [
       { allowedRoles: { $exists: false } },
       { allowedRoles: { $size: 0 } },

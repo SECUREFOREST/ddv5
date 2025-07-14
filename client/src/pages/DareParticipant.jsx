@@ -65,6 +65,14 @@ export default function DareParticipant() {
       setProofFile(null);
       setExpireAfterView(false);
       setProofSuccess('Proof submitted successfully!');
+      // Automatically offer a new dare after a short delay
+      setTimeout(() => {
+        setConsented(false);
+        setConsentChecked(false);
+        setDare(null);
+        setProofSuccess('');
+        handleConsent();
+      }, 1500);
     } catch (err) {
       setProofError(err.response?.data?.error || 'Failed to submit proof.');
     } finally {
