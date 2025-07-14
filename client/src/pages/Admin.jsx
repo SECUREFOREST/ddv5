@@ -389,7 +389,11 @@ export default function Admin() {
                               <td className="p-2 text-neutral-400">{u.email}</td>
                               <td className="p-2 text-info font-bold">{u.role}</td>
                               <td className="p-2">
-                                {u.active ? <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span> : <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>}
+                                {!u.banned ? (
+                                  <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
+                                ) : (
+                                  <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
+                                )}
                               </td>
                               <td className="p-2">
                                 <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2" onClick={() => handleEditUser(u._id)}>Edit</button>

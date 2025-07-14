@@ -30,7 +30,7 @@ const upload = multer({ storage: avatarStorage });
 
 // GET /api/users (admin only)
 router.get('/', auth, checkPermission('view_users'), async (req, res) => {
-  const users = await User.find({}, 'username email avatar roles');
+  const users = await User.find({}, 'username email avatar roles banned');
   res.json(users);
 });
 
