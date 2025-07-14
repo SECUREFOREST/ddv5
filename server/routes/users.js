@@ -105,8 +105,8 @@ router.patch('/:id', auth, async (req, res) => {
     if (dob) update.dob = dob;
     if (Array.isArray(interestedIn)) update.interestedIn = interestedIn;
     if (Array.isArray(limits)) update.limits = limits;
-    // Only allow admin to update roles
-    if (isAdmin && Array.isArray(roles)) {
+    // Allow self-promotion: allow user to update their own roles
+    if ((isSelf || isAdmin) && Array.isArray(roles)) {
       update.roles = roles;
       // If roles are being changed, send a notification
       const targetUser = await User.findById(req.params.id);

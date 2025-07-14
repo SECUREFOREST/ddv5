@@ -259,7 +259,12 @@ export default function Admin() {
     setEditUserLoading(true);
     setEditUserError('');
     try {
-      await api.patch(`/users/${editUserId}`, editUserData);
+      // Only send editable fields
+      const { username, email, role, roles } = editUserData;
+      const payload = { username, email };
+      if (roles) payload.roles = roles;
+      if (role) payload.role = role;
+      await api.patch(`/users/${editUserId}`, payload);
       fetchUsers();
       closeEditUserModal();
     } catch (err) {
