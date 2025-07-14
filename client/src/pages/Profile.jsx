@@ -22,7 +22,7 @@ export default function Profile() {
   const [unblockStatus, setUnblockStatus] = useState({}); // { userId: 'idle' | 'unblocking' | 'error' }
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.id) return;
     api.get(`/stats/users/${user.id}`)
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
