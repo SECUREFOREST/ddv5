@@ -53,7 +53,7 @@ export default function Navbar() {
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dares">Dares</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/123/perform">Perform Dare</Link></li>
+          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
         </ul>
@@ -93,7 +93,7 @@ export default function Navbar() {
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares" onClick={() => setMobileMenuOpen(false)}>Dares</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/123/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>

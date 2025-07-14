@@ -255,10 +255,13 @@ export default function SwitchGameDetails() {
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
       <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
-      <div className="mb-2"><b>Participants:</b> {game.participants ? game.participants.join(', ') : '-'}</div>
+      <div className="mb-2"><b>Participants:</b> {[
+        game.creator,
+        game.participant
+      ].filter(Boolean).join(', ') || '-'}</div>
       {/* Difficulty display */}
-      <div className="mb-2"><b>Difficulty:</b> {game.difficulty ? game.difficulty.charAt(0).toUpperCase() + game.difficulty.slice(1) : '-'}</div>
-      <div className="mb-4"><b>Winner:</b> {game.winner || winner || '-'}</div>
+      <div className="mb-2"><b>Difficulty:</b> {game.creatorDare && game.creatorDare.difficulty ? game.creatorDare.difficulty.charAt(0).toUpperCase() + game.creatorDare.difficulty.slice(1) : '-'}</div>
+      <div className="mb-4"><b>Winner:</b> {game.winner || '-'}</div>
       <hr className="my-4" />
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">

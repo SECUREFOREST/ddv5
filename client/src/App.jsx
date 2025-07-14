@@ -7,6 +7,7 @@ import PrivateRoute from './components/PrivateRoute';
 import DareCreator from './pages/DareCreator';
 import DareParticipant from './pages/DareParticipant';
 import ProfileView from './pages/ProfileView';
+import DarePerform from './pages/DarePerform';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -62,6 +63,7 @@ function AppContent() {
               <Route path="/activity-feed" element={<ActivityFeed />} />
               <Route path="/dare/create" element={<DareCreator />} />
               <Route path="/dare/:id/perform" element={<DareParticipant />} />
+              <Route path="/dare/perform" element={<DarePerform />} />
             </Routes>
           </Suspense>
         </div>
