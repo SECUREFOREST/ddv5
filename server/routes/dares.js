@@ -90,21 +90,6 @@ router.get('/', auth, async (req, res, next) => {
   }
 });
 
-// GET /api/dares/:id - get dare details
-router.get('/:id', async (req, res) => {
-  try {
-    const dare = await Dare.findById(req.params.id)
-      .populate('creator', 'username avatar')
-      .populate('performer', 'username avatar')
-      .populate('assignedSwitch', 'username avatar')
-      .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
-    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-    res.json(dare);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to get dare.' });
-  }
-});
-
 // Add after other GET endpoints
 router.get('/random', auth, async (req, res) => {
   console.log('--- /random endpoint hit ---');
@@ -147,6 +132,21 @@ router.get('/random', auth, async (req, res) => {
     res.json(dare);
   } catch (err) {
     console.error('Error in /random endpoint:', err.message, err.stack);
+    res.status(500).json({ error: 'Failed to get dare.' });
+  }
+});
+
+// GET /api/dares/:id - get dare details
+router.get('/:id', async (req, res) => {
+  try {
+    const dare = await Dare.findById(req.params.id)
+      .populate('creator', 'username avatar')
+      .populate('performer', 'username avatar')
+      .populate('assignedSwitch', 'username avatar')
+      .populate({ path: 'comments', select: 'author text createdAt', populate: { path: 'author', select: 'username avatar' } });
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    res.json(dare);
+  } catch (err) {
     res.status(500).json({ error: 'Failed to get dare.' });
   }
 });
