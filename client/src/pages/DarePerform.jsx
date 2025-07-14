@@ -37,8 +37,14 @@ export default function DarePerform() {
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
-        setDare(res.data);
-        setConsented(true);
+        // Prevent creator from performing their own dare
+        const isCreator = user && ((typeof res.data.creator === 'object' ? res.data.creator._id : res.data.creator) === user.id);
+        if (isCreator) {
+          setNoDare(true);
+        } else {
+          setDare(res.data);
+          setConsented(true);
+        }
       } else {
         setNoDare(true);
       }

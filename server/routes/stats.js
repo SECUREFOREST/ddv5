@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Dare = require('../models/Dare');
 const auth = require('../middleware/auth');
+const { query, param, validationResult } = require('express-validator');
 
 // GET /api/stats/leaderboard - top users by dares created
 router.get('/leaderboard', auth, async (req, res) => {
@@ -35,71 +36,84 @@ router.get('/leaderboard', auth, async (req, res) => {
 });
 
 // GET /api/stats/users/:id - user stats
-router.get('/users/:id', async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const daresCount = await Dare.countDocuments({ creator: userId });
-    // Grades: average grade given to user's dares
-    const dares = await Dare.find({ creator: userId });
-    let grades = [];
-    dares.forEach(dare => {
-      if (Array.isArray(dare.grades)) grades = grades.concat(dare.grades.map(g => g.grade));
-    });
-    const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
-    res.json({
-      daresCount,
-      avgGrade,
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to get user stats.' });
+router.get('/users/:id',
+  param('id').isMongoId(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    try {
+      const userId = req.params.id;
+      const daresCount = await Dare.countDocuments({ creator: userId });
+      // Grades: average grade given to user's dares
+      const dares = await Dare.find({ creator: userId });
+      let grades = [];
+      dares.forEach(dare => {
+        if (Array.isArray(dare.grades)) grades = grades.concat(dare.grades.map(g => g.grade));
+      });
+      const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
+      res.json({
+        daresCount,
+        avgGrade,
+      });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to get user stats.' });
+    }
   }
-});
+);
 
 // GET /api/stats/activities - recent user activities (dares, grades)
-router.get('/activities', async (req, res) => {
-  try {
-    const { userId, limit = 10 } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId is required.' });
-    const mongoose = require('mongoose');
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: 'Invalid userId.' });
+router.get('/activities',
+  [
+    query('userId').isMongoId(),
+    query('limit').optional().isInt({ min: 1, max: 100 })
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
-    const uid = new mongoose.Types.ObjectId(userId);
-    // Recent dares created
-    const dares = await require('../models/Dare').find({ creator: uid })
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .select('description createdAt')
-      .lean();
-    // Recent grades given
-    const daresWithGrades = await require('../models/Dare').find({ 'grades.user': uid })
-      .sort({ updatedAt: -1 })
-      .limit(Number(limit))
-      .select('description grades updatedAt')
-      .lean();
-    const grades = [];
-    daresWithGrades.forEach(dare => {
-      (dare.grades || []).forEach(g => {
-        if (g.user && g.user.toString() === userId) {
-          grades.push({
-            dare: { _id: dare._id, description: dare.description },
-            grade: g.grade,
-            feedback: g.feedback,
-            updatedAt: dare.updatedAt
-          });
-        }
+    try {
+      const { userId, limit = 10 } = req.query;
+      const mongoose = require('mongoose');
+      const uid = new mongoose.Types.ObjectId(userId);
+      // Recent dares created
+      const dares = await require('../models/Dare').find({ creator: uid })
+        .sort({ createdAt: -1 })
+        .limit(Number(limit))
+        .select('description createdAt')
+        .lean();
+      // Recent grades given
+      const daresWithGrades = await require('../models/Dare').find({ 'grades.user': uid })
+        .sort({ updatedAt: -1 })
+        .limit(Number(limit))
+        .select('description grades updatedAt')
+        .lean();
+      const grades = [];
+      daresWithGrades.forEach(dare => {
+        (dare.grades || []).forEach(g => {
+          if (g.user && g.user.toString() === userId) {
+            grades.push({
+              dare: { _id: dare._id, description: dare.description },
+              grade: g.grade,
+              feedback: g.feedback,
+              updatedAt: dare.updatedAt
+            });
+          }
+        });
       });
-    });
-    // Merge and sort all activities by date
-    const activities = [
-      ...dares.map(d => ({ type: 'dare', description: d.description, createdAt: d.createdAt })),
-      ...grades.map(g => ({ type: 'grade', dare: g.dare, grade: g.grade, feedback: g.feedback, createdAt: g.updatedAt }))
-    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
-    res.json(activities);
-  } catch (err) {
-    console.error('Failed to get activities:', err);
-    res.status(500).json({ error: 'Failed to get activities.' });
+      // Merge and sort all activities by date
+      const activities = [
+        ...dares.map(d => ({ type: 'dare', description: d.description, createdAt: d.createdAt })),
+        ...grades.map(g => ({ type: 'grade', dare: g.dare, grade: g.grade, feedback: g.feedback, createdAt: g.updatedAt }))
+      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
+      res.json(activities);
+    } catch (err) {
+      console.error('Failed to get activities:', err);
+      res.status(500).json({ error: 'Failed to get activities.' });
+    }
   }
-});
+);
 
 module.exports = router; 

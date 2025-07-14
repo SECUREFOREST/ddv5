@@ -28,10 +28,12 @@ export default function SwitchGameParticipate() {
     setLoading(true);
     setGeneralError('');
     api.get('/switches')
-      .then(res => setGames(Array.isArray(res.data) ? res.data.filter(g => g.status === 'waiting_for_participant' && !g.participant) : []))
+      .then(res => setGames(Array.isArray(res.data)
+        ? res.data.filter(g => g.status === 'waiting_for_participant' && !g.participant && (!user || (typeof g.creator === 'object' ? g.creator._id !== user.id : g.creator !== user.id)))
+        : []))
       .catch(() => { setGames([]); setGeneralError('Failed to load switch games.'); })
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   const handleParticipate = (game) => {
     setSelectedGame(game);
@@ -99,7 +101,11 @@ export default function SwitchGameParticipate() {
                     </span>
                   </td>
                   <td className="p-2">
-                    <button className="bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark" onClick={() => handleParticipate(g)}>
+                    <button
+                      className="bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
+                      onClick={() => handleParticipate(g)}
+                      disabled={user && ((typeof g.creator === 'object' ? g.creator._id : g.creator) === user.id)}
+                    >
                       Participate
                     </button>
                   </td>
@@ -111,6 +117,13 @@ export default function SwitchGameParticipate() {
       )}
       <Modal open={!!selectedGame} onClose={() => setSelectedGame(null)} title="Participate in Switch Game" role="dialog" aria-modal="true">
         <form onSubmit={handleJoin} className="space-y-4">
+          {/* Show dare description if available */}
+          {selectedGame && selectedGame.creatorDare && selectedGame.creatorDare.description && (
+            <div className="mb-2 p-3 bg-neutral-900 rounded border border-neutral-800">
+              <b className="block mb-1 text-primary">Dare Description:</b>
+              <span className="text-neutral-100">{selectedGame.creatorDare.description}</span>
+            </div>
+          )}
           {/* Removed difficulty selector UI */}
           <div>
             <label className="block font-semibold mb-1 text-primary">Your Move</label>

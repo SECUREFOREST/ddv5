@@ -4,6 +4,9 @@ const SwitchGame = require('../models/SwitchGame');
 const Dare = require('../models/Dare');
 const { sendNotification } = require('../utils/notification');
 const mongoose = require('mongoose');
+const { body, validationResult } = require('express-validator');
+const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
+const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');
@@ -24,137 +27,210 @@ router.get('/', auth, async (req, res) => {
 });
 
 // GET /api/switches/:id - get game details (auth required)
-router.get('/:id', auth, async (req, res) => {
-  const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
-  if (!game) return res.status(404).json({ error: 'Not found' });
-  res.json(game);
-});
+router.get('/:id',
+  require('express-validator').param('id').isMongoId(),
+  auth,
+  async (req, res) => {
+    const errors = require('express-validator').validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
+    if (!game) return res.status(404).json({ error: 'Not found' });
+    res.json(game);
+  }
+);
 
 // POST /api/switches - create new game (auth required)
-router.post('/', auth, async (req, res) => {
-  try {
-    const { description, difficulty, move } = req.body;
-    const creator = req.userId; // Use authenticated user's ID
-    if (!description || !difficulty || !move) {
-      return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
+router.post('/',
+  auth,
+  [
+    body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
+    body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']),
+    body('move').isString().isIn(['rock', 'paper', 'scissors'])
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
-    const game = new SwitchGame({
-      status: 'waiting_for_participant',
-      creator,
-      creatorDare: { description, difficulty, move },
-    });
-    await game.save();
-    await game.populate('creator');
-    res.status(201).json(game);
-  } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to create switch game.' });
+    try {
+      const { description, difficulty, move } = req.body;
+      const creator = req.userId; // Use authenticated user's ID
+      if (!description || !difficulty || !move) {
+        return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
+      }
+      const game = new SwitchGame({
+        status: 'waiting_for_participant',
+        creator,
+        creatorDare: { description, difficulty, move },
+      });
+      await game.save();
+      await game.populate('creator');
+      res.status(201).json(game);
+    } catch (err) {
+      res.status(500).json({ error: err.message || 'Failed to create switch game.' });
+    }
   }
-});
+);
 
 // POST /api/switches/:id/join - join a game (auth required)
-router.post('/:id/join', auth, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { difficulty, move, consent } = req.body;
-    const game = await SwitchGame.findById(req.params.id);
-    if (!game) throw new Error('Not found');
-    if (game.participant) throw new Error('This switch game already has a participant.');
-    if (game.creator.equals(userId)) throw new Error('Creator cannot join as participant.');
-    if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
-    game.participant = userId;
-    game.participantDare = { difficulty, move, consent };
-    game.status = 'in_progress';
-    await game.save();
-    await game.populate('participant');
-    res.json(game);
-  } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to join switch game.' });
+router.post('/:id/join',
+  require('express-validator').param('id').isMongoId(),
+  auth,
+  [
+    require('express-validator').body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']),
+    require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors']),
+    require('express-validator').body('consent').isBoolean()
+  ],
+  async (req, res) => {
+    const errors = require('express-validator').validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    try {
+      const userId = req.userId;
+      const { difficulty, move, consent } = req.body;
+      const game = await SwitchGame.findById(req.params.id);
+      if (!game) throw new Error('Not found');
+      if (game.participant) throw new Error('This switch game already has a participant.');
+      if (game.creator.equals(userId)) throw new Error('Creator cannot join as participant.');
+      if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
+      // Blocked user check
+      const creator = await User.findById(game.creator).select('blockedUsers');
+      const participantUser = await User.findById(userId).select('blockedUsers');
+      if (
+        (creator.blockedUsers && creator.blockedUsers.includes(userId)) ||
+        (participantUser.blockedUsers && participantUser.blockedUsers.includes(game.creator.toString()))
+      ) {
+        throw new Error('You cannot join this switch game due to user blocking.');
+      }
+      game.participant = userId;
+      game.participantDare = { difficulty, move, consent };
+      game.status = 'in_progress';
+      await game.save();
+      await game.populate('participant');
+      res.json(game);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'Failed to join switch game.' });
+    }
   }
-});
+);
 
 // POST /api/switches/:id/move - submit RPS move (auth required)
-router.post('/:id/move', auth, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { move } = req.body;
-    const game = await SwitchGame.findById(req.params.id);
-    if (!game) throw new Error('Not found');
-    if (!game.participant || !game.creator) throw new Error('Game is not ready.');
-    if (![game.creator.toString(), game.participant?.toString()].includes(userId)) throw new Error('Not a participant');
-    if (!['rock', 'paper', 'scissors'].includes(move)) throw new Error('Invalid move');
-    // Only allow each user to submit their move once
-    if (userId === game.creator.toString() && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
-    if (userId === game.participant?.toString() && game.participantDare.move) throw new Error('Participant has already submitted a move.');
-    if (userId === game.creator.toString()) game.creatorDare.move = move;
-    if (userId === game.participant?.toString()) game.participantDare.move = move;
-    // If both moves present, determine winner
-    let winner = null, loser = null;
-    if (game.creatorDare.move && game.participantDare.move && !game.winner) {
-      const m1 = game.creatorDare.move;
-      const m2 = game.participantDare.move;
-      if (m1 === m2) {
-        // Draw: clear moves for replay
-        game.creatorDare.move = undefined;
-        game.participantDare.move = undefined;
-      } else {
-        function beats(a, b) {
-          return (
-            (a === 'rock' && b === 'scissors') ||
-            (a === 'scissors' && b === 'paper') ||
-            (a === 'paper' && b === 'rock')
-          );
-        }
-        if (beats(m1, m2)) {
-          game.winner = game.creator;
-          winner = game.creator; loser = game.participant;
-        } else {
-          game.winner = game.participant;
-          winner = game.participant; loser = game.creator;
-        }
-        game.status = 'awaiting_proof';
-        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
-      }
+router.post('/:id/move',
+  require('express-validator').param('id').isMongoId(),
+  auth,
+  [
+    require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors'])
+  ],
+  async (req, res) => {
+    const errors = require('express-validator').validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
-    await game.save();
-    await game.populate('creator participant winner');
-    res.json(game);
-  } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to submit move.' });
+    try {
+      const userId = req.userId;
+      const { move } = req.body;
+      const game = await SwitchGame.findById(req.params.id);
+      if (!game) throw new Error('Not found');
+      if (!game.participant || !game.creator) throw new Error('Game is not ready.');
+      if (![game.creator.toString(), game.participant?.toString()].includes(userId)) throw new Error('Not a participant');
+      if (!['rock', 'paper', 'scissors'].includes(move)) throw new Error('Invalid move');
+      // Only allow each user to submit their move once
+      if (userId === game.creator.toString() && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
+      if (userId === game.participant?.toString() && game.participantDare.move) throw new Error('Participant has already submitted a move.');
+      if (userId === game.creator.toString()) game.creatorDare.move = move;
+      if (userId === game.participant?.toString()) game.participantDare.move = move;
+      // If both moves present, determine winner
+      let winner = null, loser = null;
+      if (game.creatorDare.move && game.participantDare.move && !game.winner) {
+        const m1 = game.creatorDare.move;
+        const m2 = game.participantDare.move;
+        if (m1 === m2) {
+          // Draw: clear moves for replay
+          game.creatorDare.move = undefined;
+          game.participantDare.move = undefined;
+        } else {
+          function beats(a, b) {
+            return (
+              (a === 'rock' && b === 'scissors') ||
+              (a === 'scissors' && b === 'paper') ||
+              (a === 'paper' && b === 'rock')
+            );
+          }
+          if (beats(m1, m2)) {
+            game.winner = game.creator;
+            winner = game.creator; loser = game.participant;
+          } else {
+            game.winner = game.participant;
+            winner = game.participant; loser = game.creator;
+          }
+          game.status = 'awaiting_proof';
+          game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        }
+      }
+      await game.save();
+      await game.populate('creator participant winner');
+      res.json(game);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'Failed to submit move.' });
+    }
   }
-});
+);
 
 // POST /api/switches/:id/proof - submit proof (auth required)
-router.post('/:id/proof', auth, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { text, expireAfterView } = req.body;
-    const game = await SwitchGame.findById(req.params.id);
-    if (!game) throw new Error('Not found');
-    if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
-      throw new Error('Only the loser can submit proof');
+router.post('/:id/proof',
+  require('express-validator').param('id').isMongoId(),
+  [
+    require('express-validator').body('text').optional().isString().isLength({ max: 1000 }).trim().escape(),
+    require('express-validator').body('expireAfterView').optional().isBoolean()
+  ],
+  async (req, res) => {
+    const errors = require('express-validator').validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
-    if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
-    if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {
-      game.status = 'expired';
+    try {
+      const userId = req.userId;
+      const { text, expireAfterView } = req.body;
+      const game = await SwitchGame.findById(req.params.id);
+      if (!game) throw new Error('Not found');
+      if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
+        throw new Error('Only the loser can submit proof');
+      }
+      if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
+      if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {
+        game.status = 'expired';
+        await game.save();
+        return res.status(400).json({ error: 'Proof submission window has expired.' });
+      }
+      // Blocked user check for proof submission
+      const creatorUser = await User.findById(game.creator).select('blockedUsers');
+      const participantUser = await User.findById(game.participant).select('blockedUsers');
+      if (
+        (creatorUser.blockedUsers && participantUser && participantUser._id && creatorUser.blockedUsers.includes(participantUser._id.toString())) ||
+        (participantUser && participantUser.blockedUsers && creatorUser._id && participantUser.blockedUsers.includes(creatorUser._id.toString()))
+      ) {
+        return res.status(400).json({ error: 'You cannot submit proof for this switch game due to user blocking.' });
+      }
+      game.proof = { user: userId, text };
+      game.status = 'proof_submitted';
+      if (expireAfterView) {
+        game.expireProofAfterView = true;
+        game.proofExpiresAt = undefined;
+      } else {
+        game.expireProofAfterView = false;
+        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+      }
       await game.save();
-      return res.status(400).json({ error: 'Proof submission window has expired.' });
+      await game.populate('proof.user');
+      res.json(game);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'Failed to submit proof.' });
     }
-    game.proof = { user: userId, text };
-    game.status = 'proof_submitted';
-    if (expireAfterView) {
-      game.expireProofAfterView = true;
-      game.proofExpiresAt = undefined;
-    } else {
-      game.expireProofAfterView = false;
-      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
-    }
-    await game.save();
-    await game.populate('proof.user');
-    res.json(game);
-  } catch (err) {
-    res.status(400).json({ error: err.message || 'Failed to submit proof.' });
   }
-});
+);
 
 // PATCH /api/switches/:id/proof-viewed - mark proof as viewed (auth required)
 router.patch('/:id/proof-viewed', auth, async (req, res) => {
@@ -175,51 +251,92 @@ router.patch('/:id/proof-viewed', auth, async (req, res) => {
 });
 
 // POST /api/switches/:id/forfeit - creator or participant forfeits (chickens out) of a switch game
-router.post('/:id/forfeit', auth, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const game = await SwitchGame.findById(req.params.id);
-    if (!game) return res.status(404).json({ error: 'Switch game not found.' });
-    if (game.status !== 'in_progress') {
-      return res.status(400).json({ error: 'Only in-progress games can be forfeited.' });
+router.post('/:id/forfeit',
+  (req, res, next) => {
+    if (Object.keys(req.body).length > 0) {
+      return res.status(400).json({ error: 'No body expected.' });
     }
-    if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
-      return res.status(403).json({ error: 'Only the creator or participant can forfeit this game.' });
+    next();
+  },
+  auth,
+  async (req, res) => {
+    try {
+      const userId = req.userId;
+      const game = await SwitchGame.findById(req.params.id);
+      if (!game) return res.status(404).json({ error: 'Switch game not found.' });
+      if (game.status !== 'in_progress') {
+        return res.status(400).json({ error: 'Only in-progress games can be forfeited.' });
+      }
+      if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
+        return res.status(403).json({ error: 'Only the creator or participant can forfeit this game.' });
+      }
+      game.status = 'forfeited';
+      game.updatedAt = new Date();
+      await game.save();
+      // Notify the other user
+      const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
+      if (otherUser) {
+        await sendNotification(
+          otherUser,
+          'switchgame_forfeited',
+          `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
+        );
+      }
+      // Optionally log the action (if you have a logActivity util for switch games)
+      res.json({ message: 'Switch game forfeited (chickened out).', game });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to forfeit switch game.' });
     }
-    game.status = 'forfeited';
-    game.updatedAt = new Date();
-    await game.save();
-    // Notify the other user
-    const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
-    if (otherUser) {
-      await sendNotification(
-        otherUser,
-        'switchgame_forfeited',
-        `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
-      );
-    }
-    // Optionally log the action (if you have a logActivity util for switch games)
-    res.json({ message: 'Switch game forfeited (chickened out).', game });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to forfeit switch game.' });
   }
-});
+);
 
 // POST /api/switches/:id/grade - grade a switch game (auth required)
-router.post('/:id/grade', auth, async (req, res) => {
+router.post('/:id/grade',
+  [
+    body('grade').isInt({ min: 1, max: 10 }),
+    body('feedback').optional().isString().isLength({ max: 500 }).trim().escape()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    try {
+      const { grade, feedback } = req.body;
+      const game = await SwitchGame.findById(req.params.id);
+      if (!game) return res.status(404).json({ error: 'Switch game not found.' });
+      game.grades = game.grades || [];
+      if (game.grades.some(g => g.user.toString() === req.userId)) {
+        return res.status(400).json({ error: 'You have already graded this switch game.' });
+      }
+      // Blocked user check for grading
+      const graderUser = await User.findById(req.userId).select('blockedUsers');
+      const targetUser = game.creator.equals(req.userId) ? await User.findById(game.participant).select('blockedUsers') : await User.findById(game.creator).select('blockedUsers');
+      if (
+        (graderUser.blockedUsers && targetUser && targetUser.blockedUsers && targetUser.blockedUsers.includes(req.userId)) ||
+        (graderUser.blockedUsers && graderUser.blockedUsers.includes(targetUser?._id?.toString()))
+      ) {
+        return res.status(400).json({ error: 'You cannot grade this user due to user blocking.' });
+      }
+      game.grades.push({ user: req.userId, grade, feedback });
+      await game.save();
+      res.json({ message: 'Grade submitted.', game });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to submit grade.' });
+    }
+  }
+);
+
+// DELETE /api/switches/:id - only creator can delete
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const { grade, feedback } = req.body;
     const game = await SwitchGame.findById(req.params.id);
     if (!game) return res.status(404).json({ error: 'Switch game not found.' });
-    game.grades = game.grades || [];
-    if (game.grades.some(g => g.user.toString() === req.userId)) {
-      return res.status(400).json({ error: 'You have already graded this switch game.' });
-    }
-    game.grades.push({ user: req.userId, grade, feedback });
-    await game.save();
-    res.json({ message: 'Grade submitted.', game });
+    if (!game.creator.equals(req.userId)) return res.status(403).json({ error: 'Only the creator can delete this switch game.' });
+    await game.deleteOne();
+    res.json({ message: 'Switch game deleted.' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to submit grade.' });
+    res.status(500).json({ error: 'Failed to delete switch game.' });
   }
 });
 
