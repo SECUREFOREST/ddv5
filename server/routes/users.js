@@ -156,7 +156,7 @@ router.patch('/:id',
 );
 
 // DELETE /api/users/:id (admin only)
-router.delete('/:id', auth, checkPermission('delete_users'), async (req, res) => {
+router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
