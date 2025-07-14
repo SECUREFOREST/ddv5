@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    api.get('/activities', { params: { limit: 10, userId: user.id } })
+    api.get('/stats/activities', { params: { limit: 10, userId: user.id } })
       .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActivities([]))
       .finally(() => setActivitiesLoading(false));

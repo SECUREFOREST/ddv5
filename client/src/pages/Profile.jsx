@@ -27,7 +27,7 @@ export default function Profile() {
     api.get('/dares', { params: { creator: user.id } })
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
       .catch(() => setDares([]));
-    api.get('/activities', { params: { userId: user.id, limit: 10 } })
+    api.get('/stats/activities', { params: { userId: user.id, limit: 10 } })
       .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUserActivities([]))
       .finally(() => setUserActivitiesLoading(false));

@@ -20,7 +20,7 @@ export default function ProfileView() {
     Promise.all([
       api.get(`/users/${userId}`),
       api.get(`/stats/users/${userId}`),
-      api.get('/activities', { params: { userId, limit: 10 } })
+      api.get('/stats/activities', { params: { userId, limit: 10 } })
     ])
       .then(([userRes, statsRes, actRes]) => {
         setProfile(userRes.data);
