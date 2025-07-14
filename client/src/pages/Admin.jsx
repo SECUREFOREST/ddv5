@@ -66,8 +66,8 @@ export default function Admin() {
   const clearSelectedUsers = () => setSelectedUsers([]);
   const [selectedDares, setSelectedDares] = useState([]);
   const allFilteredDareIds = dares.filter(d =>
-    d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
-    (d.creator?.username || '').toLowerCase().includes(dareSearch.toLowerCase())
+    d && typeof d.title === 'string' && d.title.toLowerCase().includes(dareSearch.toLowerCase()) ||
+    (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
   ).map(d => d._id);
   const isAllDaresSelected = allFilteredDareIds.length > 0 && allFilteredDareIds.every(id => selectedDares.includes(id));
   const toggleAllDares = () => {
