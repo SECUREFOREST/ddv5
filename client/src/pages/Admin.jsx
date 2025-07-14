@@ -172,6 +172,42 @@ export default function Admin() {
     setResolvingAppealId(null);
   };
 
+  // Add handlers for dare actions
+  const handleApprove = async (dareId) => {
+    setActionLoading(true);
+    try {
+      await api.post(`/dares/${dareId}/approve`);
+      fetchDares();
+    } catch (err) {
+      alert('Failed to approve dare.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+  const handleReject = async (dareId) => {
+    setActionLoading(true);
+    try {
+      await api.post(`/dares/${dareId}/reject`);
+      fetchDares();
+    } catch (err) {
+      alert('Failed to reject dare.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+  const handleDeleteDare = async (dareId) => {
+    if (!window.confirm('Delete this dare?')) return;
+    setActionLoading(true);
+    try {
+      await api.delete(`/dares/${dareId}`);
+      fetchDares();
+    } catch (err) {
+      alert('Failed to delete dare.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
