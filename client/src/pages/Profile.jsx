@@ -28,14 +28,15 @@ export default function Profile() {
   const [fullName, setFullName] = useState(user?.fullName || '');
 
   useEffect(() => {
-    if (!user || !user.id) return;
-    api.get(`/stats/users/${user.id}`)
+    if (!user || !(user.id || user._id)) return;
+    const userId = user.id || user._id;
+    api.get(`/stats/users/${userId}`)
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
-    api.get('/dares', { params: { creator: user.id } })
+    api.get('/dares', { params: { creator: userId } })
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
       .catch(() => setDares([]));
-    api.get('/stats/activities', { params: { userId: user.id, limit: 10 } })
+    api.get('/stats/activities', { params: { userId, limit: 10 } })
       .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUserActivities([]))
       .finally(() => setUserActivitiesLoading(false));
@@ -51,14 +52,15 @@ export default function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!user || !user.id) {
+    if (!user || !(user.id || user._id)) {
       setError('User not loaded. Please refresh and try again.');
       return;
     }
+    const userId = user.id || user._id;
     setSaving(true);
     setError('');
     try {
-      await api.patch(`/users/${user.id}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
+      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
       window.location.reload(); // reload to update context
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update profile');
