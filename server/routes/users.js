@@ -106,7 +106,18 @@ router.patch('/:id', auth, async (req, res) => {
     if (Array.isArray(interestedIn)) update.interestedIn = interestedIn;
     if (Array.isArray(limits)) update.limits = limits;
     // Only allow admin to update roles
-    if (isAdmin && Array.isArray(roles)) update.roles = roles;
+    if (isAdmin && Array.isArray(roles)) {
+      update.roles = roles;
+      // If roles are being changed, send a notification
+      const targetUser = await User.findById(req.params.id);
+      if (targetUser && JSON.stringify(targetUser.roles) !== JSON.stringify(roles)) {
+        if (roles.includes('admin') && !targetUser.roles.includes('admin')) {
+          await sendNotification(req.params.id, 'role_change', 'You have been promoted to admin.');
+        } else if (!roles.includes('admin') && targetUser.roles.includes('admin')) {
+          await sendNotification(req.params.id, 'role_change', 'You have been demoted from admin.');
+        }
+      }
+    }
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
     await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
     res.json(user);
