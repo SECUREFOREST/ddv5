@@ -436,8 +436,8 @@ export default function SwitchGameDetails() {
           {errorToast}
         </div>
       )}
-      {/* Only allow join if waiting for participant and no participant */}
-      {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && (
+      {/* Only allow join if waiting for participant, no participant, and user is not the creator */}
+      {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && !isCreator && (
         <>
           <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowJoinModal(true)} disabled={joining}>
             {joining ? 'Joining...' : 'Join Switch Game'}

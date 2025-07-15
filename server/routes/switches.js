@@ -13,8 +13,8 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
   const user = await User.findById(req.userId).select('blockedUsers');
-  // Only return joinable games: status = 'waiting_for_participant', participant = null
-  const filter = { status: 'waiting_for_participant', participant: null };
+  // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
+  const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
   if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
   let games = await SwitchGame.find(filter).populate('creator participant winner proof.user').sort({ createdAt: -1 });
   if (user && user.blockedUsers && user.blockedUsers.length > 0) {
@@ -264,7 +264,7 @@ router.post('/:id/join',
         throw new Error('This switch game is no longer available to join.');
       }
       if (game.participant) throw new Error('This switch game already has a participant.');
-      if (game.creator.equals(userId)) throw new Error('Creator cannot join as participant.');
+      if (game.creator.equals(userId)) throw new Error('You cannot join your own switch game as a participant.');
       if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
       // Blocked user check
       const creator = await User.findById(game.creator).select('blockedUsers');
@@ -275,8 +275,28 @@ router.post('/:id/join',
       ) {
         throw new Error('You cannot join this switch game due to user blocking.');
       }
+      // Assign a random dare to the participant from the pool with the same difficulty, dareType 'switch', not created by the participant
+      const darePool = await Dare.aggregate([
+        { $match: {
+            difficulty: difficulty,
+            dareType: 'switch',
+            creator: { $ne: mongoose.Types.ObjectId(userId) },
+            public: true
+          }
+        },
+        { $sample: { size: 1 } }
+      ]);
+      if (!darePool.length) {
+        return res.status(400).json({ error: 'No available dares for this difficulty. Please try another difficulty or contact support.' });
+      }
+      const randomDare = darePool[0];
       game.participant = userId;
-      game.participantDare = { difficulty, move, consent };
+      game.participantDare = {
+        description: randomDare.description,
+        difficulty: randomDare.difficulty,
+        move,
+        consent
+      };
       game.status = 'in_progress';
       await game.save();
       await game.populate('participant');
