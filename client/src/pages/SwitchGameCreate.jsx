@@ -13,7 +13,7 @@ const DIFFICULTIES = [
 
 export default function SwitchGameCreate() {
   const [description, setDescription] = useState('');
-  const [difficulty, setDifficulty] = useState('easy');
+  const [difficulty, setDifficulty] = useState('titillating');
   const [move, setMove] = useState('rock');
   const [creating, setCreating] = useState(false);
   const [toast, setToast] = useState('');
