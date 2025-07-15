@@ -14,6 +14,7 @@ import ClaimDare from './pages/ClaimDare';
 import PerformerDashboard from './pages/PerformerDashboard';
 import SwitchGameHistory from './pages/SwitchGameHistory';
 import GameHistory from './pages/GameHistory';
+import UserActivity from './pages/UserActivity';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -75,6 +76,7 @@ function AppContent() {
               <Route path="/claim/:claimToken" element={<ClaimDare />} />
               <Route path="/performer-dashboard" element={<PrivateRoute><PerformerDashboard /></PrivateRoute>} />
               <Route path="/game-history" element={<PrivateRoute><GameHistory /></PrivateRoute>} />
+              <Route path="/user-activity" element={<PrivateRoute><UserActivity /></PrivateRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
