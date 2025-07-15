@@ -81,7 +81,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onSubmitProof}>Submit Proof</button>}
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onGrade}>Grade</button>}
-        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onForfeit}>Forfeit</button>}
+        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onForfeit}>Chicken Out</button>}
         {actions}
       </div>
     </div>
