@@ -386,7 +386,7 @@ export default function SwitchGameDetails() {
     setGeneralError('');
     setGeneralSuccess('');
     try {
-      await api.post(`/switches/${id}/join`, { difficulty: game.creatorDare.difficulty, move: '', consent: true });
+      await api.post(`/switches/${id}/join`, { difficulty: game.creatorDare.difficulty, consent: true });
       setGeneralSuccess('Joined the game successfully!');
       fetchGameWithFeedback(true);
     } catch (err) {
