@@ -62,7 +62,13 @@ router.get('/', auth, async (req, res, next) => {
   try {
     const { status, difficulty, public: isPublic, dareType, role, creator, participant, assignedSwitch } = req.query;
     const filter = {};
-    if (status) filter.status = status;
+    if (status) {
+      if (status.includes(',')) {
+        filter.status = { $in: status.split(',') };
+      } else {
+        filter.status = status;
+      }
+    }
     if (difficulty) filter.difficulty = difficulty;
     if (isPublic !== undefined) filter.public = isPublic === 'true';
     if (dareType) filter.dareType = dareType;

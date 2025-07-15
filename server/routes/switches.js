@@ -37,7 +37,13 @@ router.get('/performer', auth, async (req, res) => {
         { participant: userId }
       ]
     };
-    if (status) filter.status = status;
+    if (status) {
+      if (status.includes(',')) {
+        filter.status = { $in: status.split(',') };
+      } else {
+        filter.status = status;
+      }
+    }
     const games = await SwitchGame.find(filter)
       .populate('creator', 'username avatar')
       .populate('participant', 'username avatar')
