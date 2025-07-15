@@ -55,6 +55,9 @@ export default function Navbar() {
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
+          {user && (
+            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/performer-dashboard">Performer Dashboard</Link></li>
+          )}
           {user && user.roles?.includes('admin') && (
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
           )}

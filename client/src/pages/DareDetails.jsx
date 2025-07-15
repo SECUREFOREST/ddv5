@@ -306,6 +306,10 @@ export default function DareDetails() {
     }
   };
 
+  // Show grading form if user is creator, dare is completed, and not yet graded by creator for performer
+  const isCreator = user && dare && (user.id === (dare.creator?._id || dare.creator));
+  const canGrade = isCreator && dare.status === 'completed' && dare.performer && !hasGradedPerformer;
+
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
@@ -537,6 +541,44 @@ export default function DareDetails() {
             <button className="btn btn-danger" onClick={() => setShowRejectModal(true)}>
               Reject Dare
             </button>
+          </div>
+        )}
+        {/* Grading/Feedback Form for Creator */}
+        {canGrade && (
+          <div className="bg-white rounded shadow p-4 mt-6">
+            <h2 className="text-lg font-bold mb-2">Grade Performer</h2>
+            <form onSubmit={e => handleGrade(e, dare.performer?._id || dare.performer)}>
+              <div className="mb-2">
+                <label className="block font-semibold mb-1">Grade (1-10):</label>
+                <select
+                  className="border rounded px-2 py-1"
+                  value={grade}
+                  onChange={e => setGrade(e.target.value)}
+                  required
+                  disabled={grading}
+                >
+                  <option value="">Select</option>
+                  {[...Array(10)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-2">
+                <label className="block font-semibold mb-1">Feedback (optional):</label>
+                <textarea
+                  className="border rounded px-2 py-1 w-full"
+                  value={feedback}
+                  onChange={e => setFeedback(e.target.value)}
+                  maxLength={500}
+                  rows={3}
+                  disabled={grading}
+                />
+              </div>
+              {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
+              <button type="submit" className="btn btn-primary" disabled={grading}>
+                {grading ? 'Submitting...' : 'Submit Grade'}
+              </button>
+            </form>
           </div>
         )}
       </div> {/* <-- Close main content div before modals */}

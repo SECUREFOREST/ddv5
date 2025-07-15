@@ -26,6 +26,29 @@ router.get('/', auth, async (req, res) => {
   res.json(games);
 });
 
+// GET /api/switches/performer - get all switch games where current user is creator or participant
+router.get('/performer', auth, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const userId = req.userId;
+    const filter = {
+      $or: [
+        { creator: userId },
+        { participant: userId }
+      ]
+    };
+    if (status) filter.status = status;
+    const games = await SwitchGame.find(filter)
+      .populate('creator', 'username avatar')
+      .populate('participant', 'username avatar')
+      .populate('winner', 'username avatar')
+      .sort({ updatedAt: -1 });
+    res.json(games);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch performer switch games.' });
+  }
+});
+
 // GET /api/switches/:id - get game details (auth required)
 router.get('/:id',
   require('express-validator').param('id').isMongoId(),

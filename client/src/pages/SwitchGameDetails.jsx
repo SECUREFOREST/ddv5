@@ -231,18 +231,25 @@ export default function SwitchGameDetails() {
     // eslint-disable-next-line
   }, [proofExpiresAt, isLoser, game && game.status, game && game.proof]);
 
-  // Check if user has already graded this switch game
-  const hasGraded = user && game && game.grades && game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id));
+  // Grading/Feedback state
+  const [grading, setGrading] = useState(false);
   const [grade, setGrade] = useState('');
   const [feedback, setFeedback] = useState('');
   const [gradeError, setGradeError] = useState('');
-  const [grading, setGrading] = useState(false);
+
+  // Check if user is a participant
+  const isCreator = user && game && (user.id === (game.creator?._id || game.creator));
+  const isParticipant = user && game && (user.id === (game.participant?._id || game.participant));
+  const canGrade = (isCreator || isParticipant) && game && game.status === 'completed' && game.grades && !game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id));
 
   const handleGrade = async (e) => {
     e.preventDefault();
     setGradeError('');
+    setGeneralError('');
+    setGeneralSuccess('');
     if (!grade) {
       setGradeError('Please select a grade.');
+      setGeneralError('Please select a grade.');
       return;
     }
     setGrading(true);
@@ -250,10 +257,11 @@ export default function SwitchGameDetails() {
       await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback });
       setGrade('');
       setFeedback('');
-      setToast('Grade submitted!');
       fetchGameWithFeedback(true);
+      setGeneralSuccess('Grade submitted successfully!');
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
+      setGeneralError(err.response?.data?.error || 'Failed to submit grade');
     } finally {
       setGrading(false);
     }
@@ -285,8 +293,8 @@ export default function SwitchGameDetails() {
 
   // Helper to normalize MongoDB IDs
   const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj);
-  const isCreator = user && game && getId(game.creator) === user.id;
-  const isParticipant = user && game && getId(game.participant) === user.id;
+  // const isCreator = user && game && getId(game.creator) === user.id; // This line is removed
+  // const isParticipant = user && game && getId(game.participant) === user.id; // This line is removed
 
   // Improved debug log for updated game state
   useEffect(() => {
@@ -592,6 +600,44 @@ export default function SwitchGameDetails() {
               <div className="text-success text-center font-medium mb-2">You have already graded this user for this switch game.</div>
             ) : null}
           </div>
+        </div>
+      )}
+      {/* Grading/Feedback Form for Participants */}
+      {canGrade && (
+        <div className="bg-white rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
+          <form onSubmit={handleGrade}>
+            <div className="mb-2">
+              <label className="block font-semibold mb-1">Grade (1-10):</label>
+              <select
+                className="border rounded px-2 py-1"
+                value={grade}
+                onChange={e => setGrade(e.target.value)}
+                required
+                disabled={grading}
+              >
+                <option value="">Select</option>
+                {[...Array(10)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-2">
+              <label className="block font-semibold mb-1">Feedback (optional):</label>
+              <textarea
+                className="border rounded px-2 py-1 w-full"
+                value={feedback}
+                onChange={e => setFeedback(e.target.value)}
+                maxLength={500}
+                rows={3}
+                disabled={grading}
+              />
+            </div>
+            {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
+            <button type="submit" className="btn btn-primary" disabled={grading}>
+              {grading ? 'Submitting...' : 'Submit Grade'}
+            </button>
+          </form>
         </div>
       )}
       {/* Chicken Out button for creator or participant when in progress */}
