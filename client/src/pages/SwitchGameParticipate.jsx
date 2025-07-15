@@ -103,7 +103,17 @@ export default function SwitchGameParticipate() {
     }
   };
 
-  if (error) return <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-danger">{error}</div>;
+  if (error) return (
+    <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-danger">
+      {error}
+      <button
+        className="mt-4 bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+        onClick={() => navigate('/switches/participate')}
+      >
+        Try Another Game
+      </button>
+    </div>
+  );
   if (!game) return <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-neutral-200">Loading...</div>;
 
   const u = game.creator;

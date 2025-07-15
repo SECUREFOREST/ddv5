@@ -227,6 +227,9 @@ router.post('/:id/join',
       const { difficulty, move, consent } = req.body;
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
+      if (game.status !== 'waiting_for_participant' || game.participant) {
+        throw new Error('This switch game is no longer available to join.');
+      }
       if (game.participant) throw new Error('This switch game already has a participant.');
       if (game.creator.equals(userId)) throw new Error('Creator cannot join as participant.');
       if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
