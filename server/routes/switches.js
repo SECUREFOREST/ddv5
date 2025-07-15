@@ -332,6 +332,41 @@ router.patch('/:id/proof-viewed', auth, async (req, res) => {
   }
 });
 
+// POST /api/switches/:id/proof-review - winner reviews submitted proof (approve/reject)
+router.post('/:id/proof-review', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { action, feedback } = req.body;
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ error: 'Invalid action.' });
+    }
+    const game = await SwitchGame.findById(req.params.id);
+    if (!game) return res.status(404).json({ error: 'Switch game not found.' });
+    if (!game.winner || game.winner.toString() !== userId) {
+      return res.status(403).json({ error: 'Only the winner can review proof.' });
+    }
+    if (game.status !== 'proof_submitted') {
+      return res.status(400).json({ error: 'Proof is not awaiting review.' });
+    }
+    const loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
+    if (action === 'approve') {
+      game.status = 'completed';
+      game.proof.review = { action: 'approved', feedback: feedback || '' };
+      await game.save();
+      await sendNotification(loserId, 'switchgame_proof_approved', 'Your proof for the switch game was approved.');
+      return res.json({ message: 'Proof approved.', game });
+    } else {
+      game.status = 'awaiting_proof';
+      game.proof.review = { action: 'rejected', feedback: feedback || '' };
+      await game.save();
+      await sendNotification(loserId, 'switchgame_proof_rejected', `Your proof for the switch game was rejected.${feedback ? ' Feedback: ' + feedback : ''}`);
+      return res.json({ message: 'Proof rejected.', game });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to review proof.' });
+  }
+});
+
 // POST /api/switches/:id/forfeit - creator or participant forfeits (chickens out) of a switch game
 router.post('/:id/forfeit',
   (req, res, next) => {

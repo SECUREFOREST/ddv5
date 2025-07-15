@@ -310,6 +310,11 @@ export default function DareDetails() {
   const isCreator = user && dare && (user.id === (dare.creator?._id || dare.creator));
   const canGrade = isCreator && dare.status === 'completed' && dare.performer && !hasGradedPerformer;
 
+  // Find grades given and received
+  const myGivenGrade = dare && dare.grades && user && dare.grades.find(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === (dare.performer?._id || dare.performer) || g.target === (dare.performer?._id || dare.performer)));
+  const myReceivedGrade = dare && dare.grades && user && dare.grades.find(g => g.target && (g.target._id === user.id || g.target === user.id));
+  const allGrades = dare && dare.grades && dare.grades.length > 0 ? dare.grades : [];
+
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
@@ -544,9 +549,10 @@ export default function DareDetails() {
           </div>
         )}
         {/* Grading/Feedback Form for Creator */}
-        {canGrade && (
+        {canGrade && !myGivenGrade && (
           <div className="bg-white rounded shadow p-4 mt-6">
             <h2 className="text-lg font-bold mb-2">Grade Performer</h2>
+            {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
             <form onSubmit={e => handleGrade(e, dare.performer?._id || dare.performer)}>
               <div className="mb-2">
                 <label className="block font-semibold mb-1">Grade (1-10):</label>
@@ -555,7 +561,7 @@ export default function DareDetails() {
                   value={grade}
                   onChange={e => setGrade(e.target.value)}
                   required
-                  disabled={grading}
+                  disabled={grading || !!myGivenGrade}
                 >
                   <option value="">Select</option>
                   {[...Array(10)].map((_, i) => (
@@ -571,14 +577,46 @@ export default function DareDetails() {
                   onChange={e => setFeedback(e.target.value)}
                   maxLength={500}
                   rows={3}
-                  disabled={grading}
+                  disabled={grading || !!myGivenGrade}
                 />
               </div>
               {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-              <button type="submit" className="btn btn-primary" disabled={grading}>
+              <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
                 {grading ? 'Submitting...' : 'Submit Grade'}
               </button>
             </form>
+          </div>
+        )}
+        {/* Show the grade/feedback you gave */}
+        {myGivenGrade && (
+          <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
+            <h2 className="text-lg font-bold mb-2">Your Grade for Performer</h2>
+            <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
+            {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
+          </div>
+        )}
+        {/* Show the grade/feedback you received (if performer) */}
+        {isPerformer && myReceivedGrade && (
+          <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+            <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
+            <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
+            {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
+          </div>
+        )}
+        {/* Show all grades/feedback if more than one exists */}
+        {allGrades.length > 1 && (
+          <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
+            <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
+            <ul className="list-disc pl-5">
+              {allGrades.map((g, i) => (
+                <li key={i} className="mb-1">
+                  <span className="font-semibold">Grade:</span> {g.grade}
+                  {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
+                  {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
+                  {g.target && <span> | <span className="font-semibold">To:</span> {g.target.username || g.target._id || g.target}</span>}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div> {/* <-- Close main content div before modals */}

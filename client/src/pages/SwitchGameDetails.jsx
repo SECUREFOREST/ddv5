@@ -303,6 +303,64 @@ export default function SwitchGameDetails() {
     }
   }, [game, toast, proofError, generalSuccess]);
 
+  // Find grades given and received
+  const myGivenGrade = game && game.grades && user && game.grades.find(g => g.user && (g.user._id === user.id || g.user === user.id));
+  const myReceivedGrade = game && game.grades && user && game.grades.find(g => g.user && (g.user._id !== user.id && g.user !== user.id));
+  const allGrades = game && game.grades && game.grades.length > 0 ? game.grades : [];
+
+  // Determine winner and loser IDs
+  const winnerId = game && game.winner && (game.winner._id || game.winner);
+  const loserId = game && game.creator && game.participant && winnerId && (game.creator._id === winnerId || game.creator === winnerId ? (game.participant._id || game.participant) : (game.creator._id || game.creator));
+  const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
+  const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
+
+  // Proof submission state
+  const [proofText, setProofText] = useState('');
+  const [proofSubmitting, setProofSubmitting] = useState(false);
+  const [proofSubmitError, setProofSubmitError] = useState('');
+  const [proofSubmitSuccess, setProofSubmitSuccess] = useState('');
+
+  // Proof review state
+  const [reviewFeedback, setReviewFeedback] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
+
+  // Submit proof handler
+  const handleProofSubmit = async (e) => {
+    e.preventDefault();
+    setProofSubmitError('');
+    setProofSubmitSuccess('');
+    setProofSubmitting(true);
+    try {
+      await api.post(`/switches/${id}/proof`, { text: proofText });
+      setProofText('');
+      setProofSubmitSuccess('Proof submitted successfully!');
+      fetchGameWithFeedback(true);
+    } catch (err) {
+      setProofSubmitError(err.response?.data?.error || 'Failed to submit proof.');
+    } finally {
+      setProofSubmitting(false);
+    }
+  };
+
+  // Review proof handler
+  const handleProofReview = async (action) => {
+    setReviewError('');
+    setReviewSuccess('');
+    setReviewSubmitting(true);
+    try {
+      await api.post(`/switches/${id}/proof-review`, { action, feedback: reviewFeedback });
+      setReviewFeedback('');
+      setReviewSuccess(action === 'approve' ? 'Proof approved!' : 'Proof rejected.');
+      fetchGameWithFeedback(true);
+    } catch (err) {
+      setReviewError(err.response?.data?.error || 'Failed to review proof.');
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
   }
@@ -348,22 +406,6 @@ export default function SwitchGameDetails() {
       setGeneralError(err.response?.data?.error || 'Failed to submit move.');
     } finally {
       setMoveSubmitting(false);
-    }
-  };
-
-  const handleProofSubmit = async () => {
-    setProofError('');
-    setGeneralError('');
-    setGeneralSuccess('');
-    try {
-      await api.post(`/switches/${id}/proof`, { text: proof, expireAfterView });
-      setProof('');
-      setShowProofModal(false);
-      setGeneralSuccess('Proof submitted!');
-      fetchGameWithFeedback(true);
-    } catch (err) {
-      setProofError(err.response?.data?.error || 'Failed to submit proof.');
-      setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
     }
   };
 
@@ -603,9 +645,10 @@ export default function SwitchGameDetails() {
         </div>
       )}
       {/* Grading/Feedback Form for Participants */}
-      {canGrade && (
+      {canGrade && !myGivenGrade && (
         <div className="bg-white rounded shadow p-4 mt-6">
           <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
+          {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
           <form onSubmit={handleGrade}>
             <div className="mb-2">
               <label className="block font-semibold mb-1">Grade (1-10):</label>
@@ -614,7 +657,7 @@ export default function SwitchGameDetails() {
                 value={grade}
                 onChange={e => setGrade(e.target.value)}
                 required
-                disabled={grading}
+                disabled={grading || !!myGivenGrade}
               >
                 <option value="">Select</option>
                 {[...Array(10)].map((_, i) => (
@@ -630,14 +673,45 @@ export default function SwitchGameDetails() {
                 onChange={e => setFeedback(e.target.value)}
                 maxLength={500}
                 rows={3}
-                disabled={grading}
+                disabled={grading || !!myGivenGrade}
               />
             </div>
             {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-            <button type="submit" className="btn btn-primary" disabled={grading}>
+            <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
               {grading ? 'Submitting...' : 'Submit Grade'}
             </button>
           </form>
+        </div>
+      )}
+      {/* Show the grade/feedback you gave */}
+      {myGivenGrade && (
+        <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">Your Grade for Opponent</h2>
+          <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
+          {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
+        </div>
+      )}
+      {/* Show the grade/feedback you received from your opponent */}
+      {myReceivedGrade && (
+        <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
+          <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
+          {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
+        </div>
+      )}
+      {/* Show all grades/feedback if more than one exists */}
+      {allGrades.length > 1 && (
+        <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
+          <ul className="list-disc pl-5">
+            {allGrades.map((g, i) => (
+              <li key={i} className="mb-1">
+                <span className="font-semibold">Grade:</span> {g.grade}
+                {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
+                {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       {/* Chicken Out button for creator or participant when in progress */}
@@ -652,6 +726,63 @@ export default function SwitchGameDetails() {
             {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
           </button>
           {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
+        </div>
+      )}
+      {/* Proof Submission (Loser) */}
+      {isLoser && game.status === 'awaiting_proof' && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
+          <form onSubmit={handleProofSubmit}>
+            <div className="mb-2">
+              <label className="block font-semibold mb-1">Proof (text):</label>
+              <textarea
+                className="border rounded px-2 py-1 w-full"
+                value={proofText}
+                onChange={e => setProofText(e.target.value)}
+                maxLength={1000}
+                rows={3}
+                required
+                disabled={proofSubmitting}
+              />
+            </div>
+            {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
+            {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
+            <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
+              {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
+            </button>
+          </form>
+        </div>
+      )}
+      {/* Proof Review (Winner) */}
+      {isWinner && game.status === 'proof_submitted' && game.proof && (
+        <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+          <h2 className="text-lg font-bold mb-2">Review Submitted Proof</h2>
+          <div className="mb-2"><span className="font-semibold">Proof:</span> {game.proof.text}</div>
+          <div className="mb-2">
+            <label className="block font-semibold mb-1">Feedback (optional):</label>
+            <textarea
+              className="border rounded px-2 py-1 w-full"
+              value={reviewFeedback}
+              onChange={e => setReviewFeedback(e.target.value)}
+              maxLength={500}
+              rows={2}
+              disabled={reviewSubmitting}
+            />
+          </div>
+          {reviewError && <div className="text-red-500 mb-2">{reviewError}</div>}
+          {reviewSuccess && <div className="text-green-600 mb-2">{reviewSuccess}</div>}
+          <div className="flex space-x-2">
+            <button className="btn btn-success" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
+            <button className="btn btn-danger" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
+          </div>
+        </div>
+      )}
+      {/* Proof Review Status/Feedback */}
+      {game.proof && game.proof.review && (
+        <div className={`rounded shadow p-4 mt-6 ${game.proof.review.action === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+          <h2 className="text-lg font-bold mb-2">Proof Review</h2>
+          <div className="mb-1">Status: <span className="font-semibold">{game.proof.review.action === 'approved' ? 'Approved' : 'Rejected'}</span></div>
+          {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
         </div>
       )}
     </div>
