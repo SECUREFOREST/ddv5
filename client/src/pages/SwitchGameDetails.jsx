@@ -566,8 +566,11 @@ export default function SwitchGameDetails() {
           <b>Proof submission window has expired.</b>
         </div>
       )}
-      {/* Grades Section */}
-      {game && (
+      {(game && (
+        (game.grades && game.grades.length > 0) ||
+        (isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed')) ||
+        (isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed'))
+      )) && (
         <div className="bg-neutral-900 rounded p-4 mb-6 mt-6">
           <div className="border-b pb-2 mb-4">
             <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
@@ -600,9 +603,7 @@ export default function SwitchGameDetails() {
                   </li>
                 ))}
               </ul>
-            ) : (
-              <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
-            )}
+            ) : null}
             {/* Creator grades participant */}
             {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
               <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
