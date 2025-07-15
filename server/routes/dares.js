@@ -688,4 +688,5 @@ router.post('/claim/:token', [body('demand').isString().isLength({ min: 5, max: 
   }
 });
 
-module.exports = router; 
+module.exports = router;
+module.exports.checkSlotAndCooldownAtomic = checkSlotAndCooldownAtomic; 
