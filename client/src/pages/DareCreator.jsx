@@ -101,8 +101,10 @@ export default function DareCreator() {
             <label className="block font-semibold mb-1 text-primary">Difficulty</label>
             <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
               <option value="titillating">Titillating</option>
-              <option value="daring">Daring</option>
-              <option value="diabolical">Diabolical</option>
+              <option value="arousing">Arousing</option>
+              <option value="explicit">Explicit</option>
+              <option value="edgy">Edgy</option>
+              <option value="hardcore">Hardcore</option>
             </select>
           </div>
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}

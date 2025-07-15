@@ -186,7 +186,7 @@ router.post('/',
   auth,
   [
     body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
-    body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']),
+    body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
     body('tags').optional().isArray(),
     body('assignedSwitch').optional().isString()
   ],

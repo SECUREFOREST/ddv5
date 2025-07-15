@@ -4,9 +4,11 @@ import api from '../api/axios';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
+  { value: 'titillating', label: 'Titillating' },
+  { value: 'arousing', label: 'Arousing' },
+  { value: 'explicit', label: 'Explicit' },
+  { value: 'edgy', label: 'Edgy' },
+  { value: 'hardcore', label: 'Hardcore' },
 ];
 
 export default function SwitchGameCreate() {

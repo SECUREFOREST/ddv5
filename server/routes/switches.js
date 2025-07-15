@@ -46,7 +46,7 @@ router.post('/',
   auth,
   [
     body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
-    body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']),
+    body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
     body('move').isString().isIn(['rock', 'paper', 'scissors'])
   ],
   async (req, res) => {

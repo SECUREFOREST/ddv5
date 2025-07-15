@@ -4,11 +4,33 @@ import { Link } from 'react-router-dom';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-  if (level === 'easy') badgeClass = 'bg-success text-success-contrast rounded-none';
-  else if (level === 'medium') badgeClass = 'bg-warning text-warning-contrast rounded-none';
-  else if (level === 'hard') badgeClass = 'bg-danger text-danger-contrast rounded-none';
+  let label = '';
+  switch (level) {
+    case 'titillating':
+      badgeClass = 'bg-pink-600 text-white rounded-none';
+      label = 'Titillating';
+      break;
+    case 'arousing':
+      badgeClass = 'bg-purple-700 text-white rounded-none';
+      label = 'Arousing';
+      break;
+    case 'explicit':
+      badgeClass = 'bg-red-700 text-white rounded-none';
+      label = 'Explicit';
+      break;
+    case 'edgy':
+      badgeClass = 'bg-yellow-700 text-white rounded-none';
+      label = 'Edgy';
+      break;
+    case 'hardcore':
+      badgeClass = 'bg-black text-white rounded-none border border-red-700';
+      label = 'Hardcore';
+      break;
+    default:
+      label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
+  }
   return (
-    <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown'}</span>
+    <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{label}</span>
   );
 }
 
