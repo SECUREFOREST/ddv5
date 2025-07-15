@@ -604,7 +604,7 @@ export default function SwitchGameDetails() {
               <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
             )}
             {/* Creator grades participant */}
-            {isCreator && game.participant && !hasGradedParticipant && (
+            {isCreator && game.participant && !hasGradedParticipant && (game.status === 'proof_submitted' || game.status === 'completed') && (
               <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Avatar user={game.participant} size={32} />
@@ -623,9 +623,16 @@ export default function SwitchGameDetails() {
                     </button>
                   ))}
                 </div>
-                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
-                {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
+                <textarea
+                  className="border rounded px-2 py-1 w-full"
+                  value={feedback}
+                  onChange={e => setFeedback(e.target.value)}
+                  maxLength={500}
+                  rows={2}
+                  placeholder="Optional feedback"
+                />
+                {gradeError && <div className="text-danger text-sm">{gradeError}</div>}
+                <button type="submit" className="btn btn-primary" disabled={grading}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
