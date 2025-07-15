@@ -15,11 +15,13 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 export default function UserActivity() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tabIdx, setTabIdx] = useState(0);
   const [activeDares, setActiveDares] = useState([]);
   const [activeSwitchGames, setActiveSwitchGames] = useState([]);
@@ -177,7 +179,13 @@ export default function UserActivity() {
             <>
               <h2 className="text-lg font-bold mb-2 text-primary">Active Dares</h2>
               {activeDares.length === 0 ? <div className="mb-4">No active dares.</div> : activeDares.map(dare => (
-                <DareCard key={dare._id} {...dare} currentUserId={user._id || user.id} />
+                <DareCard
+                  key={dare._id}
+                  {...dare}
+                  currentUserId={user._id || user.id}
+                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                  onForfeit={() => navigate(`/dares/${dare._id}`)}
+                />
               ))}
               <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Active Switch Games</h2>
               {activeSwitchGames.length === 0 ? <div>No active switch games.</div> : activeSwitchGames.map(game => (
@@ -200,7 +208,13 @@ export default function UserActivity() {
             <>
               <h2 className="text-lg font-bold mb-2 text-primary">Dare History</h2>
               {historyDares.length === 0 ? <div className="mb-4">No historical dares.</div> : historyDares.map(dare => (
-                <DareCard key={dare._id} {...dare} currentUserId={user._id || user.id} />
+                <DareCard
+                  key={dare._id}
+                  {...dare}
+                  currentUserId={user._id || user.id}
+                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                  onForfeit={() => navigate(`/dares/${dare._id}`)}
+                />
               ))}
               <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Switch Game History</h2>
               {historySwitchGames.length === 0 ? <div>No historical switch games.</div> : historySwitchGames.map(game => (
