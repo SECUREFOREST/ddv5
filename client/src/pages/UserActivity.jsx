@@ -1,0 +1,146 @@
+import React, { useState, useEffect } from 'react';
+import Tabs from '../components/Tabs';
+import { useAuth } from '../context/AuthContext';
+import DareCard from '../components/DareCard';
+import SwitchGameCard from '../components/SwitchGameCard';
+import api from '../api/axios';
+
+export default function UserActivity() {
+  const { user } = useAuth();
+  const [tabIdx, setTabIdx] = useState(0);
+  const [activeDares, setActiveDares] = useState([]);
+  const [activeSwitchGames, setActiveSwitchGames] = useState([]);
+  const [historyDares, setHistoryDares] = useState([]);
+  const [historySwitchGames, setHistorySwitchGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    setError('');
+    // Fetch active dares (not completed/forfeited/expired)
+    const activeStatuses = ['in_progress', 'waiting_for_participant', 'pending'];
+    const dareActiveReq = api.get('/dares', { params: { user: user._id || user.id, status: activeStatuses.join(',') } });
+    // Fetch historical dares (completed/forfeited/expired)
+    const historyStatuses = ['completed', 'forfeited', 'expired'];
+    const dareHistoryReq = api.get('/dares', { params: { user: user._id || user.id, status: historyStatuses.join(',') } });
+    // Fetch active switch games
+    const switchActiveReq = api.get('/switches/performer', { params: { status: activeStatuses.join(',') } });
+    // Fetch historical switch games
+    const switchHistoryReq = api.get('/switches/history');
+    Promise.all([dareActiveReq, dareHistoryReq, switchActiveReq, switchHistoryReq])
+      .then(([activeDaresRes, historyDaresRes, activeSwitchRes, historySwitchRes]) => {
+        setActiveDares(Array.isArray(activeDaresRes.data) ? activeDaresRes.data : []);
+        setHistoryDares(Array.isArray(historyDaresRes.data) ? historyDaresRes.data : []);
+        setActiveSwitchGames(Array.isArray(activeSwitchRes.data) ? activeSwitchRes.data : []);
+        setHistorySwitchGames(Array.isArray(historySwitchRes.data) ? historySwitchRes.data : []);
+      })
+      .catch(err => {
+        setError('Failed to load activity.');
+      })
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  // Compute stats from loaded data
+  const dareTotal = activeDares.length + historyDares.length;
+  const dareCompleted = historyDares.filter(d => d.status === 'completed').length;
+  const dareForfeited = historyDares.filter(d => d.status === 'forfeited').length;
+  const dareExpired = historyDares.filter(d => d.status === 'expired').length;
+  const dareAvgGrade = (() => {
+    const grades = historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number');
+    return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
+  })();
+  const dareCompletionRate = dareTotal ? ((dareCompleted / dareTotal) * 100).toFixed(1) + '%' : 'N/A';
+
+  const switchTotal = activeSwitchGames.length + historySwitchGames.length;
+  const switchCompleted = historySwitchGames.filter(g => g.status === 'completed').length;
+  const switchForfeited = historySwitchGames.filter(g => g.status === 'forfeited').length;
+  const switchExpired = historySwitchGames.filter(g => g.status === 'expired').length;
+  const switchWins = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
+  const switchLosses = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
+  const switchAvgGrade = (() => {
+    const grades = historySwitchGames.flatMap(g => (g.grades || []).map(gr => gr.grade)).filter(g => typeof g === 'number');
+    return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
+  })();
+  const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
+
+  const tabs = [
+    {
+      label: 'Active',
+      content: (
+        <div className="p-4 text-neutral-300">
+          {loading ? (
+            <div className="text-center text-neutral-400">Loading...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <>
+              <h2 className="text-lg font-bold mb-2 text-primary">Active Dares</h2>
+              {activeDares.length === 0 ? <div className="mb-4">No active dares.</div> : activeDares.map(dare => (
+                <DareCard key={dare._id} {...dare} currentUserId={user._id || user.id} />
+              ))}
+              <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Active Switch Games</h2>
+              {activeSwitchGames.length === 0 ? <div>No active switch games.</div> : activeSwitchGames.map(game => (
+                <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />
+              ))}
+            </>
+          )}
+        </div>
+      ),
+    },
+    {
+      label: 'History',
+      content: (
+        <div className="p-4 text-neutral-300">
+          {loading ? (
+            <div className="text-center text-neutral-400">Loading...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <>
+              <h2 className="text-lg font-bold mb-2 text-primary">Dare History</h2>
+              {historyDares.length === 0 ? <div className="mb-4">No historical dares.</div> : historyDares.map(dare => (
+                <DareCard key={dare._id} {...dare} currentUserId={user._id || user.id} />
+              ))}
+              <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Switch Game History</h2>
+              {historySwitchGames.length === 0 ? <div>No historical switch games.</div> : historySwitchGames.map(game => (
+                <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />
+              ))}
+            </>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="max-w-3xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded shadow p-6">
+      <h1 className="text-2xl font-bold mb-6 text-primary text-center">Your Activity</h1>
+      {/* Stats/Analytics Section */}
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-[#181818] border border-[#282828] rounded p-4">
+          <h2 className="text-lg font-bold text-primary mb-2">Dares</h2>
+          <div className="text-neutral-300 text-sm">Total: <span className="font-semibold">{dareTotal}</span></div>
+          <div className="text-neutral-300 text-sm">Completed: <span className="font-semibold">{dareCompleted}</span></div>
+          <div className="text-neutral-300 text-sm">Forfeited: <span className="font-semibold">{dareForfeited}</span></div>
+          <div className="text-neutral-300 text-sm">Expired: <span className="font-semibold">{dareExpired}</span></div>
+          <div className="text-neutral-300 text-sm">Avg. Grade: <span className="font-semibold">{dareAvgGrade}</span></div>
+          <div className="text-neutral-300 text-sm">Completion Rate: <span className="font-semibold">{dareCompletionRate}</span></div>
+        </div>
+        <div className="bg-[#181818] border border-[#282828] rounded p-4">
+          <h2 className="text-lg font-bold text-primary mb-2">Switch Games</h2>
+          <div className="text-neutral-300 text-sm">Total: <span className="font-semibold">{switchTotal}</span></div>
+          <div className="text-neutral-300 text-sm">Completed: <span className="font-semibold">{switchCompleted}</span></div>
+          <div className="text-neutral-300 text-sm">Forfeited: <span className="font-semibold">{switchForfeited}</span></div>
+          <div className="text-neutral-300 text-sm">Expired: <span className="font-semibold">{switchExpired}</span></div>
+          <div className="text-neutral-300 text-sm">Wins: <span className="font-semibold">{switchWins}</span></div>
+          <div className="text-neutral-300 text-sm">Losses: <span className="font-semibold">{switchLosses}</span></div>
+          <div className="text-neutral-300 text-sm">Avg. Grade: <span className="font-semibold">{switchAvgGrade}</span></div>
+          <div className="text-neutral-300 text-sm">Completion Rate: <span className="font-semibold">{switchCompletionRate}</span></div>
+        </div>
+      </div>
+      <Tabs tabs={tabs} selected={tabIdx} onChange={setTabIdx} />
+    </div>
+  );
+} 

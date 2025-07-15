@@ -100,6 +100,13 @@ export default function DareCard({
   actions,
   className = '',
   currentUserId,
+  proof,
+  grades = [],
+  feedback,
+  onSubmitProof,
+  onReviewProof,
+  onGrade,
+  onForfeit,
   ...props
 }) {
   const [expanded, setExpanded] = React.useState(false);
@@ -110,6 +117,16 @@ export default function DareCard({
     if (!user) return '#';
     return user._id === currentUserId ? '/profile' : `/profile/${user._id}`;
   };
+
+  // Determine user role
+  const isCreator = creator && (creator._id === currentUserId || creator.id === currentUserId);
+  const isPerformer = performer && (performer._id === currentUserId || performer.id === currentUserId);
+
+  // Determine available actions
+  const canSubmitProof = isPerformer && status === 'in_progress' && (!proof || !proof.submitted);
+  const canReviewProof = isCreator && status === 'in_progress' && proof && proof.submitted && !proof.reviewed;
+  const canGrade = isCreator && status === 'completed' && grades && !grades.some(g => g.user === currentUserId);
+  const canForfeit = isPerformer && status === 'in_progress';
 
   return (
     <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()} {...props}>
@@ -173,9 +190,22 @@ export default function DareCard({
           </Link>
         )}
       </div>
-      <div className="flex items-center justify-between mt-2">
-        <div />
-        <div>{actions}</div>
+      {/* Details Section */}
+      <div className="mt-2 text-xs text-neutral-400">
+        {proof && (
+          <div>Proof: {proof.submitted ? 'Submitted' : 'Not submitted'}{proof.reviewed ? ' (Reviewed)' : ''}</div>
+        )}
+        {grades && grades.length > 0 && (
+          <div>Grade: {grades.map(g => g.grade).join(', ')}{feedback && ` | Feedback: ${feedback}`}</div>
+        )}
+      </div>
+      {/* Actions Section */}
+      <div className="flex items-center justify-end gap-2 mt-2">
+        {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onSubmitProof}>Submit Proof</button>}
+        {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onReviewProof}>Review Proof</button>}
+        {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onGrade}>Grade</button>}
+        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onForfeit}>Forfeit</button>}
+        {actions}
       </div>
     </div>
   );
