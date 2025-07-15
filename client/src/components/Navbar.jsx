@@ -50,7 +50,6 @@ export default function Navbar() {
         </div>
         {/* Desktop links */}
         <ul className="hidden sm:flex flex-wrap items-center space-x-3">
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dares">Dares</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity">Activity</Link></li>
