@@ -52,7 +52,7 @@ export default function ClaimDare() {
       await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
       // After consent, redirect to DarePerform for this dare
       if (dare && dare._id) {
-        navigate(`/dare/perform/${dare._id}`);
+        navigate(`/dare/${dare._id}/perform`);
       } else {
         setSubmitted(true);
       }
