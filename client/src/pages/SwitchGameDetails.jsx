@@ -287,7 +287,7 @@ export default function SwitchGameDetails() {
     }
     setGrading(true);
     try {
-      await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback, target: targetId });
+      await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback }); // Removed target
       setGrade('');
       setFeedback('');
       setToast('Grade submitted!');
