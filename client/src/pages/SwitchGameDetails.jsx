@@ -73,9 +73,16 @@ export default function SwitchGameDetails() {
   const [fetchingGame, setFetchingGame] = useState(false);
   const [fetchGameError, setFetchGameError] = useState('');
 
+  function getId(obj) {
+    if (!obj) return undefined;
+    if (typeof obj === 'object') return obj._id || obj.id || obj.username || obj;
+    return obj;
+  }
+
   // --- Move winner/loser/isLoser logic up here ---
   const username = user?.username;
-  const hasJoined = game?.participants && game.participants.includes(username);
+  const userId = getId(user);
+  const hasJoined = game?.participants && game.participants.some(p => getId(p) === userId || p === username);
   const canPlayRps = game?.participants && game.participants.length === 2 && !game.winner;
   const userMove = game?.moves && game.moves[username];
   const bothMoves = canPlayRps && game.moves && Object.keys(game.moves).length === 2;
@@ -84,8 +91,8 @@ export default function SwitchGameDetails() {
   let loser = null;
   if (bothMoves) {
     const [p1, p2] = game.participants;
-    const move1 = game.moves[p1];
-    const move2 = game.moves[p2];
+    const move1 = game.moves[getId(p1) === userId ? username : getId(p1)];
+    const move2 = game.moves[getId(p2) === userId ? username : getId(p2)];
     const res1 = getRpsResult(move1, move2);
     if (res1 === 'draw') {
       rpsResult = 'draw';
@@ -97,10 +104,12 @@ export default function SwitchGameDetails() {
       loser = p1;
     }
   }
-  const winnerId = game && game.winner && (game.winner._id || game.winner);
-  const loserId = game && game.creator && game.participant && winnerId && (game.creator._id === winnerId || game.creator === winnerId ? (game.participant._id || game.participant) : (game.creator._id || game.creator));
-  const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
-  const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
+  const winnerId = game && game.winner && getId(game.winner);
+  const creatorId = game && game.creator && getId(game.creator);
+  const participantId = game && game.participant && getId(game.participant);
+  const loserId = winnerId && creatorId && participantId && (creatorId === winnerId ? participantId : creatorId);
+  const isWinner = user && winnerId && (userId === winnerId);
+  const isLoser = user && loserId && (userId === loserId);
 
   // --- proofExpiresAt and related calculations (already moved up) ---
   let proofExpiresAt = game?.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
@@ -237,8 +246,8 @@ export default function SwitchGameDetails() {
   const [gradeError, setGradeError] = useState('');
 
   // Check if user is a participant
-  const isCreator = user && game && (user.id === (game.creator?._id || game.creator));
-  const isParticipant = user && game && (user.id === (game.participant?._id || game.participant));
+  const isCreator = user && game && (getId(user) === getId(game.creator));
+  const isParticipant = user && game && (getId(user) === getId(game.participant));
   const canGrade = (isCreator || isParticipant) && game && game.status === 'completed' && game.grades && !game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id));
 
   const handleGrade = async (e) => {
@@ -267,8 +276,8 @@ export default function SwitchGameDetails() {
   };
 
   // Grading logic for bidirectional grading
-  const hasGradedParticipant = user && game && game.grades && game.participant && game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === game.participant._id || g.target === game.participant._id || g.target === game.participant));
-  const hasGradedCreator = user && game && game.grades && game.creator && game.grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === game.creator._id || g.target === game.creator._id || g.target === game.creator));
+  const hasGradedParticipant = user && game && game.grades && game.participant && game.grades.some(g => getId(g.user) === userId && getId(g.target) === getId(game.participant));
+  const hasGradedCreator = user && game && game.grades && game.creator && game.grades.some(g => getId(g.user) === userId && getId(g.target) === getId(game.creator));
   const handleBidirectionalGrade = async (e, targetId) => {
     e.preventDefault();
     setGradeError('');
@@ -291,7 +300,7 @@ export default function SwitchGameDetails() {
   };
 
   // Helper to normalize MongoDB IDs
-  const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj);
+  // const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj); // This line is removed
   // const isCreator = user && game && getId(game.creator) === user.id; // This line is removed
   // const isParticipant = user && game && getId(game.participant) === user.id; // This line is removed
 
@@ -303,8 +312,8 @@ export default function SwitchGameDetails() {
   }, [game, toast, proofError, generalSuccess]);
 
   // Find grades given and received
-  const myGivenGrade = game && game.grades && user && game.grades.find(g => g.user && (g.user._id === user.id || g.user === user.id));
-  const myReceivedGrade = game && game.grades && user && game.grades.find(g => g.user && (g.user._id !== user.id && g.user !== user.id));
+  const myGivenGrade = game && game.grades && user && game.grades.find(g => getId(g.user) === userId);
+  const myReceivedGrade = game && game.grades && user && game.grades.find(g => getId(g.target) === userId);
   const allGrades = game && game.grades && game.grades.length > 0 ? game.grades : [];
 
   // Determine winner and loser IDs
@@ -424,7 +433,9 @@ export default function SwitchGameDetails() {
 
   return (
     <div className="max-w-2xl mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
-      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
+      {(generalError || generalSuccess) && (
+        <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
+      )}
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-xl font-bold mb-4">{game.name}</h1>
       </div>
@@ -464,7 +475,7 @@ export default function SwitchGameDetails() {
             {MOVES.map(move => (
               <button
                 key={move}
-                className="bg-gray-200 text-gray-700 rounded px-4 py-2 font-semibold hover:bg-gray-300 disabled:opacity-50"
+                className="bg-neutral-800 text-primary rounded px-4 py-2 font-semibold hover:bg-primary/80 disabled:opacity-50"
                 onClick={() => handleMoveSubmit(move)}
                 disabled={moveSubmitting}
               >
@@ -476,11 +487,11 @@ export default function SwitchGameDetails() {
       )}
       {/* Waiting for other participant's move */}
       {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
-        <div className="mt-6 text-blue-600 font-semibold">Waiting for the other participant to choose...</div>
+        <div className="mt-6 text-primary font-semibold">Waiting for the other participant to choose...</div>
       )}
       {/* Show draw message if both moves are the same */}
       {bothMoves && rpsResult === 'draw' && (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded p-4">
+        <div className="mt-6 bg-info bg-opacity-10 border border-info rounded p-4">
           <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
         </div>
       )}
@@ -489,46 +500,28 @@ export default function SwitchGameDetails() {
         <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
           <b>Awaiting proof from the loser.</b>
           {isLoser && !game.proof && (
-            <>
-              <div className="mt-2 text-warning font-semibold">Proof submission window: {countdown}</div>
-              <button className="ml-2 bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark" onClick={() => setShowProofModal(true)}>
-                Submit Proof
-              </button>
-              <Modal open={showProofModal} onClose={() => setShowProofModal(false)} title="Submit Proof" role="dialog" aria-modal="true">
-                <form onSubmit={handleProofSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="proofText" className="block font-semibold mb-1">Proof</label>
-                    <textarea
-                      id="proofText"
-                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
-                      value={proof}
-                      onChange={e => setProof(e.target.value)}
-                      placeholder="Describe or link your proof..."
-                      rows={4}
-                    />
-                  </div>
-                  <div className="flex items-center mt-2">
-                    <input
-                      id="expireAfterView"
-                      type="checkbox"
-                      checked={expireAfterView}
-                      onChange={e => setExpireAfterView(e.target.checked)}
-                      className="mr-2"
-                    />
-                    <label htmlFor="expireAfterView" className="text-sm">Expire proof 48 hours after it is viewed by the dare creator.</label>
-                  </div>
-                  {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowProofModal(false)}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">
-                      Submit
-                    </button>
-                  </div>
-                </form>
-              </Modal>
-            </>
+            <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
+              <form onSubmit={handleProofSubmit}>
+                <div className="mb-2">
+                  <label className="block font-semibold mb-1">Proof (text):</label>
+                  <textarea
+                    className="border rounded px-2 py-1 w-full"
+                    value={proofText}
+                    onChange={e => setProofText(e.target.value)}
+                    maxLength={1000}
+                    rows={3}
+                    required
+                    disabled={proofSubmitting}
+                  />
+                </div>
+                {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
+                {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
+                <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
+                  {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
+                </button>
+              </form>
+            </div>
           )}
           {game.proof && (
             <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
@@ -714,7 +707,7 @@ export default function SwitchGameDetails() {
         </div>
       )}
       {/* Chicken Out button for creator or participant when in progress */}
-      {game.status === 'in_progress' && (user?._id === game.creator?._id || user?._id === game.participant?._id) && (
+      {game.status === 'in_progress' && (getId(user) === getId(game.creator) || getId(user) === getId(game.participant)) && (
         <div className="mt-6">
           <button
             className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"

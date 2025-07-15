@@ -20,19 +20,36 @@ function generateRefreshToken() {
 // POST /api/auth/register
 router.post('/register',
   [
-    body('username').isString().isLength({ min: 3, max: 30 }).trim().escape(),
-    body('fullName').isString().isLength({ min: 3, max: 100 }).trim().escape(),
-    body('email').isEmail().normalizeEmail(),
-    body('password').isString().isLength({ min: 8 }),
-    body('dob').isISO8601(),
-    body('gender').isString().isIn(['male', 'female', 'other']),
-    body('interestedIn').isArray({ min: 1 }),
-    body('limits').optional().isArray()
+    body('username')
+      .isString().withMessage('Username must be a string.')
+      .isLength({ min: 3, max: 30 }).withMessage('Username must be between 3 and 30 characters.')
+      .trim().escape(),
+    body('fullName')
+      .isString().withMessage('Full name must be a string.')
+      .isLength({ min: 3, max: 100 }).withMessage('Full name must be between 3 and 100 characters.')
+      .trim().escape(),
+    body('email')
+      .isEmail().withMessage('Email must be a valid email address.')
+      .normalizeEmail(),
+    body('password')
+      .isString().withMessage('Password must be a string.')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters.'),
+    body('dob')
+      .isISO8601().withMessage('Date of birth must be a valid date.'),
+    body('gender')
+      .isString().withMessage('Gender must be a string.')
+      .isIn(['male', 'female', 'other']).withMessage('Gender must be one of: male, female, other.'),
+    body('interestedIn')
+      .isArray({ min: 1 }).withMessage('InterestedIn must be a non-empty array.'),
+    body('limits').optional().isArray().withMessage('Limits must be an array if provided.')
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { username, fullName, email, password, dob, gender, interestedIn, limits } = req.body;
@@ -89,13 +106,19 @@ router.post('/register',
 // POST /api/auth/login
 router.post('/login',
   [
-    body('identifier').isString().trim().escape(),
-    body('password').isString()
+    body('identifier')
+      .isString().withMessage('Username or email is required.')
+      .trim().escape(),
+    body('password')
+      .isString().withMessage('Password is required.')
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { identifier, password } = req.body;

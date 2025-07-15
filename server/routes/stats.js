@@ -37,11 +37,14 @@ router.get('/leaderboard', auth, async (req, res) => {
 
 // GET /api/stats/users/:id - user stats
 router.get('/users/:id',
-  param('id').isMongoId(),
+  param('id').isMongoId().withMessage('User ID must be a valid MongoDB ObjectId.'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const userId = req.params.id;
@@ -66,13 +69,16 @@ router.get('/users/:id',
 // GET /api/stats/activities - recent user activities (dares, grades)
 router.get('/activities',
   [
-    query('userId').isMongoId(),
-    query('limit').optional().isInt({ min: 1, max: 100 })
+    query('userId').isMongoId().withMessage('User ID must be a valid MongoDB ObjectId.'),
+    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be an integer between 1 and 100.')
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { userId, limit = 10 } = req.query;

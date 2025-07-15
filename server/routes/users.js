@@ -101,18 +101,23 @@ router.get('/me', auth, async (req, res) => {
 router.patch('/:id',
   auth,
   [
-    body('username').optional().isString().isLength({ min: 3, max: 30 }).trim().escape(),
-    body('fullName').optional().isString().isLength({ min: 3, max: 100 }).trim().escape(),
-    body('bio').optional().isString().isLength({ max: 500 }).trim().escape(),
-    body('gender').optional().isString().isIn(['male', 'female', 'other']),
-    body('dob').optional().isISO8601(),
-    body('interestedIn').optional().isArray(),
-    body('limits').optional().isArray()
+    body('username').optional().isString().withMessage('Username must be a string.'),
+    body('email').optional().isEmail().withMessage('Email must be a valid email address.'),
+    body('fullName').optional().isString().withMessage('Full name must be a string.'),
+    body('bio').optional().isString().withMessage('Bio must be a string.'),
+    body('avatar').optional().isString().withMessage('Avatar must be a string.'),
+    body('gender').optional().isString().withMessage('Gender must be a string.'),
+    body('dob').optional().isISO8601().withMessage('Date of birth must be a valid date.'),
+    body('interestedIn').optional().isArray().withMessage('InterestedIn must be an array.'),
+    body('limits').optional().isArray().withMessage('Limits must be an array.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     console.log('PATCH /users/:id handler called for', req.params.id, 'body:', req.body);
     try {

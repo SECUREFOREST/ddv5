@@ -27,14 +27,23 @@ router.get('/', requireAdmin, async (req, res) => {
 // POST /reports - user submits a report
 router.post('/',
   [
-    body('type').isString().isIn(['comment', 'dare']),
-    body('targetId').isMongoId(),
-    body('reason').isString().isLength({ min: 5, max: 500 }).trim().escape()
+    body('type')
+      .isString().withMessage('Type must be a string.')
+      .isIn(['comment', 'dare']).withMessage('Type must be one of: comment, dare.'),
+    body('targetId')
+      .isMongoId().withMessage('TargetId must be a valid MongoDB ObjectId.'),
+    body('reason')
+      .isString().withMessage('Reason must be a string.')
+      .isLength({ min: 5, max: 500 }).withMessage('Reason must be between 5 and 500 characters.')
+      .trim().escape()
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const report = new Report({

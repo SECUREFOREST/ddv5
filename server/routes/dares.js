@@ -207,15 +207,30 @@ router.get('/:id', async (req, res) => {
 router.post('/',
   auth,
   [
-    body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
-    body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
-    body('tags').optional().isArray(),
-    body('assignedSwitch').optional().isString()
+    body('description')
+      .isString().withMessage('Description must be a string.')
+      .isLength({ min: 5, max: 500 }).withMessage('Description must be between 5 and 500 characters.')
+      .trim().escape(),
+    body('difficulty')
+      .isString().withMessage('Difficulty must be a string.')
+      .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
+    body('dareType').optional()
+      .isString().withMessage('Dare type must be a string.')
+      .isIn(['submission', 'domination', 'switch']).withMessage('Dare type must be one of: submission, domination, switch.'),
+    body('tags').optional().isArray().withMessage('Tags must be an array.'),
+    body('public').optional().isBoolean().withMessage('Public must be true or false.'),
+    body('allowedRoles').optional().isArray().withMessage('AllowedRoles must be an array.'),
+    body('claimable').optional().isBoolean().withMessage('Claimable must be true or false.'),
+    body('claimToken').optional().isString().withMessage('ClaimToken must be a string.'),
+    body('claimDemand').optional().isString().withMessage('ClaimDemand must be a string.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { description, difficulty, tags, assignedSwitch } = req.body;

@@ -17,14 +17,23 @@ function requireAdmin(req, res, next) {
 // POST /appeals - user submits an appeal
 router.post('/',
   [
-    body('type').isString().isIn(['unblock', 'refund', 'dare']),
-    body('targetId').isMongoId(),
-    body('reason').isString().isLength({ min: 5, max: 500 }).trim().escape()
+    body('type')
+      .isString().withMessage('Type must be a string.')
+      .isIn(['unblock', 'refund', 'dare']).withMessage('Type must be one of: unblock, refund, dare.'),
+    body('targetId')
+      .isMongoId().withMessage('TargetId must be a valid MongoDB ObjectId.'),
+    body('reason')
+      .isString().withMessage('Reason must be a string.')
+      .isLength({ min: 5, max: 500 }).withMessage('Reason must be between 5 and 500 characters.')
+      .trim().escape()
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { type, targetId, reason } = req.body;

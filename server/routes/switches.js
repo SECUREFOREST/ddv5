@@ -85,12 +85,15 @@ router.get('/history', auth, async (req, res) => {
 
 // GET /api/switches/:id - get game details (auth required)
 router.get('/:id',
-  require('express-validator').param('id').isMongoId(),
+  require('express-validator').param('id').isMongoId().withMessage('Game ID must be a valid MongoDB ObjectId.'),
   auth,
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
     if (!game) return res.status(404).json({ error: 'Not found' });
@@ -161,14 +164,24 @@ router.get('/:id',
 router.post('/',
   auth,
   [
-    body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
-    body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
-    body('move').isString().isIn(['rock', 'paper', 'scissors'])
+    body('description')
+      .isString().withMessage('Description must be a string.')
+      .isLength({ min: 5, max: 500 }).withMessage('Description must be between 5 and 500 characters.')
+      .trim().escape(),
+    body('difficulty')
+      .isString().withMessage('Difficulty must be a string.')
+      .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
+    body('move')
+      .isString().withMessage('Move must be a string.')
+      .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.')
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const { description, difficulty, move } = req.body;
@@ -192,17 +205,25 @@ router.post('/',
 
 // POST /api/switches/:id/join - join a game (auth required)
 router.post('/:id/join',
-  require('express-validator').param('id').isMongoId(),
+  require('express-validator').param('id').isMongoId().withMessage('Invalid game ID.'),
   auth,
   [
-    require('express-validator').body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']),
-    require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors']),
-    require('express-validator').body('consent').isBoolean()
+    require('express-validator').body('difficulty')
+      .isString().withMessage('Difficulty must be a string.')
+      .isIn(['titillating', 'daring', 'shocking']).withMessage('Difficulty must be one of: titillating, daring, shocking.'),
+    require('express-validator').body('move')
+      .isString().withMessage('Move must be a string.')
+      .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.'),
+    require('express-validator').body('consent')
+      .isBoolean().withMessage('Consent must be true or false.')
   ],
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
     }
     try {
       const userId = req.userId;
