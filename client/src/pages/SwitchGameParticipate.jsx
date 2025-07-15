@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 const MOVES = ['rock', 'paper', 'scissors'];
+const DIFFICULTIES = ['titillating', 'arousing', 'explicit', 'edgy', 'hardcore'];
 
 export default function SwitchGameParticipate() {
   const { gameId } = useParams();
@@ -13,8 +14,79 @@ export default function SwitchGameParticipate() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [showRules, setShowRules] = useState(false);
+  // For difficulty/consent selection
+  const [difficulty, setDifficulty] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [searching, setSearching] = useState(false);
 
+  // If no gameId, show difficulty/consent form
+  if (!gameId) {
+    const handleFindGame = async (e) => {
+      e.preventDefault();
+      setError('');
+      if (!difficulty) {
+        setError('Please select a difficulty.');
+        return;
+      }
+      if (!consent) {
+        setError('You must consent to participate.');
+        return;
+      }
+      setSearching(true);
+      try {
+        // Fetch open switch games with selected difficulty
+        const res = await api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } });
+        const games = Array.isArray(res.data) ? res.data : [];
+        if (games.length > 0 && games[0]._id) {
+          navigate(`/switches/participate/${games[0]._id}`);
+        } else {
+          setError('No open switch games available for this difficulty.');
+        }
+      } catch (err) {
+        setError('Failed to find a switch game.');
+      } finally {
+        setSearching(false);
+      }
+    };
+    return (
+      <div className="max-w-md mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded shadow">
+        <h1 className="text-2xl font-bold mb-4">Participate in a Switch Game</h1>
+        <form onSubmit={handleFindGame}>
+          <div className="mb-4">
+            <label className="block font-semibold mb-1">Select Difficulty</label>
+            <select
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={difficulty}
+              onChange={e => setDifficulty(e.target.value)}
+              required
+            >
+              <option value="">Choose difficulty...</option>
+              {DIFFICULTIES.map(d => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
+            </select>
+          </div>
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              id="consent"
+              checked={consent}
+              onChange={e => setConsent(e.target.checked)}
+              className="mr-2"
+              required
+            />
+            <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
+          </div>
+          {error && <div className="text-danger text-sm font-medium mb-2" role="alert">{error}</div>}
+          <button type="submit" className="btn btn-primary btn-lg w-full bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={searching}>
+            {searching ? 'Searching...' : 'Find Game'}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // If gameId is present, show the join form as before
   useEffect(() => {
+    if (!gameId) return;
     api.get(`/switches/${gameId}`)
       .then(res => setGame(res.data))
       .catch(() => setError('Game not found.'));
