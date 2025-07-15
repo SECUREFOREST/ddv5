@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 function DifficultyBadge({ level }) {
@@ -34,6 +34,7 @@ function DifficultyBadge({ level }) {
 
 export default function ClaimDare() {
   const { claimToken } = useParams();
+  const navigate = useNavigate();
   const [dare, setDare] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -49,7 +50,12 @@ export default function ClaimDare() {
     setError('');
     try {
       await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
-      setSubmitted(true);
+      // After consent, redirect to DarePerform for this dare
+      if (dare && dare._id) {
+        navigate(`/dare/perform/${dare._id}`);
+      } else {
+        setSubmitted(true);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to consent to dare.');
     }
