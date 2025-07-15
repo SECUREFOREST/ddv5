@@ -100,8 +100,10 @@ export default function SwitchGameDetails() {
       loser = p1;
     }
   }
-  const isLoser = loser === username;
-  const isWinner = winner === username;
+  const winnerId = game && game.winner && (game.winner._id || game.winner);
+  const loserId = game && game.creator && game.participant && winnerId && (game.creator._id === winnerId || game.creator === winnerId ? (game.participant._id || game.participant) : (game.creator._id || game.creator));
+  const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
+  const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
 
   // --- proofExpiresAt and related calculations (already moved up) ---
   let proofExpiresAt = game?.proofExpiresAt ? new Date(game.proofExpiresAt) : null;
@@ -309,10 +311,10 @@ export default function SwitchGameDetails() {
   const allGrades = game && game.grades && game.grades.length > 0 ? game.grades : [];
 
   // Determine winner and loser IDs
-  const winnerId = game && game.winner && (game.winner._id || game.winner);
-  const loserId = game && game.creator && game.participant && winnerId && (game.creator._id === winnerId || game.creator === winnerId ? (game.participant._id || game.participant) : (game.creator._id || game.creator));
-  const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
-  const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
+  // const winnerId = game && game.winner && (game.winner._id || game.winner);
+  // const loserId = game && game.creator && game.participant && winnerId && (game.creator._id === winnerId || game.creator === winnerId ? (game.participant._id || game.participant) : (game.creator._id || game.creator));
+  // const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
+  // const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
 
   // Proof submission state
   const [proofText, setProofText] = useState('');
