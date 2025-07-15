@@ -31,11 +31,7 @@ export default function DareCreator() {
         description,
         difficulty,
       });
-      setCreatedDareId(res.data._id || res.data.id);
-      setShowModal(true);
-      setToast('Dare created successfully!');
-      setGeneralSuccess('Dare created successfully!');
-      setTimeout(() => { setToast(''); setGeneralSuccess(''); }, 3000);
+      navigate(`/dare/share/${res.data._id || res.data.id}`);
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create dare');
       setGeneralError(err.response?.data?.error || 'Failed to create dare');
