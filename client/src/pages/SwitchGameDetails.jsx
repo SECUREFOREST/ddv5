@@ -638,7 +638,7 @@ export default function SwitchGameDetails() {
               </form>
             )}
             {/* Participant grades creator */}
-            {isParticipant && game.creator && !hasGradedCreator && (
+            {isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
               <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Avatar user={game.creator} size={32} />
