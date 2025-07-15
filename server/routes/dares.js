@@ -106,6 +106,8 @@ router.get('/random', auth, async (req, res) => {
   try {
     const { difficulty } = req.query;
     const userId = req.userId;
+    // Prevent claiming if in cooldown or at open dare limit
+    await checkSlotAndCooldownAtomic(userId);
     // Exclude dares already consented to or completed by this user
     const user = await require('../models/User').findById(userId).select('consentedDares completedDares');
     const excludeDares = [
@@ -366,7 +368,7 @@ router.post('/:id/proof',
       }
       // Use UTC for all date calculations
       const now = new Date();
-      await checkSlotAndCooldownAtomic(req.userId);
+      // await checkSlotAndCooldownAtomic(req.userId); // Removed: do not enforce cooldown/open dare limit on completion
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
       if (!dare.performer || dare.performer.toString() !== req.userId) {
@@ -424,6 +426,8 @@ router.post('/:id/accept',
       // Blocked user check
       const creator2 = await User.findById(dare.creator).select('blockedUsers');
       const performerUser2 = await User.findById(req.userId).select('blockedUsers');
+      // Prevent accepting if in cooldown or at open dare limit
+      await checkSlotAndCooldownAtomic(req.userId);
       if (
         (creator2.blockedUsers && creator2.blockedUsers.includes(req.userId)) ||
         (performerUser2.blockedUsers && performerUser2.blockedUsers.includes(dare.creator.toString()))

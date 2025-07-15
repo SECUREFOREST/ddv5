@@ -208,24 +208,18 @@ router.post('/:id/join',
   require('express-validator').param('id').isMongoId().withMessage('Invalid game ID.'),
   auth,
   [
-    require('express-validator').body('difficulty')
-      .isString().withMessage('Difficulty must be a string.')
-      .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
-    require('express-validator').body('move')
-      .isString().withMessage('Move must be a string.')
-      .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.'),
-    require('express-validator').body('consent')
-      .isBoolean().withMessage('Consent must be true or false.')
+    require('express-validator').body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
+    require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors']),
+    require('express-validator').body('consent').isBoolean()
   ],
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
-      });
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
     try {
+      // Prevent joining if in cooldown or at open dare limit
+      await require('./dares').checkSlotAndCooldownAtomic(req.userId);
       const userId = req.userId;
       const { difficulty, move, consent } = req.body;
       const game = await SwitchGame.findById(req.params.id);
@@ -408,6 +402,9 @@ router.post('/:id/proof-review', auth, async (req, res) => {
       game.status = 'completed';
       game.proof.review = { action: 'approved', feedback: feedback || '' };
       await game.save();
+      // Decrement openDares for the loser
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(loserId, { $inc: { openDares: -1 } });
       await sendNotification(loserId, 'switchgame_proof_approved', 'Your proof for the switch game was approved.');
       return res.json({ message: 'Proof approved.', game });
     } else {
@@ -445,6 +442,9 @@ router.post('/:id/forfeit',
       game.status = 'forfeited';
       game.updatedAt = new Date();
       await game.save();
+      // Decrement openDares for the forfeiting user
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(userId, { $inc: { openDares: -1 } });
       // Notify the other user
       const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
       if (otherUser) {
