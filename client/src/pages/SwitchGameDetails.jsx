@@ -604,7 +604,7 @@ export default function SwitchGameDetails() {
               <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
             )}
             {/* Creator grades participant */}
-            {isCreator && game.participant && !hasGradedParticipant && (game.status === 'proof_submitted' || game.status === 'completed') && (
+            {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
               <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Avatar user={game.participant} size={32} />
