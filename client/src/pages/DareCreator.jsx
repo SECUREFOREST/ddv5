@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
+import { DARE_DIFFICULTIES } from '../tailwindColors';
 
 export default function DareCreator() {
   const [description, setDescription] = useState('');
@@ -124,12 +125,15 @@ export default function DareCreator() {
           </div>
           <div>
             <label className="block font-semibold mb-1 text-primary">Difficulty</label>
-            <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
-              <option value="titillating">Titillating</option>
-              <option value="arousing">Arousing</option>
-              <option value="explicit">Explicit</option>
-              <option value="edgy">Edgy</option>
-              <option value="hardcore">Hardcore</option>
+            <select
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={difficulty}
+              onChange={e => setDifficulty(e.target.value)}
+              required
+            >
+              {DARE_DIFFICULTIES.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-center">

@@ -22,4 +22,12 @@ export const chartColors = {
   code: '#c7254e',
   codeBg: '#f9f2f4',
   // Add more as needed from 1.css
-}; 
+};
+
+export const DARE_DIFFICULTIES = [
+  { value: 'titillating', label: 'Titillating' },
+  { value: 'arousing', label: 'Arousing' },
+  { value: 'explicit', label: 'Explicit' },
+  { value: 'edgy', label: 'Edgy' },
+  { value: 'hardcore', label: 'Hardcore' },
+]; 

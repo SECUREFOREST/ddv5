@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
+import { DARE_DIFFICULTIES } from '../tailwindColors';
 
 export default function DarePerform() {
   const { user } = useAuth();
@@ -173,9 +174,9 @@ export default function DarePerform() {
               onChange={e => setDifficulty(e.target.value)}
               required
             >
-              <option value="titillating">Titillating</option>
-              <option value="daring">Daring</option>
-              <option value="shocking">Shocking</option>
+              {DARE_DIFFICULTIES.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-center gap-2">

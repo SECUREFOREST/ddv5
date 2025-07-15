@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
+import { DARE_DIFFICULTIES } from '../tailwindColors';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -191,16 +192,14 @@ export default function DareParticipant() {
           <div>
             <label className="block font-semibold mb-1 text-primary">Select Difficulty</label>
             <select
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={difficulty}
               onChange={e => setDifficulty(e.target.value)}
-              aria-label="Select Difficulty"
+              required
             >
-              <option value="titillating">Titillating</option>
-              <option value="arousing">Arousing</option>
-              <option value="explicit">Explicit</option>
-              <option value="edgy">Edgy</option>
-              <option value="hardcore">Hardcore</option>
+              {DARE_DIFFICULTIES.map(d => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-center">

@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
+import { DARE_DIFFICULTIES } from '../tailwindColors';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -22,30 +23,26 @@ function getRpsResult(moveA, moveB) {
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-  let label = '';
+  const found = DARE_DIFFICULTIES.find(d => d.value === level);
+  let label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
   switch (level) {
     case 'titillating':
       badgeClass = 'bg-pink-600 text-white rounded-none';
-      label = 'Titillating';
       break;
     case 'arousing':
       badgeClass = 'bg-purple-700 text-white rounded-none';
-      label = 'Arousing';
       break;
     case 'explicit':
       badgeClass = 'bg-red-700 text-white rounded-none';
-      label = 'Explicit';
       break;
     case 'edgy':
       badgeClass = 'bg-yellow-700 text-white rounded-none';
-      label = 'Edgy';
       break;
     case 'hardcore':
       badgeClass = 'bg-black text-white rounded-none border border-red-700';
-      label = 'Hardcore';
       break;
     default:
-      label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
+      break;
   }
   return (
     <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{label}</span>
