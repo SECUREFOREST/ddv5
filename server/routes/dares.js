@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // Helper: check if user is admin (reuse from users.js)
 function isAdmin(req, res, next) {

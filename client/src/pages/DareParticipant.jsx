@@ -56,6 +56,8 @@ export default function DareParticipant() {
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
 
+  const MAX_PROOF_SIZE_MB = 10;
+
   // If id param is present, fetch that dare directly
   useEffect(() => {
     if (id) {
@@ -183,6 +185,16 @@ export default function DareParticipant() {
     setGeneralSuccess('');
   };
 
+  const handleProofFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > MAX_PROOF_SIZE_MB * 1024 * 1024) {
+      setProofError(`File too large. Max size is ${MAX_PROOF_SIZE_MB}MB.`);
+      setProofFile(null);
+      return;
+    }
+    setProofFile(file);
+  };
+
   return (
     <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
@@ -276,7 +288,7 @@ export default function DareParticipant() {
                 id="proof-file"
                 type="file"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                onChange={e => setProofFile(e.target.files[0])}
+                onChange={handleProofFileChange}
                 accept="image/*,video/mp4,video/webm,video/quicktime"
               />
               <small className="text-gray-400">Accepted: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
