@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
+import Button from '../components/Button';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -72,57 +73,55 @@ export default function DareShare() {
   if (canceled) return <div className="text-center text-success mt-12">Dare canceled. Redirecting...</div>;
 
   return (
-    <div className="max-w-md w-full mx-auto mt-10 bg-[#222] border border-[#282828] rounded shadow p-6 relative" style={{ minHeight: 500 }}>
-      <div className="text-center mb-4">
-        <h2 className="text-xl font-bold mb-2">Hi {dare.creator?.username || 'there'}</h2>
-        <div className="text-neutral-300 mb-2">share this link very carefully</div>
-        <input
-          className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 text-center font-mono mb-2"
-          value={dareUrl}
-          readOnly
-          onFocus={e => e.target.select()}
-        />
-        <div className="mb-4 text-lg text-neutral-200">
-          The first person to claim it can demand a{' '}
-          <DifficultyBadge level={dare.difficulty} /> pic of their choice.
-        </div>
-        <button
-          className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-bold mb-4 hover:bg-danger-dark"
-          onClick={handleCancel}
-          disabled={canceling}
-        >
-          {canceling ? 'Canceling...' : 'OMG, cancel this'}
-        </button>
+    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 relative">
+      <h2 className="text-xl font-bold text-center mb-2">Hi {dare.creator?.username || 'there'}</h2>
+      <div className="text-neutral-300 text-center mb-2">share this link very carefully</div>
+      <input
+        className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 text-center font-mono mb-2"
+        value={dareUrl}
+        readOnly
+        onFocus={e => e.target.select()}
+      />
+      <div className="mb-4 text-lg text-neutral-200 text-center">
+        The first person to claim it can demand a{' '}
+        <DifficultyBadge level={dare.difficulty} /> pic of their choice.
       </div>
+      <Button
+        variant="danger"
+        className="w-full mb-4"
+        onClick={handleCancel}
+        disabled={canceling}
+      >
+        {canceling ? 'Canceling...' : 'OMG, cancel this'}
+      </Button>
       <div className="flex mb-4">
-        <button
-          className="flex-1 bg-primary text-primary-contrast rounded-l px-4 py-2 font-semibold hover:bg-primary-dark"
+        <Button
+          variant="primary"
+          className="flex-1 rounded-l-none"
           onClick={() => navigator.clipboard.writeText(dareUrl)}
         >
           Share Privately
-        </button>
-        <button
-          className="flex-1 bg-neutral-700 text-neutral-100 rounded-r px-4 py-2 font-semibold hover:bg-neutral-800"
+        </Button>
+        <Button
+          variant="default"
+          className="flex-1 rounded-r-none"
           onClick={() => navigator.clipboard.writeText(dareUrl)}
         >
           Share with Strangers
-        </button>
+        </Button>
       </div>
       <div className="mb-4 bg-neutral-800 rounded p-3 text-neutral-300 text-sm">
         Share with your friends via email by copying and pasting the link above.<br />
         Share on adult social networks by copying the link above and pasting it into a message.
       </div>
-      <button
-        className="w-full bg-pink-700 text-white rounded px-4 py-2 font-semibold hover:bg-pink-800 mb-4"
+      <Button
+        variant="primary"
+        className="w-full bg-pink-700 hover:bg-pink-800 mb-4"
         onClick={() => window.open('https://fetlife.com', '_blank')}
       >
         Share on Fetlife
-      </button>
-      <div className="absolute bottom-2 left-0 w-full text-center text-xs text-neutral-400">
-        Built by kinky folks, for kinky folks.<br />
-        <Link to="/about" className="underline text-primary">More about us</Link> | <Link to="/vote" className="underline text-primary">Vote for what we build next</Link><br />
-        You have 0 kreds, <Link to="/kreds" className="underline text-primary">get more kreds</Link>.
-      </div>
+      </Button>
+      {/* Remove the footer links and kreds info */}
     </div>
   );
 } 
