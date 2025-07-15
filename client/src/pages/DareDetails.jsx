@@ -318,136 +318,113 @@ export default function DareDetails() {
   return (
     <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
+      {/* Header: Description & Status */}
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#888] flex items-center justify-center gap-2">{dare?.description} <StatusBadge status={dare?.status} /></h1>
-        <div className="flex items-center gap-2">
-          <input
-            id="sharable-link-input"
-            className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
-            type="text"
-            value={dareUrl}
-            readOnly
-            onFocus={e => e.target.select()}
-          />
-          <button className="bg-gray-200 text-gray-800 rounded px-3 py-1 font-semibold text-xs hover:bg-gray-300" onClick={handleShareClick}>
-            Share
-          </button>
+        <h1 className="text-2xl font-bold text-center mb-2 flex items-center justify-center gap-2">{dare?.description} <StatusBadge status={dare?.status} /></h1>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-neutral-400 text-sm">
+          <span>By <b>{dare?.creator?.username || 'Unknown'}</b></span>
+          <span>| Participant: <b>{dare?.performer?.username || 'None yet'}</b></span>
+          <span>| Difficulty: <b>{dare?.difficulty}</b></span>
         </div>
       </div>
-      <div>
-        <div className="bg-neutral-900 rounded p-4 mb-4">
-          <Markdown>{dare?.description || ''}</Markdown>
-        </div>
-        {canAccept && (
-          <div className="my-5">
-            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
-              {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}
-            </button>
-            {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
-          </div>
-        )}
-        <div className="text-neutral-400 mb-4 text-center">
-          By {dare?.creator?.username || 'Unknown'} |
-          Participant: {dare?.performer?.username || 'None yet'} |
-          Status: <StatusBadge status={dare?.status} /> |
-          Difficulty: {dare?.difficulty}
-        </div>
-        {/* Proof expiration countdown and message */}
-        {dare && dare.proofExpiresAt && !proofExpired && (
-          <div className="bg-info bg-opacity-10 text-info rounded px-4 py-3 my-5 text-center">
-            <b>Proof review period:</b> <Countdown target={dare.proofExpiresAt} />
-          </div>
-        )}
-        {dare && proofExpired && (
-          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5 text-center">
-            <b>Proof review period expired.</b> Grading and approval are no longer allowed.
-          </div>
-        )}
-        {/* Proof Section */}
-        {dare?.proof && (dare.proof.text || dare.proof.fileUrl) && (
-          <div className="bg-neutral-900 rounded p-4 mb-6">
-            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Proof</h2>
-            {dare.proof.text && (
-              <div className="mb-2 text-neutral-100">{dare.proof.text}</div>
-            )}
-            {dare.proof.fileUrl && (
-              <>
-                {/\.(jpg|jpeg|png|gif|webp)$/i.test(dare.proof.fileName || dare.proof.fileUrl) ? (
-                  <img
-                    src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
-                    alt="Proof"
-                    className="max-w-full rounded shadow mb-2"
-                    style={{ maxHeight: 400 }}
-                  />
-                ) : (
-                  <video
-                    src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
-                    controls
-                    className="max-w-full rounded shadow mb-2"
-                    style={{ maxHeight: 400 }}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        )}
-        {/* Grades Section */}
+      {/* Share Link */}
+      <div className="flex items-center gap-2 mb-4">
+        <input
+          id="sharable-link-input"
+          className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
+          type="text"
+          value={dareUrl}
+          readOnly
+          onFocus={e => e.target.select()}
+        />
+        <button className="bg-primary text-primary-contrast rounded px-3 py-1 font-semibold text-xs hover:bg-primary-dark" onClick={handleShareClick}>
+          Share
+        </button>
+      </div>
+      {/* Markdown Description */}
+      <div className="bg-neutral-900 rounded p-4 mb-4">
+        <Markdown>{dare?.description || ''}</Markdown>
+      </div>
+      {/* Proof Section */}
+      {dare?.proof && (dare.proof.text || dare.proof.fileUrl) && (
         <div className="bg-neutral-900 rounded p-4 mb-6">
-          <div className="border-b pb-2 mb-4">
-            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
-          </div>
-          <div>
-            {dare?.grades && dare.grades.length > 0 ? (
-              <ul className="space-y-2 mb-4">
-                {dare.grades.map((g, i) => (
-                  <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                    <Avatar user={g.user} size={24} />
-                    <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
-                    <span className="text-xs text-gray-400">
-                      ({g.user && dare.creator && (g.user._id === dare.creator._id || g.user === dare.creator._id || g.user === dare.creator) ? 'Creator' : 'Performer'})
-                    </span>
-                    <span className="mx-2">→</span>
-                    <Avatar user={g.target} size={24} />
-                    <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
-                    <span className="text-xs text-gray-400">
-                      ({g.target && dare.creator && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator) ? 'Creator' : 'Performer'})
-                    </span>
-                    <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
-                      {g.grade}
-                    </span>
-                    {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
-                    {g.createdAt && (
-                      <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
-            )}
+          <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Proof</h2>
+          {dare.proof.text && (
+            <div className="mb-2 text-neutral-100">{dare.proof.text}</div>
+          )}
+          {dare.proof.fileUrl && (
+            <div className="flex justify-center">
+              {/\.(jpg|jpeg|png|gif|webp)$/i.test(dare.proof.fileName || dare.proof.fileUrl) ? (
+                <img
+                  src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
+                  alt="Proof"
+                  className="max-w-full rounded shadow mb-2"
+                  style={{ maxHeight: 400 }}
+                />
+              ) : (
+                <video
+                  src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
+                  controls
+                  className="max-w-full rounded shadow mb-2"
+                  style={{ maxHeight: 400 }}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      {/* Grades Section */}
+      <div className="bg-neutral-900 rounded p-4 mb-6">
+        <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades & Feedback</h2>
+        {dare?.grades && dare.grades.length > 0 ? (
+          <ul className="space-y-2 mb-4">
+            {dare.grades.map((g, i) => (
+              <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
+                <Avatar user={g.user} size={24} />
+                <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
+                <span className="text-xs text-gray-400">
+                  ({g.user && dare.creator && (g.user._id === dare.creator._id || g.user === dare.creator._id || g.user === dare.creator) ? 'Creator' : 'Performer'})
+                </span>
+                <span className="mx-2">→</span>
+                <Avatar user={g.target} size={24} />
+                <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
+                <span className="text-xs text-gray-400">
+                  ({g.target && dare.creator && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator) ? 'Creator' : 'Performer'})
+                </span>
+                <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
+                  {g.grade}
+                </span>
+                {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                {g.createdAt && (
+                  <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
+        )}
+        {/* Grading Forms */}
+        {user && dare && dare.creator && dare.performer && !proofExpired && (
+          <>
             {/* Creator grades performer */}
-            {user && dare && dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && !hasGradedPerformer && !proofExpired && (
-              <form onSubmit={e => handleGrade(e, dare.performer._id || dare.performer)} className="space-y-4">
-                <div>
-                  <label className="block font-semibold mb-1 text-primary">Grade the Participant</label>
-                  <div className="flex gap-2 mb-2">
-                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                      <button
-                        type="button"
-                        key={num}
-                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                        onClick={() => setGrade(num)}
-                        aria-label={`Score ${num}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
+            {user.id === (dare.creator._id || dare.creator) && !hasGradedPerformer && (
+              <form onSubmit={e => handleGrade(e, dare.performer._id || dare.performer)} className="space-y-4 mb-4">
+                <label className="block font-semibold mb-1 text-primary">Grade the Participant</label>
+                <div className="flex gap-2 mb-2">
+                  {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                    <button
+                      type="button"
+                      key={num}
+                      className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                      onClick={() => setGrade(num)}
+                      aria-label={`Score ${num}`}
+                    >
+                      {num}
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
-                </div>
+                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
                 {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
@@ -455,171 +432,70 @@ export default function DareDetails() {
               </form>
             )}
             {/* Performer grades creator */}
-            {user && dare && dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && !hasGradedCreator && !proofExpired && (
-              <form onSubmit={e => handleGrade(e, dare.creator._id || dare.creator)} className="space-y-4">
-                <div>
-                  <label className="block font-semibold mb-1 text-primary">Grade the Creator</label>
-                  <div className="flex gap-2 mb-2">
-                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                      <button
-                        type="button"
-                        key={num}
-                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                        onClick={() => setGrade(num)}
-                        aria-label={`Score ${num}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
+            {user.id === (dare.performer._id || dare.performer) && !hasGradedCreator && (
+              <form onSubmit={e => handleGrade(e, dare.creator._id || dare.creator)} className="space-y-4 mb-4">
+                <label className="block font-semibold mb-1 text-primary">Grade the Creator</label>
+                <div className="flex gap-2 mb-2">
+                  {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                    <button
+                      type="button"
+                      key={num}
+                      className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                      onClick={() => setGrade(num)}
+                      aria-label={`Score ${num}`}
+                    >
+                      {num}
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <label className="block font-semibold mb-1 text-primary">Feedback (optional)</label>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} />
-                </div>
+                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
                 {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
             )}
-            {/* Show message if already graded */}
-            {user && ((dare.creator && dare.performer && user.id === (dare.creator._id || dare.creator) && hasGradedPerformer) || (dare.creator && dare.performer && user.id === (dare.performer._id || dare.performer) && hasGradedCreator)) && (
-              <div className="text-success text-center font-medium mb-2">You have already graded this user for this dare.</div>
-            )}
-          </div>
-        </div>
-        {/* Comments Section */}
-        {/* Remove all comment-related state, handlers, and UI */}
-        {/* Slot/cooldown enforcement messages */}
-        {inCooldown && (
-          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
-            <b>You are in cooldown after a recent rejection.</b><br />
-            You can start or perform new dares after your cooldown expires:
-            <Countdown target={user.actCooldownUntil} />
-          </div>
+          </>
         )}
-        {atSlotLimit && (
-          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
-            <b>You have reached the maximum of 5 open dares.</b><br />
-            Complete or reject a dare to free up a slot.
-          </div>
+      </div>
+      {/* Actions Section */}
+      <div className="space-y-4 mb-6">
+        {canAccept && (
+          <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
+            {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}
+          </button>
         )}
-        {roleRestricted && (
-          <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
-            <b>You do not have the required role to participate in this dare.</b><br />
-            Allowed roles: {dare && dare.allowedRoles ? dare.allowedRoles.join(', ') : ''}
-          </div>
-        )}
-        {/* Only show proof submission if not in cooldown, not at slot limit, and not role restricted */}
         {canSubmitProof && !inCooldown && !atSlotLimit && !roleRestricted && (
-          <div className="my-5">
-            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
-              Submit Proof of Completion
-            </button>
-          </div>
-        )}
-        {submittedProof && (
-          <div className="alert alert-info" style={{ margin: '20px 0' }}>
-            <b>Proof submitted:</b>
-            {submittedProof.text && <div style={{ margin: '8px 0' }}>{submittedProof.text}</div>}
-            {submittedProof.fileUrl && (
-              <div style={{ marginTop: 8 }}>
-                {submittedProof.fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                  <img src={submittedProof.fileUrl} alt="Proof" style={{ maxWidth: 240, display: 'block', borderRadius: 8, marginBottom: 8 }} />
-                ) : submittedProof.fileUrl.match(/\.(mp4|webm|mov)$/i) ? (
-                  <video controls style={{ maxWidth: 320, borderRadius: 8, marginBottom: 8 }}>
-                    <source src={submittedProof.fileUrl} type={`video/${submittedProof.fileUrl.split('.').pop()}`} />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <a href={submittedProof.fileUrl} target="_blank" rel="noopener noreferrer">
-                    {submittedProof.fileName || 'Download file'}
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
+          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
+            Submit Proof of Completion
+          </button>
         )}
         {isPerformerParticipant && dare.status !== 'rejected' && (
-          <div style={{ margin: '20px 0' }}>
-            <button className="btn btn-danger" onClick={() => setShowRejectModal(true)}>
-              Reject Dare
-            </button>
-          </div>
+          <button className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark" onClick={() => setShowRejectModal(true)}>
+            Reject Dare
+          </button>
         )}
-        {/* Grading/Feedback Form for Creator */}
-        {canGrade && !myGivenGrade && (
-          <div className="bg-white rounded shadow p-4 mt-6">
-            <h2 className="text-lg font-bold mb-2">Grade Performer</h2>
-            {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
-            <form onSubmit={e => handleGrade(e, dare.performer?._id || dare.performer)}>
-              <div className="mb-2">
-                <label className="block font-semibold mb-1">Grade (1-10):</label>
-                <select
-                  className="border rounded px-2 py-1"
-                  value={grade}
-                  onChange={e => setGrade(e.target.value)}
-                  required
-                  disabled={grading || !!myGivenGrade}
-                >
-                  <option value="">Select</option>
-                  {[...Array(10)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-2">
-                <label className="block font-semibold mb-1">Feedback (optional):</label>
-                <textarea
-                  className="border rounded px-2 py-1 w-full"
-                  value={feedback}
-                  onChange={e => setFeedback(e.target.value)}
-                  maxLength={500}
-                  rows={3}
-                  disabled={grading || !!myGivenGrade}
-                />
-              </div>
-              {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-              <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
-                {grading ? 'Submitting...' : 'Submit Grade'}
-              </button>
-            </form>
-          </div>
-        )}
-        {/* Show the grade/feedback you gave */}
-        {myGivenGrade && (
-          <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
-            <h2 className="text-lg font-bold mb-2">Your Grade for Performer</h2>
-            <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
-            {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
-          </div>
-        )}
-        {/* Show the grade/feedback you received (if performer) */}
-        {isPerformer && myReceivedGrade && (
-          <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
-            <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
-            <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
-            {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
-          </div>
-        )}
-        {/* Show all grades/feedback if more than one exists */}
-        {allGrades.length > 1 && (
-          <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
-            <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
-            <ul className="list-disc pl-5">
-              {allGrades.map((g, i) => (
-                <li key={i} className="mb-1">
-                  <span className="font-semibold">Grade:</span> {g.grade}
-                  {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
-                  {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
-                  {g.target && <span> | <span className="font-semibold">To:</span> {g.target.username || g.target._id || g.target}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div> {/* <-- Close main content div before modals */}
+      </div>
+      {/* Slot/cooldown enforcement messages */}
+      {inCooldown && (
+        <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
+          <b>You are in cooldown after a recent rejection.</b><br />
+          You can start or perform new dares after your cooldown expires:
+          <Countdown target={user.actCooldownUntil} />
+        </div>
+      )}
+      {atSlotLimit && (
+        <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
+          <b>You have reached the maximum of 5 open dares.</b><br />
+          Complete or reject a dare to free up a slot.
+        </div>
+      )}
+      {roleRestricted && (
+        <div className="bg-warning bg-opacity-10 text-warning rounded px-4 py-3 my-5">
+          <b>You do not have the required role to participate in this dare.</b><br />
+          Allowed roles: {dare && dare.allowedRoles ? dare.allowedRoles.join(', ') : ''}
+        </div>
+      )}
       {/* Modals Section */}
       <Modal open={showRejectModal} onClose={() => setShowRejectModal(false)} title="Reject Dare" role="dialog" aria-modal="true">
         <form onSubmit={handleReject} className="space-y-4">
