@@ -373,6 +373,21 @@ export default function SwitchGameDetails() {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinMove, setJoinMove] = useState('rock');
 
+  // Chicken out (forfeit) handler
+  const handleChickenOut = async () => {
+    setChickenOutLoading(true);
+    setChickenOutError('');
+    try {
+      await api.post(`/switches/${id}/forfeit`);
+      setChickenOutLoading(false);
+      setGeneralSuccess('You have chickened out of this switch game.');
+      fetchGameWithFeedback(true);
+    } catch (err) {
+      setChickenOutLoading(false);
+      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
+    }
+  };
+
   if (loading) {
     return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
   }
