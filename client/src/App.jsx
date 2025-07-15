@@ -11,9 +11,6 @@ import DarePerform from './pages/DarePerform';
 import NotFound from './pages/NotFound';
 import DareShare from './pages/DareShare';
 import ClaimDare from './pages/ClaimDare';
-import PerformerDashboard from './pages/PerformerDashboard';
-import SwitchGameHistory from './pages/SwitchGameHistory';
-import GameHistory from './pages/GameHistory';
 import UserActivity from './pages/UserActivity';
 
 // Dynamic imports for code-splitting
@@ -74,8 +71,6 @@ function AppContent() {
               <Route path="/dare/perform" element={<PrivateRoute><DarePerform /></PrivateRoute>} />
               <Route path="/dare/share/:dareId" element={<PrivateRoute><DareShare /></PrivateRoute>} />
               <Route path="/claim/:claimToken" element={<ClaimDare />} />
-              <Route path="/performer-dashboard" element={<PrivateRoute><PerformerDashboard /></PrivateRoute>} />
-              <Route path="/game-history" element={<PrivateRoute><GameHistory /></PrivateRoute>} />
               <Route path="/user-activity" element={<PrivateRoute><UserActivity /></PrivateRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>

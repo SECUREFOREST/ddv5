@@ -54,11 +54,9 @@ export default function Navbar() {
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity">Activity</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/game-history">Game History</Link></li>
-          <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
           <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
           {user && (
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/performer-dashboard">Performer Dashboard</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
           )}
           {user && user.roles?.includes('admin') && (
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
@@ -96,17 +94,16 @@ export default function Navbar() {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
-          <ul className="flex flex-col space-y-1">
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dares" onClick={() => setMobileMenuOpen(false)}>Dares</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/user-activity" onClick={() => setMobileMenuOpen(false)}>Activity</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/game-history" onClick={() => setMobileMenuOpen(false)}>Game History</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
+          <ul className="sm:hidden flex flex-col gap-2 mt-4">
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dares" onClick={() => setMobileMenuOpen(false)}>Dares</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity" onClick={() => setMobileMenuOpen(false)}>Activity</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
             {user && user.roles?.includes('admin') && (
-              <li><Link className="text-[#888] hover:text-white transition-colors" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
+              <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
             )}
             {user ? (
               <li className="text-[#aaa] text-sm">{user.username}</li>
