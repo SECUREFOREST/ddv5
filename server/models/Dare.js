@@ -30,6 +30,11 @@ const DareSchema = new mongoose.Schema({
   allowedRoles: [{ type: String }],
   performer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   assignedSwitch: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  claimable: { type: Boolean, default: false },
+  claimToken: { type: String, unique: true, sparse: true },
+  claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  claimedAt: { type: Date },
+  claimDemand: { type: String },
 });
 
 module.exports = mongoose.model('Dare', DareSchema); 

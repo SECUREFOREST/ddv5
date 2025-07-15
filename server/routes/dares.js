@@ -516,4 +516,134 @@ router.post('/:id/reject',
   }
 );
 
+// POST /api/dares/claimable - create a claimable dare (auth required)
+router.post('/claimable',
+  auth,
+  [
+    body('description').isString().isLength({ min: 5, max: 500 }).trim().escape(),
+    body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
+    body('tags').optional().isArray(),
+    body('assignedSwitch').optional().isString()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    try {
+      const { description, difficulty, tags, assignedSwitch } = req.body;
+      const claimToken = uuidv4();
+      const dare = new Dare({
+        description,
+        difficulty,
+        tags: Array.isArray(tags) ? tags : [],
+        creator: req.userId,
+        assignedSwitch: assignedSwitch || undefined,
+        status: 'waiting_for_participant',
+        claimable: true,
+        claimToken
+      });
+      await dare.save();
+      await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
+      await sendNotification(req.userId, 'dare_created', `Your claimable dare has been created.`);
+      res.status(201).json({ dare, claimLink: `${process.env.FRONTEND_URL || 'https://www.deviantdare.com'}/claim/${claimToken}` });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to create claimable dare.' });
+    }
+  }
+);
+
+// GET /api/dares/claim/:token - fetch dare by claimToken (public)
+router.get('/claim/:token', async (req, res) => {
+  try {
+    const dare = await Dare.findOne({ claimToken: req.params.token, claimable: true })
+      .populate('creator', 'username avatar age gender limits dob completedDares consentedDares');
+    if (!dare) return res.status(404).json({ error: 'Claimable dare not found.' });
+    // Compute performer stats
+    const creator = dare.creator;
+    let age = null;
+    if (creator.dob) {
+      const dob = new Date(creator.dob);
+      const diffMs = Date.now() - dob.getTime();
+      age = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25));
+    }
+    // Dares performed: completedDares.length
+    const daresPerformed = Array.isArray(creator.completedDares) ? creator.completedDares.length : 0;
+    // Dares created: count of dares with creator = user
+    const daresCreated = await Dare.countDocuments({ creator: creator._id });
+    // Average grade: average of all grades for dares created by user
+    const dares = await Dare.find({ creator: creator._id });
+    let grades = [];
+    dares.forEach(d => {
+      if (Array.isArray(d.grades)) grades = grades.concat(d.grades.map(g => g.grade));
+    });
+    const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
+    // Hard limits
+    const limits = creator.limits || [];
+    // Attach stats to creator
+    const creatorInfo = {
+      username: creator.username,
+      avatar: creator.avatar,
+      gender: creator.gender,
+      age,
+      daresPerformed,
+      daresCreated,
+      avgGrade,
+      limits
+    };
+    // Add difficulty description
+    let difficultyDescription = '';
+    switch (dare.difficulty) {
+      case 'titillating':
+        difficultyDescription = 'Flirty, playful, and fun. Safe for most.';
+        break;
+      case 'arousing':
+        difficultyDescription = 'Arousing and suggestive. For the bold.';
+        break;
+      case 'explicit':
+        difficultyDescription = 'Explicit and revealing. For adults only.';
+        break;
+      case 'edgy':
+        difficultyDescription = 'Pushes boundaries. Use with caution.';
+        break;
+      case 'hardcore':
+        difficultyDescription = 'No holds barred. Use this with people you trust to safely approach your limits.';
+        break;
+      default:
+        difficultyDescription = '';
+    }
+    res.json({
+      ...dare.toObject(),
+      creator: creatorInfo,
+      difficultyDescription
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch claimable dare.' });
+  }
+});
+
+// POST /api/dares/claim/:token - claim a dare by submitting a demand (public)
+router.post('/claim/:token', [body('demand').isString().isLength({ min: 5, max: 1000 }).trim()], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  try {
+    const dare = await Dare.findOne({ claimToken: req.params.token, claimable: true });
+    if (!dare) return res.status(404).json({ error: 'Claimable dare not found.' });
+    if (dare.claimedBy) return res.status(400).json({ error: 'This dare has already been claimed.' });
+    dare.claimedBy = null; // Optionally, set to req.userId if you want to require login
+    dare.claimedAt = new Date();
+    dare.claimDemand = req.body.demand;
+    dare.status = 'in_progress';
+    dare.claimable = false;
+    await dare.save();
+    // Optionally notify the creator
+    await sendNotification(dare.creator, 'dare_claimed', 'Your claimable dare has been claimed.');
+    res.json({ message: 'Dare claimed successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to claim dare.' });
+  }
+});
+
 module.exports = router; 

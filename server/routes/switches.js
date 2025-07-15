@@ -37,7 +37,66 @@ router.get('/:id',
     }
     const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
     if (!game) return res.status(404).json({ error: 'Not found' });
-    res.json(game);
+    // Compute creator stats
+    const creator = game.creator;
+    let age = null;
+    if (creator.dob) {
+      const dob = new Date(creator.dob);
+      const diffMs = Date.now() - dob.getTime();
+      age = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 365.25));
+    }
+    // Dares performed: completedDares.length
+    const daresPerformed = Array.isArray(creator.completedDares) ? creator.completedDares.length : 0;
+    // Dares created: count of dares with creator = user
+    const daresCreated = await Dare.countDocuments({ creator: creator._id });
+    // Average grade: average of all grades for dares created by user
+    const dares = await Dare.find({ creator: creator._id });
+    let grades = [];
+    dares.forEach(d => {
+      if (Array.isArray(d.grades)) grades = grades.concat(d.grades.map(g => g.grade));
+    });
+    const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
+    // Hard limits
+    const limits = creator.limits || [];
+    // Attach stats to creator
+    const creatorInfo = {
+      username: creator.username,
+      avatar: creator.avatar,
+      gender: creator.gender,
+      age,
+      daresPerformed,
+      daresCreated,
+      avgGrade,
+      limits
+    };
+    // Add difficulty description
+    let difficultyDescription = '';
+    switch (game.creatorDare.difficulty) {
+      case 'titillating':
+        difficultyDescription = 'Flirty, playful, and fun. Safe for most.';
+        break;
+      case 'arousing':
+        difficultyDescription = 'Arousing and suggestive. For the bold.';
+        break;
+      case 'explicit':
+        difficultyDescription = 'Explicit and revealing. For adults only.';
+        break;
+      case 'edgy':
+        difficultyDescription = 'Pushes boundaries. Use with caution.';
+        break;
+      case 'hardcore':
+        difficultyDescription = 'No holds barred. Use this with people you trust to safely approach your limits.';
+        break;
+      default:
+        difficultyDescription = '';
+    }
+    res.json({
+      ...game.toObject(),
+      creator: creatorInfo,
+      difficulty: game.creatorDare.difficulty,
+      description: game.creatorDare.description,
+      difficultyDescription
+    });
   }
 );
 

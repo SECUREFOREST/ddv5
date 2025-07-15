@@ -14,12 +14,15 @@ export default function DareCreator() {
   const navigate = useNavigate();
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+  const [claimable, setClaimable] = useState(false);
+  const [claimLink, setClaimLink] = useState('');
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreateError('');
     setGeneralError('');
     setGeneralSuccess('');
+    setClaimLink('');
     if (description.trim().length < 10) {
       setCreateError('Description must be at least 10 characters.');
       setGeneralError('Description must be at least 10 characters.');
@@ -27,11 +30,21 @@ export default function DareCreator() {
     }
     setCreating(true);
     try {
-      const res = await api.post('/dares', {
-        description,
-        difficulty,
-      });
-      navigate(`/dare/share/${res.data._id || res.data.id}`);
+      let res;
+      if (claimable) {
+        res = await api.post('/dares/claimable', {
+          description,
+          difficulty,
+        });
+        setClaimLink(res.data.claimLink);
+        setShowModal(true);
+      } else {
+        res = await api.post('/dares', {
+          description,
+          difficulty,
+        });
+        navigate(`/dare/share/${res.data._id || res.data.id}`);
+      }
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create dare');
       setGeneralError(err.response?.data?.error || 'Failed to create dare');
@@ -63,6 +76,22 @@ export default function DareCreator() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
           <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative p-6">
             <h2 className="text-lg font-semibold text-primary mb-4 text-center">Dare Created!</h2>
+            {claimLink && (
+              <>
+                <label className="block font-semibold mb-1 text-primary">Claimable Link</label>
+                <input
+                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mb-2"
+                  type="text"
+                  value={claimLink}
+                  readOnly
+                  onFocus={e => e.target.select()}
+                  aria-label="Claimable Link"
+                />
+                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark mb-3" onClick={() => navigator.clipboard.writeText(claimLink)}>
+                  Copy Link
+                </button>
+              </>
+            )}
             <label className="block font-semibold mb-1 text-primary">Sharable Link</label>
             <input
               className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mb-2"
@@ -102,6 +131,10 @@ export default function DareCreator() {
               <option value="edgy">Edgy</option>
               <option value="hardcore">Hardcore</option>
             </select>
+          </div>
+          <div className="flex items-center">
+            <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2" />
+            <label htmlFor="claimable" className="text-neutral-200">Make this dare claimable by link</label>
           </div>
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}
           <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={creating}>
