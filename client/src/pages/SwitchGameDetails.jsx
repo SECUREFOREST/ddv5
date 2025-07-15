@@ -760,4 +760,10 @@ export default function SwitchGameDetails() {
       {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
     </div>
   )}
-} 
+}
+return (
+  <div>
+    {/* All the main JSX content currently at the end of the file goes here */}
+    {/* Copy everything from the first main div (e.g., the container with className="max-w-2xl ...") through all the conditional blocks, modals, etc. */}
+  </div>
+); 
