@@ -4,6 +4,19 @@ import { useAuth } from '../context/AuthContext';
 import DareCard from '../components/DareCard';
 import SwitchGameCard from '../components/SwitchGameCard';
 import api from '../api/axios';
+import { Bar, Pie } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 export default function UserActivity() {
   const { user } = useAuth();
@@ -64,6 +77,75 @@ export default function UserActivity() {
     return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
   })();
   const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
+
+  // Compute bar chart data for dares and switch games completed per month (last 6 months)
+  function getMonthKey(dateStr) {
+    const d = new Date(dateStr);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+  }
+  const dareMonthCounts = Object.fromEntries(months.map(m => [m, 0]));
+  const switchMonthCounts = Object.fromEntries(months.map(m => [m, 0]));
+  historyDares.forEach(d => {
+    if (d.status === 'completed' && d.completedAt) {
+      const key = getMonthKey(d.completedAt);
+      if (dareMonthCounts[key] !== undefined) dareMonthCounts[key]++;
+    }
+  });
+  historySwitchGames.forEach(g => {
+    if (g.status === 'completed' && g.updatedAt) {
+      const key = getMonthKey(g.updatedAt);
+      if (switchMonthCounts[key] !== undefined) switchMonthCounts[key]++;
+    }
+  });
+  const barData = {
+    labels: months,
+    datasets: [
+      {
+        label: 'Dares Completed',
+        data: months.map(m => dareMonthCounts[m]),
+        backgroundColor: '#D60B20',
+      },
+      {
+        label: 'Switch Games Completed',
+        data: months.map(m => switchMonthCounts[m]),
+        backgroundColor: '#0B8ED6',
+      },
+    ],
+  };
+  const barOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Completions Per Month (Last 6 Months)' },
+    },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+  };
+
+  // Compute pie chart data for switch game win/loss ratio
+  const winCount = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
+  const lossCount = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
+  const pieData = {
+    labels: ['Wins', 'Losses'],
+    datasets: [
+      {
+        data: [winCount, lossCount],
+        backgroundColor: ['#22c55e', '#ef4444'],
+      },
+    ],
+  };
+  const pieOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Switch Game Win/Loss Ratio' },
+    },
+  };
 
   const tabs = [
     {
@@ -138,6 +220,15 @@ export default function UserActivity() {
           <div className="text-neutral-300 text-sm">Losses: <span className="font-semibold">{switchLosses}</span></div>
           <div className="text-neutral-300 text-sm">Avg. Grade: <span className="font-semibold">{switchAvgGrade}</span></div>
           <div className="text-neutral-300 text-sm">Completion Rate: <span className="font-semibold">{switchCompletionRate}</span></div>
+        </div>
+      </div>
+      {/* Charts Section */}
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-[#181818] border border-[#282828] rounded p-4">
+          <Bar data={barData} options={barOptions} height={220} />
+        </div>
+        <div className="bg-[#181818] border border-[#282828] rounded p-4 flex items-center justify-center">
+          <Pie data={pieData} options={pieOptions} height={220} />
         </div>
       </div>
       <Tabs tabs={tabs} selected={tabIdx} onChange={setTabIdx} />
