@@ -760,6 +760,4 @@ export default function SwitchGameDetails() {
       {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
     </div>
   )}
-</div>
-);
 } 
