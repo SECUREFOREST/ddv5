@@ -327,20 +327,6 @@ export default function DareDetails() {
           <span>| Difficulty: <b>{dare?.difficulty}</b></span>
         </div>
       </div>
-      {/* Share Link */}
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          id="sharable-link-input"
-          className="w-full max-w-xs rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mr-2"
-          type="text"
-          value={dareUrl}
-          readOnly
-          onFocus={e => e.target.select()}
-        />
-        <button className="bg-primary text-primary-contrast rounded px-3 py-1 font-semibold text-xs hover:bg-primary-dark" onClick={handleShareClick}>
-          Share
-        </button>
-      </div>
       {/* Markdown Description */}
       <div className="bg-neutral-900 rounded p-4 mb-4">
         <Markdown>{dare?.description || ''}</Markdown>
