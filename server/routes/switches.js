@@ -49,6 +49,34 @@ router.get('/performer', auth, async (req, res) => {
   }
 });
 
+// GET /api/switches/history - get all completed/forfeited/expired switch games for current user
+router.get('/history', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const filter = {
+      $and: [
+        {
+          $or: [
+            { creator: userId },
+            { participant: userId }
+          ]
+        },
+        {
+          status: { $in: ['completed', 'forfeited', 'expired'] }
+        }
+      ]
+    };
+    const games = await SwitchGame.find(filter)
+      .populate('creator', 'username avatar')
+      .populate('participant', 'username avatar')
+      .populate('winner', 'username avatar')
+      .sort({ updatedAt: -1 });
+    res.json(games);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch switch game history.' });
+  }
+});
+
 // GET /api/switches/:id - get game details (auth required)
 router.get('/:id',
   require('express-validator').param('id').isMongoId(),

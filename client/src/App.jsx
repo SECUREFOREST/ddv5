@@ -12,6 +12,8 @@ import NotFound from './pages/NotFound';
 import DareShare from './pages/DareShare';
 import ClaimDare from './pages/ClaimDare';
 import PerformerDashboard from './pages/PerformerDashboard';
+import SwitchGameHistory from './pages/SwitchGameHistory';
+import GameHistory from './pages/GameHistory';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -64,6 +66,7 @@ function AppContent() {
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
               <Route path="/switches/participate" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
               <Route path="/switches/:id" element={<PrivateRoute><SwitchGameDetails /></PrivateRoute>} />
+              <Route path="/switches/history" element={<PrivateRoute><SwitchGameHistory /></PrivateRoute>} />
               <Route path="/activity-feed" element={<PrivateRoute><ActivityFeed /></PrivateRoute>} />
               <Route path="/dare/create" element={<PrivateRoute><DareCreator /></PrivateRoute>} />
               <Route path="/dare/:id/perform" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
@@ -71,6 +74,7 @@ function AppContent() {
               <Route path="/dare/share/:dareId" element={<PrivateRoute><DareShare /></PrivateRoute>} />
               <Route path="/claim/:claimToken" element={<ClaimDare />} />
               <Route path="/performer-dashboard" element={<PrivateRoute><PerformerDashboard /></PrivateRoute>} />
+              <Route path="/game-history" element={<PrivateRoute><GameHistory /></PrivateRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
