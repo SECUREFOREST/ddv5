@@ -100,6 +100,39 @@ router.get('/:id',
     }
     const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
     if (!game) return res.status(404).json({ error: 'Not found' });
+    // --- AUTO-FIX: If both moves are present and winner is not set, determine winner and update game ---
+    if (
+      game.creatorDare && game.creatorDare.move &&
+      game.participantDare && game.participantDare.move &&
+      !game.winner
+    ) {
+      const m1 = game.creatorDare.move;
+      const m2 = game.participantDare.move;
+      function beats(a, b) {
+        return (
+          (a === 'rock' && b === 'scissors') ||
+          (a === 'scissors' && b === 'paper') ||
+          (a === 'paper' && b === 'rock')
+        );
+      }
+      if (m1 !== m2) {
+        if (beats(m1, m2)) {
+          game.winner = game.creator;
+        } else {
+          game.winner = game.participant;
+        }
+        game.status = 'awaiting_proof';
+        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        await game.save();
+        await game.populate('creator participant winner proof.user');
+      } else {
+        // If draw, clear moves for replay
+        game.creatorDare.move = undefined;
+        game.participantDare.move = undefined;
+        await game.save();
+        await game.populate('creator participant winner proof.user');
+      }
+    }
     // Compute creator stats
     const creator = game.creator;
     let age = null;
