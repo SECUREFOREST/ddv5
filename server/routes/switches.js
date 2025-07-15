@@ -210,7 +210,7 @@ router.post('/:id/join',
   [
     require('express-validator').body('difficulty')
       .isString().withMessage('Difficulty must be a string.')
-      .isIn(['titillating', 'daring', 'shocking']).withMessage('Difficulty must be one of: titillating, daring, shocking.'),
+      .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
     require('express-validator').body('move')
       .isString().withMessage('Move must be a string.')
       .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.'),
