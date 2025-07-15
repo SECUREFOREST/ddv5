@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
 
@@ -35,6 +36,7 @@ function DifficultyBadge({ level }) {
 }
 
 export default function DareParticipant() {
+  const { id } = useParams();
   const [difficulty, setDifficulty] = useState('titillating');
   const [consented, setConsented] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -52,6 +54,23 @@ export default function DareParticipant() {
   // Add state for general error/success
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+
+  // If id param is present, fetch that dare directly
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      api.get(`/dares/${id}`)
+        .then(res => {
+          setDare(res.data);
+          setConsented(true);
+        })
+        .catch(() => {
+          setGeneralError('Dare not found.');
+          setNoDare(true);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [id]);
 
   const handleConsent = async () => {
     setLoading(true);

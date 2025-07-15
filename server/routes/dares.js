@@ -640,7 +640,7 @@ router.post('/claim/:token', [body('demand').isString().isLength({ min: 5, max: 
     await dare.save();
     // Optionally notify the creator
     await sendNotification(dare.creator, 'dare_claimed', 'Your claimable dare has been claimed.');
-    res.json({ message: 'Dare claimed successfully.' });
+    res.json({ message: 'Dare claimed successfully.', dare });
   } catch (err) {
     res.status(500).json({ error: 'Failed to claim dare.' });
   }

@@ -49,10 +49,11 @@ export default function ClaimDare() {
     e.preventDefault();
     setError('');
     try {
-      await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
-      // After consent, redirect to DarePerform for this dare
-      if (dare && dare._id) {
-        navigate(`/dare/${dare._id}/perform`);
+      const res = await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
+      // Use dare ID from response for redirect
+      const dareId = res.data?.dare?._id || (dare && dare._id);
+      if (dareId) {
+        navigate(`/dare/${dareId}/perform`);
       } else {
         setSubmitted(true);
       }
