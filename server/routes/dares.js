@@ -382,6 +382,7 @@ router.post('/:id/proof',
       }
       dare.proof = { text, fileUrl, fileName };
       dare.status = 'completed';
+      dare.completedAt = now;
       dare.updatedAt = now;
       dare.proofExpiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48h from now, UTC
       await dare.save();

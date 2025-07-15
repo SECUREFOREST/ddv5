@@ -400,6 +400,10 @@ router.post('/:id/proof-review', auth, async (req, res) => {
     const loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
     if (action === 'approve') {
       game.status = 'completed';
+      game.updatedAt = new Date();
+      if (!game.winner) game.winner = userId;
+      const loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
+      if (!game.loser) game.loser = loserId;
       game.proof.review = { action: 'approved', feedback: feedback || '' };
       await game.save();
       // Decrement openDares for the loser
