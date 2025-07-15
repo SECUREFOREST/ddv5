@@ -6,8 +6,8 @@
     window.addEventListener('DOMContentLoaded', function() {
         var v = archive_analytics.values;
         v.service = 'wb';
-        v.server_name = 'wwwb-app239.us.archive.org';
-        v.server_ms = 819;
+        v.server_name = 'wwwb-app214.us.archive.org';
+        v.server_ms = 575;
         archive_analytics.send_pageview({});
     });
     </script>
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="https://web-static.archive.org/_static/js/ruffle/ruffle.js"></script>
     <script type="text/javascript">
     __wm.init("https://web.archive.org/web");
-    __wm.wombat("http://deviantdare.com.com:80/doms/b1e052bff6cd9805f4c3", "20150810020744", "https://web.archive.org/", "web", "https://web-static.archive.org/_static/",
-    "1439172464");
+    __wm.wombat("http://onesubmissiveact.com:80/switches/783c79a5af3e542235c3", "20151227011230", "https://web.archive.org/", "web", "https://web-static.archive.org/_static/",
+    "1451178750");
     </script>
     <link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/banner-styles.css?v=1B2M2Y8A"/>
     <link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/iconochive.css?v=1B2M2Y8A"/>
@@ -38,10 +38,10 @@
         "errorBeacon": "bam.nr-data.net",
         "licenseKey": "94b514c9d6",
         "applicationID": "8913510",
-        "transactionName": "egxbEBYMWVVTR05WWFQKWwUQClpXRRoSWlhO",
+        "transactionName": "egxbEBYMWVVTR05BQFAXVgwBEBpKXloW",
         "queueTime": 0,
-        "applicationTime": 185,
-        "agent": "js-agent.newrelic.com/nr-686.min.js"
+        "applicationTime": 27,
+        "agent": "js-agent.newrelic.com/nr-768.min.js"
     }
     </script>
     <script type="text/javascript">
@@ -54,7 +54,7 @@
                 };
                 e[t][0].call(o.exports, function(n) {
                     var o = e[t][1][n];
-                    return r(o ? o : n)
+                    return r(o || n)
                 }, o, o.exports)
             }
             return n[t].exports
@@ -210,7 +210,7 @@
                 p = {
                     beacon: "bam.nr-data.net",
                     errorBeacon: "bam.nr-data.net",
-                    agent: "js-agent.newrelic.com/nr-686.min.js"
+                    agent: "js-agent.newrelic.com/nr-768.min.js"
                 },
                 d = n.exports = {
                     offset: i(),
@@ -251,12 +251,13 @@
         }, {}]
     }, {}, ["G9z0Bl"]);
     </script>
-    <title>Deviant Dare</title>
-    <link rel="stylesheet" media="all" href="/web/20150810020744cs_/http://deviantdare.com.com/assets/application-77c6a01909b7973990de991089bd297529e181aedf88f4f5dc8bda90423a55df.css" data-turbolinks-track="true"/>
-    <script src="/web/20150810020744js_/http://deviantdare.com.com/assets/application-db2db080af503f2a16ff9ee56c43e29ba5ad0fa27c0daf0991b6209f04e8066a.js" data-turbolinks-track="true"></script>
+    <title>One Submissive Act</title>
+    <link rel="stylesheet" media="all" href="/web/20151227011230cs_/http://onesubmissiveact.com/assets/application-91bc2f5234a6066b539e9421b4c3932458257db363e8e91f37453b6ffdcea4ff.css" data-turbolinks-track="true"/>
+    <script src="https://web.archive.org/web/20151227011230js_/https://js.pusher.com/3.0/pusher.min.js"></script>
+    <script src="/web/20151227011230js_/http://onesubmissiveact.com/assets/application-d126b665e25379e09b7e08627cd5f03aa0b23bb911d5d24756ab89f4a0a9d7d5.js" data-turbolinks-track="true"></script>
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta name="csrf-param" content="authenticity_token"/>
-    <meta name="csrf-token" content="b4Dkp1UxMfAc9mFeuyo4SyaBXQ5dDgb3BoXEq4Ypp1lCtDPV8/dSl/t5/niReIrCQ7fo5asOUCQHUwJ4UOTdaA=="/>
+    <meta name="csrf-token" content="FKEZrblzoGzD21zQ6qhVgmQEEP+/BRvaZVjbKrjrL1wzLHuesBw2hkei3PhlnyBacDvC6OBirHpDzfUY2Z/ZBw=="/>
     <script>
     (function(i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;
@@ -269,12 +270,38 @@
         a.async = 1;
         a.src = g;
         m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', '//web.archive.org/web/20150810020744/http://www.google-analytics.com/analytics.js', 'ga');
+    })(window, document, 'script', '//web.archive.org/web/20151227011230/http://www.google-analytics.com/analytics.js', 'ga');
     ga('create', 'UA-58424785-1', 'auto');
     ga('send', 'pageview');
     </script>
     <script>
-    var userId = null;
+    window.currentUser = {
+        "tracking_id": "26253a526aa622896cdb859581364825"
+    };
+
+    var pusherKey = 'd2c1bfcc9b9451a8ff31';
+    var keenClient = new Keen({
+        projectId: "564804f496773d02406921f1",
+        writeKey: "7e11208309ed54b107c21a8be5745b282c540ddf753e1a2776609d3d2537e97f6d69c383c5eae03d9b7a4da3df62ccbca0addb6f496013207c4f71d33e7ffa5c8cf86646e4c65d60e3cd6d11e0ac50f42ef85fcff1458f13bfc06b19a73938cb69d4b28a2faa4932eb7aa00711a3f724"
+    });
+    var getStream = {
+        apiKey: "ttjcvsju5tj3",
+        appID: "8060"
+    };
+
+    $(function() {
+        keenClient.addEvent("page_view", {
+            page: {
+                path: "/switches/783c79a5af3e542235c3",
+                controller: "switches",
+                action: "show"
+            },
+            user: window.currentUser,
+            keen: {
+                timestamp: new Date().toISOString()
+            }
+        });
+    });
     </script>
 
 </head>
@@ -287,7 +314,7 @@
         <div id="wm-ipp" style="position:fixed;left:0;top:0;right:0;">
             <div id="donato" style="position:relative;width:100%;height:0;">
                 <div id="donato-base">
-                    <iframe id="donato-if" src="https://archive.org/includes/donate.php?as_page=1&amp;platform=wb&amp;referer=https%3A//web.archive.org/web/20150810020744/http%3A//deviantdare.com.com/doms/b1e052bff6cd9805f4c3" scrolling="no" frameborder="0" style="width:100%; height:100%"></iframe>
+                    <iframe id="donato-if" src="https://archive.org/includes/donate.php?as_page=1&amp;platform=wb&amp;referer=https%3A//web.archive.org/web/20151227011230/http%3A//onesubmissiveact.com/switches/783c79a5af3e542235c3" scrolling="no" frameborder="0" style="width:100%; height:100%"></iframe>
                 </div>
             </div>
             <div id="wm-ipp-inside">
@@ -299,15 +326,15 @@
                     </div>
                     <div class="c" style="display:flex;flex-flow:column nowrap;justify-content:space-between;flex:1;">
                         <form class="u" style="display:flex;flex-direction:row;flex-wrap:nowrap;" target="_top" method="get" action="/web/submit" name="wmtb" id="wmtb">
-                            <input type="text" name="url" id="wmtbURL" value="http://deviantdare.com.com/doms/b1e052bff6cd9805f4c3" onfocus="this.focus();this.select();" style="flex:1;"/>
+                            <input type="text" name="url" id="wmtbURL" value="http://onesubmissiveact.com/switches/783c79a5af3e542235c3" onfocus="this.focus();this.select();" style="flex:1;"/>
                             <input type="hidden" name="type" value="replay"/>
-                            <input type="hidden" name="date" value="20150810020744"/>
+                            <input type="hidden" name="date" value="20151227011230"/>
                             <input type="submit" value="Go"/>
                         </form>
                         <div style="display:flex;flex-flow:row nowrap;align-items:flex-end;">
                             <div class="s" id="wm-nav-captures" style="flex:1;">
-                                <a class="t" href="/web/20150810020744*/http://deviantdare.com.com/doms/b1e052bff6cd9805f4c3" title="See a list of every capture for this URL">2 captures</a>
-                                <div class="r" title="Timespan for captures of this URL">10 Aug 2015 - 09 Sep 2015</div>
+                                <a class="t" href="/web/20151227011230*/http://onesubmissiveact.com/switches/783c79a5af3e542235c3" title="See a list of every capture for this URL">1 capture</a>
+                                <div class="r" title="Timespan for captures of this URL">27 Dec 2015</div>
                             </div>
                             <div class="k">
                                 <a href="" id="wm-graph-anchor">
@@ -324,26 +351,24 @@
                             <tbody>
                                 <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
                                 <tr class="m">
-                                    <td class="b" nowrap="nowrap">Jul</td>
-                                    <td class="c" id="displayMonthEl" title="You are here: 02:07:44 Aug 10, 2015">AUG</td>
-                                    <td class="f" nowrap="nowrap">Sep</td>
+                                    <td class="b" nowrap="nowrap">Nov</td>
+                                    <td class="c" id="displayMonthEl" title="You are here: 01:12:30 Dec 27, 2015">DEC</td>
+                                    <td class="f" nowrap="nowrap">Jan</td>
                                 </tr>
                                 <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
                                 <tr class="d">
                                     <td class="b" nowrap="nowrap">
                                         <img src="https://web-static.archive.org/_static/images/toolbar/wm_tb_prv_off.png" alt="Previous capture" width="14" height="16" border="0"/>
                                     </td>
-                                    <td class="c" id="displayDayEl" style="width:34px;font-size:22px;white-space:nowrap;" title="You are here: 02:07:44 Aug 10, 2015">10</td>
+                                    <td class="c" id="displayDayEl" style="width:34px;font-size:22px;white-space:nowrap;" title="You are here: 01:12:30 Dec 27, 2015">27</td>
                                     <td class="f" nowrap="nowrap">
-                                        <a href="https://web.archive.org/web/20150909182210/http://deviantdare.com.com:80/doms/b1e052bff6cd9805f4c3" title="18:22:10 Sep 09, 2015">
-                                            <img src="https://web-static.archive.org/_static/images/toolbar/wm_tb_nxt_on.png" alt="Next capture" width="14" height="16" border="0"/>
-                                        </a>
+                                        <img src="https://web-static.archive.org/_static/images/toolbar/wm_tb_nxt_off.png" alt="Next capture" width="14" height="16" border="0"/>
                                     </td>
                                 </tr>
                                 <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
                                 <tr class="y">
                                     <td class="b" nowrap="nowrap">2014</td>
-                                    <td class="c" id="displayYearEl" title="You are here: 02:07:44 Aug 10, 2015">2015</td>
+                                    <td class="c" id="displayYearEl" title="You are here: 01:12:30 Dec 27, 2015">2015</td>
                                     <td class="f" nowrap="nowrap">2016</td>
                                 </tr>
                             </tbody>
@@ -370,16 +395,16 @@
                             </a>
                         </div>
                         <div id="wm-share" class="xxs">
-                            <a href="/web/20150810020744/http://web.archive.org/screenshot/http://deviantdare.com.com/doms/b1e052bff6cd9805f4c3" id="wm-screenshot" title="screenshot">
+                            <a href="/web/20151227011230/http://web.archive.org/screenshot/http://onesubmissiveact.com/switches/783c79a5af3e542235c3" id="wm-screenshot" title="screenshot">
                                 <span class="wm-icon-screen-shot"></span>
                             </a>
                             <a href="#" id="wm-video" title="video">
                                 <span class="iconochive-movies"></span>
                             </a>
-                            <a id="wm-share-facebook" href="#" data-url="https://web.archive.org/web/20150810020744/http://deviantdare.com.com:80/doms/b1e052bff6cd9805f4c3" title="Share on Facebook" style="margin-right:5px;" target="_blank">
+                            <a id="wm-share-facebook" href="#" data-url="https://web.archive.org/web/20151227011230/http://onesubmissiveact.com:80/switches/783c79a5af3e542235c3" title="Share on Facebook" style="margin-right:5px;" target="_blank">
                                 <span class="iconochive-facebook" style="color:#3b5998;font-size:160%;"></span>
                             </a>
-                            <a id="wm-share-twitter" href="#" data-url="https://web.archive.org/web/20150810020744/http://deviantdare.com.com:80/doms/b1e052bff6cd9805f4c3" title="Share on Twitter" style="margin-right:5px;" target="_blank">
+                            <a id="wm-share-twitter" href="#" data-url="https://web.archive.org/web/20151227011230/http://onesubmissiveact.com:80/switches/783c79a5af3e542235c3" title="Share on Twitter" style="margin-right:5px;" target="_blank">
                                 <span class="iconochive-twitter" style="color:#1dcaff;font-size:160%;"></span>
                             </a>
                         </div>
@@ -394,7 +419,7 @@
                 <div id="wm-capinfo" style="border-top:1px solid #777;display:none; overflow: hidden">
                     <div id="wm-capinfo-notice" source="api"></div>
                     <div id="wm-capinfo-collected-by">
-                        <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center;padding:2px 0;">COLLECTED BY</div>
+                        <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center">COLLECTED BY</div>
                         <div style="padding:3px;position:relative" id="wm-collected-by-content">
                             <div style="display:inline-block;vertical-align:top;width:50%;">
                                 <span class="c-logo" style="background-image:url(https://archive.org/services/img/alexacrawls);"></span>
@@ -436,7 +461,7 @@
                         </div>
                     </div>
                     <div id="wm-capinfo-timestamps">
-                        <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center;padding:2px 0;" title="Timestamps for the elements of this page">TIMESTAMPS</div>
+                        <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center" title="Timestamps for the elements of this page">TIMESTAMPS</div>
                         <div>
                             <div id="wm-capresources" style="margin:0 5px 5px 5px;max-height:250px;overflow-y:scroll !important"></div>
                             <div id="wm-capresources-loading" style="text-align:left;margin:0 20px 5px 5px;display:none">
@@ -448,10 +473,10 @@
             </div>
         </div>
     </div>
-    <div id="wm-ipp-print">The Wayback Machine - https://web.archive.org/web/20150810020744/http://deviantdare.com.com:80/doms/b1e052bff6cd9805f4c3</div>
+    <div id="wm-ipp-print">The Wayback Machine - https://web.archive.org/web/20151227011230/http://onesubmissiveact.com:80/switches/783c79a5af3e542235c3</div>
     <script type="text/javascript">
     //<![CDATA[
-    __wm.bt(750, 27, 25, 2, "web", "http://deviantdare.com.com/doms/b1e052bff6cd9805f4c3", "20150810020744", 1996, "https://web-static.archive.org/_static/", ["https://web-static.archive.org/_static/css/banner-styles.css?v=1B2M2Y8A", "https://web-static.archive.org/_static/css/iconochive.css?v=1B2M2Y8A"], false);
+    __wm.bt(750, 27, 25, 2, "web", "http://onesubmissiveact.com/switches/783c79a5af3e542235c3", "20151227011230", 1996, "https://web-static.archive.org/_static/", ["https://web-static.archive.org/_static/css/banner-styles.css?v=1B2M2Y8A", "https://web-static.archive.org/_static/css/iconochive.css?v=1B2M2Y8A"], false);
     __wm.rw(1);
     //]]>
     </script>
@@ -460,24 +485,17 @@
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <button class="navbar-toggle" data-target="#main-nav" data-toggle="collapse" type="button">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
                 <div class="navbar-brand">
-                    <a href="/web/20150810020744/http://deviantdare.com.com/">
-                        <i class="glyphicon glyphicon-home"></i>
-
-                        Deviant Dare
+                    <a href="/web/20151227011230/http://onesubmissiveact.com/">
+                        <span class="large-screen">One Submissive Act</span>
+                        <span class="small-screen">OSA</span>
                     </a>
                 </div>
             </div>
-            <div class="navbar-collapse collapse" id="main-nav">
+            <div id="main-nav">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="/web/20150810020744/http://deviantdare.com.com/users/sign_in">sign in</a>
+                        <a href="/web/20151227011230/http://onesubmissiveact.com/users/sign_in">sign in</a>
                     </li>
                 </ul>
             </div>
@@ -488,82 +506,150 @@
         <div class="container container-narrow theme-showcase" role="main">
 
             <div class="aggressive-text">
-                <p>Selenophile wants you to perform</p>
-                <h1 class="inline-heading">Deviant Dare</h1>
+                <p>
+                    <span class="user-name">Cockdog</span>
+
+                    has volunteered to compete with other switches, the loser having to perform
+                </p>
+                <h1 class="inline-heading">One Submissive Act</h1>
             </div>
             <div class="user_info">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <td>Name</td>
-                            <td>Selenophile</td>
-                        </tr>
-                        <tr>
-                            <td>Gender</td>
-                            <td>Male</td>
-                        </tr>
-                        <tr>
-                            <td>Age</td>
-                            <td>18 years old</td>
-                        </tr>
-                        <tr>
-                            <td>dares performed</td>
-                            <td>
-                                <div class="counts">
-                                10 of 10 completed
-                                </div>
-                                <div class="percentage">
-                                100%
-                                </div>
-                                <div class="grade">
-                                A
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>dares created</td>
-                            <td>
-                                <div class="counts">
-                                1
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Hard Limits</td>
-                            <td>
-                                <div class="display_tag_list">
-                                    <span class="tag">public</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div data-react-class="AssociatePreview" data-react-props="{&quot;associate&quot;:{&quot;id&quot;:63893,&quot;url&quot;:&quot;/interact-with/cockdog&quot;,&quot;imageUrl&quot;:&quot;https://actshare-production.s3-us-west-2.amazonaws.com/photos/user/avatar/63893/thumb_showpic.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=AKIAIONOQYPCPTXH2HHQ%2F20151227%2Fus-west-2%2Fs3%2Faws4_request\u0026X-Amz-Date=20151227T011230Z\u0026X-Amz-Expires=900\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=1f827bffa525ff8e1ea99a936d62cca875de82536002cd1f42dfd33f440bad30&quot;,&quot;name&quot;:&quot;Cockdog&quot;,&quot;age&quot;:29,&quot;gender&quot;:&quot;Male&quot;,&quot;grade&quot;:null,&quot;actCounts&quot;:{&quot;domination&quot;:0,&quot;submission&quot;:2,&quot;switch&quot;:0},&quot;images&quot;:[]}}" data-react-router="null"></div>
             </div>
 
             <div class="aggressive-text">
-                <p>Will you agree to perform their dare?</p>
-                <h2>Of course, there's a catch.</h2>   <div class="difficulty-details">
+                <h2>Join in this game</h2>
+                <p>
+
+                    By describing one act for
+                    <span class="user-name">Cockdog</span>
+
+                    to perform and photograph which does not exceed the difficulty level below:
+                </p>
+                <div class="difficulty-details">
                     <div class="heading">
                         <span class="prefix">difficulty:</span>
-                        <span class="name">easy</span>
+                        <span class="name">Hardcore</span>
                     </div>
-                    <div class="description">difficult description</div>
+                    <div class="description">No holds barred. Use this with people you trust to safely approach your limits.</div>
                 </div>
-                <div class="call-to-action">
-                    <form class="button_to" method="post" action="/web/20150810020744/http://deviantdare.com.com/subs">
-                        <button class="btn btn-primary btn-lg" id="create_submission" type="submit">I Consent
-                        </button>
-                        <input type="hidden" name="authenticity_token" value="B2kEp3WEkdF8jxPxkOimxly6aa146CSSZeu4ZP4IcrYqXdPV00LytpsAjNe6uhRPOYzcRo7ockFkPX63KMUIhw=="/>
-                        <input type="hidden" name="domination_id" value="b1e052bff6cd9805f4c3"/>
-                    </form>
-                </div>
+                <p>
+
+                    However, if you lose, then you will have to perform the act that
+                    <span class="user-name">Cockdog</span>
+
+                    has selected for you to perform.
+                </p>
             </div>
+            <form role="form" class="simple_form new_switch" id="new_switch" action="/web/20151227011230/http://onesubmissiveact.com/switches/783c79a5af3e542235c3/players" accept-charset="UTF-8" method="post">
+                <input name="utf8" type="hidden" value="✓"/>
+                <input type="hidden" name="authenticity_token" value="9nhw7DytWuQnRQbsGgQVfzWeTX1MPkkCj+1VO0BRYsTR9RLfNcLMDqM8hsSVM2CnIaGfahNZ/qKpeHsJISWUnw=="/>
+                <div class="form-group text required switch_demand">
+                    <label class="text required control-label" for="switch_demand">
+                        <abbr title="required">*</abbr>
+                         Your demand, if they lose
+                    </label>
+                    <textarea rows="6" class="text required form-control" required="required" aria-required="true" name="switch[demand]" id="switch_demand"></textarea>
+                    <p class="help-block">They will only see this if they lose the game</p>
+                </div>
+                <div class="rock-paper-scissors">
+                    <div class="form-group radio_buttons required switch_gesture">
+                        <label class="radio_buttons required control-label">
+                            <abbr title="required">*</abbr>
+                             Your gesture
+                        </label>
+                        <span class="radio radio">
+                            <label for="switch_gesture_rock">
+                                <input class="radio_buttons required" required="required" aria-required="true" type="radio" value="rock" name="switch[gesture]" id="switch_gesture_rock"/>
+                                rock
+                            </label>
+                        </span>
+                        <span class="radio radio">
+                            <label for="switch_gesture_paper">
+                                <input class="radio_buttons required" required="required" aria-required="true" type="radio" value="paper" name="switch[gesture]" id="switch_gesture_paper"/>
+                                paper
+                            </label>
+                        </span>
+                        <span class="radio radio">
+                            <label for="switch_gesture_scissors">
+                                <input class="radio_buttons required" required="required" aria-required="true" type="radio" value="scissors" name="switch[gesture]" id="switch_gesture_scissors"/>
+                                scissors
+                            </label>
+                        </span>
+                        <p class="help-block">
+                            The winner is determined by this game of rock-paper-scissors. Wondering what happens on a draw? 
+                            <a href="#rules" data-toggle="collapse" aria-expanded="false">See more details</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="collapse" id="rules">
+                    <div class="well">
+                        <h4 class="heading">Game rules</h4>
+                        <div class="details">
+                            <p>
+                                If you don't know what rock-paper-scissors is, check out 
+                                <a href="https://web.archive.org/web/20151227011230/https://en.wikipedia.org/wiki/Rock-paper-scissors">the wikipedia article</a>
+                                .
+                            </p>
+                            <p>In the case of a draw, what happens depend on which gesture you both picked:</p>
+                            <p>
+                                <strong>Rock:</strong>
+
+                                You both lose and both have to perform the other person's demand.
+                            </p>
+                            <p>
+                                <strong>Paper:</strong>
+
+                                You both win, and no one has to do anything. You might want to start another game.
+                            </p>
+                            <p>
+                                <strong>Scissors:</strong>
+
+                                Deep in the bowels of our data center, a trained monkey flips a coin and the loser is randomly determined.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="submit" name="commit" value="Join Game" class="btn btn-default btn btn-primary" id="claim_switch"/>
+            </form>
 
         </div>
     </div>
     <div class="footer site-footer">
+        <div class="container">
+            <div class="tagline">
+            Built by kinky folks, for kinky folks.
+            </div>
+            <div class="links">
+                <a href="/web/20151227011230/http://onesubmissiveact.com/aboutus">More about us</a>
 
+                |
+                <a href="/web/20151227011230/http://onesubmissiveact.com/feedback">Vote for what we build next</a>
+            </div>
+        </div>
     </div>
+    <div id="chartjs-tooltip"></div>
 
 </body>
 </html>
+<!--
+     FILE ARCHIVED ON 01:12:30 Dec 27, 2015 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 08:12:30 Jul 15, 2025.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.853
+  exclusion.robots: 0.047
+  exclusion.robots.policy: 0.028
+  esindex: 0.016
+  cdx.remote: 27.611
+  LoadShardBlock: 249.328 (3)
+  PetaboxLoader3.datanode: 193.446 (4)
+  PetaboxLoader3.resolve: 263.761 (2)
+  load_resource: 264.932
+-->
