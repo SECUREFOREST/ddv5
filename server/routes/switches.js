@@ -13,7 +13,10 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
   const user = await User.findById(req.userId).select('blockedUsers');
-  let games = await SwitchGame.find().populate('creator participant winner proof.user').sort({ createdAt: -1 });
+  // Only return joinable games: status = 'waiting_for_participant', participant = null
+  const filter = { status: 'waiting_for_participant', participant: null };
+  if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
+  let games = await SwitchGame.find(filter).populate('creator participant winner proof.user').sort({ createdAt: -1 });
   if (user && user.blockedUsers && user.blockedUsers.length > 0) {
     games = games.filter(g => {
       // If creator or participant is blocked, filter out
