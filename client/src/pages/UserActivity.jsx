@@ -34,18 +34,35 @@ export default function UserActivity() {
     setError('');
     // Fetch active dares (not completed/forfeited/expired)
     const activeStatuses = ['in_progress', 'waiting_for_participant', 'pending'];
-    const dareActiveReq = api.get('/dares', { params: { user: user._id || user.id, status: activeStatuses.join(',') } });
-    // Fetch historical dares (completed/forfeited/expired)
     const historyStatuses = ['completed', 'forfeited', 'expired'];
-    const dareHistoryReq = api.get('/dares', { params: { user: user._id || user.id, status: historyStatuses.join(',') } });
+    // Fetch dares where user is creator or performer (active)
+    const dareCreatedActiveReq = api.get('/dares', { params: { creator: user._id || user.id, status: activeStatuses.join(',') } });
+    const darePerformedActiveReq = api.get('/dares', { params: { participant: user._id || user.id, status: activeStatuses.join(',') } });
+    // Fetch dares where user is creator or performer (history)
+    const dareCreatedHistoryReq = api.get('/dares', { params: { creator: user._id || user.id, status: historyStatuses.join(',') } });
+    const darePerformedHistoryReq = api.get('/dares', { params: { participant: user._id || user.id, status: historyStatuses.join(',') } });
     // Fetch active switch games
     const switchActiveReq = api.get('/switches/performer', { params: { status: activeStatuses.join(',') } });
     // Fetch historical switch games
     const switchHistoryReq = api.get('/switches/history');
-    Promise.all([dareActiveReq, dareHistoryReq, switchActiveReq, switchHistoryReq])
-      .then(([activeDaresRes, historyDaresRes, activeSwitchRes, historySwitchRes]) => {
-        setActiveDares(Array.isArray(activeDaresRes.data) ? activeDaresRes.data : []);
-        setHistoryDares(Array.isArray(historyDaresRes.data) ? historyDaresRes.data : []);
+    Promise.all([
+      dareCreatedActiveReq, darePerformedActiveReq,
+      dareCreatedHistoryReq, darePerformedHistoryReq,
+      switchActiveReq, switchHistoryReq
+    ])
+      .then(([
+        createdActiveRes, performedActiveRes,
+        createdHistoryRes, performedHistoryRes,
+        activeSwitchRes, historySwitchRes
+      ]) => {
+        // Merge and deduplicate dares by _id
+        const mergeDares = (...lists) => {
+          const map = new Map();
+          lists.flat().forEach(d => { if (d && d._id) map.set(d._id, d); });
+          return Array.from(map.values());
+        };
+        setActiveDares(mergeDares(createdActiveRes.data, performedActiveRes.data));
+        setHistoryDares(mergeDares(createdHistoryRes.data, performedHistoryRes.data));
         setActiveSwitchGames(Array.isArray(activeSwitchRes.data) ? activeSwitchRes.data : []);
         setHistorySwitchGames(Array.isArray(historySwitchRes.data) ? historySwitchRes.data : []);
       })
