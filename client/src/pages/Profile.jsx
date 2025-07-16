@@ -268,7 +268,7 @@ export default function Profile() {
                     {avatarSaved && (
                       <div className="text-success text-xs mt-2">Profile picture saved!</div>
                     )}
-                    <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => setTabIdx(2)}>
+                    <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => { setTabIdx(0); setEditMode(true); }}>
                       Edit Profile
                     </button>
                     <button className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
@@ -378,7 +378,6 @@ export default function Profile() {
                         {user.limits && user.limits.length > 0 && (
                           <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
                         )}
-                        <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-4 font-semibold text-sm hover:bg-primary-dark" onClick={() => { setTabIdx(0); setEditMode(true); }}>Edit Profile</button>
                       </>
                     )}
                     <div className="mt-6">
