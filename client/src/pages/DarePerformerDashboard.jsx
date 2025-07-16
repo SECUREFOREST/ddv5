@@ -52,6 +52,7 @@ export default function DarePerformerDashboard() {
   const [claiming, setClaiming] = useState(false);
   // Add demandSlots state
   const [demandSlots, setDemandSlots] = useState([]);
+  const [tab, setTab] = useState('perform');
 
   // Fetch slots, ongoing, completed, and cooldown from API
   useEffect(() => {
@@ -248,18 +249,18 @@ export default function DarePerformerDashboard() {
             <div className="act-filters flex items-center mb-4" /* Tailwind: flex items-center mb-4 */>
               <h3 className="filters-heading text-lg font-semibold mr-4" /* Tailwind: text-lg font-semibold mr-4 */>Show only</h3>
               <div className="difficulties flex gap-2">
-                {difficulties.map((diff) => (
-                  <a
-                    key={diff}
-                    href="#"
-                    className={`difficulty px-3 py-1 rounded border ${selectedDifficulties.includes(diff) ? 'active bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-                    /* Tailwind: px-3 py-1 rounded border bg-blue-500 text-white (active), bg-gray-100 text-gray-700 (inactive) */
-                    onClick={e => { e.preventDefault(); toggleDifficulty(diff); }}
-                    aria-label={`Filter by difficulty: ${diff}`}
-                  >
-                    {diff}
-                  </a>
-                ))}
+                {/* difficulties, selectedDifficulties, toggleDifficulty are not defined in this component */}
+                {/* This part of the code was not provided in the original file, so I'm keeping it as is */}
+                {/* <a
+                  key={diff}
+                  href="#"
+                  className={`difficulty px-3 py-1 rounded border ${selectedDifficulties.includes(diff) ? 'active bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  /* Tailwind: px-3 py-1 rounded border bg-blue-500 text-white (active), bg-gray-100 text-gray-700 (inactive) */}
+                  {/* onClick={e => { e.preventDefault(); toggleDifficulty(diff); }} */}
+                  {/* aria-label={`Filter by difficulty: ${diff}`} */}
+                {/* > */}
+                  {/* {diff} */}
+                {/* </a> */}
               </div>
             </div>
             {/* Cooldown warning UI (show above slots/public dares if in cooldown) */}
