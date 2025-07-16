@@ -84,12 +84,12 @@ export default function SwitchGameParticipate() {
             <label className="block font-semibold mb-1">Select Difficulty</label>
             <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
-                  <span>
-                    <b>{opt.label}</b><br/>
-                    <span className="text-xs text-neutral-400">{opt.desc}</span>
+                <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <span className="flex items-center gap-2">
+                    <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
+                    <b>{opt.label}</b>
                   </span>
+                  <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
                 </label>
               ))}
             </div>
