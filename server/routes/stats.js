@@ -56,9 +56,27 @@ router.get('/users/:id',
         if (Array.isArray(dare.grades)) grades = grades.concat(dare.grades.map(g => g.grade));
       });
       const avgGrade = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length) : null;
+      const natures = { dominant: { withEveryone: {}, withYou: {}, tasks: [] }, submissive: { withEveryone: {}, withYou: {}, tasks: [] } };
+      dares.forEach(dare => {
+        if (dare.dareType === 'domination') {
+          natures.dominant.tasks.push(dare.description);
+          if (dare.performer) {
+            const key = dare.performer.toString();
+            natures.dominant.withEveryone[key] = (natures.dominant.withEveryone[key] || 0) + 1;
+          }
+        } else if (dare.dareType === 'submission') {
+          natures.submissive.tasks.push(dare.description);
+          if (dare.creator) {
+            const key = dare.creator.toString();
+            natures.submissive.withEveryone[key] = (natures.submissive.withEveryone[key] || 0) + 1;
+          }
+        }
+      });
+      // withYou can be filled in future if viewing another user's profile
       res.json({
         daresCount,
         avgGrade,
+        natures,
       });
     } catch (err) {
       res.status(500).json({ error: 'Failed to get user stats.' });
