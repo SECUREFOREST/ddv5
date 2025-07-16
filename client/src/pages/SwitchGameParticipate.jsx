@@ -77,11 +77,11 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="max-w-md mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Participate in a Switch Game</h1>
-        <form onSubmit={handleFindGame}>
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Select Difficulty</label>
+      <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Participate in a Switch Game</h1>
+        <form onSubmit={handleFindGame} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Difficulty</label>
             <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
                 <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
@@ -94,7 +94,19 @@ export default function SwitchGameParticipate() {
               ))}
             </div>
           </div>
-          <div className="mb-4 flex items-center">
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Description / Requirements</label>
+            <textarea
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={demand}
+              onChange={e => setDemand(e.target.value)}
+              rows={3}
+              required
+              minLength={10}
+              placeholder="Describe the act you want the other to perform if they lose..."
+            />
+          </div>
+          <div className="flex items-center mb-4">
             <input
               type="checkbox"
               id="consent"
@@ -106,7 +118,7 @@ export default function SwitchGameParticipate() {
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
           {error && <div className="text-danger text-sm font-medium mb-2" role="alert">{error}</div>}
-          <button type="submit" className="btn btn-primary btn-lg w-full bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={searching}>
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={searching}>
             {searching ? 'Searching...' : 'Find Game'}
           </button>
         </form>
