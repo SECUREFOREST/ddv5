@@ -1,6 +1,7 @@
 import React from 'react';
+import ProgressBar from './ProgressBar';
 
-export default function Slot({ empty, url, imageUrl, difficulty, status, onWithdraw, onClick, ariaLabel, children }) {
+export default function Slot({ empty, url, imageUrl, difficulty, status, onWithdraw, onClick, ariaLabel, children, progress }) {
   if (empty) {
     return (
       <div className="slot empty-slot w-32 h-32 bg-gray-100 rounded flex flex-col items-center justify-center" aria-label={ariaLabel || 'Empty slot'}>
@@ -19,6 +20,12 @@ export default function Slot({ empty, url, imageUrl, difficulty, status, onWithd
       <div className="contents flex-1 flex items-center justify-center">
         <img src={imageUrl} alt="Dare" className="w-12 h-12 object-cover rounded" />
       </div>
+      {/* Progress bar at the bottom of the slot */}
+      {typeof progress === 'number' && (
+        <div className="absolute left-0 right-0 bottom-0 px-2 pb-2 w-full">
+          <ProgressBar value={progress} className="h-2" />
+        </div>
+      )}
       {onWithdraw && (
         <button className="btn btn-danger mt-2 px-2 py-1 bg-red-600 text-white rounded w-full" onClick={onWithdraw} aria-label="Withdraw this dare">Withdraw</button>
       )}
