@@ -33,6 +33,7 @@ const SwitchGameParticipate = React.lazy(() => import('./pages/SwitchGamePartici
 const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 const Landing = React.lazy(() => import('./pages/Landing'));
+const PublicDares = React.lazy(() => import('./pages/PublicDares'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -75,6 +76,7 @@ function AppContent() {
               <Route path="/user-activity" element={<PrivateRoute><UserActivity /></PrivateRoute>} />
               <Route path="/performer-dashboard" element={<DarePerformerDashboard />} />
               <Route path="/subs/new" element={<PrivateRoute><OfferSubmission /></PrivateRoute>} />
+              <Route path="/public-dares" element={<PrivateRoute><PublicDares /></PrivateRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

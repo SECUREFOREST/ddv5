@@ -54,6 +54,7 @@ export default function Navbar() {
           <>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
+            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares">Public Dares</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity">Activity</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
@@ -114,6 +115,7 @@ export default function Navbar() {
           <ul className="sm:hidden flex flex-col gap-2 mt-4">
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares" onClick={() => setMobileMenuOpen(false)}>Public Dares</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity" onClick={() => setMobileMenuOpen(false)}>Activity</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
