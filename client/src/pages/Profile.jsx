@@ -401,7 +401,7 @@ export default function Profile() {
                           ))}
                         </ul>
                       ) : (
-                        <div className="text-neutral-400">They haven't performed any dominant acts yet.</div>
+                        <div className="text-neutral-400">They haven't performed any dominant dares yet.</div>
                       )}
                       {dominantStats.leaderboardPosition && (
                         <div className="mt-2 text-xs text-primary">Leaderboard: #{dominantStats.leaderboardPosition}</div>
@@ -421,7 +421,7 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <h4 className="font-bold mb-1">Dominant acts with you</h4>
+                    <h4 className="font-bold mb-1">Dominant dares with you</h4>
                     {dominantStats.tasks && dominantStats.tasks.length > 0 ? (
                       <ul className="text-sm">
                         {dominantStats.tasks.map((t, i) => (
@@ -429,7 +429,7 @@ export default function Profile() {
                         ))}
                       </ul>
                     ) : (
-                      <div className="text-neutral-400">No dominant acts with you yet.</div>
+                      <div className="text-neutral-400">No dominant dares with you yet.</div>
                     )}
                   </div>
                 </div>
@@ -449,7 +449,7 @@ export default function Profile() {
                           ))}
                         </ul>
                       ) : (
-                        <div className="text-neutral-400">They haven't performed any submissive acts yet.</div>
+                        <div className="text-neutral-400">They haven't performed any submissive dares yet.</div>
                       )}
                       {submissiveStats.leaderboardPosition && (
                         <div className="mt-2 text-xs text-primary">Leaderboard: #{submissiveStats.leaderboardPosition}</div>
@@ -469,7 +469,7 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <h4 className="font-bold mb-1">Submissive acts with you</h4>
+                    <h4 className="font-bold mb-1">Submissive dares with you</h4>
                     {submissiveStats.tasks && submissiveStats.tasks.length > 0 ? (
                       <ul className="text-sm">
                         {submissiveStats.tasks.map((t, i) => (
@@ -477,7 +477,7 @@ export default function Profile() {
                         ))}
                       </ul>
                     ) : (
-                      <div className="text-neutral-400">No submissive acts with you yet.</div>
+                      <div className="text-neutral-400">No submissive dares with you yet.</div>
                     )}
                   </div>
                 </div>
