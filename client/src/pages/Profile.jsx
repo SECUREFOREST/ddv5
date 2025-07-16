@@ -231,7 +231,7 @@ export default function Profile() {
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       <div className="profile-bar w-full bg-[#8d0715] text-white py-4 px-6 mb-4">
         <div className="container mx-auto">
-          <div id="description" dangerouslySetInnerHTML={{ __html: user?.description || 'This kinkster hasn\'t written a bio yet.' }} />
+          <div id="description" dangerouslySetInnerHTML={{ __html: bio || 'This kinkster hasn\'t written a bio yet.' }} />
         </div>
       </div>
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
