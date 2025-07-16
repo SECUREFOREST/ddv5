@@ -103,7 +103,7 @@ export default function SwitchGameParticipate() {
               rows={3}
               required
               minLength={10}
-              placeholder="Describe the act you want the other to perform if they lose..."
+              placeholder="Describe the dare you want the other to perform if they lose..."
             />
           </div>
           <div className="flex items-center mb-4">
@@ -146,7 +146,7 @@ export default function SwitchGameParticipate() {
           <p>
             <span className="user-name font-bold">{u.username}</span> has volunteered to compete with other switches, the loser having to perform
           </p>
-          <h1 className="inline-heading text-2xl font-bold">One Submissive Act</h1>
+          <h1 className="inline-heading text-2xl font-bold">A Deviant Dare</h1>
         </div>
         <div className="user_info mb-4">
           <table className="table-auto w-full text-white">
@@ -179,7 +179,7 @@ export default function SwitchGameParticipate() {
         <div className="aggressive-text mb-4">
           <h2 className="text-xl font-bold">Join in this game</h2>
           <p>
-            By describing one act for <span className="user-name font-bold">{u.username}</span> to perform and photograph which does not exceed the difficulty level below:
+            By describing one dare for <span className="user-name font-bold">{u.username}</span> to perform and photograph which does not exceed the difficulty level below:
           </p>
           <div className="difficulty-details border border-danger p-3 mt-2 mb-2">
             <div className="heading flex items-center mb-1">
@@ -189,7 +189,7 @@ export default function SwitchGameParticipate() {
             <div className="description text-neutral-200 text-sm">{game.difficultyDescription}</div>
           </div>
           <p>
-            However, if you lose, then you will have to perform the act that <span className="user-name font-bold">{u.username}</span> has selected for you to perform.
+            However, if you lose, then you will have to perform the dare that <span className="user-name font-bold">{u.username}</span> has selected for you to perform.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="mb-4">
