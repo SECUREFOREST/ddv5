@@ -72,10 +72,34 @@ router.get('/users/:id',
           }
         }
       });
-      // withYou can be filled in future if viewing another user's profile
+      let dominantCount = 0, submissiveCount = 0;
+      dares.forEach(dare => {
+        if (dare.dareType === 'domination' && dare.creator && dare.creator.toString() === userId) {
+          dominantCount++;
+        }
+        if (dare.dareType === 'submission' && dare.performer && dare.performer.toString() === userId) {
+          submissiveCount++;
+        }
+        if (dare.dareType === 'switch') {
+          if (dare.winner && dare.winner.toString() === userId) {
+            dominantCount++;
+          }
+          if (dare.loser && dare.loser.toString() === userId) {
+            submissiveCount++;
+          }
+        }
+      });
+      const totalCount = dominantCount + submissiveCount;
+      const dominantPercent = totalCount ? Math.round((dominantCount / totalCount) * 100) : 0;
+      const submissivePercent = totalCount ? Math.round((submissiveCount / totalCount) * 100) : 0;
       res.json({
         daresCount,
         avgGrade,
+        dominantCount,
+        submissiveCount,
+        totalCount,
+        dominantPercent,
+        submissivePercent,
         natures,
       });
     } catch (err) {

@@ -229,8 +229,16 @@ export default function Profile() {
   return (
     <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold">Profile</h1>
+      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <h1 className="text-2xl font-bold">Profile</h1>
+          {stats && (
+            <>
+              <span className="text-lg font-bold text-primary">{stats.dominantPercent}% dominant</span>
+              <span className="text-lg font-bold text-secondary">{stats.submissivePercent}% submissive</span>
+            </>
+          )}
+        </div>
       </div>
       <div>
         <Tabs
@@ -383,102 +391,6 @@ export default function Profile() {
                     <div className="mt-6">
                       <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
                     </div>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: dominantPercent != null ? `Dominant ${dominantPercent}%` : 'Dominant',
-              content: (
-                <div>
-                  <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h4 className="font-bold mb-1">With everyone</h4>
-                      {dominantStats.withEveryone && Object.keys(dominantStats.withEveryone).length > 0 ? (
-                        <ul className="text-sm">
-                          {Object.entries(dominantStats.withEveryone).map(([k, v]) => (
-                            <li key={k}>{k}: {v}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="text-neutral-400">They haven't performed any dominant dares yet.</div>
-                      )}
-                      {dominantStats.leaderboardPosition && (
-                        <div className="mt-2 text-xs text-primary">Leaderboard: #{dominantStats.leaderboardPosition}</div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="font-bold mb-1">With you</h4>
-                      {dominantStats.withYou && Object.keys(dominantStats.withYou).length > 0 ? (
-                        <ul className="text-sm">
-                          {Object.entries(dominantStats.withYou).map(([k, v]) => (
-                            <li key={k}>{k}: {v}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="text-neutral-400">You haven't submitted to them yet.</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold mb-1">Dominant dares with you</h4>
-                    {dominantStats.tasks && dominantStats.tasks.length > 0 ? (
-                      <ul className="text-sm">
-                        {dominantStats.tasks.map((t, i) => (
-                          <li key={i}>{t}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="text-neutral-400">No dominant dares with you yet.</div>
-                    )}
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: submissivePercent != null ? `Submissive ${submissivePercent}%` : 'Submissive',
-              content: (
-                <div>
-                  <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h4 className="font-bold mb-1">With everyone</h4>
-                      {submissiveStats.withEveryone && Object.keys(submissiveStats.withEveryone).length > 0 ? (
-                        <ul className="text-sm">
-                          {Object.entries(submissiveStats.withEveryone).map(([k, v]) => (
-                            <li key={k}>{k}: {v}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="text-neutral-400">They haven't performed any submissive dares yet.</div>
-                      )}
-                      {submissiveStats.leaderboardPosition && (
-                        <div className="mt-2 text-xs text-primary">Leaderboard: #{submissiveStats.leaderboardPosition}</div>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="font-bold mb-1">With you</h4>
-                      {submissiveStats.withYou && Object.keys(submissiveStats.withYou).length > 0 ? (
-                        <ul className="text-sm">
-                          {Object.entries(submissiveStats.withYou).map(([k, v]) => (
-                            <li key={k}>{k}: {v}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="text-neutral-400">You haven't dominated them yet.</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold mb-1">Submissive dares with you</h4>
-                    {submissiveStats.tasks && submissiveStats.tasks.length > 0 ? (
-                      <ul className="text-sm">
-                        {submissiveStats.tasks.map((t, i) => (
-                          <li key={i}>{t}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="text-neutral-400">No submissive dares with you yet.</div>
-                    )}
                   </div>
                 </div>
               ),
