@@ -211,47 +211,31 @@ export default function DarePerform() {
             <div className="text-lg font-bold mb-2">{dare.description}</div>
             <div className="text-sm text-neutral-400">Difficulty: {dare.difficulty}</div>
           </div>
-          <form onSubmit={handleProofSubmit} className="space-y-4">
-            <div>
-              <label className="block font-semibold mb-1 text-primary">Proof of Completion</label>
-              <textarea
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                value={proof}
-                onChange={e => setProof(e.target.value)}
-                rows={3}
-                placeholder="Describe or link to your proof..."
-              />
+          {/* Content Deletion / Privacy section */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
+                <span>
+                  <b>Delete once viewed</b><br/>
+                  <span className="text-xs text-neutral-400">As soon as the other person has viewed the image, delete it completely.</span>
+                </span>
+              </div>
+              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
+                <span>
+                  <b>Delete in 30 days</b><br/>
+                  <span className="text-xs text-neutral-400">All pics are deleted thirty days after you upload them, whether they have been viewed or not.</span>
+                </span>
+              </div>
+              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
+                <span>
+                  <b>Never delete</b><br/>
+                  <span className="text-xs text-neutral-400">Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.</span>
+                </span>
+              </div>
             </div>
-            <div>
-              <label className="block font-semibold mb-1 text-primary">Upload File (optional)</label>
-              <input
-                type="file"
-                className="w-full text-neutral-100"
-                onChange={e => setProofFile(e.target.files[0])}
-                accept="image/*,video/*,application/pdf"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="expireAfterView"
-                checked={expireAfterView}
-                onChange={e => setExpireAfterView(e.target.checked)}
-                className="mr-2"
-              />
-              <label htmlFor="expireAfterView" className="text-sm">Expire proof after view</label>
-            </div>
-            {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
-            {proofSuccess && <div className="text-success text-sm font-medium" role="alert" aria-live="polite">{proofSuccess}</div>}
-            <div className="flex justify-end gap-2 pt-2">
-              <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={handleTryDifferent} disabled={proofLoading}>
-                Try Different Dare
-              </button>
-              <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50" disabled={proofLoading}>
-                {proofLoading ? 'Submitting...' : 'Submit Proof'}
-              </button>
-            </div>
-          </form>
+          </div>
+          {/* Proof submission removed */}
           {proofSuccess && dare && (isCreator || isPerformer) && (
             <div className="mt-6">
               <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grade</h2>
@@ -311,11 +295,9 @@ export default function DarePerform() {
                   </button>
                 </form>
               )}
-              {/* Show message if already graded */}
               {(isCreator && hasGradedPerformer) || (isPerformer && hasGradedCreator) ? (
                 <div className="text-success text-center font-medium mb-2">You have already graded this user for this dare.</div>
               ) : null}
-              {/* Show all grades */}
               {grades && grades.length > 0 && (
                 <ul className="space-y-2 mt-4">
                   {grades.map((g, i) => (
