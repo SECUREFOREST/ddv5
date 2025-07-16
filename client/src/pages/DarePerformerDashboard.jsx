@@ -119,6 +119,8 @@ export default function DarePerformerDashboard() {
   const [publicDemandError, setPublicDemandError] = useState('');
   const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
   const [completedDemand, setCompletedDemand] = useState([]);
+  // Dashboard settings modal state
+  const [showDashboardSettings, setShowDashboardSettings] = useState(false);
   // UI state
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(false);
