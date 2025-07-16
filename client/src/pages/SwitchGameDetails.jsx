@@ -8,6 +8,11 @@ import Avatar from '../components/Avatar';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
 
 const MOVES = ['rock', 'paper', 'scissors'];
+const MOVE_ICONS = {
+  rock: '🪨',
+  paper: '📄',
+  scissors: '✂️',
+};
 
 function getRpsResult(moveA, moveB) {
   if (moveA === moveB) return 'draw';
@@ -477,6 +482,7 @@ export default function SwitchGameDetails() {
                           onChange={() => setJoinMove(m)}
                           className="hidden"
                         />
+                        <span className="mr-2">{MOVE_ICONS[m]}</span>
                         {m.charAt(0).toUpperCase() + m.slice(1)}
                       </label>
                     ))}
@@ -507,6 +513,7 @@ export default function SwitchGameDetails() {
                 onClick={() => handleMoveSubmit(move)}
                 disabled={moveSubmitting}
               >
+                <span className="mr-2">{MOVE_ICONS[move]}</span>
                 {move.charAt(0).toUpperCase() + move.slice(1)}
               </button>
             ))}

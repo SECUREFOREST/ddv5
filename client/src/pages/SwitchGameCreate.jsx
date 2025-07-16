@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 const MOVES = ['rock', 'paper', 'scissors'];
+const MOVE_ICONS = {
+  rock: '🪨',
+  paper: '📄',
+  scissors: '✂️',
+};
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
   { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
@@ -85,6 +90,7 @@ export default function SwitchGameCreate() {
                   onChange={() => setMove(m)}
                   className="hidden"
                 />
+                <span className="mr-2">{MOVE_ICONS[m]}</span>
                 {m.charAt(0).toUpperCase() + m.slice(1)}
               </label>
             ))}
