@@ -39,10 +39,19 @@ export default function PublicDares() {
               <ul className="space-y-4">
                 {dares.map(dare => (
                   <li key={dare._id} className="bg-neutral-900 border border-neutral-700 rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <div className="font-bold text-lg mb-1">{dare.description}</div>
-                      <div className="text-xs text-neutral-400 mb-1">Difficulty: {dare.difficulty}</div>
-                      <div className="text-xs text-neutral-400">Tags: {dare.tags?.join(', ') || 'None'}</div>
+                    <div className="flex items-center gap-3">
+                      {dare.creator?.avatar ? (
+                        <img src={dare.creator.avatar} alt={dare.creator.fullName || dare.creator.username} className="w-10 h-10 rounded-full object-cover border border-neutral-700" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center text-white font-bold text-lg">
+                          {dare.creator?.fullName ? dare.creator.fullName.split(' ').map(n => n[0]).join('').slice(0,2) : '?'}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-bold text-lg mb-1">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</div>
+                        <div className="text-xs text-neutral-400 mb-1">Difficulty: {dare.difficulty}</div>
+                        <div className="text-xs text-neutral-400">Tags: {dare.tags?.join(', ') || 'None'}</div>
+                      </div>
                     </div>
                     <Link to={`/dare/${dare._id}/participate`} className="mt-3 md:mt-0 md:ml-4">
                       <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Participate</button>
@@ -60,9 +69,18 @@ export default function PublicDares() {
               <ul className="space-y-4">
                 {switchGames.map(game => (
                   <li key={game._id} className="bg-neutral-900 border border-neutral-700 rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <div className="font-bold text-lg mb-1">{game.creatorDare?.description || 'No description'}</div>
-                      <div className="text-xs text-neutral-400 mb-1">Difficulty: {game.creatorDare?.difficulty}</div>
+                    <div className="flex items-center gap-3">
+                      {game.creator?.avatar ? (
+                        <img src={game.creator.avatar} alt={game.creator.fullName || game.creator.username} className="w-10 h-10 rounded-full object-cover border border-neutral-700" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center text-white font-bold text-lg">
+                          {game.creator?.fullName ? game.creator.fullName.split(' ').map(n => n[0]).join('').slice(0,2) : '?'}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-bold text-lg mb-1">{game.creator?.fullName || game.creator?.username || 'Unknown'}</div>
+                        <div className="text-xs text-neutral-400 mb-1">Difficulty: {game.creatorDare?.difficulty}</div>
+                      </div>
                     </div>
                     <Link to={`/switches/participate/${game._id}`} className="mt-3 md:mt-0 md:ml-4">
                       <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Participate</button>

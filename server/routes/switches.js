@@ -16,7 +16,7 @@ router.get('/', auth, async (req, res) => {
   // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
   const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
   if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
-  let games = await SwitchGame.find(filter).populate('creator participant winner proof.user').sort({ createdAt: -1 });
+  let games = await SwitchGame.find(filter).populate('creator', 'username fullName avatar participant winner proof.user').sort({ createdAt: -1 });
   if (user && user.blockedUsers && user.blockedUsers.length > 0) {
     games = games.filter(g => {
       // If creator or participant is blocked, filter out
@@ -48,8 +48,8 @@ router.get('/performer', auth, async (req, res) => {
       }
     }
     const games = await SwitchGame.find(filter)
-      .populate('creator', 'username avatar')
-      .populate('participant', 'username avatar')
+      .populate('creator', 'username fullName avatar')
+      .populate('participant', 'username fullName avatar')
       .populate('winner', 'username avatar')
       .sort({ updatedAt: -1 });
     res.json(games);
@@ -76,8 +76,8 @@ router.get('/history', auth, async (req, res) => {
       ]
     };
     const games = await SwitchGame.find(filter)
-      .populate('creator', 'username avatar')
-      .populate('participant', 'username avatar')
+      .populate('creator', 'username fullName avatar')
+      .populate('participant', 'username fullName avatar')
       .populate('winner', 'username avatar')
       .sort({ updatedAt: -1 });
     res.json(games);
