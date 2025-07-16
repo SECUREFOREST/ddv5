@@ -15,11 +15,7 @@ router.get('/content_deletion', auth, async (req, res) => {
 
 // POST /safety/content_deletion - update user's content deletion setting
 router.post('/content_deletion', auth, async (req, res) => {
-  let { value } = req.body;
-  // Map legacy/frontend values to canonical enum values
-  if (value === 'when_viewed') value = 'delete_after_view';
-  if (value === '30_days') value = 'delete_after_30_days';
-  if (value === 'never') value = 'never_delete';
+  const { value } = req.body;
   try {
     await User.findByIdAndUpdate(req.userId, { contentDeletion: value });
     res.json({ success: true });
