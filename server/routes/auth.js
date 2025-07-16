@@ -154,6 +154,7 @@ router.post('/login',
       await user.save();
       res.json({ accessToken, refreshToken, user: { id: user._id, username: user.username, email: user.email } });
     } catch (err) {
+      console.error('Login error:', err);
       res.status(500).json({ error: 'Login failed.' });
     }
 });
