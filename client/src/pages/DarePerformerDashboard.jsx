@@ -484,7 +484,8 @@ export default function DarePerformerDashboard() {
 
   // Dashboard/overview UI
   return (
-    <div id="dashboard" className="w-full max-w-5xl mx-auto p-4 bg-white rounded shadow-md" aria-label="Dare performer dashboard">
+    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Performer Dashboard</h1>
       {/* Tabs */}
       <ul className="nav nav-tabs flex border-b mb-4" /* Tailwind: flex border-b mb-4 */>
         <li className={tab === 'perform' ? 'active mr-2' : 'mr-2'} /* Tailwind: mr-2 */>
