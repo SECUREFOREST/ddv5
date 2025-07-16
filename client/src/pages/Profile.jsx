@@ -37,7 +37,6 @@ export default function Profile() {
   const [blockError, setBlockError] = useState('');
   const [isBlocked, setIsBlocked] = useState(user?.blocked || false);
   // Add role tab state
-  const [roleTab, setRoleTab] = useState('about');
   // Prepare stub stats for dominant/submissive
   const dominantStats = stats?.natures?.dominant || { withEveryone: {}, withYou: {}, tasks: [] };
   const submissiveStats = stats?.natures?.submissive || { withEveryone: {}, withYou: {}, tasks: [] };
@@ -490,8 +489,8 @@ export default function Profile() {
               )
             }
           ]}
-          value={['about', 'dominant', 'submissive', 'privacy-safety'].indexOf(roleTab)}
-          onChange={idx => setRoleTab(['about', 'dominant', 'submissive', 'privacy-safety'][idx])}
+          value={tabIdx}
+          onChange={setTabIdx}
         />
       </div>
       {/* Blocked Users Section */}
