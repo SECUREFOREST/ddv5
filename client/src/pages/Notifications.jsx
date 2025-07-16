@@ -1,15 +1,18 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
+import { io } from 'socket.io-client';
 
 export default function Notifications() {
-  const { user } = useContext(AuthContext);
+  const { user, accessToken } = useContext(AuthContext);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const [toast, setToast] = useState('');
+  const toastTimeout = useRef(null);
 
   const fetchNotifications = () => {
     setLoading(true);
@@ -23,6 +26,27 @@ export default function Notifications() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    let socket;
+    if (accessToken) {
+      socket = io('/', {
+        auth: { token: accessToken },
+        autoConnect: true,
+        transports: ['websocket'],
+      });
+      socket.on('notification', (notif) => {
+        setNotifications((prev) => [notif, ...prev]);
+        setToast('New notification received!');
+        if (toastTimeout.current) clearTimeout(toastTimeout.current);
+        toastTimeout.current = setTimeout(() => setToast(''), 3000);
+      });
+    }
+    return () => {
+      if (socket) socket.disconnect();
+      if (toastTimeout.current) clearTimeout(toastTimeout.current);
+    };
+  }, [accessToken]);
 
   const handleMarkRead = async (id) => {
     setActionLoading(true);
@@ -64,12 +88,26 @@ export default function Notifications() {
     }
   }
 
+  function batchNotifications(notifications) {
+    // Group by type and message
+    const batches = {};
+    notifications.forEach(n => {
+      const key = n.type + '|' + (n.description || n.message || '');
+      if (!batches[key]) batches[key] = [];
+      batches[key].push(n);
+    });
+    return Object.values(batches);
+  }
+
   if (!user) {
     return <div className="text-center mt-12 text-[#888]">Please log in to view notifications.</div>;
   }
 
   return (
     <div className="max-w-lg mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+      {toast && (
+        <div className="mb-4 bg-info text-info-contrast px-4 py-2 rounded font-semibold text-center animate-pulse">{toast}</div>
+      )}
       <Banner type={generalError ? 'error' : 'info'} message={generalError} onClose={() => setGeneralError('')} />
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Notifications</h1>
@@ -80,27 +118,33 @@ export default function Notifications() {
         <div className="text-center text-neutral-400">No notifications.</div>
       ) : (
         <ul className="divide-y divide-neutral-900 overflow-x-auto">
-          {notifications.map((n) => (
-            <li
-              key={n._id}
-              className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
-            >
-              {n.sender && <Avatar user={n.sender} size={32} />}
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-primary">{n.description}</div>
-                <div className="text-neutral-400 text-sm">{n.body}</div>
-                <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
-              </div>
-              {!n.read && (
-                <button
-                  className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
-                  onClick={() => handleMarkRead(n._id)}
-                >
-                  Mark as read
-                </button>
-              )}
-            </li>
-          ))}
+          {batchNotifications(notifications).map((batch, i) => {
+            const n = batch[0];
+            const count = batch.length;
+            return (
+              <li
+                key={n._id + '-' + count}
+                className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
+              >
+                {n.sender && <Avatar user={n.sender} size={32} />}
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-primary">
+                    {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}
+                  </div>
+                  <div className="text-neutral-400 text-sm">{n.body}</div>
+                  <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                </div>
+                {!n.read && (
+                  <button
+                    className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
+                    onClick={() => handleMarkRead(n._id)}
+                  >
+                    Mark as read
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
