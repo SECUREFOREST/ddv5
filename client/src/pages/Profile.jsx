@@ -44,6 +44,7 @@ export default function Profile() {
   const [contentDeletion, setContentDeletion] = useState('');
   const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
   const [contentDeletionError, setContentDeletionError] = useState('');
+  const [editMode, setEditMode] = useState(false);
 
   // Fetch content deletion setting on mount
   useEffect(() => {
@@ -317,33 +318,68 @@ export default function Profile() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-xl font-bold mb-2">About Me</h2>
-                    <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
-                    <div><strong>Username:</strong> {user.username}</div>
-                    <div><strong>Email:</strong> {user.email}</div>
-                    {user.gender && (
-                      <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
-                    )}
-                    {user.dob && (
-                      <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
-                    )}
-                    {user.interestedIn && user.interestedIn.length > 0 && (
-                      <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
-                    )}
-                    {user.limits && user.limits.length > 0 && (
-                      <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
-                    )}
-                    {stats && (
-                      <div className="flex gap-4 mt-4">
-                        <div className="bg-neutral-900 rounded p-3 flex-1">
-                          <div className="text-base font-semibold text-primary">Dares Completed</div>
-                          <div className="text-2xl text-primary">{stats.daresCount}</div>
+                    {editMode ? (
+                      <form onSubmit={handleSave} className="space-y-4">
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Username</label>
+                          <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
                         </div>
-                        <div className="bg-neutral-900 rounded p-3 flex-1">
-                          <div className="text-base font-semibold text-primary">Avg. Grade</div>
-                          <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Full Name</label>
+                          <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
                         </div>
-                      </div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Bio</label>
+                          <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} />
+                        </div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Gender</label>
+                          <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
+                            <option value="">Select...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Birth Date</label>
+                          <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
+                        </div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Interested In</label>
+                          <TagsInput value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} />
+                        </div>
+                        <div>
+                          <label className="block font-semibold mb-1 text-primary">Limits</label>
+                          <TagsInput value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} />
+                        </div>
+                        <div className="flex gap-2 mt-4">
+                          <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark" disabled={saving}>Save</button>
+                          <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
+                        </div>
+                        {error && <div className="text-danger mt-2">{error}</div>}
+                      </form>
+                    ) : (
+                      <>
+                        <h2 className="text-xl font-bold mb-2">About Me</h2>
+                        <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
+                        <div><strong>Username:</strong> {user.username}</div>
+                        <div><strong>Full Name:</strong> {user.fullName}</div>
+                        <div><strong>Email:</strong> {user.email}</div>
+                        {user.gender && (
+                          <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
+                        )}
+                        {user.dob && (
+                          <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
+                        )}
+                        {user.interestedIn && user.interestedIn.length > 0 && (
+                          <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
+                        )}
+                        {user.limits && user.limits.length > 0 && (
+                          <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
+                        )}
+                        <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-4 font-semibold text-sm hover:bg-primary-dark" onClick={() => { setTabIdx(0); setEditMode(true); }}>Edit Profile</button>
+                      </>
                     )}
                     <div className="mt-6">
                       <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
