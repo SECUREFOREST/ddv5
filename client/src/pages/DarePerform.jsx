@@ -13,6 +13,12 @@ const DIFFICULTIES = [
   { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
 ];
 
+const PRIVACY_OPTIONS = [
+  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.' },
+  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.' },
+  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.' },
+];
+
 export default function DarePerform() {
   const { user } = useAuth();
   const [difficulty, setDifficulty] = useState('titillating');
@@ -34,6 +40,7 @@ export default function DarePerform() {
   const [grades, setGrades] = useState([]);
   const [fetchingDare, setFetchingDare] = useState(false);
   const [fetchDareError, setFetchDareError] = useState('');
+  const [privacy, setPrivacy] = useState('when_viewed');
 
   const handleConsent = async () => {
     setLoading(true);
@@ -215,24 +222,22 @@ export default function DarePerform() {
           <div className="mb-6">
             <label className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
             <div className="flex flex-col gap-2">
-              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
-                <span>
-                  <b>Delete once viewed</b><br/>
-                  <span className="text-xs text-neutral-400">As soon as the other person has viewed the image, delete it completely.</span>
-                </span>
-              </div>
-              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
-                <span>
-                  <b>Delete in 30 days</b><br/>
-                  <span className="text-xs text-neutral-400">All pics are deleted thirty days after you upload them, whether they have been viewed or not.</span>
-                </span>
-              </div>
-              <div className="flex items-start gap-2 p-2 rounded border border-neutral-700">
-                <span>
-                  <b>Never delete</b><br/>
-                  <span className="text-xs text-neutral-400">Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.</span>
-                </span>
-              </div>
+              {PRIVACY_OPTIONS.map(opt => (
+                <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <input
+                    type="radio"
+                    name="privacy"
+                    value={opt.value}
+                    checked={privacy === opt.value}
+                    onChange={() => setPrivacy(opt.value)}
+                    className="mt-1"
+                  />
+                  <span>
+                    <b>{opt.label}</b><br/>
+                    <span className="text-xs text-neutral-400">{opt.desc}</span>
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
           {/* Proof submission removed */}
