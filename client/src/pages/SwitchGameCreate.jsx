@@ -47,18 +47,6 @@ export default function SwitchGameCreate() {
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="description" className="block font-semibold mb-1 text-primary">Dare Description</label>
-          <textarea
-            id="description"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            required
-            rows={3}
-            placeholder="Describe the dare..."
-          />
-        </div>
-        <div>
           <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
           <div className="flex flex-col gap-2">
             {DIFFICULTIES.map(opt => (
@@ -71,6 +59,18 @@ export default function SwitchGameCreate() {
               </label>
             ))}
           </div>
+        </div>
+        <div>
+          <label htmlFor="description" className="block font-semibold mb-1 text-primary">Dare Description</label>
+          <textarea
+            id="description"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required
+            rows={3}
+            placeholder="Describe the dare..."
+          />
         </div>
         <div>
           <label className="block font-semibold mb-1 text-primary">Your Move</label>

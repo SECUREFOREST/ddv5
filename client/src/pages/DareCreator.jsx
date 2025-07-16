@@ -132,10 +132,6 @@ export default function DareCreator() {
       {!showModal && (
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1 text-primary">Description / Requirements</label>
-            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={description} onChange={e => setDescription(e.target.value)} rows={3} required minLength={10} />
-          </div>
-          <div>
             <label className="block font-semibold mb-1 text-primary">Difficulty</label>
             <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
@@ -148,6 +144,10 @@ export default function DareCreator() {
                 </label>
               ))}
             </div>
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Description / Requirements</label>
+            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={description} onChange={e => setDescription(e.target.value)} rows={3} required minLength={10} />
           </div>
           <div>
             <label className="block font-semibold mb-1 text-primary">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
