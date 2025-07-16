@@ -8,6 +8,13 @@ import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 
+function mapPrivacyValue(val) {
+  if (val === 'when_viewed') return 'delete_after_view';
+  if (val === '30_days') return 'delete_after_30_days';
+  if (val === 'never') return 'never_delete';
+  return val;
+}
+
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
   const [stats, setStats] = useState(null);
@@ -59,7 +66,7 @@ export default function Profile() {
     setContentDeletionLoading(true);
     setContentDeletionError('');
     try {
-      await api.post('/safety/content_deletion', { value: val });
+      await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
       setContentDeletion(val);
     } catch {
       setContentDeletionError('Failed to update setting.');

@@ -16,6 +16,13 @@ const PRIVACY_OPTIONS = [
   { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.' },
 ];
 
+function mapPrivacyValue(val) {
+  if (val === 'when_viewed') return 'delete_after_view';
+  if (val === '30_days') return 'delete_after_30_days';
+  if (val === 'never') return 'never_delete';
+  return val;
+}
+
 export default function OfferSubmission() {
   const [difficulty, setDifficulty] = useState('');
   const [description, setDescription] = useState('');
@@ -54,7 +61,7 @@ export default function OfferSubmission() {
     setPrivacyLoading(true);
     setPrivacyError('');
     try {
-      await api.post('/safety/content_deletion', { value: val });
+      await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
       setPrivacy(val);
     } catch {
       setPrivacyError('Failed to update privacy setting.');
@@ -83,7 +90,7 @@ export default function OfferSubmission() {
         difficulty,
         description,
         tags,
-        privacy,
+        privacy: mapPrivacyValue(privacy),
       });
       setSuccess('Submission offer created!');
       setTimeout(() => navigate('/performer-dashboard'), 1200);

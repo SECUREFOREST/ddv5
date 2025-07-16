@@ -4,11 +4,11 @@ import api from '../api/axios';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating' },
-  { value: 'arousing', label: 'Arousing' },
-  { value: 'explicit', label: 'Explicit' },
-  { value: 'edgy', label: 'Edgy' },
-  { value: 'hardcore', label: 'Hardcore' },
+  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
+  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
+  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
+  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
+  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
 ];
 
 export default function SwitchGameCreate() {
@@ -60,15 +60,17 @@ export default function SwitchGameCreate() {
         </div>
         <div>
           <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-          <select
-            id="difficulty"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={difficulty}
-            onChange={e => setDifficulty(e.target.value)}
-            required
-          >
-            {DIFFICULTIES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-          </select>
+          <div className="flex flex-col gap-2">
+            {DIFFICULTIES.map(opt => (
+              <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
+                <span>
+                  <b>{opt.label}</b><br/>
+                  <span className="text-xs text-neutral-400">{opt.desc}</span>
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
         <div>
           <label className="block font-semibold mb-1 text-primary">Your Move</label>
