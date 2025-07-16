@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
+import TagsInput from '../components/TagsInput';
 
 export default function DareCreator() {
   const [description, setDescription] = useState('');
@@ -17,6 +18,7 @@ export default function DareCreator() {
   const [generalSuccess, setGeneralSuccess] = useState('');
   const [claimable, setClaimable] = useState(false);
   const [claimLink, setClaimLink] = useState('');
+  const [tags, setTags] = useState([]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -36,6 +38,7 @@ export default function DareCreator() {
         res = await api.post('/dares/claimable', {
           description,
           difficulty,
+          tags,
         });
         setClaimLink(res.data.claimLink);
         setShowModal(true);
@@ -43,6 +46,7 @@ export default function DareCreator() {
         res = await api.post('/dares', {
           description,
           difficulty,
+          tags,
         });
         navigate(`/dare/share/${res.data._id || res.data.id}`);
       }
@@ -120,7 +124,7 @@ export default function DareCreator() {
       {!showModal && (
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block font-semibold mb-1 text-primary">Dare Description</label>
+            <label className="block font-semibold mb-1 text-primary">Description / Requirements</label>
             <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={description} onChange={e => setDescription(e.target.value)} rows={3} required minLength={10} />
           </div>
           <div>
@@ -135,6 +139,10 @@ export default function DareCreator() {
                 <option key={d.value} value={d.value}>{d.label}</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
+            <TagsInput value={tags} onChange={setTags} placeholder="Add tag..." />
           </div>
           <div className="flex items-center">
             <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2" />
