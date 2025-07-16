@@ -3,7 +3,6 @@ import api from '../api/axios';
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Avatar from '../components/Avatar';
-import Tooltip from '../components/Tooltip';
 import { Banner } from '../components/Modal';
 
 // Difficulty badge (reuse from DareCard)
@@ -147,9 +146,7 @@ export default function PublicDares() {
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={dare.creator} size="lg" />
                         <div className="flex-1 min-w-0">
-                          <Tooltip content={dare.creator?.fullName || dare.creator?.username || 'Unknown'}>
-                            <div className="font-bold text-lg truncate cursor-help">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</div>
-                          </Tooltip>
+                          <div className="font-bold text-lg truncate">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</div>
                           <div className="flex items-center gap-2 mt-1">
                             <DifficultyBadge level={dare.difficulty} />
                             {dare.tags && dare.tags.length > 0 && (
@@ -162,11 +159,9 @@ export default function PublicDares() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
                         <div className="text-neutral-300 text-sm truncate max-w-xs" title={dare.description}>{dare.description}</div>
-                        <Tooltip content="Participate in this dare!" position="top">
-                          <Link to={`/dare/${dare._id}/participate`}>
-                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
-                          </Link>
-                        </Tooltip>
+                        <Link to={`/dare/${dare._id}/participate`}>
+                          <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
+                        </Link>
                       </div>
                     </Card>
                   ))}
@@ -186,9 +181,7 @@ export default function PublicDares() {
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={game.creator} size="lg" />
                         <div className="flex-1 min-w-0">
-                          <Tooltip content={game.creator?.fullName || game.creator?.username || 'Unknown'}>
-                            <div className="font-bold text-lg truncate cursor-help">{game.creator?.fullName || game.creator?.username || 'Unknown'}</div>
-                          </Tooltip>
+                          <div className="font-bold text-lg truncate">{game.creator?.fullName || game.creator?.username || 'Unknown'}</div>
                           <div className="flex items-center gap-2 mt-1">
                             <DifficultyBadge level={game.creatorDare?.difficulty} />
                           </div>
@@ -196,11 +189,9 @@ export default function PublicDares() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
                         <div className="text-neutral-300 text-sm truncate max-w-xs" title={game.creatorDare?.description}>{game.creatorDare?.description}</div>
-                        <Tooltip content="Participate in this switch game!" position="top">
-                          <Link to={`/switches/participate/${game._id}`}>
-                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
-                          </Link>
-                        </Tooltip>
+                        <Link to={`/switches/participate/${game._id}`}>
+                          <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
+                        </Link>
                       </div>
                     </Card>
                   ))}

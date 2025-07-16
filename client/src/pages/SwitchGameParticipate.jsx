@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { Banner } from '../components/Modal';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
@@ -24,17 +25,19 @@ export default function SwitchGameParticipate() {
   const [difficulty, setDifficulty] = useState('');
   const [consent, setConsent] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [banner, setBanner] = useState({ type: '', message: '' });
 
   // Handler for finding a game (for the difficulty/consent form)
   const handleFindGame = async (e) => {
     e.preventDefault();
     setError('');
+    setBanner({ type: '', message: '' });
     if (!difficulty) {
-      setError('Please select a difficulty.');
+      setBanner({ type: 'error', message: 'Please select a difficulty.' });
       return;
     }
     if (!consent) {
-      setError('You must consent to participate.');
+      setBanner({ type: 'error', message: 'You must consent to participate.' });
       return;
     }
     setSearching(true);
@@ -45,10 +48,10 @@ export default function SwitchGameParticipate() {
       if (games.length > 0 && games[0]._id) {
         navigate(`/switches/participate/${games[0]._id}`);
       } else {
-        setError('No open switch games available for this difficulty.');
+        setBanner({ type: 'error', message: 'No open switch games available for this difficulty.' });
       }
     } catch (err) {
-      setError('Failed to find a switch game.');
+      setBanner({ type: 'error', message: 'Failed to find a switch game.' });
     } finally {
       setSearching(false);
     }
@@ -65,11 +68,20 @@ export default function SwitchGameParticipate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setBanner({ type: '', message: '' });
+    if (!demand || demand.length < 10) {
+      setBanner({ type: 'error', message: 'Please enter a demand of at least 10 characters.' });
+      return;
+    }
+    if (!gesture) {
+      setBanner({ type: 'error', message: 'Please select your gesture.' });
+      return;
+    }
     try {
       await api.post(`/switches/${gameId}/join`, { demand, move: gesture, consent: true, difficulty: game.difficulty });
       navigate(`/switches/${gameId}`);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to join game.');
+      setBanner({ type: 'error', message: err.response?.data?.error || 'Failed to join game.' });
     }
   };
 
@@ -77,8 +89,9 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Participate in a Switch Game</h1>
+      <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
+        <h1 className="text-2xl font-bold text-center mb-6 text-primary">Participate in a Switch Game</h1>
+        <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
         <form onSubmit={handleFindGame} className="space-y-4">
           <div>
             <label className="block font-semibold mb-1 text-primary">Difficulty</label>
@@ -117,7 +130,6 @@ export default function SwitchGameParticipate() {
             />
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
-          {error && <div className="text-danger text-sm font-medium mb-2" role="alert">{error}</div>}
           <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={searching}>
             {searching ? 'Searching...' : 'Find Game'}
           </button>
@@ -126,10 +138,10 @@ export default function SwitchGameParticipate() {
     );
   } else if (error) {
     content = (
-      <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-danger">
-        {error}
+      <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
+        <Banner type="error" message={error} onClose={() => setError('')} />
         <button
-          className="mt-4 bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
           onClick={() => navigate('/switches/participate')}
         >
           Try Another Game
@@ -137,11 +149,12 @@ export default function SwitchGameParticipate() {
       </div>
     );
   } else if (!game) {
-    content = <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-neutral-200">Loading...</div>;
+    content = <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg text-neutral-200">Loading...</div>;
   } else {
     const u = game.creator;
     content = (
-      <div className="max-w-lg mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded shadow">
+      <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
+        <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
         <div className="aggressive-text mb-4">
           <p>
             <span className="user-name font-bold">{u.username}</span> has volunteered to compete with other switches, the loser having to perform
@@ -247,15 +260,14 @@ export default function SwitchGameParticipate() {
               </div>
             )}
           </div>
-          {error && <div className="text-danger text-sm font-medium mb-2" role="alert">{error}</div>}
-          <button type="submit" className="btn btn-primary btn-lg w-full bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark">Join Game</button>
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">Join Game</button>
         </form>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="min-h-screen bg-neutral-950">
       {content}
     </div>
   );
