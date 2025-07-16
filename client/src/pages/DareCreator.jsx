@@ -20,6 +20,14 @@ export default function DareCreator() {
   const [claimLink, setClaimLink] = useState('');
   const [tags, setTags] = useState([]);
 
+  const DIFFICULTIES = [
+    { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
+    { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
+    { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
+    { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
+    { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
+  ];
+
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreateError('');
@@ -129,16 +137,17 @@ export default function DareCreator() {
           </div>
           <div>
             <label className="block font-semibold mb-1 text-primary">Difficulty</label>
-            <select
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={difficulty}
-              onChange={e => setDifficulty(e.target.value)}
-              required
-            >
-              {DARE_DIFFICULTIES.map(d => (
-                <option key={d.value} value={d.value}>{d.label}</option>
+            <div className="flex flex-col gap-2">
+              {DIFFICULTIES.map(opt => (
+                <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
+                  <span>
+                    <b>{opt.label}</b><br/>
+                    <span className="text-xs text-neutral-400">{opt.desc}</span>
+                  </span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div>
             <label className="block font-semibold mb-1 text-primary">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
