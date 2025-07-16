@@ -532,7 +532,7 @@ export default function Profile() {
           </ul>
         </div>
       )}
-      {user && user._id !== profileUser._id && (
+      {false && (
         <button className={`btn btn-default ml-2 ${isBlocked ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'}`} onClick={handleBlockToggle} disabled={blocking} aria-label={isBlocked ? 'Unblock user' : 'Block user'}>
           {blocking ? <span className="fa fa-spinner fa-spin mr-1" /> : <span className="fa fa-ban mr-1" />} {isBlocked ? 'Unblock' : 'Block'}
         </button>
