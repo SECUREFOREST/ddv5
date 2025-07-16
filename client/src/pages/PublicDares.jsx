@@ -181,11 +181,6 @@ export default function PublicDares() {
                           </Link>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-                         <Link to={`/switches/participate/${game._id}`}>
-                          <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
-                        </Link>
-                      </div>
                     </Card>
                   ))}
                 </div>
