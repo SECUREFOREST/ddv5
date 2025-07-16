@@ -594,22 +594,30 @@ export default function DarePerformerDashboard() {
       {/* Associates Section (stub) */}
       <div className="associates-section mt-8">
         <h3 className="text-xl font-bold mb-2">Associates</h3>
-        <div className="flex flex-wrap gap-4">
-          {associates.map((a, idx) => (
-            <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === idx ? null : idx)}>
-              <img src={a.avatar} alt={a.username} className="w-16 h-16 rounded-full border-2 border-neutral-700 mb-1" />
-              <span className="text-sm text-neutral-200">{a.username}</span>
-              {expandedAssociateIdx === idx && (
-                <Accordion title="Details" defaultOpen={true} className="mt-2 w-64">
+        {associateRows.map((row, rowIdx) => {
+          const startIdx = rowIdx * associatesPerRow;
+          const expandedIdxInRow = row.findIndex((_, i) => expandedAssociateIdx === startIdx + i);
+          return (
+            <React.Fragment key={rowIdx}>
+              <div className="flex flex-wrap gap-4 mb-2">
+                {row.map((a, idx) => (
+                  <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === startIdx + idx ? null : startIdx + idx)}>
+                    <img src={a.avatar} alt={a.username} className="w-16 h-16 rounded-full border-2 border-neutral-700 mb-1" />
+                    <span className="text-sm text-neutral-200">{a.username}</span>
+                  </div>
+                ))}
+              </div>
+              {expandedIdxInRow !== -1 && (
+                <Accordion title="Details" defaultOpen={true} className="mt-2 w-64 mx-auto">
                   <div className="text-sm text-neutral-200">
-                    <div><b>Dares together:</b> {a.daresTogether}</div>
-                    <div><b>Last dare:</b> {a.lastDare}</div>
+                    <div><b>Dares together:</b> {row[expandedIdxInRow].daresTogether}</div>
+                    <div><b>Last dare:</b> {row[expandedIdxInRow].lastDare}</div>
                   </div>
                 </Accordion>
               )}
-            </div>
-          ))}
-        </div>
+            </React.Fragment>
+          );
+        })}
       </div>
       <div className="role-breakdown-section mt-8">
         <h3 className="text-xl font-bold mb-2">Role Breakdown</h3>
