@@ -19,6 +19,7 @@ export default function DareCreator() {
   const [claimable, setClaimable] = useState(false);
   const [claimLink, setClaimLink] = useState('');
   const [tags, setTags] = useState([]);
+  const [publicDare, setPublicDare] = useState(true);
 
   const DIFFICULTIES = [
     { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
@@ -47,6 +48,7 @@ export default function DareCreator() {
           description,
           difficulty,
           tags,
+          public: publicDare,
         });
         setClaimLink(res.data.claimLink);
         setShowModal(true);
@@ -55,6 +57,7 @@ export default function DareCreator() {
           description,
           difficulty,
           tags,
+          public: publicDare,
         });
         navigate(`/dare/share/${res.data._id || res.data.id}`);
       }
@@ -156,6 +159,10 @@ export default function DareCreator() {
           <div className="flex items-center">
             <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2" />
             <label htmlFor="claimable" className="text-neutral-200">Make this dare claimable by link</label>
+          </div>
+          <div className="flex items-center">
+            <input id="publicDare" type="checkbox" checked={publicDare} onChange={e => setPublicDare(e.target.checked)} className="mr-2" />
+            <label htmlFor="publicDare" className="text-neutral-200">Make this dare public (visible to others)</label>
           </div>
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}
           <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={creating}>

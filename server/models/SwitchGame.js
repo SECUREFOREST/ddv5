@@ -31,6 +31,7 @@ const SwitchGameSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now }
     }
   ],
+  public: { type: Boolean, default: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 

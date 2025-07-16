@@ -25,7 +25,7 @@ const DareSchema = new mongoose.Schema({
     rejectedAt: { type: Date },
     cooldownUntil: { type: Date },
   },
-  public: { type: Boolean, default: false },
+  public: { type: Boolean, default: true },
   dareType: { type: String, enum: ['submission', 'domination', 'switch'], default: 'submission' },
   allowedRoles: [{ type: String }],
   performer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

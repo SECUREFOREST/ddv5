@@ -23,6 +23,7 @@ export default function SwitchGameCreate() {
   const [creating, setCreating] = useState(false);
   const [toast, setToast] = useState('');
   const [error, setError] = useState('');
+  const [publicGame, setPublicGame] = useState(true);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -31,7 +32,7 @@ export default function SwitchGameCreate() {
     setError('');
     setToast('');
     try {
-      const res = await api.post('/switches', { description, difficulty, move });
+      const res = await api.post('/switches', { description, difficulty, move, public: publicGame });
       setToast('Switch Game created!');
       setTimeout(() => navigate(`/switches/${res.data._id}`), 1200);
     } catch (err) {
@@ -76,6 +77,10 @@ export default function SwitchGameCreate() {
             rows={3}
             placeholder="Describe the dare..."
           />
+        </div>
+        <div className="flex items-center">
+          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2" />
+          <label htmlFor="publicGame" className="text-neutral-200">Make this switch game public (visible to others)</label>
         </div>
         <div>
           <label className="block font-semibold mb-1 text-primary">Your Move</label>
