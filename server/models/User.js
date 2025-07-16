@@ -25,7 +25,10 @@ const UserSchema = new mongoose.Schema({
   refreshTokens: [{ type: String }],
   contentDeletion: {
     type: String,
-    enum: ['delete_after_view', 'delete_after_30_days', 'never_delete', ''],
+    enum: [
+      'delete_after_view', 'delete_after_30_days', 'never_delete', '',
+      'when_viewed', '30_days', 'never'
+    ],
     default: '',
   },
 });
