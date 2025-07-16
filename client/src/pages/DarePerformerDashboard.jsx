@@ -36,6 +36,17 @@ function timeAgoOrDuration(start, end, status) {
   return status;
 }
 
+// Helper for rare rejection reasons
+function getRejectionExplanation(reason) {
+  const map = {
+    chicken: 'chickened out',
+    impossible: 'think it\'s not possible or safe for anyone to do',
+    incomprehensible: 'couldn\'t understand what was being demanded',
+    abuse: 'have reported the demand as abuse',
+  };
+  return map[reason] || reason;
+}
+
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
   // Notification system
@@ -77,6 +88,16 @@ export default function DarePerformerDashboard() {
     { value: 'hardcore', label: 'Hardcore' },
   ];
   const [selectedDifficulties, setSelectedDifficulties] = useState([]);
+  // Add robust error/edge-case UI for API calls
+  const [publicError, setPublicError] = useState('');
+  // Add multi-select type filter state
+  const TYPE_OPTIONS = [
+    { value: 'text', label: 'Text' },
+    { value: 'photo', label: 'Photo' },
+    { value: 'video', label: 'Video' },
+    { value: 'audio', label: 'Audio' },
+  ];
+  const [selectedTypes, setSelectedTypes] = useState([]);
   // UI state
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(false);
@@ -95,10 +116,35 @@ export default function DarePerformerDashboard() {
     { username: 'bob', avatar: 'https://i.pravatar.cc/40?img=2', daresTogether: 1, lastDare: '2024-05-20' },
     { username: 'carol', avatar: 'https://i.pravatar.cc/40?img=3', daresTogether: 2, lastDare: '2024-05-15' },
   ];
+  // Prepare associates in rows of 3 for display
+  const associatesPerRow = 3;
+  const associateRows = [];
+  for (let i = 0; i < associates.length; i += associatesPerRow) {
+    associateRows.push(associates.slice(i, i + associatesPerRow));
+  }
 
-  // Persist tab state on change
+  // On mount, fetch /user_settings for dashboard_tab
   useEffect(() => {
+    let didSet = false;
+    api.get('/user_settings')
+      .then(res => {
+        if (res.data && res.data.dashboard_tab) {
+          setTab(res.data.dashboard_tab);
+          didSet = true;
+        }
+      })
+      .catch(() => {});
+    // Fallback to localStorage if not set by API
+    if (!didSet) {
+      const saved = localStorage.getItem('performerDashboardTab');
+      if (saved) setTab(saved);
+    }
+  }, []);
+  // On tab change, persist to API and localStorage
+  useEffect(() => {
+    if (!tab) return;
     localStorage.setItem('performerDashboardTab', tab);
+    api.post('/user_settings', { dashboard_tab: tab }).catch(() => {});
   }, [tab]);
 
   // Fetch slots, ongoing, completed, and cooldown from API
@@ -138,19 +184,57 @@ export default function DarePerformerDashboard() {
       .catch(() => setPublicActCounts({ total: 42, submission: 20, domination: 15, switch: 7 })); // stub fallback
   }, []);
 
+  // Persist public dares filter state
+  useEffect(() => {
+    const saved = localStorage.getItem('publicDaresFilters');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.selectedDifficulties) setSelectedDifficulties(parsed.selectedDifficulties);
+        if (parsed.selectedTypes) setSelectedTypes(parsed.selectedTypes);
+        if (parsed.keyword) setKeywordFilter(parsed.keyword);
+        if (parsed.creator) setCreatorFilter(parsed.creator);
+      } catch {}
+    }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('publicDaresFilters', JSON.stringify({ selectedDifficulties, selectedTypes, keywordFilter, creatorFilter }));
+  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
+
   // Fetch public dares with filters
   useEffect(() => {
     setPublicLoading(true);
+    setPublicError(''); // Clear previous errors
     let url = '/dares?public=true&status=waiting_for_participant';
     if (selectedDifficulties.length > 0) url += `&difficulty=${selectedDifficulties.join(',')}`;
-    if (typeFilter) url += `&dareType=${typeFilter}`;
+    if (selectedTypes.length > 0) url += `&dareType=${selectedTypes.join(',')}`;
     if (keywordFilter) url += `&q=${encodeURIComponent(keywordFilter)}`;
     if (creatorFilter) url += `&creatorUsername=${encodeURIComponent(creatorFilter)}`;
     api.get(url)
       .then(res => setPublicDares(res.data))
-      .catch(() => setPublicDares([]))
+      .catch(() => setPublicError('Failed to load public dares. Please try again.'))
       .finally(() => setPublicLoading(false));
-  }, [selectedDifficulties, typeFilter, keywordFilter, creatorFilter]);
+  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
+
+  // Real-time updates for public acts (stub)
+  useEffect(() => {
+    // TODO: Replace with real websocket (e.g., socket.io or Pusher) integration
+    // Example:
+    // const socket = io('/');
+    // socket.on('public_act_publish', act => { ... });
+    // socket.on('public_act_unpublish', act => { ... });
+    // For now, this is a stub for future real-time updates.
+    // Cleanup: return () => { if (socket) socket.disconnect(); };
+  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
+  useEffect(() => {
+    // TODO: Real-time updates for public demand acts (submission offers)
+    // Example:
+    // const socket = io('/');
+    // socket.on('public_demand_publish', act => { ... });
+    // socket.on('public_demand_unpublish', act => { ... });
+    // For now, this is a stub for future real-time updates.
+    // Cleanup: return () => { if (socket) socket.disconnect(); };
+  }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
 
   // Claim a public dare (if slots available and not in cooldown)
   const handleClaimDare = async (dare) => {
@@ -239,21 +323,31 @@ export default function DarePerformerDashboard() {
     </div>
   );
 
+  // Multi-select type filter UI
+  const renderTypeChips = () => (
+    <div className="flex gap-2 mb-4" aria-label="Filter by dare type">
+      {TYPE_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          onClick={() => setSelectedTypes(selectedTypes.includes(opt.value)
+            ? selectedTypes.filter(t => t !== opt.value)
+            : [...selectedTypes, opt.value])}
+          aria-pressed={selectedTypes.includes(opt.value)}
+          aria-label={`Toggle type: ${opt.label}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
   // Update renderFilters to use chips instead of dropdown for difficulty
   const renderFilters = () => (
     <div className="flex flex-col md:flex-row gap-4 mb-4">
       {renderDifficultyChips()}
-      <select
-        className="rounded border border-neutral-800 bg-neutral-900 text-neutral-100 px-2 py-1"
-        value={typeFilter}
-        onChange={e => setTypeFilter(e.target.value)}
-        aria-label="Filter by dare type"
-      >
-        <option value="">All Types</option>
-        <option value="text">Text</option>
-        <option value="photo">Photo</option>
-        {/* TODO: Add more types if needed */}
-      </select>
+      {renderTypeChips()}
     </div>
   );
 
@@ -411,6 +505,11 @@ export default function DarePerformerDashboard() {
                             <div><b>Status:</b> {dare.status}</div>
                             {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
                             {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
+                            {dare.status === 'rejected' && dare.rejectionReason && (
+                              <div className="text-xs text-red-600 mt-1">
+                                <b>Rejection reason:</b> {getRejectionExplanation(dare.rejectionReason)}
+                              </div>
+                            )}
                           </div>
                         </Accordion>
                       )}
@@ -476,6 +575,7 @@ export default function DarePerformerDashboard() {
                 <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
               )}
             </div>
+            {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
             <div className="public-dares-browser mb-8">
               {renderFilters()}
               {renderAdvancedFilters()}
@@ -504,6 +604,11 @@ export default function DarePerformerDashboard() {
                             <div><b>Status:</b> {dare.status}</div>
                             {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
                             {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
+                            {dare.status === 'rejected' && dare.rejectionReason && (
+                              <div className="text-xs text-red-600 mt-1">
+                                <b>Rejection reason:</b> {getRejectionExplanation(dare.rejectionReason)}
+                              </div>
+                            )}
                           </div>
                         </Accordion>
                       )}
@@ -540,11 +645,23 @@ export default function DarePerformerDashboard() {
         {/* Demand Tab Content */}
         {tab === 'demand' && (
           <div className="tab-pane active" id="demand">
-            <h3 className="section-description text-xl font-bold mb-2" /* Tailwind: text-xl font-bold mb-2 */ aria-label="Your demand slots">Your Demand Slots</h3>
-            <div className="slot-list-container grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" /* Tailwind: grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 */>
-              <div className="slot-list flex flex-wrap gap-4" /* Tailwind: flex flex-wrap gap-4 */>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Your demand slots">Your Demand Slots</h3>
+            {/* Edge-case explanations for cooldown/slots */}
+            {cooldownUntil && new Date() < new Date(cooldownUntil) && (
+              <div className="cooldown-warning bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-4 text-center" aria-label="Cooldown warning">
+                <strong>Cooldown active:</strong> You recently withdrew a demand. To ensure fair play, there is a cooldown period after each withdrawal. You can create new demands after <b>{new Date(cooldownUntil).toLocaleTimeString()}</b>.<br/>
+                <span className="text-xs text-yellow-700">There is nothing wrong with withdrawing, but this prevents demands from being withdrawn too quickly.</span>
+              </div>
+            )}
+            {demandSlots.length >= MAX_SLOTS && (
+              <div className="bg-red-100 border border-red-400 text-red-800 px-4 py-2 rounded mb-4 text-center" aria-label="Demand slots full">
+                <strong>Slot limit reached:</strong> You can only have {MAX_SLOTS} open demand slots at a time. Complete or withdraw a demand to free up a slot.
+              </div>
+            )}
+            <div className="slot-list-container grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="slot-list flex flex-wrap gap-4">
                 {demandLoading ? <div className="text-center py-8 text-neutral-400">Loading demand slots...</div> : demandSlots.length === 0 ? (
-                  <div className="text-neutral-400">No active demand slots.</div>
+                  <div className="text-neutral-400">No active demand slots. Create a new demand or browse public offers below.</div>
                 ) : (
                   demandSlots.map((slot, idx) => (
                     <Slot
@@ -562,12 +679,69 @@ export default function DarePerformerDashboard() {
                 )}
               </div>
             </div>
-            <h3 className="section-description more-tasks text-xl font-bold mt-6 mb-2" /* Tailwind: text-xl font-bold mt-6 mb-2 */ aria-label="Find more">Find more</h3>
-            <div className="call-to-action flex gap-2 mb-4" /* Tailwind: flex gap-2 mb-4 */>
-              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/doms/new" /* Tailwind: px-4 py-2 bg-blue-600 text-white rounded */ aria-label="Offer domination">Offer domination</a>
-              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" /* Tailwind: px-4 py-2 bg-green-600 text-white rounded */ aria-label="Switch battle">Switch battle</a>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed demand dares">Completed Demand Dares</h3>
+            <div className="completed-demand-list grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {completedLoading ? (
+                <div className="text-center py-8 text-neutral-400">Loading completed demand dares...</div>
+              ) : completedDemand.length === 0 ? (
+                <div className="text-neutral-400">No completed demand dares yet. When someone completes a dare you created, it will appear here.</div>
+              ) : (
+                completedDemand.map((dare, idx) => (
+                  <div key={dare._id || idx} className="dare-card bg-neutral-50 border border-neutral-200 rounded p-4 flex flex-col gap-2" aria-label="Completed demand dare card">
+                    <DareCard dare={dare} />
+                    <div className="text-xs text-neutral-400 mt-1">Completed at: {dare.completedAt ? new Date(dare.completedAt).toLocaleString() : '—'}</div>
+                  </div>
+                ))
+              )}
             </div>
-            {/* TODO: Public demand browser, advanced filtering, etc. */}
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public demand acts">Browse Public Demand Offers</h3>
+            {publicDemandError && <div className="text-danger text-center mb-2">{publicDemandError}</div>}
+            <div className="public-demand-browser mb-8">
+              {renderDemandFilters()}
+              {publicDemandLoading ? (
+                <div className="text-center py-8 text-neutral-400">Loading public demand offers...</div>
+              ) : publicDemandActs.length === 0 ? (
+                selectedDemandDifficulties.length === 0 ? (
+                  <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                ) : (
+                  <div className="text-neutral-400">No public demand offers found. Try adjusting your filters or check back later for new offers.</div>
+                )
+              ) : (
+                <div className="public-demand-list grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {publicDemandActs.map((dare, idx) => (
+                    <div key={dare._id} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Public demand card">
+                      <div onClick={() => setExpandedPublicDemandIdx(expandedPublicDemandIdx === idx ? null : idx)} className="cursor-pointer">
+                        <DareCard dare={dare} />
+                      </div>
+                      {expandedPublicDemandIdx === idx && (
+                        <Accordion title="Details" defaultOpen={true} className="mt-2">
+                          <div className="text-sm text-neutral-200">
+                            <div><b>Description:</b> {dare.description}</div>
+                            <div><b>Tags:</b> {dare.tags?.join(', ') || 'None'}</div>
+                            <div><b>Creator:</b> {dare.creator?.username || 'Unknown'}</div>
+                            <div><b>Status:</b> {dare.status}</div>
+                            {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
+                            {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
+                            {dare.status === 'rejected' && dare.rejectionReason && (
+                              <div className="text-xs text-red-600 mt-1">
+                                <b>Rejection reason:</b> {getRejectionExplanation(dare.rejectionReason)}
+                              </div>
+                            )}
+                          </div>
+                        </Accordion>
+                      )}
+                      <div className="actions flex gap-2 mt-2" aria-label="Public demand actions">
+                        <a href={`/dares/${dare._id}`} className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded" title="View demand details" aria-label="View demand details">View Details</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="call-to-action flex gap-2 mb-4">
+              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/doms/new" aria-label="Offer domination">Offer domination</a>
+              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Switch battle">Switch battle</a>
+            </div>
           </div>
         )}
       </div>
@@ -623,6 +797,17 @@ export default function DarePerformerDashboard() {
         <h3 className="text-xl font-bold mb-2">Role Breakdown</h3>
         <DashboardChart stats={{ daresCount: 7, avgGrade: 4.2 }} />
       </div>
+      {/* Add dashboard settings modal (stub) */}
+      <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
+      {showDashboardSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Dashboard Settings</h2>
+            <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
+            <button className="bg-primary text-primary-contrast px-4 py-2 rounded" onClick={() => setShowDashboardSettings(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

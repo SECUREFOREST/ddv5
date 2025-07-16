@@ -54,6 +54,8 @@ export default function NotificationDropdown() {
   const [refreshing, setRefreshing] = useState(false);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  // Add state for settings modal
+  const [showSettings, setShowSettings] = useState(false);
 
   // Calculate unseenCount
   const unseenCount = notifications.filter(n => !n.read).length;
@@ -109,6 +111,14 @@ export default function NotificationDropdown() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [open]);
+
+  // Mark all as read when dropdown is opened
+  useEffect(() => {
+    if (open && unseenCount > 0) {
+      handleMarkAllAsRead();
+    }
+    // eslint-disable-next-line
   }, [open]);
 
   const handleRefresh = () => {
@@ -203,26 +213,35 @@ export default function NotificationDropdown() {
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      <button
-        className="cursor-pointer relative focus:outline-none transition-colors group"
-        aria-haspopup="true"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        tabIndex={0}
-      >
-        <i className={`fas fa-bell text-xl transition-colors duration-150
-          ${unseenCount > 0
-            ? 'text-primary group-hover:text-primary-dark'
-            : 'text-neutral-100 group-hover:text-neutral-400'}
-        `} />
-        {unseenCount > 0 && (
-          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full px-1.5 text-xs font-bold border border-[#060606]">{unseenCount}</span>
-        )}
-      </button>
+      <span className="relative inline-block">
+        <span
+          ref={dropdownRef}
+          className="cursor-pointer select-none"
+          onClick={() => setOpen(v => !v)}
+          tabIndex={0}
+          aria-haspopup="true"
+          aria-expanded={open}
+          role="button"
+        >
+          <i className="fas fa-bell text-xl" />
+          {unseenCount > 0 && (
+            <span className="absolute -top-1 -right-2 bg-danger text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
+          )}
+        </span>
+      </span>
       {open && (
         <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-sm rounded-none z-50 p-[15px] text-neutral-100">
           {items}
         </ul>
+      )}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Notification Settings</h2>
+            <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
+            <button className="bg-primary text-primary-contrast px-4 py-2 rounded" onClick={() => setShowSettings(false)}>Close</button>
+          </div>
+        </div>
       )}
     </div>
   );

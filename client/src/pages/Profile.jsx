@@ -32,6 +32,15 @@ export default function Profile() {
   const [avatarSaved, setAvatarSaved] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+  // Add block/unblock state
+  const [blocking, setBlocking] = useState(false);
+  const [blockError, setBlockError] = useState('');
+  const [isBlocked, setIsBlocked] = useState(user?.blocked || false);
+  // Add role tab state
+  const [roleTab, setRoleTab] = useState('about');
+  // Prepare stub stats for dominant/submissive
+  const dominantStats = stats?.natures?.dominant || { withEveryone: {}, withYou: {}, tasks: [] };
+  const submissiveStats = stats?.natures?.submissive || { withEveryone: {}, withYou: {}, tasks: [] };
 
   useEffect(() => {
     if (loading) return;
@@ -170,6 +179,21 @@ export default function Profile() {
     }
   };
 
+  // Block/unblock handler
+  const handleBlockToggle = async () => {
+    setBlocking(true);
+    setBlockError('');
+    try {
+      const action = isBlocked ? 'unblock' : 'block';
+      await api.post(`/blocks/${user?._id}/${action}`);
+      setIsBlocked(!isBlocked);
+    } catch (err) {
+      setBlockError('Failed to update block status.');
+    } finally {
+      setBlocking(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -182,7 +206,7 @@ export default function Profile() {
         <Tabs
           tabs={[
             {
-              label: 'Overview',
+              label: 'About',
               content: (
                 <div className="flex flex-col md:flex-row gap-8 mb-8">
                   <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
@@ -263,17 +287,11 @@ export default function Profile() {
                       </button>
                     )}
                   </div>
-                  <div className="flex-1 min-w-[220px]">
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold mb-2">About Me</h2>
+                    <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
                     <div><strong>Username:</strong> {user.username}</div>
                     <div><strong>Email:</strong> {user.email}</div>
-                    <div>
-                      <strong>Bio:</strong>
-                      {user.bio ? (
-                        <div className="mt-1"><Markdown>{user.bio}</Markdown></div>
-                      ) : (
-                        <span className="text-neutral-400 ml-2">No bio provided.</span>
-                      )}
-                    </div>
                     {user.gender && (
                       <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
                     )}
@@ -306,104 +324,36 @@ export default function Profile() {
               ),
             },
             {
-              label: 'Your Dares',
+              label: 'Dominant',
               content: (
                 <div>
-                  <h2 className="text-xl font-bold mb-2 text-primary">Your Dares</h2>
-                  {dares.length === 0 ? (
-                    <div className="text-neutral-400">No dares found.</div>
-                  ) : (
-                    <ul className="space-y-4">
-                      {dares.map(dare => (
-                        <li key={dare._id} className="bg-neutral-900 rounded p-4">
-                          <div className="font-bold text-lg text-primary">{dare.description}</div>
-                          <div className="text-neutral-400">{dare.description}</div>
-                          <div className="text-sm mt-1">Status: <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold">{dare.status}</span></div>
-                          <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold mt-1">{dare.difficulty}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <h3 className="text-lg font-bold mb-2">Dominant Stats</h3>
+                  <div className="mb-2">With everyone: <span className="font-mono">{JSON.stringify(dominantStats.withEveryone)}</span></div>
+                  <div className="mb-2">With you: <span className="font-mono">{JSON.stringify(dominantStats.withYou)}</span></div>
+                  <div className="mb-2">Tasks:</div>
+                  <ul className="list-disc ml-6">
+                    {(dominantStats.tasks || []).map((t, i) => <li key={i}>{t.description || JSON.stringify(t)}</li>)}
+                  </ul>
                 </div>
               ),
             },
             {
-              label: 'Settings',
+              label: 'Submissive',
               content: (
-                <div className="max-w-md">
-                  <form onSubmit={handleSave} className="space-y-4">
-                    <div>
-                      <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
-                      <input type="text" id="username" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
-                      <input type="text" id="fullName" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(not editable)</span></label>
-                      <input type="email" id="email" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-400 cursor-not-allowed" value={user.email} disabled />
-                    </div>
-                    <div>
-                      <label htmlFor="avatar" className="block font-semibold mb-1 text-primary">Avatar URL</label>
-                      <input type="text" id="avatar" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={avatar} onChange={e => { setAvatar(e.target.value); setAvatarPreview(e.target.value); }} />
-                    </div>
-                    <div>
-                      <label htmlFor="bio" className="block font-semibold mb-1 text-primary">Bio (Markdown supported)</label>
-                      <textarea
-                        id="bio"
-                        className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                        rows={5}
-                        value={bio}
-                        onChange={e => setBio(e.target.value)}
-                        placeholder="Tell us about yourself..."
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
-                      <select id="gender" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
-                        <option value="">Select...</option>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Birth Date</label>
-                      <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block font-semibold mb-1 text-primary">Interested in</label>
-                      <div className="flex gap-4 mt-1">
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
-                          Female
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
-                          Male
-                        </label>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block font-semibold mb-1 text-primary">Limits</label>
-                      <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
-                    </div>
-                    {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
-                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={saving}>
-                      {saving ? 'Saving...' : 'Save'}
-                    </button>
-                  </form>
+                <div>
+                  <h3 className="text-lg font-bold mb-2">Submissive Stats</h3>
+                  <div className="mb-2">With everyone: <span className="font-mono">{JSON.stringify(submissiveStats.withEveryone)}</span></div>
+                  <div className="mb-2">With you: <span className="font-mono">{JSON.stringify(submissiveStats.withYou)}</span></div>
+                  <div className="mb-2">Tasks:</div>
+                  <ul className="list-disc ml-6">
+                    {(submissiveStats.tasks || []).map((t, i) => <li key={i}>{t.description || JSON.stringify(t)}</li>)}
+                  </ul>
                 </div>
               ),
-            },
-            {
-              label: 'Change Password',
-              content: <ChangePasswordForm />,
             },
           ]}
-          value={tabIdx}
-          onChange={setTabIdx}
+          value={['about', 'dominant', 'submissive'].indexOf(roleTab)}
+          onChange={idx => setRoleTab(['about', 'dominant', 'submissive'][idx])}
         />
       </div>
       {/* Blocked Users Section */}
@@ -439,6 +389,12 @@ export default function Profile() {
           </ul>
         </div>
       )}
+      {user && user._id !== profileUser._id && (
+        <button className={`btn btn-default ml-2 ${isBlocked ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'}`} onClick={handleBlockToggle} disabled={blocking} aria-label={isBlocked ? 'Unblock user' : 'Block user'}>
+          {blocking ? <span className="fa fa-spinner fa-spin mr-1" /> : <span className="fa fa-ban mr-1" />} {isBlocked ? 'Unblock' : 'Block'}
+        </button>
+      )}
+      {blockError && <div className="text-red-600 text-xs mt-1">{blockError}</div>}
     </div>
   );
 }
