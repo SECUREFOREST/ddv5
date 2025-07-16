@@ -145,25 +145,17 @@ export default function PublicDares() {
                     <Card key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg">
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={dare.creator} size="lg" />
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                           <div className="font-bold text-lg truncate">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <DifficultyBadge level={dare.difficulty} />
-                            {dare.tags && dare.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {dare.tags.map(tag => <Tag key={tag} tag={tag} />)}
-                              </div>
-                            )}
-                          </div>
+                          <Link to={`/dare/${dare._id}/participate`} className="ml-2">
+                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
+                          </Link>
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
                         <div className="flex-1 min-w-0">
                           {/* Optionally, add dare description or other info here */}
                         </div>
-                        <Link to={`/dare/${dare._id}/participate`} className="sm:ml-auto">
-                          <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
-                        </Link>
                       </div>
                     </Card>
                   ))}
@@ -182,11 +174,11 @@ export default function PublicDares() {
                     <Card key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg">
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={game.creator} size="lg" />
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                           <div className="font-bold text-lg truncate">{game.creator?.fullName || game.creator?.username || 'Unknown'}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <DifficultyBadge level={game.creatorDare?.difficulty} />
-                          </div>
+                          <Link to={`/switches/participate/${game._id}`} className="ml-2">
+                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
+                          </Link>
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
