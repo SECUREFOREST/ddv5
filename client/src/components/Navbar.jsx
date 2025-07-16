@@ -90,16 +90,6 @@ export default function Navbar() {
                 </button>
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
               </div>
-              {user && user.roles?.includes('admin') && (
-                <>
-                  <li><Link to="/admin">Admin</Link></li>
-                  <li><a href="/blazer">Blazer Reports</a></li>
-                  <li><a href="/split">Experiments</a></li>
-                </>
-              )}
-              {localStorage.getItem('impersonatorToken') && (
-                <li><a href="#" onClick={handleReturnToAdmin}>Revert to Admin</a></li>
-              )}
             </>
           ) : (
             <>
