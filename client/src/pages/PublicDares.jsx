@@ -146,7 +146,10 @@ export default function PublicDares() {
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={dare.creator} size="lg" />
                         <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <div className="font-bold text-lg truncate">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</div>
+                          <div className="font-bold text-lg truncate flex items-center gap-2">
+                            {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
+                            <DifficultyBadge level={dare.difficulty} />
+                          </div>
                           <Link to={`/dare/${dare._id}/participate`} className="ml-2">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
                           </Link>
@@ -175,7 +178,10 @@ export default function PublicDares() {
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar user={game.creator} size="lg" />
                         <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <div className="font-bold text-lg truncate">{game.creator?.fullName || game.creator?.username || 'Unknown'}</div>
+                          <div className="font-bold text-lg truncate flex items-center gap-2">
+                            {game.creator?.fullName || game.creator?.username || 'Unknown'}
+                            <DifficultyBadge level={game.creatorDare?.difficulty} />
+                          </div>
                           <Link to={`/switches/participate/${game._id}`} className="ml-2">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">Participate</button>
                           </Link>
