@@ -405,6 +405,70 @@ export default function DarePerformerDashboard() {
     return <span className={`status-badge ${color} text-white text-xs px-2 py-1 rounded ml-2`} /* Tailwind: text-xs px-2 py-1 rounded ml-2 */>{label}</span>;
   };
 
+  // Multi-select demand difficulty filter UI
+  const renderDemandDifficultyChips = () => (
+    <div className="flex gap-2 mb-4" aria-label="Filter demand by difficulty">
+      {DIFFICULTY_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDemandDifficulties.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          onClick={() => setSelectedDemandDifficulties(selectedDemandDifficulties.includes(opt.value)
+            ? selectedDemandDifficulties.filter(d => d !== opt.value)
+            : [...selectedDemandDifficulties, opt.value])}
+          aria-pressed={selectedDemandDifficulties.includes(opt.value)}
+          aria-label={`Toggle demand difficulty: ${opt.label}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // Multi-select demand type filter UI
+  const renderDemandTypeChips = () => (
+    <div className="flex gap-2 mb-4" aria-label="Filter demand by type">
+      {TYPE_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDemandTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          onClick={() => setSelectedDemandTypes(selectedDemandTypes.includes(opt.value)
+            ? selectedDemandTypes.filter(t => t !== opt.value)
+            : [...selectedDemandTypes, opt.value])}
+          aria-pressed={selectedDemandTypes.includes(opt.value)}
+          aria-label={`Toggle demand type: ${opt.label}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // Demand filters UI
+  const renderDemandFilters = () => (
+    <div className="flex flex-col md:flex-row gap-4 mb-4">
+      {renderDemandDifficultyChips()}
+      {renderDemandTypeChips()}
+      <input
+        type="text"
+        className="rounded border px-2 py-1"
+        placeholder="Search by keyword"
+        value={demandKeywordFilter}
+        onChange={e => setDemandKeywordFilter(e.target.value)}
+        aria-label="Search for public demand offers by keyword"
+      />
+      <input
+        type="text"
+        className="rounded border px-2 py-1"
+        placeholder="Filter by creator username"
+        value={demandCreatorFilter}
+        onChange={e => setDemandCreatorFilter(e.target.value)}
+        aria-label="Filter public demand offers by creator username"
+      />
+    </div>
+  );
+
   // Dashboard/overview UI
   return (
     <div id="dashboard" className="w-full max-w-5xl mx-auto p-4 bg-white rounded shadow-md" aria-label="Dare performer dashboard">
