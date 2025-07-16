@@ -98,6 +98,16 @@ export default function DarePerformerDashboard() {
     { value: 'audio', label: 'Audio' },
   ];
   const [selectedTypes, setSelectedTypes] = useState([]);
+  // Demand section filter and state variables
+  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
+  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
+  const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
+  const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
+  const [publicDemandActs, setPublicDemandActs] = useState([]);
+  const [publicDemandLoading, setPublicDemandLoading] = useState(false);
+  const [publicDemandError, setPublicDemandError] = useState('');
+  const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
+  const [completedDemand, setCompletedDemand] = useState([]);
   // UI state
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(false);
@@ -226,14 +236,20 @@ export default function DarePerformerDashboard() {
     // For now, this is a stub for future real-time updates.
     // Cleanup: return () => { if (socket) socket.disconnect(); };
   }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
+  // Fetch public demand acts with filters (stub logic, replace with real API call)
   useEffect(() => {
-    // TODO: Real-time updates for public demand acts (submission offers)
-    // Example:
-    // const socket = io('/');
-    // socket.on('public_demand_publish', act => { ... });
-    // socket.on('public_demand_unpublish', act => { ... });
-    // For now, this is a stub for future real-time updates.
-    // Cleanup: return () => { if (socket) socket.disconnect(); };
+    setPublicDemandLoading(true);
+    setPublicDemandError('');
+    // TODO: Replace with real API endpoint for public demand acts
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      // Example stub data
+      const stubActs = [
+        // { _id: '1', description: 'Demand 1', tags: ['tag1'], creator: { username: 'alice' }, status: 'waiting', proof: {}, grades: [] },
+      ];
+      setPublicDemandActs(stubActs);
+      setPublicDemandLoading(false);
+    }, 500);
   }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
 
   // Claim a public dare (if slots available and not in cooldown)
