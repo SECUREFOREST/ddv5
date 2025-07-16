@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound';
 import DareShare from './pages/DareShare';
 import ClaimDare from './pages/ClaimDare';
 import UserActivity from './pages/UserActivity';
+import DarePerformerDashboard from './pages/DarePerformerDashboard';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -71,6 +72,7 @@ function AppContent() {
               <Route path="/dare/share/:dareId" element={<PrivateRoute><DareShare /></PrivateRoute>} />
               <Route path="/claim/:claimToken" element={<ClaimDare />} />
               <Route path="/user-activity" element={<PrivateRoute><UserActivity /></PrivateRoute>} />
+              <Route path="/performer-dashboard" element={<DarePerformerDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

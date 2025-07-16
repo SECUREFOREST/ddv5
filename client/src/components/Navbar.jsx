@@ -57,6 +57,11 @@ export default function Navbar() {
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity">Activity</Link></li>
             <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
+            <li className="nav-item performer-dashboard-link">
+              <a href="/performer-dashboard" className="nav-link px-4 py-2 hover:bg-blue-100 rounded transition" /* Tailwind: px-4 py-2 hover:bg-blue-100 rounded transition */>
+                Performer Dashboard
+              </a>
+            </li>
 
           </>
         )}
