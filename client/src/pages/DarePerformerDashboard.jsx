@@ -6,6 +6,7 @@ import { DARE_DIFFICULTIES } from '../tailwindColors';
 import { useRef } from 'react';
 import Slot from '../components/Slot';
 import Accordion from '../components/Accordion';
+import DashboardChart from '../components/DashboardChart';
 
 /**
  * DarePerformerDashboard - Modern React/Tailwind implementation of the legacy performer dashboard.
@@ -15,6 +16,25 @@ import Accordion from '../components/Accordion';
 // Constants for slot limits and cooldown (stub values)
 const MAX_SLOTS = 5;
 const COOLDOWN_SECONDS = 60 * 5; // 5 minutes
+
+// Helper for time ago/status
+function timeAgoOrDuration(start, end, status) {
+  const now = Date.now();
+  if (status === 'in_progress' && start) {
+    const diff = Math.floor((now - new Date(start).getTime()) / 1000);
+    if (diff < 60) return `awaiting pic for ${diff}s`;
+    if (diff < 3600) return `awaiting pic for ${Math.floor(diff/60)}m ${diff%60}s`;
+    return `awaiting pic for ${Math.floor(diff/3600)}h ${Math.floor((diff%3600)/60)}m`;
+  }
+  if ((status === 'completed' || status === 'cancelled' || status === 'user_deleted') && end) {
+    const diff = Math.floor((now - new Date(end).getTime()) / 1000);
+    if (diff < 60) return `${status} ${diff}s ago`;
+    if (diff < 3600) return `${status} ${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${status} ${Math.floor(diff/3600)}h ago`;
+    return `${status} ${Math.floor(diff/86400)}d ago`;
+  }
+  return status;
+}
 
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
@@ -62,12 +82,24 @@ export default function DarePerformerDashboard() {
   const [claiming, setClaiming] = useState(false);
   // Add demandSlots state
   const [demandSlots, setDemandSlots] = useState([]);
-  const [tab, setTab] = useState('perform');
+  const [tab, setTab] = useState(() => localStorage.getItem('performerDashboardTab') || 'perform');
   // Add at the top, after other state:
   const [publicActCounts, setPublicActCounts] = useState({ total: 0, submission: 0, domination: 0, switch: 0 });
   // Add state for expanded details
   const [expandedOngoingIdx, setExpandedOngoingIdx] = useState(null);
   const [expandedPublicIdx, setExpandedPublicIdx] = useState(null);
+  // Add state for expanded associate details
+  const [expandedAssociateIdx, setExpandedAssociateIdx] = useState(null);
+  const associates = [
+    { username: 'alice', avatar: 'https://i.pravatar.cc/40?img=1', daresTogether: 3, lastDare: '2024-06-01' },
+    { username: 'bob', avatar: 'https://i.pravatar.cc/40?img=2', daresTogether: 1, lastDare: '2024-05-20' },
+    { username: 'carol', avatar: 'https://i.pravatar.cc/40?img=3', daresTogether: 2, lastDare: '2024-05-15' },
+  ];
+
+  // Persist tab state on change
+  useEffect(() => {
+    localStorage.setItem('performerDashboardTab', tab);
+  }, [tab]);
 
   // Fetch slots, ongoing, completed, and cooldown from API
   useEffect(() => {
@@ -313,16 +345,21 @@ export default function DarePerformerDashboard() {
                   <div className="text-neutral-400">You have no ongoing dares. Claim a public dare below to get started!</div>
                 ) : (
                   slots.map((slot, idx) => {
-                    // Stub: calculate progress (0-100). Replace with real logic (e.g., time elapsed, steps completed, etc.)
                     let progress = 0;
+                    let statusText = '';
                     if (slot.startTime && slot.endTime) {
                       const now = Date.now();
                       const start = new Date(slot.startTime).getTime();
                       const end = new Date(slot.endTime).getTime();
                       progress = Math.round(((now - start) / (end - start)) * 100);
                       progress = Math.max(0, Math.min(100, progress));
+                      statusText = timeAgoOrDuration(slot.startTime, slot.endTime, slot.status);
+                    } else if (slot.startTime) {
+                      progress = 50;
+                      statusText = timeAgoOrDuration(slot.startTime, null, slot.status);
                     } else {
-                      progress = 50; // stub: halfway
+                      progress = 50;
+                      statusText = slot.status;
                     }
                     return (
                       <Slot
@@ -334,7 +371,9 @@ export default function DarePerformerDashboard() {
                         status={slot.status}
                         ariaLabel={slot.empty ? 'Empty slot' : 'Active slot'}
                         progress={progress}
-                      />
+                      >
+                        <div className="text-xs text-neutral-400 ml-2">{statusText}</div>
+                      </Slot>
                     );
                   })
                 )}
@@ -348,54 +387,64 @@ export default function DarePerformerDashboard() {
               ) : ongoing.length === 0 ? (
                 <div className="text-neutral-400">No ongoing dares. When you claim a dare, it will appear here.</div>
               ) : (
-                ongoing.map((dare, idx) => (
-                  <div key={dare._id || idx} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Ongoing dare card">
-                    <div onClick={() => setExpandedOngoingIdx(expandedOngoingIdx === idx ? null : idx)} className="cursor-pointer">
-                      <DareCard dare={dare} />
+                ongoing.map((dare, idx) => {
+                  let statusText = '';
+                  if (dare.startTime && dare.endTime) {
+                    statusText = timeAgoOrDuration(dare.startTime, dare.endTime, dare.status);
+                  } else if (dare.startTime) {
+                    statusText = timeAgoOrDuration(dare.startTime, null, dare.status);
+                  } else {
+                    statusText = dare.status;
+                  }
+                  return (
+                    <div key={dare._id || idx} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Ongoing dare card">
+                      <div onClick={() => setExpandedOngoingIdx(expandedOngoingIdx === idx ? null : idx)} className="cursor-pointer">
+                        <DareCard dare={dare} />
+                      </div>
+                      {expandedOngoingIdx === idx && (
+                        <Accordion title="Details" defaultOpen={true} className="mt-2">
+                          <div className="text-sm text-neutral-200">
+                            <div><b>Description:</b> {dare.description}</div>
+                            <div><b>Tags:</b> {dare.tags?.join(', ') || 'None'}</div>
+                            <div><b>Creator:</b> {dare.creator?.username || 'Unknown'}</div>
+                            <div><b>Performer:</b> {dare.performer?.username || 'Unknown'}</div>
+                            <div><b>Status:</b> {dare.status}</div>
+                            {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
+                            {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
+                          </div>
+                        </Accordion>
+                      )}
+                      <div className="actions flex gap-2 mt-2">
+                        <button
+                          className="btn btn-primary px-3 py-1 bg-blue-600 text-white rounded"
+                          onClick={() => handleCompleteDare(idx)}
+                          disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
+                          aria-label="Mark dare as completed"
+                        >
+                          Complete
+                        </button>
+                        <button
+                          className="btn btn-danger px-3 py-1 bg-red-600 text-white rounded"
+                          onClick={() => handleRejectDare(idx)}
+                          disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
+                          aria-label="Reject dare"
+                        >
+                          Reject
+                        </button>
+                        <a
+                          href={`/perform/${dare._id}`}
+                          className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded"
+                          aria-label="Submit proof or view dare details"
+                          tabIndex={0}
+                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') window.location.href = `/perform/${dare._id}`; }}
+                        >
+                          Submit/View
+                        </a>
+                      </div>
+                      <div className="text-xs text-neutral-500 mt-1 flex items-center">Status: {statusText}{renderStatusBadge(dare.status)}</div>
                     </div>
-                    {expandedOngoingIdx === idx && (
-                      <Accordion title="Details" defaultOpen={true} className="mt-2">
-                        <div className="text-sm text-neutral-200">
-                          <div><b>Description:</b> {dare.description}</div>
-                          <div><b>Tags:</b> {dare.tags?.join(', ') || 'None'}</div>
-                          <div><b>Creator:</b> {dare.creator?.username || 'Unknown'}</div>
-                          <div><b>Performer:</b> {dare.performer?.username || 'Unknown'}</div>
-                          <div><b>Status:</b> {dare.status}</div>
-                          {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
-                          {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
-                        </div>
-                      </Accordion>
-                    )}
-                    <div className="actions flex gap-2 mt-2">
-                      <button
-                        className="btn btn-primary px-3 py-1 bg-blue-600 text-white rounded"
-                        onClick={() => handleCompleteDare(idx)}
-                        disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
-                        aria-label="Mark dare as completed"
-                      >
-                        Complete
-                      </button>
-                      <button
-                        className="btn btn-danger px-3 py-1 bg-red-600 text-white rounded"
-                        onClick={() => handleRejectDare(idx)}
-                        disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
-                        aria-label="Reject dare"
-                      >
-                        Reject
-                      </button>
-                      <a
-                        href={`/perform/${dare._id}`}
-                        className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded"
-                        aria-label="Submit proof or view dare details"
-                        tabIndex={0}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') window.location.href = `/perform/${dare._id}`; }}
-                      >
-                        Submit/View
-                      </a>
-                    </div>
-                    <div className="text-xs text-neutral-500 mt-1 flex items-center">Status: {dare.status}{renderStatusBadge(dare.status)}</div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
             <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed dares">Completed Dares</h3>
@@ -433,7 +482,11 @@ export default function DarePerformerDashboard() {
               {publicLoading ? (
                 <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
               ) : publicDares.length === 0 ? (
-                <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                selectedDifficulties.length === 0 ? (
+                  <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                ) : (
+                  <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                )
               ) : (
                 <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
                   {publicDares.map((dare, idx) => (
@@ -538,6 +591,30 @@ export default function DarePerformerDashboard() {
           </div>
         </div>
       )}
+      {/* Associates Section (stub) */}
+      <div className="associates-section mt-8">
+        <h3 className="text-xl font-bold mb-2">Associates</h3>
+        <div className="flex flex-wrap gap-4">
+          {associates.map((a, idx) => (
+            <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === idx ? null : idx)}>
+              <img src={a.avatar} alt={a.username} className="w-16 h-16 rounded-full border-2 border-neutral-700 mb-1" />
+              <span className="text-sm text-neutral-200">{a.username}</span>
+              {expandedAssociateIdx === idx && (
+                <Accordion title="Details" defaultOpen={true} className="mt-2 w-64">
+                  <div className="text-sm text-neutral-200">
+                    <div><b>Dares together:</b> {a.daresTogether}</div>
+                    <div><b>Last dare:</b> {a.lastDare}</div>
+                  </div>
+                </Accordion>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="role-breakdown-section mt-8">
+        <h3 className="text-xl font-bold mb-2">Role Breakdown</h3>
+        <DashboardChart stats={{ daresCount: 7, avgGrade: 4.2 }} />
+      </div>
     </div>
   );
 } 
