@@ -254,5 +254,9 @@ export default function SwitchGameParticipate() {
     );
   }
 
-  return content;
+  return (
+    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      {content}
+    </div>
+  );
 }
