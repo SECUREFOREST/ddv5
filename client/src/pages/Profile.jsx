@@ -389,7 +389,6 @@ export default function Profile() {
             },
             {
               label: dominantPercent != null ? `Dominant ${dominantPercent}%` : 'Dominant',
-              disabled: (!dominantStats.withEveryone || Object.values(dominantStats.withEveryone).every(v => !v)) && (!dominantStats.withYou || Object.values(dominantStats.withYou).every(v => !v)),
               content: (
                 <div>
                   <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -438,7 +437,6 @@ export default function Profile() {
             },
             {
               label: submissivePercent != null ? `Submissive ${submissivePercent}%` : 'Submissive',
-              disabled: (!submissiveStats.withEveryone || Object.values(submissiveStats.withEveryone).every(v => !v)) && (!submissiveStats.withYou || Object.values(submissiveStats.withYou).every(v => !v)),
               content: (
                 <div>
                   <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -522,6 +520,10 @@ export default function Profile() {
                   )}
                 </div>
               )
+            },
+            {
+              label: 'Change Password',
+              content: <ChangePasswordForm />,
             }
           ]}
           value={tabIdx}
