@@ -47,6 +47,17 @@ function getRejectionExplanation(reason) {
   return map[reason] || reason;
 }
 
+// Helper to deduplicate acts by user
+function dedupeActsByUser(acts) {
+  const seen = new Set();
+  return acts.filter(act => {
+    const id = act.user?._id || act.user?.id || act.creator?._id || act.creator?.id;
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
   // Notification system
@@ -669,45 +680,13 @@ export default function DarePerformerDashboard() {
                 )
               ) : (
                 <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publicDares.map((dare, idx) => (
-                    <div key={dare._id} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Public dare card">
-                      <div onClick={() => setExpandedPublicIdx(expandedPublicIdx === idx ? null : idx)} className="cursor-pointer">
-                        <DareCard dare={dare} />
-                      </div>
-                      {expandedPublicIdx === idx && (
-                        <Accordion title="Details" defaultOpen={true} className="mt-2">
-                          <div className="text-sm text-neutral-200">
-                            <div><b>Description:</b> {dare.description}</div>
-                            <div><b>Tags:</b> {dare.tags?.join(', ') || 'None'}</div>
-                            <div><b>Creator:</b> {dare.creator?.username || 'Unknown'}</div>
-                            <div><b>Performer:</b> {dare.performer?.username || 'Unknown'}</div>
-                            <div><b>Status:</b> {dare.status}</div>
-                            {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
-                            {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
-                            {dare.status === 'rejected' && dare.rejectionReason && (
-                              <div className="text-xs text-red-600 mt-1">
-                                <b>Rejection reason:</b> {getRejectionExplanation(dare.rejectionReason)}
-                              </div>
-                            )}
-                          </div>
-                        </Accordion>
-                      )}
-                      <div className="actions flex gap-2 mt-2" aria-label="Public dare actions">
-                        <button
-                          className="btn btn-primary px-3 py-1 bg-blue-600 text-white rounded mt-2"
-                          disabled={claiming || slots.length >= MAX_SLOTS || (cooldownUntil && new Date() < new Date(cooldownUntil))}
-                          onClick={() => handleClaimDare(dare)}
-                          aria-label="Claim dare"
-                        >
-                          Claim Dare
-                        </button>
-                        {(slots.length >= MAX_SLOTS) && (
-                          <div className="text-xs text-red-600 mt-1">You can only have {MAX_SLOTS} open dares at a time. Complete or reject a dare to free up a slot.</div>
-                        )}
-                        {(cooldownUntil && new Date() < new Date(cooldownUntil)) && (
-                          <div className="text-xs text-yellow-700 mt-1">You are in cooldown and cannot claim new dares until it ends.</div>
-                        )}
-                        <a href={`/dares/${dare._id}`} className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded" title="View dare details" aria-label="View dare details">View Details</a>
+                  {dedupeActsByUser(publicDares).map((dare, idx) => (
+                    <div key={dare._id || idx} className="thing thing-with-avatar public-act flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
+                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                      <div className="thing-details flex-1">
+                        <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                        <div className="text-xs text-neutral-400">{dare.title || dare.description || ''}</div>
+                        {/* Add more details as needed */}
                       </div>
                     </div>
                   ))}
@@ -788,30 +767,13 @@ export default function DarePerformerDashboard() {
                 )
               ) : (
                 <div className="public-demand-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publicDemandActs.map((dare, idx) => (
-                    <div key={dare._id} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Public demand card">
-                      <div onClick={() => setExpandedPublicDemandIdx(expandedPublicDemandIdx === idx ? null : idx)} className="cursor-pointer">
-                        <DareCard dare={dare} />
-                      </div>
-                      {expandedPublicDemandIdx === idx && (
-                        <Accordion title="Details" defaultOpen={true} className="mt-2">
-                          <div className="text-sm text-neutral-200">
-                            <div><b>Description:</b> {dare.description}</div>
-                            <div><b>Tags:</b> {dare.tags?.join(', ') || 'None'}</div>
-                            <div><b>Creator:</b> {dare.creator?.username || 'Unknown'}</div>
-                            <div><b>Status:</b> {dare.status}</div>
-                            {dare.proof && <div><b>Proof:</b> {dare.proof.submitted ? 'Submitted' : 'Not submitted'}</div>}
-                            {dare.grades && dare.grades.length > 0 && <div><b>Grades:</b> {dare.grades.map(g => g.grade).join(', ')}</div>}
-                            {dare.status === 'rejected' && dare.rejectionReason && (
-                              <div className="text-xs text-red-600 mt-1">
-                                <b>Rejection reason:</b> {getRejectionExplanation(dare.rejectionReason)}
-                              </div>
-                            )}
-                          </div>
-                        </Accordion>
-                      )}
-                      <div className="actions flex gap-2 mt-2" aria-label="Public demand actions">
-                        <a href={`/dares/${dare._id}`} className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded" title="View demand details" aria-label="View demand details">View Details</a>
+                  {dedupeActsByUser(publicDemandActs).map((dare, idx) => (
+                    <div key={dare._id || idx} className="thing thing-with-avatar public-act flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
+                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                      <div className="thing-details flex-1">
+                        <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                        <div className="text-xs text-neutral-400">{dare.title || dare.description || ''}</div>
+                        {/* Add more details as needed */}
                       </div>
                     </div>
                   ))}

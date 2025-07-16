@@ -222,9 +222,18 @@ export default function Profile() {
 
   if (!user) return null;
 
+  // Compute role percentages
+  const dominantPercent = user?.natureRatio?.domination ?? null;
+  const submissivePercent = user?.natureRatio?.submission ?? null;
+
   return (
     <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
+      <div className="profile-bar w-full bg-[#8d0715] text-white py-4 px-6 mb-4">
+        <div className="container mx-auto">
+          <div id="description" dangerouslySetInnerHTML={{ __html: user?.description || 'This kinkster hasn\'t written a bio yet.' }} />
+        </div>
+      </div>
       <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h1 className="text-2xl font-bold">Profile</h1>
       </div>
@@ -350,7 +359,7 @@ export default function Profile() {
               ),
             },
             {
-              label: 'Dominant',
+              label: dominantPercent != null ? `Dominant ${dominantPercent}%` : 'Dominant',
               disabled: (!dominantStats.withEveryone || Object.values(dominantStats.withEveryone).every(v => !v)) && (!dominantStats.withYou || Object.values(dominantStats.withYou).every(v => !v)),
               content: (
                 <div>
@@ -399,7 +408,7 @@ export default function Profile() {
               ),
             },
             {
-              label: 'Submissive',
+              label: submissivePercent != null ? `Submissive ${submissivePercent}%` : 'Submissive',
               disabled: (!submissiveStats.withEveryone || Object.values(submissiveStats.withEveryone).every(v => !v)) && (!submissiveStats.withYou || Object.values(submissiveStats.withYou).every(v => !v)),
               content: (
                 <div>
