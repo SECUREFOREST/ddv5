@@ -62,17 +62,17 @@ export default function ClaimDare() {
     }
   };
 
-  if (error) return <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-danger">{error}</div>;
-  if (!dare) return <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-neutral-200">Loading...</div>;
-  if (submitted) return <div className="max-w-sm mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded text-success">Thank you! You have consented to perform this dare.</div>;
+  if (error) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-danger">{error}</div>;
+  if (!dare) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-neutral-200">Loading...</div>;
+  if (submitted) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-success">Thank you! You have consented to perform this dare.</div>;
 
   const c = dare.creator;
 
   return (
-    <div className="max-w-lg mx-auto mt-16 p-6 bg-black bg-opacity-80 rounded shadow">
-      <div className="aggressive-text text-center mb-4">
-        <p className="text-lg">{c.username} wants you to perform</p>
-        <h1 className="text-3xl font-bold">Deviant Dare</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="text-center mb-4">
+        <p className="text-lg text-primary">{c.username} wants you to perform</p>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Deviant Dare</h1>
       </div>
       <div className="user_info mb-4">
         <table className="table-auto w-full text-white">
@@ -102,18 +102,18 @@ export default function ClaimDare() {
           </tbody>
         </table>
       </div>
-      <div className="aggressive-text text-center mb-4">
-        <p>Will you agree to perform their dare?</p>
-        <h2 className="text-xl font-bold">Of course, there's a catch.</h2>
-        <div className="difficulty-details border border-danger p-3 mt-2">
+      <div className="text-center mb-4">
+        <p className="mb-2">Will you agree to perform their dare?</p>
+        <h2 className="text-xl font-bold mb-2 text-primary">Of course, there's a catch.</h2>
+        <div className="difficulty-details border border-danger p-3 mt-2 mb-2">
           <div className="heading flex items-center mb-1">
             <span className="prefix font-bold mr-2">difficulty:</span>
             <DifficultyBadge level={dare.difficulty} />
           </div>
           <div className="description text-neutral-200 text-sm">{dare.difficultyDescription}</div>
         </div>
-        <form onSubmit={handleConsent} className="call-to-action mt-4">
-          <button className="btn btn-primary btn-lg w-full bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" type="submit">I Consent</button>
+        <form onSubmit={handleConsent} className="mt-4">
+          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" type="submit">I Consent</button>
         </form>
       </div>
     </div>
