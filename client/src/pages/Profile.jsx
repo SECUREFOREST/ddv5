@@ -41,6 +41,32 @@ export default function Profile() {
   // Prepare stub stats for dominant/submissive
   const dominantStats = stats?.natures?.dominant || { withEveryone: {}, withYou: {}, tasks: [] };
   const submissiveStats = stats?.natures?.submissive || { withEveryone: {}, withYou: {}, tasks: [] };
+  // Add state for content deletion setting
+  const [contentDeletion, setContentDeletion] = useState('');
+  const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
+  const [contentDeletionError, setContentDeletionError] = useState('');
+
+  // Fetch content deletion setting on mount
+  useEffect(() => {
+    setContentDeletionLoading(true);
+    api.get('/safety/content_deletion')
+      .then(res => setContentDeletion(res.data?.value || ''))
+      .catch(() => setContentDeletionError('Failed to load content deletion setting.'))
+      .finally(() => setContentDeletionLoading(false));
+  }, []);
+
+  const handleContentDeletionChange = async (val) => {
+    setContentDeletionLoading(true);
+    setContentDeletionError('');
+    try {
+      await api.post('/safety/content_deletion', { value: val });
+      setContentDeletion(val);
+    } catch {
+      setContentDeletionError('Failed to update setting.');
+    } finally {
+      setContentDeletionLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (loading) return;
@@ -325,35 +351,143 @@ export default function Profile() {
             },
             {
               label: 'Dominant',
+              disabled: (!dominantStats.withEveryone || Object.values(dominantStats.withEveryone).every(v => !v)) && (!dominantStats.withYou || Object.values(dominantStats.withYou).every(v => !v)),
               content: (
                 <div>
-                  <h3 className="text-lg font-bold mb-2">Dominant Stats</h3>
-                  <div className="mb-2">With everyone: <span className="font-mono">{JSON.stringify(dominantStats.withEveryone)}</span></div>
-                  <div className="mb-2">With you: <span className="font-mono">{JSON.stringify(dominantStats.withYou)}</span></div>
-                  <div className="mb-2">Tasks:</div>
-                  <ul className="list-disc ml-6">
-                    {(dominantStats.tasks || []).map((t, i) => <li key={i}>{t.description || JSON.stringify(t)}</li>)}
-                  </ul>
+                  <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h4 className="font-bold mb-1">With everyone</h4>
+                      {dominantStats.withEveryone && Object.keys(dominantStats.withEveryone).length > 0 ? (
+                        <ul className="text-sm">
+                          {Object.entries(dominantStats.withEveryone).map(([k, v]) => (
+                            <li key={k}>{k}: {v}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-neutral-400">They haven't performed any dominant acts yet.</div>
+                      )}
+                      {dominantStats.leaderboardPosition && (
+                        <div className="mt-2 text-xs text-primary">Leaderboard: #{dominantStats.leaderboardPosition}</div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold mb-1">With you</h4>
+                      {dominantStats.withYou && Object.keys(dominantStats.withYou).length > 0 ? (
+                        <ul className="text-sm">
+                          {Object.entries(dominantStats.withYou).map(([k, v]) => (
+                            <li key={k}>{k}: {v}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-neutral-400">You haven't submitted to them yet.</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold mb-1">Dominant acts with you</h4>
+                    {dominantStats.tasks && dominantStats.tasks.length > 0 ? (
+                      <ul className="text-sm">
+                        {dominantStats.tasks.map((t, i) => (
+                          <li key={i}>{t}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-neutral-400">No dominant acts with you yet.</div>
+                    )}
+                  </div>
                 </div>
               ),
             },
             {
               label: 'Submissive',
+              disabled: (!submissiveStats.withEveryone || Object.values(submissiveStats.withEveryone).every(v => !v)) && (!submissiveStats.withYou || Object.values(submissiveStats.withYou).every(v => !v)),
               content: (
                 <div>
-                  <h3 className="text-lg font-bold mb-2">Submissive Stats</h3>
-                  <div className="mb-2">With everyone: <span className="font-mono">{JSON.stringify(submissiveStats.withEveryone)}</span></div>
-                  <div className="mb-2">With you: <span className="font-mono">{JSON.stringify(submissiveStats.withYou)}</span></div>
-                  <div className="mb-2">Tasks:</div>
-                  <ul className="list-disc ml-6">
-                    {(submissiveStats.tasks || []).map((t, i) => <li key={i}>{t.description || JSON.stringify(t)}</li>)}
-                  </ul>
+                  <div className="stat-sections grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h4 className="font-bold mb-1">With everyone</h4>
+                      {submissiveStats.withEveryone && Object.keys(submissiveStats.withEveryone).length > 0 ? (
+                        <ul className="text-sm">
+                          {Object.entries(submissiveStats.withEveryone).map(([k, v]) => (
+                            <li key={k}>{k}: {v}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-neutral-400">They haven't performed any submissive acts yet.</div>
+                      )}
+                      {submissiveStats.leaderboardPosition && (
+                        <div className="mt-2 text-xs text-primary">Leaderboard: #{submissiveStats.leaderboardPosition}</div>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold mb-1">With you</h4>
+                      {submissiveStats.withYou && Object.keys(submissiveStats.withYou).length > 0 ? (
+                        <ul className="text-sm">
+                          {Object.entries(submissiveStats.withYou).map(([k, v]) => (
+                            <li key={k}>{k}: {v}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="text-neutral-400">You haven't dominated them yet.</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold mb-1">Submissive acts with you</h4>
+                    {submissiveStats.tasks && submissiveStats.tasks.length > 0 ? (
+                      <ul className="text-sm">
+                        {submissiveStats.tasks.map((t, i) => (
+                          <li key={i}>{t}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-neutral-400">No submissive acts with you yet.</div>
+                    )}
+                  </div>
                 </div>
               ),
             },
+            {
+              label: 'Privacy & Safety',
+              content: (
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold mb-2">Content Deletion Setting</h3>
+                  {contentDeletionLoading ? (
+                    <div className="text-neutral-400">Loading...</div>
+                  ) : (
+                    <form>
+                      <div className="flex flex-col gap-3">
+                        <label className="flex items-start gap-2">
+                          <input type="radio" name="contentDeletion" value="when_viewed" checked={contentDeletion === 'when_viewed'} onChange={() => handleContentDeletionChange('when_viewed')} disabled={contentDeletionLoading} />
+                          <span>
+                            <b>Delete once viewed</b><br/>
+                            <span className="text-xs text-neutral-400">As soon as the other person has viewed the image, delete it completely.</span>
+                          </span>
+                        </label>
+                        <label className="flex items-start gap-2">
+                          <input type="radio" name="contentDeletion" value="30_days" checked={contentDeletion === '30_days'} onChange={() => handleContentDeletionChange('30_days')} disabled={contentDeletionLoading} />
+                          <span>
+                            <b>Delete in 30 days</b><br/>
+                            <span className="text-xs text-neutral-400">All pics are deleted thirty days after you upload them, whether they have been viewed or not.</span>
+                          </span>
+                        </label>
+                        <label className="flex items-start gap-2">
+                          <input type="radio" name="contentDeletion" value="never" checked={contentDeletion === 'never'} onChange={() => handleContentDeletionChange('never')} disabled={contentDeletionLoading} />
+                          <span>
+                            <b>Never delete</b><br/>
+                            <span className="text-xs text-neutral-400">Keep your images on the site permanently. We don't necessarily recommend this setting. Please note images will be deleted if you fail to log in for 2 months.</span>
+                          </span>
+                        </label>
+                      </div>
+                      {contentDeletionError && <div className="text-danger mt-2">{contentDeletionError}</div>}
+                    </form>
+                  )}
+                </div>
+              )
+            }
           ]}
-          value={['about', 'dominant', 'submissive'].indexOf(roleTab)}
-          onChange={idx => setRoleTab(['about', 'dominant', 'submissive'][idx])}
+          value={['about', 'dominant', 'submissive', 'privacy-safety'].indexOf(roleTab)}
+          onChange={idx => setRoleTab(['about', 'dominant', 'submissive', 'privacy-safety'][idx])}
         />
       </div>
       {/* Blocked Users Section */}

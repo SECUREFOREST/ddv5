@@ -16,29 +16,48 @@ function timeAgo(date) {
 
 // Comprehensive notification message generator
 function getNotificationMessage(n) {
+  // Try to extract actor, target, dare, etc.
+  const actor = n.actor?.username || n.actorName || 'Someone';
+  const dare = n.dareTitle || n.dare?.title || n.targetTitle || '';
   switch (n.type) {
     case 'dare_created':
-      return 'Your dare has been created.';
+      return `${actor} created a new dare${dare ? ': ' + dare : ''}.`;
     case 'dare_graded':
-      return `Your dare has been graded.`;
+      return `${actor} graded your dare${dare ? ': ' + dare : ''}.`;
     case 'proof_submitted':
-      return 'Proof has been submitted for your dare.';
+      return `${actor} submitted proof for your dare${dare ? ': ' + dare : ''}.`;
     case 'dare_approved':
-      return 'Your dare has been approved!';
+      return `Your dare${dare ? ' ' + dare : ''} has been approved!`;
     case 'dare_rejected':
-      return 'Your dare has been rejected.';
+      return `Your dare${dare ? ' ' + dare : ''} was rejected.`;
     case 'role_change':
-      return n.message || 'Your role has changed.';
+      return n.message || `${actor} changed your role.`;
     case 'user_blocked':
-      return 'You have been blocked by another user.';
+      return `You have been blocked by ${actor}.`;
     case 'user_banned':
       return 'Your account has been banned by an admin.';
     case 'comment_reply':
-      return 'You have a new reply to your comment.';
+      return `${actor} replied to your comment${dare ? ' on ' + dare : ''}.`;
     case 'comment_moderated':
-      return 'Your comment has been moderated/hidden.';
+      return `Your comment${dare ? ' on ' + dare : ''} was moderated/hidden.`;
+    case 'dare_fulfilled':
+      return `${actor} fulfilled your demand${dare ? ': ' + dare : ''}.`;
+    case 'dare_claimed':
+      return `${actor} claimed your dare${dare ? ': ' + dare : ''}.`;
+    case 'dare_completed':
+      return `${actor} completed your dare${dare ? ': ' + dare : ''}.`;
+    case 'dare_withdrawn':
+      return `${actor} withdrew from your dare${dare ? ': ' + dare : ''}.`;
+    case 'dare_switch':
+      return `${actor} invited you to a switch game${dare ? ': ' + dare : ''}.`;
+    case 'admin_message':
+      return n.message || 'Admin message.';
+    // Add more legacy types/verbs as needed
     default:
-      // Fallback to legacy handler or message
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('Unknown notification type:', n.type, n);
+      }
       return n.message || n.type || 'Notification';
   }
 }
