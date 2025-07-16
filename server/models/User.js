@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema({
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
   refreshTokens: [{ type: String }],
+  contentDeletion: {
+    type: String,
+    enum: ['delete_after_view', 'delete_after_30_days', 'never_delete', ''],
+    default: '',
+  },
 });
 
 module.exports = mongoose.model('User', UserSchema); 
