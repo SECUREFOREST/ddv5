@@ -88,6 +88,38 @@ export default function Notifications() {
     }
   }
 
+  function getNotificationAction(n) {
+    // Returns { label, to } or null
+    switch (n.type) {
+      case 'dare_created':
+      case 'dare_graded':
+      case 'dare_approved':
+      case 'dare_rejected':
+      case 'dare_completed':
+      case 'dare_claimed':
+      case 'dare_fulfilled':
+      case 'dare_withdrawn':
+      case 'dare_switch':
+        if (n.dareId || n.dare?._id) {
+          return { label: 'Go to Dare', to: `/dare/${n.dareId || n.dare._id}` };
+        }
+        break;
+      case 'proof_submitted':
+        if (n.dareId || n.dare?._id) {
+          return { label: 'View Proof', to: `/dare/${n.dareId || n.dare._id}/perform` };
+        }
+        break;
+      case 'comment_reply':
+        if (n.dareId || n.dare?._id) {
+          return { label: 'Reply', to: `/dare/${n.dareId || n.dare._id}` };
+        }
+        break;
+      default:
+        return null;
+    }
+    return null;
+  }
+
   function batchNotifications(notifications) {
     // Group by type and message
     const batches = {};
@@ -133,6 +165,17 @@ export default function Notifications() {
                   </div>
                   <div className="text-neutral-400 text-sm">{n.body}</div>
                   <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                  {/* Action button */}
+                  {getNotificationAction(n) && (
+                    <a
+                      href={getNotificationAction(n).to}
+                      className="inline-block mt-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {getNotificationAction(n).label}
+                    </a>
+                  )}
                 </div>
                 {!n.read && (
                   <button
