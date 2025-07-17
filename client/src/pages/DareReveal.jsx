@@ -208,7 +208,6 @@ export default function DareReveal() {
               <span className="inline-flex items-center gap-2">
                 <span className="text-neutral-300 font-semibold">Difficulty:</span>
                 <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
-                  <TagIcon className="w-4 h-4 mr-1" />
                   <DifficultyBadge level={dare.difficulty} />
                 </span>
               </span>
