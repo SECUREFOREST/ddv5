@@ -245,9 +245,15 @@ export default function DareReveal() {
               <>
                 <form onSubmit={handleProofSubmit} className="flex flex-col sm:flex-row gap-2 items-center">
                   <input type="file" accept="image/*,video/mp4" onChange={handleProofFileChange} className="block w-full text-sm text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-contrast hover:file:bg-primary-contrast hover:file:text-primary transition-colors" />
-                  <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50" disabled={proofLoading}>{proofLoading ? 'Submitting...' : 'Submit Proof'}</button>
+                  <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2" disabled={proofLoading}>
+                    {proofLoading && <span className="loader border-2 border-t-2 border-t-primary-contrast border-primary rounded-full w-4 h-4 animate-spin"></span>}
+                    {proofLoading ? 'Submitting...' : 'Submit Proof'}
+                  </button>
                 </form>
-                <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50" disabled={chickenOutLoading}>{chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}</button>
+                <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2" disabled={chickenOutLoading}>
+                  {chickenOutLoading && <span className="loader border-2 border-t-2 border-t-white border-danger rounded-full w-4 h-4 animate-spin"></span>}
+                  {chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}
+                </button>
               </>
             )}
           </div>
@@ -287,6 +293,10 @@ export default function DareReveal() {
                 <video src={dare.proof.fileUrl} className="w-full rounded-lg" controls autoPlay />
               ) : (
                 <img src={dare.proof.fileUrl} alt="Proof" className="w-full rounded-lg" />
+              )}
+              {/* Proof comment below media */}
+              {dare.proof.text && (
+                <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded shadow-inner text-sm border border-neutral-700">{dare.proof.text}</div>
               )}
               <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
             </div>
