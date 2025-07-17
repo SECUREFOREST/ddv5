@@ -25,7 +25,7 @@ function getNotificationMessage(n) {
     case 'dare_graded':
       return `${actor} graded your dare${dare ? ': ' + dare : ''}.`;
     case 'proof_submitted':
-      return `${actor} submitted proof for your dare${dare ? ': ' + dare : ''}.`;
+      return n.message || 'Proof has been submitted for your dare.';
     case 'dare_approved':
       return `Your dare${dare ? ' ' + dare : ''} has been approved!`;
     case 'dare_rejected':
@@ -52,6 +52,12 @@ function getNotificationMessage(n) {
       return `${actor} invited you to a switch game${dare ? ': ' + dare : ''}.`;
     case 'admin_message':
       return n.message || 'Admin message.';
+    case 'dare_assigned':
+      return n.message || 'You have been assigned a new dare.';
+    case 'dare_deleted':
+      return n.message || 'A dare you were involved in has been deleted.';
+    case 'dare_forfeited':
+      return n.message || 'A dare was forfeited.';
     // Add more legacy types/verbs as needed
     default:
       if (process.env.NODE_ENV === 'development') {

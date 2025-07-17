@@ -449,6 +449,10 @@ router.post('/:id/accept',
       dare.performer = req.userId;
       dare.status = 'waiting_for_participant'; // Reset to available
       await dare.save();
+      // Notify performer (the user accepting)
+      await sendNotification(req.userId, 'dare_assigned', `You have been assigned as the performer for the dare: "${dare.description}"`);
+      // Optionally notify creator
+      await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`);
       res.json({ message: 'You are now the performer for this dare.', dare });
     } catch (err) {
       res.status(500).json({ error: 'Failed to accept dare.' });
@@ -521,6 +525,11 @@ router.delete('/:id',
       const isAdmin = user && user.roles && user.roles.includes('admin');
       if (dare.creator.toString() !== req.userId && !isAdmin) return res.status(403).json({ error: 'Only the creator or an admin can delete this dare.' });
       await dare.deleteOne();
+      // Notify creator and performer if applicable
+      await sendNotification(dare.creator, 'dare_deleted', `Your dare has been deleted.`);
+      if (dare.performer) {
+        await sendNotification(dare.performer, 'dare_deleted', `A dare you were involved in has been deleted.`);
+      }
       res.json({ message: 'Dare deleted.' });
     } catch (err) {
       res.status(500).json({ error: 'Failed to delete dare.' });

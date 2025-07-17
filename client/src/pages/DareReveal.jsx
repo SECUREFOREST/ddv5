@@ -172,204 +172,123 @@ export default function DareReveal() {
         <div className="text-danger text-center mb-4">{error}</div>
       ) : dare ? (
         <>
-          <div className="bg-neutral-900/90 rounded-t-2xl px-6 py-5 border-b border-neutral-800 flex flex-col items-center">
-            <h1 className="text-3xl font-extrabold text-center mb-2 text-primary drop-shadow">Your Dare</h1>
-            {/* Status message box */}
-            {dare.status === 'completed' && (
-              <div className="mb-2 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-200 rounded-lg px-4 py-2 font-semibold shadow">
-                <span className="text-2xl">✔️</span>
-                <span>Dare completed! Proof submitted.</span>
-              </div>
-            )}
-            {dare.status === 'forfeited' && (
-              <div className="mb-2 flex items-center justify-center gap-2 bg-red-900/80 border border-red-700 text-red-200 rounded-lg px-4 py-2 font-semibold shadow">
-                <span className="text-2xl">⚠️</span>
-                <span>Dare forfeited (chickened out).</span>
-              </div>
-            )}
-            {dare.status === 'in_progress' && (
-              <div className="mb-2 flex items-center justify-center gap-2 bg-blue-900/80 border border-blue-700 text-blue-200 rounded-lg px-4 py-2 font-semibold shadow">
-                <span className="text-2xl">⏳</span>
-                <span>Dare is in progress.</span>
-              </div>
-            )}
+          {/* --- Top Section: Heading & Status Badge --- */}
+          <div className="flex flex-col items-center gap-2 mb-4">
+            <h1 className="text-3xl font-extrabold text-center text-primary drop-shadow">Dare Reveal</h1>
+            <div className="flex items-center gap-2">
+              {dare.status === 'completed' && (
+                <span className="inline-flex items-center gap-1 bg-green-900/80 border border-green-700 text-green-200 rounded-lg px-3 py-1 font-semibold shadow transition-all animate-pulse">
+                  <CheckCircleIcon className="w-5 h-5" /> Completed
+                </span>
+              )}
+              {dare.status === 'forfeited' && (
+                <span className="inline-flex items-center gap-1 bg-red-900/80 border border-red-700 text-red-200 rounded-lg px-3 py-1 font-semibold shadow transition-all animate-pulse">
+                  <ExclamationTriangleIcon className="w-5 h-5" /> Forfeited
+                </span>
+              )}
+              {dare.status === 'in_progress' && (
+                <span className="inline-flex items-center gap-1 bg-blue-900/80 border border-blue-700 text-blue-200 rounded-lg px-3 py-1 font-semibold shadow transition-all animate-pulse">
+                  <ClockIcon className="w-5 h-5" /> In Progress
+                </span>
+              )}
+            </div>
           </div>
-          <div className="p-6 bg-neutral-900/80 rounded-b-2xl flex flex-col gap-4">
-            <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow">
-              <div className="font-semibold text-primary mb-2 text-lg">Dare Description:</div>
-              <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
+          {/* --- User Info Section --- */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+            <div className="flex flex-col items-center">
+              <img src={dare.creator?.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-12 h-12 rounded-full border-2 border-primary mb-1" />
+              <span className="text-xs text-neutral-400">Creator</span>
+              <span className="font-semibold text-neutral-100">{dare.creator?.username}</span>
             </div>
-            {/* Difficulty and Timestamps - visually enhanced, now outside the description card */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
-              <span className="inline-flex items-center gap-2">
-                <span className="text-neutral-300 font-semibold">Difficulty:</span>
-                <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
-                  <DifficultyBadge level={dare.difficulty} />
-                </span>
-              </span>
-              <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                <ClockIcon className="w-4 h-4" />
-                Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
-              </span>
-              {dare.status === 'completed' && dare.updatedAt && (
-                <span className="inline-flex items-center gap-1 bg-green-700/80 text-green-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                  <CheckCircleIcon className="w-4 h-4" />
-                  Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
-                </span>
-              )}
-              {dare.status === 'forfeited' && dare.updatedAt && (
-                <span className="inline-flex items-center gap-1 bg-red-700/80 text-red-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                  <ExclamationTriangleIcon className="w-4 h-4" />
-                  Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
-                </span>
-              )}
+            <span className="hidden sm:block text-neutral-500 text-2xl mx-2">→</span>
+            <div className="flex flex-col items-center">
+              <img src={dare.performer?.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-12 h-12 rounded-full border-2 border-primary mb-1" />
+              <span className="text-xs text-neutral-400">Performer</span>
+              <span className="font-semibold text-neutral-100">{dare.performer?.username}</span>
             </div>
-            {/* Show tags as badges */}
-            {Array.isArray(dare.tags) && dare.tags.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 mb-2">
-                {dare.tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-1 bg-primary/80 text-primary-contrast px-2 py-1 rounded-full text-xs font-semibold shadow">
-                    <TagIcon className="w-3 h-3" /> {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            {/* Creator and Participant info card */}
-            <div className="flex flex-col sm:flex-row justify-center gap-6 mt-2 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
-              {dare.creator && (
-                <div className="flex flex-col items-center">
-                  <span className="text-xs text-neutral-400">Creator</span>
-                  {dare.creator.avatar && (
-                    <img src={dare.creator.avatar} alt="creator avatar" className="w-12 h-12 rounded-full object-cover border-2 border-primary mt-1 shadow" />
-                  )}
-                  <span className="text-sm font-semibold text-primary mt-1">{dare.creator.username || 'Anonymous'}</span>
-                </div>
-              )}
-              {dare.performer && (
-                <div className="flex flex-col items-center">
-                  <span className="text-xs text-neutral-400">Participant</span>
-                  {dare.performer.avatar && (
-                    <img src={dare.performer.avatar} alt="participant avatar" className="w-12 h-12 rounded-full object-cover border-2 border-blue-400 mt-1 shadow" />
-                  )}
-                  <span className="text-sm font-semibold text-blue-300 mt-1">{dare.performer.username || 'Anonymous'}</span>
-                </div>
-              )}
+          </div>
+          {/* --- Dare Description Card --- */}
+          <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+            <div className="font-semibold text-primary mb-2 text-lg">Dare Description</div>
+            <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              <DifficultyBadge level={dare.difficulty} />
+              {dare.tags && dare.tags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-neutral-700 text-neutral-200 rounded-full px-3 py-1 text-xs font-semibold border border-neutral-600"><TagIcon className="w-3 h-3" /> {tag}</span>
+              ))}
             </div>
-            {/* Proof preview if completed */}
-            {dare.status === 'completed' && dare.proof && (
-              <div className="p-4 bg-green-950/80 rounded-xl text-green-100 border border-green-700 shadow">
-                <div className="font-semibold text-green-300 mb-2 text-lg">Proof:</div>
-                {dare.proof.text && (
-                  <div className="mb-2 break-words text-green-100/90">{dare.proof.text}</div>
+          </div>
+          {/* --- Proof Preview Section --- */}
+          {dare.proof && dare.proof.fileUrl ? (
+            <div className="flex flex-col items-center mb-4">
+              <div className="relative group cursor-pointer" onClick={() => setProofModalOpen(true)}>
+                {dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+                  <video src={dare.proof.fileUrl} className="w-48 h-48 object-cover rounded-lg border border-neutral-700 shadow hover:scale-105 transition-transform" controls={false} />
+                ) : (
+                  <img src={dare.proof.fileUrl} alt="Proof" className="w-48 h-48 object-cover rounded-lg border border-neutral-700 shadow hover:scale-105 transition-transform" />
                 )}
-                {dare.proof.fileUrl && (
-                  <div className="flex flex-col items-center">
-                    {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
-                      <button onClick={() => { setProofModalOpen(true); setProofModalType('image'); }} className="focus:outline-none">
-                        <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow cursor-pointer transition hover:scale-105" />
-                        <PhotoIcon className="w-6 h-6 text-green-300 mx-auto" />
-                      </button>
-                    )}
-                    {dare.proof.fileUrl.match(/\.(mp4)$/i) && (
-                      <button onClick={() => { setProofModalOpen(true); setProofModalType('video'); }} className="focus:outline-none">
-                        <video className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow cursor-pointer transition hover:scale-105">
-                          <source src={dare.proof.fileUrl} type="video/mp4" />
-                        </video>
-                        <PlayCircleIcon className="w-6 h-6 text-green-300 mx-auto" />
-                      </button>
-                    )}
-                    {dare.proof.fileUrl.match(/\.(pdf)$/i) && (
-                      <a href={dare.proof.fileUrl} target="_blank" rel="noopener noreferrer" className="text-info underline">View PDF proof</a>
-                    )}
-                  </div>
-                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <PlayCircleIcon className="w-12 h-12 text-white" />
+                </div>
               </div>
-            )}
-            {/* Proof submission and chicken out only if performer and in_progress */}
-            {dare.performer && user && String((dare.performer._id || dare.performer)) === String(user._id) && dare.status === 'in_progress' && (
+              <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center mb-4">
+              <PhotoIcon className="w-16 h-16 text-neutral-700 mb-2" />
+              <span className="text-neutral-400">No proof submitted yet.</span>
+            </div>
+          )}
+          {/* --- Action Buttons (Sticky Footer on Mobile) --- */}
+          <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10">
+            {dare.status === 'in_progress' && (
               <>
-                <form onSubmit={handleProofSubmit} className="mb-4 space-y-4 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
-                  <div>
-                    <label className="block font-semibold mb-1 text-primary">Submit Proof</label>
-                    <input
-                      type="file"
-                      accept="image/*,video/mp4"
-                      className="mt-2"
-                      onChange={handleProofFileChange}
-                    />
-                    <div className="text-xs text-neutral-400 mt-1">Proof file is required. Only image or video files are allowed. Max size: 10MB</div>
-                  </div>
-                  <textarea
-                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                      value={proof}
-                      onChange={e => setProof(e.target.value)}
-                      placeholder="Add a comment (optional)"
-                      rows={3}
-                    />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="expireAfterView"
-                      checked={expireAfterView}
-                      onChange={e => setExpireAfterView(e.target.checked)}
-                    />
-                    <label htmlFor="expireAfterView" className="text-sm">Delete proof after viewed</label>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50 shadow"
-                    disabled={proofLoading}
-                  >
-                    {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                  </button>
-                  {proofError && <div className="text-danger text-center mt-2">{proofError}</div>}
-                  {proofSuccess && <div className="text-success text-center mt-2">{proofSuccess}</div>}
+                <form onSubmit={handleProofSubmit} className="flex flex-col sm:flex-row gap-2 items-center">
+                  <input type="file" accept="image/*,video/mp4" onChange={handleProofFileChange} className="block w-full text-sm text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-contrast hover:file:bg-primary-contrast hover:file:text-primary transition-colors" />
+                  <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50" disabled={proofLoading}>{proofLoading ? 'Submitting...' : 'Submit Proof'}</button>
                 </form>
-                <button
-                  className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50 shadow"
-                  onClick={handleChickenOut}
-                  disabled={chickenOutLoading}
-                >
-                  {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out (Forfeit)'}
-                </button>
-                {chickenOutError && <div className="text-danger text-center mt-2">{chickenOutError}</div>}
+                <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50" disabled={chickenOutLoading}>{chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}</button>
               </>
             )}
-            {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+          </div>
+          {/* --- Timestamps & Meta --- */}
+          <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
+            <div>Created: {dayjs(dare.createdAt).format('MMM D, YYYY h:mm A')}</div>
+            {dare.completedAt && <div>Completed: {dayjs(dare.completedAt).format('MMM D, YYYY h:mm A')}</div>}
+            {dare.updatedAt && <div>Last Updated: {dayjs(dare.updatedAt).format('MMM D, YYYY h:mm A')}</div>}
+          </div>
+          {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+            <button
+              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
+              onClick={() => navigate('/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+            {(dare.status === 'completed' || dare.status === 'forfeited') && (
               <button
-                className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
-                onClick={() => navigate('/dashboard')}
+                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow"
+                onClick={() => navigate('/dare/select')}
               >
-                Back to Dashboard
+                Get Another Dare
               </button>
-              {(dare.status === 'completed' || dare.status === 'forfeited') && (
-                <button
-                  className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow"
-                  onClick={() => navigate('/dare/select')}
-                >
-                  Get Another Dare
-                </button>
-              )}
-            </div>
+            )}
           </div>
         </>
       ) : null}
-      {/* Proof Modal */}
-      <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 flex items-center justify-center">
-        <div className="fixed inset-0 bg-black/70" aria-hidden="true" onClick={() => setProofModalOpen(false)} />
-        <div className="relative bg-neutral-900 rounded-xl p-4 max-w-lg w-full flex flex-col items-center">
-          <button onClick={() => setProofModalOpen(false)} className="absolute top-2 right-2 text-neutral-400 hover:text-neutral-200">
-            <XMarkIcon className="w-6 h-6" />
-          </button>
-          {proofModalType === 'image' && (
-            <img src={dare.proof.fileUrl} alt="proof large" className="max-w-full max-h-[70vh] rounded-xl border border-green-700 shadow-lg" />
-          )}
-          {proofModalType === 'video' && (
-            <video controls className="max-w-full max-h-[70vh] rounded-xl border border-green-700 shadow-lg">
-              <source src={dare.proof.fileUrl} type="video/mp4" />
-            </video>
-          )}
+      {/* --- Proof Modal --- */}
+      <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+        <div className="flex items-center justify-center min-h-screen">
+          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
+          <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in">
+            <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
+            {dare.proof && dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+              <video src={dare.proof.fileUrl} className="w-full rounded-lg" controls autoPlay />
+            ) : (
+              <img src={dare.proof.fileUrl} alt="Proof" className="w-full rounded-lg" />
+            )}
+            <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
+          </div>
         </div>
       </Dialog>
     </div>
