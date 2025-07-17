@@ -202,43 +202,43 @@ export default function DareReveal() {
             <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow">
               <div className="font-semibold text-primary mb-2 text-lg">Dare Description:</div>
               <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
-              {/* Difficulty and Timestamps - visually enhanced */}
-              <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
-                <span className="inline-flex items-center gap-2">
-                  <span className="text-neutral-300 font-semibold">Difficulty:</span>
-                  <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
-                    <TagIcon className="w-4 h-4 mr-1" />
-                    <DifficultyBadge level={dare.difficulty} />
-                  </span>
+            </div>
+            {/* Difficulty and Timestamps - visually enhanced, now outside the description card */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
+              <span className="inline-flex items-center gap-2">
+                <span className="text-neutral-300 font-semibold">Difficulty:</span>
+                <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
+                  <TagIcon className="w-4 h-4 mr-1" />
+                  <DifficultyBadge level={dare.difficulty} />
                 </span>
-                <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                  <ClockIcon className="w-4 h-4" />
-                  Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
+              </span>
+              <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                <ClockIcon className="w-4 h-4" />
+                Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
+              </span>
+              {dare.status === 'completed' && dare.updatedAt && (
+                <span className="inline-flex items-center gap-1 bg-green-700/80 text-green-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                  <CheckCircleIcon className="w-4 h-4" />
+                  Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
                 </span>
-                {dare.status === 'completed' && dare.updatedAt && (
-                  <span className="inline-flex items-center gap-1 bg-green-700/80 text-green-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                    <CheckCircleIcon className="w-4 h-4" />
-                    Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
-                  </span>
-                )}
-                {dare.status === 'forfeited' && dare.updatedAt && (
-                  <span className="inline-flex items-center gap-1 bg-red-700/80 text-red-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                    <ExclamationTriangleIcon className="w-4 h-4" />
-                    Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
-                  </span>
-                )}
-              </div>
-              {/* Show tags as badges */}
-              {Array.isArray(dare.tags) && dare.tags.length > 0 && (
-                <div className="flex flex-wrap justify-center gap-2 mb-2">
-                  {dare.tags.map(tag => (
-                    <span key={tag} className="inline-flex items-center gap-1 bg-primary/80 text-primary-contrast px-2 py-1 rounded-full text-xs font-semibold shadow">
-                      <TagIcon className="w-3 h-3" /> {tag}
-                    </span>
-                  ))}
-                </div>
+              )}
+              {dare.status === 'forfeited' && dare.updatedAt && (
+                <span className="inline-flex items-center gap-1 bg-red-700/80 text-red-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                  <ExclamationTriangleIcon className="w-4 h-4" />
+                  Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
+                </span>
               )}
             </div>
+            {/* Show tags as badges */}
+            {Array.isArray(dare.tags) && dare.tags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2 mb-2">
+                {dare.tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center gap-1 bg-primary/80 text-primary-contrast px-2 py-1 rounded-full text-xs font-semibold shadow">
+                    <TagIcon className="w-3 h-3" /> {tag}
+                  </span>
+                ))}
+              </div>
+            )}
             {/* Creator and Participant info card */}
             <div className="flex flex-col sm:flex-row justify-center gap-6 mt-2 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
               {dare.creator && (
