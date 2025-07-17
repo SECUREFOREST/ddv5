@@ -150,12 +150,15 @@ export default function DareCreator() {
         <form onSubmit={handleCreate} className="space-y-6 p-6">
           <div>
             <label className="block font-bold mb-1 text-primary text-lg">Difficulty</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex items-center gap-2 px-3 py-2 rounded-full cursor-pointer border text-sm font-semibold transition-colors
-                  ${difficulty === opt.value ? 'border-primary bg-primary/10 text-primary' : 'border-neutral-700 bg-neutral-800 text-neutral-300 hover:border-primary hover:text-primary'}`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
-                  <span>{opt.label}</span>
+                <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border transition-colors
+                  ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <span className="flex items-center gap-2">
+                    <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                    <b>{opt.label}</b>
+                  </span>
+                  <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
                 </label>
               ))}
             </div>
