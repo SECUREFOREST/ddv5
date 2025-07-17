@@ -198,15 +198,26 @@ export default function DareReveal() {
             <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow">
               <div className="font-semibold text-primary mb-2 text-lg">Dare Description:</div>
               <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
-              <div className="text-sm text-neutral-400 mb-2">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
-              {/* Timestamps */}
-              <div className="flex flex-wrap justify-center gap-4 mt-2 text-xs text-neutral-400">
-                <span>Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}</span>
+              {/* Difficulty and Timestamps - visually enhanced */}
+              <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
+                <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
+                  <DifficultyBadge level={dare.difficulty} />
+                  {dare.difficulty && (
+                    <span className="ml-1 capitalize">{dare.difficulty}</span>
+                  )}
+                </span>
+                <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                  🕒 Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
+                </span>
                 {dare.status === 'completed' && dare.updatedAt && (
-                  <span>Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+                  <span className="inline-flex items-center gap-1 bg-green-700/80 text-green-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                    ✔️ Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
+                  </span>
                 )}
                 {dare.status === 'forfeited' && dare.updatedAt && (
-                  <span>Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+                  <span className="inline-flex items-center gap-1 bg-red-700/80 text-red-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
+                    ⚠️ Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
+                  </span>
                 )}
               </div>
             </div>
