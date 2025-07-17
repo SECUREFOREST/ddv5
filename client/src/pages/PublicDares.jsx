@@ -116,63 +116,63 @@ export default function PublicDares() {
           {toast}
         </div>
       )}
-      {/* Onboarding/Intro Banner */}
+        {/* Onboarding/Intro Banner */}
       <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow-lg flex items-center gap-3">
-        <span className="text-2xl">🌎</span>
-        <div>
-          <div className="font-bold text-lg text-primary">Participate in Public Dares & Switch Games</div>
-          <div className="text-neutral-400 text-sm">Join fun challenges created by the community! Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
-        </div>
-      </div>
-      {/* Filters and Search */}
+            <span className="text-2xl">🌎</span>
+            <div>
+              <div className="font-bold text-lg text-primary">Participate in Public Dares & Switch Games</div>
+              <div className="text-neutral-400 text-sm">Join fun challenges created by the community! Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
+            </div>
+          </div>
+        {/* Filters and Search */}
       <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex gap-2">
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              className={`px-3 py-1 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
-              onClick={() => setFilter(f.key)}
-              aria-pressed={filter === f.key}
-            >
-              {f.label}
-            </button>
-          ))}
+          <div className="flex gap-2">
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                className={`px-3 py-1 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
+                onClick={() => setFilter(f.key)}
+                aria-pressed={filter === f.key}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            className="bg-neutral-900 border border-neutral-700 rounded px-3 py-1 text-sm text-neutral-100 focus:outline-none focus:border-primary w-full sm:w-64"
+            placeholder="Search by creator or tag..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            aria-label="Search public dares and switch games"
+          />
         </div>
-        <input
-          type="text"
-          className="bg-neutral-900 border border-neutral-700 rounded px-3 py-1 text-sm text-neutral-100 focus:outline-none focus:border-primary w-full sm:w-64"
-          placeholder="Search by creator or tag..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          aria-label="Search public dares and switch games"
-        />
-      </div>
-      {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-      {loading ? (
-        <div className="animate-pulse text-center text-neutral-400 mb-4" role="status" aria-live="polite">Loading public dares and switch games...</div>
-      ) : (
-        <>
-          {showDares && (
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold mb-3 text-primary">Public Dares</h2>
-              {filteredDares.length === 0 ? (
-                <div className="text-neutral-400 text-center py-8">No public dares available.</div>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-1">
-                  {filteredDares.map(dare => (
+        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+        {loading ? (
+          <div className="animate-pulse text-center text-neutral-400 mb-4" role="status" aria-live="polite">Loading public dares and switch games...</div>
+        ) : (
+          <>
+            {showDares && (
+              <section className="mb-8">
+                <h2 className="text-xl font-semibold mb-3 text-primary">Public Dares</h2>
+                {filteredDares.length === 0 ? (
+                  <div className="text-neutral-400 text-center py-8">No public dares available.</div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-1">
+                    {filteredDares.map(dare => (
                     <div key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Avatar user={dare.creator} size="lg" />
-                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <div className="font-bold text-lg truncate flex items-center gap-2">
-                            {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
-                            <DifficultyBadge level={dare.difficulty} />
+                        <div className="flex items-center gap-3 mb-2">
+                          <Avatar user={dare.creator} size="lg" />
+                          <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                            <div className="font-bold text-lg truncate flex items-center gap-2">
+                              {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
+                              <DifficultyBadge level={dare.difficulty} />
+                            </div>
+                            <Link to={`/dare/${dare._id}/participate`}>
+                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                            </Link>
                           </div>
-                          <Link to={`/dare/${dare._id}/participate`}>
-                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
-                          </Link>
                         </div>
-                      </div>
                       {/* Description and tags */}
                       <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
                         <div className="font-medium text-base text-primary-contrast mb-1">{dare.description}</div>
@@ -192,32 +192,32 @@ export default function PublicDares() {
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-          {showSwitches && (
-            <section>
-              <h2 className="text-xl font-semibold mb-3 text-primary">Public Switch Games</h2>
-              {filteredSwitchGames.length === 0 ? (
-                <div className="text-neutral-400 text-center py-8">No public switch games available.</div>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-1">
-                  {filteredSwitchGames.map(game => (
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+            {showSwitches && (
+              <section>
+                <h2 className="text-xl font-semibold mb-3 text-primary">Public Switch Games</h2>
+                {filteredSwitchGames.length === 0 ? (
+                  <div className="text-neutral-400 text-center py-8">No public switch games available.</div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-1">
+                    {filteredSwitchGames.map(game => (
                     <div key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Avatar user={game.creator} size="lg" />
-                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <div className="font-bold text-lg truncate flex items-center gap-2">
-                            {game.creator?.fullName || game.creator?.username || 'Unknown'}
-                            <DifficultyBadge level={game.creatorDare?.difficulty} />
+                        <div className="flex items-center gap-3 mb-2">
+                          <Avatar user={game.creator} size="lg" />
+                          <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                            <div className="font-bold text-lg truncate flex items-center gap-2">
+                              {game.creator?.fullName || game.creator?.username || 'Unknown'}
+                              <DifficultyBadge level={game.creatorDare?.difficulty} />
+                            </div>
+                            <Link to={`/switches/participate/${game._id}`}>
+                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                            </Link>
                           </div>
-                          <Link to={`/switches/participate/${game._id}`}>
-                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
-                          </Link>
                         </div>
-                      </div>
                       {/* Description and tags */}
                       <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
                         <div className="font-medium text-base text-primary-contrast mb-1">{game.creatorDare?.description}</div>
@@ -237,17 +237,17 @@ export default function PublicDares() {
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-          {/* Empty state if both are empty after filtering */}
-          {filteredDares.length === 0 && filteredSwitchGames.length === 0 && (
-            <div className="text-center text-neutral-400 mt-8 py-8">No public dares or switch games match your search or filters. Try adjusting your search or check back later!</div>
-          )}
-        </>
-      )}
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+            {/* Empty state if both are empty after filtering */}
+            {filteredDares.length === 0 && filteredSwitchGames.length === 0 && (
+              <div className="text-center text-neutral-400 mt-8 py-8">No public dares or switch games match your search or filters. Try adjusting your search or check back later!</div>
+            )}
+          </>
+        )}
     </div>
   );
 } 

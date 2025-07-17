@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
+// 1. Import Avatar and Heroicons
+import Avatar from '../components/Avatar';
+import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
@@ -11,6 +14,45 @@ const DIFFICULTIES = [
   { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
   { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
 ];
+
+// 2. Add a StatusBadge helper (like DareReveal)
+function StatusBadge({ status }) {
+  if (!status) return null;
+  let badgeClass = 'bg-neutral-700 text-neutral-100';
+  let icon = null;
+  let text = status;
+  switch (status) {
+    case 'waiting_for_participant':
+      badgeClass = 'bg-blue-900/90 border border-blue-700 text-blue-200';
+      icon = <ClockIcon className="w-5 h-5" />;
+      text = 'Waiting for Participant';
+      break;
+    case 'in_progress':
+      badgeClass = 'bg-blue-900/90 border border-blue-700 text-blue-200';
+      icon = <ClockIcon className="w-5 h-5" />;
+      text = 'In Progress';
+      break;
+    case 'completed':
+      badgeClass = 'bg-green-900/90 border border-green-700 text-green-200';
+      icon = <CheckCircleIcon className="w-5 h-5" />;
+      text = 'Completed';
+      break;
+    case 'forfeited':
+      badgeClass = 'bg-red-900/90 border border-red-700 text-red-200';
+      icon = <ExclamationTriangleIcon className="w-5 h-5" />;
+      text = 'Forfeited';
+      break;
+    default:
+      badgeClass = 'bg-neutral-700 text-neutral-100';
+      icon = null;
+      text = status;
+  }
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full px-4 py-1 font-semibold shadow-lg text-lg ${badgeClass} mx-auto mb-4`}>
+      {icon} {text}
+    </span>
+  );
+}
 
 export default function SwitchGameParticipate() {
   const { gameId } = useParams();
@@ -179,22 +221,53 @@ export default function SwitchGameParticipate() {
         </div>
         <div className="border-t border-neutral-800 my-4" />
         <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
+        {/* 3. In the main render, after the sticky header, add: */}
+        {game && (
+          <div className="flex justify-center mb-4">
+            <StatusBadge status={game.status} />
+          </div>
+        )}
         {/* User info card */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
           <div className="flex flex-col items-center">
+            {game.creator && (
+              <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
+                <Avatar user={game.creator} size="lg" />
+              </a>
+            )}
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
-            <span className="font-semibold text-neutral-100">{u.username}</span>
-            {/* Add more user info as needed */}
+            <span className="font-semibold text-neutral-100">{game.creator?.username}</span>
           </div>
+          {/* Add participant info if available */}
+          {game.participant && (
+            <>
+              <span className="hidden sm:block text-neutral-500 text-3xl mx-4">→</span>
+              <div className="flex flex-col items-center">
+                <a href={`/profile/${game.participant._id || game.participant.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.participant.username}'s profile`}>
+                  <Avatar user={game.participant} size="lg" />
+                </a>
+                <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
+                <span className="font-semibold text-neutral-100">{game.participant?.username}</span>
+              </div>
+            </>
+          )}
         </div>
         {/* Game info and join form */}
-        <div className="p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
           <div className="font-bold text-xl text-primary mb-2">Game Details</div>
-          <div className="mb-2 text-neutral-200 text-sm">{game.difficultyDescription}</div>
-          <div className="mb-4">
-            <span className="font-semibold text-neutral-300">Difficulty:</span> <span className="font-bold text-primary ml-1">{game.difficulty}</span>
+          <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.difficultyDescription}</div>
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+            <span className="inline-flex items-center gap-1 bg-primary text-primary-contrast rounded-full px-3 py-1 text-xs font-semibold border border-primary">
+              <TagIcon className="w-3 h-3" /> {game.difficulty}
+            </span>
+            {game.tags && game.tags.map(tag => (
+              <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
+                <TagIcon className="w-3 h-3" /> {tag}
+              </span>
+            ))}
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="font-bold text-base text-primary mb-1">Your demand, if they lose</div>
               <textarea
@@ -251,14 +324,19 @@ export default function SwitchGameParticipate() {
             </div>
             <button type="submit" className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast">Join Game</button>
           </form>
-        </div>
-        {/* Timestamps/meta if available */}
+        {/* 6. Add timestamps/meta at the bottom */}
         {game.createdAt && (
           <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
             <div className="flex items-center gap-1" title={game.createdAt}>
-              <span className="material-icons text-neutral-400" style={{fontSize:'16px'}}>schedule</span>
+              <ClockIcon className="w-4 h-4 text-neutral-400" />
               Created: {new Date(game.createdAt).toLocaleString()}
             </div>
+            {game.updatedAt && (
+              <div className="flex items-center gap-1" title={game.updatedAt}>
+                <ArrowPathIcon className="w-4 h-4 text-blue-400" />
+                Last Updated: {new Date(game.updatedAt).toLocaleString()}
+              </div>
+            )}
           </div>
         )}
       </div>
