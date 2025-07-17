@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { UserPlusIcon } from '@heroicons/react/24/solid';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -62,14 +63,27 @@ export default function ClaimDare() {
     }
   };
 
-  if (error) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-danger">{error}</div>;
-  if (!dare) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-neutral-200">Loading...</div>;
-  if (submitted) return <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-success">Thank you! You have consented to perform this dare.</div>;
+  if (error) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-danger">{error}</div>;
+  if (!dare) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-neutral-200">Loading...</div>;
+  if (submitted) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-success">Thank you! You have consented to perform this dare.</div>;
 
   const c = dare.creator;
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <UserPlusIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Claim Dare
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <UserPlusIcon className="w-6 h-6" /> Claim Dare
+        </span>
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       <div className="text-center mb-4">
         <p className="text-lg text-primary">{c.username} wants you to perform</p>
         <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Deviant Dare</h1>

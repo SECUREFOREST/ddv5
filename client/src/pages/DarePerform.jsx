@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
+import { FireIcon } from '@heroicons/react/24/solid';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
@@ -174,11 +175,20 @@ export default function DarePerform() {
   }, [dare, proofSuccess]);
 
   return (
-    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <Link to="/" className="inline-block mb-4">
-        <button className="text-primary hover:text-primary-dark text-sm font-semibold">&larr; Back to Home</button>
-      </Link>
-      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Perform a Dare</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <FireIcon className="w-6 h-6" /> Perform Dare
+        </span>
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       {!consented ? (
         <form onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-4">
           <div>

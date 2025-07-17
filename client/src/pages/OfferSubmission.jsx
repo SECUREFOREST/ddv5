@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
+import { DocumentPlusIcon } from '@heroicons/react/24/solid';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
@@ -102,8 +103,20 @@ export default function OfferSubmission() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
-      <h1 className="text-2xl font-bold mb-4 text-primary">Offer Submission</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <DocumentPlusIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Offer Submission
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <DocumentPlusIcon className="w-6 h-6" /> Offer Submission
+        </span>
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       {error && <div className="bg-danger text-danger-contrast px-4 py-2 rounded mb-3">{error}</div>}
       {success && <div className="bg-success text-success-contrast px-4 py-2 rounded mb-3">{success}</div>}
       {slotLimit && (

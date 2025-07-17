@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
+import { ShareIcon } from '@heroicons/react/24/solid';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -73,7 +74,20 @@ export default function DareShare() {
   if (canceled) return <div className="text-center text-success mt-12">Dare canceled. Redirecting...</div>;
 
   return (
-    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 relative">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden relative">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <ShareIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Share Dare
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <ShareIcon className="w-6 h-6" /> Share Dare
+        </span>
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       <h2 className="text-xl font-bold text-center mb-2">Hi {dare.creator?.username || 'there'}</h2>
       <div className="text-neutral-300 text-center mb-2">share this link very carefully</div>
       <input
