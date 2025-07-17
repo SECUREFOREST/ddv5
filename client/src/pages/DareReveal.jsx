@@ -174,10 +174,22 @@ export default function DareReveal() {
         <div>
           {/* Final status message */}
           {dare.status === 'completed' && (
-            <div className="mb-4 text-success text-center font-semibold">Dare completed! Proof submitted.</div>
+            <div className="mb-4 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-300 rounded px-4 py-2 font-semibold">
+              <span className="text-2xl">✔️</span>
+              <span>Dare completed! Proof submitted.</span>
+            </div>
           )}
           {dare.status === 'forfeited' && (
-            <div className="mb-4 text-danger text-center font-semibold">Dare forfeited (chickened out).</div>
+            <div className="mb-4 flex items-center justify-center gap-2 bg-red-900/80 border border-red-700 text-red-300 rounded px-4 py-2 font-semibold">
+              <span className="text-2xl">⚠️</span>
+              <span>Dare forfeited (chickened out).</span>
+            </div>
+          )}
+          {dare.status === 'in_progress' && (
+            <div className="mb-4 flex items-center justify-center gap-2 bg-blue-900/80 border border-blue-700 text-blue-300 rounded px-4 py-2 font-semibold">
+              <span className="text-2xl">⏳</span>
+              <span>Dare is in progress.</span>
+            </div>
           )}
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800 text-center">
             <div className="font-semibold text-primary mb-2">Dare:</div>
