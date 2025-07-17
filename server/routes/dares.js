@@ -508,7 +508,10 @@ router.delete('/:id',
     try {
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-      if (dare.creator.toString() !== req.userId) return res.status(403).json({ error: 'Only the creator can delete this dare.' });
+      // Fetch user to check admin role
+      const user = await User.findById(req.userId);
+      const isAdmin = user && user.roles && user.roles.includes('admin');
+      if (dare.creator.toString() !== req.userId && !isAdmin) return res.status(403).json({ error: 'Only the creator or an admin can delete this dare.' });
       await dare.deleteOne();
       res.json({ message: 'Dare deleted.' });
     } catch (err) {
