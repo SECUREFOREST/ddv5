@@ -277,20 +277,22 @@ export default function DareReveal() {
         </>
       ) : null}
       {/* --- Proof Modal --- */}
-      <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen">
-          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
-          <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in">
-            <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
-            {dare.proof && dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
-              <video src={dare.proof.fileUrl} className="w-full rounded-lg" controls autoPlay />
-            ) : (
-              <img src={dare.proof.fileUrl} alt="Proof" className="w-full rounded-lg" />
-            )}
-            <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
+      {proofModalOpen && dare && dare.proof && (
+        <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen">
+            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
+            <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in">
+              <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
+              {dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+                <video src={dare.proof.fileUrl} className="w-full rounded-lg" controls autoPlay />
+              ) : (
+                <img src={dare.proof.fileUrl} alt="Proof" className="w-full rounded-lg" />
+              )}
+              <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
+            </div>
           </div>
-        </div>
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 } 
