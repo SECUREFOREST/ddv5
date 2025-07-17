@@ -348,17 +348,27 @@ export default function Admin() {
     <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-danger tracking-tight flex items-center gap-2">
-          <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
           <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
             <ShieldCheckIcon className="w-5 h-5" /> Admin Only
           </span>
         </h1>
       </div>
       <div className="border-t border-neutral-800 my-4 w-full" />
-      <Banner type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
+      {/* Add a toast/banner for feedback */}
+      {(success || error) && (
+        <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
+          ${success ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}
+          role="alert"
+          aria-live="polite"
+          tabIndex={0}
+        >
+          {success || error}
+        </div>
+      )}
       {/* Card-like section for tab content */}
-      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+      <div className="p-4 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <Tabs
           tabs={[
             {
@@ -385,6 +395,16 @@ export default function Admin() {
                     </div>
                     {deleteUserError && (
                       <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
+                    )}
+                    {/* Show loading spinner or skeleton when data is loading */}
+                    {dataLoading && (
+                      <div className="flex justify-center items-center py-8">
+                        <svg className="animate-spin h-8 w-8 text-primary" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        <span className="ml-3 text-neutral-300">Loading users...</span>
+                      </div>
                     )}
                     <div className="overflow-x-auto rounded shadow">
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
@@ -436,8 +456,11 @@ export default function Admin() {
                                 )}
                               </td>
                               <td className="p-2">
-                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2" onClick={() => handleEditUser(user._id)}>Edit</button>
-                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark" onClick={() => handleDeleteUser(user._id)}>Delete</button>
+                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
+                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
+                                  {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
+                                  Delete
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -581,19 +604,19 @@ export default function Admin() {
                   <div className="text-danger-500">{siteStatsError}</div>
                 ) : siteStats ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card>
+                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
                       <div className="text-lg font-semibold text-neutral-700">Total Users</div>
                       <div className="text-2xl font-bold text-primary">{siteStats.totalUsers}</div>
                     </Card>
-                    <Card>
+                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
                       <div className="text-lg font-semibold text-neutral-700">Total Dares</div>
                       <div className="text-2xl font-bold text-primary">{siteStats.totalDares}</div>
                     </Card>
-                    <Card>
+                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
                       <div className="text-lg font-semibold text-neutral-700">Total Comments</div>
                       <div className="text-2xl font-bold text-primary">{siteStats.totalComments}</div>
                     </Card>
-                    <Card>
+                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
                       <div className="text-lg font-semibold text-neutral-700">Total Credits Awarded</div>
                       <div className="text-2xl font-bold text-primary">{siteStats.totalCredits}</div>
                     </Card>

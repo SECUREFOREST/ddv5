@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import { useEffect, useState } from 'react';
+import { HomeIcon, PlusCircleIcon, PlayCircleIcon, GlobeAltIcon, Squares2X2Icon, ChartBarIcon, TrophyIcon, UserCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -52,22 +53,20 @@ export default function Navbar() {
         <ul className="hidden sm:flex flex-wrap items-center space-x-3">
         {user && (
           <>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create">Create Dare</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform">Perform Dare</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares">Public Dares</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches">Switch Games</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity">Activity</Link></li>
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard">Leaderboard</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create"><PlusCircleIcon className="w-5 h-5" />Create Dare</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform"><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares"><GlobeAltIcon className="w-5 h-5" />Public Dares</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches"><Squares2X2Icon className="w-5 h-5" />Switch Games</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity"><ChartBarIcon className="w-5 h-5" />Activity</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard"><TrophyIcon className="w-5 h-5" />Leaderboard</Link></li>
             <li className="nav-item performer-dashboard-link">
-              <a href="/performer-dashboard" className="nav-link px-4 py-2 hover:bg-blue-100 rounded transition" /* Tailwind: px-4 py-2 hover:bg-blue-100 rounded transition */>
-                Performer Dashboard
-              </a>
+              <a href="/performer-dashboard" className="flex items-center gap-1 nav-link px-4 py-2 hover:bg-blue-900/20 rounded transition text-blue-400 font-bold underline"><UserCircleIcon className="w-5 h-5" />Performer Dashboard</a>
             </li>
 
           </>
         )}
           {user && user.roles?.includes('admin') && (
-            <li><Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin">Admin</Link></li>
+            <li><Link className="flex items-center gap-1 px-2 py-1 text-danger font-bold underline border-b-2 border-danger" to="/admin"><ShieldCheckIcon className="w-5 h-5" />Admin</Link></li>
           )}
         </ul>
         <div className="flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
@@ -103,15 +102,15 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
           <ul className="sm:hidden flex flex-col gap-2 mt-4">
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create" onClick={() => setMobileMenuOpen(false)}>Create Dare</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}>Perform Dare</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares" onClick={() => setMobileMenuOpen(false)}>Public Dares</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches" onClick={() => setMobileMenuOpen(false)}>Switch Games</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity" onClick={() => setMobileMenuOpen(false)}>Activity</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}>Leaderboard</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create" onClick={() => setMobileMenuOpen(false)}><PlusCircleIcon className="w-5 h-5" />Create Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares" onClick={() => setMobileMenuOpen(false)}><GlobeAltIcon className="w-5 h-5" />Public Dares</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches" onClick={() => setMobileMenuOpen(false)}><Squares2X2Icon className="w-5 h-5" />Switch Games</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity" onClick={() => setMobileMenuOpen(false)}><ChartBarIcon className="w-5 h-5" />Activity</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/leaderboard" onClick={() => setMobileMenuOpen(false)}><TrophyIcon className="w-5 h-5" />Leaderboard</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</Link></li>
             {user && user.roles?.includes('admin') && (
-              <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin</Link></li>
+              <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/admin" onClick={() => setMobileMenuOpen(false)}><ShieldCheckIcon className="w-5 h-5" />Admin</Link></li>
             )}
             {user ? (
               <li className="text-[#aaa] text-sm">{user.username}</li>
