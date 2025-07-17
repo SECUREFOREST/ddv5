@@ -31,19 +31,18 @@ export default function Admin() {
   if (loading) return null;
   if (!user || !user.roles?.includes('admin')) {
     return (
-      <div className="max-w-md w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-            <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
+      <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
+        {/* Sticky header at the top */}
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-danger tracking-tight flex items-center gap-2">
+            <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
+            <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
+              <ShieldCheckIcon className="w-5 h-5" /> Admin Only
+            </span>
           </h1>
         </div>
-        <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
-            <ShieldCheckIcon className="w-6 h-6" /> Admin Only
-          </span>
-        </div>
-        <div className="border-t border-neutral-800 my-4" />
-        <div className="text-danger text-xl font-bold">Access Denied: Admins Only</div>
+        <div className="border-t border-neutral-800 my-4 w-full" />
+        <div className="text-danger text-xl font-bold mt-8">Access Denied: Admins Only</div>
       </div>
     );
   }
@@ -346,20 +345,17 @@ export default function Admin() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-danger tracking-tight flex items-center gap-2">
+          <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
+          <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
+            <ShieldCheckIcon className="w-5 h-5" /> Admin Only
+          </span>
         </h1>
       </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
-          <ShieldCheckIcon className="w-6 h-6" /> Admin Only
-        </span>
-      </div>
-      <div className="border-t border-neutral-800 my-4" />
+      <div className="border-t border-neutral-800 my-4 w-full" />
       <Banner type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
       {/* Card-like section for tab content */}
       <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
@@ -369,16 +365,20 @@ export default function Admin() {
               label: 'Users',
               content: (
                 <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                      <svg className="w-5 h-5 text-neutral-400 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" /></svg>
                       <input
-                        className="border border-neutral-900 rounded px-3 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                        type="text"
+                        className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
                         placeholder="Search users..."
                         value={userSearch}
                         onChange={e => setUserSearch(e.target.value)}
+                        aria-label="Search users"
                       />
                       <button
-                        className="bg-primary text-primary-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-primary-dark"
+                        className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
                         onClick={handleUserSearch}
+                        type="button"
                       >
                         Search
                       </button>
@@ -401,26 +401,43 @@ export default function Admin() {
                           {users.filter(u =>
                             (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
                             (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((u) => (
-                            <tr key={u._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2">
-                                <span className="inline-flex items-center gap-2">
-                                  <Avatar user={u} size={28} />
-                                  {u.username || '[deleted]'}
-                                </span>
+                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
+                            <tr
+                              key={user._id}
+                              className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
+                            >
+                              <td className="p-2 text-primary font-semibold">
+                                <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.username}</a>
                               </td>
-                              <td className="p-2 text-neutral-400">{u.email}</td>
-                              <td className="p-2 text-info font-bold">{u.role}</td>
+                              <td className="p-2 text-neutral-300">{user.email}</td>
                               <td className="p-2">
-                                {!u.banned ? (
+                                {user.role === 'admin' ? (
+                                  <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                                    Admin
+                                  </span>
+                                ) : user.role === 'moderator' ? (
+                                  <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Moderator
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                    User
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-2">
+                                {!user.banned ? (
                                   <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
                                 ) : (
                                   <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
                                 )}
                               </td>
                               <td className="p-2">
-                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2" onClick={() => handleEditUser(u._id)}>Edit</button>
-                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark" onClick={() => handleDeleteUser(u._id)}>Delete</button>
+                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2" onClick={() => handleEditUser(user._id)}>Edit</button>
+                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark" onClick={() => handleDeleteUser(user._id)}>Delete</button>
                               </td>
                             </tr>
                           ))}

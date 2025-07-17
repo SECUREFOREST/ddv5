@@ -64,10 +64,10 @@ export default function Tabs({
                     onClick={() => handleTabClick(idx)}
                     onKeyDown={handleKeyDown}
                     disabled={tab.disabled}
-                    className={`w-full flex-grow px-0 py-3 font-bold text-center focus:outline-none transition-colors duration-200 whitespace-nowrap
+                    className={`w-full flex-grow px-0 py-2 font-semibold text-center focus:outline-none transition-colors duration-200 whitespace-nowrap
                       ${selectedIndex === idx
-                        ? 'bg-[#D60B20] text-white border-x border-t border-[#D60B20] border-b-0 z-10'
-                        : 'bg-transparent text-[#aaa] border-0'}
+                        ? 'border-b-2 border-danger text-danger bg-transparent z-10'
+                        : 'text-neutral-300 hover:text-danger focus:text-danger bg-transparent border-b-2 border-transparent'}
                     `}
                     style={{
                       borderBottom: selectedIndex === idx ? 'none' : '2px solid transparent',
