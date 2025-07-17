@@ -57,6 +57,7 @@ export default function PublicDares() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [toast, setToast] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -102,7 +103,21 @@ export default function PublicDares() {
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
-      <div className="max-w-2xl w-full mx-auto mb-5">
+      {/* Toast notification for feedback (if needed) */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
+          bg-green-700 text-white`}
+          role="alert"
+          aria-live="polite"
+          onClick={() => setToast('')}
+          tabIndex={0}
+          onBlur={() => setToast('')}
+        >
+          {toast}
+        </div>
+      )}
+      {/* Main card background for all content */}
+      <div className="max-w-2xl w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
         {/* Onboarding/Intro Banner */}
         <Card className="mb-6 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-4">
           <div className="flex items-center gap-3">
@@ -149,7 +164,7 @@ export default function PublicDares() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-1">
                     {filteredDares.map(dare => (
-                      <Card key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg bg-neutral-900/90 border border-neutral-800 rounded-xl p-4">
+                      <Card key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4">
                         <div className="flex items-center gap-3 mb-2">
                           <Avatar user={dare.creator} size="lg" />
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
@@ -157,7 +172,7 @@ export default function PublicDares() {
                               {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
                               <DifficultyBadge level={dare.difficulty} />
                             </div>
-                            <Link to={`/dare/${dare._id}/participate`} className="ml-2">
+                            <Link to={`/dare/${dare._id}/participate`}>
                               <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                             </Link>
                           </div>
@@ -181,7 +196,7 @@ export default function PublicDares() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-1">
                     {filteredSwitchGames.map(game => (
-                      <Card key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg bg-neutral-900/90 border border-neutral-800 rounded-xl p-4">
+                      <Card key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-lg group focus-within:shadow-lg bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4">
                         <div className="flex items-center gap-3 mb-2">
                           <Avatar user={game.creator} size="lg" />
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
@@ -189,7 +204,7 @@ export default function PublicDares() {
                               {game.creator?.fullName || game.creator?.username || 'Unknown'}
                               <DifficultyBadge level={game.creatorDare?.difficulty} />
                             </div>
-                            <Link to={`/switches/participate/${game._id}`} className="ml-2">
+                            <Link to={`/switches/participate/${game._id}`}>
                               <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                             </Link>
                           </div>
