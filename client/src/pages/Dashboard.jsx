@@ -9,6 +9,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import DashboardChart from '../components/DashboardChart';
 import { Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
+import { Squares2X2Icon } from '@heroicons/react/24/solid';
 
 const TABS = [
   { key: 'in_progress', label: 'Perform' },
@@ -61,10 +62,21 @@ export default function Dashboard() {
   }, [user]);
 
   return (
-    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Dashboard</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> Dashboard
+        </h1>
       </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+          <Squares2X2Icon className="w-6 h-6" /> Your Dashboard
+        </span>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
       <div>
         {error && <Banner type="error" message={error} onClose={() => setError('')} />}
         {loading && (
