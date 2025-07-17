@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -30,8 +31,19 @@ export default function Admin() {
   if (loading) return null;
   if (!user || !user.roles?.includes('admin')) {
     return (
-      <div className="max-w-lg mx-auto mt-20 p-8 bg-[#222] border border-[#282828] rounded shadow text-center text-danger text-xl font-bold">
-        Access Denied: Admins Only
+      <div className="max-w-md w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+            <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
+          </h1>
+        </div>
+        <div className="flex justify-center mb-4">
+          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+            <ShieldCheckIcon className="w-6 h-6" /> Admin Only
+          </span>
+        </div>
+        <div className="border-t border-neutral-800 my-4" />
+        <div className="text-danger text-xl font-bold">Access Denied: Admins Only</div>
       </div>
     );
   }
@@ -337,9 +349,16 @@ export default function Admin() {
     <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Admin Panel</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
+        </h1>
       </div>
-      {/* Section divider for main content */}
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <ShieldCheckIcon className="w-6 h-6" /> Admin Only
+        </span>
+      </div>
       <div className="border-t border-neutral-800 my-4" />
       <Banner type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
       {/* Card-like section for tab content */}

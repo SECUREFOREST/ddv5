@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
-import { ClockIcon, ArrowPathIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -413,24 +413,36 @@ export default function SwitchGameDetails() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
-      {(generalError || generalSuccess) && (
-        <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      )}
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Switch Game Details</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> Switch Game Details
+        </h1>
       </div>
-      {/* Section divider for main content */}
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        {game && (
+          game.status === 'completed' ? (
+            <span className="inline-flex items-center gap-2 bg-green-900/90 border border-green-700 text-green-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+              <CheckCircleIcon className="w-6 h-6" /> Completed
+            </span>
+          ) : game.status === 'expired' ? (
+            <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+              <ExclamationTriangleIcon className="w-6 h-6" /> Expired
+            </span>
+          ) : game.status === 'in_progress' ? (
+            <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+              <ClockIcon className="w-6 h-6" /> In Progress
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+              <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
+            </span>
+          )
+        )}
+      </div>
       <div className="border-t border-neutral-800 my-4" />
-      {/* Status badge at the very top, centered, visually distinct */}
-      {game && (
-        <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
-            {game.status}
-          </span>
-        </div>
-      )}
       {/* Main card background for all content */}
       <div className="max-w-md w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
         {/* User info card */}
@@ -847,7 +859,7 @@ export default function SwitchGameDetails() {
           </div>
           {game.updatedAt && (
             <div className="flex items-center gap-1" title={new Date(game.updatedAt).toLocaleString()}>
-              <ArrowPathIcon className="w-4 h-4 text-blue-400" />
+              <Squares2X2Icon className="w-4 h-4 text-blue-400" />
               Updated: {new Date(game.updatedAt).toLocaleDateString()}
             </div>
           )}
