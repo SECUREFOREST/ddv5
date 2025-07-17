@@ -1,14 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 
 export default function NotFound() {
   return (
-    <div className="max-w-lg mx-auto mt-20 p-8 bg-[#222] border border-[#282828] rounded shadow text-center">
-      <h1 className="text-4xl font-bold text-danger mb-4">404</h1>
-      <p className="text-lg text-neutral-300 mb-6">Sorry, the page you are looking for does not exist.</p>
-      <Link to="/dashboard">
-        <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Go to Dashboard</button>
-      </Link>
+    <div className="max-w-md w-full mx-auto mt-24 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Page Not Found</h1>
+      </div>
+      {/* Visually distinct status badge */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <ExclamationTriangleIcon className="w-7 h-7" /> 404
+        </span>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      <div className="flex flex-col items-center text-center px-6 pb-8">
+        <p className="text-lg text-neutral-300 mb-6">Sorry, the page you are looking for does not exist or has been moved.</p>
+        <Link to="/dashboard" tabIndex={0} aria-label="Go to Dashboard">
+          <button className="bg-primary text-primary-contrast rounded px-6 py-3 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast">Go to Dashboard</button>
+        </Link>
+      </div>
     </div>
   );
 } 
