@@ -458,6 +458,7 @@ router.post('/:id/accept',
 
 // POST /api/dares/:id/forfeit - performer forfeits (chickens out) of a dare
 router.post('/:id/forfeit',
+  auth,
   require('express-validator').param('id').isMongoId(),
   (req, res, next) => {
     if (Object.keys(req.body).length > 0) {
