@@ -40,12 +40,13 @@ export default function DareReveal() {
   const navigate = useNavigate();
   const params = useParams();
   const dareId = params.id || location.state?.dareId;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [dare, setDare] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
+    if (authLoading) return; // Wait for user to load
     if (!dareId) {
       navigate('/dare/select');
       return;
@@ -59,7 +60,7 @@ export default function DareReveal() {
           // Debug output
           console.log('Current user ID:', user?.id);
           console.log('Dare performer ID:', performerId);
-          if (!user || !performerId || String(performerId) !== String(user.id)) {
+          if (!user || !performerId || String(performerId) !== String(user._id)) {
             setDare(null);
             setError('You are not authorized to view this dare.');
           } else {
@@ -73,8 +74,9 @@ export default function DareReveal() {
         setError('Failed to fetch dare.');
       })
       .finally(() => setLoading(false));
-  }, [dareId, navigate, user]);
+  }, [dareId, navigate, user, authLoading]);
 
+  if (authLoading) return <div>Loading...</div>;
   if (!dareId) return null;
 
   return (
