@@ -39,20 +39,17 @@ function isAdmin(req, res, next) {
 // Helper: enforce slot/cooldown (atomic)
 async function checkSlotAndCooldownAtomic(userId) {
   const now = new Date();
-  // Use findOneAndUpdate to atomically check and update openDares and cooldown
-  const user = await User.findOneAndUpdate(
-    {
-      _id: userId,
-      $or: [
-        { actCooldownUntil: { $exists: false } },
-        { actCooldownUntil: { $lte: now } }
-      ],
-      openDares: { $lt: 5 }
-    },
-    { $inc: { openDares: 1 } },
-    { new: true }
-  );
-  if (!user) {
+  // Check cooldown
+  const user = await User.findById(userId).select('actCooldownUntil');
+  if (user && user.actCooldownUntil && user.actCooldownUntil > now) {
+    throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
+  }
+  // Count dares where user is performer and status is not completed or forfeited
+  const openDaresCount = await Dare.countDocuments({
+    performer: userId,
+    status: { $nin: ['completed', 'forfeited'] }
+  });
+  if (openDaresCount >= 5) {
     throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
   }
 }
