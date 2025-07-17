@@ -164,160 +164,178 @@ export default function DareReveal() {
   if (!dareId) return null;
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Your Dare</h1>
-      {loading ? (
-        <div className="text-lg text-center">Loading dare...</div>
-      ) : error ? (
-        <div className="text-danger text-center mb-4">{error}</div>
-      ) : dare ? (
-        <div>
-          {/* Status message box */}
+      <div className="bg-neutral-900/90 rounded-t-2xl px-6 py-5 border-b border-neutral-800 flex flex-col items-center">
+        <h1 className="text-3xl font-extrabold text-center mb-2 text-primary drop-shadow">Your Dare</h1>
+        {/* Final status message with badge */}
+        <div className="flex items-center justify-center gap-2 mb-2">
           {dare.status === 'completed' && (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-300 rounded px-4 py-2 font-semibold">
-              <span className="text-2xl">✔️</span>
-              <span>Dare completed! Proof submitted.</span>
-            </div>
+            <span className="inline-flex items-center gap-1 bg-green-700/90 text-green-100 px-3 py-1 rounded-full text-sm font-bold shadow">
+              ✔️ Completed
+            </span>
           )}
           {dare.status === 'forfeited' && (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-red-900/80 border border-red-700 text-red-300 rounded px-4 py-2 font-semibold">
-              <span className="text-2xl">⚠️</span>
-              <span>Dare forfeited (chickened out).</span>
-            </div>
+            <span className="inline-flex items-center gap-1 bg-red-700/90 text-red-100 px-3 py-1 rounded-full text-sm font-bold shadow">
+              ⚠️ Forfeited
+            </span>
           )}
           {dare.status === 'in_progress' && (
-            <div className="mb-4 flex items-center justify-center gap-2 bg-blue-900/80 border border-blue-700 text-blue-300 rounded px-4 py-2 font-semibold">
-              <span className="text-2xl">⏳</span>
-              <span>Dare is in progress.</span>
-            </div>
+            <span className="inline-flex items-center gap-1 bg-blue-700/90 text-blue-100 px-3 py-1 rounded-full text-sm font-bold shadow">
+              ⏳ In Progress
+            </span>
           )}
-          <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800 text-center">
-            <div className="font-semibold text-primary mb-2">Dare:</div>
-            <div className="text-lg font-bold mb-2 break-words">{dare.description}</div>
-            <div className="text-sm text-neutral-400">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
-            {/* Timestamps */}
-            <div className="flex flex-wrap justify-center gap-4 mt-2 text-xs text-neutral-400">
-              <span>Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}</span>
-              {dare.status === 'completed' && dare.updatedAt && (
-                <span>Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
-              )}
-              {dare.status === 'forfeited' && dare.updatedAt && (
-                <span>Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
-              )}
-            </div>
-            {/* Creator and Participant */}
+        </div>
+        {/* Status message box */}
+        {dare.status === 'completed' && (
+          <div className="mb-2 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-200 rounded-lg px-4 py-2 font-semibold shadow">
+            <span className="text-2xl">✔️</span>
+            <span>Dare completed! Proof submitted.</span>
+          </div>
+        )}
+        {dare.status === 'forfeited' && (
+          <div className="mb-2 flex items-center justify-center gap-2 bg-red-900/80 border border-red-700 text-red-200 rounded-lg px-4 py-2 font-semibold shadow">
+            <span className="text-2xl">⚠️</span>
+            <span>Dare forfeited (chickened out).</span>
+          </div>
+        )}
+        {dare.status === 'in_progress' && (
+          <div className="mb-2 flex items-center justify-center gap-2 bg-blue-900/80 border border-blue-700 text-blue-200 rounded-lg px-4 py-2 font-semibold shadow">
+            <span className="text-2xl">⏳</span>
+            <span>Dare is in progress.</span>
+          </div>
+        )}
+      </div>
+      <div className="p-6 bg-neutral-900/80 rounded-b-2xl flex flex-col gap-4">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow">
+          <div className="font-semibold text-primary mb-2 text-lg">Dare:</div>
+          <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
+          <div className="text-sm text-neutral-400 mb-2">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
+          {/* Timestamps */}
+          <div className="flex flex-wrap justify-center gap-4 mt-2 text-xs text-neutral-400">
+            <span>Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}</span>
+            {dare.status === 'completed' && dare.updatedAt && (
+              <span>Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+            )}
+            {dare.status === 'forfeited' && dare.updatedAt && (
+              <span>Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+            )}
+          </div>
+          {/* Creator and Participant */}
+          <div className="flex flex-col sm:flex-row justify-center gap-6 mt-4">
             {dare.creator && (
-              <div className="flex flex-col items-center mt-2">
-                <span className="text-xs text-neutral-400">Creator: {dare.creator.username || 'Anonymous'}</span>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-neutral-400">Creator</span>
                 {dare.creator.avatar && (
-                  <img src={dare.creator.avatar} alt="creator avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828] mt-1" />
+                  <img src={dare.creator.avatar} alt="creator avatar" className="w-12 h-12 rounded-full object-cover border-2 border-primary mt-1 shadow" />
                 )}
+                <span className="text-sm font-semibold text-primary mt-1">{dare.creator.username || 'Anonymous'}</span>
               </div>
             )}
             {dare.performer && (
-              <div className="flex flex-col items-center mt-2">
-                <span className="text-xs text-neutral-400">Participant: {dare.performer.username || 'Anonymous'}</span>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-neutral-400">Participant</span>
                 {dare.performer.avatar && (
-                  <img src={dare.performer.avatar} alt="participant avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828] mt-1" />
+                  <img src={dare.performer.avatar} alt="participant avatar" className="w-12 h-12 rounded-full object-cover border-2 border-blue-400 mt-1 shadow" />
+                )}
+                <span className="text-sm font-semibold text-blue-300 mt-1">{dare.performer.username || 'Anonymous'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Proof preview if completed */}
+        {dare.status === 'completed' && dare.proof && (
+          <div className="p-4 bg-green-950/80 rounded-xl text-green-100 border border-green-700 shadow">
+            <div className="font-semibold text-green-300 mb-2 text-lg">Proof:</div>
+            {dare.proof.text && (
+              <div className="mb-2 break-words text-green-100/90">{dare.proof.text}</div>
+            )}
+            {dare.proof.fileUrl && (
+              <div className="flex flex-col items-center">
+                {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                  <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow" />
+                )}
+                {dare.proof.fileUrl.match(/\.(mp4)$/i) && (
+                  <video controls className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow">
+                    <source src={dare.proof.fileUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+                {dare.proof.fileUrl.match(/\.(pdf)$/i) && (
+                  <a href={dare.proof.fileUrl} target="_blank" rel="noopener noreferrer" className="text-info underline">View PDF proof</a>
                 )}
               </div>
             )}
           </div>
-          {/* Proof preview if completed */}
-          {dare.status === 'completed' && dare.proof && (
-            <div className="mb-4 p-4 bg-neutral-800 rounded text-neutral-100 border border-neutral-700">
-              <div className="font-semibold text-primary mb-2">Proof:</div>
-              {dare.proof.text && (
-                <div className="mb-2 break-words">{dare.proof.text}</div>
-              )}
-              {dare.proof.fileUrl && (
-                <div className="flex flex-col items-center">
-                  {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
-                    <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded mb-2" />
-                  )}
-                  {dare.proof.fileUrl.match(/\.(mp4)$/i) && (
-                    <video controls className="max-w-full max-h-64 rounded mb-2">
-                      <source src={dare.proof.fileUrl} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                  {dare.proof.fileUrl.match(/\.(pdf)$/i) && (
-                    <a href={dare.proof.fileUrl} target="_blank" rel="noopener noreferrer" className="text-info underline">View PDF proof</a>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-          {/* Proof submission and chicken out only if performer and in_progress */}
-          {dare.performer && user && String((dare.performer._id || dare.performer)) === String(user._id) && dare.status === 'in_progress' && (
-            <>
-              <form onSubmit={handleProofSubmit} className="mb-4 space-y-4">
-                <div>
-                  <label className="block font-semibold mb-1 text-primary">Submit Proof</label>
-                  <textarea
-                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                    value={proof}
-                    onChange={e => setProof(e.target.value)}
-                    placeholder="Describe what you did..."
-                    rows={3}
-                  />
-                  <input
-                    type="file"
-                    accept="image/*,video/*,application/pdf"
-                    className="mt-2"
-                    onChange={handleProofFileChange}
-                  />
-                  <div className="text-xs text-neutral-400 mt-1">Max file size: 10MB</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="expireAfterView"
-                    checked={expireAfterView}
-                    onChange={e => setExpireAfterView(e.target.checked)}
-                  />
-                  <label htmlFor="expireAfterView" className="text-sm">Delete proof after viewed</label>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50"
-                  disabled={proofLoading}
-                >
-                  {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                </button>
-                {proofError && <div className="text-danger text-center mt-2">{proofError}</div>}
-                {proofSuccess && <div className="text-success text-center mt-2">{proofSuccess}</div>}
-              </form>
+        )}
+        {/* Proof submission and chicken out only if performer and in_progress */}
+        {dare.performer && user && String((dare.performer._id || dare.performer)) === String(user._id) && dare.status === 'in_progress' && (
+          <>
+            <form onSubmit={handleProofSubmit} className="mb-4 space-y-4 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
+              <div>
+                <label className="block font-semibold mb-1 text-primary">Submit Proof</label>
+                <textarea
+                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                  value={proof}
+                  onChange={e => setProof(e.target.value)}
+                  placeholder="Describe what you did..."
+                  rows={3}
+                />
+                <input
+                  type="file"
+                  accept="image/*,video/*,application/pdf"
+                  className="mt-2"
+                  onChange={handleProofFileChange}
+                />
+                <div className="text-xs text-neutral-400 mt-1">Max file size: 10MB</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="expireAfterView"
+                  checked={expireAfterView}
+                  onChange={e => setExpireAfterView(e.target.checked)}
+                />
+                <label htmlFor="expireAfterView" className="text-sm">Delete proof after viewed</label>
+              </div>
               <button
-                className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
-                onClick={handleChickenOut}
-                disabled={chickenOutLoading}
+                type="submit"
+                className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50 shadow"
+                disabled={proofLoading}
               >
-                {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out (Forfeit)'}
+                {proofLoading ? 'Submitting...' : 'Submit Proof'}
               </button>
-              {chickenOutError && <div className="text-danger text-center mt-2">{chickenOutError}</div>}
-            </>
-          )}
-          {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+              {proofError && <div className="text-danger text-center mt-2">{proofError}</div>}
+              {proofSuccess && <div className="text-success text-center mt-2">{proofSuccess}</div>}
+            </form>
             <button
-              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600"
-              onClick={() => navigate('/dashboard')}
+              className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50 shadow"
+              onClick={handleChickenOut}
+              disabled={chickenOutLoading}
             >
-              Back to Dashboard
+              {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out (Forfeit)'}
             </button>
-            {(dare.status === 'completed' || dare.status === 'forfeited') && (
-              <button
-                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
-                onClick={() => navigate('/dare/select')}
-              >
-                Get Another Dare
-              </button>
-            )}
-          </div>
+            {chickenOutError && <div className="text-danger text-center mt-2">{chickenOutError}</div>}
+          </>
+        )}
+        {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+          <button
+            className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
+            onClick={() => navigate('/dashboard')}
+          >
+            Back to Dashboard
+          </button>
+          {(dare.status === 'completed' || dare.status === 'forfeited') && (
+            <button
+              className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow"
+              onClick={() => navigate('/dare/select')}
+            >
+              Get Another Dare
+            </button>
+          )}
         </div>
-      ) : null}
+      </div>
     </div>
   );
 } 
