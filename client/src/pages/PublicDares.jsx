@@ -38,56 +38,6 @@ function DifficultyBadge({ level }) {
   );
 }
 
-// Add StatusBadge component (reuse from DareCard)
-function StatusBadge({ status }) {
-  let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-  let text = 'Unknown';
-  switch (status) {
-    case 'waiting_for_participant':
-      badgeClass = 'bg-success text-success-contrast rounded-none';
-      text = 'Waiting for Participant';
-      break;
-    case 'pending':
-    case 'soliciting':
-      badgeClass = 'bg-warning text-warning-contrast rounded-none';
-      text = 'Awaiting Approval';
-      break;
-    case 'in_progress':
-      badgeClass = 'bg-info text-info-contrast rounded-none';
-      text = 'In Progress';
-      break;
-    case 'completed':
-      badgeClass = 'bg-success text-success-contrast rounded-none';
-      text = 'Completed';
-      break;
-    case 'rejected':
-      badgeClass = 'bg-danger text-danger-contrast rounded-none';
-      text = 'Rejected';
-      break;
-    case 'graded':
-      badgeClass = 'bg-info text-info-contrast rounded-none';
-      text = 'Graded';
-      break;
-    case 'approved':
-      badgeClass = 'bg-success text-success-contrast rounded-none';
-      text = 'Approved';
-      break;
-    case 'cancelled':
-      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-      text = 'Cancelled';
-      break;
-    case 'user_deleted':
-      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-      text = 'User deleted';
-      break;
-    default:
-      text = status ? status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
-  }
-  return (
-    <span className={`px-2 py-1 rounded-none text-xs font-semibold ml-2 ${badgeClass}`}>{text}</span>
-  );
-}
-
 function Tag({ tag }) {
   return (
     <span className="bg-primary text-primary-contrast px-2 py-1 rounded-none text-xs font-semibold mr-2">{tag}</span>
@@ -219,21 +169,8 @@ export default function PublicDares() {
                           <Avatar user={dare.creator} size="lg" />
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
-                              <Link
-                                to={
-                                  dare.creator?._id
-                                    ? `/profile/${dare.creator._id}`
-                                    : dare.creator?.id
-                                    ? `/profile/${dare.creator.id}`
-                                    : '/profile'
-                                }
-                                className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast"
-                                tabIndex={0}
-                              >
-                                {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
-                              </Link>
+                              {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
                               <DifficultyBadge level={dare.difficulty} />
-                              <StatusBadge status={dare.status} />
                             </div>
                             <Link to={`/dare/${dare._id}/participate`}>
                               <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
@@ -264,21 +201,8 @@ export default function PublicDares() {
                           <Avatar user={game.creator} size="lg" />
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
-                              <Link
-                                to={
-                                  game.creator?._id
-                                    ? `/profile/${game.creator._id}`
-                                    : game.creator?.id
-                                    ? `/profile/${game.creator.id}`
-                                    : '/profile'
-                                }
-                                className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast"
-                                tabIndex={0}
-                              >
-                                {game.creator?.fullName || game.creator?.username || 'Unknown'}
-                              </Link>
+                              {game.creator?.fullName || game.creator?.username || 'Unknown'}
                               <DifficultyBadge level={game.creatorDare?.difficulty} />
-                              <StatusBadge status={game.status} />
                             </div>
                             <Link to={`/switches/participate/${game._id}`}>
                               <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
