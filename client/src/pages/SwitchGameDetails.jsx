@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
+import { ClockIcon, ArrowPathIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -425,9 +426,8 @@ export default function SwitchGameDetails() {
       {/* Status badge at the very top, centered, visually distinct */}
       {game && (
         <div className="flex justify-center mb-4">
-          {/* Example: adjust color/icon for each status */}
           <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
-            In Progress
+            {game.status}
           </span>
         </div>
       )}
@@ -439,11 +439,13 @@ export default function SwitchGameDetails() {
           <div className="flex flex-col items-center">
             <Avatar user={game.creator} size={60} />
             <span className="font-semibold text-lg text-primary mt-2">{game.creator?.username || '[deleted]'}</span>
+            <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
             <DifficultyBadge level={game.creatorDare?.difficulty} />
           </div>
           <div className="flex flex-col items-center">
             <Avatar user={game.participant} size={60} />
-            <span className="font-semibold text-lg text-primary mt-2">{game.participant?.username || '[deleted]'}</span>
+            <span className="font-semibold text-lg text-blue-400 mt-2">{game.participant?.username || '[deleted]'}</span>
+            <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
             <DifficultyBadge level={game.participantDare?.difficulty} />
           </div>
         </div>
@@ -453,7 +455,7 @@ export default function SwitchGameDetails() {
           <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.description}</div>
           <div className="flex flex-wrap justify-center gap-2 mt-2">
             <DifficultyBadge level={game.creatorDare?.difficulty} />
-            {/* tags here */}
+            {/* tags here if any */}
           </div>
         </div>
         {/* Proof preview/modal if applicable */}
@@ -839,42 +841,44 @@ export default function SwitchGameDetails() {
         </div>
         {/* Timestamps/meta with icons */}
         <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-          {/* Example: */}
           <div className="flex items-center gap-1" title={new Date(game.createdAt).toLocaleString()}>
-            {/* <ClockIcon className="w-4 h-4 text-neutral-400" /> */}
-            {/* Created: ... */}
-            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
+            <ClockIcon className="w-4 h-4 text-neutral-400" />
+            Created: {new Date(game.createdAt).toLocaleDateString()}
           </div>
           {game.updatedAt && (
             <div className="flex items-center gap-1" title={new Date(game.updatedAt).toLocaleString()}>
-              {/* <PencilIcon className="w-4 h-4 text-neutral-400" /> */}
-              {/* Updated: ... */}
-              <span>Updated: {new Date(game.updatedAt).toLocaleDateString()}</span>
+              <ArrowPathIcon className="w-4 h-4 text-blue-400" />
+              Updated: {new Date(game.updatedAt).toLocaleDateString()}
             </div>
           )}
           {game.proofExpiresAt && (
             <div className="flex items-center gap-1" title={proofExpiresAt ? new Date(proofExpiresAt).toLocaleString() : ''}>
-              {/* <ExclamationCircleIcon className="w-4 h-4 text-neutral-400" /> */}
-              {/* Proof Expires: ... */}
-              <span>Proof Expires: {proofExpiresAt ? new Date(proofExpiresAt).toLocaleDateString() : 'N/A'}</span>
+              <ExclamationTriangleIcon className="w-4 h-4 text-yellow-400" />
+              Proof Expires: {proofExpiresAt ? new Date(proofExpiresAt).toLocaleDateString() : 'N/A'}
             </div>
           )}
           {game.winner && (
             <div className="flex items-center gap-1" title={new Date(game.winner.createdAt).toLocaleString()}>
-              {/* <TrophyIcon className="w-4 h-4 text-neutral-400" /> */}
-              {/* Winner: ... */}
-              <span>Winner: {game.winner?.username || game.winner?._id || game.winner}</span>
+              <CheckCircleIcon className="w-4 h-4 text-green-400" />
+              Winner: {game.winner?.username || game.winner?._id || game.winner}
             </div>
           )}
         </div>
         {/* Toast notifications */}
         {toast && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
+          <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
+            bg-green-700 text-white`}
+            role="alert"
+            aria-live="polite"
+            onClick={() => setToast('')}
+            tabIndex={0}
+            onBlur={() => setToast('')}
+          >
             {toast}
           </div>
         )}
         {errorToast && (
-          <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-danger text-danger-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
+          <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-700 text-white px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
             {errorToast}
           </div>
         )}
