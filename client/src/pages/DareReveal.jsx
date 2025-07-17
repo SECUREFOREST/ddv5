@@ -114,23 +114,19 @@ export default function DareReveal() {
     setGeneralSuccess('');
     setProofLoading(true);
     try {
-      if (!proof && !proofFile) {
-        setProofError('Please provide proof text or upload a file.');
+      // Require a proof file (image or video)
+      if (!proofFile || !proofFile.type.match(/^image\/(jpeg|png|gif|webp)$|^video\/mp4$/)) {
+        setProofError('Please upload a proof file (image or video).');
         setProofLoading(false);
         return;
       }
-      let formData;
-      if (proofFile) {
-        formData = new FormData();
-        if (proof) formData.append('text', proof);
-        formData.append('file', proofFile);
-        formData.append('expireAfterView', expireAfterView);
-        await api.post(`/dares/${dare._id}/proof`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      } else {
-        await api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView });
-      }
+      let formData = new FormData();
+      if (proof) formData.append('text', proof);
+      formData.append('file', proofFile);
+      formData.append('expireAfterView', expireAfterView);
+      await api.post(`/dares/${dare._id}/proof`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       setProof('');
       setProofFile(null);
       setExpireAfterView(false);
@@ -295,21 +291,21 @@ export default function DareReveal() {
                 <form onSubmit={handleProofSubmit} className="mb-4 space-y-4 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
                   <div>
                     <label className="block font-semibold mb-1 text-primary">Submit Proof</label>
-                    <textarea
-                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                      value={proof}
-                      onChange={e => setProof(e.target.value)}
-                      placeholder="Describe what you did..."
-                      rows={3}
-                    />
                     <input
                       type="file"
-                      accept="image/*,video/*,application/pdf"
+                      accept="image/*,video/mp4"
                       className="mt-2"
                       onChange={handleProofFileChange}
                     />
-                    <div className="text-xs text-neutral-400 mt-1">Max file size: 10MB</div>
+                    <div className="text-xs text-neutral-400 mt-1">Proof file is required. Only image or video files are allowed. Max size: 10MB</div>
                   </div>
+                  <textarea
+                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                      value={proof}
+                      onChange={e => setProof(e.target.value)}
+                      placeholder="Add a comment (optional)"
+                      rows={3}
+                    />
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
