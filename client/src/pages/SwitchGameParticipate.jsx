@@ -89,59 +89,78 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
-        <h1 className="text-2xl font-bold text-center mb-6 text-primary">Participate in a Switch Game</h1>
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+        {/* Sticky header at the top */}
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+        </div>
+        {/* Section divider for main content */}
+        <div className="border-t border-neutral-800 my-4" />
         <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
-        <form onSubmit={handleFindGame} className="space-y-4">
+        {/* Card-like section for form content */}
+        <form onSubmit={handleFindGame} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
           <div>
-            <label className="block font-semibold mb-1 text-primary">Difficulty</label>
-            <div className="flex flex-col gap-2">
+            <div className="font-bold text-xl text-primary mb-2">Choose a difficulty</div>
+            <div className="flex flex-col gap-3">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <span className="flex items-center gap-2">
-                    <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
-                    <b>{opt.label}</b>
+                <label key={opt.value} className={`flex items-start gap-2 p-3 rounded-lg cursor-pointer border transition-all duration-150
+                  ${difficulty === opt.value
+                    ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                    : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
+                `} tabIndex={0} aria-label={`Select ${opt.label} difficulty`}>
+                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary mt-1 focus:ring-2 focus:ring-primary-contrast" />
+                  <span>
+                    <b className="text-base">{opt.label}</b>
+                    <div className="text-xs text-neutral-400 mt-1 ml-1">{opt.desc}</div>
                   </span>
-                  <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
                 </label>
               ))}
             </div>
           </div>
           <div>
-            <label className="block font-semibold mb-1 text-primary">Description / Requirements</label>
+            <div className="font-bold text-xl text-primary mb-2">Description / Requirements</div>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
               value={demand}
               onChange={e => setDemand(e.target.value)}
               rows={3}
               required
               minLength={10}
               placeholder="Describe the dare you want the other to perform if they lose..."
+              aria-label="Description or requirements"
             />
           </div>
-          <div className="flex items-center mb-4">
+          <div className="flex items-center justify-center mb-4">
             <input
               type="checkbox"
               id="consent"
               checked={consent}
               onChange={e => setConsent(e.target.checked)}
-              className="mr-2"
+              className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast"
               required
             />
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={searching}>
-            {searching ? 'Searching...' : 'Find Game'}
+          <button type="submit" className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast" disabled={searching} aria-label="Find Game">
+            {searching ? (
+              <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+            ) : (
+              <>Find Game</>
+            )}
           </button>
         </form>
       </div>
     );
   } else if (error) {
     content = (
-      <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+        </div>
+        <div className="border-t border-neutral-800 my-4" />
         <Banner type="error" message={error} onClose={() => setError('')} />
         <button
-          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast"
           onClick={() => navigate('/switches/participate')}
         >
           Try Another Game
@@ -149,95 +168,57 @@ export default function SwitchGameParticipate() {
       </div>
     );
   } else if (!game) {
-    content = <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg text-neutral-200">Loading...</div>;
+    content = <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
   } else {
     const u = game.creator;
     content = (
-      <div className="min-h-screen bg-neutral-950">
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
         {/* Sticky header at the top */}
         <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
-        {/* Section divider for main content */}
         <div className="border-t border-neutral-800 my-4" />
-        <div className="max-w-lg mx-auto mt-10 bg-neutral-900 border border-neutral-700 rounded p-6 shadow-lg">
-          <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
-          <div className="aggressive-text mb-4">
-            <p>
-              <span className="user-name font-bold">{u.username}</span> has volunteered to compete with other switches, the loser having to perform
-            </p>
-            <h1 className="inline-heading text-2xl font-bold">A Deviant Dare</h1>
+        <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
+        {/* User info card */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+          <div className="flex flex-col items-center">
+            <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
+            <span className="font-semibold text-neutral-100">{u.username}</span>
+            {/* Add more user info as needed */}
           </div>
-          <div className="user_info mb-4">
-            <table className="table-auto w-full text-white">
-              <tbody>
-                <tr><td className="font-semibold">Name</td><td>{u.username}</td></tr>
-                <tr><td className="font-semibold">Gender</td><td>{u.gender}</td></tr>
-                <tr><td className="font-semibold">Age</td><td>{u.age}</td></tr>
-                <tr>
-                  <td className="font-semibold">Dares performed</td>
-                  <td>
-                    <div>{u.daresPerformed} completed</div>
-                    <div>{u.avgGrade ? `Grade: ${u.avgGrade.toFixed(1)}` : 'No grades yet'}</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="font-semibold">Dares created</td>
-                  <td>{u.daresCreated}</td>
-                </tr>
-                <tr>
-                  <td className="font-semibold">Hard Limits</td>
-                  <td>
-                    {u.limits && u.limits.length > 0 ? u.limits.map(lim => (
-                      <span key={lim} className="tag bg-danger text-white px-2 py-1 rounded mr-1 mb-1 inline-block text-xs">{lim}</span>
-                    )) : 'None'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        </div>
+        {/* Game info and join form */}
+        <div className="p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <div className="font-bold text-xl text-primary mb-2">Game Details</div>
+          <div className="mb-2 text-neutral-200 text-sm">{game.difficultyDescription}</div>
+          <div className="mb-4">
+            <span className="font-semibold text-neutral-300">Difficulty:</span> <span className="font-bold text-primary ml-1">{game.difficulty}</span>
           </div>
-          <div className="aggressive-text mb-4">
-            <h2 className="text-xl font-bold">Join in this game</h2>
-            <p>
-              By describing one dare for <span className="user-name font-bold">{u.username}</span> to perform and photograph which does not exceed the difficulty level below:
-            </p>
-            <div className="difficulty-details border border-danger p-3 mt-2 mb-2">
-              <div className="heading flex items-center mb-1">
-                <span className="prefix font-bold mr-2">difficulty:</span>
-                <span className="name font-semibold">{game.difficulty}</span>
-              </div>
-              <div className="description text-neutral-200 text-sm">{game.difficultyDescription}</div>
-            </div>
-            <p>
-              However, if you lose, then you will have to perform the dare that <span className="user-name font-bold">{u.username}</span> has selected for you to perform.
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="mb-4">
-            <div className="form-group mb-4">
-              <label className="text required control-label font-semibold mb-1" htmlFor="switch_demand">
-                <abbr title="required">*</abbr> Your demand, if they lose
-              </label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <div className="font-bold text-base text-primary mb-1">Your demand, if they lose</div>
               <textarea
-                rows={6}
-                className="text required form-control w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                rows={4}
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
                 required
                 aria-required="true"
                 name="switch[demand]"
                 id="switch_demand"
                 value={demand}
                 onChange={e => setDemand(e.target.value)}
+                placeholder="Describe the dare you want the other to perform if they lose..."
               />
               <p className="help-block text-xs text-neutral-400">They will only see this if they lose the game</p>
             </div>
-            <div className="rock-paper-scissors mb-4">
-              <label className="radio_buttons required control-label font-semibold mb-1">
-                <abbr title="required">*</abbr> Your gesture
-              </label>
-              <div className="flex gap-4 mb-2">
+            <div>
+              <div className="font-bold text-base text-primary mb-1">Your gesture</div>
+              <div className="flex gap-4 mb-2 justify-center">
                 {MOVES.map(opt => (
-                  <label key={opt} className="flex items-center gap-1 cursor-pointer">
+                  <label key={opt} className={`cursor-pointer px-3 py-2 rounded-lg border transition-all duration-150 flex flex-col items-center
+                    ${gesture === opt ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-100 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
+                    tabIndex={0} aria-label={`Select gesture ${opt}`}>
                     <input
-                      className="radio_buttons required"
+                      className="hidden"
                       required
                       aria-required="true"
                       type="radio"
@@ -246,7 +227,8 @@ export default function SwitchGameParticipate() {
                       checked={gesture === opt}
                       onChange={e => setGesture(e.target.value)}
                     />
-                    {opt}
+                    <span className="text-2xl mb-1">{opt === 'rock' ? '🪨' : opt === 'paper' ? '📄' : '✂️'}</span>
+                    <span className="font-semibold">{opt.charAt(0).toUpperCase() + opt.slice(1)}</span>
                   </label>
                 ))}
               </div>
@@ -267,9 +249,18 @@ export default function SwitchGameParticipate() {
                 </div>
               )}
             </div>
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark">Join Game</button>
+            <button type="submit" className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast">Join Game</button>
           </form>
         </div>
+        {/* Timestamps/meta if available */}
+        {game.createdAt && (
+          <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1" title={game.createdAt}>
+              <span className="material-icons text-neutral-400" style={{fontSize:'16px'}}>schedule</span>
+              Created: {new Date(game.createdAt).toLocaleString()}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
