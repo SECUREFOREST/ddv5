@@ -4,6 +4,7 @@ import api from '../api/axios';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import { useAuth } from '../context/AuthContext';
+import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -73,15 +74,25 @@ export default function ProfileView() {
   // If blocked, show message and block all interactions
   if (isBlocked) {
     return (
-      <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-center">
-        <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-          <h1 className="text-2xl font-bold">User Profile</h1>
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
+        {/* Sticky header at the top */}
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+            <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
+          </h1>
         </div>
+        {/* Visually distinct status badge below header */}
+        <div className="flex justify-center mb-4">
+          <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            Blocked
+          </span>
+        </div>
+        <div className="border-t border-neutral-800 my-4" />
         <div className="flex flex-col items-center min-w-[160px] mb-6">
           {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover" />
+            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary shadow" />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2">
+            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 border-2 border-primary shadow">
               {profile.username[0].toUpperCase()}
             </div>
           )}
@@ -104,46 +115,48 @@ export default function ProfileView() {
     );
   }
 
+  // Role badge helper
+  function RoleBadge({ roles }) {
+    if (!roles) return null;
+    if (roles.includes('admin')) {
+      return (
+        <span className="inline-flex items-center gap-1 bg-primary text-primary-contrast rounded-full px-3 py-1 text-xs font-bold border border-primary ml-2">
+          <ShieldCheckIcon className="w-4 h-4" /> Admin
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 bg-neutral-700 text-neutral-100 rounded-full px-3 py-1 text-xs font-bold border border-neutral-700 ml-2">
+        <UserIcon className="w-4 h-4" /> User
+      </span>
+    );
+  }
+
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold">User Profile</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
+        </h1>
       </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <RoleBadge roles={profile.roles || []} />
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       <div className="flex flex-wrap gap-8 mb-8">
         <div className="flex flex-col items-center min-w-[160px]">
           {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover" />
+            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary shadow" />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2">
+            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 border-2 border-primary shadow">
               {profile.username[0].toUpperCase()}
             </div>
           )}
-          {/* Block/Unblock Button */}
-          {user && !isOwnProfile && (
-            isBlocked ? (
-              <button
-                className={`mt-4 px-4 py-2 rounded bg-warning text-warning-contrast font-semibold text-sm hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed`}
-                onClick={handleUnblock}
-                disabled={blockStatus === 'blocking'}
-              >
-                {blockStatus === 'blocking' ? 'Unblocking...' : 'Unblock User'}
-              </button>
-            ) : (
-              <button
-                className={`mt-4 px-4 py-2 rounded bg-danger text-danger-contrast font-semibold text-sm hover:bg-danger-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed`}
-                onClick={handleBlock}
-                disabled={blockStatus === 'blocking' || blockStatus === 'blocked'}
-              >
-                {blockStatus === 'blocked' ? 'Blocked' : blockStatus === 'blocking' ? 'Blocking...' : 'Block User'}
-              </button>
-            )
-          )}
-          {blockStatus === 'error' && (
-            <div className="text-danger text-xs mt-2">{blockError}</div>
-          )}
         </div>
         <div className="flex-1 min-w-[220px]">
-          <div><strong>Username:</strong> {profile.username}</div>
+          <div className="font-bold text-xl text-primary mb-2">{profile.username}</div>
           {profile.bio && (
             <div className="mt-2">
               <strong>Bio:</strong>
