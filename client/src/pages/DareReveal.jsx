@@ -209,8 +209,8 @@ export default function DareReveal() {
           </div>
           {/* --- Dare Description Card --- */}
           <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
-            <div className="font-semibold text-primary mb-2 text-lg">Dare Description</div>
-            <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
+            <div className="font-bold text-xl text-primary mb-2">Dare Description</div>
+            <div className="text-base font-normal mb-2 break-words text-primary-contrast">{dare.description}</div>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
               <DifficultyBadge level={dare.difficulty} />
               {dare.tags && dare.tags.map(tag => (
