@@ -184,7 +184,20 @@ export default function DareReveal() {
             <div className="text-lg font-bold mb-2">{dare.description}</div>
             <div className="text-sm text-neutral-400">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
             {dare.creator && (
-              <div className="text-xs text-neutral-400 mt-2">Created by: {dare.creator.username || 'Anonymous'}</div>
+              <div className="flex flex-col items-center mt-2">
+                <span className="text-xs text-neutral-400">Creator: {dare.creator.username || 'Anonymous'}</span>
+                {dare.creator.avatar && (
+                  <img src={dare.creator.avatar} alt="creator avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828] mt-1" />
+                )}
+              </div>
+            )}
+            {dare.performer && (
+              <div className="flex flex-col items-center mt-2">
+                <span className="text-xs text-neutral-400">Participant: {dare.performer.username || 'Anonymous'}</span>
+                {dare.performer.avatar && (
+                  <img src={dare.performer.avatar} alt="participant avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828] mt-1" />
+                )}
+              </div>
             )}
           </div>
           {/* Proof submission and chicken out only if performer and in_progress */}
