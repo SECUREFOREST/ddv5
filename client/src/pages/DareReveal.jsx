@@ -174,24 +174,6 @@ export default function DareReveal() {
         <>
           <div className="bg-neutral-900/90 rounded-t-2xl px-6 py-5 border-b border-neutral-800 flex flex-col items-center">
             <h1 className="text-3xl font-extrabold text-center mb-2 text-primary drop-shadow">Your Dare</h1>
-            {/* Final status message with badge */}
-            <div className="flex items-center justify-center gap-2 mb-2">
-              {dare.status === 'completed' && (
-                <span className="inline-flex items-center gap-1 bg-green-700/90 text-green-100 px-3 py-1 rounded-full text-sm font-bold shadow">
-                  ✔️ Completed
-                </span>
-              )}
-              {dare.status === 'forfeited' && (
-                <span className="inline-flex items-center gap-1 bg-red-700/90 text-red-100 px-3 py-1 rounded-full text-sm font-bold shadow">
-                  ⚠️ Forfeited
-                </span>
-              )}
-              {dare.status === 'in_progress' && (
-                <span className="inline-flex items-center gap-1 bg-blue-700/90 text-blue-100 px-3 py-1 rounded-full text-sm font-bold shadow">
-                  ⏳ In Progress
-                </span>
-              )}
-            </div>
             {/* Status message box */}
             {dare.status === 'completed' && (
               <div className="mb-2 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-200 rounded-lg px-4 py-2 font-semibold shadow">
