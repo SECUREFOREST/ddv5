@@ -187,9 +187,16 @@ export default function UserActivity() {
                   onForfeit={() => navigate(`/dares/${dare._id}`)}
                 />
               ))}
-              <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Active Switch Games</h2>
+              <div className="border-t border-neutral-800 my-4" />
+              <h2 className="text-lg font-bold mb-2 text-primary">Active Switch Games</h2>
               {activeSwitchGames.length === 0 ? <div>No active switch games.</div> : activeSwitchGames.map(game => (
-                <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />
+                <SwitchGameCard
+                  key={game._id}
+                  game={game}
+                  currentUserId={user._id || user.id}
+                  onSubmitProof={() => navigate(`/switches/${game._id}`)}
+                  onForfeit={() => navigate(`/switches/${game._id}`)}
+                />
               ))}
             </>
           )}

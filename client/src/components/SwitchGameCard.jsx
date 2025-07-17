@@ -33,6 +33,12 @@ function StatusBadge({ status }) {
   );
 }
 
+function Tag({ tag }) {
+  return (
+    <span className="bg-primary text-primary-contrast px-2 py-1 rounded-none text-xs font-semibold mr-2">{tag}</span>
+  );
+}
+
 export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onForfeit, ...props }) {
   if (!game) return null;
   const isWinner = currentUserId && game.winner && (game.winner._id === currentUserId || game.winner === currentUserId);
@@ -44,28 +50,58 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const canReviewProof = isWinner && game.status === 'completed' && game.proof && game.proof.submitted && !game.proof.reviewed;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => g.user === currentUserId);
   const canForfeit = isLoser && game.status === 'in_progress';
+
+  // Helper for clickable profile links
+  const userProfileLink = (user) => {
+    if (!user) return '#';
+    return user._id === currentUserId ? '/profile' : `/profile/${user._id}`;
+  };
+
   return (
     <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()} {...props}>
+      {/* Header with description and status */}
       <div className="flex items-center justify-between bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
         <h3 className="text-lg font-semibold truncate w-4/5" title={game.creatorDare?.description || 'Switch Game'}>
           {game.creatorDare?.description || 'Switch Game'}
         </h3>
         <div className="flex items-center">
+          {/* No difficulty badge for switch games, but you can add if available: */}
+          {/* <DifficultyBadge level={game.difficulty} /> */}
           <StatusBadge status={game.status} />
         </div>
       </div>
-      <div className="mb-2 text-[#eee] text-sm">
-        <span className="font-semibold">Creator:</span> {game.creator?.username || 'Unknown'}
+      {/* Tags if available */}
+      {Array.isArray(game.tags) && game.tags.length > 0 && (
+        <div className="mb-2 flex flex-wrap">
+          {game.tags.map(tag => <Tag key={tag} tag={tag} />)}
+        </div>
+      )}
+      {/* User info: creator and participant */}
+      <div className="flex flex-col gap-2 mt-2">
+        <Link
+          to={userProfileLink(game.creator)}
+          className="flex items-center group hover:bg-neutral-800 rounded px-1 py-1 transition-colors"
+          style={{ textDecoration: 'none' }}
+        >
+          <span className="text-neutral-400 text-xs mr-2">Creator:</span>
+          {game.creator?.avatar && (
+            <img src={game.creator.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
+          )}
+          <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{game.creator?.username}</span>
+        </Link>
         {game.participant && (
-          <span className="ml-4 font-semibold">Participant:</span>
-        )} {game.participant?.username || ''}
-      </div>
-      <div className="mb-2 text-xs text-gray-400">
-        Winner: {game.winner ? (game.winner.username || 'Unknown') : 'N/A'}
-        {isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}
-      </div>
-      <div className="mb-2 text-xs text-gray-400">
-        Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : 'N/A'}
+          <Link
+            to={userProfileLink(game.participant)}
+            className="flex items-center group hover:bg-neutral-800 rounded px-1 py-1 transition-colors"
+            style={{ textDecoration: 'none' }}
+          >
+            <span className="text-neutral-400 text-xs mr-2">Participant:</span>
+            {game.participant.avatar && (
+              <img src={game.participant.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
+            )}
+            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{game.participant.username}</span>
+          </Link>
+        )}
       </div>
       {/* Details Section */}
       <div className="mt-2 text-xs text-neutral-400">
@@ -75,6 +111,8 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {game.grades && game.grades.length > 0 && (
           <div>Grade: {game.grades.map(g => g.grade).join(', ')}{game.feedback && ` | Feedback: ${game.feedback}`}</div>
         )}
+        <div>Winner: {game.winner ? (game.winner.username || 'Unknown') : 'N/A'}{isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}</div>
+        <div>Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : 'N/A'}</div>
       </div>
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-2">
