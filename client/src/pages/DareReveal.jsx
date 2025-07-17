@@ -208,7 +208,7 @@ export default function DareReveal() {
       </div>
       <div className="p-6 bg-neutral-900/80 rounded-b-2xl flex flex-col gap-4">
         <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow">
-          <div className="font-semibold text-primary mb-2 text-lg">Dare:</div>
+          <div className="font-semibold text-primary mb-2 text-lg">Dare Description:</div>
           <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
           <div className="text-sm text-neutral-400 mb-2">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
           {/* Timestamps */}
@@ -221,27 +221,27 @@ export default function DareReveal() {
               <span>Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
             )}
           </div>
-          {/* Creator and Participant */}
-          <div className="flex flex-col sm:flex-row justify-center gap-6 mt-4">
-            {dare.creator && (
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-neutral-400">Creator</span>
-                {dare.creator.avatar && (
-                  <img src={dare.creator.avatar} alt="creator avatar" className="w-12 h-12 rounded-full object-cover border-2 border-primary mt-1 shadow" />
-                )}
-                <span className="text-sm font-semibold text-primary mt-1">{dare.creator.username || 'Anonymous'}</span>
-              </div>
-            )}
-            {dare.performer && (
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-neutral-400">Participant</span>
-                {dare.performer.avatar && (
-                  <img src={dare.performer.avatar} alt="participant avatar" className="w-12 h-12 rounded-full object-cover border-2 border-blue-400 mt-1 shadow" />
-                )}
-                <span className="text-sm font-semibold text-blue-300 mt-1">{dare.performer.username || 'Anonymous'}</span>
-              </div>
-            )}
-          </div>
+        </div>
+        {/* Creator and Participant info card */}
+        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-2 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
+          {dare.creator && (
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-neutral-400">Creator</span>
+              {dare.creator.avatar && (
+                <img src={dare.creator.avatar} alt="creator avatar" className="w-12 h-12 rounded-full object-cover border-2 border-primary mt-1 shadow" />
+              )}
+              <span className="text-sm font-semibold text-primary mt-1">{dare.creator.username || 'Anonymous'}</span>
+            </div>
+          )}
+          {dare.performer && (
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-neutral-400">Participant</span>
+              {dare.performer.avatar && (
+                <img src={dare.performer.avatar} alt="participant avatar" className="w-12 h-12 rounded-full object-cover border-2 border-blue-400 mt-1 shadow" />
+              )}
+              <span className="text-sm font-semibold text-blue-300 mt-1">{dare.performer.username || 'Anonymous'}</span>
+            </div>
+          )}
         </div>
         {/* Proof preview if completed */}
         {dare.status === 'completed' && dare.proof && (
