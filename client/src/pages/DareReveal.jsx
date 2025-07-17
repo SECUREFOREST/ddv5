@@ -4,6 +4,8 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import dayjs from 'dayjs';
+import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon } from '@heroicons/react/24/solid';
+import { Dialog } from '@headlessui/react';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -63,6 +65,8 @@ export default function DareReveal() {
   const [chickenOutError, setChickenOutError] = React.useState('');
   const [generalError, setGeneralError] = React.useState('');
   const [generalSuccess, setGeneralSuccess] = React.useState('');
+  const [proofModalOpen, setProofModalOpen] = React.useState(false);
+  const [proofModalType, setProofModalType] = React.useState(''); // 'image' or 'video'
 
   React.useEffect(() => {
     if (authLoading) return;
@@ -203,23 +207,37 @@ export default function DareReveal() {
                 <span className="inline-flex items-center gap-2">
                   <span className="text-neutral-300 font-semibold">Difficulty:</span>
                   <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
+                    <TagIcon className="w-4 h-4 mr-1" />
                     <DifficultyBadge level={dare.difficulty} />
                   </span>
                 </span>
                 <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                  🕒 Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
+                  <ClockIcon className="w-4 h-4" />
+                  Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
                 </span>
                 {dare.status === 'completed' && dare.updatedAt && (
                   <span className="inline-flex items-center gap-1 bg-green-700/80 text-green-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                    ✔️ Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
+                    <CheckCircleIcon className="w-4 h-4" />
+                    Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
                   </span>
                 )}
                 {dare.status === 'forfeited' && dare.updatedAt && (
                   <span className="inline-flex items-center gap-1 bg-red-700/80 text-red-100 px-3 py-1 rounded-full text-xs font-semibold shadow">
-                    ⚠️ Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
+                    <ExclamationTriangleIcon className="w-4 h-4" />
+                    Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}
                   </span>
                 )}
               </div>
+              {/* Show tags as badges */}
+              {Array.isArray(dare.tags) && dare.tags.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  {dare.tags.map(tag => (
+                    <span key={tag} className="inline-flex items-center gap-1 bg-primary/80 text-primary-contrast px-2 py-1 rounded-full text-xs font-semibold shadow">
+                      <TagIcon className="w-3 h-3" /> {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             {/* Creator and Participant info card */}
             <div className="flex flex-col sm:flex-row justify-center gap-6 mt-2 bg-neutral-800/80 rounded-xl p-4 border border-neutral-700 shadow">
@@ -252,13 +270,18 @@ export default function DareReveal() {
                 {dare.proof.fileUrl && (
                   <div className="flex flex-col items-center">
                     {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
-                      <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow" />
+                      <button onClick={() => { setProofModalOpen(true); setProofModalType('image'); }} className="focus:outline-none">
+                        <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow cursor-pointer transition hover:scale-105" />
+                        <PhotoIcon className="w-6 h-6 text-green-300 mx-auto" />
+                      </button>
                     )}
                     {dare.proof.fileUrl.match(/\.(mp4)$/i) && (
-                      <video controls className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow">
-                        <source src={dare.proof.fileUrl} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
+                      <button onClick={() => { setProofModalOpen(true); setProofModalType('video'); }} className="focus:outline-none">
+                        <video className="max-w-full max-h-64 rounded-xl mb-2 border border-green-700 shadow cursor-pointer transition hover:scale-105">
+                          <source src={dare.proof.fileUrl} type="video/mp4" />
+                        </video>
+                        <PlayCircleIcon className="w-6 h-6 text-green-300 mx-auto" />
+                      </button>
                     )}
                     {dare.proof.fileUrl.match(/\.(pdf)$/i) && (
                       <a href={dare.proof.fileUrl} target="_blank" rel="noopener noreferrer" className="text-info underline">View PDF proof</a>
@@ -337,6 +360,23 @@ export default function DareReveal() {
           </div>
         </>
       ) : null}
+      {/* Proof Modal */}
+      <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/70" aria-hidden="true" onClick={() => setProofModalOpen(false)} />
+        <div className="relative bg-neutral-900 rounded-xl p-4 max-w-lg w-full flex flex-col items-center">
+          <button onClick={() => setProofModalOpen(false)} className="absolute top-2 right-2 text-neutral-400 hover:text-neutral-200">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+          {proofModalType === 'image' && (
+            <img src={dare.proof.fileUrl} alt="proof large" className="max-w-full max-h-[70vh] rounded-xl border border-green-700 shadow-lg" />
+          )}
+          {proofModalType === 'video' && (
+            <video controls className="max-w-full max-h-[70vh] rounded-xl border border-green-700 shadow-lg">
+              <source src={dare.proof.fileUrl} type="video/mp4" />
+            </video>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 } 
