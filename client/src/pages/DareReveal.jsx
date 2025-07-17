@@ -55,7 +55,8 @@ export default function DareReveal() {
       .then(res => {
         if (res.data && res.data._id) {
           // Check performer
-          if (!user || !res.data.performer || (res.data.performer._id !== user.id && res.data.performer !== user.id)) {
+          const performerId = res.data.performer?._id || res.data.performer;
+          if (!user || !performerId || String(performerId) !== String(user.id)) {
             setError('You are not authorized to view this dare.');
             setDare(null);
           } else {
