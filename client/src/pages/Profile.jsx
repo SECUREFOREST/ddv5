@@ -7,6 +7,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
+import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -229,24 +230,39 @@ export default function Profile() {
 
   if (!user) return null;
 
+  // Helper for visually distinct status badge
+  function RoleBadge({ roles }) {
+    if (!roles) return null;
+    if (roles.includes('admin')) {
+      return (
+        <span className="inline-flex items-center gap-1 bg-yellow-900/90 border border-yellow-700 text-yellow-200 rounded-full px-3 py-1 font-semibold shadow text-sm ml-2">
+          <ShieldCheckIcon className="w-4 h-4" /> Admin
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-3 py-1 font-semibold shadow text-sm ml-2">
+        <UserIcon className="w-4 h-4" /> User
+      </span>
+    );
+  }
+
   // Compute role percentages
   const dominantPercent = user?.natureRatio?.domination ?? null;
   const submissivePercent = user?.natureRatio?.submission ?? null;
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <h1 className="text-2xl font-bold">Profile</h1>
-          {stats && (
-            <>
-              <span className="text-lg font-bold text-primary">{stats.dominantPercent}% dominant</span>
-              <span className="text-lg font-bold text-secondary">{stats.submissivePercent}% submissive</span>
-            </>
-          )}
-        </div>
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <UserIcon className="w-7 h-7 text-primary" /> Profile
+          <RoleBadge roles={user.roles} />
+        </h1>
       </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
       <div>
         <Tabs
           tabs={[
@@ -263,36 +279,22 @@ export default function Profile() {
                       onChange={handleAvatarChange}
                     />
                     <div className="relative group">
-                      {avatarPreview ? (
-                        <img
-                          src={avatarPreview}
-                          alt="avatar"
-                          className="w-24 h-24 rounded-full mb-2 object-cover cursor-pointer"
-                          onClick={handleAvatarClick}
-                        />
-                      ) : (
-                        <div
-                          className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 cursor-pointer"
-                          onClick={handleAvatarClick}
-                        >
-                          {user.username[0].toUpperCase()}
-                        </div>
-                      )}
+                      <Avatar user={user} size="lg" onClick={handleAvatarClick} border shadow />
                       <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
                     </div>
                     {avatarSaved && (
                       <div className="text-success text-xs mt-2">Profile picture saved!</div>
                     )}
-                    <button className="bg-primary text-primary-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark" onClick={() => { setTabIdx(0); setEditMode(true); }}>
+                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => { setTabIdx(0); setEditMode(true); }}>
                       Edit Profile
                     </button>
-                    <button className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark" onClick={logout}>
+                    <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast" onClick={logout}>
                       Logout
                     </button>
                     {/* Add Upgrade/Downgrade Admin button */}
                     {user.roles?.includes('admin') ? (
                       <button
-                        className="bg-danger text-danger-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark"
+                        className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast"
                         onClick={async () => {
                           if (!user || !(user.id || user._id)) return;
                           const userId = user.id || user._id;
@@ -312,7 +314,7 @@ export default function Profile() {
                       </button>
                     ) : (
                       <button
-                        className="bg-warning text-warning-contrast rounded-none px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark"
+                        className="bg-warning text-warning-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark focus:outline-none focus:ring-2 focus:ring-warning-contrast"
                         onClick={async () => {
                           if (!user || !(user.id || user._id)) return;
                           const userId = user.id || user._id;
@@ -488,6 +490,19 @@ export default function Profile() {
         </button>
       )}
       {blockError && <div className="text-red-600 text-xs mt-1">{blockError}</div>}
+      {/* Meta/timestamps at the bottom */}
+      <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
+        <div className="flex items-center gap-1">
+          <ClockIcon className="w-4 h-4 text-neutral-400" />
+          Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+        </div>
+        {user.updatedAt && (
+          <div className="flex items-center gap-1">
+            <ClockIcon className="w-4 h-4 text-blue-400" />
+            Last Updated: {new Date(user.updatedAt).toLocaleDateString()}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

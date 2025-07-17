@@ -334,12 +334,16 @@ export default function Admin() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-12 p-8 bg-[#222] border border-[#282828] rounded shadow">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Admin Panel</h1>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
       <Banner type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
-      <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
-        <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-          <h1 className="text-3xl font-bold">Admin Panel</h1>
-        </div>
+      {/* Card-like section for tab content */}
+      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <Tabs
           tabs={[
             {
@@ -709,7 +713,7 @@ export default function Admin() {
                                   <div className="flex items-center gap-2">
                                     <input
                                       type="text"
-                                      className="border border-neutral-900 rounded px-2 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                                      className="border border-neutral-900 rounded px-2 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
                                       placeholder="Outcome (required)"
                                       value={resolvingAppealId === a._id ? appealOutcome : ''}
                                       onChange={e => setAppealOutcome(e.target.value)}
@@ -740,6 +744,7 @@ export default function Admin() {
           onChange={setTabIdx}
         />
       </div>
+      {/* Modal styling to match DareReveal */}
       <Modal
         open={!!editUserId}
         onClose={closeEditUserModal}
@@ -749,8 +754,8 @@ export default function Admin() {
         role="dialog"
         aria-modal="true"
       >
-        <div className="max-w-sm mx-auto bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px]">
-          <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Edit User</h1>
+        <div className="max-w-sm mx-auto bg-neutral-800 border border-neutral-700 rounded-xl shadow-lg p-6">
+          <h1 className="text-2xl font-bold text-center mb-6 text-primary">Edit User</h1>
           <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
             <div>
               <label htmlFor="edit-username" className="block font-semibold mb-1 text-primary">Username</label>
@@ -758,7 +763,7 @@ export default function Admin() {
                 type="text"
                 name="username"
                 id="edit-username"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
                 value={editUserData.username}
                 onChange={handleEditUserChange}
                 required
@@ -770,7 +775,7 @@ export default function Admin() {
                 type="email"
                 name="email"
                 id="edit-email"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
                 value={editUserData.email}
                 onChange={handleEditUserChange}
                 required
@@ -782,7 +787,7 @@ export default function Admin() {
                 type="text"
                 name="role"
                 id="edit-role"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
                 value={editUserData.role}
                 onChange={handleEditUserChange}
               />
@@ -790,7 +795,7 @@ export default function Admin() {
             {editUserError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{editUserError}</div>}
             <div className="flex gap-2 mt-4">
               <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
-              <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
+              <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
             </div>
           </form>
         </div>

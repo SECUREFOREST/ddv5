@@ -31,37 +31,45 @@ export default function ActivityFeed() {
   }, []);
 
   return (
-    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold">Global Activity Feed</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Global Activity Feed</h1>
       </div>
-      <div className="panel-body overflow-x-auto">
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         {loading ? (
-          <div>Loading...</div>
+          <div className="text-center text-neutral-400">Loading...</div>
         ) : error ? (
           <Banner type="error" message={error} onClose={() => setError('')} />
         ) : activities.length === 0 ? (
-          <div className="text-muted">No recent activity.</div>
+          <div className="text-neutral-400 text-center">No recent activity.</div>
         ) : (
-          <ul className="list-group">
+          <ul className="flex flex-col gap-3">
             {activities.map(a => {
               const isNew = lastSeen && new Date(a.createdAt) > lastSeen;
               return (
                 <li
                   key={a._id}
-                  className={`list-group-item ${isNew ? 'bg-info bg-opacity-10 border-l-4 border-info' : ''}`}
+                  className={`transition-shadow bg-neutral-900/90 border border-neutral-800 rounded-lg p-3 flex items-center gap-3 shadow hover:shadow-2xl ${isNew ? 'ring-2 ring-info/60' : ''}`}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="hover:underline focus:outline-none">
-                      <Avatar user={a.user} size={28} />
-                    </Link>
-                    <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="hover:underline text-primary focus:outline-none">
-                      {a.user?.username || 'Someone'}
-                    </Link>
+                  <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${a.user?.username || 'user'}'s profile`}>
+                    <Avatar user={a.user} size={36} />
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="font-bold text-primary hover:underline focus:outline-none">
+                        {a.user?.username || 'Someone'}
+                      </Link>
+                      {isNew && <span className="ml-2 text-xs text-info font-semibold">NEW</span>}
+                    </div>
+                    <div className="text-neutral-200 text-sm mt-1">{renderActivityText(a)}</div>
+                  </div>
+                  <span className="flex items-center gap-1 text-xs text-neutral-400 ml-2" title={new Date(a.createdAt).toLocaleString()}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    {formatRelativeTime(new Date(a.createdAt))}
                   </span>
-                  {renderActivityText(a)}
-                  <span className="text-muted" style={{ marginLeft: 8, fontSize: 12 }}>{formatRelativeTime(new Date(a.createdAt))}</span>
-                  {isNew && <span className="ml-2 text-xs text-info font-semibold">NEW</span>}
                 </li>
               );
             })}
