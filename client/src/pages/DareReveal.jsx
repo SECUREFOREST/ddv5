@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,7 +38,8 @@ function DifficultyBadge({ level }) {
 export default function DareReveal() {
   const location = useLocation();
   const navigate = useNavigate();
-  const dareId = location.state?.dareId;
+  const params = useParams();
+  const dareId = params.id || location.state?.dareId;
   const { user } = useAuth();
   const [dare, setDare] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
@@ -54,11 +55,10 @@ export default function DareReveal() {
     api.get(`/dares/${dareId}`)
       .then(res => {
         if (res.data && res.data._id) {
-          // Check performer
           const performerId = res.data.performer?._id || res.data.performer;
           if (!user || !performerId || String(performerId) !== String(user.id)) {
-            setError('You are not authorized to view this dare.');
             setDare(null);
+            setError('You are not authorized to view this dare.');
           } else {
             setDare(res.data);
           }

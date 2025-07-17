@@ -111,7 +111,11 @@ router.get('/random', auth, async (req, res) => {
       ...(user.consentedDares || []),
       ...(user.completedDares || [])
     ];
-    const filter = { status: 'waiting_for_participant', performer: null };
+    const filter = {
+      status: 'waiting_for_participant',
+      performer: null,
+      creator: { $ne: userId }
+    };
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
     console.log('Random dare filter:', filter);

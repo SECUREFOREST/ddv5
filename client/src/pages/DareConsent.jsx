@@ -46,7 +46,7 @@ const DareConsent = () => {
 
   const handleConsent = (e) => {
     e.preventDefault();
-    navigate('/dare/reveal', { state: { dareId: dare._id } });
+    navigate(`/dare/reveal/${dare._id}`);
   };
 
   if (!dare) return null;
