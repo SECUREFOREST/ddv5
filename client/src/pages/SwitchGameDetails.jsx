@@ -422,37 +422,50 @@ export default function SwitchGameDetails() {
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-xl font-bold mb-4">{game.name}</h1>
-      </div>
-      <div className="mb-2 flex items-center"><b>Status:</b> {statusBadge(granularStatus)}</div>
-      <div className="mb-2"><b>Participants:</b> {[
-        game.creator && <span key="creator" className="inline-flex items-center gap-2 mr-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
-        game.participant && <span key="participant" className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
-      ].filter(Boolean).length > 0 ? [
-        game.creator && <span key="creator" className="inline-flex items-center gap-2 mr-2"><Avatar user={game.creator} size={28} />{game.creator?.username || '[deleted]'}</span>,
-        game.participant && <span key="participant" className="inline-flex items-center gap-2"><Avatar user={game.participant} size={28} />{game.participant?.username || '[deleted]'}</span>
-      ].filter(Boolean) : '-'}</div>
-      {/* Difficulty display */}
-      <div className="mb-2"><b>Difficulty:</b> {game.creatorDare && game.creatorDare.difficulty ? <DifficultyBadge level={game.creatorDare.difficulty} /> : '-'}</div>
-      <div className="mb-4"><b>Winner:</b> {game.winner ? <span className="inline-flex items-center gap-2"><Avatar user={game.winner} size={28} />{game.winner?.username || '[deleted]'}</span> : '-'}</div>
-      <hr className="my-4" />
-      {toast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
-          {toast}
+      {/* Status badge at the very top, centered, visually distinct */}
+      {game && (
+        <div className="flex justify-center mb-4">
+          {/* Example: adjust color/icon for each status */}
+          <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            In Progress
+          </span>
         </div>
       )}
-      {errorToast && (
-        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-danger text-danger-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
-          {errorToast}
+      {/* Main card background for all content */}
+      <div className="max-w-md w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+        {/* User info card */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+          {/* Avatars, role badges, usernames for creator/participant */}
+          <div className="flex flex-col items-center">
+            <Avatar user={game.creator} size={60} />
+            <span className="font-semibold text-lg text-primary mt-2">{game.creator?.username || '[deleted]'}</span>
+            <DifficultyBadge level={game.creatorDare?.difficulty} />
+          </div>
+          <div className="flex flex-col items-center">
+            <Avatar user={game.participant} size={60} />
+            <span className="font-semibold text-lg text-primary mt-2">{game.participant?.username || '[deleted]'}</span>
+            <DifficultyBadge level={game.participantDare?.difficulty} />
+          </div>
         </div>
-      )}
-      {/* Only allow join if waiting for participant, no participant, and user is not the creator */}
-      {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && !isCreator && (
-        <>
-          <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowJoinModal(true)} disabled={joining}>
-            {joining ? 'Joining...' : 'Join Switch Game'}
-          </button>
+        {/* Description card */}
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <div className="font-bold text-xl text-primary mb-2">Game Description</div>
+          <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.description}</div>
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+            <DifficultyBadge level={game.creatorDare?.difficulty} />
+            {/* tags here */}
+          </div>
+        </div>
+        {/* Proof preview/modal if applicable */}
+        {/* ...proof preview/modal code from DareReveal... */}
+        {/* Sticky footer for action buttons */}
+        <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
+          {/* Action buttons here, styled as in DareReveal */}
+          {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && !isCreator && (
+            <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowJoinModal(true)} disabled={joining}>
+              {joining ? 'Joining...' : 'Join Switch Game'}
+            </button>
+          )}
           {showJoinModal && (
             <Modal open={showJoinModal} onClose={() => setShowJoinModal(false)} title="Join Switch Game" role="dialog" aria-modal="true">
               <form onSubmit={async (e) => {
@@ -505,42 +518,269 @@ export default function SwitchGameDetails() {
               </form>
             </Modal>
           )}
-        </>
-      )}
-      {/* Only allow moves if in_progress and both users present and no winner */}
-      {hasJoined && game.status === 'in_progress' && canPlayRps && !userMove && (
-        <div className="mt-6">
-          <b>Rock-Paper-Scissors: Choose your move</b>
-          <div className="mt-3 flex gap-2">
-            {MOVES.map(move => (
+          {hasJoined && game.status === 'in_progress' && canPlayRps && !userMove && (
+            <div className="mt-6">
+              <b>Rock-Paper-Scissors: Choose your move</b>
+              <div className="mt-3 flex gap-2">
+                {MOVES.map(move => (
+                  <button
+                    key={move}
+                    className="bg-neutral-800 text-primary rounded px-4 py-2 font-semibold hover:bg-primary/80 disabled:opacity-50"
+                    onClick={() => handleMoveSubmit(move)}
+                    disabled={moveSubmitting}
+                  >
+                    <span className="mr-2">{MOVE_ICONS[move]}</span>
+                    {move.charAt(0).toUpperCase() + move.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Waiting for other participant's move */}
+          {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
+            <div className="mt-6 text-primary font-semibold">Waiting for the other participant to choose...</div>
+          )}
+          {/* Show draw message if both moves are the same */}
+          {bothMoves && rpsResult === 'draw' && (
+            <div className="mt-6 bg-info bg-opacity-10 border border-info rounded p-4">
+              <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
+            </div>
+          )}
+          {/* Show winner/loser and proof submission if awaiting_proof */}
+          {game.status === 'awaiting_proof' && (
+            <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
+              <b>Awaiting proof from the loser.</b>
+              {isLoser && !game.proof && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
+                  <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
+                  <form onSubmit={handleProofSubmit}>
+                    <div className="mb-2">
+                      <label className="block font-semibold mb-1">Proof (text):</label>
+                      <textarea
+                        className="border rounded px-2 py-1 w-full"
+                        value={proofText}
+                        onChange={e => setProofText(e.target.value)}
+                        maxLength={1000}
+                        rows={3}
+                        required
+                        disabled={proofSubmitting}
+                      />
+                    </div>
+                    {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
+                    {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
+                    <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
+                      {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
+                    </button>
+                  </form>
+                </div>
+              )}
+              {game.proof && (
+                <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
+              )}
+            </div>
+          )}
+          {game.status === 'proof_submitted' && (
+            <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
+              <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
+            </div>
+          )}
+          {game.status === 'expired' && (
+            <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
+              <b>Proof submission window has expired.</b>
+            </div>
+          )}
+          {(game && (
+            (game.grades && game.grades.length > 0) ||
+            (isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed')) ||
+            (isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed'))
+          )) && (
+            <div className="bg-neutral-900 rounded p-4 mb-6 mt-6">
+              <div className="border-b pb-2 mb-4">
+                <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
+              </div>
+              <div>
+                {fetchingGame && <div className="text-center text-info mb-2">Loading updated switch game details...</div>}
+                {fetchGameError && <div className="text-danger text-center mb-2">{fetchGameError}</div>}
+                {game.grades && game.grades.length > 0 ? (
+                  <ul className="space-y-2 mb-4">
+                    {game.grades.map((g, i) => (
+                      <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
+                        <Avatar user={g.user} size={24} />
+                        <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
+                        <span className="text-xs text-gray-400">
+                          ({g.user && game.creator && (getId(g.user) === getId(game.creator) ? 'Creator' : 'Participant')})
+                        </span>
+                        <span className="mx-2">→</span>
+                        <Avatar user={g.target} size={24} />
+                        <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
+                        <span className="text-xs text-gray-400">
+                          ({g.target && game.creator && (getId(g.target) === getId(game.creator) ? 'Creator' : 'Participant')})
+                        </span>
+                        <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
+                          {g.grade}
+                        </span>
+                        {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                        {g.createdAt && (
+                          <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {/* Creator grades participant */}
+                {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
+                  <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Avatar user={game.participant} size={32} />
+                      <span className="font-semibold">{game.participant?.username || 'Participant'}</span>
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                        <button
+                          type="button"
+                          key={num}
+                          className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                          onClick={() => setGrade(num)}
+                          aria-label={`Score ${num}`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      className="border rounded px-2 py-1 w-full"
+                      value={feedback}
+                      onChange={e => setFeedback(e.target.value)}
+                      maxLength={500}
+                      rows={2}
+                      placeholder="Optional feedback"
+                    />
+                    {gradeError && <div className="text-danger text-sm">{gradeError}</div>}
+                    <button type="submit" className="btn btn-primary" disabled={grading}>
+                      {grading ? 'Submitting...' : 'Submit Grade'}
+                    </button>
+                  </form>
+                )}
+                {/* Participant grades creator */}
+                {isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
+                  <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Avatar user={game.creator} size={32} />
+                      <span className="font-semibold">{game.creator?.username || 'Creator'}</span>
+                    </div>
+                    <div className="flex gap-2 mb-2">
+                      {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                        <button
+                          type="button"
+                          key={num}
+                          className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
+                          onClick={() => setGrade(num)}
+                          aria-label={`Score ${num}`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                    <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
+                    {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
+                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
+                      {grading ? 'Submitting...' : 'Submit Grade'}
+                    </button>
+                  </form>
+                )}
+                {/* Show message if already graded */}
+                {(isCreator && hasGradedParticipant) || (isParticipant && hasGradedCreator) ? (
+                  <div className="text-success text-center font-medium mb-2">You have already graded this user for this switch game.</div>
+                ) : null}
+              </div>
+            </div>
+          )}
+          {/* Grading/Feedback Form for Participants */}
+          {canGrade && !myGivenGrade && (
+            <div className="bg-white rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
+              {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
+              <form onSubmit={handleGrade}>
+                <div className="mb-2">
+                  <label className="block font-semibold mb-1">Grade (1-10):</label>
+                  <select
+                    className="border rounded px-2 py-1"
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    required
+                    disabled={grading || !!myGivenGrade}
+                  >
+                    <option value="">Select</option>
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>{i + 1}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-2">
+                  <label className="block font-semibold mb-1">Feedback (optional):</label>
+                  <textarea
+                    className="border rounded px-2 py-1 w-full"
+                    value={feedback}
+                    onChange={e => setFeedback(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    disabled={grading || !!myGivenGrade}
+                  />
+                </div>
+                {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
+                <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
+                  {grading ? 'Submitting...' : 'Submit Grade'}
+                </button>
+              </form>
+            </div>
+          )}
+          {/* Show the grade/feedback you gave */}
+          {myGivenGrade && (
+            <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">Your Grade for Opponent</h2>
+              <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
+              {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
+            </div>
+          )}
+          {/* Show the grade/feedback you received from your opponent */}
+          {myReceivedGrade && (
+            <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
+              <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
+              {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
+            </div>
+          )}
+          {/* Show all grades/feedback if more than one exists */}
+          {allGrades.length > 1 && (
+            <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
+              <ul className="list-disc pl-5">
+                {allGrades.map((g, i) => (
+                  <li key={i} className="mb-1">
+                    <span className="font-semibold">Grade:</span> {g.grade}
+                    {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
+                    {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Chicken Out button for creator or participant when in progress */}
+          {game.status === 'in_progress' && (getId(user) === getId(game.creator) || getId(user) === getId(game.participant)) && (
+            <div className="mt-6">
               <button
-                key={move}
-                className="bg-neutral-800 text-primary rounded px-4 py-2 font-semibold hover:bg-primary/80 disabled:opacity-50"
-                onClick={() => handleMoveSubmit(move)}
-                disabled={moveSubmitting}
+                className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
+                onClick={handleChickenOut}
+                disabled={chickenOutLoading}
+                aria-busy={chickenOutLoading}
               >
-                <span className="mr-2">{MOVE_ICONS[move]}</span>
-                {move.charAt(0).toUpperCase() + move.slice(1)}
+                {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
               </button>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* Waiting for other participant's move */}
-      {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
-        <div className="mt-6 text-primary font-semibold">Waiting for the other participant to choose...</div>
-      )}
-      {/* Show draw message if both moves are the same */}
-      {bothMoves && rpsResult === 'draw' && (
-        <div className="mt-6 bg-info bg-opacity-10 border border-info rounded p-4">
-          <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
-        </div>
-      )}
-      {/* Show winner/loser and proof submission if awaiting_proof */}
-      {game.status === 'awaiting_proof' && (
-        <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
-          <b>Awaiting proof from the loser.</b>
-          {isLoser && !game.proof && (
+              {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
+            </div>
+          )}
+          {/* Proof Submission (Loser) */}
+          {isLoser && game.status === 'awaiting_proof' && (
             <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
               <form onSubmit={handleProofSubmit}>
@@ -564,268 +804,81 @@ export default function SwitchGameDetails() {
               </form>
             </div>
           )}
-          {game.proof && (
-            <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
-          )}
-        </div>
-      )}
-      {game.status === 'proof_submitted' && (
-        <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
-          <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
-        </div>
-      )}
-      {game.status === 'expired' && (
-        <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
-          <b>Proof submission window has expired.</b>
-        </div>
-      )}
-      {(game && (
-        (game.grades && game.grades.length > 0) ||
-        (isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed')) ||
-        (isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed'))
-      )) && (
-        <div className="bg-neutral-900 rounded p-4 mb-6 mt-6">
-          <div className="border-b pb-2 mb-4">
-            <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
-          </div>
-          <div>
-            {fetchingGame && <div className="text-center text-info mb-2">Loading updated switch game details...</div>}
-            {fetchGameError && <div className="text-danger text-center mb-2">{fetchGameError}</div>}
-            {game.grades && game.grades.length > 0 ? (
-              <ul className="space-y-2 mb-4">
-                {game.grades.map((g, i) => (
-                  <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                    <Avatar user={g.user} size={24} />
-                    <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
-                    <span className="text-xs text-gray-400">
-                      ({g.user && game.creator && (getId(g.user) === getId(game.creator) ? 'Creator' : 'Participant')})
-                    </span>
-                    <span className="mx-2">→</span>
-                    <Avatar user={g.target} size={24} />
-                    <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
-                    <span className="text-xs text-gray-400">
-                      ({g.target && game.creator && (getId(g.target) === getId(game.creator) ? 'Creator' : 'Participant')})
-                    </span>
-                    <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
-                      {g.grade}
-                    </span>
-                    {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
-                    {g.createdAt && (
-                      <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {/* Creator grades participant */}
-            {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
-              <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Avatar user={game.participant} size={32} />
-                  <span className="font-semibold">{game.participant?.username || 'Participant'}</span>
-                </div>
-                <div className="flex gap-2 mb-2">
-                  {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                    <button
-                      type="button"
-                      key={num}
-                      className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                      onClick={() => setGrade(num)}
-                      aria-label={`Score ${num}`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
+          {/* Proof Review (Winner) */}
+          {isWinner && game.status === 'proof_submitted' && game.proof && (
+            <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+              <h2 className="text-lg font-bold mb-2">Review Submitted Proof</h2>
+              <div className="mb-2"><span className="font-semibold">Proof:</span> {game.proof.text}</div>
+              <div className="mb-2">
+                <label className="block font-semibold mb-1">Feedback (optional):</label>
                 <textarea
                   className="border rounded px-2 py-1 w-full"
-                  value={feedback}
-                  onChange={e => setFeedback(e.target.value)}
+                  value={reviewFeedback}
+                  onChange={e => setReviewFeedback(e.target.value)}
                   maxLength={500}
                   rows={2}
-                  placeholder="Optional feedback"
+                  disabled={reviewSubmitting}
                 />
-                {gradeError && <div className="text-danger text-sm">{gradeError}</div>}
-                <button type="submit" className="btn btn-primary" disabled={grading}>
-                  {grading ? 'Submitting...' : 'Submit Grade'}
-                </button>
-              </form>
-            )}
-            {/* Participant grades creator */}
-            {isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
-              <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Avatar user={game.creator} size={32} />
-                  <span className="font-semibold">{game.creator?.username || 'Creator'}</span>
-                </div>
-                <div className="flex gap-2 mb-2">
-                  {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                    <button
-                      type="button"
-                      key={num}
-                      className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                      onClick={() => setGrade(num)}
-                      aria-label={`Score ${num}`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
-                {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
-                  {grading ? 'Submitting...' : 'Submit Grade'}
-                </button>
-              </form>
-            )}
-            {/* Show message if already graded */}
-            {(isCreator && hasGradedParticipant) || (isParticipant && hasGradedCreator) ? (
-              <div className="text-success text-center font-medium mb-2">You have already graded this user for this switch game.</div>
-            ) : null}
-          </div>
-        </div>
-      )}
-      {/* Grading/Feedback Form for Participants */}
-      {canGrade && !myGivenGrade && (
-        <div className="bg-white rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
-          {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
-          <form onSubmit={handleGrade}>
-            <div className="mb-2">
-              <label className="block font-semibold mb-1">Grade (1-10):</label>
-              <select
-                className="border rounded px-2 py-1"
-                value={grade}
-                onChange={e => setGrade(e.target.value)}
-                required
-                disabled={grading || !!myGivenGrade}
-              >
-                <option value="">Select</option>
-                {[...Array(10)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
-                ))}
-              </select>
+              </div>
+              {reviewError && <div className="text-red-500 mb-2">{reviewError}</div>}
+              {reviewSuccess && <div className="text-green-600 mb-2">{reviewSuccess}</div>}
+              <div className="flex space-x-2">
+                <button className="btn btn-success" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
+                <button className="btn btn-danger" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
+              </div>
             </div>
-            <div className="mb-2">
-              <label className="block font-semibold mb-1">Feedback (optional):</label>
-              <textarea
-                className="border rounded px-2 py-1 w-full"
-                value={feedback}
-                onChange={e => setFeedback(e.target.value)}
-                maxLength={500}
-                rows={3}
-                disabled={grading || !!myGivenGrade}
-              />
+          )}
+          {/* Proof Review Status/Feedback */}
+          {game.proof && game.proof.review && (
+            <div className={`rounded shadow p-4 mt-6 ${game.proof.review.action === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+              <h2 className="text-lg font-bold mb-2">Proof Review</h2>
+              <div className="mb-1">Status: <span className="font-semibold">{game.proof.review.action === 'approved' ? 'Approved' : 'Rejected'}</span></div>
+              {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
             </div>
-            {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-            <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
-              {grading ? 'Submitting...' : 'Submit Grade'}
-            </button>
-          </form>
+          )}
         </div>
-      )}
-      {/* Show the grade/feedback you gave */}
-      {myGivenGrade && (
-        <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">Your Grade for Opponent</h2>
-          <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
-          {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
-        </div>
-      )}
-      {/* Show the grade/feedback you received from your opponent */}
-      {myReceivedGrade && (
-        <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
-          <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
-          {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
-        </div>
-      )}
-      {/* Show all grades/feedback if more than one exists */}
-      {allGrades.length > 1 && (
-        <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
-          <ul className="list-disc pl-5">
-            {allGrades.map((g, i) => (
-              <li key={i} className="mb-1">
-                <span className="font-semibold">Grade:</span> {g.grade}
-                {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
-                {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {/* Chicken Out button for creator or participant when in progress */}
-      {game.status === 'in_progress' && (getId(user) === getId(game.creator) || getId(user) === getId(game.participant)) && (
-        <div className="mt-6">
-          <button
-            className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
-            onClick={handleChickenOut}
-            disabled={chickenOutLoading}
-            aria-busy={chickenOutLoading}
-          >
-            {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
-          </button>
-          {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
-        </div>
-      )}
-      {/* Proof Submission (Loser) */}
-      {isLoser && game.status === 'awaiting_proof' && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
-          <form onSubmit={handleProofSubmit}>
-            <div className="mb-2">
-              <label className="block font-semibold mb-1">Proof (text):</label>
-              <textarea
-                className="border rounded px-2 py-1 w-full"
-                value={proofText}
-                onChange={e => setProofText(e.target.value)}
-                maxLength={1000}
-                rows={3}
-                required
-                disabled={proofSubmitting}
-              />
+        {/* Timestamps/meta with icons */}
+        <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
+          {/* Example: */}
+          <div className="flex items-center gap-1" title={new Date(game.createdAt).toLocaleString()}>
+            {/* <ClockIcon className="w-4 h-4 text-neutral-400" /> */}
+            {/* Created: ... */}
+            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
+          </div>
+          {game.updatedAt && (
+            <div className="flex items-center gap-1" title={new Date(game.updatedAt).toLocaleString()}>
+              {/* <PencilIcon className="w-4 h-4 text-neutral-400" /> */}
+              {/* Updated: ... */}
+              <span>Updated: {new Date(game.updatedAt).toLocaleDateString()}</span>
             </div>
-            {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
-            {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
-            <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
-              {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
-            </button>
-          </form>
+          )}
+          {game.proofExpiresAt && (
+            <div className="flex items-center gap-1" title={proofExpiresAt ? new Date(proofExpiresAt).toLocaleString() : ''}>
+              {/* <ExclamationCircleIcon className="w-4 h-4 text-neutral-400" /> */}
+              {/* Proof Expires: ... */}
+              <span>Proof Expires: {proofExpiresAt ? new Date(proofExpiresAt).toLocaleDateString() : 'N/A'}</span>
+            </div>
+          )}
+          {game.winner && (
+            <div className="flex items-center gap-1" title={new Date(game.winner.createdAt).toLocaleString()}>
+              {/* <TrophyIcon className="w-4 h-4 text-neutral-400" /> */}
+              {/* Winner: ... */}
+              <span>Winner: {game.winner?.username || game.winner?._id || game.winner}</span>
+            </div>
+          )}
         </div>
-      )}
-      {/* Proof Review (Winner) */}
-      {isWinner && game.status === 'proof_submitted' && game.proof && (
-        <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
-          <h2 className="text-lg font-bold mb-2">Review Submitted Proof</h2>
-          <div className="mb-2"><span className="font-semibold">Proof:</span> {game.proof.text}</div>
-          <div className="mb-2">
-            <label className="block font-semibold mb-1">Feedback (optional):</label>
-            <textarea
-              className="border rounded px-2 py-1 w-full"
-              value={reviewFeedback}
-              onChange={e => setReviewFeedback(e.target.value)}
-              maxLength={500}
-              rows={2}
-              disabled={reviewSubmitting}
-            />
+        {/* Toast notifications */}
+        {toast && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-info text-info-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">
+            {toast}
           </div>
-          {reviewError && <div className="text-red-500 mb-2">{reviewError}</div>}
-          {reviewSuccess && <div className="text-green-600 mb-2">{reviewSuccess}</div>}
-          <div className="flex space-x-2">
-            <button className="btn btn-success" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
-            <button className="btn btn-danger" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
+        )}
+        {errorToast && (
+          <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-danger text-danger-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
+            {errorToast}
           </div>
-        </div>
-      )}
-      {/* Proof Review Status/Feedback */}
-      {game.proof && game.proof.review && (
-        <div className={`rounded shadow p-4 mt-6 ${game.proof.review.action === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-          <h2 className="text-lg font-bold mb-2">Proof Review</h2>
-          <div className="mb-1">Status: <span className="font-semibold">{game.proof.review.action === 'approved' ? 'Approved' : 'Rejected'}</span></div>
-          {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 
