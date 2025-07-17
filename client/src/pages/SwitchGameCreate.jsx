@@ -43,50 +43,68 @@ export default function SwitchGameCreate() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Create a Switch Game</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      {/* Toast notification for feedback (if needed) */}
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">{toast}</div>
       )}
       {error && (
         <div className="mb-4 text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Card-like section for form content */}
+      <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        {/* Difficulty selection */}
         <div>
-          <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-          <div className="flex flex-col gap-2">
+          <div className="font-bold text-xl text-primary mb-2">Choose a difficulty</div>
+          <div className="flex flex-col gap-3">
             {DIFFICULTIES.map(opt => (
-              <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <span className="flex items-center gap-2">
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
-                  <b>{opt.label}</b>
+              <label key={opt.value} className={`flex items-start gap-2 p-3 rounded-lg cursor-pointer border transition-all duration-150
+                ${difficulty === opt.value
+                  ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                  : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
+              `} tabIndex={0} aria-label={`Select ${opt.label} difficulty`}>
+                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary mt-1 focus:ring-2 focus:ring-primary-contrast" />
+                <span>
+                  <b className="text-base">{opt.label}</b>
+                  <div className="text-xs text-neutral-400 mt-1 ml-1">{opt.desc}</div>
                 </span>
-                <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
               </label>
             ))}
           </div>
         </div>
+        {/* Description textarea */}
         <div>
-          <label htmlFor="description" className="block font-semibold mb-1 text-primary">Dare Description</label>
+          <div className="font-bold text-xl text-primary mb-2">Dare Description</div>
           <textarea
             id="description"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
             value={description}
             onChange={e => setDescription(e.target.value)}
             required
             rows={3}
             placeholder="Describe the dare..."
+            aria-label="Dare description"
           />
         </div>
-        <div className="flex items-center">
-          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2" />
+        {/* Public/private toggle */}
+        <div className="flex items-center justify-center">
+          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast" />
           <label htmlFor="publicGame" className="text-neutral-200">Make this switch game public (visible to others)</label>
         </div>
+        {/* Move selection */}
         <div>
-          <label className="block font-semibold mb-1 text-primary">Your Move</label>
-          <div className="flex gap-3 mt-1">
+          <div className="font-bold text-xl text-primary mb-2">Your Move</div>
+          <div className="flex gap-3 mt-1 justify-center">
             {MOVES.map(m => (
-              <label key={m} className={`cursor-pointer px-3 py-2 rounded border ${move === m ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-900 text-neutral-100 border-neutral-700'}`}>
+              <label key={m} className={`cursor-pointer px-3 py-2 rounded-lg border transition-all duration-150 flex flex-col items-center
+                ${move === m ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-100 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
+                tabIndex={0} aria-label={`Select move ${m}`}>
                 <input
                   type="radio"
                   name="move"
@@ -95,18 +113,23 @@ export default function SwitchGameCreate() {
                   onChange={() => setMove(m)}
                   className="hidden"
                 />
-                <span className="mr-2">{MOVE_ICONS[m]}</span>
-                {m.charAt(0).toUpperCase() + m.slice(1)}
+                <span className="text-2xl mb-1">{MOVE_ICONS[m]}</span>
+                <span className="font-semibold">{m.charAt(0).toUpperCase() + m.slice(1)}</span>
               </label>
             ))}
           </div>
         </div>
         <button
           type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+          className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast"
           disabled={creating}
+          aria-label="Create Switch Game"
         >
-          {creating ? 'Creating...' : 'Create Switch Game'}
+          {creating ? (
+            <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          ) : (
+            <>Create Switch Game</>
+          )}
         </button>
       </form>
     </div>
