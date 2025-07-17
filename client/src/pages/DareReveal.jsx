@@ -202,9 +202,6 @@ export default function DareReveal() {
               <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
                 <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
                   <DifficultyBadge level={dare.difficulty} />
-                  {dare.difficulty && (
-                    <span className="ml-1 capitalize">{dare.difficulty}</span>
-                  )}
                 </span>
                 <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
                   🕒 Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
