@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
+import { UserPlusIcon } from '@heroicons/react/24/solid';
 
 export default function Register() {
   const { register } = useAuth();
@@ -70,115 +71,131 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <Link to="/" className="inline-block mb-4">
-        <button className="text-primary hover:text-primary-dark text-sm font-semibold">&larr; Back to Home</button>
-      </Link>
-      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Register</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
-          <input
-            id="username"
-            type="text"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-            aria-label="Username"
-          />
-        </div>
-        <div>
-          <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
-          <input
-            id="fullName"
-            type="text"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
-            required
-            aria-label="Full Name"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
-          <input
-            id="email"
-            type="email"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            aria-label="Email address"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
-          <input
-            id="password"
-            type="password"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            aria-label="Password"
-          />
-        </div>
-        <div>
-          <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
-          <input
-            id="dob"
-            type="date"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={dob}
-            onChange={e => setDob(e.target.value)}
-            required
-            aria-label="Date of Birth"
-          />
-        </div>
-        <div>
-          <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
-          <select
-            id="gender"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
-            value={gender}
-            onChange={e => setGender(e.target.value)}
-            required
-            aria-label="Gender"
-          >
-            <option value="">Select...</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label className="block font-semibold mb-1 text-primary">Interested in</label>
-          <div className="flex gap-4 mt-1">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
-              Female
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
-              Male
-            </label>
+    <div className="max-w-md w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <UserPlusIcon className="w-7 h-7 text-primary" /> Register
+        </h1>
+      </div>
+      {/* Visually distinct status badge */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <UserPlusIcon className="w-6 h-6" /> Create Account
+        </span>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      <div className="flex flex-col items-center text-center px-6 pb-8">
+        <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto">
+          <div>
+            <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
+            <input
+              id="username"
+              type="text"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              required
+              aria-label="Username"
+            />
           </div>
+          <div>
+            <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
+            <input
+              id="fullName"
+              type="text"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={fullName}
+              onChange={e => setFullName(e.target.value)}
+              required
+              aria-label="Full Name"
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
+            <input
+              id="email"
+              type="email"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              aria-label="Email address"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
+            <input
+              id="password"
+              type="password"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              aria-label="Password"
+            />
+          </div>
+          <div>
+            <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
+            <input
+              id="dob"
+              type="date"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={dob}
+              onChange={e => setDob(e.target.value)}
+              required
+              aria-label="Date of Birth"
+            />
+          </div>
+          <div>
+            <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
+            <select
+              id="gender"
+              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              value={gender}
+              onChange={e => setGender(e.target.value)}
+              required
+              aria-label="Gender"
+            >
+              <option value="">Select...</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Interested in</label>
+            <div className="flex gap-4 mt-1">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
+                Female
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
+                Male
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="block font-semibold mb-1 text-primary">Limits</label>
+            <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
+          </div>
+          {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+          {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
+          <button
+            type="submit"
+            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast"
+            disabled={loading}
+          >
+            {loading ? 'Registering...' : 'Register'}
+          </button>
+        </form>
+        <div className="mt-4 text-center">
+          <span className="text-neutral-400">Already have an account?</span>{' '}
+          <Link to="/login" className="text-primary hover:underline">Log In</Link>
         </div>
-        <div>
-          <label className="block font-semibold mb-1 text-primary">Limits</label>
-          <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
-        </div>
-        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-        {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
-        <button
-          type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
-          disabled={loading}
-        >
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
+      </div>
     </div>
   );
 } 
