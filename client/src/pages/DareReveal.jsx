@@ -200,8 +200,11 @@ export default function DareReveal() {
               <div className="text-xl font-extrabold mb-2 break-words text-primary-contrast drop-shadow">{dare.description}</div>
               {/* Difficulty and Timestamps - visually enhanced */}
               <div className="flex flex-wrap justify-center gap-2 mt-4 mb-2">
-                <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
-                  <DifficultyBadge level={dare.difficulty} />
+                <span className="inline-flex items-center gap-2">
+                  <span className="text-neutral-300 font-semibold">Difficulty:</span>
+                  <span className="inline-flex items-center gap-1 bg-gradient-to-r from-primary to-primary-dark text-primary-contrast px-3 py-1 rounded-full text-xs font-bold shadow">
+                    <DifficultyBadge level={dare.difficulty} />
+                  </span>
                 </span>
                 <span className="inline-flex items-center gap-1 bg-neutral-700/80 text-neutral-200 px-3 py-1 rounded-full text-xs font-semibold shadow">
                   🕒 Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}
