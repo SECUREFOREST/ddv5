@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { SparklesIcon } from '@heroicons/react/24/solid';
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -15,22 +16,37 @@ const Landing = () => {
   if (loading) return null;
 
   return (
-    <div className="max-w-sm w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <img src="/logo.svg" alt="DDv5 Logo" className="w-3/4 mx-auto mb-4" aria-label="DDv5 Logo" />
-      <h1 className="text-2xl font-bold text-center mb-4 text-[#888]" aria-label="Welcome to DDv5!">Welcome to DDv5!</h1>
-      <p className="text-base mb-6 text-center text-gray-400 font-semibold italic">Your journey to productivity starts here.</p>
-      <ul className="text-left mb-8 text-gray-400 list-disc list-inside text-sm">
-        <li>✔️ Log your daily dares and progress</li>
-        <li>✔️ Compete on the leaderboard</li>
-        <li>✔️ Get notified about new activities</li>
-      </ul>
-      <div className="flex flex-col gap-3 mt-6">
-        <Link to="/login">
-          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" aria-label="Log In">Log In</button>
-        </Link>
-        <Link to="/register">
-          <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-semibold hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark" aria-label="Register">Register</button>
-        </Link>
+    <div className="max-w-md w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <SparklesIcon className="w-7 h-7 text-primary" /> Welcome to DDv5!
+        </h1>
+      </div>
+      {/* Visually distinct status badge */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <SparklesIcon className="w-6 h-6" /> Welcome
+        </span>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      <div className="flex flex-col items-center text-center px-6 pb-8">
+        <img src="/logo.svg" alt="DDv5 Logo" className="w-2/3 max-w-[180px] mx-auto mb-4" aria-label="DDv5 Logo" />
+        <p className="text-lg mb-6 text-center text-primary-contrast font-semibold italic">Your journey to productivity starts here.</p>
+        <ul className="text-left mb-8 text-neutral-300 list-disc list-inside text-base max-w-xs mx-auto">
+          <li className="mb-1">✔️ Log your daily dares and progress</li>
+          <li className="mb-1">✔️ Compete on the leaderboard</li>
+          <li className="mb-1">✔️ Get notified about new activities</li>
+        </ul>
+        <div className="flex flex-col gap-3 mt-6 w-full max-w-xs mx-auto">
+          <Link to="/login">
+            <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast" aria-label="Log In">Log In</button>
+          </Link>
+          <Link to="/register">
+            <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast" aria-label="Register">Register</button>
+          </Link>
+        </div>
       </div>
     </div>
   );
