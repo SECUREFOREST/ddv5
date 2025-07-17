@@ -107,6 +107,7 @@ export default function SwitchGameParticipate() {
       .catch(() => setError('Game not found.'));
   }, [gameId]);
 
+  // In the handleSubmit function, update the join POST request:
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -120,7 +121,7 @@ export default function SwitchGameParticipate() {
       return;
     }
     try {
-      await api.post(`/switches/${gameId}/join`, { demand, move: gesture, consent: true, difficulty: game.difficulty });
+      await api.post(`/switches/${gameId}/join`, { move: gesture, consent: true, difficulty: game.difficulty });
       navigate(`/switches/${gameId}`);
     } catch (err) {
       setBanner({ type: 'error', message: err.response?.data?.error || 'Failed to join game.' });
