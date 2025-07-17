@@ -473,6 +473,12 @@ router.post('/:id/forfeit',
     try {
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+      // Debug log for performer check
+      console.log('Forfeit debug:', {
+        dareId: dare._id,
+        darePerformer: dare.performer ? dare.performer.toString() : dare.performer,
+        reqUserId: req.userId
+      });
       if (!dare.performer || dare.performer.toString() !== req.userId) {
         return res.status(403).json({ error: 'Only the performer can forfeit this dare.' });
       }
