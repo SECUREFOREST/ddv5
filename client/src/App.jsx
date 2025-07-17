@@ -14,6 +14,9 @@ import ClaimDare from './pages/ClaimDare';
 import UserActivity from './pages/UserActivity';
 import DarePerformerDashboard from './pages/DarePerformerDashboard';
 import OfferSubmission from './pages/OfferSubmission';
+import DareDifficultySelect from './pages/DareDifficultySelect';
+import DareConsent from './pages/DareConsent';
+import DareReveal from './pages/DareReveal';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -70,8 +73,9 @@ function AppContent() {
               <Route path="/activity-feed" element={<PrivateRoute><ActivityFeed /></PrivateRoute>} />
               <Route path="/dare/create" element={<PrivateRoute><DareCreator /></PrivateRoute>} />
               <Route path="/dare/:id/participate" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
-              <Route path="/dare/:id/perform" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
-              <Route path="/dare/perform" element={<PrivateRoute><DarePerform /></PrivateRoute>} />
+              <Route path="/dare/select" element={<PrivateRoute><DareDifficultySelect /></PrivateRoute>} />
+              <Route path="/dare/consent" element={<PrivateRoute><DareConsent /></PrivateRoute>} />
+              <Route path="/dare/reveal" element={<PrivateRoute><DareReveal /></PrivateRoute>} />
               <Route path="/dare/share/:dareId" element={<PrivateRoute><DareShare /></PrivateRoute>} />
               <Route path="/claim/:claimToken" element={<ClaimDare />} />
               <Route path="/user-activity" element={<PrivateRoute><UserActivity /></PrivateRoute>} />
