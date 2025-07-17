@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
+import dayjs from 'dayjs';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -172,7 +173,25 @@ export default function DareReveal() {
         <div className="text-danger text-center mb-4">{error}</div>
       ) : dare ? (
         <div>
-          {/* Final status message */}
+          {/* Final status message with badge */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            {dare.status === 'completed' && (
+              <span className="inline-flex items-center gap-1 bg-green-700 text-green-100 px-2 py-1 rounded-full text-xs font-bold">
+                ✔️ Completed
+              </span>
+            )}
+            {dare.status === 'forfeited' && (
+              <span className="inline-flex items-center gap-1 bg-red-700 text-red-100 px-2 py-1 rounded-full text-xs font-bold">
+                ⚠️ Forfeited
+              </span>
+            )}
+            {dare.status === 'in_progress' && (
+              <span className="inline-flex items-center gap-1 bg-blue-700 text-blue-100 px-2 py-1 rounded-full text-xs font-bold">
+                ⏳ In Progress
+              </span>
+            )}
+          </div>
+          {/* Status message box */}
           {dare.status === 'completed' && (
             <div className="mb-4 flex items-center justify-center gap-2 bg-green-900/80 border border-green-700 text-green-300 rounded px-4 py-2 font-semibold">
               <span className="text-2xl">✔️</span>
@@ -193,8 +212,19 @@ export default function DareReveal() {
           )}
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800 text-center">
             <div className="font-semibold text-primary mb-2">Dare:</div>
-            <div className="text-lg font-bold mb-2">{dare.description}</div>
+            <div className="text-lg font-bold mb-2 break-words">{dare.description}</div>
             <div className="text-sm text-neutral-400">Difficulty: <DifficultyBadge level={dare.difficulty} /></div>
+            {/* Timestamps */}
+            <div className="flex flex-wrap justify-center gap-4 mt-2 text-xs text-neutral-400">
+              <span>Created: {dayjs(dare.createdAt).format('MMM D, YYYY HH:mm')}</span>
+              {dare.status === 'completed' && dare.updatedAt && (
+                <span>Completed: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+              )}
+              {dare.status === 'forfeited' && dare.updatedAt && (
+                <span>Forfeited: {dayjs(dare.updatedAt).format('MMM D, YYYY HH:mm')}</span>
+              )}
+            </div>
+            {/* Creator and Participant */}
             {dare.creator && (
               <div className="flex flex-col items-center mt-2">
                 <span className="text-xs text-neutral-400">Creator: {dare.creator.username || 'Anonymous'}</span>
@@ -212,6 +242,31 @@ export default function DareReveal() {
               </div>
             )}
           </div>
+          {/* Proof preview if completed */}
+          {dare.status === 'completed' && dare.proof && (
+            <div className="mb-4 p-4 bg-neutral-800 rounded text-neutral-100 border border-neutral-700">
+              <div className="font-semibold text-primary mb-2">Proof:</div>
+              {dare.proof.text && (
+                <div className="mb-2 break-words">{dare.proof.text}</div>
+              )}
+              {dare.proof.fileUrl && (
+                <div className="flex flex-col items-center">
+                  {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
+                    <img src={dare.proof.fileUrl} alt="proof" className="max-w-full max-h-64 rounded mb-2" />
+                  )}
+                  {dare.proof.fileUrl.match(/\.(mp4)$/i) && (
+                    <video controls className="max-w-full max-h-64 rounded mb-2">
+                      <source src={dare.proof.fileUrl} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+                  {dare.proof.fileUrl.match(/\.(pdf)$/i) && (
+                    <a href={dare.proof.fileUrl} target="_blank" rel="noopener noreferrer" className="text-info underline">View PDF proof</a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           {/* Proof submission and chicken out only if performer and in_progress */}
           {dare.performer && user && String((dare.performer._id || dare.performer)) === String(user._id) && dare.status === 'in_progress' && (
             <>
@@ -262,6 +317,23 @@ export default function DareReveal() {
               {chickenOutError && <div className="text-danger text-center mt-2">{chickenOutError}</div>}
             </>
           )}
+          {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+            <button
+              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600"
+              onClick={() => navigate('/dashboard')}
+            >
+              Back to Dashboard
+            </button>
+            {(dare.status === 'completed' || dare.status === 'forfeited') && (
+              <button
+                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+                onClick={() => navigate('/dare/select')}
+              >
+                Get Another Dare
+              </button>
+            )}
+          </div>
         </div>
       ) : null}
     </div>
