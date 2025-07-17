@@ -172,6 +172,13 @@ export default function DareReveal() {
         <div className="text-danger text-center mb-4">{error}</div>
       ) : dare ? (
         <div>
+          {/* Final status message */}
+          {dare.status === 'completed' && (
+            <div className="mb-4 text-success text-center font-semibold">Dare completed! Proof submitted.</div>
+          )}
+          {dare.status === 'forfeited' && (
+            <div className="mb-4 text-danger text-center font-semibold">Dare forfeited (chickened out).</div>
+          )}
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800 text-center">
             <div className="font-semibold text-primary mb-2">Dare:</div>
             <div className="text-lg font-bold mb-2">{dare.description}</div>
