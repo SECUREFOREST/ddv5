@@ -157,6 +157,17 @@ export default function ProfileView() {
         </div>
         <div className="flex-1 min-w-[220px]">
           <div className="font-bold text-xl text-primary mb-2">{profile.username}</div>
+          {/* User tags section */}
+          {Array.isArray(profile.tags) && profile.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {profile.tags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
+                  {/* Optionally add a tag icon here if you want: <TagIcon className="w-3 h-3" /> */}
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
           {profile.bio && (
             <div className="mt-2">
               <strong>Bio:</strong>
@@ -187,9 +198,6 @@ export default function ProfileView() {
               </div>
             </div>
           )}
-          <div className="mt-6">
-            <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Recent Activity" />
-          </div>
         </div>
       </div>
     </div>
