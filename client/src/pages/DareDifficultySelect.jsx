@@ -34,7 +34,8 @@ export default function DareDifficultySelect() {
         setError('No dare found for this difficulty.');
       }
     } catch (err) {
-      setError('Failed to fetch dare.');
+      const apiError = err.response?.data?.error || err.message;
+      setError(apiError || 'Failed to fetch dare.');
     } finally {
       setLoading(false);
     }

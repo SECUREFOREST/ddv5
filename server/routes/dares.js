@@ -162,6 +162,15 @@ router.get('/random', auth, async (req, res) => {
     console.log('Returning dare:', dare);
     res.json(dare);
   } catch (err) {
+    // User-friendly error for cooldown or open dares limit
+    if (
+      err.message &&
+      (err.message.includes('cooldown') || err.message.includes('maximum of 5 open dares'))
+    ) {
+      return res.status(429).json({
+        error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or forfeit some dares, or wait for your cooldown to expire.'
+      });
+    }
     console.error('Error in /random endpoint:', err.message, err.stack);
     res.status(500).json({ error: 'Failed to get dare.' });
   }
