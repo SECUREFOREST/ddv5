@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
+import { Squares2X2Icon } from '@heroicons/react/24/solid';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All' },
@@ -59,24 +60,24 @@ export default function Dares() {
   const [acceptConsent, setAcceptConsent] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [acceptError, setAcceptError] = useState('');
+  // Add meta state
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     if (!user) return;
     setLoading(true);
     // Fetch dares created by user
     const fetchCreated = api.get('/dares', { params: { creator: user.id } });
-    // Fetch dares where user is a participant
     const fetchParticipating = api.get('/dares', { params: { participant: user.id } });
-    // Fetch dares assigned via switch games
     const fetchSwitch = api.get('/dares', { params: { assignedSwitch: user.id } });
     Promise.all([fetchCreated, fetchParticipating, fetchSwitch])
       .then(([createdRes, partRes, switchRes]) => {
-        // Merge and deduplicate by _id
         const all = [...(createdRes.data || []), ...(partRes.data || []), ...(switchRes.data || [])];
         const unique = Array.from(new Map(all.map(d => [d._id, d])).values());
         setDares(unique);
+        setLastUpdated(new Date());
       })
-      .catch(() => setDares([]))
+      .catch(() => { setDares([]); setLastUpdated(new Date()); })
       .finally(() => setLoading(false));
   }, [user]);
 
@@ -156,74 +157,97 @@ export default function Dares() {
   };
 
   return (
-    <div className="bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full">
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold">My Dares</h1>
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden" role="main" aria-label="My Dares">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> My Dares
+        </h1>
       </div>
-      <div>
-        <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()}>
-          <div className="flex flex-col">
-            <label className="font-semibold mb-1 text-primary">Status</label>
-            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
-              {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold mb-1 text-primary">Difficulty</label>
-            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
-              {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold mb-1 text-primary">Search</label>
-            <input className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" />
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold mb-1 text-primary">Type</label>
-            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
-              {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold mb-1 text-primary">Visibility</label>
-            <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
-              <option value="">All</option>
-              <option value="true">Public</option>
-              <option value="false">Private</option>
-            </select>
-          </div>
-          {user && (
-            <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" onClick={() => setShowCreate(true)}>
-              + Create Dare
-            </button>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <Squares2X2Icon className="w-6 h-6" /> Your Dares
+        </span>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      {/* Filters/Form Section */}
+      <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()} aria-label="Filter Dares">
+        <div className="flex flex-col min-w-[120px] flex-1">
+          <label className="font-semibold mb-1 text-primary">Status</label>
+          <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
+            {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col min-w-[120px] flex-1">
+          <label className="font-semibold mb-1 text-primary">Difficulty</label>
+          <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+            {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col min-w-[120px] flex-1">
+          <label className="font-semibold mb-1 text-primary">Search</label>
+          <input className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" />
+        </div>
+        <div className="flex flex-col min-w-[120px] flex-1">
+          <label className="font-semibold mb-1 text-primary">Type</label>
+          <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
+            {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col min-w-[120px] flex-1">
+          <label className="font-semibold mb-1 text-primary">Visibility</label>
+          <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
+            <option value="">All</option>
+            <option value="true">Public</option>
+            <option value="false">Private</option>
+          </select>
+        </div>
+        {user && (
+          <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => setShowCreate(true)}>
+            + Create Dare
+          </button>
+        )}
+      </form>
+      {/* Dares List Section */}
+      {loading ? (
+        <div className="text-neutral-400 text-center py-8" role="status" aria-live="polite">Loading dares...</div>
+      ) : (
+        <div className="overflow-x-auto">
+          {dares.length === 0 && !loading && (
+            <div className="text-neutral-400 text-center py-8">No dares found.</div>
           )}
-        </form>
-        {/* Dares List Section */}
-        {loading ? (
-          <div className="text-neutral-400">Loading dares...</div>
-        ) : (
-          <div className="overflow-x-auto">
-            {dares.length === 0 && !loading && (
-              <div className="text-neutral-400 text-center py-8">No dares found.</div>
-            )}
-            <div className="flex flex-col gap-4">
-              {dares.map(dare => (
-                <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }}>
-                  <DareCard
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    tags={dare.tags}
-                    status={dare.status}
-                    creator={dare.creator}
-                    performer={dare.performer}
-                    assignedSwitch={dare.assignedSwitch}
-                    actions={[]}
-                    currentUserId={user?.id}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </Link>
-              ))}
-            </div>
+          <div className="flex flex-col gap-4">
+            {dares.map(dare => (
+              <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }} tabIndex={0} aria-label={`View dare: ${dare.description}`}>
+                <DareCard
+                  description={dare.description}
+                  difficulty={dare.difficulty}
+                  tags={dare.tags}
+                  status={dare.status}
+                  creator={dare.creator}
+                  performer={dare.performer}
+                  assignedSwitch={dare.assignedSwitch}
+                  actions={[]}
+                  currentUserId={user?.id}
+                  style={{ cursor: 'pointer' }}
+                />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* Meta Section */}
+      <div className="mt-6 text-xs text-neutral-500 flex flex-col items-center gap-1" aria-label="Dares meta info">
+        <div className="flex items-center gap-1">
+          <Squares2X2Icon className="w-4 h-4 text-primary" />
+          Total Dares: <span className="font-bold text-primary ml-1">{dares.length}</span>
+        </div>
+        {lastUpdated && (
+          <div className="flex items-center gap-1">
+            <span className="text-neutral-400">Last Updated:</span>
+            <span>{lastUpdated.toLocaleString()}</span>
           </div>
         )}
       </div>

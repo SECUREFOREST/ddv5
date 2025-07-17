@@ -8,6 +8,7 @@ import Countdown from '../components/Countdown';
 import StatusBadge from '../components/DareCard';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
+import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon } from '@heroicons/react/24/solid';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -316,52 +317,104 @@ export default function DareDetails() {
   const allGrades = dare && dare.grades && dare.grades.length > 0 ? dare.grades : [];
 
   return (
-    <div className="max-w-2xl w-full mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden" role="main" aria-label="Dare Details">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      {/* Header: Description & Status */}
-      <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
-        <h1 className="text-2xl font-bold text-center mb-2 flex items-center justify-center gap-2">{dare?.description} <StatusBadge status={dare?.status} /></h1>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-neutral-400 text-sm">
-          <span>By <b>{dare?.creator?.username || 'Unknown'}</b></span>
-          <span>| Participant: <b>{dare?.performer?.username || 'None yet'}</b></span>
-          <span>| Difficulty: <b>{dare?.difficulty}</b></span>
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> Dare Details
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        {dare.status === 'completed' ? (
+          <span className="inline-flex items-center gap-2 bg-green-900/90 border border-green-700 text-green-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <CheckCircleIcon className="w-6 h-6" /> Completed
+          </span>
+        ) : dare.status === 'rejected' ? (
+          <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <ExclamationTriangleIcon className="w-6 h-6" /> Rejected
+          </span>
+        ) : dare.status === 'in_progress' ? (
+          <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <ClockIcon className="w-6 h-6" /> In Progress
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <Squares2X2Icon className="w-6 h-6" /> {dare.status ? dare.status.charAt(0).toUpperCase() + dare.status.slice(1) : 'Open'}
+          </span>
+        )}
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
+      {/* User Info Section */}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+        {/* Creator */}
+        <div className="flex flex-col items-center">
+          {dare.creator?._id ? (
+            <a href={`/profile/${dare.creator._id}`} className="group" tabIndex={0} aria-label={`View ${dare.creator.username}'s profile`}>
+              <img src={dare.creator.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow group-hover:scale-105 transition-transform" />
+            </a>
+          ) : (
+            <img src={dare.creator?.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
+          )}
+          <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
+          <span className="font-semibold text-neutral-100">{dare.creator?.username}</span>
+        </div>
+        {/* Arrow for desktop */}
+        <span className="hidden sm:block text-neutral-500 text-3xl mx-4">→</span>
+        {/* Performer */}
+        <div className="flex flex-col items-center">
+          {dare.performer?._id ? (
+            <a href={`/profile/${dare.performer._id}`} className="group" tabIndex={0} aria-label={`View ${dare.performer.username}'s profile`}>
+              <img src={dare.performer.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow group-hover:scale-105 transition-transform" />
+            </a>
+          ) : (
+            <img src={dare.performer?.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
+          )}
+          <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Performer</span>
+          <span className="font-semibold text-neutral-100">{dare.performer?.username || 'None yet'}</span>
         </div>
       </div>
-      {/* Markdown Description */}
-      <div className="bg-neutral-900 rounded p-4 mb-4">
-        <Markdown>{dare?.description || ''}</Markdown>
+      {/* Dare Description Card */}
+      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <div className="font-bold text-xl text-primary mb-2">Dare Description</div>
+        <div className="text-base font-normal mb-3 break-words text-primary-contrast"><Markdown>{dare?.description || ''}</Markdown></div>
+        <div className="flex flex-wrap justify-center gap-2 mt-2">
+          <span className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
+            <TagIcon className="w-3 h-3" /> {dare.difficulty}
+          </span>
+          {dare.tags && dare.tags.map(tag => (
+            <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
+              <TagIcon className="w-3 h-3" /> {tag}
+            </span>
+          ))}
+        </div>
       </div>
       {/* Proof Section */}
-      {dare?.proof && (dare.proof.text || dare.proof.fileUrl) && (
-        <div className="bg-neutral-900 rounded p-4 mb-6">
-          <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Proof</h2>
-          {dare.proof.text && (
-            <div className="mb-2 text-neutral-100">{dare.proof.text}</div>
-          )}
-          {dare.proof.fileUrl && (
-            <div className="flex justify-center">
-              {/\.(jpg|jpeg|png|gif|webp)$/i.test(dare.proof.fileName || dare.proof.fileUrl) ? (
-                <img
-                  src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
-                  alt="Proof"
-                  className="max-w-full rounded shadow mb-2"
-                  style={{ maxHeight: 400 }}
-                />
-              ) : (
-                <video
-                  src={dare.proof.fileUrl.startsWith('http') ? dare.proof.fileUrl : `https://api.deviantdare.com${dare.proof.fileUrl}`}
-                  controls
-                  className="max-w-full rounded shadow mb-2"
-                  style={{ maxHeight: 400 }}
-                />
-              )}
+      {dare?.proof && (dare.proof.text || dare.proof.fileUrl) ? (
+        <div className="flex flex-col items-center mb-4">
+          <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 shadow overflow-hidden" onClick={() => setShowProofModal(true)}>
+            {dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+              <video src={dare.proof.fileUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
+            ) : (
+              <img src={dare.proof.fileUrl} alt="Proof" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity">
+              <CheckCircleIcon className="w-12 h-12 text-white" />
             </div>
-          )}
+          </div>
+          <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors" onClick={() => setShowProofModal(true)}>View Full Proof</button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center mb-4">
+          <TagIcon className="w-16 h-16 text-neutral-700 mb-2" />
+          <span className="text-neutral-400">No proof submitted yet. When you submit proof, it will appear here!</span>
         </div>
       )}
       {/* Grades Section */}
-      <div className="bg-neutral-900 rounded p-4 mb-6">
-        <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades & Feedback</h2>
+      <div className="bg-neutral-900 rounded-xl p-4 mb-6 border border-neutral-800">
+        <h2 className="text-lg font-semibold text-center mb-4 text-primary">Grades & Feedback</h2>
         {dare?.grades && dare.grades.length > 0 ? (
           <ul className="space-y-2 mb-4">
             {dare.grades.map((g, i) => (
@@ -410,7 +463,7 @@ export default function DareDetails() {
                     </button>
                   ))}
                 </div>
-                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
+                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
                 {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
@@ -434,7 +487,7 @@ export default function DareDetails() {
                     </button>
                   ))}
                 </div>
-                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
+                <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
                 {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
                 <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
@@ -445,19 +498,19 @@ export default function DareDetails() {
         )}
       </div>
       {/* Actions Section */}
-      <div className="space-y-4 mb-6">
+      <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
         {canAccept && (
-          <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
+          <button className="w-full sm:w-auto bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
             {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}
           </button>
         )}
         {canSubmitProof && !inCooldown && !atSlotLimit && !roleRestricted && (
-          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
+          <button className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
             Submit Proof of Completion
           </button>
         )}
         {isPerformerParticipant && dare.status !== 'rejected' && (
-          <button className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark" onClick={() => setShowRejectModal(true)}>
+          <button className="w-full sm:w-auto bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark" onClick={() => setShowRejectModal(true)}>
             Reject Dare
           </button>
         )}
