@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
+import { KeyIcon } from '@heroicons/react/24/solid';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -29,12 +30,24 @@ export default function ResetPassword() {
   };
 
   if (!token) {
-    return <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5"><div className="text-danger font-semibold text-center">Invalid or missing token.</div></div>;
+    return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden"><div className="text-danger font-semibold text-center">Invalid or missing token.</div></div>;
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
-      <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Reset Password</h1>
+    <div className="max-w-md mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <KeyIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Reset Password
+        </h1>
+      </div>
+      {/* Visually distinct status badge below header */}
+      <div className="flex justify-center mb-4">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <KeyIcon className="w-6 h-6" /> Reset Password
+        </span>
+      </div>
+      <div className="border-t border-neutral-800 my-4" />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-semibold mb-1 text-primary">New Password</label>
