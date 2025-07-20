@@ -137,10 +137,12 @@ export default function Notifications() {
   }
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <BellIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Notifications
         </h1>
       </div>
@@ -156,7 +158,11 @@ export default function Notifications() {
       )}
       <Banner type={generalError ? 'error' : 'info'} message={generalError} onClose={() => setGeneralError('')} />
       {loading ? (
-        <div className="text-center text-neutral-400">Loading notifications...</div>
+        <div className="flex flex-col gap-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse h-20 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
+          ))}
+        </div>
       ) : notifications.length === 0 ? (
         <div className="text-center text-neutral-400">No notifications.</div>
       ) : (
