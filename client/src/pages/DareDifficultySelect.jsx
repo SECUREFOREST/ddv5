@@ -77,7 +77,7 @@ export default function DareDifficultySelect() {
                   value={opt.value}
                   checked={difficulty === opt.value}
                   onChange={() => setDifficulty(opt.value)}
-                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
                   aria-checked={difficulty === opt.value}
                   aria-label={opt.label}
                   tabIndex={-1}

@@ -93,7 +93,7 @@ export default function DareShare() {
       <h2 className="text-xl font-bold text-center mb-2">Hi {dare.creator?.username || 'there'}</h2>
       <div className="text-neutral-300 text-center mb-2">share this link very carefully</div>
       <input
-        className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 text-center font-mono mb-2"
+        className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 text-center font-mono mb-2"
         value={dareUrl}
         readOnly
         onFocus={e => e.target.select()}
