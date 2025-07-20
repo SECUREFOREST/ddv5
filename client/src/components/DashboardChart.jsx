@@ -15,7 +15,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 /**
  * DashboardChart component
- * @param {object} stats - { daresCount, totalCredits, avgGrade }
+ * @param {object} stats - { daresCount, avgGrade }
  * @param {string} className - Additional classes
  */
 export default function DashboardChart({ stats = {}, className = '' }) {
