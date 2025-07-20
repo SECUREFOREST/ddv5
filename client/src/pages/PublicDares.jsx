@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Avatar from '../components/Avatar';
 import { Banner } from '../components/Modal';
+import { ClockIcon } from '@heroicons/react/24/solid';
 
 // Difficulty badge (reuse from DareCard)
 function DifficultyBadge({ level }) {
@@ -170,9 +171,8 @@ export default function PublicDares() {
                             </Link>
                           </div>
                         </div>
-                      {/* Description and tags */}
+                      {/* dare tags */}
                       <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
-                        <div className="font-medium text-base text-primary-contrast mb-1">{dare.description}</div>
                         <div className="flex flex-wrap justify-center gap-2 mt-2">
                           {dare.tags && dare.tags.map(tag => (
                             <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">{tag}</span>
@@ -183,7 +183,7 @@ export default function PublicDares() {
                       {dare.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
                           <div className="flex items-center gap-1" title={dare.createdAt}>
-                            <span className="material-icons text-neutral-400" style={{fontSize:'16px'}}>schedule</span>
+                            <ClockIcon className="w-4 h-4 text-neutral-400 inline-block mr-1" />
                             Created: {new Date(dare.createdAt).toLocaleString()}
                           </div>
                         </div>
@@ -215,9 +215,8 @@ export default function PublicDares() {
                             </Link>
                           </div>
                         </div>
-                      {/* Description and tags */}
+                      {/* dare tags */}
                       <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
-                        <div className="font-medium text-base text-primary-contrast mb-1">{game.creatorDare?.description}</div>
                         <div className="flex flex-wrap justify-center gap-2 mt-2">
                           {game.creatorDare?.tags && game.creatorDare.tags.map(tag => (
                             <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">{tag}</span>
@@ -228,7 +227,7 @@ export default function PublicDares() {
                       {game.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
                           <div className="flex items-center gap-1" title={game.createdAt}>
-                            <span className="material-icons text-neutral-400" style={{fontSize:'16px'}}>schedule</span>
+                            <ClockIcon className="w-4 h-4 text-neutral-400 inline-block mr-1" />
                             Created: {new Date(game.createdAt).toLocaleString()}
                           </div>
                         </div>
