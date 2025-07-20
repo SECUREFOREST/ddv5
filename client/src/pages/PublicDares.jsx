@@ -160,7 +160,10 @@ export default function PublicDares() {
                     {filteredDares.map(dare => (
                     <div key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
                         <div className="flex items-center gap-3 mb-2">
-                          <Avatar user={dare.creator} size="lg" />
+                          <Link to={`/profile/${dare.creator?._id || dare.creator?.id}`} className="flex items-center gap-2">
+                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                            <span className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</span>
+                          </Link>
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
                               {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
@@ -196,7 +199,10 @@ export default function PublicDares() {
                     {filteredSwitchGames.map(game => (
                     <div key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
                         <div className="flex items-center gap-3 mb-2">
-                          <Avatar user={game.creator} size="lg" />
+                          <Link to={`/profile/${game.creator?._id || game.creator?.id}`} className="flex items-center gap-2">
+                            <img src={game.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                            <span className="thing-title user-name font-bold">{game.creator?.username || 'User'}</span>
+                          </Link>
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
                               {game.creator?.fullName || game.creator?.username || 'Unknown'}
