@@ -171,14 +171,6 @@ export default function PublicDares() {
                             </Link>
                           </div>
                         </div>
-                      {/* dare tags */}
-                      <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
-                        <div className="flex flex-wrap justify-center gap-2 mt-2">
-                          {dare.tags && dare.tags.map(tag => (
-                            <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">{tag}</span>
-                          ))}
-                        </div>
-                      </div>
                       {/* Timestamps/meta */}
                       {dare.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
@@ -215,14 +207,6 @@ export default function PublicDares() {
                             </Link>
                           </div>
                         </div>
-                      {/* dare tags */}
-                      <div className="p-3 bg-neutral-800/80 rounded-lg border border-neutral-700 text-neutral-100 mb-2 text-center">
-                        <div className="flex flex-wrap justify-center gap-2 mt-2">
-                          {game.creatorDare?.tags && game.creatorDare.tags.map(tag => (
-                            <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">{tag}</span>
-                          ))}
-                        </div>
-                      </div>
                       {/* Timestamps/meta */}
                       {game.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
