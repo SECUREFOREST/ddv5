@@ -23,9 +23,9 @@ const Landing = () => {
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
       </Helmet>
       {/* Logo and Tagline */}
-      <div className="flex flex-col items-center justify-center pt-8 pb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight text-center mb-2">Deviant Dare</h1>
-        <span className="text-base text-neutral-400 font-semibold text-center">Social Dares & Challenges</span>
+      <div className="flex flex-col items-center justify-center pt-8 pb-4 w-full mx-auto text-center">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight mb-2 w-full">Deviant Dare</h1>
+        <span className="text-base text-neutral-400 font-semibold w-full">Social Dares & Challenges</span>
       </div>
       {/* Main CTA Button */}
       <div className="flex justify-center mb-6">
