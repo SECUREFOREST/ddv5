@@ -24,7 +24,6 @@ const Landing = () => {
       </Helmet>
       {/* Logo and Tagline */}
       <div className="flex flex-col items-center justify-center pt-8 pb-4">
-        <img src="/logo.svg" alt="Deviant Dare Logo" className="w-24 h-24 mb-2" aria-label="Deviant Dare Logo" />
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight text-center mb-2">Deviant Dare</h1>
         <span className="text-base text-neutral-400 font-semibold text-center">Social Dares & Challenges</span>
       </div>
