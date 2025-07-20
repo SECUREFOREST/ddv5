@@ -1,60 +1,134 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Banner } from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
+import Card from '../components/Card';
+import ActCard from '../components/ActCard';
+import ProgressBar from '../components/ProgressBar';
+import DashboardChart from '../components/DashboardChart';
+
+const TABS = [
+  { key: 'in_progress', label: 'Perform' },
+  { key: 'pending', label: 'Demand' },
+  { key: 'completed', label: 'Completed' },
+];
 
 export default function Dashboard() {
+  const [tab, setTab] = useState('in_progress');
+  const [acts, setActs] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [activities, setActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) return;
     setLoading(true);
-    api.get('/stats/dashboard')
-      .then(res => setStats(res.data))
-      .catch(() => setError('Failed to load dashboard stats.'))
+    api.get('/acts', { params: { status: tab } })
+      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setActs([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tab, user]);
+
+  useEffect(() => {
+    if (!user) return;
+    api.get(`/stats/users/${user.id}`)
+      .then(res => setStats(res.data))
+      .catch(() => setStats(null));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    api.get('/activities', { params: { limit: 10, userId: user.id } })
+      .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setActivities([]))
+      .finally(() => setActivitiesLoading(false));
+  }, [user]);
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Progress/Accent Bar */}
-      <div className="w-full bg-primary h-1 mb-1" />
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Dashboard</h1>
+    <div className="bg-neutral-800 rounded-lg shadow p-4 mb-4">
+      <div className="border-b border-neutral-900 pb-2 mb-4">
+        <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
-      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+      <div>
+        {stats && (
+          <>
+            <div className="mb-6">
+              <DashboardChart stats={stats} />
+            </div>
+            <div className="flex flex-wrap gap-4 mb-6">
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold text-primary">Acts Completed</div>
+                <div className="text-2xl text-primary">{stats.actsCount}</div>
+              </Card>
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold text-primary">Credits</div>
+                <div className="text-2xl text-primary">{stats.totalCredits}</div>
+              </Card>
+              <Card className="flex-1 min-w-[180px]">
+                <div className="text-base font-semibold text-primary">Avg. Grade</div>
+                <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+              </Card>
+            </div>
+          </>
+        )}
+        <div className="flex flex-wrap gap-8 mb-8">
+          <Card className="flex-1">
+            <div className="font-semibold text-primary mb-2">Recent Activity</div>
+            {activitiesLoading ? (
+              <div className="text-neutral-400">Loading activities...</div>
+            ) : activities.length === 0 ? (
+              <div className="text-neutral-400">No recent activities found.</div>
+            ) : (
+              <ul className="space-y-2">
+                {activities.map((activity, idx) => (
+                  <li key={idx} className="text-neutral-200 text-sm">
+                    {activity.type === 'act' && <span>Created act: <span className="font-bold">{activity.title}</span></span>}
+                    {activity.type === 'comment' && <span>Commented: <span className="italic">{activity.text}</span></span>}
+                    {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.act?.title}</span> ({activity.grade})</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
+        <ul className="flex border-b border-neutral-900 mb-4">
+          {TABS.map(t => (
+            <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-neutral-400'}>
+              <a
+                href="#"
+                className="px-4 py-2 inline-block focus:outline-none"
+                onClick={e => { e.preventDefault(); setTab(t.key); }}
+              >
+                {t.label}
+              </a>
+            </li>
+          ))}
+        </ul>
         {loading ? (
-          <div className="flex flex-col gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse h-16 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2" />
-            ))}
-          </div>
-        ) : error ? (
-          <Banner type="error" message={error} onClose={() => setError('')} />
-        ) : stats ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 shadow text-center">
-              <div className="text-lg font-semibold text-neutral-400">Total Users</div>
-              <div className="text-2xl font-bold text-primary">{stats.totalUsers}</div>
-            </div>
-            <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 shadow text-center">
-              <div className="text-lg font-semibold text-neutral-400">Total Dares</div>
-              <div className="text-2xl font-bold text-primary">{stats.totalDares}</div>
-            </div>
-            <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 shadow text-center">
-              <div className="text-lg font-semibold text-neutral-400">Total Comments</div>
-              <div className="text-2xl font-bold text-primary">{stats.totalComments}</div>
-            </div>
-            <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 shadow text-center">
-              <div className="text-lg font-semibold text-neutral-400">Total Credits Awarded</div>
-              <div className="text-2xl font-bold text-primary">{stats.totalCredits}</div>
-            </div>
-          </div>
+          <div className="text-neutral-400">Loading acts...</div>
         ) : (
-          <div className="text-neutral-400 text-center">No dashboard stats available.</div>
+          <div>
+            {acts.length === 0 ? (
+              <div className="text-neutral-400">No acts found for this tab.</div>
+            ) : (
+              <ul className="space-y-4">
+                {acts.map(act => (
+                  <li key={act._id} className="act">
+                    <ActCard
+                      title={act.title}
+                      description={act.description}
+                      difficulty={act.difficulty}
+                      tags={act.tags || []}
+                      status={act.status}
+                      user={act.creator}
+                      actions={[]}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
     </div>
