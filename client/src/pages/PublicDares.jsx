@@ -162,11 +162,10 @@ export default function PublicDares() {
                         <div className="flex items-center gap-3 mb-2">
                           <Link to={`/profile/${dare.creator?._id || dare.creator?.id}`} className="flex items-center gap-2">
                             <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                            <span className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</span>
+                            <span className="thing-title user-name font-bold">{dare.user?.fullName || dare.creator?.fullName || 'User'}</span>
                           </Link>
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
-                              {dare.creator?.fullName || dare.creator?.username || 'Unknown'}
                               <DifficultyBadge level={dare.difficulty} />
                             </div>
                             <Link to={`/dare/${dare._id}/participate`}>
@@ -201,11 +200,10 @@ export default function PublicDares() {
                         <div className="flex items-center gap-3 mb-2">
                           <Link to={`/profile/${game.creator?._id || game.creator?.id}`} className="flex items-center gap-2">
                             <img src={game.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                            <span className="thing-title user-name font-bold">{game.creator?.username || 'User'}</span>
+                            <span className="thing-title user-name font-bold">{game.creator?.fullName || 'User'}</span>
                           </Link>
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                             <div className="font-bold text-lg truncate flex items-center gap-2">
-                              {game.creator?.fullName || game.creator?.username || 'Unknown'}
                               <DifficultyBadge level={game.creatorDare?.difficulty} />
                             </div>
                             <Link to={`/switches/participate/${game._id}`}>
