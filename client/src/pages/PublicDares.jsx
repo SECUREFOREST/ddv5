@@ -96,62 +96,59 @@ export default function PublicDares() {
   const showSwitches = filter === 'all' || filter === 'switches';
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Public Dares & Switch Games</h1>
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Public Dares & Switch Games</h1>
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
       {/* Toast notification for feedback (if needed) */}
       {toast && (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
-          bg-green-700 text-white`}
-          role="alert"
-          aria-live="polite"
-          onClick={() => setToast('')}
-          tabIndex={0}
-          onBlur={() => setToast('')}
-        >
-          {toast}
-        </div>
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300 bg-green-700 text-white`} role="alert" aria-live="polite" onClick={() => setToast('')} tabIndex={0} onBlur={() => setToast('')}>{toast}</div>
       )}
-        {/* Onboarding/Intro Banner */}
+      {/* Onboarding/Intro Banner */}
       <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow-lg flex items-center gap-3">
-            <span className="text-2xl">🌎</span>
-            <div>
-              <div className="font-bold text-lg text-primary">Participate in Public Dares & Switch Games</div>
-              <div className="text-neutral-400 text-sm">Join fun challenges created by the community! Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
-            </div>
-          </div>
-        {/* Filters and Search */}
-      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex gap-2">
-            {FILTERS.map(f => (
-              <button
-                key={f.key}
-                className={`px-3 py-1 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
-                onClick={() => setFilter(f.key)}
-                aria-pressed={filter === f.key}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <input
-            type="text"
-            className="bg-neutral-900 border border-neutral-700 rounded px-3 py-1 text-sm text-neutral-100 focus:outline-none focus:border-primary w-full sm:w-64"
-            placeholder="Search by creator or tag..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            aria-label="Search public dares and switch games"
-          />
+        <span className="text-2xl">🌎</span>
+        <div>
+          <div className="font-bold text-lg text-primary">Participate in Public Dares & Switch Games</div>
+          <div className="text-neutral-400 text-sm">Join fun challenges created by the community! Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
         </div>
-        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-        {loading ? (
-          <div className="animate-pulse text-center text-neutral-400 mb-4" role="status" aria-live="polite">Loading public dares and switch games...</div>
-        ) : (
-          <>
+      </div>
+      {/* Filters and Search */}
+      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex gap-2">
+          {FILTERS.map(f => (
+            <button
+              key={f.key}
+              className={`px-3 py-1 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
+              onClick={() => setFilter(f.key)}
+              aria-pressed={filter === f.key}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          className="bg-neutral-900 border border-neutral-700 rounded px-3 py-1 text-sm text-neutral-100 focus:outline-none focus:border-primary w-full sm:w-64"
+          placeholder="Search by creator or tag..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          aria-label="Search public dares and switch games"
+        />
+      </div>
+      {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+      {loading ? (
+        <div className="flex flex-col gap-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse h-32 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
+          ))}
+        </div>
+      ) : (
+        <>
             {showDares && (
               <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-3 text-primary">Public Dares</h2>
