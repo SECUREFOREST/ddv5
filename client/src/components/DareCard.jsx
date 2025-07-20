@@ -161,7 +161,7 @@ export default function DareCard({
           {creator?.avatar && (
             <img src={creator.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
           )}
-          <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{creator?.username}</span>
+          <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{creator?.fullName || creator?.username || 'Anonymous'}</span>
         </Link>
         {performer && (
           <Link
@@ -173,7 +173,7 @@ export default function DareCard({
             {performer.avatar && (
               <img src={performer.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
             )}
-            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{performer.username}</span>
+            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{performer?.fullName || performer?.username || 'Anonymous'}</span>
           </Link>
         )}
         {assignedSwitch && (
@@ -186,7 +186,7 @@ export default function DareCard({
             {assignedSwitch.avatar && (
               <img src={assignedSwitch.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
             )}
-            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{assignedSwitch.username}</span>
+            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{assignedSwitch?.fullName || assignedSwitch?.username || 'Anonymous'}</span>
           </Link>
         )}
       </div>

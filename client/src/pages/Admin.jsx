@@ -624,14 +624,14 @@ export default function Admin() {
                           {auditLog
                             .filter(log =>
                             log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
-                            (log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
+                            (log.user?.fullName || log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
                             (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
                             )
                             .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
                           .map((log, i) => (
                               <tr key={i} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                                 <td className="p-2 font-medium text-primary">{log.action}</td>
-                                <td className="p-2 text-neutral-400">{log.user?.username || 'System'}</td>
+                                <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
                                 <td className="p-2 text-neutral-400">{log.target}</td>
                                 <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
                             </tr>

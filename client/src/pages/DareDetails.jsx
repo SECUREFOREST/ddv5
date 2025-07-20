@@ -360,7 +360,7 @@ export default function DareDetails() {
             <img src={dare.creator?.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
           )}
           <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
-          <span className="font-semibold text-neutral-100">{dare.creator?.username}</span>
+          <span className="font-semibold text-neutral-100">{dare.creator?.fullName || dare.creator?.username || 'Anonymous'}</span>
         </div>
         {/* Arrow for desktop */}
         <span className="hidden sm:block text-neutral-500 text-3xl mx-4">→</span>
@@ -374,7 +374,7 @@ export default function DareDetails() {
             <img src={dare.performer?.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
           )}
           <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Performer</span>
-          <span className="font-semibold text-neutral-100">{dare.performer?.username || 'None yet'}</span>
+          <span className="font-semibold text-neutral-100">{dare.performer?.fullName || dare.performer?.username || 'Anonymous'}</span>
         </div>
       </div>
       {/* Dare Description Card */}
