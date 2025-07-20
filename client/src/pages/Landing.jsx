@@ -22,10 +22,11 @@ const Landing = () => {
         <title>Deviant Dare | Social Dares, Challenges & Leaderboards</title>
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
       </Helmet>
-      {/* Logo and Tagline */}
-      <div className="flex flex-col items-center justify-center pt-8 pb-4 w-full mx-auto text-center">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight mb-2 w-full">Deviant Dare</h1>
-        <span className="text-base text-neutral-400 font-semibold w-full">Social Dares & Challenges</span>
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+          <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
+        </h1>
       </div>
       {/* Main CTA Button */}
       <div className="flex justify-center mb-6">
