@@ -177,15 +177,6 @@ export default function PublicDares() {
                           </Link>
                         </div>
                       </div>
-                      {/* Timestamps/meta */}
-                      {dare.createdAt && (
-                        <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
-                          <div className="flex items-center gap-1" title={dare.createdAt}>
-                            <ClockIcon className="w-4 h-4 text-neutral-400 inline-block mr-1" />
-                            Created: {new Date(dare.createdAt).toLocaleString()}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -217,15 +208,6 @@ export default function PublicDares() {
                           </Link>
                         </div>
                       </div>
-                      {/* Timestamps/meta */}
-                      {game.createdAt && (
-                        <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
-                          <div className="flex items-center gap-1" title={game.createdAt}>
-                            <ClockIcon className="w-4 h-4 text-neutral-400 inline-block mr-1" />
-                            Created: {new Date(game.createdAt).toLocaleString()}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
