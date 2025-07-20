@@ -84,7 +84,6 @@ export default function Navbar() {
                   ) : (
                     <UserCircleIcon className="w-8 h-8 text-neutral-400" />
                   )}
-                  <span className="ml-2 font-semibold text-primary-contrast">{user.fullName || user.username || ''}</span>
                 </button>
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
               </div>
