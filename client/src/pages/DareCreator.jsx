@@ -198,7 +198,7 @@ export default function DareCreator() {
           <div>
             <label className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#232526' }}
+              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#1a1a1a' }}
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
