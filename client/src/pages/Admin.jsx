@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -32,9 +32,11 @@ export default function Admin() {
   if (!user || !user.roles?.includes('admin')) {
     return (
       <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
+        {/* Progress/Accent Bar */}
+        <div className="w-full bg-primary h-1 mb-1" />
         {/* Sticky header at the top */}
         <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-danger tracking-tight flex items-center gap-2">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-danger tracking-tight flex items-center gap-2">
             <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
             <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
               <ShieldCheckIcon className="w-5 h-5" /> Admin Only
@@ -346,9 +348,11 @@ export default function Admin() {
 
   return (
     <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
           <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
             <ShieldCheckIcon className="w-5 h-5" /> Admin Only
@@ -368,105 +372,113 @@ export default function Admin() {
         </div>
       )}
       {/* Card-like section for tab content */}
-      <div className="p-4 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <Tabs
           tabs={[
             {
               label: 'Users',
               content: (
                 <div>
-                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
-                      <svg className="w-5 h-5 text-neutral-400 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" /></svg>
-                      <input
-                        type="text"
-                        className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
-                        placeholder="Search users..."
-                        value={userSearch}
-                        onChange={e => setUserSearch(e.target.value)}
-                        aria-label="Search users"
-                      />
-                      <button
-                        className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
-                        onClick={handleUserSearch}
-                        type="button"
-                      >
-                        Search
-                      </button>
+                  {/* Section header */}
+                  <div className="text-xl font-bold text-primary mb-4">User Management</div>
+                  {/* Search bar */}
+                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                    <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
+                    <input
+                      type="text"
+                      className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                      placeholder="Search users..."
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                      aria-label="Search users"
+                    />
+                    <button
+                      className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
+                      onClick={handleUserSearch}
+                      type="button"
+                    >
+                      Search
+                    </button>
+                  </div>
+                  {deleteUserError && (
+                    <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
+                  )}
+                  {/* Show loading skeletons when data is loading */}
+                  {dataLoading && (
+                    <div className="flex flex-col gap-2">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                          <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                          <div className="flex-1">
+                            <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                            <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                          </div>
+                          <div className="w-16 h-3 bg-neutral-700 rounded" />
+                        </div>
+                      ))}
                     </div>
-                    {deleteUserError && (
-                      <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
-                    )}
-                    {/* Show loading spinner or skeleton when data is loading */}
-                    {dataLoading && (
-                      <div className="flex justify-center items-center py-8">
-                        <svg className="animate-spin h-8 w-8 text-primary" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                        </svg>
-                        <span className="ml-3 text-neutral-300">Loading users...</span>
-                      </div>
-                    )}
-                    <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
-                        <thead>
-                          <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2 text-left font-semibold">Username</th>
-                            <th className="p-2 text-left font-semibold">Email</th>
-                            <th className="p-2 text-left font-semibold">Role</th>
-                            <th className="p-2 text-left font-semibold">Status</th>
-                            <th className="p-2 text-left font-semibold">Actions</th>
+                  )}
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                      <thead>
+                        <tr className="bg-neutral-900 text-primary">
+                          <th className="p-2 text-left font-semibold">Username</th>
+                          <th className="p-2 text-left font-semibold">Email</th>
+                          <th className="p-2 text-left font-semibold">Role</th>
+                          <th className="p-2 text-left font-semibold">Status</th>
+                          <th className="p-2 text-left font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.filter(u =>
+                          (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+                          (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
+                        ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
+                          <tr
+                            key={user._id}
+                            className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
+                          >
+                            <td className="p-2 text-primary font-semibold">
+                              <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.username}</a>
+                            </td>
+                            <td className="p-2 text-neutral-300">{user.email}</td>
+                            <td className="p-2">
+                              {user.role === 'admin' ? (
+                                <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                                  Admin
+                                </span>
+                              ) : user.role === 'moderator' ? (
+                                <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                  Moderator
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                  User
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-2">
+                              {!user.banned ? (
+                                <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
+                              ) : (
+                                <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
+                              )}
+                            </td>
+                            <td className="p-2">
+                              <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
+                              <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
+                                {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
+                                Delete
+                              </button>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {users.filter(u =>
-                            (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-                            (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
-                            <tr
-                              key={user._id}
-                              className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
-                            >
-                              <td className="p-2 text-primary font-semibold">
-                                <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.username}</a>
-                              </td>
-                              <td className="p-2 text-neutral-300">{user.email}</td>
-                              <td className="p-2">
-                                {user.role === 'admin' ? (
-                                  <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
-                                    Admin
-                                  </span>
-                                ) : user.role === 'moderator' ? (
-                                  <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Moderator
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                    User
-                                  </span>
-                                )}
-                              </td>
-                              <td className="p-2">
-                                {!user.banned ? (
-                                  <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
-                                ) : (
-                                  <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
-                                )}
-                              </td>
-                              <td className="p-2">
-                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
-                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
-                                  {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ),
             },
@@ -474,124 +486,76 @@ export default function Admin() {
               label: 'Dares',
               content: (
                 <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <input
-                        className="border border-neutral-900 rounded px-3 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                        placeholder="Search dares..."
-                        value={dareSearch}
-                        onChange={e => setDareSearch(e.target.value)}
-                      />
-                    <button
-                        className="bg-primary text-primary-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-primary-dark"
-                      disabled={selectedDares.length === 0 || actionLoading}
-                      onClick={async () => {
-                        setActionLoading(true);
-                        let success = 0, fail = 0;
-                        for (const id of selectedDares) {
-                          const dare = dares.find(d => d._id === id);
-                          if (dare?.status === 'pending') {
-                            try { await api.post(`/dares/${id}/approve`); success++; } catch { fail++; }
-                          }
-                        }
-                        fetchDares();
-                        clearSelectedDares();
-                        setActionLoading(false);
-                        if (success > 0) alert(`${success} dare(s) approved.`);
-                        if (fail > 0) alert(`${fail} dare(s) failed to approve.`);
-                      }}
-                    >
-                      Approve Selected
-                    </button>
-                    <button
-                        className="bg-warning text-warning-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-warning-dark"
-                      disabled={selectedDares.length === 0 || actionLoading}
-                      onClick={async () => {
-                        setActionLoading(true);
-                        let success = 0, fail = 0;
-                        for (const id of selectedDares) {
-                          const dare = dares.find(d => d._id === id);
-                          if (dare?.status === 'pending') {
-                            try { await api.post(`/dares/${id}/reject`); success++; } catch { fail++; }
-                          }
-                        }
-                        fetchDares();
-                        clearSelectedDares();
-                        setActionLoading(false);
-                        if (success > 0) alert(`${success} dare(s) rejected.`);
-                        if (fail > 0) alert(`${fail} dare(s) failed to reject.`);
-                      }}
-                    >
-                      Reject Selected
-                    </button>
-                    <button
-                        className="bg-danger text-danger-contrast px-3 py-1 rounded text-sm font-semibold hover:bg-danger-dark"
-                      disabled={selectedDares.length === 0 || actionLoading}
-                      onClick={async () => {
-                        if (!window.confirm('Delete selected dares?')) return;
-                        setActionLoading(true);
-                        let success = 0, fail = 0;
-                        for (const id of selectedDares) {
-                          try { await api.delete(`/dares/${id}`); success++; } catch { fail++; }
-                        }
-                        fetchDares();
-                        clearSelectedDares();
-                        setActionLoading(false);
-                        if (success > 0) alert(`${success} dare(s) deleted.`);
-                        if (fail > 0) alert(`${fail} dare(s) failed to delete.`);
-                      }}
-                    >
-                      Delete Selected
-                    </button>
-                    <button
-                        className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                        onClick={() => exportToCsv('dares.csv', dares)}
-                    >
-                      Export CSV
-                    </button>
+                  {/* Section header */}
+                  <div className="text-xl font-bold text-primary mb-4">Dare Management</div>
+                  {/* Search bar */}
+                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                    <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
+                    <input
+                      className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                      placeholder="Search dares..."
+                      value={dareSearch}
+                      onChange={e => setDareSearch(e.target.value)}
+                    />
                   </div>
-                    <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
-                            <thead>
-                          <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} /></th>
-                            <th className="p-2 text-left font-semibold">Description</th>
-                            <th className="p-2 text-left font-semibold">Creator</th>
-                            <th className="p-2 text-left font-semibold">Status</th>
-                            <th className="p-2 text-left font-semibold">Difficulty</th>
-                            <th className="p-2 text-left font-semibold">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                          {dares
-                            .filter(d =>
-                              (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
-                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
-                            )
-                            .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
-                            .map(d => (
-                              <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
-                                <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
-                                <td className="p-2 text-neutral-400">{d && d.creator?.username ? d.creator.username : 'Unknown'}</td>
-                                <td className="p-2">
-                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
-                                </td>
-                                <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
-                                <td className="p-2 space-x-2">
-                                  {d && d.status === 'pending' && (
-                                      <>
-                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
-                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
-                                      </>
-                                    )}
-                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                  {/* Show loading skeletons when data is loading */}
+                  {daresLoading && (
+                    <div className="flex flex-col gap-2">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                          <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                          <div className="flex-1">
+                            <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                            <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                          </div>
+                          <div className="w-16 h-3 bg-neutral-700 rounded" />
+                        </div>
+                      ))}
                     </div>
-                    {/* Pagination and other controls can be similarly refactored */}
+                  )}
+                  <div className="overflow-x-auto rounded shadow">
+                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                      <thead>
+                        <tr className="bg-neutral-900 text-primary">
+                          <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} /></th>
+                          <th className="p-2 text-left font-semibold">Description</th>
+                          <th className="p-2 text-left font-semibold">Creator</th>
+                          <th className="p-2 text-left font-semibold">Status</th>
+                          <th className="p-2 text-left font-semibold">Difficulty</th>
+                          <th className="p-2 text-left font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dares
+                          .filter(d =>
+                            (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                            (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+                          )
+                          .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
+                          .map(d => (
+                            <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                              <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
+                              <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
+                              <td className="p-2 text-neutral-400">{d && d.creator?.username ? d.creator.username : 'Unknown'}</td>
+                              <td className="p-2">
+                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
+                              </td>
+                              <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
+                              <td className="p-2 space-x-2">
+                                {d && d.status === 'pending' && (
+                                    <>
+                                    <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
+                                    <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
+                                    </>
+                                  )}
+                                <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                  </div>
+                  {/* Pagination and other controls can be similarly refactored */}
                 </div>
               ),
             },
