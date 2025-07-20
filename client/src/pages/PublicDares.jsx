@@ -168,8 +168,11 @@ export default function PublicDares() {
                             <span className="thing-title user-name font-bold">{dare.user?.fullName || dare.creator?.fullName || 'User'}</span>
                           </Link>
                         </div>
-                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <Link to={`/dare/${dare._id}/participate`}>
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          {/* Left: creator/difficulty info (already present) */}
+                          <div className="flex-1" />
+                          {/* Right: Participate button */}
+                          <Link to={`/dare/${dare._id}/participate`} className="ml-auto">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                           </Link>
                         </div>
@@ -207,8 +210,9 @@ export default function PublicDares() {
                             <span className="thing-title user-name font-bold">{game.creator?.fullName || 'User'}</span>
                           </Link>
                         </div>
-                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                          <Link to={`/switches/participate/${game._id}`}>
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <div className="flex-1" />
+                          <Link to={`/switches/participate/${game._id}`} className="ml-auto">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                           </Link>
                         </div>
