@@ -2,9 +2,16 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
-import { DARE_DIFFICULTIES } from '../tailwindColors';
 import TagsInput from '../components/TagsInput';
-import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+
+const DIFFICULTIES = [
+  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
+  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
+  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
+  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
+  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
+];
 
 export default function DareCreator() {
   const [description, setDescription] = useState('');
@@ -21,14 +28,6 @@ export default function DareCreator() {
   const [claimLink, setClaimLink] = useState('');
   const [tags, setTags] = useState([]);
   const [publicDare, setPublicDare] = useState(true);
-
-  const DIFFICULTIES = [
-    { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
-    { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
-    { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
-    { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
-    { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
-  ];
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -164,6 +163,7 @@ export default function DareCreator() {
                   ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
                   <span className="flex items-center gap-2">
                     <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                    {opt.icon}
                     <b>{opt.label}</b>
                   </span>
                   <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
