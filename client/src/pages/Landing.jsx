@@ -23,7 +23,7 @@ const Landing = () => {
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
       </Helmet>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="w-full rounded-t-2xl bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
         </h1>
