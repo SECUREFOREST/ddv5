@@ -198,7 +198,14 @@ export default function DarePerform() {
               {DIFFICULTIES.map(opt => (
                 <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
                   ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    value={opt.value}
+                    checked={difficulty === opt.value}
+                    onChange={() => setDifficulty(opt.value)}
+                    className="accent-primary bg-[#1a1a1a]"
+                  />
                   {opt.icon}
                   <b>{opt.label}</b>
                   <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
@@ -213,7 +220,7 @@ export default function DarePerform() {
               id="consent"
               checked={consentChecked}
               onChange={e => setConsentChecked(e.target.checked)}
-              className="mr-2"
+              className="mr-2 bg-[#1a1a1a]"
               required
             />
             <label htmlFor="consent" className="text-sm">I consent to perform a random dare.</label>
@@ -253,7 +260,7 @@ export default function DarePerform() {
                     value={opt.value}
                     checked={privacy === opt.value}
                     onChange={() => setPrivacy(opt.value)}
-                    className="mt-1 accent-primary"
+                    className="mt-1 accent-primary bg-[#1a1a1a]"
                   />
                   <span className="flex items-center gap-2">
                     {opt.icon}
@@ -270,7 +277,7 @@ export default function DarePerform() {
               <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
               <textarea
                 id="proof-text"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={proof}
                 onChange={e => setProof(e.target.value)}
                 rows={3}
@@ -282,7 +289,7 @@ export default function DarePerform() {
               <input
                 id="proof-file"
                 type="file"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 onChange={e => setProofFile(e.target.files[0])}
                 accept="image/*,video/mp4,video/webm,video/quicktime"
               />
