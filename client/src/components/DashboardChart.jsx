@@ -20,11 +20,11 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
  */
 export default function DashboardChart({ stats = {}, className = '' }) {
   const data = {
-    labels: ['Dares Completed', 'Avg. Grade'],
+    labels: ['Dares Completed', 'Credits', 'Avg. Grade'],
     datasets: [
       {
         label: 'User Stats',
-        data: [stats.daresCount || 0, stats.avgGrade || 0],
+        data: [stats.daresCount || 0, stats.totalCredits || 0, stats.avgGrade || 0],
         backgroundColor: [
           chartColors.red, // primary
           chartColors.green, // success
