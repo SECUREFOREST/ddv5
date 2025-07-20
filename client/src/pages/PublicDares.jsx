@@ -172,7 +172,7 @@ export default function PublicDares() {
                           {/* Left: creator/difficulty info (already present) */}
                           <div className="flex-1" />
                           {/* Right: Participate button */}
-                          <Link to={`/dare/${dare._id}/participate`} className="ml-auto">
+                          <Link to={`/dare/consent/${dare._id}`} className="ml-auto">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                           </Link>
                         </div>
@@ -203,7 +203,7 @@ export default function PublicDares() {
                         </div>
                         <div className="flex-1 min-w-0 flex items-center gap-2">
                           <div className="flex-1" />
-                          <Link to={`/switches/participate/${game._id}`} className="ml-auto">
+                          <Link to={`/switches/consent/${game._id}`} className="ml-auto">
                             <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
                           </Link>
                         </div>
