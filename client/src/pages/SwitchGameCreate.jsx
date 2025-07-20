@@ -89,7 +89,7 @@ export default function SwitchGameCreate() {
       <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         {/* Difficulty selection */}
         <div>
-          <label className="block font-bold mb-1 text-primary text-lg">Difficulty</label>
+          <div className="font-bold text-xl text-primary mb-4">Choose a difficulty</div>
           <div className="flex flex-col gap-4">
             {DIFFICULTIES.map(opt => (
               <label
