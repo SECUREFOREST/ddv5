@@ -20,7 +20,8 @@
     "chart.js": "^4.4.1",
     "socket.io-client": "^4.7.5",
     "dayjs": "^1.11.10",
-    "@headlessui/react": "^1.7.17"
+    "@headlessui/react": "^1.7.17",
+    "react-helmet": "^6.1.0"
   },
   "devDependencies": {
     "vite": "^5.2.0",
