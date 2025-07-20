@@ -136,11 +136,13 @@ export default function DarePerformerDashboard() {
   const [expandedPublicIdx, setExpandedPublicIdx] = useState(null);
   // Add state for expanded associate details
   const [expandedAssociateIdx, setExpandedAssociateIdx] = useState(null);
-  const associates = [
-    { username: 'alice', avatar: 'https://i.pravatar.cc/40?img=1', daresTogether: 3, lastDare: '2024-06-01' },
-    { username: 'bob', avatar: 'https://i.pravatar.cc/40?img=2', daresTogether: 1, lastDare: '2024-05-20' },
-    { username: 'carol', avatar: 'https://i.pravatar.cc/40?img=3', daresTogether: 2, lastDare: '2024-05-15' },
-  ];
+  // 2. Fetch associates from API
+  const [associates, setAssociates] = useState([]);
+  useEffect(() => {
+    api.get('/users/associates')
+      .then(res => setAssociates(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setAssociates([]));
+  }, []);
   // Prepare associates in rows of 3 for display
   const associatesPerRow = 3;
   const associateRows = [];
@@ -151,6 +153,15 @@ export default function DarePerformerDashboard() {
   // Add new state for advanced filters
   const [statusFilter, setStatusFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
+
+  // At the top of the component, after other state:
+  const [roleStats, setRoleStats] = useState(null);
+  useEffect(() => {
+    if (!user) return;
+    api.get(`/stats/users/${user.id || user._id}`)
+      .then(res => setRoleStats(res.data))
+      .catch(() => setRoleStats(null));
+  }, [user]);
 
   // On mount, fetch /user_settings for dashboard_tab
   useEffect(() => {
@@ -205,12 +216,11 @@ export default function DarePerformerDashboard() {
     // TODO: Fetch cooldown from user profile if available
   }, [user]);
 
-  // Fetch public dare counts on mount
+  // 1. Remove fallback for public dare counts
   useEffect(() => {
-    // TODO: Replace with real API endpoint if available
     api.get('/stats/public-acts')
       .then(res => setPublicActCounts(res.data))
-      .catch(() => setPublicActCounts({ total: 42, submission: 20, domination: 15, switch: 7 })); // stub fallback
+      .catch(() => setPublicActCounts({})); // Optionally show an error or leave empty
   }, []);
 
   // Persist public dares filter state
@@ -835,7 +845,8 @@ export default function DarePerformerDashboard() {
       </div>
       <div className="role-breakdown-section mt-8">
         <h3 className="text-xl font-bold mb-2">Role Breakdown</h3>
-        <DashboardChart stats={{ daresCount: 7, avgGrade: 4.2 }} />
+        {/* 3. Fetch role breakdown stats for the chart */}
+        {roleStats && <DashboardChart stats={roleStats} />}
       </div>
       {/* Add dashboard settings modal (stub) */}
       <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
