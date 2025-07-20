@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
-import ActCard from '../components/ActCard';
+import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import DashboardChart from '../components/DashboardChart';
 
@@ -115,7 +115,7 @@ export default function Dashboard() {
               <ul className="space-y-4">
                 {acts.map(act => (
                   <li key={act._id} className="act">
-                    <ActCard
+                    <DareCard
                       title={act.title}
                       description={act.description}
                       difficulty={act.difficulty}
