@@ -1,41 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
-import { DARE_DIFFICULTIES } from '../tailwindColors';
-import { FireIcon } from '@heroicons/react/24/solid';
+import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 
-function DifficultyBadge({ level }) {
-  let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-  let label = '';
-  switch (level) {
-    case 'titillating':
-      badgeClass = 'bg-pink-600 text-white rounded-none';
-      label = 'Titillating';
-      break;
-    case 'arousing':
-      badgeClass = 'bg-purple-700 text-white rounded-none';
-      label = 'Arousing';
-      break;
-    case 'explicit':
-      badgeClass = 'bg-red-700 text-white rounded-none';
-      label = 'Explicit';
-      break;
-    case 'edgy':
-      badgeClass = 'bg-yellow-700 text-white rounded-none';
-      label = 'Edgy';
-      break;
-    case 'hardcore':
-      badgeClass = 'bg-black text-white rounded-none border border-red-700';
-      label = 'Hardcore';
-      break;
-    default:
-      label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
-  }
-  return (
-    <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{label}</span>
-  );
-}
+const DIFFICULTIES = [
+  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
+  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
+  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
+  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
+  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
+];
 
 export default function DareParticipant() {
   const { id } = useParams();
@@ -53,14 +28,13 @@ export default function DareParticipant() {
   const [expireAfterView, setExpireAfterView] = useState(false);
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
-  // Add state for general error/success
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
 
   const MAX_PROOF_SIZE_MB = 10;
 
   // If id param is present, fetch that dare directly
-  useEffect(() => {
+  React.useEffect(() => {
     if (id) {
       setLoading(true);
       api.get(`/dares/${id}`)
@@ -133,7 +107,6 @@ export default function DareParticipant() {
       setExpireAfterView(false);
       setProofSuccess('Proof submitted successfully!');
       setGeneralSuccess('Proof submitted successfully!');
-      // Automatically offer a new dare after a short delay
       setTimeout(() => {
         setConsented(false);
         setConsentChecked(false);
@@ -156,7 +129,7 @@ export default function DareParticipant() {
     setGeneralError('');
     setGeneralSuccess('');
     try {
-      const res = await api.post(`/dares/${dare._id}/forfeit`);
+      await api.post(`/dares/${dare._id}/forfeit`);
       setConsented(false);
       setConsentChecked(false);
       setDare(null);
@@ -197,36 +170,40 @@ export default function DareParticipant() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress Bar */}
+      <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
+        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: consented ? '100%' : '50%' }} />
+      </div>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
         </h1>
       </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
-          <FireIcon className="w-6 h-6" /> Perform Dare
-        </span>
-      </div>
+      {/* Step indicator */}
+      <div className="text-center text-xs text-neutral-400 font-semibold mb-2">{consented ? 'Step 2 of 2: Submit Proof' : 'Step 1 of 2: Consent & Get Dare'}</div>
+      {/* Section divider */}
       <div className="border-t border-neutral-800 my-4" />
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       {!consented && (
-        <div className="space-y-4">
+        <div className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          {/* Difficulty Selection */}
           <div>
             <label className="block font-semibold mb-1 text-primary">Select Difficulty</label>
-            <select
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={difficulty}
-              onChange={e => setDifficulty(e.target.value)}
-              required
-            >
-              {DARE_DIFFICULTIES.map(d => (
-                <option key={d.value} value={d.value}>{d.label}</option>
+            <div className="flex flex-col gap-2">
+              {DIFFICULTIES.map(opt => (
+                <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
+                  ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                  {opt.icon}
+                  <b>{opt.label}</b>
+                  <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
+          {/* Consent Checkbox */}
           <div className="flex items-center">
             <input
               id="consent-checkbox"
@@ -238,19 +215,21 @@ export default function DareParticipant() {
             />
             <label htmlFor="consent-checkbox" className="text-neutral-100">I consent to receive a random dare and complete it as described.</label>
           </div>
-          <button
-            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50"
-            onClick={handleConsent}
-            disabled={loading || !consentChecked}
-            aria-busy={loading}
-          >
-            {loading ? (
-              <span>
-                <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
-                Consenting...
-              </span>
-            ) : 'Consent'}
-          </button>
+          <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+            <button
+              className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50"
+              onClick={handleConsent}
+              disabled={loading || !consentChecked}
+              aria-busy={loading}
+            >
+              {loading ? (
+                <span>
+                  <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
+                  Consenting...
+                </span>
+              ) : 'Consent'}
+            </button>
+          </div>
           {noDare && (
             <div className="text-danger text-sm font-medium text-center">
               No available dare found for this difficulty.<br />
@@ -266,14 +245,12 @@ export default function DareParticipant() {
       )}
       {consented && dare && (
         <>
-          <div className="mb-4">
-            <div className="bg-neutral-900 rounded p-4 mb-2">
-              <div className="mb-2"><b>Description:</b></div>
-              <div>{dare.description}</div>
-            </div>
-            <div className="mb-2"><b>Difficulty:</b> <DifficultyBadge level={dare.difficulty} /></div>
+          <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
+            <div className="mb-2 font-bold text-primary text-lg">Dare Description</div>
+            <div className="mb-2">{dare.description}</div>
+            <div className="mb-2 flex items-center gap-2"><span className="font-semibold">Difficulty:</span> {DIFFICULTIES.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
           </div>
-          <form onSubmit={handleProofSubmit} className="space-y-4" aria-label="Submit Proof Form">
+          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4" aria-label="Submit Proof Form">
             <div>
               <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
               <textarea
@@ -308,14 +285,16 @@ export default function DareParticipant() {
             </div>
             {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
             {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50" disabled={proofLoading} aria-busy={proofLoading}>
-              {proofLoading ? (
-                <span>
-                  <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
-                  Submitting...
-                </span>
-              ) : 'Submit Proof'}
-            </button>
+            <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50" disabled={proofLoading} aria-busy={proofLoading}>
+                {proofLoading ? (
+                  <span>
+                    <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
+                    Submitting...
+                  </span>
+                ) : 'Submit Proof'}
+              </button>
+            </div>
           </form>
           {/* Chicken Out button, only if dare is in progress */}
           {dare.status === 'in_progress' && (

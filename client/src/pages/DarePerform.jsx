@@ -3,21 +3,20 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
-import { DARE_DIFFICULTIES } from '../tailwindColors';
-import { FireIcon } from '@heroicons/react/24/solid';
+import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
 
 const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
+  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
+  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
+  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
+  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
+  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
 ];
 
 const PRIVACY_OPTIONS = [
-  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.' },
-  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.' },
-  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.' },
+  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.', icon: <LockClosedIcon className="w-5 h-5 text-primary" /> },
+  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.', icon: <ClockIcon className="w-5 h-5 text-yellow-400" /> },
+  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.', icon: <TrashIcon className="w-5 h-5 text-danger" /> },
 ];
 
 export default function DarePerform() {
@@ -175,36 +174,39 @@ export default function DarePerform() {
   }, [dare, proofSuccess]);
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress Bar */}
+      <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
+        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: consented ? '100%' : '50%' }} />
+      </div>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
         </h1>
       </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
-          <FireIcon className="w-6 h-6" /> Perform Dare
-        </span>
-      </div>
+      {/* Step indicator */}
+      <div className="text-center text-xs text-neutral-400 font-semibold mb-2">{consented ? 'Step 2 of 2: Submit Proof' : 'Step 1 of 2: Consent & Get Dare'}</div>
+      {/* Section divider */}
       <div className="border-t border-neutral-800 my-4" />
       {!consented ? (
-        <form onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-4">
+        <form onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          {/* Difficulty Selection */}
           <div>
             <label className="block font-semibold mb-1 text-primary">Select Difficulty</label>
             <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} />
-                  <span>
-                    <b>{opt.label}</b><br/>
-                    <span className="text-xs text-neutral-400">{opt.desc}</span>
-                  </span>
+                <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
+                  ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                  {opt.icon}
+                  <b>{opt.label}</b>
+                  <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
                 </label>
               ))}
             </div>
           </div>
+          {/* Consent Checkbox */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -216,9 +218,20 @@ export default function DarePerform() {
             />
             <label htmlFor="consent" className="text-sm">I consent to perform a random dare.</label>
           </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50" disabled={loading || !consentChecked}>
-            {loading ? 'Loading...' : 'Get Dare'}
-          </button>
+          <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50 flex items-center gap-2 justify-center" disabled={loading || !consentChecked}>
+              {loading ? (
+                <span>
+                  <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
+                  Loading...
+                </span>
+              ) : (
+                <>
+                  Get Dare <ArrowRightIcon className="inline w-5 h-5 ml-1" />
+                </>
+              )}
+            </button>
+          </div>
           {noDare && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">No dare found for this difficulty. Try a different one.</div>}
         </form>
       ) : dare ? (
@@ -226,9 +239,9 @@ export default function DarePerform() {
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
             <div className="font-semibold text-primary mb-2">Your Dare:</div>
             <div className="text-lg font-bold mb-2">{dare.description}</div>
-            <div className="text-sm text-neutral-400">Difficulty: {dare.difficulty}</div>
+            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTIES.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
           </div>
-          {/* Content Deletion / Privacy section */}
+          {/* Privacy Options */}
           <div className="mb-6">
             <label className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
             <div className="flex flex-col gap-2">
@@ -240,106 +253,69 @@ export default function DarePerform() {
                     value={opt.value}
                     checked={privacy === opt.value}
                     onChange={() => setPrivacy(opt.value)}
-                    className="mt-1"
+                    className="mt-1 accent-primary"
                   />
-                  <span>
-                    <b>{opt.label}</b><br/>
-                    <span className="text-xs text-neutral-400">{opt.desc}</span>
+                  <span className="flex items-center gap-2">
+                    {opt.icon}
+                    <b>{opt.label}</b>
                   </span>
+                  <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
                 </label>
               ))}
             </div>
           </div>
-          {/* Proof submission removed */}
-          {proofSuccess && dare && (isCreator || isPerformer) && (
-            <div className="mt-6">
-              <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grade</h2>
-              {fetchingDare && <div className="text-center text-info mb-2">Loading updated dare details...</div>}
-              {fetchDareError && <div className="text-danger text-center mb-2">{fetchDareError}</div>}
-              {/* Creator grades performer */}
-              {isCreator && dare.performer && !hasGradedPerformer && (
-                <form onSubmit={e => handleGrade(e, getId(dare.performer))} className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avatar user={dare.performer} size={32} />
-                    <span className="font-semibold">{dare.performer?.username || 'Participant'}</span>
-                  </div>
-                  <div className="flex gap-2 mb-2">
-                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                      <button
-                        type="button"
-                        key={num}
-                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                        onClick={() => setGrade(num)}
-                        aria-label={`Score ${num}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
-                  {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
-                    {grading ? 'Submitting...' : 'Submit Grade'}
-                  </button>
-                </form>
-              )}
-              {/* Performer grades creator */}
-              {isPerformer && dare.creator && !hasGradedCreator && (
-                <form onSubmit={e => handleGrade(e, getId(dare.creator))} className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avatar user={dare.creator} size={32} />
-                    <span className="font-semibold">{dare.creator?.username || 'Creator'}</span>
-                  </div>
-                  <div className="flex gap-2 mb-2">
-                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                      <button
-                        type="button"
-                        key={num}
-                        className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                        onClick={() => setGrade(num)}
-                        aria-label={`Score ${num}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                  <input className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
-                  {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
-                    {grading ? 'Submitting...' : 'Submit Grade'}
-                  </button>
-                </form>
-              )}
-              {(isCreator && hasGradedPerformer) || (isPerformer && hasGradedCreator) ? (
-                <div className="text-success text-center font-medium mb-2">You have already graded this user for this dare.</div>
-              ) : null}
-              {grades && grades.length > 0 && (
-                <ul className="space-y-2 mt-4">
-                  {grades.map((g, i) => (
-                    <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                      <Avatar user={g.user} size={24} />
-                      <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
-                      <span className="text-xs text-gray-400">
-                        ({g.user && dare.creator && (getId(g.user) === getId(dare.creator) ? 'Creator' : 'Performer')})
-                      </span>
-                      <span className="mx-2">→</span>
-                      <Avatar user={g.target} size={24} />
-                      <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
-                      <span className="text-xs text-gray-400">
-                        ({g.target && dare.creator && (getId(g.target) === getId(dare.creator) ? 'Creator' : 'Performer')})
-                      </span>
-                      <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
-                        {g.grade}
-                      </span>
-                      {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
-                      {g.createdAt && (
-                        <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
+          {/* Proof submission */}
+          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+            <div>
+              <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
+              <textarea
+                id="proof-text"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                value={proof}
+                onChange={e => setProof(e.target.value)}
+                rows={3}
+                placeholder="Describe your proof, add a link, or leave blank if uploading a file."
+              />
             </div>
+            <div>
+              <label className="block font-semibold mb-1 text-primary" htmlFor="proof-file">Upload image or video proof (optional)</label>
+              <input
+                id="proof-file"
+                type="file"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                onChange={e => setProofFile(e.target.files[0])}
+                accept="image/*,video/mp4,video/webm,video/quicktime"
+              />
+              <small className="text-gray-400">Accepted: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
+            </div>
+            {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
+            {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
+            <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark disabled:opacity-50 flex items-center gap-2 justify-center" disabled={proofLoading} aria-busy={proofLoading}>
+                {proofLoading ? (
+                  <span>
+                    <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
+                    Submitting...
+                  </span>
+                ) : (
+                  <>
+                    Submit Proof <ArrowRightIcon className="inline w-5 h-5 ml-1" />
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+          {/* Chicken Out button, only if dare is in progress */}
+          {dare.status === 'in_progress' && (
+            <button
+              className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
+              // onClick={handleChickenOut} // Not implemented in this file
+              disabled={false}
+              aria-busy={false}
+            >
+              {/* {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'} */}
+              Chicken Out
+            </button>
           )}
         </div>
       ) : null}
