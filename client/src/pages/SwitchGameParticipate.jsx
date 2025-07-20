@@ -232,7 +232,7 @@ export default function SwitchGameParticipate() {
             />
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base" disabled={searching} aria-label="Find Game">
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg" disabled={searching} aria-label="Find Game">
             {searching ? (
               <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
             ) : (
@@ -253,7 +253,7 @@ export default function SwitchGameParticipate() {
         <div className="border-t border-neutral-800 my-4" />
         <Banner type="error" message={error} onClose={() => setError('')} />
         <button
-          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base"
+          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg"
           onClick={() => navigate('/switches/participate')}
         >
           Try Another Game
@@ -375,7 +375,7 @@ export default function SwitchGameParticipate() {
                 </div>
               )}
             </div>
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base">Join Game</button>
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg">Join Game</button>
           </form>
         {/* 6. Add timestamps/meta at the bottom */}
         {game.createdAt && (
