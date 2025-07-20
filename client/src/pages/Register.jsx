@@ -77,17 +77,9 @@ export default function Register() {
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <UserPlusIcon className="w-7 h-7 text-primary" /> Register
+          <UserPlusIcon className="w-7 h-7 text-primary" /> Create Account
         </h1>
       </div>
-      {/* Visually distinct status badge */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
-          <UserPlusIcon className="w-6 h-6" /> Create Account
-        </span>
-      </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
       <div className="flex flex-col items-center text-center px-6 pb-8">
         <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto">
           <div>
