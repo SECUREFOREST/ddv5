@@ -22,7 +22,7 @@ const Landing = () => {
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <SparklesIcon className="w-7 h-7 text-primary" /> Welcome to DDv5!
+          <SparklesIcon className="w-7 h-7 text-primary" /> Welcome to Deviant Dare!
         </h1>
       </div>
       {/* Visually distinct status badge */}
@@ -34,7 +34,7 @@ const Landing = () => {
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
       <div className="flex flex-col items-center text-center px-6 pb-8">
-        <img src="/logo.svg" alt="DDv5 Logo" className="w-2/3 max-w-[180px] mx-auto mb-4" aria-label="DDv5 Logo" />
+        <img src="/logo.svg" alt="Deviant Dare Logo" className="w-2/3 max-w-[180px] mx-auto mb-4" aria-label="Deviant Dare Logo" />
         <p className="text-lg mb-6 text-center text-primary-contrast font-semibold italic">Your journey to productivity starts here.</p>
         <ul className="text-left mb-8 text-neutral-300 list-disc list-inside text-base max-w-xs mx-auto">
           <li className="mb-1">✔️ Log your daily dares and progress</li>
