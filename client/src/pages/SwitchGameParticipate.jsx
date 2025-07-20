@@ -4,15 +4,40 @@ import api from '../api/axios';
 import { Banner } from '../components/Modal';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
-import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, FireIcon, BoltIcon, BeakerIcon, SkullIcon } from '@heroicons/react/24/solid';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
+  {
+    value: 'titillating',
+    label: 'Titillating',
+    desc: 'Fun, flirty, and easy. For beginners or light play.',
+    icon: <FireIcon className="w-6 h-6 text-orange-400" aria-hidden="true" />,
+  },
+  {
+    value: 'arousing',
+    label: 'Arousing',
+    desc: 'A bit more daring, but still approachable.',
+    icon: <BoltIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+  },
+  {
+    value: 'explicit',
+    label: 'Explicit',
+    desc: 'Sexually explicit or more intense.',
+    icon: <ExclamationTriangleIcon className="w-6 h-6 text-pink-500" aria-hidden="true" />,
+  },
+  {
+    value: 'edgy',
+    label: 'Edgy',
+    desc: 'Pushes boundaries, not for the faint of heart.',
+    icon: <BeakerIcon className="w-6 h-6 text-blue-400" aria-hidden="true" />,
+  },
+  {
+    value: 'hardcore',
+    label: 'Hardcore',
+    desc: 'Extreme, risky, or very advanced.',
+    icon: <SkullIcon className="w-6 h-6 text-red-600" aria-hidden="true" />,
+  },
 ];
 
 // 2. Add a StatusBadge helper (like DareReveal)
