@@ -74,6 +74,7 @@ function AppContent() {
               <Route path="/dare/create" element={<PrivateRoute><DareCreator /></PrivateRoute>} />
               <Route path="/dare/:id/participate" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
               <Route path="/dare/select" element={<PrivateRoute><DareDifficultySelect /></PrivateRoute>} />
+              <Route path="/dare/consent/:id" element={<PrivateRoute><DareConsent /></PrivateRoute>} />
               <Route path="/dare/consent" element={<PrivateRoute><DareConsent /></PrivateRoute>} />
               <Route path="/dare/reveal" element={<PrivateRoute><DareReveal /></PrivateRoute>} />
               <Route path="/dare/reveal/:id" element={<PrivateRoute><DareReveal /></PrivateRoute>} />
