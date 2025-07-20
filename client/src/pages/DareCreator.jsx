@@ -153,11 +153,11 @@ export default function DareCreator() {
         </div>
       )}
       {!showModal && (
-        <form onSubmit={handleCreate} className="space-y-8 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form onSubmit={handleCreate} className="space-y-8 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4 text-center">
           {/* Difficulty Group */}
           <div>
             <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
-            <div className="flex flex-col gap-4 w-full max-w-md mx-auto">
+            <div className="flex flex-col gap-4">
               {DIFFICULTIES.map(opt => (
                 <label
                   key={opt.value}

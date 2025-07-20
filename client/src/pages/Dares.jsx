@@ -299,7 +299,7 @@ export default function Dares() {
                 </div>
                 <div>
                   <label htmlFor="consentChecked" className="inline-flex items-center">
-                    <input id="consentChecked" type="checkbox" className="form-checkbox mr-2" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
+                    <input id="consentChecked" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
                     I consent to perform or participate in this dare as described.
                   </label>
                 </div>
@@ -327,7 +327,7 @@ export default function Dares() {
               <div className="flex items-center gap-2">
                 <input
                   id="sharable-link-input-modal"
-                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
                   value={dareUrl}
                   readOnly
@@ -364,7 +364,7 @@ export default function Dares() {
                 </div>
                 <div>
                   <label htmlFor="acceptConsent" className="inline-flex items-center">
-                    <input id="acceptConsent" type="checkbox" className="form-checkbox mr-2" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
+                    <input id="acceptConsent" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
                     I consent to perform or participate in this dare as described.
                   </label>
                 </div>

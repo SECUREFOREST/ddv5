@@ -517,7 +517,7 @@ export default function Admin() {
                     <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
                       <thead>
                         <tr className="bg-neutral-900 text-primary">
-                          <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} /></th>
+                          <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
                           <th className="p-2 text-left font-semibold">Description</th>
                           <th className="p-2 text-left font-semibold">Creator</th>
                           <th className="p-2 text-left font-semibold">Status</th>
@@ -534,7 +534,7 @@ export default function Admin() {
                           .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                           .map(d => (
                             <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
+                              <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
                               <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
                               <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
                               <td className="p-2">
