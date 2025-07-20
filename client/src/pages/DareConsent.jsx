@@ -77,20 +77,38 @@ const DareConsent = () => {
       {/* Card-like section for main content */}
       <div className="p-6 flex flex-col gap-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <div className="mb-2 text-center">
-          <p className="text-lg text-primary-contrast">{dare.creator?.username || 'Someone'} wants you to perform</p>
-          <h1 className="text-2xl font-bold inline-block text-primary mb-2">A Deviant Dare</h1>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
+              {/* Avatar */}
+              {dare.creator && dare.creator.avatar ? (
+                <img src={dare.creator.avatar} alt={(dare.creator.fullName || dare.creator.username || 'Anonymous') + ' avatar'} className="w-8 h-8 rounded-full border border-primary" />
+              ) : (
+                <span className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-neutral-400 border border-neutral-600">?
+                </span>
+              )}
+              {/* Full name (clickable if username is present) */}
+              {dare.creator && dare.creator.fullName ? (
+                dare.creator.username ? (
+                  <a href={`/profile/${dare.creator.username}`} className="text-primary-contrast font-semibold hover:underline" target="_blank" rel="noopener noreferrer">
+                    {dare.creator.fullName}
+                  </a>
+                ) : (
+                  <span className="text-primary-contrast font-semibold">{dare.creator.fullName}</span>
+                )
+              ) : (
+                <span className="text-neutral-400 font-semibold">Anonymous</span>
+              )}
+              <span className="text-neutral-400">wants you to perform</span>
+            </div>
+            <h1 className="text-2xl font-bold inline-block text-primary mb-2">A Deviant Dare</h1>
+          </div>
         </div>
         <div className="mb-2 flex flex-col gap-2 items-center justify-center">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-neutral-300">Difficulty:</span>
             <DifficultyBadge level={dare.difficulty} />
           </div>
-          {dare.creator && (
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-neutral-300">Creator:</span>
-              <span className="text-primary-contrast">{dare.creator.username || 'Anonymous'}</span>
-            </div>
-          )}
+          {/* Creator info already shown above */}
         </div>
         <div className="mb-2 text-center">
           <p className="text-neutral-200">Will you agree to perform their dare?</p>

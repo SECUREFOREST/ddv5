@@ -199,15 +199,20 @@ router.get('/:id', async (req, res) => {
     const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
-      .populate('assignedSwitch', 'username fullName avatar');
+      .populate('assignedSwitch', 'username avatar');
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-    // Ensure creator and performer are always present as objects (not just IDs)
-    // If missing, try to fetch and attach them
-    if (dare.creator && typeof dare.creator === 'string') {
-      dare.creator = await User.findById(dare.creator).select('username avatar');
-    }
-    if (dare.performer && typeof dare.performer === 'string') {
-      dare.performer = await User.findById(dare.performer).select('username avatar');
+    // Ensure creator is always populated
+    if (!dare.creator || !dare.creator.username) {
+      // Try to fetch the user if only an ID is present
+      if (dare.creator && typeof dare.creator === 'object' && dare.creator._id) {
+        const user = await User.findById(dare.creator._id).select('username fullName avatar');
+        dare.creator = user || null;
+      } else if (dare.creator && typeof dare.creator === 'string') {
+        const user = await User.findById(dare.creator).select('username fullName avatar');
+        dare.creator = user || null;
+      } else {
+        dare.creator = null;
+      }
     }
     res.json(dare);
   } catch (err) {
