@@ -8,6 +8,7 @@ import Slot from '../components/Slot';
 import Accordion from '../components/Accordion';
 import DashboardChart from '../components/DashboardChart';
 import { UserIcon } from '@heroicons/react/24/solid';
+import { io } from 'socket.io-client';
 
 /**
  * DarePerformerDashboard - Modern React/Tailwind implementation of the legacy performer dashboard.
@@ -115,7 +116,7 @@ export default function DarePerformerDashboard() {
   const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
   const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
   const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
-  const [publicDemandActs, setPublicDemandActs] = useState([]);
+  const [publicDemandDares, setPublicDemandDares] = useState([]);
   const [publicDemandLoading, setPublicDemandLoading] = useState(false);
   const [publicDemandError, setPublicDemandError] = useState('');
   const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
@@ -146,6 +147,10 @@ export default function DarePerformerDashboard() {
   for (let i = 0; i < associates.length; i += associatesPerRow) {
     associateRows.push(associates.slice(i, i + associatesPerRow));
   }
+
+  // Add new state for advanced filters
+  const [statusFilter, setStatusFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
 
   // On mount, fetch /user_settings for dashboard_tab
   useEffect(() => {
@@ -225,46 +230,33 @@ export default function DarePerformerDashboard() {
     localStorage.setItem('publicDaresFilters', JSON.stringify({ selectedDifficulties, selectedTypes, keywordFilter, creatorFilter }));
   }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
 
-  // Fetch public dares with filters
+  // Fetch public dares
   useEffect(() => {
     setPublicLoading(true);
-    setPublicError(''); // Clear previous errors
-    let url = '/dares?public=true&status=waiting_for_participant';
-    if (selectedDifficulties.length > 0) url += `&difficulty=${selectedDifficulties.join(',')}`;
-    if (selectedTypes.length > 0) url += `&dareType=${selectedTypes.join(',')}`;
-    if (keywordFilter) url += `&q=${encodeURIComponent(keywordFilter)}`;
-    if (creatorFilter) url += `&creatorUsername=${encodeURIComponent(creatorFilter)}`;
-    api.get(url)
-      .then(res => setPublicDares(res.data))
-      .catch(() => setPublicError('Failed to load public dares. Please try again.'))
+    setPublicError('');
+    api.get('/dares', { params: { public: true, status: statusFilter, tag: tagFilter } })
+      .then(res => setPublicDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setPublicError('Failed to load public dares.'))
       .finally(() => setPublicLoading(false));
-  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
+  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter, statusFilter, tagFilter]);
 
-  // Real-time updates for public dares (stub)
-  useEffect(() => {
-    // TODO: Replace with real websocket (e.g., socket.io or Pusher) integration
-    // Example:
-    // const socket = io('/');
-    // socket.on('public_dare_publish', dare => { ... });
-    // socket.on('public_dare_unpublish', dare => { ... });
-    // For now, this is a stub for future real-time updates.
-    // Cleanup: return () => { if (socket) socket.disconnect(); };
-  }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
-  // Fetch public demand acts with filters (stub logic, replace with real API call)
+  // Fetch public demand dares
   useEffect(() => {
     setPublicDemandLoading(true);
     setPublicDemandError('');
-    // TODO: Replace with real API endpoint for public demand acts
-    // Simulate API call with setTimeout
-    setTimeout(() => {
-      // Example stub data
-      const stubActs = [
-        // { _id: '1', description: 'Demand 1', tags: ['tag1'], creator: { username: 'alice' }, status: 'waiting', proof: {}, grades: [] },
-      ];
-      setPublicDemandActs(stubActs);
-      setPublicDemandLoading(false);
-    }, 500);
+    api.get('/dares', { params: { public: true, type: 'demand' } })
+      .then(res => setPublicDemandDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setPublicDemandError('Failed to load public demand dares.'))
+      .finally(() => setPublicDemandLoading(false));
   }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
+
+  // Add real-time updates for public dares using socket.io-client
+  useEffect(() => {
+    const socket = io('https://your-backend-url'); // Replace with your backend URL
+    socket.on('public_dare_publish', dare => setPublicDares(prev => [dare, ...prev]));
+    socket.on('public_dare_unpublish', dareId => setPublicDares(prev => prev.filter(d => d._id !== dareId)));
+    return () => socket.disconnect();
+  }, []);
 
   // Claim a public dare (if slots available and not in cooldown)
   const handleClaimDare = async (dare) => {
@@ -383,27 +375,15 @@ export default function DarePerformerDashboard() {
 
   // Advanced filter stubs (below existing filters)
   const renderAdvancedFilters = () => (
-    <div className="advanced-filters flex flex-col md:flex-row gap-4 mb-4" /* Tailwind: flex flex-col md:flex-row gap-4 mb-4 */>
-      <input
-        type="text"
-        className="rounded border px-2 py-1"
-        placeholder="Search by keyword"
-        value={keywordFilter}
-        onChange={e => setKeywordFilter(e.target.value)}
-        aria-label="Search for public dares by keyword"
-      />
-      <input
-        type="text"
-        className="rounded border px-2 py-1"
-        placeholder="Filter by creator username"
-        value={creatorFilter}
-        onChange={e => setCreatorFilter(e.target.value)}
-        aria-label="Filter public dares by creator username"
-      />
-      <select className="rounded border px-2 py-1" disabled aria-label="Filter public dares by status">
-        <option>Filter by status (stub)</option>
+    <div className="flex flex-col md:flex-row gap-4 mb-4">
+      <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded border px-2 py-1" aria-label="Filter by dare status">
+        <option value="">All Statuses</option>
+        <option value="completed">Completed</option>
+        <option value="in_progress">In Progress</option>
+        <option value="waiting_for_participant">Waiting for Participant</option>
+        <option value="forfeited">Forfeited</option>
       </select>
-      {/* TODO: Add more advanced filter options as needed */}
+      <input value={tagFilter} onChange={e => setTagFilter(e.target.value)} placeholder="Filter by tag" />
     </div>
   );
 
@@ -771,13 +751,13 @@ export default function DarePerformerDashboard() {
                 ))
               )}
             </div>
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public demand acts">Browse Public Demand Offers</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public demand dares">Browse Public Demand Offers</h3>
             {publicDemandError && <div className="text-danger text-center mb-2">{publicDemandError}</div>}
             <div className="public-demand-browser mb-8">
               {renderDemandFilters()}
               {publicDemandLoading ? (
                 <div className="text-center py-8 text-neutral-400">Loading public demand offers...</div>
-              ) : publicDemandActs.length === 0 ? (
+              ) : publicDemandDares.length === 0 ? (
                 selectedDemandDifficulties.length === 0 ? (
                   <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
                 ) : (
@@ -785,7 +765,7 @@ export default function DarePerformerDashboard() {
                 )
               ) : (
                 <div className="public-demand-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {dedupeDaresByUser(publicDemandActs).map((dare, idx) => (
+                  {dedupeDaresByUser(publicDemandDares).map((dare, idx) => (
                     <div key={dare._id || idx} className="thing thing-with-avatar public-dare flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
                       <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
                       <div className="thing-details flex-1">

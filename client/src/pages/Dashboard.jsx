@@ -24,7 +24,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    api.get('/acts', { params: { status: tab, userId: user.id } })
+    api.get('/dares', { params: { status: tab, userId: user.id } })
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
       .catch(() => setDares([]))
       .finally(() => setLoading(false));
@@ -59,7 +59,7 @@ export default function Dashboard() {
             <div className="flex flex-wrap gap-4 mb-6">
               <Card className="flex-1 min-w-[180px]">
                 <div className="text-base font-semibold text-primary">Dares Completed</div>
-                <div className="text-2xl text-primary">{stats.actsCount}</div>
+                <div className="text-2xl text-primary">{stats.daresCount}</div>
               </Card>
               <Card className="flex-1 min-w-[180px]">
                 <div className="text-base font-semibold text-primary">Avg. Grade</div>

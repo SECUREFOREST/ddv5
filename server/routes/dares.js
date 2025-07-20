@@ -306,6 +306,7 @@ router.patch('/:id',
 
 // POST /api/dares/:id/grade - grade a dare (auth required)
 router.post('/:id/grade',
+  auth,
   [
     body('grade').isInt({ min: 1, max: 10 }),
     body('feedback').optional().isString().isLength({ max: 500 }).trim().escape(),
@@ -317,11 +318,16 @@ router.post('/:id/grade',
       return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
     try {
-      const { grade, feedback, target } = req.body;
-      if (!target) return res.status(400).json({ error: 'Target user is required for grading.' });
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-      dare.grades = dare.grades || [];
+      if (dare.proofExpiresAt && new Date(dare.proofExpiresAt) < new Date()) {
+        return res.status(400).json({ error: 'Proof has expired. Grading is not allowed.' });
+      }
+      if (!dare.performer || dare.performer.toString() !== req.userId) {
+        return res.status(403).json({ error: 'Unauthorized.' });
+      }
+      const { grade, feedback, target } = req.body;
+      if (!target) return res.status(400).json({ error: 'Target user is required for grading.' });
       // Prevent duplicate grades for the same (user, target) pair
       if (dare.grades.some(g => g.user.toString() === req.userId && g.target && g.target.toString() === target)) {
         return res.status(400).json({ error: 'You have already graded this user for this dare.' });
