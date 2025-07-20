@@ -137,7 +137,7 @@ export default function OfferSubmission() {
           <div className="flex flex-col gap-2">
             {DIFFICULTIES.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))} />
+                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
                 <span>
                   <b>{opt.label}</b><br/>
                   <span className="text-xs text-neutral-400">{opt.desc}</span>
@@ -149,7 +149,7 @@ export default function OfferSubmission() {
         <div>
           <label className="block font-semibold mb-1">Description / Requirements</label>
           <textarea
-            className="w-full rounded bg-neutral-800 border border-neutral-700 text-neutral-100 p-2 min-h-[80px]"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={description}
             onChange={e => setDescription(e.target.value)}
             disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
@@ -165,7 +165,7 @@ export default function OfferSubmission() {
           <div className="flex flex-col gap-2">
             {PRIVACY_OPTIONS.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="privacy" value={opt.value} checked={privacy === opt.value} onChange={() => handlePrivacyChange(opt.value)} disabled={privacyLoading} />
+                <input type="radio" name="privacy" value={opt.value} checked={privacy === opt.value} onChange={() => handlePrivacyChange(opt.value)} disabled={privacyLoading} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
                 <span>
                   <b>{opt.label}</b><br/>
                   <span className="text-xs text-neutral-400">{opt.desc}</span>

@@ -56,7 +56,7 @@ export default function ActivityFeed() {
         <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
         <input
           type="text"
-          className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+          className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
           placeholder="Search activity, user, or type..."
           value={search}
           onChange={e => setSearch(e.target.value)}

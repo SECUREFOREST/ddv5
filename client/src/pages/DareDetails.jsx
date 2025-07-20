@@ -542,7 +542,7 @@ export default function DareDetails() {
           <div>
             <label className="block font-semibold mb-1">Reason for rejection:</label>
             <textarea
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               rows={3}
@@ -566,7 +566,7 @@ export default function DareDetails() {
           <div>
             <label className="block font-semibold mb-1">Describe what you did (optional):</label>
             <textarea
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={proof}
               onChange={e => setProof(e.target.value)}
               rows={4}
@@ -577,7 +577,7 @@ export default function DareDetails() {
             <label className="block font-semibold mb-1">Upload image or video proof:</label>
             <input
               type="file"
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               onChange={e => setProofFile(e.target.files[0])}
               accept="image/*,video/mp4,video/webm,video/quicktime"
             />
@@ -604,7 +604,7 @@ export default function DareDetails() {
           <div>
             <label className="block font-semibold mb-1">Reason for reporting:</label>
             <textarea
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={reportReason}
               onChange={e => setReportReason(e.target.value)}
               rows={3}
@@ -629,7 +629,7 @@ export default function DareDetails() {
           <div>
             <label className="block font-semibold mb-1 text-primary">Reason for appeal:</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={appealReason}
               onChange={e => setAppealReason(e.target.value)}
               rows={3}
@@ -655,7 +655,7 @@ export default function DareDetails() {
             <label className="block font-semibold mb-1">Edit your comment:</label>
             <input
               type="text"
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={editCommentText}
               onChange={e => setEditCommentText(e.target.value)}
               required
@@ -678,7 +678,7 @@ export default function DareDetails() {
             <label className="block font-semibold mb-1">Reason for hiding/moderating:</label>
             <input
               type="text"
-              className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={moderationReason}
               onChange={e => setModerationReason(e.target.value)}
               required

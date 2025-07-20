@@ -198,7 +198,7 @@ export default function UIDemo() {
           max={100}
           value={progress}
           onChange={e => setProgress(Number(e.target.value))}
-          className="w-full mt-2 accent-primary"
+          className="w-full mt-2 accent-primary bg-[#1a1a1a]"
         />
       </section>
 

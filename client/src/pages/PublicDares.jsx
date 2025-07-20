@@ -134,7 +134,7 @@ export default function PublicDares() {
         </div>
         <input
           type="text"
-          className="bg-[#1a1a1a] border border-neutral-700 rounded px-3 py-1 text-sm text-neutral-100 focus:outline-none focus:border-primary w-full sm:w-64"
+          className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
           placeholder="Search by creator or tag..."
           value={search}
           onChange={e => setSearch(e.target.value)}

@@ -386,14 +386,14 @@ export default function DarePerformerDashboard() {
   // Advanced filter stubs (below existing filters)
   const renderAdvancedFilters = () => (
     <div className="flex flex-col md:flex-row gap-4 mb-4">
-      <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded border px-2 py-1" aria-label="Filter by dare status">
+      <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by dare status">
         <option value="">All Statuses</option>
         <option value="completed">Completed</option>
         <option value="in_progress">In Progress</option>
         <option value="waiting_for_participant">Waiting for Participant</option>
         <option value="forfeited">Forfeited</option>
       </select>
-      <input value={tagFilter} onChange={e => setTagFilter(e.target.value)} placeholder="Filter by tag" />
+      <input value={tagFilter} onChange={e => setTagFilter(e.target.value)} placeholder="Filter by tag" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
     </div>
   );
 
@@ -456,7 +456,7 @@ export default function DarePerformerDashboard() {
       {renderDemandTypeChips()}
       <input
         type="text"
-        className="rounded border px-2 py-1"
+        className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
         placeholder="Search by keyword"
         value={demandKeywordFilter}
         onChange={e => setDemandKeywordFilter(e.target.value)}
@@ -464,7 +464,7 @@ export default function DarePerformerDashboard() {
       />
       <input
         type="text"
-        className="rounded border px-2 py-1"
+        className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
         placeholder="Filter by creator username"
         value={demandCreatorFilter}
         onChange={e => setDemandCreatorFilter(e.target.value)}

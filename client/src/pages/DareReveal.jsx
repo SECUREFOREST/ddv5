@@ -289,7 +289,7 @@ export default function DareReveal() {
                     <label className="block font-semibold mb-1">Upload image or video proof:</label>
                     <input
                       type="file"
-                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                       onChange={handleProofFileChange}
                       accept="image/*,video/mp4,video/webm,video/quicktime"
                     />
@@ -298,7 +298,7 @@ export default function DareReveal() {
                   <div>
                     <label className="block font-semibold mb-1">Describe what you did (optional):</label>
                     <textarea
-                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                       value={proof}
                       onChange={e => setProof(e.target.value)}
                       rows={3}

@@ -170,11 +170,11 @@ export default function Register() {
             <label className="block font-semibold mb-1 text-primary">Interested in</label>
             <div className="flex gap-4 mt-1">
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} />
+                <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} className="bg-[#1a1a1a]" />
                 Female
               </label>
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} />
+                <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} className="bg-[#1a1a1a]" />
                 Male
               </label>
             </div>

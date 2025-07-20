@@ -492,7 +492,7 @@ export default function Admin() {
                   <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
                     <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
                     <input
-                      className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                      className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
                       placeholder="Search dares..."
                       value={dareSearch}
                       onChange={e => setDareSearch(e.target.value)}
@@ -592,7 +592,7 @@ export default function Admin() {
                 <div>
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                       <input
-                        className="border border-neutral-900 rounded px-3 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                        className="border border-neutral-900 rounded px-3 py-1 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                         placeholder="Search audit log..."
                         value={auditLogSearch}
                         onChange={e => setAuditLogSearch(e.target.value)}

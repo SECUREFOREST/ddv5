@@ -255,7 +255,7 @@ export default function DareParticipant() {
               <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
               <textarea
                 id="proof-text"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={proof}
                 onChange={e => setProof(e.target.value)}
                 rows={3}
@@ -277,7 +277,7 @@ export default function DareParticipant() {
               <input
                 id="proof-file"
                 type="file"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 onChange={handleProofFileChange}
                 accept="image/*,video/mp4,video/webm,video/quicktime"
               />

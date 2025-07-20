@@ -116,7 +116,7 @@ export default function DareCreator() {
               <>
                 <label className="block font-semibold mb-1 text-primary">Claimable Link</label>
                 <input
-                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mb-2"
+                  className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
                   value={claimLink}
                   readOnly
@@ -130,7 +130,7 @@ export default function DareCreator() {
             )}
             <label className="block font-semibold mb-1 text-primary">Sharable Link</label>
             <input
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#181818] text-neutral-100 focus:outline-none focus:ring focus:border-primary mb-2"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               type="text"
               value={dareUrl}
               readOnly
@@ -198,7 +198,7 @@ export default function DareCreator() {
           <div>
             <label className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#1a1a1a' }}
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}

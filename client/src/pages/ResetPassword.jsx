@@ -55,7 +55,7 @@ export default function ResetPassword() {
           <label className="block font-semibold mb-1 text-primary">New Password</label>
           <input
             type="password"
-            className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
             required
