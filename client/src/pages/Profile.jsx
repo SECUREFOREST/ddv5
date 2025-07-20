@@ -252,11 +252,13 @@ export default function Profile() {
   const submissivePercent = user?.natureRatio?.submission ?? null;
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <UserIcon className="w-7 h-7 text-primary" /> Profile
           <RoleBadge roles={user.roles} />
         </h1>
@@ -269,139 +271,154 @@ export default function Profile() {
             {
               label: 'About',
               content: (
-                <div className="flex flex-col md:flex-row gap-8 mb-8">
-                  <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
-                    <input
-                      id="avatar-upload-input"
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={handleAvatarChange}
-                    />
-                    <div className="relative group">
-                      <Avatar user={user} size="lg" onClick={handleAvatarClick} border shadow />
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
+                loading ? (
+                  <div className="flex flex-col md:flex-row gap-8 mb-8">
+                    <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
+                      <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse mb-4" />
+                      <div className="h-4 w-24 bg-neutral-700 rounded mb-2 animate-pulse" />
+                      <div className="h-4 w-24 bg-neutral-800 rounded mb-2 animate-pulse" />
                     </div>
-                    {avatarSaved && (
-                      <div className="text-success text-xs mt-2">Profile picture saved!</div>
-                    )}
-                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => { setTabIdx(0); setEditMode(true); }}>
-                      Edit Profile
-                    </button>
-                    <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast" onClick={logout}>
-                      Logout
-                    </button>
-                    {/* Add Upgrade/Downgrade Admin button */}
-                    {user.roles?.includes('admin') ? (
-                      <button
-                        className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast"
-                        onClick={async () => {
-                          if (!user || !(user.id || user._id)) return;
-                          const userId = user.id || user._id;
-                          try {
-                            await api.patch(`/users/${userId}`, { roles: ['user'] });
-                            // Update user in AuthContext and localStorage
-                            const updatedUser = { ...user, roles: ['user'] };
-                            localStorage.setItem('user', JSON.stringify(updatedUser));
-                            if (typeof setUser === 'function') setUser(updatedUser);
-                            alert('User downgraded to regular user!');
-                          } catch (err) {
-                            alert('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
-                          }
-                        }}
-                      >
-                        Downgrade to User
-                      </button>
-                    ) : (
-                      <button
-                        className="bg-warning text-warning-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark focus:outline-none focus:ring-2 focus:ring-warning-contrast"
-                        onClick={async () => {
-                          if (!user || !(user.id || user._id)) return;
-                          const userId = user.id || user._id;
-                          try {
-                            await api.patch(`/users/${userId}`, { roles: ['admin'] });
-                            // Update user in AuthContext and localStorage
-                            const updatedUser = { ...user, roles: ['admin'] };
-                            localStorage.setItem('user', JSON.stringify(updatedUser));
-                            if (typeof setUser === 'function') setUser(updatedUser);
-                            alert('User upgraded to admin!');
-                          } catch (err) {
-                            alert('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
-                          }
-                        }}
-                      >
-                        Upgrade to Admin
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    {editMode ? (
-                      <form onSubmit={handleSave} className="space-y-4">
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Username</label>
-                          <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Full Name</label>
-                          <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Bio</label>
-                          <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} />
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Gender</label>
-                          <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
-                            <option value="">Select...</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Birth Date</label>
-                          <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Interested In</label>
-                          <TagsInput value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} />
-                        </div>
-                        <div>
-                          <label className="block font-semibold mb-1 text-primary">Limits</label>
-                          <TagsInput value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} />
-                        </div>
-                        <div className="flex gap-2 mt-4">
-                          <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark" disabled={saving}>Save</button>
-                          <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
-                        </div>
-                        {error && <div className="text-danger mt-2">{error}</div>}
-                      </form>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-bold mb-2">About Me</h2>
-                        <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
-                        <div><strong>Username:</strong> {user.username}</div>
-                        <div><strong>Full Name:</strong> {user.fullName}</div>
-                        <div><strong>Email:</strong> {user.email}</div>
-                        {user.gender && (
-                          <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
-                        )}
-                        {user.dob && (
-                          <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
-                        )}
-                        {user.interestedIn && user.interestedIn.length > 0 && (
-                          <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
-                        )}
-                        {user.limits && user.limits.length > 0 && (
-                          <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
-                        )}
-                      </>
-                    )}
-                    <div className="mt-6">
-                      <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
+                    <div className="flex-1 space-y-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-4 w-full bg-neutral-700 rounded animate-pulse mb-2" />
+                      ))}
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex flex-col md:flex-row gap-8 mb-8">
+                    <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
+                      <input
+                        id="avatar-upload-input"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handleAvatarChange}
+                      />
+                      <div className="relative group">
+                        <Avatar user={user} size="lg" onClick={handleAvatarClick} border shadow />
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
+                      </div>
+                      {avatarSaved && (
+                        <div className="text-success text-xs mt-2">Profile picture saved!</div>
+                      )}
+                      <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => { setTabIdx(0); setEditMode(true); }}>
+                        Edit Profile
+                      </button>
+                      <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast" onClick={logout}>
+                        Logout
+                      </button>
+                      {/* Add Upgrade/Downgrade Admin button */}
+                      {user.roles?.includes('admin') ? (
+                        <button
+                          className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast"
+                          onClick={async () => {
+                            if (!user || !(user.id || user._id)) return;
+                            const userId = user.id || user._id;
+                            try {
+                              await api.patch(`/users/${userId}`, { roles: ['user'] });
+                              // Update user in AuthContext and localStorage
+                              const updatedUser = { ...user, roles: ['user'] };
+                              localStorage.setItem('user', JSON.stringify(updatedUser));
+                              if (typeof setUser === 'function') setUser(updatedUser);
+                              alert('User downgraded to regular user!');
+                            } catch (err) {
+                              alert('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
+                            }
+                          }}
+                        >
+                          Downgrade to User
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-warning text-warning-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark focus:outline-none focus:ring-2 focus:ring-warning-contrast"
+                          onClick={async () => {
+                            if (!user || !(user.id || user._id)) return;
+                            const userId = user.id || user._id;
+                            try {
+                              await api.patch(`/users/${userId}`, { roles: ['admin'] });
+                              // Update user in AuthContext and localStorage
+                              const updatedUser = { ...user, roles: ['admin'] };
+                              localStorage.setItem('user', JSON.stringify(updatedUser));
+                              if (typeof setUser === 'function') setUser(updatedUser);
+                              alert('User upgraded to admin!');
+                            } catch (err) {
+                              alert('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
+                            }
+                          }}
+                        >
+                          Upgrade to Admin
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      {editMode ? (
+                        <form onSubmit={handleSave} className="space-y-4">
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Username</label>
+                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Full Name</label>
+                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Bio</label>
+                            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} />
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Gender</label>
+                            <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
+                              <option value="">Select...</option>
+                              <option value="male">Male</option>
+                              <option value="female">Female</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Birth Date</label>
+                            <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Interested In</label>
+                            <TagsInput value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} />
+                          </div>
+                          <div>
+                            <label className="block font-semibold mb-1 text-primary">Limits</label>
+                            <TagsInput value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} />
+                          </div>
+                          <div className="flex gap-2 mt-4">
+                            <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark" disabled={saving}>Save</button>
+                            <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
+                          </div>
+                          {error && <div className="text-danger mt-2">{error}</div>}
+                        </form>
+                      ) : (
+                        <>
+                          <h2 className="text-xl font-bold mb-2">About Me</h2>
+                          <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
+                          <div><strong>Username:</strong> {user.username}</div>
+                          <div><strong>Full Name:</strong> {user.fullName}</div>
+                          <div><strong>Email:</strong> {user.email}</div>
+                          {user.gender && (
+                            <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
+                          )}
+                          {user.dob && (
+                            <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
+                          )}
+                          {user.interestedIn && user.interestedIn.length > 0 && (
+                            <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
+                          )}
+                          {user.limits && user.limits.length > 0 && (
+                            <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
+                          )}
+                        </>
+                      )}
+                      <div className="mt-6">
+                        <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
+                      </div>
+                    </div>
+                  </div>
+                )
               ),
             },
             {
