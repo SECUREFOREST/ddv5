@@ -174,7 +174,7 @@ export default function SwitchGameCreate() {
         </div>
         <button
           type="submit"
-          className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast"
+          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base"
           disabled={creating}
           aria-label="Create Switch Game"
         >

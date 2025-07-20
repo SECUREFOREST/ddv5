@@ -194,7 +194,7 @@ export default function SwitchGameParticipate() {
                     value={opt.value}
                     checked={difficulty === opt.value}
                     onChange={() => setDifficulty(opt.value)}
-                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
                     aria-checked={difficulty === opt.value}
                     aria-label={opt.label}
                     tabIndex={-1}
@@ -211,7 +211,7 @@ export default function SwitchGameParticipate() {
           <div>
             <label className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#1a1a1a' }}
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={demand}
               onChange={e => setDemand(e.target.value)}
               rows={3}
@@ -227,12 +227,12 @@ export default function SwitchGameParticipate() {
               id="consent"
               checked={consent}
               onChange={e => setConsent(e.target.checked)}
-              className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast"
+              className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]"
               required
             />
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast" disabled={searching} aria-label="Find Game">
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base" disabled={searching} aria-label="Find Game">
             {searching ? (
               <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
             ) : (
@@ -253,7 +253,7 @@ export default function SwitchGameParticipate() {
         <div className="border-t border-neutral-800 my-4" />
         <Banner type="error" message={error} onClose={() => setError('')} />
         <button
-          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast"
+          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base"
           onClick={() => navigate('/switches/participate')}
         >
           Try Another Game
@@ -375,7 +375,7 @@ export default function SwitchGameParticipate() {
                 </div>
               )}
             </div>
-            <button type="submit" className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast">Join Game</button>
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base">Join Game</button>
           </form>
         {/* 6. Add timestamps/meta at the bottom */}
         {game.createdAt && (

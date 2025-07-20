@@ -195,7 +195,7 @@ export default function DareParticipant() {
               {DIFFICULTIES.map(opt => (
                 <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
                   ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
+                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary bg-[#1a1a1a]" />
                   {opt.icon}
                   <b>{opt.label}</b>
                   <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
@@ -210,7 +210,7 @@ export default function DareParticipant() {
               type="checkbox"
               checked={consentChecked}
               onChange={e => setConsentChecked(e.target.checked)}
-              className="form-checkbox mr-2"
+              className="form-checkbox mr-2 bg-[#1a1a1a]"
               aria-required="true"
             />
             <label htmlFor="consent-checkbox" className="text-neutral-100">I consent to receive a random dare and complete it as described.</label>
@@ -268,7 +268,7 @@ export default function DareParticipant() {
                 type="checkbox"
                 checked={expireAfterView}
                 onChange={e => setExpireAfterView(e.target.checked)}
-                className="mr-2"
+                className="mr-2 bg-[#1a1a1a]"
               />
               <label htmlFor="expireAfterView" className="text-sm">Expire proof 48 hours after it is viewed by the dare creator.</label>
             </div>
