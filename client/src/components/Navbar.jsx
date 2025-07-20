@@ -54,7 +54,7 @@ export default function Navbar() {
         {user && (
           <>
             <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create"><PlusCircleIcon className="w-5 h-5" />Create Dare</Link></li>
-            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform"><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
+            <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/select"><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
             <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares"><GlobeAltIcon className="w-5 h-5" />Public Dares</Link></li>
             <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches"><Squares2X2Icon className="w-5 h-5" />Switch Games</Link></li>
             <li><Link className="flex items-center gap-1 text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity"><ChartBarIcon className="w-5 h-5" />Activity</Link></li>
@@ -103,7 +103,7 @@ export default function Navbar() {
         <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
           <ul className="sm:hidden flex flex-col gap-2 mt-4">
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/create" onClick={() => setMobileMenuOpen(false)}><PlusCircleIcon className="w-5 h-5" />Create Dare</Link></li>
-            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/perform" onClick={() => setMobileMenuOpen(false)}><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
+            <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/dare/select" onClick={() => setMobileMenuOpen(false)}><PlayCircleIcon className="w-5 h-5" />Perform Dare</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/public-dares" onClick={() => setMobileMenuOpen(false)}><GlobeAltIcon className="w-5 h-5" />Public Dares</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/switches" onClick={() => setMobileMenuOpen(false)}><Squares2X2Icon className="w-5 h-5" />Switch Games</Link></li>
             <li><Link className="block text-[#888] hover:text-white transition-colors px-2 py-1" to="/user-activity" onClick={() => setMobileMenuOpen(false)}><ChartBarIcon className="w-5 h-5" />Activity</Link></li>
