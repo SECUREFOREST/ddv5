@@ -14,7 +14,7 @@ const TABS = [
 
 export default function Dashboard() {
   const [tab, setTab] = useState('in_progress');
-  const [acts, setActs] = useState([]);
+  const [dares, setDares] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
@@ -24,9 +24,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    api.get('/acts', { params: { status: tab } })
-      .then(res => setActs(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActs([]))
+    api.get('/acts', { params: { status: tab, userId: user.id } })
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDares([]))
       .finally(() => setLoading(false));
   }, [tab, user]);
 
@@ -58,7 +58,7 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-wrap gap-4 mb-6">
               <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold text-primary">Acts Completed</div>
+                <div className="text-base font-semibold text-primary">Dares Completed</div>
                 <div className="text-2xl text-primary">{stats.actsCount}</div>
               </Card>
               <Card className="flex-1 min-w-[180px]">
@@ -83,7 +83,7 @@ export default function Dashboard() {
               <ul className="space-y-2">
                 {activities.map((activity, idx) => (
                   <li key={idx} className="text-neutral-200 text-sm">
-                    {activity.type === 'act' && <span>Created act: <span className="font-bold">{activity.title}</span></span>}
+                    {activity.type === 'act' && <span>Created dare: <span className="font-bold">{activity.title}</span></span>}
                     {activity.type === 'comment' && <span>Commented: <span className="italic">{activity.text}</span></span>}
                     {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.act?.title}</span> ({activity.grade})</span>}
                   </li>
@@ -106,22 +106,22 @@ export default function Dashboard() {
           ))}
         </ul>
         {loading ? (
-          <div className="text-neutral-400">Loading acts...</div>
+          <div className="text-neutral-400">Loading dares...</div>
         ) : (
           <div>
-            {acts.length === 0 ? (
-              <div className="text-neutral-400">No acts found for this tab.</div>
+            {dares.length === 0 ? (
+              <div className="text-neutral-400">No dares found for this tab.</div>
             ) : (
               <ul className="space-y-4">
-                {acts.map(act => (
-                  <li key={act._id} className="act">
+                {dares.map(dare => (
+                  <li key={dare._id} className="dare">
                     <DareCard
-                      title={act.title}
-                      description={act.description}
-                      difficulty={act.difficulty}
-                      tags={act.tags || []}
-                      status={act.status}
-                      user={act.creator}
+                      title={dare.title}
+                      description={dare.description}
+                      difficulty={dare.difficulty}
+                      tags={dare.tags || []}
+                      status={dare.status}
+                      user={dare.creator}
                       actions={[]}
                     />
                   </li>
