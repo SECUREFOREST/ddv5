@@ -669,7 +669,7 @@ export default function Admin() {
                             <tr key={r._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                               <td className="p-2 font-medium text-primary">{r.type}</td>
                               <td className="p-2 text-neutral-400">{r.targetId}</td>
-                              <td className="p-2 text-neutral-400">{r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
+                              <td className="p-2 text-neutral-400">{r.reporter?.fullName || r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
                               <td className="p-2 text-neutral-400">{r.reason}</td>
                               <td className="p-2">
                                 <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${r.status === 'open' ? 'bg-warning text-warning-contrast' : 'bg-success text-success-contrast'}`}>{r.status}</span>

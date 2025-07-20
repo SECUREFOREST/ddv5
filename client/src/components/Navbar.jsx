@@ -80,12 +80,11 @@ export default function Navbar() {
                   aria-label="Go to profile"
                 >
                   {user.avatar ? (
-                    <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828]" />
+                    <img src={user.avatar} alt={user.fullName || user.username || 'avatar'} className="w-8 h-8 rounded-full object-cover border-2 border-[#282828]" />
                   ) : (
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-neutral-800 text-neutral-300 border-2 border-[#282828]">
-                      <i className="fas fa-user text-lg" />
-                    </span>
+                    <UserCircleIcon className="w-8 h-8 text-neutral-400" />
                   )}
+                  <span className="ml-2 font-semibold text-primary-contrast">{user.fullName || user.username || ''}</span>
                 </button>
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
               </div>

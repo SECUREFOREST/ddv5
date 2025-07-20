@@ -484,7 +484,7 @@ export default function Profile() {
                 )}
                 <span className="inline-flex items-center gap-2">
                   <Avatar user={bu} size={28} />
-                  {bu.username || '[deleted]'}
+                  {bu.fullName || bu.username || 'Anonymous'}
                 </span>
                 <button
                   className="ml-auto px-3 py-1 rounded bg-warning text-warning-contrast font-semibold text-xs hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
