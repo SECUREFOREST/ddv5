@@ -211,7 +211,7 @@ export default function SwitchGameParticipate() {
           <div>
             <label className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#181818' }}
+              className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#232526' }}
               value={demand}
               onChange={e => setDemand(e.target.value)}
               rows={3}

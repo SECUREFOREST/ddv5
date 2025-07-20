@@ -132,7 +132,7 @@ export default function SwitchGameCreate() {
           <label className="block font-bold text-primary mb-2">Description / Requirements</label>
           <textarea
             id="description"
-            className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#181818' }}
+            className="w-full rounded border border-neutral-900 px-3 py-2" style={{ backgroundColor: '#232526' }}
             value={description}
             onChange={e => setDescription(e.target.value)}
             required
