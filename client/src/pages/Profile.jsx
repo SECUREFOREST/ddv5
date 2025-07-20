@@ -359,7 +359,12 @@ export default function Profile() {
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Full Name</label>
-                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                            <input
+                              id="fullName"
+                              value={fullName}
+                              onChange={e => setFullName(e.target.value)}
+                              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+                            />
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Bio</label>

@@ -61,7 +61,7 @@ export default function Login() {
             <input
               type="text"
               id="identifier"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
               required
@@ -73,7 +73,7 @@ export default function Login() {
             <input
               type="password"
               id="password"
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required

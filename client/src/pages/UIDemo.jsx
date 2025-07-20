@@ -110,7 +110,10 @@ export default function UIDemo() {
       {/* Inputs */}
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Inputs</h2>
-        <input className="w-full rounded border border-neutral-900 px-3 py-2 mb-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" placeholder="Type here..." />
+        <input
+          className="w-full rounded border border-neutral-900 px-3 py-2 mb-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+          placeholder="Type here..."
+        />
         <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Submit</button>
       </section>
 
@@ -203,7 +206,7 @@ export default function UIDemo() {
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Markdown</h2>
         <textarea
-          className="w-full rounded border border-neutral-900 px-3 py-2 font-mono text-sm focus:outline-none focus:ring focus:border-primary mb-2 bg-neutral-900 text-neutral-100"
+          className="w-full rounded border border-neutral-900 px-3 py-2 font-mono text-sm focus:outline-none focus:ring focus:border-primary mb-2 text-neutral-100 bg-[#1a1a1a]"
           rows={6}
           value={markdown}
           onChange={e => setMarkdown(e.target.value)}

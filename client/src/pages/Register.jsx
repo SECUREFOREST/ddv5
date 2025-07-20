@@ -93,9 +93,9 @@ export default function Register() {
           <div>
             <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
             <input
-              id="username"
               type="text"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              id="username"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={username}
               onChange={e => setUsername(e.target.value)}
               required
@@ -105,9 +105,9 @@ export default function Register() {
           <div>
             <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
             <input
-              id="fullName"
               type="text"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              id="fullName"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
               required
@@ -117,9 +117,9 @@ export default function Register() {
           <div>
             <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
             <input
-              id="email"
               type="email"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              id="email"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
@@ -129,9 +129,9 @@ export default function Register() {
           <div>
             <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
             <input
-              id="password"
               type="password"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              id="password"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -141,9 +141,9 @@ export default function Register() {
           <div>
             <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
             <input
-              id="dob"
               type="date"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              id="dob"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={dob}
               onChange={e => setDob(e.target.value)}
               required
@@ -154,7 +154,7 @@ export default function Register() {
             <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
             <select
               id="gender"
-              className="w-full rounded border border-[#282828] px-3 py-2 bg-[#282828] text-[#eee] focus:outline-none focus:ring focus:border-primary"
+              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={gender}
               onChange={e => setGender(e.target.value)}
               required

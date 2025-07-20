@@ -66,7 +66,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
         onPaste={handlePaste}
         placeholder={placeholder}
         aria-label="Add tag"
-        className="bg-transparent outline-none border-none text-sm px-2 py-1 flex-1 min-w-[80px] text-neutral-100"
+        className="outline-none border-none text-sm px-2 py-1 flex-1 min-w-[80px] text-neutral-100 bg-[#1a1a1a]"
       />
     </div>
   );
