@@ -157,11 +157,11 @@ export default function DareCreator() {
           {/* Difficulty Group */}
           <div className="flex flex-col items-center">
             <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
-            <div className="flex flex-col gap-4 w-full max-w-md items-center">
+            <div className="flex flex-col gap-4">
               {DIFFICULTIES.map(opt => (
                 <label
                   key={opt.value}
-                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast w-full max-w-md
+                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
                     ${difficulty === opt.value
                       ? 'border-primary bg-primary/10 shadow-lg scale-105'
                       : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
@@ -180,7 +180,7 @@ export default function DareCreator() {
                     value={opt.value}
                     checked={difficulty === opt.value}
                     onChange={() => setDifficulty(opt.value)}
-                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
                     aria-checked={difficulty === opt.value}
                     aria-label={opt.label}
                     tabIndex={-1}
@@ -216,11 +216,11 @@ export default function DareCreator() {
           {/* Claimable and Public Checkboxes */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
-              <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2 accent-primary" />
+              <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
               <label htmlFor="claimable" className="text-neutral-200">Make this dare claimable by link</label>
             </div>
             <div className="flex items-center">
-              <input id="publicDare" type="checkbox" checked={publicDare} onChange={e => setPublicDare(e.target.checked)} className="mr-2 accent-primary" />
+              <input id="publicDare" type="checkbox" checked={publicDare} onChange={e => setPublicDare(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
               <label htmlFor="publicDare" className="text-neutral-200">Make this dare public (visible to others)</label>
             </div>
           </div>

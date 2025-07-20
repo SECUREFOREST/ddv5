@@ -113,7 +113,7 @@ export default function SwitchGameCreate() {
                   value={opt.value}
                   checked={difficulty === opt.value}
                   onChange={() => setDifficulty(opt.value)}
-                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
                   aria-checked={difficulty === opt.value}
                   aria-label={opt.label}
                   tabIndex={-1}
@@ -144,7 +144,7 @@ export default function SwitchGameCreate() {
         </div>
         {/* Public/private toggle */}
         <div className="flex items-center justify-center">
-          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast" />
+          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]" />
           <label htmlFor="publicGame" className="text-neutral-200">Make this switch game public (visible to others)</label>
         </div>
         {/* Move selection */}
