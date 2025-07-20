@@ -386,7 +386,7 @@ export default function Admin() {
                     <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
                     <input
                       type="text"
-                      className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                      className="flex-1 border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 bg-[#1a1a1a]"
                       placeholder="Search users..."
                       value={userSearch}
                       onChange={e => setUserSearch(e.target.value)}

@@ -372,7 +372,14 @@ export default function Profile() {
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Gender</label>
-                            <select className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={gender} onChange={e => setGender(e.target.value)} required>
+                            <select
+                              id="gender"
+                              value={gender}
+                              onChange={e => setGender(e.target.value)}
+                              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+                              required
+                              aria-label="Gender"
+                            >
                               <option value="">Select...</option>
                               <option value="male">Male</option>
                               <option value="female">Female</option>
