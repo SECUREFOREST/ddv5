@@ -306,7 +306,7 @@ export default function Dares() {
                 {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={creating}>
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={creating}>
                   {creating ? 'Creating...' : 'Create Dare'}
                 </button>
               </div>
@@ -371,7 +371,7 @@ export default function Dares() {
                 {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" disabled={acceptLoading || !acceptConsent}>
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={acceptLoading || !acceptConsent}>
                   {acceptLoading ? 'Starting...' : 'Start / Accept'}
                 </button>
               </div>

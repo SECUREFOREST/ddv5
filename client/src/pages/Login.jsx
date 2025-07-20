@@ -84,7 +84,7 @@ export default function Login() {
           {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast"
+            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
             disabled={loading}
           >
             {loading ? 'Logging in...' : 'Login'}

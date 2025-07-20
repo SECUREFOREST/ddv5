@@ -176,8 +176,8 @@ export default function OfferSubmission() {
           </div>
         </div>
         <div className="flex gap-3 mt-2">
-          <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold" disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}>{loading ? 'Submitting...' : 'Submit'}</button>
-          <button type="button" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-bold" onClick={() => navigate(-1)} disabled={loading}>Cancel</button>
+          <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}>{loading ? 'Submitting...' : 'Submit'}</button>
+          <button type="button" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg" onClick={() => navigate(-1)} disabled={loading}>Cancel</button>
         </div>
       </form>
     </div>

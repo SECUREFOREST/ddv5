@@ -56,7 +56,7 @@ export default function ForgotPassword() {
         {error && <Banner type="error" message={error} onClose={() => setError('')} />}
         <button
           type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
+          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
           disabled={loading}
         >
           {loading ? 'Sending...' : 'Send Reset Link'}

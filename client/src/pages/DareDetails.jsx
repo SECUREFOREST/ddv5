@@ -501,17 +501,17 @@ export default function DareDetails() {
       {/* Actions Section */}
       <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
         {canAccept && (
-          <button className="w-full sm:w-auto bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
+          <button className="w-full sm:w-auto bg-success text-success-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-success-dark transition-colors focus:outline-none focus:ring-2 focus:ring-success-contrast flex items-center gap-2 justify-center text-lg" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
             {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}
           </button>
         )}
         {canSubmitProof && !inCooldown && !atSlotLimit && !roleRestricted && (
-          <button className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowProofModal(true)}>
+          <button className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" onClick={() => setShowProofModal(true)}>
             Submit Proof of Completion
           </button>
         )}
         {isPerformerParticipant && dare.status !== 'rejected' && (
-          <button className="w-full sm:w-auto bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark" onClick={() => setShowRejectModal(true)}>
+          <button className="w-full sm:w-auto bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg" onClick={() => setShowRejectModal(true)}>
             Reject Dare
           </button>
         )}

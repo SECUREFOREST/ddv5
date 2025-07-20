@@ -353,21 +353,21 @@ export default function DareReveal() {
           {/* --- Action Buttons (Sticky Footer on Mobile) --- */}
           <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
             {dare.status === 'in_progress' && (
-              <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast" disabled={chickenOutLoading}>
+              <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold text-base shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast text-lg" disabled={chickenOutLoading}>
                 {chickenOutLoading && <span className="loader border-2 border-t-2 border-t-white border-danger rounded-full w-4 h-4 animate-spin"></span>}
                 {chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}
               </button>
             )}
             {(dare.status === 'completed' || dare.status === 'forfeited') && (
               <button
-                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow"
+                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
                 onClick={() => navigate('/dare/select')}
               >
                 Get Another Dare
               </button>
             )}
             <button
-              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
+              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg"
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard

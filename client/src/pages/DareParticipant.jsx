@@ -217,7 +217,7 @@ export default function DareParticipant() {
           </div>
           <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
             <button
-              className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50"
+              className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
               onClick={handleConsent}
               disabled={loading || !consentChecked}
               aria-busy={loading}
@@ -233,10 +233,10 @@ export default function DareParticipant() {
           {noDare && (
             <div className="text-danger text-sm font-medium text-center">
               No available dare found for this difficulty.<br />
-              <button className="mt-2 bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark" onClick={handleTryDifferent}>
+              <button className="mt-2 bg-info text-info-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-info-dark transition-colors focus:outline-none focus:ring-2 focus:ring-info-contrast flex items-center gap-2 justify-center text-lg" onClick={handleTryDifferent}>
                 Try a Different Difficulty
               </button>
-              <button className="mt-2 ml-2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={handleConsent} disabled={loading || !consentChecked}>
+              <button className="mt-2 ml-2 bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" onClick={handleConsent} disabled={loading || !consentChecked}>
                 Refresh Pool
               </button>
             </div>
@@ -286,7 +286,7 @@ export default function DareParticipant() {
             {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
             {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
             <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
-              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark disabled:opacity-50" disabled={proofLoading} aria-busy={proofLoading}>
+              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-busy={proofLoading}>
                 {proofLoading ? (
                   <span>
                     <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
@@ -299,7 +299,7 @@ export default function DareParticipant() {
           {/* Chicken Out button, only if dare is in progress */}
           {dare.status === 'in_progress' && (
             <button
-              className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
+              className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg"
               onClick={handleChickenOut}
               disabled={chickenOutLoading}
               aria-busy={chickenOutLoading}

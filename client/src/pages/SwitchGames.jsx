@@ -28,10 +28,10 @@ export default function SwitchGames() {
       <div className="border-t border-neutral-800 my-4" />
       <div className="flex flex-col md:flex-row gap-6 items-center justify-center mt-8">
         <Link to="/switches/create">
-          <button className="w-full md:w-64 bg-primary text-primary-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-primary-dark">Create a Switch Game</button>
+          <button className="w-full md:w-64 bg-primary text-primary-contrast rounded px-4 py-3 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg">Create a Switch Game</button>
         </Link>
         <Link to="/switches/participate">
-          <button className="w-full md:w-64 bg-info text-info-contrast rounded px-4 py-3 font-semibold text-lg hover:bg-info-dark">Participate in a Switch Game</button>
+          <button className="w-full md:w-64 bg-info text-info-contrast rounded px-4 py-3 font-bold text-base shadow hover:bg-info-dark transition-colors focus:outline-none focus:ring-2 focus:ring-info-contrast flex items-center gap-2 justify-center text-lg">Participate in a Switch Game</button>
         </Link>
       </div>
     </div>
