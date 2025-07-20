@@ -150,33 +150,30 @@ export default function PublicDares() {
         </div>
       ) : (
         <>
-            {showDares && (
-              <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-3 text-primary">Public Dares</h2>
-                {filteredDares.length === 0 ? (
-                  <div className="text-neutral-400 text-center py-8">No public dares available.</div>
-                ) : (
-                  <div className="grid gap-4 sm:grid-cols-1">
-                    {filteredDares.map(dare => (
+          {showDares && (
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold mb-3 text-primary">Public Dares</h2>
+              {filteredDares.length === 0 ? (
+                <div className="text-neutral-400 text-center py-8">No public dares available.</div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-1">
+                  {filteredDares.map(dare => (
                     <div key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-neutral-400 text-xs">Created by</span>
-                            <DifficultyBadge level={dare.difficulty} />
-                            <Link to={`/profile/${dare.creator?._id || dare.creator?.id}`} className="flex items-center gap-2">
-                              <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                              <span className="thing-title user-name font-bold">{dare.user?.fullName || dare.creator?.fullName || 'User'}</span>
-                            </Link>
-                          </div>
-                          <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                            <div className="font-bold text-lg truncate flex items-center gap-2">
-                              <DifficultyBadge level={dare.difficulty} />
-                            </div>
-                            <Link to={`/dare/${dare._id}/participate`}>
-                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
-                            </Link>
-                          </div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <DifficultyBadge level={dare.difficulty} />
+                          <span className="text-neutral-400 text-xs">Created by</span>
+                          <Link to={`/profile/${dare.creator?._id || dare.creator?.id}`} className="flex items-center gap-2">
+                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                            <span className="thing-title user-name font-bold">{dare.user?.fullName || dare.creator?.fullName || 'User'}</span>
+                          </Link>
                         </div>
+                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                          <Link to={`/dare/${dare._id}/participate`}>
+                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                          </Link>
+                        </div>
+                      </div>
                       {/* Timestamps/meta */}
                       {dare.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
@@ -187,38 +184,35 @@ export default function PublicDares() {
                         </div>
                       )}
                     </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-            {showSwitches && (
-              <section>
-                <h2 className="text-xl font-semibold mb-3 text-primary">Public Switch Games</h2>
-                {filteredSwitchGames.length === 0 ? (
-                  <div className="text-neutral-400 text-center py-8">No public switch games available.</div>
-                ) : (
-                  <div className="grid gap-4 sm:grid-cols-1">
-                    {filteredSwitchGames.map(game => (
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+          {showSwitches && (
+            <section>
+              <h2 className="text-xl font-semibold mb-3 text-primary">Public Switch Games</h2>
+              {filteredSwitchGames.length === 0 ? (
+                <div className="text-neutral-400 text-center py-8">No public switch games available.</div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-1">
+                  {filteredSwitchGames.map(game => (
                     <div key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-neutral-400 text-xs">Created by</span>
-                            <DifficultyBadge level={game.creatorDare?.difficulty} />
-                            <Link to={`/profile/${game.creator?._id || game.creator?.id}`} className="flex items-center gap-2">
-                              <img src={game.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                              <span className="thing-title user-name font-bold">{game.creator?.fullName || 'User'}</span>
-                            </Link>
-                          </div>
-                          <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
-                            <div className="font-bold text-lg truncate flex items-center gap-2">
-                              <DifficultyBadge level={game.creatorDare?.difficulty} />
-                            </div>
-                            <Link to={`/switches/participate/${game._id}`}>
-                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
-                            </Link>
-                          </div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <DifficultyBadge level={game.creatorDare?.difficulty} />
+                          <span className="text-neutral-400 text-xs">Created by</span>
+                          <Link to={`/profile/${game.creator?._id || game.creator?.id}`} className="flex items-center gap-2">
+                            <img src={game.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
+                            <span className="thing-title user-name font-bold">{game.creator?.fullName || 'User'}</span>
+                          </Link>
                         </div>
+                        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                          <Link to={`/switches/participate/${game._id}`}>
+                            <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                          </Link>
+                        </div>
+                      </div>
                       {/* Timestamps/meta */}
                       {game.createdAt && (
                         <div className="mt-2 text-xs text-neutral-500 flex flex-col items-center gap-1">
@@ -229,17 +223,17 @@ export default function PublicDares() {
                         </div>
                       )}
                     </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-            {/* Empty state if both are empty after filtering */}
-            {filteredDares.length === 0 && filteredSwitchGames.length === 0 && (
-              <div className="text-center text-neutral-400 mt-8 py-8">No public dares or switch games match your search or filters. Try adjusting your search or check back later!</div>
-            )}
-          </>
-        )}
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+          {/* Empty state if both are empty after filtering */}
+          {filteredDares.length === 0 && filteredSwitchGames.length === 0 && (
+            <div className="text-center text-neutral-400 mt-8 py-8">No public dares or switch games match your search or filters. Try adjusting your search or check back later!</div>
+          )}
+        </>
+      )}
     </div>
   );
 } 
