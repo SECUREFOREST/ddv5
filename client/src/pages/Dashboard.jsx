@@ -35,7 +35,7 @@ export default function Dashboard() {
         ) : error ? (
           <Banner type="error" message={error} onClose={() => setError('')} />
         ) : stats ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 shadow text-center">
               <div className="text-lg font-semibold text-neutral-400">Total Users</div>
               <div className="text-2xl font-bold text-primary">{stats.totalUsers}</div>
