@@ -24,13 +24,7 @@ export default function DareDifficultySelect() {
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
-        // Only pass safe metadata (no description)
-        const dareMeta = {
-          _id: res.data._id,
-          difficulty: res.data.difficulty,
-          creator: res.data.creator ? { username: res.data.creator.username } : undefined,
-        };
-        navigate('/dare/consent', { state: { dare: dareMeta } });
+        navigate(`/dare/consent/${res.data._id}`, { state: { dare: res.data } });
       } else {
         setError('No dare found for this difficulty.');
       }

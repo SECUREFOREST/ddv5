@@ -1,6 +1,7 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import api from '../api/axios';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -37,20 +38,27 @@ function DifficultyBadge({ level }) {
 const DareConsent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dare = location.state?.dare;
+  const { id } = useParams();
+  const [dare, setDare] = React.useState(location.state?.dare || null);
+  const [error, setError] = React.useState('');
 
   React.useEffect(() => {
-    if (!dare) {
-      navigate('/dare/select');
+    if (!dare && id) {
+      api.get(`/dares/${id}`)
+        .then(res => setDare(res.data))
+        .catch(() => setError('Dare not found.'));
     }
-  }, [dare, navigate]);
+  }, [dare, id]);
 
   const handleConsent = (e) => {
     e.preventDefault();
-    navigate(`/dare/reveal/${dare._id}`);
+    if (dare && dare._id) {
+      navigate(`/dare/reveal/${dare._id}`);
+    }
   };
 
-  if (!dare) return null;
+  if (error) return <div className="text-red-500 text-center mt-8">{error}</div>;
+  if (!dare) return <div className="text-neutral-400 text-center mt-8">Loading...</div>;
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
