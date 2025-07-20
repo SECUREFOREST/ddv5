@@ -355,7 +355,7 @@ export default function Profile() {
                         <form onSubmit={handleSave} className="space-y-4">
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Username</label>
-                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Full Name</label>
@@ -368,7 +368,7 @@ export default function Profile() {
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Bio</label>
-                            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} />
+                            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} maxLength={300} placeholder="Write something about yourself..." aria-label="Bio" />
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Gender</label>
@@ -388,7 +388,7 @@ export default function Profile() {
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Birth Date</label>
-                            <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
+                            <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
                           </div>
                           <div>
                             <label className="block font-semibold mb-1 text-primary">Interested In</label>
