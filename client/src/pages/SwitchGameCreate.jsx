@@ -43,10 +43,12 @@ export default function SwitchGameCreate() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
@@ -102,9 +104,12 @@ export default function SwitchGameCreate() {
           <div className="font-bold text-xl text-primary mb-2">Your Move</div>
           <div className="flex gap-3 mt-1 justify-center">
             {MOVES.map(m => (
-              <label key={m} className={`cursor-pointer px-3 py-2 rounded-lg border transition-all duration-150 flex flex-col items-center
-                ${move === m ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-100 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
-                tabIndex={0} aria-label={`Select move ${m}`}>
+              <label
+                key={m}
+                className={`cursor-pointer px-3 py-2 rounded-lg border transition-all duration-150 flex flex-col items-center ${move === m ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-100 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
+                tabIndex={0}
+                aria-label={`Select move ${m}`}
+              >
                 <input
                   type="radio"
                   name="move"
@@ -134,4 +139,4 @@ export default function SwitchGameCreate() {
       </form>
     </div>
   );
-} 
+}

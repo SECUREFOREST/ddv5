@@ -235,8 +235,10 @@ export default function UserActivity() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded shadow p-6">
-      <h1 className="text-2xl font-bold mb-6 text-primary text-center">Your Activity</h1>
+    <div className="max-w-3xl mx-auto mt-12 bg-[#222] border border-[#282828] rounded shadow p-0 sm:p-8">
+      {/* Progress/Accent Bar */}
+      <div className="w-full bg-primary h-1 mb-1" />
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-primary text-center">Your Activity</h1>
       {/* Stats/Analytics Section */}
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-[#181818] border border-[#282828] rounded p-4">

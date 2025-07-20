@@ -132,10 +132,12 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+        {/* Progress/Accent Bar */}
+        <div className="w-full bg-primary h-1 mb-1" />
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         {/* Section divider for main content */}
         <div className="border-t border-neutral-800 my-4" />
@@ -196,9 +198,11 @@ export default function SwitchGameParticipate() {
     );
   } else if (error) {
     content = (
-      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+        {/* Progress/Accent Bar */}
+        <div className="w-full bg-primary h-1 mb-1" />
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         <div className="border-t border-neutral-800 my-4" />
         <Banner type="error" message={error} onClose={() => setError('')} />
@@ -211,14 +215,16 @@ export default function SwitchGameParticipate() {
       </div>
     );
   } else if (!game) {
-    content = <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
+    content = <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
   } else {
     const u = game.creator;
     content = (
-      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+        {/* Progress/Accent Bar */}
+        <div className="w-full bg-primary h-1 mb-1" />
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         <div className="border-t border-neutral-800 my-4" />
         <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
