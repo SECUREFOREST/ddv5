@@ -5,7 +5,7 @@ const Dare = require('../models/Dare');
 const SwitchGame = require('../models/SwitchGame');
 const auth = require('../middleware/auth');
 
-// GET /activity-feed - relevant activities for the logged-in user
+// GET /activity-feed - relevant activities for the logged-in user (dares, comments, grades, etc.)
 router.get('/', auth, async (req, res) => {
   try {
     const userId = req.userId;

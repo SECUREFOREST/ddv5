@@ -11,7 +11,7 @@ export default function Slot({ empty, url, imageUrl, difficulty, status, onWithd
     );
   }
   return (
-    <a href={url} className="slot act-slot w-32 h-32 bg-blue-100 rounded flex flex-col items-center justify-center relative overflow-hidden" aria-label={ariaLabel || 'Active slot'} onClick={onClick}>
+    <a href={url} className="slot dare-slot w-32 h-32 bg-blue-100 rounded flex flex-col items-center justify-center relative overflow-hidden" aria-label={ariaLabel || 'Active slot'} onClick={onClick}>
       <div className="dummy w-8 h-8 bg-blue-300 rounded-full mb-2"></div>
       <div className="overlay absolute top-0 left-0 w-full h-8 flex items-center justify-between px-2">
         <div className="difficulty text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded">{difficulty}</div>

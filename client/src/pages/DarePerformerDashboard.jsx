@@ -48,11 +48,11 @@ function getRejectionExplanation(reason) {
   return map[reason] || reason;
 }
 
-// Helper to deduplicate acts by user
-function dedupeActsByUser(acts) {
+// Helper to deduplicate dares by user
+function dedupeDaresByUser(dares) {
   const seen = new Set();
-  return acts.filter(act => {
-    const id = act.user?._id || act.user?.id || act.creator?._id || act.creator?.id;
+  return dares.filter(dare => {
+    const id = dare.user?._id || dare.user?.id || dare.creator?._id || dare.creator?.id;
     if (!id || seen.has(id)) return false;
     seen.add(id);
     return true;
@@ -200,7 +200,7 @@ export default function DarePerformerDashboard() {
     // TODO: Fetch cooldown from user profile if available
   }, [user]);
 
-  // Fetch public act counts on mount
+  // Fetch public dare counts on mount
   useEffect(() => {
     // TODO: Replace with real API endpoint if available
     api.get('/stats/public-acts')
@@ -240,13 +240,13 @@ export default function DarePerformerDashboard() {
       .finally(() => setPublicLoading(false));
   }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
 
-  // Real-time updates for public acts (stub)
+  // Real-time updates for public dares (stub)
   useEffect(() => {
     // TODO: Replace with real websocket (e.g., socket.io or Pusher) integration
     // Example:
     // const socket = io('/');
-    // socket.on('public_act_publish', act => { ... });
-    // socket.on('public_act_unpublish', act => { ... });
+    // socket.on('public_dare_publish', dare => { ... });
+    // socket.on('public_dare_unpublish', dare => { ... });
     // For now, this is a stub for future real-time updates.
     // Cleanup: return () => { if (socket) socket.disconnect(); };
   }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter]);
@@ -515,7 +515,7 @@ export default function DarePerformerDashboard() {
         {tab === 'perform' && (
           <div className="tab-pane active" id="perform">
             {/* Filters */}
-            <div className="act-filters flex items-center mb-4" /* Tailwind: flex items-center mb-4 */>
+            <div className="dare-filters flex items-center mb-4" /* Tailwind: flex items-center mb-4 */>
               <h3 className="filters-heading text-lg font-semibold mr-4" /* Tailwind: text-lg font-semibold mr-4 */>Show only</h3>
               <div className="difficulties flex gap-2">
                 {/* difficulties, selectedDifficulties, toggleDifficulty are not defined in this component */}
@@ -671,8 +671,8 @@ export default function DarePerformerDashboard() {
               )}
             </div>
             <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public dares">Browse Public Dares</h3>
-            {/* Public act counts summary */}
-            <div className="flex flex-wrap gap-2 mb-4" aria-label="Public act counts">
+            {/* Public dare counts summary */}
+            <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
               <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
               {publicActCounts.submission > 0 && (
                 <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
@@ -698,8 +698,8 @@ export default function DarePerformerDashboard() {
                 )
               ) : (
                 <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {dedupeActsByUser(publicDares).map((dare, idx) => (
-                    <div key={dare._id || idx} className="thing thing-with-avatar public-act flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
+                  {dedupeDaresByUser(publicDares).map((dare, idx) => (
+                    <div key={dare._id || idx} className="thing thing-with-avatar public-dare flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
                       <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
                       <div className="thing-details flex-1">
                         <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>
@@ -785,8 +785,8 @@ export default function DarePerformerDashboard() {
                 )
               ) : (
                 <div className="public-demand-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {dedupeActsByUser(publicDemandActs).map((dare, idx) => (
-                    <div key={dare._id || idx} className="thing thing-with-avatar public-act flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
+                  {dedupeDaresByUser(publicDemandActs).map((dare, idx) => (
+                    <div key={dare._id || idx} className="thing thing-with-avatar public-dare flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
                       <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
                       <div className="thing-details flex-1">
                         <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>

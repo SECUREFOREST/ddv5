@@ -240,7 +240,7 @@ export default function UIDemo() {
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Accordion</h2>
         <Accordion title="What is this app?" defaultOpen>
-          <p>This is a modern React app with a custom UI component library, admin panel, and full-featured backend.</p>
+          <p>This is a modern React app with a custom UI component library, admin panel, and full-featured backend for dares.</p>
         </Accordion>
         <Accordion title="How does the countdown work?">
           <p>The countdown component uses setInterval to update the time remaining every second, and calls an onComplete callback when finished.</p>

@@ -1,3 +1,4 @@
+// Activity logging utility for dares, comments, grades, etc.
 const Activity = require('../models/Activity');
 
 async function logActivity({ type, user, dare, comment, details }) {

@@ -83,7 +83,7 @@ export default function OfferSubmission() {
     setSuccess('');
     if (!difficulty) return setError('Please select a difficulty.');
     if (!description.trim()) return setError('Please enter a description or requirements.');
-    if (slotLimit) return setError('You have reached the maximum number of open acts. Complete or reject an act to free up a slot.');
+    if (slotLimit) return setError('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.');
     if (cooldown && new Date() < new Date(cooldown)) return setError('You are in cooldown and cannot offer a new submission until it ends.');
     setLoading(true);
     try {
@@ -123,12 +123,12 @@ export default function OfferSubmission() {
       {success && <div className="bg-success text-success-contrast px-4 py-2 rounded mb-3">{success}</div>}
       {slotLimit && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-3">
-          You can only have {maxSlots} open acts at a time. Complete or reject an act to free up a slot.
+          You can only have {maxSlots} open dares at a time. Complete or reject a dare to free up a slot.
         </div>
       )}
       {cooldown && new Date() < new Date(cooldown) && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-3">
-          Cooldown active: You recently rejected an act. You can offer a new submission after <b>{new Date(cooldown).toLocaleTimeString()}</b>.
+          Cooldown active: You recently rejected a dare. You can offer a new submission after <b>{new Date(cooldown).toLocaleTimeString()}</b>.
         </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">

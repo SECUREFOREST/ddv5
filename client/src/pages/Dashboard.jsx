@@ -83,9 +83,9 @@ export default function Dashboard() {
               <ul className="space-y-2">
                 {activities.map((activity, idx) => (
                   <li key={idx} className="text-neutral-200 text-sm">
-                    {activity.type === 'act' && <span>Created dare: <span className="font-bold">{activity.title}</span></span>}
+                    {activity.type === 'dare' && <span>Created dare: <span className="font-bold">{activity.title}</span></span>}
                     {activity.type === 'comment' && <span>Commented: <span className="italic">{activity.text}</span></span>}
-                    {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.act?.title}</span> ({activity.grade})</span>}
+                    {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.dare?.title}</span> ({activity.grade})</span>}
                   </li>
                 ))}
               </ul>

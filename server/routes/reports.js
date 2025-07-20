@@ -24,7 +24,7 @@ router.get('/', requireAdmin, async (req, res) => {
   }
 });
 
-// POST /reports - user submits a report
+// POST /reports - user submits a report (for dares or comments)
 router.post('/',
   [
     body('type')

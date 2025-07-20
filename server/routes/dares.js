@@ -40,8 +40,8 @@ function isAdmin(req, res, next) {
 async function checkSlotAndCooldownAtomic(userId) {
   const now = new Date();
   // Check cooldown
-  const user = await User.findById(userId).select('actCooldownUntil');
-  if (user && user.actCooldownUntil && user.actCooldownUntil > now) {
+  const user = await User.findById(userId).select('dareCooldownUntil');
+  if (user && user.dareCooldownUntil && user.dareCooldownUntil > now) {
     throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
   }
   // Count dares where user is performer and status is not completed or forfeited

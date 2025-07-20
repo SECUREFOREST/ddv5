@@ -21,7 +21,7 @@ const DIFFICULTY_OPTIONS = [
   { value: 'edgy', label: 'Edgy' },
   { value: 'hardcore', label: 'Hardcore' },
 ];
-const ACT_TYPE_OPTIONS = [
+const DARE_TYPE_OPTIONS = [
   { value: '', label: 'All Types' },
   { value: 'submission', label: 'Submission' },
   { value: 'domination', label: 'Domination' },
@@ -195,7 +195,7 @@ export default function Dares() {
         <div className="flex flex-col min-w-[120px] flex-1">
           <label className="font-semibold mb-1 text-primary">Type</label>
           <select className="rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
-            {ACT_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+            {DARE_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
         </div>
         <div className="flex flex-col min-w-[120px] flex-1">
@@ -280,7 +280,7 @@ export default function Dares() {
                 <div>
                   <label htmlFor="createDareType" className="block font-semibold mb-1 text-primary">Type</label>
                   <select id="createDareType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-800 text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDareType} onChange={e => setCreateDareType(e.target.value)}>
-                    {ACT_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    {DARE_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
