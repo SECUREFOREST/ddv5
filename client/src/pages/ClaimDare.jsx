@@ -129,7 +129,7 @@ export default function ClaimDare() {
           <div className="description text-neutral-200 text-sm">{dare.difficultyDescription}</div>
         </div>
         <form onSubmit={handleConsent} className="mt-4">
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" type="submit">I Consent</button>
+          <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" type="submit">I Consent</button>
         </form>
       </div>
     </div>
