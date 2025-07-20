@@ -31,7 +31,7 @@ export default function Admin() {
   if (loading) return null;
   if (!user || !user.roles?.includes('admin')) {
     return (
-      <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
         {/* Progress/Accent Bar */}
         <div className="w-full bg-primary h-1 mb-1" />
         {/* Sticky header at the top */}
@@ -347,7 +347,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="max-w-xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
+    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Progress/Accent Bar */}
       <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
