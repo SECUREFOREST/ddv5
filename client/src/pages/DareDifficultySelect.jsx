@@ -96,7 +96,7 @@ export default function DareDifficultySelect() {
         <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
           <button
             type="submit"
-            className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 justify-center focus:outline-none focus:ring-2 focus:ring-primary-contrast text-lg"
+            className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 justify-center focus:outline-none focus:ring-2 focus:ring-primary-contrast text-lg"
             disabled={loading}
             aria-label="Continue to next step"
           >

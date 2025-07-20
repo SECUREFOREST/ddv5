@@ -129,16 +129,17 @@ export default function SwitchGameCreate() {
         </div>
         {/* Description textarea */}
         <div>
-          <div className="font-bold text-xl text-primary mb-2">Dare Description</div>
+          <label className="block font-bold text-primary mb-2">Description / Requirements</label>
           <textarea
             id="description"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary text-base"
             value={description}
             onChange={e => setDescription(e.target.value)}
             required
             rows={3}
+            minLength={10}
             placeholder="Describe the dare..."
-            aria-label="Dare description"
+            aria-label="Description or requirements"
           />
         </div>
         {/* Public/private toggle */}
@@ -173,7 +174,7 @@ export default function SwitchGameCreate() {
         </div>
         <button
           type="submit"
-          className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast"
+          className="w-full bg-primary text-primary-contrast px-4 py-2 rounded font-bold hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast"
           disabled={creating}
           aria-label="Create Switch Game"
         >
