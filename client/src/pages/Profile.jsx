@@ -295,7 +295,7 @@ export default function Profile() {
                         onChange={handleAvatarChange}
                       />
                       <div className="relative group">
-                        <Avatar user={user} size="lg" onClick={handleAvatarClick} border shadow />
+                        <Avatar user={user} size={128} onClick={handleAvatarClick} border shadow />
                         <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
                       </div>
                       {avatarSaved && (
