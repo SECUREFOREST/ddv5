@@ -439,7 +439,7 @@ export default function Admin() {
                             className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
                           >
                             <td className="p-2 text-primary font-semibold">
-                              <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.username}</a>
+                              <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.fullName || user.username || 'Unknown'}</a>
                             </td>
                             <td className="p-2 text-neutral-300">{user.email}</td>
                             <td className="p-2">
@@ -536,7 +536,7 @@ export default function Admin() {
                             <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                               <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} /></td>
                               <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
-                              <td className="p-2 text-neutral-400">{d && d.creator?.username ? d.creator.username : 'Unknown'}</td>
+                              <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
                               <td className="p-2">
                                 <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
                               </td>

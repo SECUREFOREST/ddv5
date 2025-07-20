@@ -59,7 +59,7 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
                     </td>
                     <td className="px-2 py-1 flex items-center">
                       <Avatar user={entry.user} size={32} />
-                      <span className="ml-2 font-semibold text-primary-contrast hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast transition-colors" tabIndex={-1}>{entry.user?.username || 'Unknown'}</span>
+                      <span className="ml-2 font-semibold text-primary-contrast hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast transition-colors" tabIndex={-1}>{entry.user?.fullName || entry.user?.username || 'Unknown'}</span>
                     </td>
                     <td className="px-2 py-1 text-neutral-100 text-center font-bold">{entry.daresCount}</td>
                   </tr>

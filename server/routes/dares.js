@@ -82,7 +82,7 @@ router.get('/', auth, async (req, res, next) => {
     const dares = await Dare.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
-      .populate('assignedSwitch', 'username avatar')
+      .populate('assignedSwitch', 'username fullName avatar')
       .sort({ createdAt: -1 });
     // Filter out dares involving blocked users
     const filteredDares = user && user.blockedUsers && user.blockedUsers.length > 0
@@ -199,10 +199,10 @@ router.get('/:id', async (req, res) => {
     const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
-      .populate('assignedSwitch', 'username avatar');
+      .populate('assignedSwitch', 'username fullName avatar');
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
     // Ensure creator is always populated
-    if (!dare.creator || !dare.creator.username) {
+    if (!dare.creator || !dare.creator.fullName) {
       // Try to fetch the user if only an ID is present
       if (dare.creator && typeof dare.creator === 'object' && dare.creator._id) {
         const user = await User.findById(dare.creator._id).select('username fullName avatar');

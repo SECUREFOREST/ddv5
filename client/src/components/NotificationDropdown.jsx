@@ -17,7 +17,7 @@ function timeAgo(date) {
 // Comprehensive notification message generator
 function getNotificationMessage(n) {
   // Try to extract actor, target, dare, etc.
-  const actor = n.actor?.username || n.actorName || 'Someone';
+  const actor = n.actor?.fullName || n.actor?.username || n.actorName || 'Someone';
   const dare = n.dareTitle || n.dare?.title || n.targetTitle || '';
   switch (n.type) {
     case 'dare_created':
@@ -37,7 +37,7 @@ function getNotificationMessage(n) {
     case 'user_banned':
       return 'Your account has been banned by an admin.';
     case 'comment_reply':
-      return `${actor} replied to your comment${dare ? ' on ' + dare : ''}.`;
+      return n.message || `${actor} replied to your comment.`;
     case 'comment_moderated':
       return `Your comment${dare ? ' on ' + dare : ''} was moderated/hidden.`;
     case 'dare_fulfilled':

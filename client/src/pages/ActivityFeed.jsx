@@ -35,7 +35,7 @@ export default function ActivityFeed() {
   // Filter activities by search
   const filteredActivities = activities.filter(a => {
     if (!search) return true;
-    const user = a.user?.username?.toLowerCase() || '';
+    const user = a.user?.fullName?.toLowerCase() || a.user?.username?.toLowerCase() || '';
     const desc = a.dare?.description?.toLowerCase() || '';
     const type = a.type?.toLowerCase() || '';
     return user.includes(search.toLowerCase()) || desc.includes(search.toLowerCase()) || type.includes(search.toLowerCase());
@@ -90,13 +90,13 @@ export default function ActivityFeed() {
                   key={a._id}
                   className={`transition-shadow bg-neutral-900/90 border border-neutral-800 rounded-lg p-3 flex items-center gap-3 shadow hover:shadow-2xl ${isNew ? 'ring-2 ring-info/60' : ''}`}
                 >
-                  <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${a.user?.username || 'user'}'s profile`} title={a.user?.username || 'Someone'}>
+                  <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${a.user?.fullName || a.user?.username || 'user'}'s profile`} title={a.user?.fullName || a.user?.username || 'Someone'}>
                     <Avatar user={a.user} size={36} />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="font-bold text-primary hover:underline focus:outline-none" title={a.user?.username || 'Someone'}>
-                        {a.user?.username || 'Someone'}
+                      <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="font-bold text-primary hover:underline focus:outline-none" title={a.user?.fullName || a.user?.username || 'Someone'}>
+                        {a.user?.fullName || a.user?.username || 'Someone'}
                       </Link>
                       {isNew && <span className="ml-2 text-xs text-info font-semibold">NEW</span>}
                     </div>

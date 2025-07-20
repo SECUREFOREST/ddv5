@@ -19,13 +19,14 @@ const ICONS = {
 
 // Comprehensive activity message generator
 function getActivityMessage(a) {
+  const actorName = a.actor?.fullName || a.actor?.username || 'Someone';
   switch (a.type) {
     case 'dare_created':
-      return `${a.actor?.username || 'Someone'} created a new dare.`;
+      return `${actorName} created a new dare.`;
     case 'grade_given':
-      return `${a.actor?.username || 'Someone'} graded a dare: ${a.details?.grade ?? ''}`;
+      return `${actorName} graded a dare: ${a.details?.grade ?? ''}`;
     case 'comment_added':
-      return `${a.actor?.username || 'Someone'} commented on a dare.`;
+      return `${actorName} commented on a dare.`;
     default:
       return a.message || a.type || 'Activity';
   }
