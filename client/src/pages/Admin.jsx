@@ -580,10 +580,6 @@ export default function Admin() {
                       <div className="text-lg font-semibold text-neutral-700">Total Comments</div>
                       <div className="text-2xl font-bold text-primary">{siteStats.totalComments}</div>
                     </Card>
-                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
-                      <div className="text-lg font-semibold text-neutral-700">Total Credits Awarded</div>
-                      <div className="text-2xl font-bold text-primary">{siteStats.totalCredits}</div>
-                    </Card>
                   </div>
                 ) : (
                   <div className="text-neutral-400">No site stats available.</div>

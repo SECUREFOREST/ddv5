@@ -62,10 +62,6 @@ export default function Dashboard() {
                 <div className="text-2xl text-primary">{stats.actsCount}</div>
               </Card>
               <Card className="flex-1 min-w-[180px]">
-                <div className="text-base font-semibold text-primary">Credits</div>
-                <div className="text-2xl text-primary">{stats.totalCredits}</div>
-              </Card>
-              <Card className="flex-1 min-w-[180px]">
                 <div className="text-base font-semibold text-primary">Avg. Grade</div>
                 <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
               </Card>

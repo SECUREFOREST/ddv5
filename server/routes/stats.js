@@ -174,17 +174,10 @@ router.get('/dashboard', async (req, res) => {
     try {
       totalComments = await require('../models/Comment').countDocuments();
     } catch {}
-    // If you track credits, sum them from users
-    let totalCredits = 0;
-    try {
-      const creditsAgg = await User.aggregate([{ $group: { _id: null, total: { $sum: '$credits' } } }]);
-      totalCredits = creditsAgg[0]?.total || 0;
-    } catch {}
     res.json({
       totalUsers,
       totalDares,
       totalComments,
-      totalCredits,
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get dashboard stats.' });
