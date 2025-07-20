@@ -146,18 +146,39 @@ export default function SwitchGameParticipate() {
         <form onSubmit={handleFindGame} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
           <div>
             <div className="font-bold text-xl text-primary mb-2">Choose a difficulty</div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex items-start gap-2 p-3 rounded-lg cursor-pointer border transition-all duration-150
-                  ${difficulty === opt.value
-                    ? 'border-primary bg-primary/10 shadow-lg scale-105'
-                    : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
-                `} tabIndex={0} aria-label={`Select ${opt.label} difficulty`}>
-                  <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary mt-1 focus:ring-2 focus:ring-primary-contrast" />
-                  <span>
-                    <b className="text-base">{opt.label}</b>
-                    <div className="text-xs text-neutral-400 mt-1 ml-1">{opt.desc}</div>
+                <label
+                  key={opt.value}
+                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
+                    ${difficulty === opt.value
+                      ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                      : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
+                  `}
+                  tabIndex={0}
+                  aria-label={`Select ${opt.label} difficulty`}
+                  role="radio"
+                  aria-checked={difficulty === opt.value}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    value={opt.value}
+                    checked={difficulty === opt.value}
+                    onChange={() => setDifficulty(opt.value)}
+                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                    aria-checked={difficulty === opt.value}
+                    aria-label={opt.label}
+                    tabIndex={-1}
+                  />
+                  <span className="flex items-center gap-2">
+                    {opt.icon}
+                    <b className="text-base text-primary-contrast">{opt.label}</b>
                   </span>
+                  <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
                 </label>
               ))}
             </div>

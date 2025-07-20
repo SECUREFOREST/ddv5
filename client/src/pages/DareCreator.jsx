@@ -157,16 +157,39 @@ export default function DareCreator() {
           {/* Difficulty Group */}
           <div>
             <label className="block font-bold mb-1 text-primary text-lg">Difficulty</label>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               {DIFFICULTIES.map(opt => (
-                <label key={opt.value} className={`flex flex-col items-start gap-1 p-2 rounded cursor-pointer border transition-colors
-                  ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+                <label
+                  key={opt.value}
+                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
+                    ${difficulty === opt.value
+                      ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                      : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
+                  `}
+                  tabIndex={0}
+                  aria-label={`Select ${opt.label} difficulty`}
+                  role="radio"
+                  aria-checked={difficulty === opt.value}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    value={opt.value}
+                    checked={difficulty === opt.value}
+                    onChange={() => setDifficulty(opt.value)}
+                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none"
+                    aria-checked={difficulty === opt.value}
+                    aria-label={opt.label}
+                    tabIndex={-1}
+                  />
                   <span className="flex items-center gap-2">
-                    <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary" />
                     {opt.icon}
-                    <b>{opt.label}</b>
+                    <b className="text-base text-primary-contrast">{opt.label}</b>
                   </span>
-                  <span className="text-xs text-neutral-400 ml-6">{opt.desc}</span>
+                  <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
                 </label>
               ))}
             </div>
