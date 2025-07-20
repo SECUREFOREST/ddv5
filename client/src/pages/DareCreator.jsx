@@ -198,7 +198,7 @@ export default function DareCreator() {
           <div>
             <label className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary text-base"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-950 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary text-base"
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
@@ -212,13 +212,6 @@ export default function DareCreator() {
           <div>
             <label className="block font-bold mb-1 text-primary text-lg">Tags <span className="text-xs text-neutral-400 font-normal">(optional, for filtering/discovery)</span></label>
             <TagsInput value={tags} onChange={setTags} placeholder="Add tag..." />
-            <div className="flex flex-wrap gap-2 mt-2">
-              {tags.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
-                  {tag}
-                </span>
-              ))}
-            </div>
           </div>
           {/* Claimable and Public Checkboxes */}
           <div className="flex flex-col gap-2">
