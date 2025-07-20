@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import dayjs from 'dayjs';
-import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
 
 function DifficultyBadge({ level }) {
@@ -39,10 +39,10 @@ function DifficultyBadge({ level }) {
   );
 }
 
-const PRIVACY_OPTIONS = [
-  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.' },
-  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.' },
-  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.' },
+const STATUS_STEPS = [
+  { key: 'in_progress', label: 'In Progress', icon: <ClockIcon className="w-5 h-5" /> },
+  { key: 'completed', label: 'Completed', icon: <CheckCircleIcon className="w-5 h-5" /> },
+  { key: 'forfeited', label: 'Forfeited', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
 ];
 
 export default function DareReveal() {
@@ -66,8 +66,8 @@ export default function DareReveal() {
   const [generalError, setGeneralError] = React.useState('');
   const [generalSuccess, setGeneralSuccess] = React.useState('');
   const [proofModalOpen, setProofModalOpen] = React.useState(false);
-  const [proofModalType, setProofModalType] = React.useState(''); // 'image' or 'video'
   const [toast, setToast] = React.useState({ message: '', type: '' });
+  const [activeTab, setActiveTab] = React.useState('proof');
 
   React.useEffect(() => {
     if (authLoading) return;
@@ -168,8 +168,30 @@ export default function DareReveal() {
   if (authLoading) return <div>Loading...</div>;
   if (!dareId) return null;
 
+  // Status tracker bar
+  const statusStepIdx = dare ? STATUS_STEPS.findIndex(s => s.key === dare.status) : 0;
+
   return (
-    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      {/* Status Tracker Bar */}
+      <div className="flex items-center justify-between w-full px-4 py-3">
+        {STATUS_STEPS.map((step, idx) => (
+          <div key={step.key} className="flex-1 flex flex-col items-center">
+            <div className={`rounded-full w-8 h-8 flex items-center justify-center mb-1 text-lg font-bold
+              ${dare && dare.status === step.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-700 text-neutral-300'}`}>{step.icon}</div>
+            <span className={`text-xs font-semibold ${dare && dare.status === step.key ? 'text-primary' : 'text-neutral-400'}`}>{step.label}</span>
+            {idx < STATUS_STEPS.length - 1 && (
+              <div className="w-full h-1 bg-neutral-700 mt-1 mb-1" />
+            )}
+          </div>
+        ))}
+      </div>
+      {/* Sticky header at the top */}
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Dare Reveal</h1>
+      </div>
+      {/* Section divider for main content */}
+      <div className="border-t border-neutral-800 my-4" />
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       {toast.message && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
@@ -183,30 +205,6 @@ export default function DareReveal() {
           {toast.message}
         </div>
       )}
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">Dare Reveal</h1>
-      </div>
-      {/* Status badge at the very top, centered, visually distinct */}
-      <div className="flex justify-center mb-4">
-        {dare && (
-          dare.status === 'completed' ? (
-            <span className="inline-flex items-center gap-2 bg-green-900/90 border border-green-700 text-green-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
-              <CheckCircleIcon className="w-6 h-6" /> Completed
-            </span>
-          ) : dare.status === 'forfeited' ? (
-            <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
-              <ExclamationTriangleIcon className="w-6 h-6" /> Forfeited
-            </span>
-          ) : dare.status === 'in_progress' ? (
-            <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
-              <ClockIcon className="w-6 h-6" /> In Progress
-            </span>
-          ) : null
-        )}
-      </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
       {loading ? (
         <div className="text-lg text-center">Loading dare...</div>
       ) : error ? (
@@ -255,72 +253,111 @@ export default function DareReveal() {
               ))}
             </div>
           </div>
-          {/* --- Proof Preview Section --- */}
-          {dare.proof && dare.proof.fileUrl ? (
-            <div className="flex flex-col items-center mb-4">
-              <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 shadow overflow-hidden" onClick={() => setProofModalOpen(true)}>
-                {dare.proof.fileUrl.match(/\.(mp4)$/) ? (
-                  <video src={dare.proof.fileUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
-                ) : (
-                  <img src={dare.proof.fileUrl} alt="Proof" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
-                )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <PlayCircleIcon className="w-12 h-12 text-white" />
+          {/* --- Tabs for Proof/Grades --- */}
+          <div className="flex gap-2 mb-4 border-b border-neutral-700">
+            <button className={`px-4 py-2 font-semibold rounded-t ${activeTab === 'proof' ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300'}`} onClick={() => setActiveTab('proof')}>Proof</button>
+            <button className={`px-4 py-2 font-semibold rounded-t ${activeTab === 'grades' ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300'}`} onClick={() => setActiveTab('grades')}>Grades</button>
+          </div>
+          {/* --- Tab Content --- */}
+          {activeTab === 'proof' && (
+            <div className="mb-4">
+              {/* Proof Preview Section */}
+              {dare.proof && dare.proof.fileUrl ? (
+                <div className="flex flex-col items-center mb-4">
+                  <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 shadow overflow-hidden" onClick={() => setProofModalOpen(true)}>
+                    {dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+                      <video src={dare.proof.fileUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
+                    ) : (
+                      <img src={dare.proof.fileUrl} alt="Proof" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <PlayCircleIcon className="w-12 h-12 text-white" />
+                    </div>
+                  </div>
+                  <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
                 </div>
-              </div>
-              <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
+              ) : (
+                <div className="flex flex-col items-center mb-4">
+                  <PhotoIcon className="w-16 h-16 text-neutral-700 mb-2" />
+                  <span className="text-neutral-400">No proof submitted yet. When you submit proof, it will appear here!</span>
+                </div>
+              )}
+              {/* Proof Submission Form */}
+              {dare.status === 'in_progress' && (
+                <form onSubmit={handleProofSubmit} className="space-y-4 mt-4" aria-label="Submit Proof Form">
+                  <div>
+                    <label className="block font-semibold mb-1">Upload image or video proof:</label>
+                    <input
+                      type="file"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                      onChange={handleProofFileChange}
+                      accept="image/*,video/mp4,video/webm,video/quicktime"
+                    />
+                    <small className="text-gray-400">Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</small>
+                  </div>
+                  <div>
+                    <label className="block font-semibold mb-1">Describe what you did (optional):</label>
+                    <textarea
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:border-primary"
+                      value={proof}
+                      onChange={e => setProof(e.target.value)}
+                      rows={3}
+                      placeholder="Describe your proof, add context, or leave blank if uploading a file."
+                    />
+                  </div>
+                  {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}
+                  <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-label="Submit Proof">
+                      {proofLoading ? (
+                        <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+                      ) : (
+                        <>
+                          Submit Proof <ArrowRightIcon className="inline w-5 h-5 ml-1" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+              {proofSuccess && <div className="text-success text-center font-medium mt-2">{proofSuccess}</div>}
             </div>
-          ) : (
-            <div className="flex flex-col items-center mb-4">
-              <PhotoIcon className="w-16 h-16 text-neutral-700 mb-2" />
-              <span className="text-neutral-400">No proof submitted yet. When you submit proof, it will appear here!</span>
+          )}
+          {activeTab === 'grades' && (
+            <div className="mb-4">
+              {/* Grades Section */}
+              <div className="bg-neutral-900 rounded-xl p-4 mb-6 border border-neutral-800">
+                <h2 className="text-lg font-semibold text-center mb-4 text-primary">Grades & Feedback</h2>
+                {dare?.grades && dare.grades.length > 0 ? (
+                  <ul className="space-y-2 mb-4">
+                    {dare.grades.map((g, i) => (
+                      <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
+                        <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
+                        <span className="mx-2">→</span>
+                        <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
+                        <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
+                          {g.grade}
+                        </span>
+                        {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
+                        {g.createdAt && (
+                          <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-gray-400 mb-4 text-center">No grades yet.</div>
+                )}
+              </div>
             </div>
           )}
           {/* --- Action Buttons (Sticky Footer on Mobile) --- */}
           <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
             {dare.status === 'in_progress' && (
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <form onSubmit={handleProofSubmit} className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
-                  <input type="file" accept="image/*,video/mp4" onChange={handleProofFileChange} className="block w-full text-sm text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-contrast hover:file:bg-primary-contrast hover:file:text-primary transition-colors" />
-                  <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary-contrast" disabled={proofLoading}>
-                    {proofLoading && <span className="loader border-2 border-t-2 border-t-primary-contrast border-primary rounded-full w-4 h-4 animate-spin"></span>}
-                    {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                  </button>
-                </form>
-                <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast" disabled={chickenOutLoading}>
-                  {chickenOutLoading && <span className="loader border-2 border-t-2 border-t-white border-danger rounded-full w-4 h-4 animate-spin"></span>}
-                  {chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}
-                </button>
-              </div>
+              <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast" disabled={chickenOutLoading}>
+                {chickenOutLoading && <span className="loader border-2 border-t-2 border-t-white border-danger rounded-full w-4 h-4 animate-spin"></span>}
+                {chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}
+              </button>
             )}
-          </div>
-          {/* --- Timestamps & Meta --- */}
-          <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1" title={dayjs(dare.createdAt).format('YYYY-MM-DD HH:mm:ss')}>
-              <ClockIcon className="w-4 h-4 text-neutral-400" />
-              Created: {dayjs(dare.createdAt).format('MMM D, YYYY h:mm A')}
-            </div>
-            {dare.completedAt && (
-              <div className="flex items-center gap-1" title={dayjs(dare.completedAt).format('YYYY-MM-DD HH:mm:ss')}>
-                <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                Completed: {dayjs(dare.completedAt).format('MMM D, YYYY h:mm A')}
-              </div>
-            )}
-            {dare.updatedAt && (
-              <div className="flex items-center gap-1" title={dayjs(dare.updatedAt).format('YYYY-MM-DD HH:mm:ss')}>
-                <ArrowPathIcon className="w-4 h-4 text-blue-400" />
-                Last Updated: {dayjs(dare.updatedAt).format('MMM D, YYYY h:mm A')}
-              </div>
-            )}
-          </div>
-          {/* Responsive layout: stack on mobile, row on desktop for action buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
-            <button
-              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
-              onClick={() => navigate('/dashboard')}
-            >
-              Back to Dashboard
-            </button>
             {(dare.status === 'completed' || dare.status === 'forfeited') && (
               <button
                 className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow"
@@ -329,30 +366,36 @@ export default function DareReveal() {
                 Get Another Dare
               </button>
             )}
+            <button
+              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-semibold hover:bg-neutral-600 shadow"
+              onClick={() => navigate('/dashboard')}
+            >
+              Back to Dashboard
+            </button>
           </div>
+          {/* --- Proof Modal --- */}
+          {proofModalOpen && dare && dare.proof && (
+            <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+              <div className="flex items-center justify-center min-h-screen">
+                <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
+                <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in-scale">
+                  <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
+                  {dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
+                    <video src={dare.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay />
+                  ) : (
+                    <img src={dare.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-lg" />
+                  )}
+                  {/* Proof comment below media */}
+                  {dare.proof.text && (
+                    <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded shadow-inner text-sm border border-neutral-700">{dare.proof.text}</div>
+                  )}
+                  <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
+                </div>
+              </div>
+            </Dialog>
+          )}
         </>
       ) : null}
-      {/* --- Proof Modal --- */}
-      {proofModalOpen && dare && dare.proof && (
-        <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen">
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
-            <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in-scale">
-              <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
-              {dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
-                <video src={dare.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay />
-              ) : (
-                <img src={dare.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-lg" />
-              )}
-              {/* Proof comment below media */}
-              {dare.proof.text && (
-                <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded shadow-inner text-sm border border-neutral-700">{dare.proof.text}</div>
-              )}
-              <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
-            </div>
-          </div>
-        </Dialog>
-      )}
     </div>
   );
 } 
