@@ -9,6 +9,8 @@ import Accordion from '../components/Accordion';
 import DashboardChart from '../components/DashboardChart';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { io } from 'socket.io-client';
+import { Squares2X2Icon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * DarePerformerDashboard - Modern React/Tailwind implementation of the legacy performer dashboard.
@@ -135,6 +137,29 @@ export default function DarePerformerDashboard() {
     { key: 'demand', label: 'Demand Dare' },
     { key: 'switch', label: 'Switch Games' },
   ];
+
+  // Switch Games state
+  const [mySwitchGames, setMySwitchGames] = useState([]);
+  const [mySwitchGamesLoading, setMySwitchGamesLoading] = useState(false);
+  const [switchGameHistory, setSwitchGameHistory] = useState([]);
+  const [switchGameHistoryLoading, setSwitchGameHistoryLoading] = useState(false);
+  const [switchGamesError, setSwitchGamesError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (tab !== 'switch' || !user) return;
+    setMySwitchGamesLoading(true);
+    setSwitchGamesError('');
+    api.get('/switches/performer')
+      .then(res => setMySwitchGames(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setSwitchGamesError('Failed to load your switch games.'))
+      .finally(() => setMySwitchGamesLoading(false));
+    setSwitchGameHistoryLoading(true);
+    api.get('/switches/history')
+      .then(res => setSwitchGameHistory(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setSwitchGamesError('Failed to load switch game history.'))
+      .finally(() => setSwitchGameHistoryLoading(false));
+  }, [tab, user]);
   // Add at the top, after other state:
   const [publicActCounts, setPublicActCounts] = useState({ total: 0, submission: 0, domination: 0, switch: 0 });
   // Add state for expanded details
@@ -819,10 +844,50 @@ export default function DarePerformerDashboard() {
         {tab === 'switch' && (
           <div className="tab-pane active" id="switch">
             <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
-            <div className="text-neutral-400 text-center py-8">Switch Games coming soon. Here you will be able to view, join, and create Switch Games with other users!</div>
-            <div className="call-to-action flex gap-2 mb-4 justify-center">
-              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start New Switch Game</a>
+            <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/switches/create')}>Create Switch Game</button>
+              <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/switches/participate')}>Join Switch Game</button>
             </div>
+            <div className="border-t border-neutral-800 my-4" />
+            <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
+            {mySwitchGamesLoading ? (
+              <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
+            ) : mySwitchGames.length === 0 ? (
+              <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {mySwitchGames.map(game => (
+                  <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer" onClick={() => navigate(`/switches/${game._id}`)}>
+                    <Squares2X2Icon className="w-8 h-8 text-primary" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-primary truncate">{game.description || 'Switch Game'}</div>
+                      <div className="text-sm text-neutral-300 truncate">Status: {game.status}</div>
+                      <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
+            {switchGameHistoryLoading ? (
+              <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
+            ) : switchGameHistory.length === 0 ? (
+              <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {switchGameHistory.map(game => (
+                  <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer" onClick={() => navigate(`/switches/${game._id}`)}>
+                    <Squares2X2Icon className="w-8 h-8 text-primary" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-primary truncate">{game.description || 'Switch Game'}</div>
+                      <div className="text-sm text-neutral-300 truncate">Status: {game.status}</div>
+                      <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
           </div>
         )}
       </div>
