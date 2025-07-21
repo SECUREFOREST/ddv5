@@ -183,6 +183,22 @@ const [allDaresStatus, setAllDaresStatus] = useState("");
 const [allDaresDifficulty, setAllDaresDifficulty] = useState("");
 const [allDaresParticipant, setAllDaresParticipant] = useState("");
 const [allDaresSort, setAllDaresSort] = useState("recent");
+
+  // Filtering and sorting logic for All Dares tab (must be inside component)
+  function filterAndSortAllDares(dares) {
+    let filtered = dares;
+    if (allDaresStatus) filtered = filtered.filter(d => d.status === allDaresStatus);
+    if (allDaresDifficulty) filtered = filtered.filter(d => d.difficulty === allDaresDifficulty);
+    if (allDaresParticipant) filtered = filtered.filter(d =>
+      (d.creator?.username && d.creator.username.toLowerCase().includes(allDaresParticipant.toLowerCase())) ||
+      (d.performer?.username && d.performer.username.toLowerCase().includes(allDaresParticipant.toLowerCase()))
+    );
+    if (allDaresSort === recent) filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+    if (allDaresSort === oldest) filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
+    if (allDaresSort === status) filtered = filtered.slice().sort((a, b) => (a.status || ).localeCompare(b.status || ));
+    if (allDaresSort === difficulty) filtered = filtered.slice().sort((a, b) => (a.difficulty || ).localeCompare(b.difficulty || ));
+    return filtered;
+  }
 // Derived arrays for All Dares tab (must be inside component)
 const allActiveDares = [
   ...ongoing.map(d => ({ ...d, _type: "perform" })),
@@ -1164,19 +1180,5 @@ const allCompletedDares = [
   );
 } 
 
-function filterAndSortAllDares(dares) {
-  let filtered = dares;
-  if (allDaresStatus) filtered = filtered.filter(d => d.status === allDaresStatus);
-  if (allDaresDifficulty) filtered = filtered.filter(d => d.difficulty === allDaresDifficulty);
-  if (allDaresParticipant) filtered = filtered.filter(d =>
-    (d.creator?.username && d.creator.username.toLowerCase().includes(allDaresParticipant.toLowerCase())) ||
-    (d.performer?.username && d.performer.username.toLowerCase().includes(allDaresParticipant.toLowerCase()))
-  );
-  if (allDaresSort === 'recent') filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-  if (allDaresSort === 'oldest') filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
-  if (allDaresSort === 'status') filtered = filtered.slice().sort((a, b) => (a.status || '').localeCompare(b.status || ''));
-  if (allDaresSort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || '').localeCompare(b.difficulty || ''));
-  return filtered;
-}
 
 // Derived arrays for All Dares tab (must be inside component)
