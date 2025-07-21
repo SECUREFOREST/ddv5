@@ -615,57 +615,57 @@ const allCompletedDares = [
             label: 'All Dares',
             content: (
               <div>
-                <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
-                {/* Action Buttons */}
-                <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+        <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
+        {/* Action Buttons */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
                   <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/subs/new')}>
-                    Create Dare
-                  </button>
+            Create Dare
+          </button>
                   <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/subs/select')}>
-                    Perform Dare
-                  </button>
+            Perform Dare
+          </button>
                   <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
                     Submit Dare
                   </a>
-                </div>
-                {/* Advanced Filters & Sorting */}
-                <div className="flex flex-wrap gap-2 mb-4 items-center">
-                  <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
-                    <option value="">All Statuses</option>
-                    <option value="waiting_for_participant">Waiting</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="forfeited">Forfeited</option>
-                  </select>
-                  <select value={allDaresDifficulty} onChange={e => setAllDaresDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
-                    <option value="">All Difficulties</option>
-                    {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                  </select>
-                  <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by creator or performer username" />
-                  <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort dares">
-                    <option value="recent">Most Recent</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="status">Status</option>
-                    <option value="difficulty">Difficulty</option>
-                  </select>
-                </div>
-                <div className="border-t border-neutral-800 my-4" />
-                <h4 className="text-lg font-bold text-primary mb-2">Active Dares</h4>
-                {filterAndSortAllDares(allActiveDares).length === 0 ? (
-                  <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
-                ) : (
+        </div>
+        {/* Advanced Filters & Sorting */}
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
+          <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="waiting_for_participant">Waiting</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Rejected</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="forfeited">Forfeited</option>
+          </select>
+          <select value={allDaresDifficulty} onChange={e => setAllDaresDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
+            <option value="">All Difficulties</option>
+            {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+          </select>
+          <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by creator or performer username" />
+          <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort dares">
+            <option value="recent">Most Recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="status">Status</option>
+            <option value="difficulty">Difficulty</option>
+          </select>
+        </div>
+        <div className="border-t border-neutral-800 my-4" />
+        <h4 className="text-lg font-bold text-primary mb-2">Active Dares</h4>
+        {filterAndSortAllDares(allActiveDares).length === 0 ? (
+          <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
+        ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filterAndSortAllDares(allActiveDares).map(dare => (
+            {filterAndSortAllDares(allActiveDares).map(dare => (
                       <div key={dare._id} className="bg-neutral-900/80 border border-neutral-700 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-200 p-6 flex flex-col gap-3 group hover:scale-[1.02]">
                         <div className="flex items-center gap-4">
-                          <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
-                          <div className="flex-1 min-w-0">
+                <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
+                <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-lg font-bold text-primary truncate">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</span>
                               <span className="bg-pink-500 text-white rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1"><Squares2X2Icon className="w-4 h-4" /> {difficultyBadge(dare.difficulty)}</span>
-                            </div>
+                </div>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="bg-purple-600 text-white rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1"><Squares2X2Icon className="w-4 h-4" /> {statusBadge(dare.status)}</span>
                               <span className="text-neutral-400 text-xs">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span>
@@ -674,211 +674,211 @@ const allCompletedDares = [
                           </div>
                         </div>
                         <div className="flex gap-2 mt-4">
-                          {dare._type === 'perform' && dare.status === 'in_progress' && (
+                {dare._type === 'perform' && dare.status === 'in_progress' && (
                             <button className="flex-1 bg-green-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>
                               <Squares2X2Icon className="w-4 h-4" /> Complete
                             </button>
-                          )}
-                          {dare._type === 'perform' && dare.status === 'in_progress' && (
+                )}
+                {dare._type === 'perform' && dare.status === 'in_progress' && (
                             <button className="flex-1 bg-red-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>
                               <Squares2X2Icon className="w-4 h-4" /> Reject
                             </button>
-                          )}
-                          {dare._type === 'demand' && dare.status === 'in_progress' && (
+                )}
+                {dare._type === 'demand' && dare.status === 'in_progress' && (
                             <button className="flex-1 bg-red-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>
                               <Squares2X2Icon className="w-4 h-4" /> Withdraw
                             </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 )}
-                <h4 className="text-lg font-bold text-primary mb-2 mt-8">Completed Dares</h4>
-                {filterAndSortAllDares(allCompletedDares).length === 0 ? (
-                  <div className="text-neutral-400 text-center py-4">No completed dares yet.</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    {filterAndSortAllDares(allCompletedDares).map(dare => (
+                        </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <h4 className="text-lg font-bold text-primary mb-2 mt-8">Completed Dares</h4>
+        {filterAndSortAllDares(allCompletedDares).length === 0 ? (
+          <div className="text-neutral-400 text-center py-4">No completed dares yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {filterAndSortAllDares(allCompletedDares).map(dare => (
                       <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
-                        <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
-                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
-                          <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Browse Public Deviant Dares (added to All Dares tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
-                {/* Public dare counts summary */}
-                <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
-                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
-                  {publicActCounts.submission > 0 && (
-                    <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
-                  )}
-                  {publicActCounts.domination > 0 && (
-                    <span className="inline-block bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold">Domination: {publicActCounts.domination}</span>
-                  )}
-                  {publicActCounts.switch > 0 && (
-                    <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
-                  )}
+                <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
+                  <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
+                  <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
                 </div>
-                {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
-                <div className="public-dares-browser mb-8">
-                  {renderFilters()}
-                  {renderAdvancedFilters()}
-                  {publicLoading ? (
-                    <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
-                  ) : publicDares.length === 0 ? (
-                    selectedDifficulties.length === 0 ? (
-                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
-                    ) : (
-                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
-                    )
-                  ) : (
-                    <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Browse Public Deviant Dares (added to All Dares tab) */}
+        <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
+        {/* Public dare counts summary */}
+        <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
+          <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
+          {publicActCounts.submission > 0 && (
+            <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
+          )}
+          {publicActCounts.domination > 0 && (
+            <span className="inline-block bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold">Domination: {publicActCounts.domination}</span>
+          )}
+          {publicActCounts.switch > 0 && (
+            <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
+          )}
+        </div>
+        {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
+        <div className="public-dares-browser mb-8">
+          {renderFilters()}
+          {renderAdvancedFilters()}
+          {publicLoading ? (
+            <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
+          ) : publicDares.length === 0 ? (
+            selectedDifficulties.length === 0 ? (
+              <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+            ) : (
+              <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+            )
+          ) : (
+            <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
                         .map((dare, idx) => (
                           <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
-                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
-                              {/* Add more details as needed */}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
+                  <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                    <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                    {/* Add more details as needed */}
+                  </div>
                 </div>
-                {/* TODO: Public dares browser, advanced filtering, etc. */}
-              </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* TODO: Public dares browser, advanced filtering, etc. */}
+      </div>
             )
           },
           {
             label: 'Switch Games',
             content: (
               <div>
-                <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
+        <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
                 {/* Action Buttons */}
-                <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
                   <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/switches/create')}>
                     Create Switch Game
                   </button>
                   <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/switches/participate')}>
                     Join Switch Game
                   </button>
-                </div>
+        </div>
                 {/* Advanced Filters & Sorting for Switch Games */}
-                <div className="flex flex-wrap gap-2 mb-4 items-center">
-                  <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
-                    <option value="">All Statuses</option>
-                    <option value="waiting_for_participant">Waiting</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="forfeited">Forfeited</option>
-                    <option value="expired">Expired</option>
-                  </select>
-                  <select value={switchDifficultyFilter} onChange={e => setSwitchDifficultyFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
-                    <option value="">All Difficulties</option>
-                    {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                  </select>
-                  <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by participant username" />
-                  <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort switch games">
-                    <option value="recent">Most Recent</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="status">Status</option>
-                    <option value="difficulty">Difficulty</option>
-                  </select>
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
+          <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="waiting_for_participant">Waiting</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="forfeited">Forfeited</option>
+            <option value="expired">Expired</option>
+          </select>
+          <select value={switchDifficultyFilter} onChange={e => setSwitchDifficultyFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
+            <option value="">All Difficulties</option>
+            {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+          </select>
+          <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by participant username" />
+          <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort switch games">
+            <option value="recent">Most Recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="status">Status</option>
+            <option value="difficulty">Difficulty</option>
+          </select>
+        </div>
+        <div className="border-t border-neutral-800 my-4" />
+        <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
+        {mySwitchGamesLoading ? (
+          <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
+        ) : filterAndSortSwitchGames(filteredMySwitchGames).length === 0 ? (
+          <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
+                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
+                <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+                  <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
+                  <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
                 </div>
-                <div className="border-t border-neutral-800 my-4" />
-                <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
-                {mySwitchGamesLoading ? (
-                  <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
-                ) : filterAndSortSwitchGames(filteredMySwitchGames).length === 0 ? (
-                  <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
+              </div>
+            ))}
+          </div>
+        )}
+        <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
+        {switchGameHistoryLoading ? (
+          <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
+        ) : filterAndSortSwitchGames(filteredSwitchGameHistory).length === 0 ? (
+          <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {filterAndSortSwitchGames(filteredSwitchGameHistory).map(game => (
                       <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
-                        <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
-                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
-                          <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
-                {switchGameHistoryLoading ? (
-                  <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
-                ) : filterAndSortSwitchGames(filteredSwitchGameHistory).length === 0 ? (
-                  <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    {filterAndSortSwitchGames(filteredSwitchGameHistory).map(game => (
-                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
-                        <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
-                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
-                          <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
+                <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+                  <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
+                  <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
-                {/* Public dare counts summary */}
-                <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
-                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
-                  {publicActCounts.submission > 0 && (
-                    <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
-                  )}
-                  {publicActCounts.domination > 0 && (
-                    <span className="inline-block bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold">Domination: {publicActCounts.domination}</span>
-                  )}
-                  {publicActCounts.switch > 0 && (
-                    <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
-                  )}
-                </div>
-                {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
-                <div className="public-dares-browser mb-8">
-                  {renderFilters()}
-                  {renderAdvancedFilters()}
-                  {publicLoading ? (
-                    <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
-                  ) : publicDares.length === 0 ? (
-                    selectedDifficulties.length === 0 ? (
-                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
-                    ) : (
-                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
-                    )
-                  ) : (
-                    <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
+            {/* Public dare counts summary */}
+            <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
+              <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
+              {publicActCounts.submission > 0 && (
+                <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
+              )}
+              {publicActCounts.domination > 0 && (
+                <span className="inline-block bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold">Domination: {publicActCounts.domination}</span>
+              )}
+              {publicActCounts.switch > 0 && (
+                <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
+              )}
+            </div>
+            {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
+            <div className="public-dares-browser mb-8">
+              {renderFilters()}
+              {renderAdvancedFilters()}
+              {publicLoading ? (
+                <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
+              ) : publicDares.length === 0 ? (
+                selectedDifficulties.length === 0 ? (
+                  <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                ) : (
+                  <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                )
+              ) : (
+                <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
                         .map((dare, idx) => (
                           <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
-                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
-                            </div>
-                          </div>
-                        ))}
+                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                        <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              </div>
+              )}
+            </div>
+            </div>
             )
           }
         ]}
