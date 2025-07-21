@@ -221,10 +221,14 @@ export default function NotificationDropdown() {
         <li
           key={n._id}
           className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''}`}
+          role="menuitem"
         >
           <button
             onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
             className="w-full text-left py-2 px-0 focus:outline-none hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
+            aria-haspopup="true"
+            aria-expanded={open}
+            role="button"
           >
             <span className="block">
               <span className="description font-medium">{getNotificationMessage(n)}</span>
@@ -255,7 +259,7 @@ export default function NotificationDropdown() {
         </span>
       </span>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-sm rounded-none z-50 p-[15px] text-neutral-100">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-sm rounded-none z-50 p-[15px] text-neutral-100" role="menu">
           {items}
         </ul>
       )}

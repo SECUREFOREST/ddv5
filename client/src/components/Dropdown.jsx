@@ -93,7 +93,7 @@ export default function Dropdown({
       <ul
         ref={menuRef}
         className={`absolute z-50 mt-2 min-w-[160px] bg-[#222] border border-[#444] rounded-none shadow-[0_6px_12px_rgba(0,0,0,0.175)] py-1 ${alignRight ? 'right-0' : 'left-0'} ${open ? '' : 'hidden'} ${menuClassName}`.trim()}
-        role="menu"
+        role="listbox"
         tabIndex={-1}
         onKeyDown={handleKeyDown}
       >
