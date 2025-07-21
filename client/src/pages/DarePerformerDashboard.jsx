@@ -803,7 +803,6 @@ export default function DarePerformerDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
                       <div key={game._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}>
-                        <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-center mb-2">
                             <div>{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
