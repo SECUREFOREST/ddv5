@@ -12,6 +12,7 @@ import { io } from 'socket.io-client';
 import { Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '../components/Avatar';
+import Tabs from '../components/Tabs';
 
 /**
  * DarePerformerDashboard - Modern React/Tailwind implementation of the legacy performer dashboard.
