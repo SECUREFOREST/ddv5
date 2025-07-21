@@ -19,11 +19,12 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
           <div className="text-neutral-400 py-4 text-center">No leaderboard data available.</div>
         ) : (
           <table className="min-w-full text-sm text-left bg-transparent text-[#fff] border border-[#282828]">
+            <caption className="sr-only">Leaderboard</caption>
             <thead>
               <tr className="bg-[#282828] text-primary">
-                <th className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-8">#</th>
-                <th className="px-2 py-1 font-semibold border-b border-[#282828]">User</th>
-                <th className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-24">Dares Completed</th>
+                <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-8">#</th>
+                <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828]">User</th>
+                <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-24">Dares Completed</th>
               </tr>
             </thead>
             <tbody>

@@ -80,33 +80,17 @@ export default function ActivityFeed() {
         ) : filteredActivities.length === 0 ? (
           <div className="text-neutral-400 text-center">No recent activity.</div>
         ) : (
-          <ul className="flex flex-col gap-3">
-            {filteredActivities.map(a => {
-              const isNew = lastSeen && new Date(a.createdAt) > lastSeen;
-              return (
-                <li
-                  key={a._id}
-                  className={`transition-shadow bg-neutral-900/90 border border-neutral-800 rounded-lg p-3 flex items-center gap-3 shadow hover:shadow-2xl ${isNew ? 'ring-2 ring-info/60' : ''}`}
-                >
-                  <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${a.user?.fullName || a.user?.username || 'user'}'s profile`} title={a.user?.fullName || a.user?.username || 'Someone'}>
-                    <Avatar user={a.user} size={36} alt={`Avatar for ${a.user?.fullName || a.user?.username || 'user'}`} />
-                  </Link>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="font-bold text-primary hover:underline focus:outline-none" title={a.user?.fullName || a.user?.username || 'Someone'}>
-                        {a.user?.fullName || a.user?.username || 'Someone'}
-                      </Link>
-                      {isNew && <span className="ml-2 text-xs text-info font-semibold">NEW</span>}
-                    </div>
-                    <div className="text-neutral-200 text-sm mt-1">{renderActivityText(a)}</div>
-                  </div>
-                  <span className="flex items-center gap-1 text-xs text-neutral-400 ml-2" title={new Date(a.createdAt).toLocaleString()}>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    {formatRelativeTime(new Date(a.createdAt))}
-                  </span>
-                </li>
-              );
-            })}
+          <ul className="space-y-2">
+            {filteredActivities.map((a, idx) => (
+              <li key={a._id || idx} className="flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                <Avatar user={a.user} size={36} alt={`Avatar for ${a.user?.fullName || a.user?.username || 'user'}`} />
+                <div className="flex-1">
+                  <div className="font-semibold">{a.user?.fullName || a.user?.username || 'Unknown'}</div>
+                  <div className="text-neutral-400 text-xs">{a.type} {a.dare?.description && `- ${a.dare.description}`}</div>
+                  {a.createdAt && <time dateTime={a.createdAt} className="text-neutral-500 text-xs">{new Date(a.createdAt).toLocaleString()}</time>}
+                </div>
+              </li>
+            ))}
           </ul>
         )}
       </div>

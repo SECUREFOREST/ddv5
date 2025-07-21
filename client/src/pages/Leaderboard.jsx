@@ -61,12 +61,13 @@ export default function Leaderboard() {
           <div className="text-neutral-400 text-center">No users found.</div>
         ) : (
           <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900 overflow-x-auto rounded shadow">
+            <caption className="sr-only">Leaderboard</caption>
             <thead>
               <tr className="bg-neutral-900 text-primary">
-                <th className="p-2 text-left font-semibold">Rank</th>
-                <th className="p-2 text-left font-semibold">User</th>
-                <th className="p-2 text-left font-semibold">Points</th>
-                <th className="p-2 text-left font-semibold">Dares Completed</th>
+                <th scope="col" className="p-2 text-left font-semibold">Rank</th>
+                <th scope="col" className="p-2 text-left font-semibold">User</th>
+                <th scope="col" className="p-2 text-left font-semibold">Points</th>
+                <th scope="col" className="p-2 text-left font-semibold">Dares Completed</th>
               </tr>
             </thead>
             <tbody>
