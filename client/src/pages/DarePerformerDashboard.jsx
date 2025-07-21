@@ -83,7 +83,7 @@ function difficultyBadge(level) {
 // Helper: status badge (fix ReferenceError)
 function statusBadge(status) {
   const map = {
-    waiting_for_participant: { label: 'Waiting', color: 'bg-blue-700 text-white' },
+    waiting_for_participant: { label: 'Waiting For Participant', color: 'bg-blue-700 text-white' },
     in_progress: { label: 'In Progress', color: 'bg-info text-info-contrast' },
     completed: { label: 'Completed', color: 'bg-green-700 text-white' },
     forfeited: { label: 'Forfeited', color: 'bg-red-700 text-white' },
@@ -632,7 +632,7 @@ export default function DarePerformerDashboard() {
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
                   <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
                     <option value="">All Statuses</option>
-                    <option value="waiting_for_participant">Waiting</option>
+                    <option value="waiting_for_participant">Waiting For Participant</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
                     <option value="rejected">Rejected</option>
@@ -775,7 +775,7 @@ export default function DarePerformerDashboard() {
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
                   <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
                     <option value="">All Statuses</option>
-                    <option value="waiting_for_participant">Waiting</option>
+                    <option value="waiting_for_participant">Waiting For Participant</option>
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
                     <option value="forfeited">Forfeited</option>
