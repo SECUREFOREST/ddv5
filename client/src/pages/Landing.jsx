@@ -21,6 +21,15 @@ const Landing = () => {
       <Helmet>
         <title>Deviant Dare | Social Dares, Challenges & Leaderboards</title>
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
+        <meta property="og:title" content="Deviant Dare | Social Dares, Challenges & Leaderboards" />
+        <meta property="og:description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://deviantdare.com/" />
+        <meta property="og:image" content="/logo.svg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Deviant Dare | Social Dares, Challenges & Leaderboards" />
+        <meta name="twitter:description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
+        <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">

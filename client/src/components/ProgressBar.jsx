@@ -10,9 +10,9 @@ export default function ProgressBar({ value = 0, label, className = '', ...props
   return (
     <div className={`w-full ${className}`.trim()} {...props}>
       {label && <div className="mb-1 text-sm text-[#eee]">{label}</div>}
-      <div className="w-full bg-[#282828] border border-[#282828] rounded-none h-4 overflow-hidden">
+      <div className="w-full bg-neutral-800 border border-neutral-900 rounded h-4 overflow-hidden">
         <div
-          className="bg-primary h-4 rounded-none transition-all duration-300"
+          className="bg-primary h-4 rounded transition-all duration-300"
           style={{ width: pct + '%' }}
           role="progressbar"
           aria-valuenow={pct}

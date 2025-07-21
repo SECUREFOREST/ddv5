@@ -7,6 +7,7 @@ import React from 'react';
  * @param {function} onClick
  * @param {React.ReactNode} children
  */
+const base = 'rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast border-0 shadow-none';
 const variantClasses = {
   primary: 'bg-primary text-primary-contrast hover:bg-primary-dark',
   danger: 'bg-danger text-danger-contrast hover:bg-danger-dark',
@@ -15,7 +16,6 @@ const variantClasses = {
 };
 
 export default function Button({ children, variant = 'default', className = '', ...props }) {
-  const base = 'rounded-none px-[12px] py-[8px] font-bold text-[14px] uppercase transition-colors focus:outline-none border-0 shadow-none';
   const variantClass = variantClasses[variant] || variantClasses.default;
   return (
     <button

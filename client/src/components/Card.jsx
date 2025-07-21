@@ -11,7 +11,7 @@ import React from 'react';
 export default function Card({ header, image, children, footer, className = '', ...props }) {
   return (
     <div
-      className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 w-full max-w-md sm:max-w-lg lg:max-w-xl ${className}`.trim()}
+      className={`bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6 mb-5 w-full max-w-md sm:max-w-lg lg:max-w-xl ${className}`.trim()}
       {...props}
     >
       {image && (
