@@ -97,7 +97,7 @@ export default function DareCreator() {
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       {/* Toast notification for feedback */}
       {toast && (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded  text-base font-semibold transition-all duration-300
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
           ${toast.includes('success') ? 'bg-green-700 text-white' : 'bg-red-700 text-white'}`}
           role="alert"
           aria-live="polite"
@@ -110,7 +110,7 @@ export default function DareCreator() {
       )}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-          <div className="bg-neutral-900 rounded-lg  w-full max-w-md mx-4 relative p-6">
+          <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative p-6">
             <h2 className="text-lg font-semibold text-primary mb-4 text-center flex items-center gap-2 justify-center"><CheckCircleIcon className="w-6 h-6 text-success" /> Dare Created!</h2>
             {claimLink && (
               <>
@@ -155,7 +155,7 @@ export default function DareCreator() {
         </div>
       )}
       {!showModal && (
-        <form role="form" aria-labelledby="dare-create-title" onSubmit={handleCreate} className="space-y-8 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700   transition-shadow duration-200 mb-4 text-center">
+        <form role="form" aria-labelledby="dare-create-title" onSubmit={handleCreate} className="space-y-8 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4 text-center">
           {/* Difficulty Group */}
           <div>
             <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
@@ -165,7 +165,7 @@ export default function DareCreator() {
                   key={opt.value}
                   className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast w-full
                     ${difficulty === opt.value
-                      ? 'border-primary bg-primary/10  scale-105'
+                      ? 'border-primary bg-primary/10 shadow-lg scale-105'
                       : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
                   `}
                   tabIndex={0}
