@@ -1170,7 +1170,7 @@ function filterAndSortAllDares(dares) {
   return filtered;
 }
 
-// Derived arrays for All Dares tab
+// Derived arrays for All Dares tab (must be inside component)
 const allActiveDares = [
   ...ongoing.map(d => ({ ...d, _type: 'perform' })),
   ...demandSlots.map(d => ({ ...d, _type: 'demand' }))
