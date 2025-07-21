@@ -219,7 +219,10 @@ const [allDaresSort, setAllDaresSort] = useState("recent");
 const allActiveDares = [
   ...ongoing.map(d => ({ ...d, _type: "perform" })),
   ...demandSlots.map(d => ({ ...d, _type: "demand" }))
-];
+].filter(dare => {
+  const userId = user?._id || user?.id;
+  return dare.creator?._id === userId || dare.creator?.id === userId || dare.performer?._id === userId || dare.performer?.id === userId || dare.participant?._id === userId || dare.participant?.id === userId;
+});
 const allCompletedDares = [
   ...completed.map(d => ({ ...d, _type: "perform" })),
   ...completedDemand.map(d => ({ ...d, _type: "demand" }))
@@ -1098,11 +1101,11 @@ const allCompletedDares = [
             <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
             {mySwitchGamesLoading ? (
               <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
-            ) : filterAndSortSwitchGames(mySwitchGames).length === 0 ? (
+            ) : filterAndSortSwitchGames(filteredMySwitchGames).length === 0 ? (
               <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {filterAndSortSwitchGames(mySwitchGames).map(game => (
+                {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
                   <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
                     <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
                     <div className="flex-1 min-w-0">
@@ -1127,11 +1130,11 @@ const allCompletedDares = [
             <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
             {switchGameHistoryLoading ? (
               <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
-            ) : filterAndSortSwitchGames(switchGameHistory).length === 0 ? (
+            ) : filterAndSortSwitchGames(filteredSwitchGameHistory).length === 0 ? (
               <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {filterAndSortSwitchGames(switchGameHistory).map(game => (
+                {filterAndSortSwitchGames(filteredSwitchGameHistory).map(game => (
                   <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
                     <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
                     <div className="flex-1 min-w-0">
