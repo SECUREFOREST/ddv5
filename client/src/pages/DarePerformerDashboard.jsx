@@ -624,9 +624,9 @@ export default function DarePerformerDashboard() {
                   <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/subs/select')}>
                     Perform Dare
                   </button>
-                  <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
-                    Submit Dare
-                  </a>
+                  <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
+                    Offer Submission
+                  </button>
                 </div>
                 {/* Advanced Filters & Sorting */}
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
