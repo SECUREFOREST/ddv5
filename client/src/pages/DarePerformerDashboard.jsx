@@ -650,10 +650,10 @@ const allCompletedDares = [
                   <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/subs/new')}>
                     Create Dare
                   </button>
-                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/perform')}>
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/subs/select')}>
                     Perform Dare
                   </button>
-                  <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" href="https://www.deviantdare.com/subs/new" target="_blank" rel="noopener noreferrer">
+                  <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
                     Submit Dare
                   </a>
                 </div>
@@ -766,11 +766,6 @@ const allCompletedDares = [
                       ))}
                     </div>
                   )}
-                </div>
-                {/* Call to Action */}
-                <div className="call-to-action flex gap-2 mb-4">
-                  <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/subs/new" aria-label="Submit Dare">Submit Dare</a>
-                  <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start Switch Game</a>
                 </div>
                 {/* TODO: Public dares browser, advanced filtering, etc. */}
               </div>
