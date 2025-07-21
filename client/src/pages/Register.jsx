@@ -96,9 +96,6 @@ export default function Register() {
       <main id="main-content" tabIndex="-1" role="main">
         <div className="flex flex-col items-center text-center px-6 pb-8">
           <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto" role="form" aria-labelledby="register-title">
-            <h1 id="register-title" className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-              <UserPlusIcon className="w-7 h-7 text-primary" /> Create Account
-            </h1>
             <div>
               <label htmlFor="register-username" className="block font-semibold mb-1 text-primary">Username</label>
               <input
