@@ -79,7 +79,7 @@ export default function ClaimDare() {
       </div>
       <div className="text-center mb-4">
         <p className="text-lg text-primary">{c.username} wants you to perform</p>
-        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">Deviant Dare</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-[#888]">A Deviant Dare</h1>
       </div>
       <div className="user_info mb-4">
         <table className="table-auto w-full text-white">
