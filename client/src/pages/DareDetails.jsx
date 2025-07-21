@@ -499,7 +499,7 @@ export default function DareDetails() {
         )}
       </div>
       {/* Actions Section */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
+      <div className="sticky bottom-0  py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
         {canAccept && (
           <button className="w-full sm:w-auto bg-success text-success-contrast rounded px-4 py-2 font-bold text-base hover:bg-success-dark transition-colors focus:outline-none focus:ring-2 focus:ring-success-contrast flex items-center gap-2 justify-center text-lg" onClick={dare ? handleAcceptDare : undefined} disabled={acceptLoading || !dare}>
             {acceptLoading ? 'Accepting...' : 'Accept & Perform This Dare'}

@@ -229,7 +229,7 @@ export default function DarePerform() {
             />
             <label htmlFor="perform-consent" className="text-sm">I consent to perform a random dare.</label>
           </div>
-          <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+          <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
             <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={loading || !consentChecked}>
               {loading ? (
                 <span>
@@ -305,7 +305,7 @@ export default function DarePerform() {
             </div>
             {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
             {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
-            <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+            <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
               <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-busy={proofLoading}>
                 {proofLoading ? (
                   <span>

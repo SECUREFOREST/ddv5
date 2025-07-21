@@ -122,7 +122,7 @@ const DareConsent = () => {
         </div>
         <form role="form" aria-labelledby="dare-consent-title" onSubmit={handleConsent} className="space-y-6">
           <h1 id="dare-consent-title" className="text-2xl font-bold mb-4">Dare Consent</h1>
-          <div className="sticky bottom-0 w-full bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+          <div className="sticky bottom-0 w-full  py-4 flex justify-center z-10 border-t border-neutral-800">
             <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Consent to perform dare">
               I Consent <ArrowRightIcon className="inline w-5 h-5 ml-1" />
             </button>

@@ -475,7 +475,7 @@ export default function SwitchGameDetails() {
         {/* Proof preview/modal if applicable */}
         {/* ...proof preview/modal code from DareReveal... */}
         {/* Sticky footer for action buttons */}
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
+        <div className="sticky bottom-0  py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
           {/* Action buttons here, styled as in DareReveal */}
           {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && !isCreator && (
             <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowJoinModal(true)} disabled={joining}>

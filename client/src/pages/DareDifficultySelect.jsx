@@ -94,7 +94,7 @@ export default function DareDifficultySelect() {
         </div>
         {/* Error message above button */}
         {error && <div className="bg-danger/10 text-danger text-center mt-2 mb-2 font-semibold rounded p-2 flex items-center gap-2 justify-center" role="alert"><ExclamationTriangleIcon className="w-5 h-5 inline text-danger" /> {error}</div>}
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
+        <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
           <button
             type="submit"
             className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
