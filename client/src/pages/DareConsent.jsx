@@ -86,14 +86,14 @@ const DareConsent = () => {
                 <span className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-neutral-400 border border-neutral-600">?
                 </span>
               )}
-              {/* Full name (clickable if username is present) */}
-              {dare.creator && dare.creator.fullName ? (
+              {/* Full name or username (clickable if username is present) */}
+              {dare.creator && (dare.creator.fullName || dare.creator.username) ? (
                 dare.creator.username ? (
                   <a href={`/profile/${dare.creator.username}`} className="text-primary-contrast font-semibold hover:underline" target="_blank" rel="noopener noreferrer">
-                    {dare.creator.fullName}
+                    {dare.creator.fullName || dare.creator.username}
                   </a>
                 ) : (
-                  <span className="text-primary-contrast font-semibold">{dare.creator.fullName}</span>
+                  <span className="text-primary-contrast font-semibold">{dare.creator.fullName || dare.creator.username}</span>
                 )
               ) : (
                 <span className="text-neutral-400 font-semibold">Anonymous</span>
