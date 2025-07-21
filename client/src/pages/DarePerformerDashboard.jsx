@@ -734,16 +734,18 @@ const allCompletedDares = [
                     )
                   ) : (
                     <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {dedupeDaresByUser(publicDares).map((dare, idx) => (
-                        <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
-                          <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                            <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
-                            {/* Add more details as needed */}
+                      {dedupeDaresByUser(publicDares)
+                        .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
+                        .map((dare, idx) => (
+                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                              {/* Add more details as needed */}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   )}
                 </div>
@@ -856,15 +858,17 @@ const allCompletedDares = [
                     )
                   ) : (
                     <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {dedupeDaresByUser(publicDares).map((dare, idx) => (
-                        <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
-                          <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                            <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                      {dedupeDaresByUser(publicDares)
+                        .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
+                        .map((dare, idx) => (
+                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   )}
                 </div>
