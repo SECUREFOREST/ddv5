@@ -653,36 +653,36 @@ const allCompletedDares = [
       </div>
       <div className="border-t border-neutral-800 my-4" />
       {/* Tabs */}
-      <div className="sticky top-0 z-40 bg-neutral-950/95 border-b border-neutral-800 mb-4">
-        <nav className="flex justify-center gap-2">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
-                ${tab === t.key ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
-              onClick={() => setTab(t.key)}
-              aria-current={tab === t.key ? 'page' : undefined}
-              tabIndex={0}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-      <div className="tab-content">
-        {/* All Dares Tab Content */}
-        {tab === 'all' && (
-          <div className="tab-pane active" id="all-dares">
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
-            {/* Action Buttons */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
-              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/subs/new')}>
-                Create Dare
-              </button>
-              <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/perform')}>
-                Perform Dare
-              </button>
-            </div>
+//       <div className="sticky top-0 z-40 bg-neutral-950/95 border-b border-neutral-800 mb-4">
+//         <nav className="flex justify-center gap-2">
+//           {TABS.map(t => (
+//             <button
+//               key={t.key}
+//               className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
+//                 ${tab === t.key ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
+//               onClick={() => setTab(t.key)}
+//               aria-current={tab === t.key ? 'page' : undefined}
+//               tabIndex={0}
+//             >
+//               {t.label}
+//             </button>
+//           ))}
+//         </nav>
+//       </div>
+//       <div className="tab-content">
+//         {/* All Dares Tab Content */}
+//         {tab === 'all' && (
+//           <div className="tab-pane active" id="all-dares">
+//             <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
+//             {/* Action Buttons */}
+//             <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+//               <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/subs/new')}>
+//                 Create Dare
+//               </button>
+//               <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/perform')}>
+//                 Perform Dare
+//               </button>
+//             </div>
             {/* Advanced Filters & Sorting */}
             <div className="flex flex-wrap gap-2 mb-4 items-center">
               <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
