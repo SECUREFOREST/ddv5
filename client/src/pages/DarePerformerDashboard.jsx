@@ -661,9 +661,21 @@ const allCompletedDares = [
   <div key={dare._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
     <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
     <div className="flex-1 min-w-0">
-      <div className="font-bold text-primary truncate flex items-center">{difficultyBadge(dare.difficulty)}</div>
+      <div className="flex justify-between items-center mb-2">
+        <div>{difficultyBadge(dare.difficulty)}</div>
+        <div>{statusBadge(dare.status)}</div>
+      </div>
       <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
-      <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xs text-neutral-400">Creator:</span>
+        <Avatar user={dare.creator} size={24} />
+        <span className="text-xs text-neutral-200">{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</span>
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xs text-neutral-400">Performer:</span>
+        <Avatar user={dare.performer} size={24} />
+        <span className="text-xs text-neutral-200">{dare.performer?.fullName || dare.performer?.username || '—'}</span>
+      </div>
     </div>
     {/* Action buttons at the bottom */}
     <div className="flex justify-center gap-2 mt-auto pt-2">
@@ -794,9 +806,21 @@ const allCompletedDares = [
   <div key={game._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
     <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
     <div className="flex-1 min-w-0">
-      <div className="font-bold text-primary truncate flex items-center">{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+      <div className="flex justify-between items-center mb-2">
+        <div>{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+        <div>{statusBadge(game.status)}</div>
+      </div>
       <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
-      <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xs text-neutral-400">Creator:</span>
+        <Avatar user={game.creator} size={24} />
+        <span className="text-xs text-neutral-200">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+      </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-xs text-neutral-400">Performer:</span>
+        <Avatar user={game.participant} size={24} />
+        <span className="text-xs text-neutral-200">{game.participant ? game.participant.fullName || game.participant.username : '—'}</span>
+      </div>
     </div>
     {/* Action button at the bottom center */}
     <div className="flex justify-center gap-2 mt-auto pt-2">
