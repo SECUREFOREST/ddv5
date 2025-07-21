@@ -168,6 +168,7 @@ const [allDaresStatus, setAllDaresStatus] = useState("");
 const [allDaresDifficulty, setAllDaresDifficulty] = useState("");
 const [allDaresParticipant, setAllDaresParticipant] = useState("");
 const [allDaresSort, setAllDaresSort] = useState("recent");
+const [selectedDifficulties, setSelectedDifficulties] = useState([]);
 
   // Filtering and sorting logic for All Dares tab (must be inside component)
   function filterAndSortAllDares(dares) {
@@ -346,8 +347,8 @@ const allCompletedDares = [
         const parsed = JSON.parse(saved);
         if (parsed.selectedDifficulties) setSelectedDifficulties(parsed.selectedDifficulties);
         if (parsed.selectedTypes) setSelectedTypes(parsed.selectedTypes);
-        if (parsed.keyword) setKeywordFilter(parsed.keyword);
-        if (parsed.creator) setCreatorFilter(parsed.creator);
+        if (parsed.keyword) setDemandKeywordFilter(parsed.keyword);
+        if (parsed.creator) setDemandCreatorFilter(parsed.creator);
       } catch {}
     }
   }, []);
