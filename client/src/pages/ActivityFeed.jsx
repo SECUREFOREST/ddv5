@@ -89,7 +89,7 @@ export default function ActivityFeed() {
                   className={`transition-shadow bg-neutral-900/90 border border-neutral-800 rounded-lg p-3 flex items-center gap-3 shadow hover:shadow-2xl ${isNew ? 'ring-2 ring-info/60' : ''}`}
                 >
                   <Link to={a.user?._id ? `/profile/${a.user._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${a.user?.fullName || a.user?.username || 'user'}'s profile`} title={a.user?.fullName || a.user?.username || 'Someone'}>
-                    <Avatar user={a.user} size={36} />
+                    <Avatar user={a.user} size={36} alt={`Avatar for ${a.user?.fullName || a.user?.username || 'user'}`} />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

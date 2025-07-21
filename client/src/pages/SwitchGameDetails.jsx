@@ -451,13 +451,13 @@ export default function SwitchGameDetails() {
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
           {/* Avatars, role badges, usernames for creator/participant */}
           <div className="flex flex-col items-center">
-            <Avatar user={game.creator} size={60} />
+            <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
             <span className="font-semibold text-lg text-primary mt-2">{game.creator?.username || '[deleted]'}</span>
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
             <DifficultyBadge level={game.creatorDare?.difficulty} />
           </div>
           <div className="flex flex-col items-center">
-            <Avatar user={game.participant} size={60} />
+            <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
             <span className="font-semibold text-lg text-blue-400 mt-2">{game.participant?.username || '[deleted]'}</span>
             <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
             <DifficultyBadge level={game.participantDare?.difficulty} />
@@ -591,13 +591,13 @@ export default function SwitchGameDetails() {
                 </div>
               )}
               {game.proof && (
-                <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
+                <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} alt={`Avatar for ${game.proof.user?.fullName || game.proof.user?.username || 'user'}`} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
               )}
             </div>
           )}
           {game.status === 'proof_submitted' && (
             <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
-              <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
+              <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} alt={`Avatar for ${game.proof?.user?.fullName || game.proof?.user?.username || 'user'}`} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
             </div>
           )}
           {game.status === 'expired' && (
@@ -621,13 +621,13 @@ export default function SwitchGameDetails() {
                   <ul className="space-y-2 mb-4">
                     {game.grades.map((g, i) => (
                       <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                        <Avatar user={g.user} size={24} />
+                        <Avatar user={g.user} size={24} alt={`Avatar for ${g.user?.fullName || g.user?.username || 'user'}`} />
                         <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
                         <span className="text-xs text-gray-400">
                           ({g.user && game.creator && (getId(g.user) === getId(game.creator) ? 'Creator' : 'Participant')})
                         </span>
                         <span className="mx-2">→</span>
-                        <Avatar user={g.target} size={24} />
+                        <Avatar user={g.target} size={24} alt={`Avatar for ${g.target?.fullName || g.target?.username || 'user'}`} />
                         <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
                         <span className="text-xs text-gray-400">
                           ({g.target && game.creator && (getId(g.target) === getId(game.creator) ? 'Creator' : 'Participant')})
@@ -647,7 +647,7 @@ export default function SwitchGameDetails() {
                 {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
                   <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Avatar user={game.participant} size={32} />
+                      <Avatar user={game.participant} size={32} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
                       <span className="font-semibold">{game.participant?.username || 'Participant'}</span>
                     </div>
                     <div className="flex gap-2 mb-2">
@@ -681,7 +681,7 @@ export default function SwitchGameDetails() {
                 {isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
                   <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Avatar user={game.creator} size={32} />
+                      <Avatar user={game.creator} size={32} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
                       <span className="font-semibold">{game.creator?.username || 'Creator'}</span>
                     </div>
                     <div className="flex gap-2 mb-2">

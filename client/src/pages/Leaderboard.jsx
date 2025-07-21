@@ -74,7 +74,7 @@ export default function Leaderboard() {
                 <tr key={user._id} className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}>
                   <td className="p-2 font-bold text-primary">{idx + 1}</td>
                   <td className="p-2 flex items-center gap-2">
-                    <Avatar user={user} size={32} />
+                    <Avatar user={user} size={32} alt={`Avatar for ${user.fullName || user.username || 'user'}`} />
                     <span className="font-semibold">{user.username}</span>
                   </td>
                   <td className="p-2 text-neutral-300">{user.points}</td>

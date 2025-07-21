@@ -173,7 +173,7 @@ export default function Notifications() {
                 key={n._id + '-' + count}
                 className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
               >
-                {n.sender && <Avatar user={n.sender} size={32} />}
+                {n.sender && <Avatar user={n.sender} size={32} alt={`Avatar for ${n.sender?.fullName || n.sender?.username || 'sender'}`} />}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-primary">
                     {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}

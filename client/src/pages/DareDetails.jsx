@@ -420,13 +420,13 @@ export default function DareDetails() {
           <ul className="space-y-2 mb-4">
             {dare.grades.map((g, i) => (
               <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                <Avatar user={g.user} size={24} />
+                <Avatar user={g.user} size={24} alt={`Avatar for ${g.user?.fullName || g.user?.username || 'user'}`} />
                 <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
                 <span className="text-xs text-gray-400">
                   ({g.user && dare.creator && (g.user._id === dare.creator._id || g.user === dare.creator._id || g.user === dare.creator) ? 'Creator' : 'Performer'})
                 </span>
                 <span className="mx-2">→</span>
-                <Avatar user={g.target} size={24} />
+                <Avatar user={g.target} size={24} alt={`Avatar for ${g.target?.fullName || g.target?.username || 'user'}`} />
                 <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
                 <span className="text-xs text-gray-400">
                   ({g.target && dare.creator && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator) ? 'Creator' : 'Performer'})

@@ -285,7 +285,7 @@ export default function SwitchGameParticipate() {
           <div className="flex flex-col items-center">
             {game.creator && (
               <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
-                <Avatar user={game.creator} size="lg" />
+                <Avatar user={game.creator} size="lg" alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
               </a>
             )}
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
@@ -297,7 +297,7 @@ export default function SwitchGameParticipate() {
               <span className="hidden sm:block text-neutral-500 text-3xl mx-4">→</span>
               <div className="flex flex-col items-center">
                 <a href={`/profile/${game.participant._id || game.participant.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.participant.username}'s profile`}>
-                  <Avatar user={game.participant} size="lg" />
+                  <Avatar user={game.participant} size="lg" alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
                 </a>
                 <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
                 <span className="font-semibold text-neutral-100">{game.participant?.username}</span>
