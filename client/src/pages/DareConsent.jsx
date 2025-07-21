@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import api from '../api/axios';
-import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -69,6 +69,8 @@ const DareConsent = () => {
   if (error) return <div className="text-red-500 text-center mt-8">{error}</div>;
   if (!dare) return <div className="text-neutral-400 text-center mt-8">Loading...</div>;
 
+  const diff = DIFFICULTIES.find(d => d.value === dare.difficulty);
+
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress Bar */}
@@ -112,21 +114,13 @@ const DareConsent = () => {
             <h1 className="text-2xl font-bold inline-block text-primary mb-2">A Deviant Dare</h1>
           </div>
         </div>
-        <div className="mb-2 flex flex-col gap-2 items-center justify-center">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-neutral-300">Difficulty:</span>
-            <DifficultyBadge level={dare.difficulty} />
-          </div>
-          {(() => {
-            const diff = DIFFICULTIES.find(d => d.value === dare.difficulty);
-            return diff ? (
-              <div className="flex flex-col items-center mt-2">
-                <div>{diff.icon}</div>
-                <div className="text-xs text-neutral-400 mt-1 text-center">{diff.desc}</div>
-              </div>
-            ) : null;
-          })()}
+        <div className="flex items-center gap-2 justify-center mt-2">
+          {diff && diff.icon}
+          <DifficultyBadge level={dare.difficulty} />
         </div>
+        {diff && (
+          <div className="text-xs text-neutral-400 mt-1 text-center">{diff.desc}</div>
+        )}
         <div className="mb-2 text-center">
           <p className="text-neutral-200">Will you agree to perform their dare?</p>
           <h2 className="text-xl font-semibold my-2 text-primary">Of course, there's a catch.</h2>
