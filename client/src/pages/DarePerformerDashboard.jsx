@@ -63,6 +63,22 @@ function dedupeDaresByUser(dares) {
   });
 }
 
+// Helper: difficulty badge (fix ReferenceError)
+function difficultyBadge(level) {
+  const found = DARE_DIFFICULTIES.find(d => d.value === level);
+  const label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
+  let badgeClass = 'bg-neutral-700 text-neutral-100';
+  switch (level) {
+    case 'titillating': badgeClass = 'bg-pink-600 text-white'; break;
+    case 'arousing': badgeClass = 'bg-purple-700 text-white'; break;
+    case 'explicit': badgeClass = 'bg-red-700 text-white'; break;
+    case 'edgy': badgeClass = 'bg-yellow-700 text-white'; break;
+    case 'hardcore': badgeClass = 'bg-black text-white border border-red-700'; break;
+    default: break;
+  }
+  return <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${badgeClass} ml-2`} title={label}>{label}</span>;
+}
+
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
   // Notification system
