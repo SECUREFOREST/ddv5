@@ -650,7 +650,7 @@ const allCompletedDares = [
   const tabContents = [
     // All Dares tab content
     (
-      <div className="tab-pane active" id="all-dares">
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
@@ -781,7 +781,7 @@ const allCompletedDares = [
     ),
     // Perform Dare tab content
     (
-      <div className="tab-pane active" id="perform">
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         {/* Filters */}
         <div className="dare-filters flex items-center mb-4">
           <h3 className="filters-heading text-lg font-semibold mr-4">Filter Deviant Dares</h3>
@@ -976,7 +976,7 @@ const allCompletedDares = [
     ),
     // Demand Dare tab content
     (
-      <div className="tab-pane active" id="demand">
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <h3 className="section-description text-xl font-bold mb-2" aria-label="Your demand slots">Your Demands</h3>
         {/* Edge-case explanations for cooldown/slots */}
         {cooldownUntil && new Date() < new Date(cooldownUntil) && (
@@ -1061,7 +1061,7 @@ const allCompletedDares = [
     ),
     // Switch Game Tab Content
     (
-      <div className="tab-pane active" id="switch">
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
         <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
         <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
           <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/switches/create')}>Create Switch Game</button>
