@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
-import DashboardChart from '../components/DashboardChart';
+const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
   { key: 'in_progress', label: 'Perform' },
@@ -56,7 +56,9 @@ export default function Dashboard() {
           {stats && (
             <>
               <div className="mb-6">
-                <DashboardChart stats={stats} />
+                <Suspense fallback={<div className="text-neutral-400 text-center">Loading chart...</div>}>
+                  <DashboardChart stats={stats} />
+                </Suspense>
               </div>
               <div className="flex flex-wrap gap-4 mb-6">
                 <Card className="flex-1 min-w-[180px]">

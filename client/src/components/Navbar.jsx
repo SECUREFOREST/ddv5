@@ -32,11 +32,11 @@ export default function Navbar() {
 
   // Navigation links
   const navLinks = [
-    { to: '/dares', label: 'Dares' },
-    { to: '/dare/create', label: 'Create Dare' },
-    { to: '/switches', label: 'Switch Games' },
-    { to: '/dare/perform', label: 'Perform Dare' },
-    { to: '/leaderboard', label: 'Leaderboard' },
+    { to: '/dares', label: 'Dares', auth: true },
+    { to: '/dare/create', label: 'Create Dare', auth: true },
+    { to: '/switches', label: 'Switch Games', auth: true },
+    { to: '/dare/select', label: 'Perform Dare', auth: true },
+    { to: '/leaderboard', label: 'Leaderboard', auth: true },
     { to: '/game-history', label: 'Game History', auth: true },
     { to: '/user-activity', label: 'Activity', auth: true },
     { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },

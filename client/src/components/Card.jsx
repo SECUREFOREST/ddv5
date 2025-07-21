@@ -17,7 +17,14 @@ export default function Card({ header, image, children, footer, className = '', 
       {image && (
         <div className="mb-4">
           {typeof image === 'string' ? (
-            <img src={image} alt="" className="w-full object-cover" />
+            <img
+              src={image}
+              alt=""
+              className="w-full object-cover"
+              loading="lazy"
+              srcSet={image.replace(/\.(jpg|jpeg|png)$/, '.webp') + ' 800w, ' + image + ' 400w'}
+              sizes="(max-width: 600px) 100vw, 600px"
+            />
           ) : image}
         </div>
       )}

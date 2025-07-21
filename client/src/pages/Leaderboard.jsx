@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+
+const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
 
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
@@ -62,30 +64,11 @@ export default function Leaderboard() {
           ) : filteredUsers.length === 0 ? (
             <div className="text-neutral-400 text-center">No users found.</div>
           ) : (
-            <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900 overflow-x-auto rounded shadow">
-              <caption className="sr-only">Leaderboard</caption>
-              <thead>
-                <tr className="bg-neutral-900 text-primary">
-                  <th scope="col" className="p-2 text-left font-semibold">Rank</th>
-                  <th scope="col" className="p-2 text-left font-semibold">User</th>
-                  <th scope="col" className="p-2 text-left font-semibold">Points</th>
-                  <th scope="col" className="p-2 text-left font-semibold">Dares Completed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user, idx) => (
-                  <tr key={user._id} className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}>
-                    <td className="p-2 font-bold text-primary">{idx + 1}</td>
-                    <td className="p-2 flex items-center gap-2">
-                      <Avatar user={user} size={32} alt={`Avatar for ${user.fullName || user.username || 'user'}`} />
-                      <span className="font-semibold">{user.username}</span>
-                    </td>
-                    <td className="p-2 text-neutral-300">{user.points}</td>
-                    <td className="p-2 text-neutral-300">{user.daresCompleted}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="mb-8">
+              <Suspense fallback={<div className="text-neutral-400 text-center">Loading leaderboard...</div>}>
+                <LeaderboardWidget leaders={filteredUsers} loading={loading} />
+              </Suspense>
+            </div>
           )}
         </div>
       </main>
