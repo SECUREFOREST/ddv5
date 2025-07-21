@@ -972,6 +972,35 @@ export default function DarePerformerDashboard() {
               </div>
             )}
             {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
+            {/* Browse Public Deviant Dares for Switch Games */}
+            <div className="border-t border-neutral-800 my-4" />
+            <h4 className="text-lg font-bold text-primary mb-2">Browse Public Deviant Dares (Switch Games)</h4>
+            <div className="flex gap-2 mb-4 items-center">
+              <select value={publicSwitchDifficulty} onChange={e => setPublicSwitchDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
+                <option value="">All Difficulties</option>
+                {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+              </select>
+            </div>
+            {publicSwitchError && <div className="text-danger text-center mb-2">{publicSwitchError}</div>}
+            {publicSwitchLoading ? (
+              <div className="text-neutral-400 text-center py-4">Loading public switch dares...</div>
+            ) : publicSwitchDares.length === 0 ? (
+              <div className="text-neutral-400 text-center py-4">No public dares for switch games found. Try adjusting your filters or check back later.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {publicSwitchDares.map(dare => (
+                  <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150">
+                    <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-primary truncate flex items-center">{dare.title || dare.description || 'Switch Dare'} {difficultyBadge(dare.difficulty)}</div>
+                      <div className="text-xs text-neutral-400">By: {dare.creator?.username || 'Unknown'}</div>
+                      <div className="text-xs text-neutral-400">Tags: {dare.tags?.join(', ') || 'None'}</div>
+                    </div>
+                    <button className="ml-2 px-3 py-1 rounded bg-primary text-white text-xs font-semibold hover:bg-primary/80 transition" title="Participate in this switch game" onClick={() => navigate(`/dares/${dare._id}`)}>Participate</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
