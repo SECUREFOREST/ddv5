@@ -17,8 +17,6 @@ export default function Avatar({ user, size = 'md', onClick, border = true, shad
       style={{ width: pixelSize, height: pixelSize, cursor: onClick ? 'pointer' : undefined }}
       onClick={onClick}
       loading="lazy"
-      srcSet={avatarUrl.replace(/\.(jpg|jpeg|png)$/, '.webp') + ' 128w, ' + avatarUrl + ' 64w'}
-      sizes="(max-width: 600px) 64px, 128px"
     />
   ) : (
     <div
