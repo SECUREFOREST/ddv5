@@ -13,7 +13,7 @@ export default function Leaderboard() {
 
   useEffect(() => {
     setLoading(true);
-    api.get('/users/leaderboard')
+    api.get('/stats/leaderboard')
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(() => setError('Failed to load leaderboard.'))
       .finally(() => setLoading(false));
