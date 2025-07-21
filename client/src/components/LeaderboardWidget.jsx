@@ -29,25 +29,25 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
             </thead>
             <tbody>
               {leaders.map((entry, i) => {
-                const clickable = !!entry.user?.id;
-                const isCurrent = currentUserId && (entry.user?.id === currentUserId || entry.user?._id === currentUserId);
+                const clickable = !!entry.id;
+                const isCurrent = currentUserId && (entry.id === currentUserId || entry._id === currentUserId);
                 let rowClass = 'border-b border-[#282828] last:border-b-0 transition-colors';
                 if (isCurrent) rowClass += ' bg-primary/10';
                 else if (clickable) rowClass += ' hover:bg-neutral-800 cursor-pointer';
                 return (
                   <tr
-                    key={entry.user?.id || i}
+                    key={entry.id || i}
                     className={rowClass}
                     onClick={() => {
                       if (!clickable) return;
                       if (isCurrent) {
                         navigate('/profile');
                       } else {
-                        navigate(`/profile/${entry.user.id}`);
+                        navigate(`/profile/${entry.id}`);
                       }
                     }}
                     tabIndex={clickable ? 0 : -1}
-                    aria-label={clickable ? `View ${entry.user?.username}'s profile` : undefined}
+                    aria-label={clickable ? `View ${(entry.fullName || entry.username || 'user')}'s profile` : undefined}
                   >
                     <td className="px-2 py-1 font-bold text-primary text-center">
                       {i < 3 ? (
@@ -59,8 +59,8 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
                       )}
                     </td>
                     <td className="px-2 py-1 flex items-center">
-                      <Avatar user={entry.user} size={32} alt={`Avatar for ${entry.user?.fullName || entry.user?.username || 'user'}`} />
-                      <span className="ml-2 font-semibold text-primary-contrast hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast transition-colors" tabIndex={-1}>{entry.user?.fullName || entry.user?.username || 'Unknown'}</span>
+                      <Avatar user={entry} size={32} alt={`Avatar for ${entry.fullName || entry.username || 'user'}`} />
+                      <span className="ml-2 font-semibold text-primary-contrast hover:underline focus:outline-none focus:ring-2 focus:ring-primary-contrast transition-colors" tabIndex={-1}>{entry.fullName || entry.username || 'Unknown'}</span>
                     </td>
                     <td className="px-2 py-1 text-neutral-100 text-center font-bold">{entry.daresCount}</td>
                   </tr>
