@@ -37,8 +37,6 @@ const Landing = () => {
           <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
         </h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-6" />
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         <div className="flex flex-col items-center text-center px-6 pb-8">
