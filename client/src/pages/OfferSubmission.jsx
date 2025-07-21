@@ -134,15 +134,41 @@ export default function OfferSubmission() {
       <form role="form" aria-labelledby="offer-submission-title" onSubmit={handleSubmit} className="space-y-6">
         <h1 id="offer-submission-title" className="text-2xl font-bold mb-4">Submit Offer</h1>
         <div>
-          <label htmlFor="offer-difficulty" className="block font-semibold mb-1">Difficulty</label>
-          <div className="flex flex-col gap-2">
+          <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
+          <div className="flex flex-col gap-4">
             {DIFFICULTIES.map(opt => (
-              <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-required="true" />
-                <span>
-                  <b>{opt.label}</b><br/>
-                  <span className="text-xs text-neutral-400">{opt.desc}</span>
+              <label
+                key={opt.value}
+                className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast w-full
+                  ${difficulty === opt.value
+                    ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                    : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
+                `}
+                tabIndex={0}
+                aria-label={`Select ${opt.label} difficulty`}
+                role="radio"
+                aria-checked={difficulty === opt.value}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
+                }}
+              >
+                <input
+                  type="radio"
+                  name="difficulty"
+                  value={opt.value}
+                  checked={difficulty === opt.value}
+                  onChange={() => setDifficulty(opt.value)}
+                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
+                  aria-checked={difficulty === opt.value}
+                  aria-label={opt.label}
+                  tabIndex={-1}
+                  disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
+                />
+                <span className="flex items-center gap-2">
+                  {/* No icon in OfferSubmission, but you can add one if you want consistency */}
+                  <b className="text-base text-primary-contrast">{opt.label}</b>
                 </span>
+                <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
               </label>
             ))}
           </div>
