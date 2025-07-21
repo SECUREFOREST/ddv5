@@ -41,9 +41,10 @@ export default function ForgotPassword() {
       <div className="border-t border-neutral-800 my-4" />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-semibold mb-1 text-primary">Email</label>
+          <label htmlFor="forgot-email" className="block font-semibold mb-1 text-primary">Email</label>
           <input
             type="email"
+            id="forgot-email"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={email}
             onChange={e => setEmail(e.target.value)}

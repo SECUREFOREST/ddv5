@@ -217,13 +217,13 @@ export default function DarePerform() {
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              id="consent"
+              id="perform-consent"
               checked={consentChecked}
               onChange={e => setConsentChecked(e.target.checked)}
               className="mr-2 bg-[#1a1a1a]"
               required
             />
-            <label htmlFor="consent" className="text-sm">I consent to perform a random dare.</label>
+            <label htmlFor="perform-consent" className="text-sm">I consent to perform a random dare.</label>
           </div>
           <div className="sticky bottom-0 bg-gradient-to-t from-[#232526] via-[#282828] to-transparent py-4 flex justify-center z-10 border-t border-neutral-800">
             <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={loading || !consentChecked}>
@@ -274,9 +274,9 @@ export default function DarePerform() {
           {/* Proof submission */}
           <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
             <div>
-              <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
+              <label htmlFor="perform-proof-text" className="block font-semibold mb-1 text-primary">Proof (text, link, or upload)</label>
               <textarea
-                id="proof-text"
+                id="perform-proof-text"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 value={proof}
                 onChange={e => setProof(e.target.value)}
@@ -285,9 +285,9 @@ export default function DarePerform() {
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1 text-primary" htmlFor="proof-file">Upload image or video proof (optional)</label>
+              <label htmlFor="perform-proof-file" className="block font-semibold mb-1 text-primary">Upload image or video proof (optional)</label>
               <input
-                id="proof-file"
+                id="perform-proof-file"
                 type="file"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 onChange={e => setProofFile(e.target.files[0])}

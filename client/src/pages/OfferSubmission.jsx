@@ -133,7 +133,7 @@ export default function OfferSubmission() {
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label className="block font-semibold mb-1">Difficulty</label>
+          <label htmlFor="offer-difficulty" className="block font-semibold mb-1">Difficulty</label>
           <div className="flex flex-col gap-2">
             {DIFFICULTIES.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
@@ -147,8 +147,9 @@ export default function OfferSubmission() {
           </div>
         </div>
         <div>
-          <label className="block font-semibold mb-1">Description / Requirements</label>
+          <label htmlFor="offer-description" className="block font-semibold mb-1">Description / Requirements</label>
           <textarea
+            id="offer-description"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={description}
             onChange={e => setDescription(e.target.value)}
@@ -157,11 +158,11 @@ export default function OfferSubmission() {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
+          <label htmlFor="offer-tags" className="block font-semibold mb-1">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
           <TagsInput value={tags} onChange={handleTags} disabled={loading} />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Content Deletion / Privacy</label>
+          <label htmlFor="offer-privacy" className="block font-semibold mb-1">Content Deletion / Privacy</label>
           <div className="flex flex-col gap-2">
             {PRIVACY_OPTIONS.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>

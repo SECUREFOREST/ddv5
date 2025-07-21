@@ -81,10 +81,10 @@ export default function Register() {
       <div className="flex flex-col items-center text-center px-6 pb-8">
         <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto">
           <div>
-            <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
+            <label htmlFor="register-username" className="block font-semibold mb-1 text-primary">Username</label>
             <input
               type="text"
-              id="username"
+              id="register-username"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={username}
               onChange={e => setUsername(e.target.value)}
@@ -93,10 +93,10 @@ export default function Register() {
             />
           </div>
           <div>
-            <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
+            <label htmlFor="register-fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
             <input
               type="text"
-              id="fullName"
+              id="register-fullName"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
@@ -105,10 +105,10 @@ export default function Register() {
             />
           </div>
           <div>
-            <label htmlFor="email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
+            <label htmlFor="register-email" className="block font-semibold mb-1 text-primary">Email <span className="text-xs text-neutral-400">(we keep this private)</span></label>
             <input
               type="email"
-              id="email"
+              id="register-email"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -117,10 +117,10 @@ export default function Register() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
+            <label htmlFor="register-password" className="block font-semibold mb-1 text-primary">Password</label>
             <input
               type="password"
-              id="password"
+              id="register-password"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -129,10 +129,10 @@ export default function Register() {
             />
           </div>
           <div>
-            <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
+            <label htmlFor="register-dob" className="block font-semibold mb-1 text-primary">Date of Birth</label>
             <input
               type="date"
-              id="dob"
+              id="register-dob"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={dob}
               onChange={e => setDob(e.target.value)}
@@ -141,9 +141,9 @@ export default function Register() {
             />
           </div>
           <div>
-            <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
+            <label htmlFor="register-gender" className="block font-semibold mb-1 text-primary">Gender</label>
             <select
-              id="gender"
+              id="register-gender"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={gender}
               onChange={e => setGender(e.target.value)}
@@ -160,11 +160,11 @@ export default function Register() {
             <label className="block font-semibold mb-1 text-primary">Interested in</label>
             <div className="flex gap-4 mt-1">
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} className="bg-[#1a1a1a]" />
+                <input id="register-interestedIn-female" type="checkbox" checked={interestedIn.includes('female')} onChange={() => handleInterestedIn('female')} className="bg-[#1a1a1a]" />
                 Female
               </label>
               <label className="flex items-center gap-2">
-                <input type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} className="bg-[#1a1a1a]" />
+                <input id="register-interestedIn-male" type="checkbox" checked={interestedIn.includes('male')} onChange={() => handleInterestedIn('male')} className="bg-[#1a1a1a]" />
                 Male
               </label>
             </div>

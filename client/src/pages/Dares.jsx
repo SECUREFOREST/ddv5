@@ -175,30 +175,30 @@ export default function Dares() {
       {/* Filters/Form Section */}
       <form className="flex flex-wrap gap-4 items-end mb-6" onSubmit={e => e.preventDefault()} aria-label="Filter Dares">
         <div className="flex flex-col min-w-[120px] flex-1">
-          <label className="font-semibold mb-1 text-primary">Status</label>
-          <select className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
+          <label htmlFor="dares-status" className="font-semibold mb-1 text-primary">Status</label>
+          <select id="dares-status" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)}>
             {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
         </div>
         <div className="flex flex-col min-w-[120px] flex-1">
-          <label className="font-semibold mb-1 text-primary">Difficulty</label>
-          <select className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+          <label htmlFor="dares-difficulty" className="font-semibold mb-1 text-primary">Difficulty</label>
+          <select id="dares-difficulty" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)}>
             {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
         </div>
         <div className="flex flex-col min-w-[120px] flex-1">
-          <label className="font-semibold mb-1 text-primary">Search</label>
-          <input className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" />
+          <label htmlFor="dares-search" className="font-semibold mb-1 text-primary">Search</label>
+          <input id="dares-search" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" />
         </div>
         <div className="flex flex-col min-w-[120px] flex-1">
-          <label className="font-semibold mb-1 text-primary">Type</label>
-          <select className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
+          <label htmlFor="dares-type" className="font-semibold mb-1 text-primary">Type</label>
+          <select id="dares-type" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)}>
             {DARE_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
         </div>
         <div className="flex flex-col min-w-[120px] flex-1">
-          <label className="font-semibold mb-1 text-primary">Visibility</label>
-          <select className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
+          <label htmlFor="dares-visibility" className="font-semibold mb-1 text-primary">Visibility</label>
+          <select id="dares-visibility" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)}>
             <option value="">All</option>
             <option value="true">Public</option>
             <option value="false">Private</option>
@@ -262,44 +262,43 @@ export default function Dares() {
             <form onSubmit={handleCreate}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label htmlFor="createDescription" className="block font-semibold mb-1 text-primary">Description</label>
-                  <textarea id="createDescription" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required rows={3} maxLength={300} placeholder="Describe the dare..." aria-label="Dare Description" />
+                  <label htmlFor="dares-createDescription" className="block font-semibold mb-1 text-primary">Description</label>
+                  <textarea id="dares-createDescription" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required rows={3} maxLength={300} placeholder="Describe the dare..." aria-label="Dare Description" />
                 </div>
                 <div>
-                  <label htmlFor="createDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-                  <select id="createDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
+                  <label htmlFor="dares-createDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select id="dares-createDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)}>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="createTags" className="block font-semibold mb-1 text-primary">Tags</label>
-                  <TagsInput id="createTags" value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
+                  <label htmlFor="dares-createTags" className="block font-semibold mb-1 text-primary">Tags</label>
+                  <TagsInput id="dares-createTags" value={createTags} onChange={setCreateTags} placeholder="Add a tag..." />
                 </div>
                 <div>
-                  <label htmlFor="createDareType" className="block font-semibold mb-1 text-primary">Type</label>
-                  <select id="createDareType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDareType} onChange={e => setCreateDareType(e.target.value)}>
+                  <label htmlFor="dares-createDareType" className="block font-semibold mb-1 text-primary">Type</label>
+                  <select id="dares-createDareType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDareType} onChange={e => setCreateDareType(e.target.value)}>
                     {DARE_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="createPublic" className="block font-semibold mb-1 text-primary">Visibility</label>
-                  <select id="createPublic" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
+                  <label htmlFor="dares-createPublic" className="block font-semibold mb-1 text-primary">Visibility</label>
+                  <select id="dares-createPublic" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')}>
                     <option value="true">Public</option>
                     <option value="false">Private</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="createAllowedRoles" className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
-                  <select id="createAllowedRoles" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
+                  <label htmlFor="dares-createAllowedRoles" className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
+                  <select id="dares-createAllowedRoles" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))}>
                     {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                   <small className="text-neutral-400">If set, only users with these roles can participate.</small>
                 </div>
                 <div>
-                  <label htmlFor="consentChecked" className="inline-flex items-center">
-                    <input id="consentChecked" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
-                    I consent to perform or participate in this dare as described.
-                  </label>
+                  <label htmlFor="dares-consentChecked" className="inline-flex items-center">Consent</label>
+                  <input id="dares-consentChecked" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required />
+                  I consent to perform or participate in this dare as described.
                 </div>
                 {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
               </div>
@@ -321,10 +320,10 @@ export default function Dares() {
               <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedDareId(null)}>&times;</button>
             </div>
             <div className="px-6 py-4">
-              <label htmlFor="sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
+              <label htmlFor="dares-sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
               <div className="flex items-center gap-2">
                 <input
-                  id="sharable-link-input-modal"
+                  id="dares-sharable-link-input-modal"
                   className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
                   value={dareUrl}
@@ -355,16 +354,15 @@ export default function Dares() {
             <form onSubmit={handleAcceptSubmit}>
               <div className="px-6 py-4 space-y-4">
                 <div>
-                  <label htmlFor="acceptDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-                  <select id="acceptDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
+                  <label htmlFor="dares-acceptDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
+                  <select id="dares-acceptDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required>
                     {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="acceptConsent" className="inline-flex items-center">
-                    <input id="acceptConsent" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
-                    I consent to perform or participate in this dare as described.
-                  </label>
+                  <label htmlFor="dares-acceptConsent" className="inline-flex items-center">Accept Consent</label>
+                  <input id="dares-acceptConsent" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required />
+                  I consent to perform or participate in this dare as described.
                 </div>
                 {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
               </div>

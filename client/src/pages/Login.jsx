@@ -48,10 +48,10 @@ export default function Login() {
       <div className="flex flex-col items-center text-center px-6 pb-8">
         <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto">
           <div>
-            <label htmlFor="identifier" className="block font-semibold mb-1 text-primary">Username or Email</label>
+            <label htmlFor="login-identifier" className="block font-semibold mb-1 text-primary">Username or Email</label>
             <input
               type="text"
-              id="identifier"
+              id="login-identifier"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
@@ -60,10 +60,10 @@ export default function Login() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block font-semibold mb-1 text-primary">Password</label>
+            <label htmlFor="login-password" className="block font-semibold mb-1 text-primary">Password</label>
             <input
               type="password"
-              id="password"
+              id="login-password"
               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
               value={password}
               onChange={e => setPassword(e.target.value)}

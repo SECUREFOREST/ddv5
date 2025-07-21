@@ -114,8 +114,9 @@ export default function DareCreator() {
             <h2 className="text-lg font-semibold text-primary mb-4 text-center flex items-center gap-2 justify-center"><CheckCircleIcon className="w-6 h-6 text-success" /> Dare Created!</h2>
             {claimLink && (
               <>
-                <label className="block font-semibold mb-1 text-primary">Claimable Link</label>
+                <label htmlFor="dare-claimable-link" className="block font-semibold mb-1 text-primary">Claimable Link</label>
                 <input
+                  id="dare-claimable-link"
                   className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                   type="text"
                   value={claimLink}
@@ -128,8 +129,9 @@ export default function DareCreator() {
                 </button>
               </>
             )}
-            <label className="block font-semibold mb-1 text-primary">Sharable Link</label>
+            <label htmlFor="dare-sharable-link" className="block font-semibold mb-1 text-primary">Sharable Link</label>
             <input
+              id="dare-sharable-link"
               className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               type="text"
               value={dareUrl}
@@ -196,8 +198,9 @@ export default function DareCreator() {
           </div>
           {/* Description Group */}
           <div>
-            <label className="block font-bold text-primary mb-2">Description / Requirements</label>
+            <label htmlFor="dare-description" className="block font-bold text-primary mb-2">Description / Requirements</label>
             <textarea
+              id="dare-description"
               className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -216,12 +219,12 @@ export default function DareCreator() {
           {/* Claimable and Public Checkboxes */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center">
-              <input id="claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
-              <label htmlFor="claimable" className="text-neutral-200">Make this dare claimable by link</label>
+              <input id="dare-claimable" type="checkbox" checked={claimable} onChange={e => setClaimable(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
+              <label htmlFor="dare-claimable" className="text-neutral-200">Make this dare claimable by link</label>
             </div>
             <div className="flex items-center">
-              <input id="publicDare" type="checkbox" checked={publicDare} onChange={e => setPublicDare(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
-              <label htmlFor="publicDare" className="text-neutral-200">Make this dare public (visible to others)</label>
+              <input id="dare-public" type="checkbox" checked={publicDare} onChange={e => setPublicDare(e.target.checked)} className="mr-2 accent-primary bg-[#1a1a1a]" />
+              <label htmlFor="dare-public" className="text-neutral-200">Make this dare public (visible to others)</label>
             </div>
           </div>
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}

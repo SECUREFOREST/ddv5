@@ -50,9 +50,10 @@ export default function ResetPassword() {
       <div className="border-t border-neutral-800 my-4" />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-semibold mb-1 text-primary">New Password</label>
+          <label htmlFor="reset-password" className="block font-semibold mb-1 text-primary">New Password</label>
           <input
             type="password"
+            id="reset-password"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}

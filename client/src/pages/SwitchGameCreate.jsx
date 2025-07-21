@@ -129,9 +129,9 @@ export default function SwitchGameCreate() {
         </div>
         {/* Description textarea */}
         <div>
-          <label className="block font-bold text-primary mb-2">Description / Requirements</label>
+          <label htmlFor="switchgame-description" className="block font-bold text-primary mb-2">Description / Requirements</label>
           <textarea
-            id="description"
+            id="switchgame-description"
             className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={description}
             onChange={e => setDescription(e.target.value)}
@@ -144,8 +144,8 @@ export default function SwitchGameCreate() {
         </div>
         {/* Public/private toggle */}
         <div className="flex items-center justify-center">
-          <input id="publicGame" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]" />
-          <label htmlFor="publicGame" className="text-neutral-200">Make this switch game public (visible to others)</label>
+          <input id="switchgame-public" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]" />
+          <label htmlFor="switchgame-public" className="text-neutral-200">Make this switch game public (visible to others)</label>
         </div>
         {/* Move selection */}
         <div>
