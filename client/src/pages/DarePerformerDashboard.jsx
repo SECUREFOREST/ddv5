@@ -849,6 +849,52 @@ const allCompletedDares = [
                   </div>
                 )}
                 {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
+                {/* Browse Public Deviant Dares (added to Switch Games tab) */}
+                <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
+                {/* Public dare counts summary */}
+                <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
+                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
+                  {publicActCounts.submission > 0 && (
+                    <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
+                  )}
+                  {publicActCounts.domination > 0 && (
+                    <span className="inline-block bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold">Domination: {publicActCounts.domination}</span>
+                  )}
+                  {publicActCounts.switch > 0 && (
+                    <span className="inline-block bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold">Switch: {publicActCounts.switch}</span>
+                  )}
+                </div>
+                {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
+                <div className="public-dares-browser mb-8">
+                  {renderFilters()}
+                  {renderAdvancedFilters()}
+                  {publicLoading ? (
+                    <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
+                  ) : publicDares.length === 0 ? (
+                    selectedDifficulties.length === 0 ? (
+                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                    ) : (
+                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                    )
+                  ) : (
+                    <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {dedupeDaresByUser(publicDares).map((dare, idx) => (
+                        <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                          <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                            <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Call to Action */}
+                <div className="call-to-action flex gap-2 mb-4">
+                  <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/subs/new" aria-label="Submit Dare">Submit Dare</a>
+                  <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start Switch Game</a>
+                </div>
               </div>
             )
           }
