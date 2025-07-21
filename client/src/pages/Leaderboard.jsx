@@ -20,7 +20,7 @@ export default function Leaderboard() {
   }, []);
 
   const filteredUsers = users.filter(u =>
-    u.username?.toLowerCase().includes(search.toLowerCase())
+    u.user?.username?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -66,7 +66,13 @@ export default function Leaderboard() {
           ) : (
             <div className="mb-8">
               <Suspense fallback={<div className="text-neutral-400 text-center">Loading leaderboard...</div>}>
-                <LeaderboardWidget leaders={filteredUsers} loading={loading} />
+                <LeaderboardWidget leaders={filteredUsers.map(u => ({
+                  id: u.user?.id,
+                  username: u.user?.username,
+                  fullName: u.user?.fullName,
+                  avatar: u.user?.avatar,
+                  daresCount: u.daresCount
+                }))} loading={loading} />
               </Suspense>
             </div>
           )}

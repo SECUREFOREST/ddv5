@@ -15,14 +15,14 @@ router.get('/leaderboard', auth, async (req, res) => {
       { $limit: 10 },
     ]);
     // Populate user info
-    const users = await User.find({ _id: { $in: topUsers.map(u => u._id) } }, 'username avatar');
+    const users = await User.find({ _id: { $in: topUsers.map(u => u._id) } }, 'username fullName avatar');
     // Fetch blocked users for filtering
     const currentUser = await User.findById(req.userId).select('blockedUsers');
     // Merge stats
     let leaderboard = topUsers.map(u => {
       const user = users.find(us => us._id.toString() === (u._id ? u._id.toString() : ''));
       return {
-        user: user ? { id: user._id, username: user.username, avatar: user.avatar } : { id: null, username: '[deleted]', avatar: null },
+        user: user ? { id: user._id, username: user.username, fullName: user.fullName, avatar: user.avatar } : { id: null, username: '[deleted]', fullName: null, avatar: null },
         daresCount: u.daresCount,
       };
     });
