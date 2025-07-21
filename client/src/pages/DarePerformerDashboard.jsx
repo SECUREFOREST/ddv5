@@ -178,6 +178,10 @@ export default function DarePerformerDashboard() {
   const [publicSwitchDifficulty, setPublicSwitchDifficulty] = useState('');
   const [publicSwitchError, setPublicSwitchError] = useState('');
   const [publicSwitchLoading, setPublicSwitchLoading] = useState(false);
+const [allDaresStatus, setAllDaresStatus] = useState("");
+const [allDaresDifficulty, setAllDaresDifficulty] = useState("");
+const [allDaresParticipant, setAllDaresParticipant] = useState("");
+const [allDaresSort, setAllDaresSort] = useState("recent");
   const navigate = useNavigate();
 
   // Advanced filter/sort state for Switch Games tab (fix ReferenceError)
