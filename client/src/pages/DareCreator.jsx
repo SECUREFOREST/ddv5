@@ -155,7 +155,7 @@ export default function DareCreator() {
         </div>
       )}
       {!showModal && (
-        <form role="form" aria-labelledby="dare-create-title" onSubmit={handleCreate} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
+        <form role="form" onSubmit={handleCreate} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           {/* Difficulty Group */}
           <div>
             <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
