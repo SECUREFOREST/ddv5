@@ -41,51 +41,54 @@ export default function Leaderboard() {
           aria-label="Search leaderboard users"
         />
       </div>
-      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
-        {loading ? (
-          <div className="flex flex-col gap-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                <div className="w-9 h-9 rounded-full bg-neutral-700" />
-                <div className="flex-1">
-                  <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
-                  <div className="h-2 bg-neutral-800 rounded w-1/3" />
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          {loading ? (
+            <div className="flex flex-col gap-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                  <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                  <div className="flex-1">
+                    <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                    <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                  </div>
+                  <div className="w-16 h-3 bg-neutral-700 rounded" />
                 </div>
-                <div className="w-16 h-3 bg-neutral-700 rounded" />
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="text-danger text-center mb-4">{error}</div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="text-neutral-400 text-center">No users found.</div>
-        ) : (
-          <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900 overflow-x-auto rounded shadow">
-            <caption className="sr-only">Leaderboard</caption>
-            <thead>
-              <tr className="bg-neutral-900 text-primary">
-                <th scope="col" className="p-2 text-left font-semibold">Rank</th>
-                <th scope="col" className="p-2 text-left font-semibold">User</th>
-                <th scope="col" className="p-2 text-left font-semibold">Points</th>
-                <th scope="col" className="p-2 text-left font-semibold">Dares Completed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, idx) => (
-                <tr key={user._id} className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}>
-                  <td className="p-2 font-bold text-primary">{idx + 1}</td>
-                  <td className="p-2 flex items-center gap-2">
-                    <Avatar user={user} size={32} alt={`Avatar for ${user.fullName || user.username || 'user'}`} />
-                    <span className="font-semibold">{user.username}</span>
-                  </td>
-                  <td className="p-2 text-neutral-300">{user.points}</td>
-                  <td className="p-2 text-neutral-300">{user.daresCompleted}</td>
-                </tr>
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </div>
+          ) : error ? (
+            <div className="text-danger text-center mb-4">{error}</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="text-neutral-400 text-center">No users found.</div>
+          ) : (
+            <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900 overflow-x-auto rounded shadow">
+              <caption className="sr-only">Leaderboard</caption>
+              <thead>
+                <tr className="bg-neutral-900 text-primary">
+                  <th scope="col" className="p-2 text-left font-semibold">Rank</th>
+                  <th scope="col" className="p-2 text-left font-semibold">User</th>
+                  <th scope="col" className="p-2 text-left font-semibold">Points</th>
+                  <th scope="col" className="p-2 text-left font-semibold">Dares Completed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user, idx) => (
+                  <tr key={user._id} className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}>
+                    <td className="p-2 font-bold text-primary">{idx + 1}</td>
+                    <td className="p-2 flex items-center gap-2">
+                      <Avatar user={user} size={32} alt={`Avatar for ${user.fullName || user.username || 'user'}`} />
+                      <span className="font-semibold">{user.username}</span>
+                    </td>
+                    <td className="p-2 text-neutral-300">{user.points}</td>
+                    <td className="p-2 text-neutral-300">{user.daresCompleted}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </main>
     </div>
   );
 } 
