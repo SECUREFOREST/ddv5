@@ -1793,12 +1793,14 @@ const allCompletedDares = [
           </div>
         </div>
       )}
-      <Tabs
-        tabs={tabLabels.map((label, idx) => ({ label, content: tabContents[idx] }))}
-        value={tabIdx}
-        onChange={setTabIdx}
-        className="mb-8"
-      />
+      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <Tabs
+          tabs={tabLabels.map((label, idx) => ({ label, content: tabContents[idx] }))}
+          value={tabIdx}
+          onChange={setTabIdx}
+          className="mb-8"
+        />
+      </div>
     </div>
   );
 } 
