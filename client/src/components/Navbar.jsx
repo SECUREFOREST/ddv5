@@ -48,7 +48,7 @@ export default function Navbar() {
   function linkClass(link) {
     return (
       'text-[#888] hover:text-white transition-colors px-2 py-1 rounded font-semibold focus-visible:outline-none ' +
-      (currentPath === link.to ? 'bg-primary text-primary-contrast' : '')
+      (currentPath === link.to ? 'bg-primary text-white' : '')
     );
   }
 
