@@ -153,6 +153,22 @@ export default function DarePerformerDashboard() {
   const [switchParticipantFilter, setSwitchParticipantFilter] = useState('');
   const [switchSort, setSwitchSort] = useState('recent');
 
+  // Filtering and sorting logic for Switch Games tab (fix ReferenceError)
+  function filterAndSortSwitchGames(games) {
+    let filtered = games;
+    if (switchStatusFilter) filtered = filtered.filter(g => g.status === switchStatusFilter);
+    if (switchDifficultyFilter) filtered = filtered.filter(g => g.difficulty === switchDifficultyFilter || g.creatorDare?.difficulty === switchDifficultyFilter);
+    if (switchParticipantFilter) filtered = filtered.filter(g =>
+      (g.creator?.username && g.creator.username.toLowerCase().includes(switchParticipantFilter.toLowerCase())) ||
+      (g.participant?.username && g.participant.username.toLowerCase().includes(switchParticipantFilter.toLowerCase()))
+    );
+    if (switchSort === 'recent') filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+    if (switchSort === 'oldest') filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
+    if (switchSort === 'status') filtered = filtered.slice().sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+    if (switchSort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || a.creatorDare?.difficulty || '').localeCompare(b.difficulty || b.creatorDare?.difficulty || ''));
+    return filtered;
+  }
+
   useEffect(() => {
     if (tab !== 'switch' || !user) return;
     setMySwitchGamesLoading(true);
