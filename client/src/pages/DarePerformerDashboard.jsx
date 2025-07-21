@@ -679,11 +679,11 @@ const allCompletedDares = [
           <div className="tab-pane active" id="all-dares">
             <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
             {/* Action Buttons */}
-            <div className="flex gap-2 mb-4">
-              <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" onClick={() => navigate('/subs/new')}>
+            <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/subs/new')}>
                 Create Dare
               </button>
-              <button className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" onClick={() => navigate('/perform')}>
+              <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/perform')}>
                 Perform Dare
               </button>
             </div>
