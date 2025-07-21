@@ -44,7 +44,6 @@ export default function DareDifficultySelect() {
       </div>
       {/* Card-like section for form content */}
       <form role="form" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4" aria-label="Dare Difficulty Selection">
-        <h1 id="dare-difficulty-title" className="text-2xl font-bold mb-4">Choose Dare Difficulty</h1>
         <div>
           <div className="flex flex-col gap-4">
             {DIFFICULTIES.map(opt => (
