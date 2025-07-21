@@ -183,17 +183,16 @@ const [allDaresStatus, setAllDaresStatus] = useState("");
 const [allDaresDifficulty, setAllDaresDifficulty] = useState("");
 const [allDaresParticipant, setAllDaresParticipant] = useState("");
 const [allDaresSort, setAllDaresSort] = useState("recent");
+// Derived arrays for All Dares tab (must be inside component)
+const allActiveDares = [
+  ...ongoing.map(d => ({ ...d, _type: "perform" })),
+  ...demandSlots.map(d => ({ ...d, _type: "demand" }))
+];
+const allCompletedDares = [
+  ...completed.map(d => ({ ...d, _type: "perform" })),
+  ...completedDemand.map(d => ({ ...d, _type: "demand" }))
+];
   const navigate = useNavigate();
-
-  // Derived arrays for All Dares tab (must be inside component)
-  const allActiveDares = [
-    ...ongoing.map(d => ({ ...d, _type: "perform" })),
-    ...demandSlots.map(d => ({ ...d, _type: "demand" }))
-  ];
-  const allCompletedDares = [
-    ...completed.map(d => ({ ...d, _type: "perform" })),
-    ...completedDemand.map(d => ({ ...d, _type: "demand" }))
-  ];
 
   // Advanced filter/sort state for Switch Games tab (fix ReferenceError)
   const [switchStatusFilter, setSwitchStatusFilter] = useState('');
