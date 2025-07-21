@@ -131,13 +131,14 @@ export default function OfferSubmission() {
           Cooldown active: You recently rejected a dare. You can offer a new submission after <b>{new Date(cooldown).toLocaleTimeString()}</b>.
         </div>
       )}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form role="form" aria-labelledby="offer-submission-title" onSubmit={handleSubmit} className="space-y-6">
+        <h1 id="offer-submission-title" className="text-2xl font-bold mb-4">Submit Offer</h1>
         <div>
           <label htmlFor="offer-difficulty" className="block font-semibold mb-1">Difficulty</label>
           <div className="flex flex-col gap-2">
             {DIFFICULTIES.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
+                <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-required="true" />
                 <span>
                   <b>{opt.label}</b><br/>
                   <span className="text-xs text-neutral-400">{opt.desc}</span>
@@ -155,6 +156,7 @@ export default function OfferSubmission() {
             onChange={e => setDescription(e.target.value)}
             disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
             required
+            aria-required="true"
           />
         </div>
         <div>
@@ -166,7 +168,7 @@ export default function OfferSubmission() {
           <div className="flex flex-col gap-2">
             {PRIVACY_OPTIONS.map(opt => (
               <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="privacy" value={opt.value} checked={privacy === opt.value} onChange={() => handlePrivacyChange(opt.value)} disabled={privacyLoading} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
+                <input type="radio" name="privacy" value={opt.value} checked={privacy === opt.value} onChange={() => handlePrivacyChange(opt.value)} disabled={privacyLoading} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-required="true" />
                 <span>
                   <b>{opt.label}</b><br/>
                   <span className="text-xs text-neutral-400">{opt.desc}</span>

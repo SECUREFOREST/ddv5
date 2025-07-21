@@ -38,29 +38,32 @@ const Landing = () => {
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-6" />
-      <div className="flex flex-col items-center text-center px-6 pb-8">
-        <h2 className="text-2xl font-bold text-primary mb-2">Dare. Compete. Connect.</h2>
-        <p className="text-lg mb-8 text-center text-primary-contrast font-semibold leading-relaxed">Deviant Dare is the ultimate platform for social dares, challenges, and friendly competition. Create, accept, and share dares with friends or the community. Climb the leaderboard, earn rewards, and make every day an adventure!</p>
-        <h3 className="text-lg font-semibold text-primary mb-4">Why Deviant Dare?</h3>
-        <ul className="text-left mb-10 text-neutral-300 list-disc list-inside text-base max-w-xs mx-auto space-y-3">
-          <li className="flex items-start gap-2"><span className="text-xl">🔥</span> <span><b>Create</b> and <b>accept</b> dares in a safe, supportive environment</span></li>
-          <li className="flex items-start gap-2"><span className="text-xl">🏆</span> <span><b>Compete</b> on the global leaderboard and track your progress</span></li>
-          <li className="flex items-start gap-2"><span className="text-xl">🤝</span> <span><b>Connect</b> with a vibrant community of challenge-seekers</span></li>
-          <li className="flex items-start gap-2"><span className="text-xl">🔔</span> <span><b>Get notified</b> about new dares, achievements, and activity</span></li>
-          <li className="flex items-start gap-2"><span className="text-xl">🎉</span> <span><b>Share</b> your victories and inspire others to join the fun</span></li>
-        </ul>
-        <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-xs mx-auto">
-          <Link to="/login" className="flex-1">
-            <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Log In">Log In</button>
-          </Link>
-          <Link to="/register" className="flex-1">
-            <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Register">Register</button>
-          </Link>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <div className="flex flex-col items-center text-center px-6 pb-8">
+          <h2 className="text-2xl font-bold text-primary mb-2">Dare. Compete. Connect.</h2>
+          <p className="text-lg mb-8 text-center text-primary-contrast font-semibold leading-relaxed">Deviant Dare is the ultimate platform for social dares, challenges, and friendly competition. Create, accept, and share dares with friends or the community. Climb the leaderboard, earn rewards, and make every day an adventure!</p>
+          <h3 className="text-lg font-semibold text-primary mb-4">Why Deviant Dare?</h3>
+          <ul className="text-left mb-10 text-neutral-300 list-disc list-inside text-base max-w-xs mx-auto space-y-3">
+            <li className="flex items-start gap-2"><span className="text-xl">🔥</span> <span><b>Create</b> and <b>accept</b> dares in a safe, supportive environment</span></li>
+            <li className="flex items-start gap-2"><span className="text-xl">🏆</span> <span><b>Compete</b> on the global leaderboard and track your progress</span></li>
+            <li className="flex items-start gap-2"><span className="text-xl">🤝</span> <span><b>Connect</b> with a vibrant community of challenge-seekers</span></li>
+            <li className="flex items-start gap-2"><span className="text-xl">🔔</span> <span><b>Get notified</b> about new dares, achievements, and activity</span></li>
+            <li className="flex items-start gap-2"><span className="text-xl">🎉</span> <span><b>Share</b> your victories and inspire others to join the fun</span></li>
+          </ul>
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-xs mx-auto">
+            <Link to="/login" className="flex-1">
+              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Log In">Log In</button>
+            </Link>
+            <Link to="/register" className="flex-1">
+              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Register">Register</button>
+            </Link>
+          </div>
+          <div className="mt-10 text-neutral-400 text-xs max-w-md mx-auto">
+            <p><b>SEO Keywords:</b> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure</p>
+          </div>
         </div>
-        <div className="mt-10 text-neutral-400 text-xs max-w-md mx-auto">
-          <p><b>SEO Keywords:</b> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure</p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

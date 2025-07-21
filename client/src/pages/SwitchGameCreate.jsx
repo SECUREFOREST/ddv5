@@ -86,7 +86,8 @@ export default function SwitchGameCreate() {
         <div className="mb-4 text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
       )}
       {/* Card-like section for form content */}
-      <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+      <form role="form" aria-labelledby="switch-game-create-title" onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <h1 id="switch-game-create-title" className="text-2xl font-bold mb-4">Create Switch Game</h1>
         {/* Difficulty selection */}
         <div>
           <div className="font-bold text-xl text-primary mb-4">Choose a difficulty</div>

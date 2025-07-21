@@ -44,48 +44,54 @@ export default function Login() {
           <ArrowRightOnRectangleIcon className="w-7 h-7 text-primary" /> Login
         </h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="flex flex-col items-center text-center px-6 pb-8">
-        <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto">
-          <div>
-            <label htmlFor="login-identifier" className="block font-semibold mb-1 text-primary">Username or Email</label>
-            <input
-              type="text"
-              id="login-identifier"
-              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
-              value={identifier}
-              onChange={e => setIdentifier(e.target.value)}
-              required
-              aria-label="Username or Email"
-            />
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        {/* Section divider for main content */}
+        <div className="flex flex-col items-center text-center px-6 pb-8">
+          <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto" role="form" aria-labelledby="login-title">
+            <h1 id="login-title" className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+              <ArrowRightOnRectangleIcon className="w-7 h-7 text-primary" /> Login
+            </h1>
+            <div>
+              <label htmlFor="login-identifier" className="block font-semibold mb-1 text-primary">Username or Email</label>
+              <input
+                type="text"
+                id="login-identifier"
+                className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+                value={identifier}
+                onChange={e => setIdentifier(e.target.value)}
+                required
+                aria-label="Username or Email"
+              />
+            </div>
+            <div>
+              <label htmlFor="login-password" className="block font-semibold mb-1 text-primary">Password</label>
+              <input
+                type="password"
+                id="login-password"
+                className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                aria-label="Password"
+              />
+            </div>
+            {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+            {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
+            <button
+              type="submit"
+              className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+          <div className="mt-4 text-center">
+            <span className="text-neutral-400">Don't have an account?</span>{' '}
+            <Link to="/register" className="text-primary hover:underline">Register</Link>
           </div>
-          <div>
-            <label htmlFor="login-password" className="block font-semibold mb-1 text-primary">Password</label>
-            <input
-              type="password"
-              id="login-password"
-              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              aria-label="Password"
-            />
-          </div>
-          {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-          {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
-          <button
-            type="submit"
-            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <span className="text-neutral-400">Don't have an account?</span>{' '}
-          <Link to="/register" className="text-primary hover:underline">Register</Link>
         </div>
-      </div>
+      </main>
     </div>
   );
 } 

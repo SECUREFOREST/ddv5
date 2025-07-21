@@ -716,15 +716,18 @@ export default function SwitchGameDetails() {
             <div className="bg-white rounded shadow p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
               {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
-              <form onSubmit={handleGrade}>
+              <form role="form" aria-labelledby="switch-grade-title" onSubmit={handleGrade} className="space-y-6">
+                <h1 id="switch-grade-title" className="text-2xl font-bold mb-4">Grade Switch Game</h1>
                 <div className="mb-2">
-                  <label className="block font-semibold mb-1">Grade (1-10):</label>
+                  <label htmlFor="switch-grade" className="block font-semibold mb-1">Grade (1-10):</label>
                   <select
+                    id="switch-grade"
                     className="border rounded px-2 py-1"
                     value={grade}
                     onChange={e => setGrade(e.target.value)}
                     required
                     disabled={grading || !!myGivenGrade}
+                    aria-required="true"
                   >
                     <option value="">Select</option>
                     {[...Array(10)].map((_, i) => (
@@ -733,14 +736,16 @@ export default function SwitchGameDetails() {
                   </select>
                 </div>
                 <div className="mb-2">
-                  <label className="block font-semibold mb-1">Feedback (optional):</label>
+                  <label htmlFor="switch-feedback" className="block font-semibold mb-1">Feedback (optional):</label>
                   <textarea
+                    id="switch-feedback"
                     className="border rounded px-2 py-1 w-full"
                     value={feedback}
                     onChange={e => setFeedback(e.target.value)}
                     maxLength={500}
                     rows={3}
                     disabled={grading || !!myGivenGrade}
+                    aria-label="Feedback for the opponent"
                   />
                 </div>
                 {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}

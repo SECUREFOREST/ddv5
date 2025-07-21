@@ -190,10 +190,11 @@ export default function DarePerform() {
       {/* Section divider */}
       <div className="border-t border-neutral-800 my-4" />
       {!consented ? (
-        <form onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form role="form" aria-labelledby="dare-perform-title" onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <h1 id="dare-perform-title" className="text-2xl font-bold mb-4">Perform Dare</h1>
           {/* Difficulty Selection */}
           <div>
-            <label className="block font-semibold mb-1 text-primary">Select Difficulty</label>
+            <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Select Difficulty</label>
             <div className="flex flex-col gap-2">
               {DIFFICULTIES.map(opt => (
                 <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
@@ -205,6 +206,8 @@ export default function DarePerform() {
                     checked={difficulty === opt.value}
                     onChange={() => setDifficulty(opt.value)}
                     className="accent-primary bg-[#1a1a1a]"
+                    id={`difficulty-${opt.value}`}
+                    aria-required="true"
                   />
                   {opt.icon}
                   <b>{opt.label}</b>
@@ -222,6 +225,7 @@ export default function DarePerform() {
               onChange={e => setConsentChecked(e.target.checked)}
               className="mr-2 bg-[#1a1a1a]"
               required
+              aria-required="true"
             />
             <label htmlFor="perform-consent" className="text-sm">I consent to perform a random dare.</label>
           </div>
@@ -250,7 +254,7 @@ export default function DarePerform() {
           </div>
           {/* Privacy Options */}
           <div className="mb-6">
-            <label className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
+            <label htmlFor="privacy" className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
             <div className="flex flex-col gap-2">
               {PRIVACY_OPTIONS.map(opt => (
                 <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
@@ -261,6 +265,8 @@ export default function DarePerform() {
                     checked={privacy === opt.value}
                     onChange={() => setPrivacy(opt.value)}
                     className="mt-1 accent-primary bg-[#1a1a1a]"
+                    id={`privacy-${opt.value}`}
+                    aria-required="true"
                   />
                   <span className="flex items-center gap-2">
                     {opt.icon}
@@ -282,6 +288,7 @@ export default function DarePerform() {
                 onChange={e => setProof(e.target.value)}
                 rows={3}
                 placeholder="Describe your proof, add a link, or leave blank if uploading a file."
+                aria-required="true"
               />
             </div>
             <div>
@@ -292,6 +299,7 @@ export default function DarePerform() {
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 onChange={e => setProofFile(e.target.files[0])}
                 accept="image/*,video/mp4,video/webm,video/quicktime"
+                aria-required="false"
               />
               <small className="text-gray-400">Accepted: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
             </div>

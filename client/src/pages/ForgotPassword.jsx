@@ -39,28 +39,35 @@ export default function ForgotPassword() {
         </span>
       </div>
       <div className="border-t border-neutral-800 my-4" />
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="forgot-email" className="block font-semibold mb-1 text-primary">Email</label>
-          <input
-            type="email"
-            id="forgot-email"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
-        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-        <button
-          type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
-          disabled={loading}
-        >
-          {loading ? 'Sending...' : 'Send Reset Link'}
-        </button>
-      </form>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <form role="form" aria-labelledby="forgot-password-title" onSubmit={handleSubmit} className="space-y-6">
+          <h1 id="forgot-password-title" className="text-2xl font-bold mb-4">Forgot Password</h1>
+          <div>
+            <label htmlFor="forgot-email" className="block font-semibold mb-1 text-primary">Email</label>
+            <input
+              type="email"
+              id="forgot-email"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              aria-required="true"
+              aria-label="Email address for password reset"
+            />
+          </div>
+          {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
+          {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+          <button
+            type="submit"
+            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+            disabled={loading}
+            aria-label="Send password reset link"
+          >
+            {loading ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
+      </main>
     </div>
   );
 } 

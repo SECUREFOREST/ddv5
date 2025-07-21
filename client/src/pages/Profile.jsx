@@ -263,7 +263,8 @@ export default function Profile() {
       </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-4" />
-      <div>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
         <Tabs
           tabs={[
             {
@@ -350,26 +351,28 @@ export default function Profile() {
                     </div>
                     <div className="flex-1">
                       {editMode ? (
-                        <form onSubmit={handleSave} className="space-y-4">
+                        <form role="form" aria-labelledby="profile-edit-title" onSubmit={handleSave} className="space-y-6">
+                          <h1 id="profile-edit-title" className="text-2xl font-bold mb-4">Edit Profile</h1>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Username</label>
-                            <input type="text" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required />
+                            <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
+                            <input type="text" id="username" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required aria-required="true" aria-label="Username" />
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Full Name</label>
+                            <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
                             <input
                               id="fullName"
                               value={fullName}
                               onChange={e => setFullName(e.target.value)}
                               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
+                              aria-label="Full Name"
                             />
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Bio</label>
-                            <textarea className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} maxLength={300} placeholder="Write something about yourself..." aria-label="Bio" />
+                            <label htmlFor="bio" className="block font-semibold mb-1 text-primary">Bio</label>
+                            <textarea id="bio" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} maxLength={300} placeholder="Write something about yourself..." aria-label="Bio" aria-required="true" />
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Gender</label>
+                            <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
                             <select
                               id="gender"
                               value={gender}
@@ -377,6 +380,7 @@ export default function Profile() {
                               className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
                               required
                               aria-label="Gender"
+                              aria-required="true"
                             >
                               <option value="">Select...</option>
                               <option value="male">Male</option>
@@ -385,16 +389,16 @@ export default function Profile() {
                             </select>
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Birth Date</label>
-                            <input type="date" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required />
+                            <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Birth Date</label>
+                            <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required aria-required="true" aria-label="Birth Date" />
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Interested In</label>
-                            <TagsInput value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} />
+                            <label htmlFor="interestedIn" className="block font-semibold mb-1 text-primary">Interested In</label>
+                            <TagsInput id="interestedIn" value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
                           </div>
                           <div>
-                            <label className="block font-semibold mb-1 text-primary">Limits</label>
-                            <TagsInput value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} />
+                            <label htmlFor="limits" className="block font-semibold mb-1 text-primary">Limits</label>
+                            <TagsInput id="limits" value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
                           </div>
                           <div className="flex gap-2 mt-4">
                             <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark" disabled={saving}>Save</button>
@@ -477,7 +481,7 @@ export default function Profile() {
           value={tabIdx}
           onChange={setTabIdx}
         />
-      </div>
+      </main>
       {/* Blocked Users Section */}
       {blockedUsersInfo.length > 0 && (
         <div className="mt-8">

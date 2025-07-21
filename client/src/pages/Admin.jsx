@@ -415,14 +415,15 @@ export default function Admin() {
                     </div>
                   )}
                   <div className="overflow-x-auto rounded shadow">
-                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                      <caption className="sr-only">User Management</caption>
                       <thead>
                         <tr className="bg-neutral-900 text-primary">
-                          <th className="p-2 text-left font-semibold">Username</th>
-                          <th className="p-2 text-left font-semibold">Email</th>
-                          <th className="p-2 text-left font-semibold">Role</th>
-                          <th className="p-2 text-left font-semibold">Status</th>
-                          <th className="p-2 text-left font-semibold">Actions</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Username</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Email</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Role</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -510,15 +511,16 @@ export default function Admin() {
                     </div>
                   )}
                   <div className="overflow-x-auto rounded shadow">
-                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                      <caption className="sr-only">Dare Management</caption>
                       <thead>
                         <tr className="bg-neutral-900 text-primary">
-                          <th className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
-                          <th className="p-2 text-left font-semibold">Description</th>
-                          <th className="p-2 text-left font-semibold">Creator</th>
-                          <th className="p-2 text-left font-semibold">Status</th>
-                          <th className="p-2 text-left font-semibold">Difficulty</th>
-                          <th className="p-2 text-left font-semibold">Actions</th>
+                          <th scope="col" className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
+                          <th scope="col" className="p-2 text-left font-semibold">Description</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Creator</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Difficulty</th>
+                          <th scope="col" className="p-2 text-left font-semibold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -607,13 +609,14 @@ export default function Admin() {
                     </button>
                   </div>
                     <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">Audit Log</caption>
                         <thead>
                           <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2 text-left font-semibold">Action</th>
-                            <th className="p-2 text-left font-semibold">User</th>
-                            <th className="p-2 text-left font-semibold">Target</th>
-                            <th className="p-2 text-left font-semibold">Timestamp</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Action</th>
+                            <th scope="col" className="p-2 text-left font-semibold">User</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Target</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Timestamp</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -649,15 +652,16 @@ export default function Admin() {
                     <div className="text-danger-500">{reportsError}</div>
                   ) : (
                     <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">Reports</caption>
                         <thead>
                           <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2 text-left font-semibold">Type</th>
-                            <th className="p-2 text-left font-semibold">Target ID</th>
-                            <th className="p-2 text-left font-semibold">Reporter</th>
-                            <th className="p-2 text-left font-semibold">Reason</th>
-                            <th className="p-2 text-left font-semibold">Status</th>
-                            <th className="p-2 text-left font-semibold">Actions</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Type</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Reporter</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Reason</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -700,16 +704,17 @@ export default function Admin() {
                     <div className="text-danger-500">{appealsError}</div>
                   ) : (
                     <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">Appeals</caption>
                         <thead>
                           <tr className="bg-neutral-900 text-primary">
-                            <th className="p-2 text-left font-semibold">Type</th>
-                            <th className="p-2 text-left font-semibold">Target ID</th>
-                            <th className="p-2 text-left font-semibold">User</th>
-                            <th className="p-2 text-left font-semibold">Reason</th>
-                            <th className="p-2 text-left font-semibold">Status</th>
-                            <th className="p-2 text-left font-semibold">Outcome</th>
-                            <th className="p-2 text-left font-semibold">Actions</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Type</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
+                            <th scope="col" className="p-2 text-left font-semibold">User</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Reason</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Outcome</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
                           </tr>
                         </thead>
                         <tbody>

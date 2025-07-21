@@ -55,13 +55,15 @@ export default function RecentActivityWidget({ activities = [], loading = false,
         ) : activities.length === 0 ? (
           <div className="text-[#888] py-4">No recent activity.</div>
         ) : (
-          <ul className="divide-y divide-[#282828] text-[#fff]">
+          <ul className="divide-y divide-[#282828] text-[#fff]" role="list">
             {activities.map((a, i) => (
-              <li key={i} className="flex items-center gap-3 py-3">
+              <li key={i} className="flex items-center gap-3 py-3" role="listitem">
                 {ICONS[a.type] || ICONS.default}
                 <div className="flex-1">
                   <div className="text-sm">{getActivityMessage(a)}</div>
-                  <div className="text-xs text-[#888]">{timeAgo(a.createdAt)}</div>
+                  <div className="text-xs text-[#888]">
+                    <time dateTime={a.createdAt}>{timeAgo(a.createdAt)}</time>
+                  </div>
                 </div>
               </li>
             ))}

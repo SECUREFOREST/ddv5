@@ -284,25 +284,30 @@ export default function DareReveal() {
               )}
               {/* Proof Submission Form */}
               {dare.status === 'in_progress' && (
-                <form onSubmit={handleProofSubmit} className="space-y-4 mt-4" aria-label="Submit Proof Form">
+                <form role="form" aria-labelledby="dare-reveal-title" onSubmit={handleProofSubmit} className="space-y-4 mt-4" aria-label="Submit Proof Form">
+                  <h1 id="dare-reveal-title" className="text-2xl font-bold mb-4">Reveal Dare</h1>
                   <div>
-                    <label className="block font-semibold mb-1">Upload image or video proof:</label>
+                    <label htmlFor="proof-file" className="block font-semibold mb-1">Upload image or video proof:</label>
                     <input
                       type="file"
+                      id="proof-file"
                       className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                       onChange={handleProofFileChange}
                       accept="image/*,video/mp4,video/webm,video/quicktime"
+                      aria-required="true"
                     />
                     <small className="text-gray-400">Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</small>
                   </div>
                   <div>
-                    <label className="block font-semibold mb-1">Describe what you did (optional):</label>
+                    <label htmlFor="proof-text" className="block font-semibold mb-1">Describe what you did (optional):</label>
                     <textarea
+                      id="proof-text"
                       className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                       value={proof}
                       onChange={e => setProof(e.target.value)}
                       rows={3}
                       placeholder="Describe your proof, add context, or leave blank if uploading a file."
+                      aria-label="Proof description"
                     />
                   </div>
                   {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}

@@ -250,7 +250,8 @@ export default function DareParticipant() {
             <div className="mb-2">{dare.description}</div>
             <div className="mb-2 flex items-center gap-2"><span className="font-semibold">Difficulty:</span> {DIFFICULTIES.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
           </div>
-          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4" aria-label="Submit Proof Form">
+          <form role="form" aria-labelledby="proof-submit-title" onSubmit={handleProofSubmit} className="space-y-6">
+            <h1 id="proof-submit-title" className="text-2xl font-bold mb-4">Submit Proof</h1>
             <div>
               <label className="block font-semibold mb-1 text-primary" htmlFor="proof-text">Proof (text, link, or upload)</label>
               <textarea
@@ -260,6 +261,7 @@ export default function DareParticipant() {
                 onChange={e => setProof(e.target.value)}
                 rows={3}
                 placeholder="Describe your proof, add a link, or leave blank if uploading a file."
+                aria-required="true"
               />
             </div>
             <div className="flex items-center mt-2">
@@ -269,6 +271,7 @@ export default function DareParticipant() {
                 checked={expireAfterView}
                 onChange={e => setExpireAfterView(e.target.checked)}
                 className="mr-2 bg-[#1a1a1a]"
+                aria-required="true"
               />
               <label htmlFor="expireAfterView" className="text-sm">Expire proof 48 hours after it is viewed by the dare creator.</label>
             </div>
@@ -280,6 +283,7 @@ export default function DareParticipant() {
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
                 onChange={handleProofFileChange}
                 accept="image/*,video/mp4,video/webm,video/quicktime"
+                aria-required="false"
               />
               <small className="text-gray-400">Accepted: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
             </div>

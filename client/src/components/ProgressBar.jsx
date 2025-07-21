@@ -18,6 +18,7 @@ export default function ProgressBar({ value = 0, label, className = '', ...props
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-label={label || 'Progress'}
         >
           <span className="sr-only">{pct}%</span>
         </div>

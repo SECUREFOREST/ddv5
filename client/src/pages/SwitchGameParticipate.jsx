@@ -320,7 +320,8 @@ export default function SwitchGameParticipate() {
             ))}
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form role="form" aria-labelledby="switch-game-participate-title" onSubmit={handleSubmit} className="space-y-4">
+            <h1 id="switch-game-participate-title" className="text-2xl font-bold mb-4">Participate in Switch Game</h1>
             <div>
               <div className="font-bold text-base text-primary mb-1">Your demand, if they lose</div>
               <textarea

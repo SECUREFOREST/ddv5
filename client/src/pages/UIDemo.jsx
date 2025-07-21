@@ -71,12 +71,13 @@ export default function UIDemo() {
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Table</h2>
         <div className="overflow-x-auto rounded shadow">
-          <table className="min-w-full bg-neutral-800 text-sm text-[#fff] border border-neutral-900">
+          <table className="min-w-full bg-neutral-800 text-sm text-[#fff] border border-neutral-900" role="table">
+            <caption className="sr-only">Demo Table</caption>
             <thead>
               <tr className="bg-neutral-900 text-primary">
-                <th className="p-2 text-left font-semibold">Name</th>
-                <th className="p-2 text-left font-semibold">Role</th>
-                <th className="p-2 text-left font-semibold">Status</th>
+                <th scope="col" className="p-2 text-left font-semibold">Name</th>
+                <th scope="col" className="p-2 text-left font-semibold">Role</th>
+                <th scope="col" className="p-2 text-left font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>

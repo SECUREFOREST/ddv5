@@ -19,6 +19,7 @@ export default function Tooltip({
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
   const tooltipRef = useRef(null);
+  const tooltipId = React.useId ? React.useId() : 'tooltip';
 
   // Position tooltip
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function Tooltip({
       <span
         ref={triggerRef}
         tabIndex={0}
-        aria-describedby={visible ? 'tooltip' : undefined}
+        aria-describedby={visible ? tooltipId : undefined}
         onMouseEnter={show}
         onMouseLeave={hide}
         onFocus={show}
@@ -90,7 +91,7 @@ export default function Tooltip({
       {visible && (
         <div
           ref={tooltipRef}
-          id="tooltip"
+          id={tooltipId}
           role="tooltip"
           className={`pointer-events-none z-50 px-[12px] py-[8px] rounded-none bg-[#222] text-white text-[12px] shadow-[0_1px_3px_rgba(0,0,0,0.2)] fixed transition-opacity duration-200 opacity-90 ${className}`.trim()}
           style={{ top: coords.top, left: coords.left }}

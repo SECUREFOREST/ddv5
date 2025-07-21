@@ -48,28 +48,33 @@ export default function ResetPassword() {
         </span>
       </div>
       <div className="border-t border-neutral-800 my-4" />
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="reset-password" className="block font-semibold mb-1 text-primary">New Password</label>
-          <input
-            type="password"
-            id="reset-password"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            required
-          />
-        </div>
-        {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
-        {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-        <button
-          type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
-          disabled={loading}
-        >
-          {loading ? 'Resetting...' : 'Reset Password'}
-        </button>
-      </form>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <form role="form" aria-labelledby="reset-password-title" onSubmit={handleSubmit} className="space-y-6">
+          <h1 id="reset-password-title" className="text-2xl font-bold mb-4">Reset Password</h1>
+          <div>
+            <label htmlFor="reset-password" className="block font-semibold mb-1 text-primary">New Password</label>
+            <input
+              type="password"
+              id="reset-password"
+              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
+          {error && <Banner type="error" message={error} onClose={() => setError('')} />}
+          <button
+            type="submit"
+            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+            disabled={loading}
+          >
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </button>
+        </form>
+      </main>
     </div>
   );
 } 
