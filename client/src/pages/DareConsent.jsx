@@ -59,9 +59,17 @@ const DareConsent = () => {
     }
   }, [dare, id]);
 
-  const handleConsent = (e) => {
+  const handleConsent = async (e) => {
     e.preventDefault();
     if (dare && dare._id) {
+      if (dare.status !== 'in_progress') {
+        try {
+          await api.patch(`/dares/${dare._id}`, { status: 'in_progress' });
+        } catch (err) {
+          setError('Failed to update dare status.');
+          return;
+        }
+      }
       navigate(`/dare/reveal/${dare._id}`);
     }
   };
