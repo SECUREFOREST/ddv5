@@ -487,31 +487,11 @@ const allCompletedDares = [
     </div>
   );
 
-  // Multi-select type filter UI
-  const renderTypeChips = () => (
-    <div className="flex gap-2 mb-4" aria-label="Filter by dare type">
-      {TYPE_OPTIONS.map(opt => (
-        <button
-          key={opt.value}
-          type="button"
-          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
-          onClick={() => setSelectedTypes(selectedTypes.includes(opt.value)
-            ? selectedTypes.filter(t => t !== opt.value)
-            : [...selectedTypes, opt.value])}
-          aria-pressed={selectedTypes.includes(opt.value)}
-          aria-label={`Toggle type: ${opt.label}`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
 
   // Update renderFilters to use chips instead of dropdown for difficulty
   const renderFilters = () => (
     <div className="flex flex-col md:flex-row gap-4 mb-4">
       {renderDifficultyChips()}
-      {renderTypeChips()}
     </div>
   );
 
