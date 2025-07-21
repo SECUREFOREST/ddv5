@@ -147,6 +147,12 @@ export default function DarePerformerDashboard() {
   const [switchGamesError, setSwitchGamesError] = useState('');
   const navigate = useNavigate();
 
+  // Advanced filter/sort state for Switch Games tab (fix ReferenceError)
+  const [switchStatusFilter, setSwitchStatusFilter] = useState('');
+  const [switchDifficultyFilter, setSwitchDifficultyFilter] = useState('');
+  const [switchParticipantFilter, setSwitchParticipantFilter] = useState('');
+  const [switchSort, setSwitchSort] = useState('recent');
+
   useEffect(() => {
     if (tab !== 'switch' || !user) return;
     setMySwitchGamesLoading(true);
