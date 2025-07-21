@@ -664,7 +664,6 @@ export default function DarePerformerDashboard() {
                             <div>{difficultyBadge(dare.difficulty)}</div>
                             <div>{statusBadge(dare.status)}</div>
                           </div>
-                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs text-neutral-400">Creator:</span>
                             <Avatar user={dare.creator} size={24} />
@@ -674,9 +673,6 @@ export default function DarePerformerDashboard() {
                             <span className="text-xs text-neutral-400">Performer:</span>
                             <Avatar user={dare.performer} size={24} />
                             <span className="text-xs text-neutral-200">{dare.performer?.fullName || dare.performer?.username || '—'}</span>
-                          </div>
-                          <div className="text-xs text-neutral-500 mt-2 text-center">
-                            Last updated: {dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}
                           </div>
                         </div>
                         {/* Action buttons at the bottom */}
@@ -690,6 +686,9 @@ export default function DarePerformerDashboard() {
                           {dare._type === 'demand' && dare.status === 'in_progress' && (
                             <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
                           )}
+                        </div>
+                        <div className="text-xs text-neutral-500 mt-2 text-center">
+                          Last updated: {dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}
                         </div>
                       </div>
                     ))}
