@@ -678,6 +678,15 @@ const allCompletedDares = [
         {tab === 'all' && (
           <div className="tab-pane active" id="all-dares">
             <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
+            {/* Action Buttons */}
+            <div className="flex gap-2 mb-4">
+              <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" onClick={() => navigate('/subs/new')}>
+                Create Dare
+              </button>
+              <button className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" onClick={() => navigate('/perform')}>
+                Perform Dare
+              </button>
+            </div>
             {/* Advanced Filters & Sorting */}
             <div className="flex flex-wrap gap-2 mb-4 items-center">
               <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
