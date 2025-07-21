@@ -163,6 +163,7 @@ export default function DarePerformerDashboard() {
   const [tab, setTab] = useState(() => localStorage.getItem('performerDashboardTab') || 'perform');
   // Add Switch Game tab
   const TABS = [
+    { key: 'all', label: 'All Dares' },
     { key: 'perform', label: 'Perform Dare' },
     { key: 'demand', label: 'Demand Dare' },
     { key: 'switch', label: 'Switch Games' },
@@ -174,6 +175,7 @@ export default function DarePerformerDashboard() {
   const [switchGameHistory, setSwitchGameHistory] = useState([]);
   const [switchGameHistoryLoading, setSwitchGameHistoryLoading] = useState(false);
   const [switchGamesError, setSwitchGamesError] = useState('');
+  const [publicSwitchDifficulty, setPublicSwitchDifficulty] = useState('');
   const navigate = useNavigate();
 
   // Advanced filter/sort state for Switch Games tab (fix ReferenceError)
@@ -612,6 +614,80 @@ export default function DarePerformerDashboard() {
         </nav>
       </div>
       <div className="tab-content">
+        {/* All Dares Tab Content */}
+        {tab === 'all' && (
+          <div className="tab-pane active" id="all-dares">
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
+            {/* Advanced Filters & Sorting */}
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
+              <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                <option value="waiting_for_participant">Waiting</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="forfeited">Forfeited</option>
+              </select>
+              <select value={allDaresDifficulty} onChange={e => setAllDaresDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
+                <option value="">All Difficulties</option>
+                {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+              </select>
+              <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by creator or performer username" />
+              <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort dares">
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest</option>
+                <option value="status">Status</option>
+                <option value="difficulty">Difficulty</option>
+              </select>
+            </div>
+            <div className="border-t border-neutral-800 my-4" />
+            <h4 className="text-lg font-bold text-primary mb-2">Active Dares</h4>
+            {filterAndSortAllDares(allActiveDares).length === 0 ? (
+              <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {filterAndSortAllDares(allActiveDares).map(dare => (
+                  <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
+                    <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
+                      <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
+                      <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
+                    </div>
+                    {/* In-place actions */}
+                    {dare._type === 'perform' && dare.status === 'in_progress' && (
+                      <button className="ml-2 px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
+                    )}
+                    {dare._type === 'perform' && dare.status === 'in_progress' && (
+                      <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>Reject</button>
+                    )}
+                    {dare._type === 'demand' && dare.status === 'in_progress' && (
+                      <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <h4 className="text-lg font-bold text-primary mb-2 mt-8">Completed Dares</h4>
+            {filterAndSortAllDares(allCompletedDares).length === 0 ? (
+              <div className="text-neutral-400 text-center py-4">No completed dares yet.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {filterAndSortAllDares(allCompletedDares).map(dare => (
+                  <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
+                    <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
+                      <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
+                      <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {/* Perform Tab Content */}
         {tab === 'perform' && (
           <div className="tab-pane active" id="perform">
