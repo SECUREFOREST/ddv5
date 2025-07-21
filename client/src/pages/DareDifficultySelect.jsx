@@ -38,18 +38,10 @@ export default function DareDifficultySelect() {
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Progress Bar */}
-      <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
-        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '50%' }} />
-      </div>
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Select Dare Difficulty</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Choose Dare Difficulty</h1>
       </div>
-      {/* Step indicator */}
-      <div className="text-center text-xs text-neutral-400 font-semibold mb-2">Step 1 of 2: Choose Your Dare Difficulty</div>
-      {/* Section divider */}
-      <div className="border-t border-neutral-800 my-4" />
       {/* Card-like section for form content */}
       <form role="form" aria-labelledby="dare-difficulty-title" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4" aria-label="Dare Difficulty Selection">
         <h1 id="dare-difficulty-title" className="text-2xl font-bold mb-4">Choose Dare Difficulty</h1>
