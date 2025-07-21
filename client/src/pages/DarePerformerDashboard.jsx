@@ -228,6 +228,15 @@ const allCompletedDares = [
   ...completedDemand.map(d => ({ ...d, _type: "demand" }))
 ];
   const navigate = useNavigate();
+  const userId = user?._id || user?.id;
+  const filteredMySwitchGames = mySwitchGames.filter(game =>
+    game.creator?._id === userId || game.creator?.id === userId ||
+    game.participant?._id === userId || game.participant?.id === userId
+  );
+  const filteredSwitchGameHistory = switchGameHistory.filter(game =>
+    game.creator?._id === userId || game.creator?.id === userId ||
+    game.participant?._id === userId || game.participant?.id === userId
+  );
 
   // Advanced filter/sort state for Switch Games tab (fix ReferenceError)
   const [switchStatusFilter, setSwitchStatusFilter] = useState('');
