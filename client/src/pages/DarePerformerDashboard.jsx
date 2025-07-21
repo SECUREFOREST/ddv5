@@ -129,6 +129,12 @@ export default function DarePerformerDashboard() {
   // Add demandSlots state
   const [demandSlots, setDemandSlots] = useState([]);
   const [tab, setTab] = useState(() => localStorage.getItem('performerDashboardTab') || 'perform');
+  // Add Switch Game tab
+  const TABS = [
+    { key: 'perform', label: 'Perform Dare' },
+    { key: 'demand', label: 'Demand Dare' },
+    { key: 'switch', label: 'Switch Games' },
+  ];
   // Add at the top, after other state:
   const [publicActCounts, setPublicActCounts] = useState({ total: 0, submission: 0, domination: 0, switch: 0 });
   // Add state for expanded details
@@ -514,24 +520,18 @@ export default function DarePerformerDashboard() {
       {/* Tabs */}
       <div className="sticky top-0 z-40 bg-neutral-950/95 border-b border-neutral-800 mb-4">
         <nav className="flex justify-center gap-2">
-          <button
-            className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
-              ${tab === 'perform' ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
-            onClick={() => setTab('perform')}
-            aria-current={tab === 'perform' ? 'page' : undefined}
-            tabIndex={0}
-          >
-            Perform
-          </button>
-          <button
-            className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
-              ${tab === 'demand' ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
-            onClick={() => setTab('demand')}
-            aria-current={tab === 'demand' ? 'page' : undefined}
-            tabIndex={0}
-          >
-            Demand
-          </button>
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
+                ${tab === t.key ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
+              onClick={() => setTab(t.key)}
+              aria-current={tab === t.key ? 'page' : undefined}
+              tabIndex={0}
+            >
+              {t.label}
+            </button>
+          ))}
         </nav>
       </div>
       <div className="tab-content">
@@ -539,22 +539,9 @@ export default function DarePerformerDashboard() {
         {tab === 'perform' && (
           <div className="tab-pane active" id="perform">
             {/* Filters */}
-            <div className="dare-filters flex items-center mb-4" /* Tailwind: flex items-center mb-4 */>
-              <h3 className="filters-heading text-lg font-semibold mr-4" /* Tailwind: text-lg font-semibold mr-4 */>Show only</h3>
-              <div className="difficulties flex gap-2">
-                {/* difficulties, selectedDifficulties, toggleDifficulty are not defined in this component */}
-                {/* This part of the code was not provided in the original file, so I'm keeping it as is */}
-                {/* <a
-                  key={diff}
-                  href="#"
-                  className={`difficulty px-3 py-1 rounded border ${selectedDifficulties.includes(diff) ? 'active bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-                  /* Tailwind: px-3 py-1 rounded border bg-blue-500 text-white (active), bg-gray-100 text-gray-700 (inactive) */}
-                  {/* onClick={e => { e.preventDefault(); toggleDifficulty(diff); }} */}
-                  {/* aria-label={`Filter by difficulty: ${diff}`} */}
-                {/* > */}
-                  {/* {diff} */}
-                {/* </a> */}
-              </div>
+            <div className="dare-filters flex items-center mb-4">
+              <h3 className="filters-heading text-lg font-semibold mr-4">Filter Deviant Dares</h3>
+              <div className="difficulties flex gap-2" />
             </div>
             {/* Cooldown warning UI (show above slots/public dares if in cooldown) */}
             {cooldownUntil && new Date() < new Date(cooldownUntil) && (
@@ -607,7 +594,7 @@ export default function DarePerformerDashboard() {
               </div>
             </div>
             {/* Section Headings */}
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Ongoing dares">Ongoing Dares</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Ongoing dares">Ongoing Deviant Dares</h3>
             <div className="ongoing-dares-list grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {completedLoading ? (
                 <div className="text-center py-8 text-neutral-400">Loading completed dares...</div>
@@ -679,7 +666,7 @@ export default function DarePerformerDashboard() {
                 })
               )}
             </div>
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed dares">Completed Dares</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed dares">Completed Deviant Dares</h3>
             <div className="completed-dares-list grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {completedLoading ? (
                 <div className="text-center py-8 text-neutral-400">Loading completed dares...</div>
@@ -694,7 +681,7 @@ export default function DarePerformerDashboard() {
                 ))
               )}
             </div>
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public dares">Browse Public Dares</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
             {/* Public dare counts summary */}
             <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
               <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
@@ -736,9 +723,9 @@ export default function DarePerformerDashboard() {
               )}
             </div>
             {/* Call to Action */}
-            <div className="call-to-action flex gap-2 mb-4" /* Tailwind: flex gap-2 mb-4 */>
-              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/subs/new" /* Tailwind: px-4 py-2 bg-blue-600 text-white rounded */ aria-label="Offer submission">Offer submission</a>
-              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" /* Tailwind: px-4 py-2 bg-green-600 text-white rounded */ aria-label="Switch battle">Switch battle</a>
+            <div className="call-to-action flex gap-2 mb-4">
+              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/subs/new" aria-label="Submit Dare">Submit Dare</a>
+              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start Switch Game</a>
             </div>
             {/* TODO: Public dares browser, advanced filtering, etc. */}
           </div>
@@ -746,7 +733,7 @@ export default function DarePerformerDashboard() {
         {/* Demand Tab Content */}
         {tab === 'demand' && (
           <div className="tab-pane active" id="demand">
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Your demand slots">Your Demand Slots</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Your demand slots">Your Demands</h3>
             {/* Edge-case explanations for cooldown/slots */}
             {cooldownUntil && new Date() < new Date(cooldownUntil) && (
               <div className="cooldown-warning bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-4 text-center" aria-label="Cooldown warning">
@@ -780,7 +767,7 @@ export default function DarePerformerDashboard() {
                 )}
               </div>
             </div>
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed demand dares">Completed Demand Dares</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Completed demand dares">Completed Demands</h3>
             <div className="completed-demand-list grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {completedLoading ? (
                 <div className="text-center py-8 text-neutral-400">Loading completed demand dares...</div>
@@ -795,7 +782,7 @@ export default function DarePerformerDashboard() {
                 ))
               )}
             </div>
-            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public demand dares">Browse Public Demand Offers</h3>
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Browse public demand dares">Browse Public Demands</h3>
             {publicDemandError && <div className="text-danger text-center mb-2">{publicDemandError}</div>}
             <div className="public-demand-browser mb-8">
               {renderDemandFilters()}
@@ -823,8 +810,18 @@ export default function DarePerformerDashboard() {
               )}
             </div>
             <div className="call-to-action flex gap-2 mb-4">
-              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/doms/new" aria-label="Offer domination">Offer domination</a>
-              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Switch battle">Switch battle</a>
+              <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded" href="/doms/new" aria-label="Submit Domination">Submit Domination</a>
+              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start Switch Game</a>
+            </div>
+          </div>
+        )}
+        {/* Switch Game Tab Content */}
+        {tab === 'switch' && (
+          <div className="tab-pane active" id="switch">
+            <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
+            <div className="text-neutral-400 text-center py-8">Switch Games coming soon. Here you will be able to view, join, and create Switch Games with other users!</div>
+            <div className="call-to-action flex gap-2 mb-4 justify-center">
+              <a className="btn btn-primary px-4 py-2 bg-green-600 text-white rounded" href="/switches/new" aria-label="Start Switch Game">Start New Switch Game</a>
             </div>
           </div>
         )}
