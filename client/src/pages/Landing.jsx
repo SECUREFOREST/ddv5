@@ -52,10 +52,10 @@ const Landing = () => {
           </ul>
           <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-xs mx-auto">
             <Link to="/login" className="flex-1">
-              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Log In">Log In</button>
+              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Log In">Log In</button>
             </Link>
             <Link to="/register" className="flex-1">
-              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-900 hover:border-primary-dark hover:text-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Register">Register</button>
+              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Register">Register</button>
             </Link>
           </div>
           <div className="mt-10 text-neutral-400 text-xs max-w-md mx-auto">
