@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useId } from 'react';
 import Button from './Button';
 
 /**
@@ -11,6 +11,8 @@ import Button from './Button';
  * @param {string} size - 'sm' | 'md' | 'lg'
  */
 export default function Modal({ open, onClose, title, children, actions, className = '', size = '', ...props }) {
+  const generatedId = typeof useId === 'function' ? useId() : 'modal-title-' + Math.random().toString(36).slice(2, 10);
+  const titleId = generatedId;
   const [show, setShow] = useState(open);
   const overlayRef = useRef(null);
 

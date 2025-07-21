@@ -346,7 +346,7 @@ export default function DarePerformerDashboard() {
 
   // Add real-time updates for public dares using socket.io-client
   useEffect(() => {
-    const socket = io('https://your-backend-url'); // Replace with your backend URL
+    const socket = io('https://www.deviantdare.com'); // Replace with your backend URL
     socket.on('public_dare_publish', dare => setPublicDares(prev => [dare, ...prev]));
     socket.on('public_dare_unpublish', dareId => setPublicDares(prev => prev.filter(d => d._id !== dareId)));
     return () => socket.disconnect();
