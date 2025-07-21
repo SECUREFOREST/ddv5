@@ -659,7 +659,6 @@ const allCompletedDares = [
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {filterAndSortAllDares(allActiveDares).map(dare => (
   <div key={dare._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
-    <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
     <div className="flex-1 min-w-0">
       <div className="flex justify-between items-center mb-2">
         <div>{difficultyBadge(dare.difficulty)}</div>
@@ -675,6 +674,9 @@ const allCompletedDares = [
         <span className="text-xs text-neutral-400">Performer:</span>
         <Avatar user={dare.performer} size={24} />
         <span className="text-xs text-neutral-200">{dare.performer?.fullName || dare.performer?.username || '—'}</span>
+      </div>
+      <div className="text-xs text-neutral-500 mt-2 text-center">
+        Last updated: {dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}
       </div>
     </div>
     {/* Action buttons at the bottom */}
@@ -700,7 +702,6 @@ const allCompletedDares = [
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {filterAndSortAllDares(allCompletedDares).map(dare => (
                       <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
-                <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-primary truncate flex items-center">{difficultyBadge(dare.difficulty)}</div>
                   <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
@@ -820,6 +821,9 @@ const allCompletedDares = [
         <span className="text-xs text-neutral-400">Performer:</span>
         <Avatar user={game.participant} size={24} />
         <span className="text-xs text-neutral-200">{game.participant ? game.participant.fullName || game.participant.username : '—'}</span>
+      </div>
+      <div className="text-xs text-neutral-500 mt-2 text-center">
+        Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}
       </div>
     </div>
     {/* Action button at the bottom center */}
