@@ -254,7 +254,8 @@ export default function DarePerformerDashboard() {
   useEffect(() => {
     setPublicDemandLoading(true);
     setPublicDemandError('');
-    api.get('/dares', { params: { public: true, type: 'demand' } })
+    // Use dareType: 'domination' as a valid backend value (update as needed)
+    api.get('/dares', { params: { public: true, dareType: 'domination' } })
       .then(res => setPublicDemandDares(Array.isArray(res.data) ? res.data : []))
       .catch(() => setPublicDemandError('Failed to load public demand dares.'))
       .finally(() => setPublicDemandLoading(false));
@@ -295,10 +296,12 @@ export default function DarePerformerDashboard() {
   };
 
   // Complete or reject a dare (free up slot)
+  // Performer: Complete a dare by submitting proof (even if just text)
   const handleCompleteDare = async (slotIdx) => {
     const dare = slots[slotIdx];
     try {
-      await api.patch(`/dares/${dare._id}`, { status: 'completed' });
+      // For now, submit minimal proof (could open a modal for real proof)
+      await api.post(`/dares/${dare._id}/proof`, { text: 'Completed via dashboard quick-complete.' });
       setSlots(prev => prev.filter((_, i) => i !== slotIdx));
       setOngoing(prev => prev.filter((d, i) => i !== slotIdx));
       setCompleted(prev => [...prev, { ...dare, status: 'completed', completedAt: new Date() }]);
@@ -307,15 +310,16 @@ export default function DarePerformerDashboard() {
       showNotification('Failed to complete dare.', 'error');
     }
   };
+  // Performer: Forfeit (reject) a dare
   const handleRejectDare = async (slotIdx) => {
     const dare = slots[slotIdx];
     try {
-      await api.patch(`/dares/${dare._id}`, { status: 'rejected' });
+      await api.post(`/dares/${dare._id}/forfeit`);
       setSlots(prev => prev.filter((_, i) => i !== slotIdx));
       setOngoing(prev => prev.filter((d, i) => i !== slotIdx));
       // Start cooldown
       setCooldownUntil(new Date(Date.now() + COOLDOWN_SECONDS * 1000));
-      showNotification('Dare rejected. You are now in cooldown.', 'info');
+      showNotification('Dare rejected (forfeited). You are now in cooldown.', 'info');
     } catch (err) {
       showNotification('Failed to reject dare.', 'error');
     }
@@ -336,20 +340,32 @@ export default function DarePerformerDashboard() {
 
   // Filtering UI
   // Multi-select difficulty filter UI
+  // Add icons for each difficulty (Heroicons)
+  const DIFFICULTY_ICONS = {
+    titillating: <svg className="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-14a6 6 0 110 12A6 6 0 0110 4z" /></svg>,
+    arousing: <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 018 8c0 3.866-3.134 7-7 7s-7-3.134-7-7a8 8 0 018-8zm0 2a6 6 0 100 12A6 6 0 0010 4z" /></svg>,
+    explicit: <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-14a6 6 0 110 12A6 6 0 0110 4z" /></svg>,
+    edgy: <svg className="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 018 8c0 3.866-3.134 7-7 7s-7-3.134-7-7a8 8 0 018-8zm0 2a6 6 0 100 12A6 6 0 0010 4z" /></svg>,
+    hardcore: <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-14a6 6 0 110 12A6 6 0 0110 4z" /></svg>,
+  };
   const renderDifficultyChips = () => (
     <div className="flex gap-2 mb-4" aria-label="Filter by difficulty">
       {DIFFICULTY_OPTIONS.map(opt => (
         <button
           key={opt.value}
           type="button"
-          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDifficulties.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast
+            ${selectedDifficulties.includes(opt.value)
+              ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
+              : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
           onClick={() => setSelectedDifficulties(selectedDifficulties.includes(opt.value)
             ? selectedDifficulties.filter(d => d !== opt.value)
             : [...selectedDifficulties, opt.value])}
           aria-pressed={selectedDifficulties.includes(opt.value)}
           aria-label={`Toggle difficulty: ${opt.label}`}
         >
-          {opt.label}
+          {DIFFICULTY_ICONS[opt.value]}
+          <span>{opt.label}</span>
         </button>
       ))}
     </div>
@@ -416,14 +432,18 @@ export default function DarePerformerDashboard() {
         <button
           key={opt.value}
           type="button"
-          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDemandDifficulties.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast
+            ${selectedDemandDifficulties.includes(opt.value)
+              ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
+              : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
           onClick={() => setSelectedDemandDifficulties(selectedDemandDifficulties.includes(opt.value)
             ? selectedDemandDifficulties.filter(d => d !== opt.value)
             : [...selectedDemandDifficulties, opt.value])}
           aria-pressed={selectedDemandDifficulties.includes(opt.value)}
           aria-label={`Toggle demand difficulty: ${opt.label}`}
         >
-          {opt.label}
+          {DIFFICULTY_ICONS[opt.value]}
+          <span>{opt.label}</span>
         </button>
       ))}
     </div>
@@ -492,14 +512,28 @@ export default function DarePerformerDashboard() {
       </div>
       <div className="border-t border-neutral-800 my-4" />
       {/* Tabs */}
-      <ul className="nav nav-tabs flex border-b mb-4" /* Tailwind: flex border-b mb-4 */>
-        <li className={tab === 'perform' ? 'active mr-2' : 'mr-2'} /* Tailwind: mr-2 */>
-          <a href="#" onClick={() => setTab('perform')} className="px-4 py-2 block" /* Tailwind: px-4 py-2 block */ aria-label="Perform tab">Perform</a>
-        </li>
-        <li className={tab === 'demand' ? 'active' : ''}>
-          <a href="#" onClick={() => setTab('demand')} className="px-4 py-2 block" aria-label="Demand tab">Demand</a>
-        </li>
-      </ul>
+      <div className="sticky top-0 z-40 bg-neutral-950/95 border-b border-neutral-800 mb-4">
+        <nav className="flex justify-center gap-2">
+          <button
+            className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
+              ${tab === 'perform' ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
+            onClick={() => setTab('perform')}
+            aria-current={tab === 'perform' ? 'page' : undefined}
+            tabIndex={0}
+          >
+            Perform
+          </button>
+          <button
+            className={`px-6 py-2 rounded-t-lg font-bold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast text-lg
+              ${tab === 'demand' ? 'bg-neutral-800 text-primary border-b-4 border-primary shadow' : 'bg-neutral-900 text-neutral-300 hover:text-primary'}`}
+            onClick={() => setTab('demand')}
+            aria-current={tab === 'demand' ? 'page' : undefined}
+            tabIndex={0}
+          >
+            Demand
+          </button>
+        </nav>
+      </div>
       <div className="tab-content">
         {/* Perform Tab Content */}
         {tab === 'perform' && (
@@ -590,7 +624,7 @@ export default function DarePerformerDashboard() {
                     statusText = dare.status;
                   }
                   return (
-                    <div key={dare._id || idx} className="dare-card bg-neutral-100 border border-neutral-300 rounded p-4 flex flex-col gap-2" aria-label="Ongoing dare card">
+                    <div key={dare._id || idx} className="dare-card bg-neutral-900 border border-neutral-700 rounded-xl p-5 flex flex-col gap-3 hover:shadow-lg transition-all duration-150" aria-label="Ongoing dare card">
                       <div onClick={() => setExpandedOngoingIdx(expandedOngoingIdx === idx ? null : idx)} className="cursor-pointer">
                         <DareCard dare={dare} />
                       </div>
@@ -614,7 +648,7 @@ export default function DarePerformerDashboard() {
                       )}
                       <div className="actions flex gap-2 mt-2">
                         <button
-                          className="btn btn-primary px-3 py-1 bg-blue-600 text-white rounded"
+                          className="btn btn-primary px-4 py-2 rounded-lg font-semibold bg-primary text-primary-contrast hover:bg-primary/80 transition disabled:opacity-60"
                           onClick={() => handleCompleteDare(idx)}
                           disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
                           aria-label="Mark dare as completed"
@@ -622,7 +656,7 @@ export default function DarePerformerDashboard() {
                           Complete
                         </button>
                         <button
-                          className="btn btn-danger px-3 py-1 bg-red-600 text-white rounded"
+                          className="btn btn-danger px-4 py-2 rounded-lg font-semibold bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-60"
                           onClick={() => handleRejectDare(idx)}
                           disabled={cooldownUntil && new Date() < new Date(cooldownUntil)}
                           aria-label="Reject dare"
@@ -631,7 +665,7 @@ export default function DarePerformerDashboard() {
                         </button>
                         <a
                           href={`/perform/${dare._id}`}
-                          className="btn btn-secondary px-3 py-1 bg-gray-500 text-white rounded"
+                          className="btn btn-secondary px-4 py-2 rounded-lg font-semibold bg-neutral-700 text-white hover:bg-neutral-600 transition"
                           aria-label="Submit proof or view dare details"
                           tabIndex={0}
                           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') window.location.href = `/perform/${dare._id}`; }}
@@ -639,7 +673,7 @@ export default function DarePerformerDashboard() {
                           Submit/View
                         </a>
                       </div>
-                      <div className="text-xs text-neutral-500 mt-1 flex items-center">Status: {statusText}{renderStatusBadge(dare.status)}</div>
+                      <div className="text-xs text-neutral-400 mt-1 flex items-center">Status: {statusText}{renderStatusBadge(dare.status)}</div>
                     </div>
                   );
                 })
@@ -653,7 +687,7 @@ export default function DarePerformerDashboard() {
                 <div className="text-neutral-400">No completed dares yet. When you complete a dare, it will appear here for your records.</div>
               ) : (
                 completed.map((dare, idx) => (
-                  <div key={dare._id || idx} className="dare-card bg-neutral-50 border border-neutral-200 rounded p-4 flex flex-col gap-2" aria-label="Completed dare card">
+                  <div key={dare._id || idx} className="dare-card bg-neutral-900 border border-neutral-700 rounded-xl p-5 flex flex-col gap-3 hover:shadow-lg transition-all duration-150" aria-label="Completed dare card">
                     <DareCard dare={dare} />
                     <div className="text-xs text-neutral-400 mt-1">Completed at: {dare.completedAt ? new Date(dare.completedAt).toLocaleString() : '—'}</div>
                   </div>
@@ -689,11 +723,11 @@ export default function DarePerformerDashboard() {
               ) : (
                 <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
                   {dedupeDaresByUser(publicDares).map((dare, idx) => (
-                    <div key={dare._id || idx} className="thing thing-with-avatar public-dare flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
-                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                      <div className="thing-details flex-1">
-                        <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                        <div className="text-xs text-neutral-400">{dare.title || dare.description || ''}</div>
+                    <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                        <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
                         {/* Add more details as needed */}
                       </div>
                     </div>
@@ -754,7 +788,7 @@ export default function DarePerformerDashboard() {
                 <div className="text-neutral-400">No completed demand dares yet. When someone completes a dare you created, it will appear here.</div>
               ) : (
                 completedDemand.map((dare, idx) => (
-                  <div key={dare._id || idx} className="dare-card bg-neutral-50 border border-neutral-200 rounded p-4 flex flex-col gap-2" aria-label="Completed demand dare card">
+                  <div key={dare._id || idx} className="dare-card bg-neutral-900 border border-neutral-700 rounded-xl p-5 flex flex-col gap-3 hover:shadow-lg transition-all duration-150" aria-label="Completed demand dare card">
                     <DareCard dare={dare} />
                     <div className="text-xs text-neutral-400 mt-1">Completed at: {dare.completedAt ? new Date(dare.completedAt).toLocaleString() : '—'}</div>
                   </div>
@@ -776,11 +810,11 @@ export default function DarePerformerDashboard() {
               ) : (
                 <div className="public-demand-list grid grid-cols-1 md:grid-cols-2 gap-4">
                   {dedupeDaresByUser(publicDemandDares).map((dare, idx) => (
-                    <div key={dare._id || idx} className="thing thing-with-avatar public-dare flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded p-3 mb-2">
-                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="avatar w-10 h-10 rounded-full object-cover" />
-                      <div className="thing-details flex-1">
-                        <div className="thing-title user-name font-bold">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                        <div className="text-xs text-neutral-400">{dare.title || dare.description || ''}</div>
+                    <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                      <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
+                        <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
                         {/* Add more details as needed */}
                       </div>
                     </div>
