@@ -37,14 +37,6 @@ const Landing = () => {
           <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
         </h1>
       </div>
-      {/* Main CTA Button */}
-      <div className="flex justify-center mb-6">
-        <Link to="/register">
-          <button className="bg-primary text-primary-contrast rounded-full px-6 py-3 font-bold text-lg shadow-lg hover:bg-primary-dark hover:scale-105 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2">
-            <SparklesIcon className="w-6 h-6" /> Join the Dare Revolution
-          </button>
-        </Link>
-      </div>
       {/* Section divider for main content */}
       <div className="border-t border-neutral-800 my-6" />
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
