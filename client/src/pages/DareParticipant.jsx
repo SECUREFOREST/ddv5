@@ -185,8 +185,8 @@ export default function DareParticipant() {
         </div>
         {/* Step indicator */}
         <div className="text-center text-xs text-neutral-400 font-semibold mb-2">{consented ? 'Step 2 of 2: Submit Proof' : 'Step 1 of 2: Consent & Get Dare'}</div>
-        {/* Section divider */}
-        <div className="border-t border-neutral-800 my-4" />
+  
+  
         <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
         {!consented && (
           <div className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">

@@ -72,8 +72,8 @@ const DareConsent = () => {
       </div>
       {/* Step indicator */}
       <div className="text-center text-xs text-neutral-400 font-semibold mb-2">Step 2 of 2: Consent to Perform Dare</div>
-      {/* Section divider */}
-      <div className="border-t border-neutral-800 my-4" />
+
+
       {/* Card-like section for main content */}
       <div className="p-6 flex flex-col gap-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
         <div className="mb-2 text-center">

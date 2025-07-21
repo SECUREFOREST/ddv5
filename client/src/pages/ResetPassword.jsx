@@ -47,7 +47,7 @@ export default function ResetPassword() {
           <KeyIcon className="w-6 h-6" /> Reset Password
         </span>
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         <form role="form" aria-labelledby="reset-password-title" onSubmit={handleSubmit} className="space-y-6">

@@ -187,7 +187,7 @@ export default function UserActivity() {
                   onForfeit={() => navigate(`/dares/${dare._id}`)}
                 />
               ))}
-              <div className="border-t border-neutral-800 my-4" />
+        
               <h2 className="text-lg font-bold mb-2 text-primary">Active Switch Games</h2>
               {activeSwitchGames.length === 0 ? <div>No active switch games.</div> : activeSwitchGames.map(game => (
                 <SwitchGameCard

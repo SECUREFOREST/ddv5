@@ -102,8 +102,8 @@ export default function PublicDares() {
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Public Dares & Switch Games</h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
+
+
       {/* Toast notification for feedback (if needed) */}
       {toast && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300 bg-green-700 text-white`} role="alert" aria-live="polite" onClick={() => setToast('')} tabIndex={0} onBlur={() => setToast('')}>{toast}</div>

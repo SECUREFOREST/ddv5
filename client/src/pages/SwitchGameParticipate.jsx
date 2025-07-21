@@ -246,7 +246,7 @@ export default function SwitchGameParticipate() {
         <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <Banner type="error" message={error} onClose={() => setError('')} />
         <button
           className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg"
@@ -268,7 +268,7 @@ export default function SwitchGameParticipate() {
         <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
         {/* 3. In the main render, after the sticky header, add: */}
         {game && (

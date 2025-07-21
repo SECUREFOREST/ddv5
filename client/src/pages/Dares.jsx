@@ -172,8 +172,8 @@ export default function Dares() {
             <Squares2X2Icon className="w-6 h-6" /> Your Dares
           </span>
         </div>
-        {/* Section divider for main content */}
-        <div className="border-t border-neutral-800 my-4" />
+  
+  
         {/* Filters/Form Section */}
         <form role="form" aria-labelledby="dares-filter-title" onSubmit={e => e.preventDefault()} className="space-y-6">
           <h1 id="dares-filter-title" className="text-2xl font-bold mb-4">Filter Dares</h1>

@@ -118,7 +118,7 @@ export default function OfferSubmission() {
           <DocumentPlusIcon className="w-6 h-6" /> Offer Submission
         </span>
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       {error && <div className="bg-danger text-danger-contrast px-4 py-2 rounded mb-3">{error}</div>}
       {success && <div className="bg-success text-success-contrast px-4 py-2 rounded mb-3">{success}</div>}
       {slotLimit && (

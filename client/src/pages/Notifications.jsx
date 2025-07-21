@@ -150,7 +150,7 @@ export default function Notifications() {
           <BellIcon className="w-6 h-6" /> Notifications
         </span>
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       {toast && (
         <div className="mb-4 bg-info text-info-contrast px-4 py-2 rounded font-semibold text-center animate-pulse">{toast}</div>
       )}

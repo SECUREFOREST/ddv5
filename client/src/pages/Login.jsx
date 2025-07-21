@@ -60,7 +60,7 @@ export default function Login() {
       </div>
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
-        {/* Section divider for main content */}
+  
         <div className="flex flex-col items-center text-center px-6 pb-8">
           <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs mx-auto" role="form" aria-labelledby="login-title">
             <div>

@@ -9,7 +9,7 @@ export default function NotFound() {
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Page Not Found</h1>
       </div>
-      {/* Section divider for main content */}
+
       <div className="flex flex-col items-center text-center px-6 pb-8">
         <p className="text-lg text-neutral-300 mb-6">Sorry, the page you are looking for does not exist or has been moved.</p>
         <Link to="/dashboard" tabIndex={0} aria-label="Go to User Dashboard">

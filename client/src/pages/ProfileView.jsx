@@ -87,7 +87,7 @@ export default function ProfileView() {
             Blocked
           </span>
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <div className="flex flex-col items-center min-w-[160px] mb-6">
           {profile.avatar ? (
             <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary " />
@@ -146,7 +146,7 @@ export default function ProfileView() {
         <div className="flex justify-center mb-4">
           <RoleBadge roles={profile.roles || []} />
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <div className="flex flex-wrap gap-8 mb-8">
           <div className="flex flex-col items-center min-w-[160px]">
             {profile.avatar ? (

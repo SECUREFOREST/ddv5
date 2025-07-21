@@ -444,7 +444,7 @@ export default function SwitchGameDetails() {
           )
         )}
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       {/* Main card background for all content */}
       <div className="max-w-md w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
         {/* User info card */}

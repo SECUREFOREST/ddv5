@@ -651,7 +651,7 @@ const allCompletedDares = [
             <option value="difficulty">Difficulty</option>
           </select>
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <h4 className="text-lg font-bold text-primary mb-2">Active Dares</h4>
         {filterAndSortAllDares(allActiveDares).length === 0 ? (
           <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
@@ -780,7 +780,7 @@ const allCompletedDares = [
             <option value="difficulty">Difficulty</option>
           </select>
         </div>
-        <div className="border-t border-neutral-800 my-4" />
+  
         <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
         {mySwitchGamesLoading ? (
           <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>

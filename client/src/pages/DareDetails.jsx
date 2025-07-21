@@ -346,8 +346,8 @@ export default function DareDetails() {
           </span>
         )}
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
+
+
       {/* User Info Section */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
         {/* Creator */}

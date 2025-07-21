@@ -89,7 +89,7 @@ export default function DareShare() {
           <ShareIcon className="w-6 h-6" /> Share Dare
         </span>
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       <h2 className="text-xl font-bold text-center mb-2">Hi {dare.creator?.username || 'there'}</h2>
       <div className="text-neutral-300 text-center mb-2">share this link very carefully</div>
       <input

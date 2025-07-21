@@ -38,7 +38,7 @@ export default function UIDemo() {
           <SparklesIcon className="w-6 h-6" /> UI Demo
         </span>
       </div>
-      <div className="border-t border-neutral-800 my-4" />
+
       {error && <Banner type="error" message={error} onClose={() => setError('')} />}
       {/* Button */}
       <section className="mb-8">

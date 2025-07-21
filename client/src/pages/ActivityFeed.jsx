@@ -47,8 +47,8 @@ export default function ActivityFeed() {
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Global Activity Feed</h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
+
+
       {/* Search/Filter Bar */}
       <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 w-full max-w-md mx-auto">
         <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
