@@ -1169,3 +1169,13 @@ function filterAndSortAllDares(dares) {
   if (allDaresSort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || '').localeCompare(b.difficulty || ''));
   return filtered;
 }
+
+// Derived arrays for All Dares tab
+const allActiveDares = [
+  ...ongoing.map(d => ({ ...d, _type: 'perform' })),
+  ...demandSlots.map(d => ({ ...d, _type: 'demand' }))
+];
+const allCompletedDares = [
+  ...completed.map(d => ({ ...d, _type: 'perform' })),
+  ...completedDemand.map(d => ({ ...d, _type: 'demand' }))
+];
