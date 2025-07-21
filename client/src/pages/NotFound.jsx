@@ -22,7 +22,7 @@ export default function NotFound() {
       <div className="flex flex-col items-center text-center px-6 pb-8">
         <p className="text-lg text-neutral-300 mb-6">Sorry, the page you are looking for does not exist or has been moved.</p>
         <Link to="/dashboard" tabIndex={0} aria-label="Go to Dashboard">
-          <button className="w-full bg-primary text-primary-contrast rounded px-6 py-3 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg">Go to Dashboard</button>
+          <button className="w-full bg-primary text-primary-contrast rounded px-6 py-3 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg">Go to Dashboard</button>
         </Link>
       </div>
     </div>
