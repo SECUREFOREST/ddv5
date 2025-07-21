@@ -800,12 +800,17 @@ const allCompletedDares = [
     </div>
     {/* Action button at the bottom center */}
     <div className="flex justify-center gap-2 mt-auto pt-2">
-      {/* Example action button, adjust as needed for your logic */}
       {game.status === 'in_progress' && (
         <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={e => { e.stopPropagation(); /* handle complete */ }}>Complete</button>
       )}
       {game.status === 'in_progress' && (
         <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={e => { e.stopPropagation(); /* handle reject */ }}>Reject</button>
+      )}
+      {game.status === 'in_progress' && (
+        <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Participate" onClick={e => { e.stopPropagation(); navigate(`/switches/${game._id}`); }}>Participate</button>
+      )}
+      {game.status === 'in_progress' && (
+        <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={e => { e.stopPropagation(); handleWithdrawSwitchGame(game._id); }}>Withdraw</button>
       )}
       {/* Add more buttons as needed */}
     </div>
