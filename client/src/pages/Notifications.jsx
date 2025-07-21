@@ -155,56 +155,59 @@ export default function Notifications() {
         <div className="mb-4 bg-info text-info-contrast px-4 py-2 rounded font-semibold text-center animate-pulse">{toast}</div>
       )}
       <Banner type={generalError ? 'error' : 'info'} message={generalError} onClose={() => setGeneralError('')} />
-      {loading ? (
-        <div className="flex flex-col gap-2">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse h-20 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
-          ))}
-        </div>
-      ) : notifications.length === 0 ? (
-        <div className="text-center text-neutral-400">No notifications.</div>
-      ) : (
-        <ul className="divide-y divide-neutral-900 overflow-x-auto">
-          {batchNotifications(notifications).map((batch, i) => {
-            const n = batch[0];
-            const count = batch.length;
-            return (
-              <li
-                key={n._id + '-' + count}
-                className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
-              >
-                {n.sender && <Avatar user={n.sender} size={32} alt={`Avatar for ${n.sender?.fullName || n.sender?.username || 'sender'}`} />}
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-primary">
-                    {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        {loading ? (
+          <div className="flex flex-col gap-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse h-20 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
+            ))}
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="text-center text-neutral-400">No notifications.</div>
+        ) : (
+          <ul className="divide-y divide-neutral-900 overflow-x-auto">
+            {batchNotifications(notifications).map((batch, i) => {
+              const n = batch[0];
+              const count = batch.length;
+              return (
+                <li
+                  key={n._id + '-' + count}
+                  className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
+                >
+                  {n.sender && <Avatar user={n.sender} size={32} alt={`Avatar for ${n.sender?.fullName || n.sender?.username || 'sender'}`} />}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-primary">
+                      {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}
+                    </div>
+                    <div className="text-neutral-400 text-sm">{n.body}</div>
+                    <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                    {/* Action button */}
+                    {getNotificationAction(n) && (
+                      <a
+                        href={getNotificationAction(n).to}
+                        className="inline-block mt-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {getNotificationAction(n).label}
+                      </a>
+                    )}
                   </div>
-                  <div className="text-neutral-400 text-sm">{n.body}</div>
-                  <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
-                  {/* Action button */}
-                  {getNotificationAction(n) && (
-                    <a
-                      href={getNotificationAction(n).to}
-                      className="inline-block mt-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {!n.read && (
+                    <button
+                      className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
+                      onClick={() => handleMarkRead(n._id)}
                     >
-                      {getNotificationAction(n).label}
-                    </a>
+                      Mark as read
+                    </button>
                   )}
-                </div>
-                {!n.read && (
-                  <button
-                    className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
-                    onClick={() => handleMarkRead(n._id)}
-                  >
-                    Mark as read
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </main>
     </div>
   );
 } 

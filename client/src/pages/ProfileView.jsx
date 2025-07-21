@@ -134,72 +134,75 @@ export default function ProfileView() {
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden">
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
-        </h1>
-      </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <RoleBadge roles={profile.roles || []} />
-      </div>
-      <div className="border-t border-neutral-800 my-4" />
-      <div className="flex flex-wrap gap-8 mb-8">
-        <div className="flex flex-col items-center min-w-[160px]">
-          {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-2 object-cover border-2 border-primary shadow" />
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-5xl font-bold mb-2 border-2 border-primary shadow">
-              {profile.username[0].toUpperCase()}
-            </div>
-          )}
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        {/* Sticky header at the top */}
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
+            <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
+          </h1>
         </div>
-        <div className="flex-1 min-w-[220px]">
-          <div className="font-bold text-xl text-primary mb-2">{profile.username}</div>
-          {/* User tags section */}
-          {Array.isArray(profile.tags) && profile.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2">
-              {profile.tags.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
-                  {/* Optionally add a tag icon here if you want: <TagIcon className="w-3 h-3" /> */}
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-          {profile.bio && (
-            <div className="mt-2">
-              <strong>Bio:</strong>
-              <div className="mt-1"><Markdown>{profile.bio}</Markdown></div>
-            </div>
-          )}
-          {profile.gender && (
-            <div className="mt-2"><strong>Gender:</strong> {profile.gender}</div>
-          )}
-          {profile.dob && (
-            <div className="mt-2"><strong>Birth Date:</strong> {new Date(profile.dob).toLocaleDateString()}</div>
-          )}
-          {profile.interestedIn && profile.interestedIn.length > 0 && (
-            <div className="mt-2"><strong>Interested In:</strong> {profile.interestedIn.join(', ')}</div>
-          )}
-          {profile.limits && profile.limits.length > 0 && (
-            <div className="mt-2"><strong>Limits:</strong> {profile.limits.join(', ')}</div>
-          )}
-          {stats && (
-            <div className="flex gap-4 mt-4">
-              <div className="bg-neutral-900 rounded p-3 flex-1">
-                <div className="text-base font-semibold text-primary">Dares Completed</div>
-                <div className="text-2xl text-primary">{stats.daresCount}</div>
-              </div>
-              <div className="bg-neutral-900 rounded p-3 flex-1">
-                <div className="text-base font-semibold text-primary">Avg. Grade</div>
-                <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
-              </div>
-            </div>
-          )}
+        {/* Visually distinct status badge below header */}
+        <div className="flex justify-center mb-4">
+          <RoleBadge roles={profile.roles || []} />
         </div>
-      </div>
+        <div className="border-t border-neutral-800 my-4" />
+        <div className="flex flex-wrap gap-8 mb-8">
+          <div className="flex flex-col items-center min-w-[160px]">
+            {profile.avatar ? (
+              <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-2 object-cover border-2 border-primary shadow" />
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-5xl font-bold mb-2 border-2 border-primary shadow">
+                {profile.username[0].toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-[220px]">
+            <div className="font-bold text-xl text-primary mb-2">{profile.username}</div>
+            {/* User tags section */}
+            {Array.isArray(profile.tags) && profile.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {profile.tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
+                    {/* Optionally add a tag icon here if you want: <TagIcon className="w-3 h-3" /> */}
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            {profile.bio && (
+              <div className="mt-2">
+                <strong>Bio:</strong>
+                <div className="mt-1"><Markdown>{profile.bio}</Markdown></div>
+              </div>
+            )}
+            {profile.gender && (
+              <div className="mt-2"><strong>Gender:</strong> {profile.gender}</div>
+            )}
+            {profile.dob && (
+              <div className="mt-2"><strong>Birth Date:</strong> {new Date(profile.dob).toLocaleDateString()}</div>
+            )}
+            {profile.interestedIn && profile.interestedIn.length > 0 && (
+              <div className="mt-2"><strong>Interested In:</strong> {profile.interestedIn.join(', ')}</div>
+            )}
+            {profile.limits && profile.limits.length > 0 && (
+              <div className="mt-2"><strong>Limits:</strong> {profile.limits.join(', ')}</div>
+            )}
+            {stats && (
+              <div className="flex gap-4 mt-4">
+                <div className="bg-neutral-900 rounded p-3 flex-1">
+                  <div className="text-base font-semibold text-primary">Dares Completed</div>
+                  <div className="text-2xl text-primary">{stats.daresCount}</div>
+                </div>
+                <div className="bg-neutral-900 rounded p-3 flex-1">
+                  <div className="text-base font-semibold text-primary">Avg. Grade</div>
+                  <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 } 

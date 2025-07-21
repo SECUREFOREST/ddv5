@@ -367,403 +367,406 @@ export default function Admin() {
           {success || error}
         </div>
       )}
-      {/* Card-like section for tab content */}
-      <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
-        <Tabs
-          tabs={[
-            {
-              label: 'Users',
-              content: (
-                <div>
-                  {/* Section header */}
-                  <div className="text-xl font-bold text-primary mb-4">User Management</div>
-                  {/* Search bar */}
-                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
-                    <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
-                    <input
-                      type="text"
-                      className="flex-1 border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 bg-[#1a1a1a]"
-                      placeholder="Search users..."
-                      value={userSearch}
-                      onChange={e => setUserSearch(e.target.value)}
-                      aria-label="Search users"
-                    />
-                    <button
-                      className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
-                      onClick={handleUserSearch}
-                      type="button"
-                    >
-                      Search
-                    </button>
-                  </div>
-                  {deleteUserError && (
-                    <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
-                  )}
-                  {/* Show loading skeletons when data is loading */}
-                  {dataLoading && (
-                    <div className="flex flex-col gap-2">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                          <div className="w-9 h-9 rounded-full bg-neutral-700" />
-                          <div className="flex-1">
-                            <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
-                            <div className="h-2 bg-neutral-800 rounded w-1/3" />
-                          </div>
-                          <div className="w-16 h-3 bg-neutral-700 rounded" />
-                        </div>
-                      ))}
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        {/* Card-like section for tab content */}
+        <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <Tabs
+            tabs={[
+              {
+                label: 'Users',
+                content: (
+                  <div>
+                    {/* Section header */}
+                    <div className="text-xl font-bold text-primary mb-4">User Management</div>
+                    {/* Search bar */}
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                      <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
+                      <input
+                        type="text"
+                        className="flex-1 border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 bg-[#1a1a1a]"
+                        placeholder="Search users..."
+                        value={userSearch}
+                        onChange={e => setUserSearch(e.target.value)}
+                        aria-label="Search users"
+                      />
+                      <button
+                        className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
+                        onClick={handleUserSearch}
+                        type="button"
+                      >
+                        Search
+                      </button>
                     </div>
-                  )}
-                  <div className="overflow-x-auto rounded shadow">
-                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                      <caption className="sr-only">User Management</caption>
-                      <thead>
-                        <tr className="bg-neutral-900 text-primary">
-                          <th scope="col" className="p-2 text-left font-semibold">Username</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Email</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Role</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Status</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {users.filter(u =>
-                          (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-                          (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                        ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
-                          <tr
-                            key={user._id}
-                            className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
-                          >
-                            <td className="p-2 text-primary font-semibold">
-                              <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.fullName || user.username || 'Unknown'}</a>
-                            </td>
-                            <td className="p-2 text-neutral-300">{user.email}</td>
-                            <td className="p-2">
-                              {user.role === 'admin' ? (
-                                <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
-                                  Admin
-                                </span>
-                              ) : user.role === 'moderator' ? (
-                                <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                  Moderator
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                  User
-                                </span>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              {!user.banned ? (
-                                <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
-                              ) : (
-                                <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
-                              <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
-                                {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
+                    {deleteUserError && (
+                      <div className="mb-4 text-danger text-sm font-semibold" role="alert" aria-live="assertive">{deleteUserError}</div>
+                    )}
+                    {/* Show loading skeletons when data is loading */}
+                    {dataLoading && (
+                      <div className="flex flex-col gap-2">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                            <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                            <div className="flex-1">
+                              <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                              <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                            </div>
+                            <div className="w-16 h-3 bg-neutral-700 rounded" />
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: 'Dares',
-              content: (
-                <div>
-                  {/* Section header */}
-                  <div className="text-xl font-bold text-primary mb-4">Dare Management</div>
-                  {/* Search bar */}
-                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
-                    <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
-                    <input
-                      className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
-                      placeholder="Search dares..."
-                      value={dareSearch}
-                      onChange={e => setDareSearch(e.target.value)}
-                    />
-                  </div>
-                  {/* Show loading skeletons when data is loading */}
-                  {daresLoading && (
-                    <div className="flex flex-col gap-2">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                          <div className="w-9 h-9 rounded-full bg-neutral-700" />
-                          <div className="flex-1">
-                            <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
-                            <div className="h-2 bg-neutral-800 rounded w-1/3" />
-                          </div>
-                          <div className="w-16 h-3 bg-neutral-700 rounded" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="overflow-x-auto rounded shadow">
-                    <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                      <caption className="sr-only">Dare Management</caption>
-                      <thead>
-                        <tr className="bg-neutral-900 text-primary">
-                          <th scope="col" className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
-                          <th scope="col" className="p-2 text-left font-semibold">Description</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Creator</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Status</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Difficulty</th>
-                          <th scope="col" className="p-2 text-left font-semibold">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {dares
-                          .filter(d =>
-                            (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
-                            (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
-                          )
-                          .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
-                          .map(d => (
-                            <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
-                              <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
-                              <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
-                              <td className="p-2">
-                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
+                      </div>
+                    )}
+                    <div className="overflow-x-auto rounded shadow">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">User Management</caption>
+                        <thead>
+                          <tr className="bg-neutral-900 text-primary">
+                            <th scope="col" className="p-2 text-left font-semibold">Username</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Email</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Role</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.filter(u =>
+                            (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+                            (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
+                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
+                            <tr
+                              key={user._id}
+                              className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
+                            >
+                              <td className="p-2 text-primary font-semibold">
+                                <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.fullName || user.username || 'Unknown'}</a>
                               </td>
-                              <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
-                              <td className="p-2 space-x-2">
-                                {d && d.status === 'pending' && (
-                                    <>
-                                    <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
-                                    <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
-                                    </>
+                              <td className="p-2 text-neutral-300">{user.email}</td>
+                              <td className="p-2">
+                                {user.role === 'admin' ? (
+                                  <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                                    Admin
+                                  </span>
+                                ) : user.role === 'moderator' ? (
+                                  <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Moderator
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                    User
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-2">
+                                {!user.banned ? (
+                                  <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
+                                ) : (
+                                  <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
+                                )}
+                              </td>
+                              <td className="p-2">
+                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
+                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
+                                  {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                label: 'Dares',
+                content: (
+                  <div>
+                    {/* Section header */}
+                    <div className="text-xl font-bold text-primary mb-4">Dare Management</div>
+                    {/* Search bar */}
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                      <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
+                      <input
+                        className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                        placeholder="Search dares..."
+                        value={dareSearch}
+                        onChange={e => setDareSearch(e.target.value)}
+                      />
+                    </div>
+                    {/* Show loading skeletons when data is loading */}
+                    {daresLoading && (
+                      <div className="flex flex-col gap-2">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                            <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                            <div className="flex-1">
+                              <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                              <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                            </div>
+                            <div className="w-16 h-3 bg-neutral-700 rounded" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="overflow-x-auto rounded shadow">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">Dare Management</caption>
+                        <thead>
+                          <tr className="bg-neutral-900 text-primary">
+                            <th scope="col" className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
+                            <th scope="col" className="p-2 text-left font-semibold">Description</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Creator</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Difficulty</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dares
+                            .filter(d =>
+                              (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+                            )
+                            .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
+                            .map(d => (
+                              <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
+                                <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
+                                <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
+                                <td className="p-2">
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
+                                </td>
+                                <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
+                                <td className="p-2 space-x-2">
+                                  {d && d.status === 'pending' && (
+                                      <>
+                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
+                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
+                                      </>
+                                    )}
+                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                    </div>
+                    {/* Pagination and other controls can be similarly refactored */}
+                  </div>
+                ),
+              },
+              {
+                label: 'Stats',
+                content: (
+                  siteStatsLoading ? (
+                    <div className="text-neutral-400">Loading site stats...</div>
+                  ) : siteStatsError ? (
+                    <div className="text-danger-500">{siteStatsError}</div>
+                  ) : siteStats ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                        <div className="text-lg font-semibold text-neutral-700">Total Users</div>
+                        <div className="text-2xl font-bold text-primary">{siteStats.totalUsers}</div>
+                      </Card>
+                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                        <div className="text-lg font-semibold text-neutral-700">Total Dares</div>
+                        <div className="text-2xl font-bold text-primary">{siteStats.totalDares}</div>
+                      </Card>
+                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                        <div className="text-lg font-semibold text-neutral-700">Total Comments</div>
+                        <div className="text-2xl font-bold text-primary">{siteStats.totalComments}</div>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="text-neutral-400">No site stats available.</div>
+                  )
+                ),
+              },
+              {
+                label: 'Audit Log',
+                content: (
+                  <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <input
+                          className="border border-neutral-900 rounded px-3 py-1 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                          placeholder="Search audit log..."
+                          value={auditLogSearch}
+                          onChange={e => setAuditLogSearch(e.target.value)}
+                        />
+                      <button
+                          className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
+                          onClick={() => exportToCsv('audit_log.csv', auditLog)}
+                      >
+                        Export CSV
+                      </button>
+                      <button
+                          className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
+                          onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
+                      >
+                        Export All
+                      </button>
+                    </div>
+                      <div className="overflow-x-auto rounded shadow">
+                        <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                          <caption className="sr-only">Audit Log</caption>
+                          <thead>
+                            <tr className="bg-neutral-900 text-primary">
+                              <th scope="col" className="p-2 text-left font-semibold">Action</th>
+                              <th scope="col" className="p-2 text-left font-semibold">User</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Target</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Timestamp</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {auditLog
+                              .filter(log =>
+                              log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
+                              (log.user?.fullName || log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
+                              (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
+                              )
+                              .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
+                            .map((log, i) => (
+                                <tr key={i} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                  <td className="p-2 font-medium text-primary">{log.action}</td>
+                                  <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
+                                  <td className="p-2 text-neutral-400">{log.target}</td>
+                                  <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    {/* Pagination and other controls can be similarly refactored */}
+                  </div>
+                ),
+              },
+              {
+                label: 'Reports',
+                content: (
+                  <div>
+                    {reportsLoading ? (
+                      <div className="text-neutral-400">Loading reports...</div>
+                    ) : reportsError ? (
+                      <div className="text-danger-500">{reportsError}</div>
+                    ) : (
+                      <div className="overflow-x-auto rounded shadow">
+                        <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                          <caption className="sr-only">Reports</caption>
+                          <thead>
+                            <tr className="bg-neutral-900 text-primary">
+                              <th scope="col" className="p-2 text-left font-semibold">Type</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Reporter</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Reason</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {reports.map(r => (
+                              <tr key={r._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2 font-medium text-primary">{r.type}</td>
+                                <td className="p-2 text-neutral-400">{r.targetId}</td>
+                                <td className="p-2 text-neutral-400">{r.reporter?.fullName || r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
+                                <td className="p-2 text-neutral-400">{r.reason}</td>
+                                <td className="p-2">
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${r.status === 'open' ? 'bg-warning text-warning-contrast' : 'bg-success text-success-contrast'}`}>{r.status}</span>
+                                </td>
+                                <td className="p-2">
+                                  {r.status === 'open' && (
+                                    <button
+                                      className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark"
+                                      disabled={resolvingReportId === r._id}
+                                      onClick={() => handleResolveReport(r._id)}
+                                    >
+                                      {resolvingReportId === r._id ? 'Resolving...' : 'Resolve'}
+                                    </button>
                                   )}
-                                <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                    )}
                   </div>
-                  {/* Pagination and other controls can be similarly refactored */}
-                </div>
-              ),
-            },
-            {
-              label: 'Stats',
-              content: (
-                siteStatsLoading ? (
-                  <div className="text-neutral-400">Loading site stats...</div>
-                ) : siteStatsError ? (
-                  <div className="text-danger-500">{siteStatsError}</div>
-                ) : siteStats ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
-                      <div className="text-lg font-semibold text-neutral-700">Total Users</div>
-                      <div className="text-2xl font-bold text-primary">{siteStats.totalUsers}</div>
-                    </Card>
-                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
-                      <div className="text-lg font-semibold text-neutral-700">Total Dares</div>
-                      <div className="text-2xl font-bold text-primary">{siteStats.totalDares}</div>
-                    </Card>
-                    <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
-                      <div className="text-lg font-semibold text-neutral-700">Total Comments</div>
-                      <div className="text-2xl font-bold text-primary">{siteStats.totalComments}</div>
-                    </Card>
+                ),
+              },
+              {
+                label: 'Appeals',
+                content: (
+                  <div>
+                    {appealsLoading ? (
+                      <div className="text-neutral-400">Loading appeals...</div>
+                    ) : appealsError ? (
+                      <div className="text-danger-500">{appealsError}</div>
+                    ) : (
+                      <div className="overflow-x-auto rounded shadow">
+                        <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                          <caption className="sr-only">Appeals</caption>
+                          <thead>
+                            <tr className="bg-neutral-900 text-primary">
+                              <th scope="col" className="p-2 text-left font-semibold">Type</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
+                              <th scope="col" className="p-2 text-left font-semibold">User</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Reason</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Outcome</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {appeals.map(a => (
+                              <tr key={a._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2 font-medium text-primary">{a.type}</td>
+                                <td className="p-2 text-neutral-400">{a.targetId}</td>
+                                <td className="p-2 text-neutral-400">{a.user?.username || a.user?.email || 'Unknown'}</td>
+                                <td className="p-2 text-neutral-400">{a.reason}</td>
+                                <td className="p-2">
+                                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${a.status === 'open' ? 'bg-warning text-warning-contrast' : 'bg-success text-success-contrast'}`}>{a.status}</span>
+                                </td>
+                                <td className="p-2 text-neutral-400">{a.outcome || '-'}</td>
+                                <td className="p-2">
+                                  {a.status === 'open' && (
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="text"
+                                        className="border border-neutral-900 rounded px-2 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
+                                        placeholder="Outcome (required)"
+                                        value={resolvingAppealId === a._id ? appealOutcome : ''}
+                                        onChange={e => setAppealOutcome(e.target.value)}
+                                        style={{ width: 120 }}
+                                        disabled={resolvingAppealId !== a._id}
+                                      />
+                                      <button
+                                        className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark"
+                                        disabled={resolvingAppealId === a._id && !appealOutcome}
+                                        onClick={() => handleResolveAppeal(a._id)}
+                                      >
+                                        {resolvingAppealId === a._id ? 'Resolving...' : 'Resolve'}
+                                      </button>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-neutral-400">No site stats available.</div>
-                )
-              ),
-            },
-            {
-              label: 'Audit Log',
-              content: (
-                <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <input
-                        className="border border-neutral-900 rounded px-3 py-1 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                        placeholder="Search audit log..."
-                        value={auditLogSearch}
-                        onChange={e => setAuditLogSearch(e.target.value)}
-                      />
-                    <button
-                        className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                        onClick={() => exportToCsv('audit_log.csv', auditLog)}
-                    >
-                      Export CSV
-                    </button>
-                    <button
-                        className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                        onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
-                    >
-                      Export All
-                    </button>
-                  </div>
-                    <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                        <caption className="sr-only">Audit Log</caption>
-                        <thead>
-                          <tr className="bg-neutral-900 text-primary">
-                            <th scope="col" className="p-2 text-left font-semibold">Action</th>
-                            <th scope="col" className="p-2 text-left font-semibold">User</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Target</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Timestamp</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {auditLog
-                            .filter(log =>
-                            log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
-                            (log.user?.fullName || log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
-                            (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
-                            )
-                            .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
-                          .map((log, i) => (
-                              <tr key={i} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                <td className="p-2 font-medium text-primary">{log.action}</td>
-                                <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
-                                <td className="p-2 text-neutral-400">{log.target}</td>
-                                <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  {/* Pagination and other controls can be similarly refactored */}
-                </div>
-              ),
-            },
-            {
-              label: 'Reports',
-              content: (
-                <div>
-                  {reportsLoading ? (
-                    <div className="text-neutral-400">Loading reports...</div>
-                  ) : reportsError ? (
-                    <div className="text-danger-500">{reportsError}</div>
-                  ) : (
-                    <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                        <caption className="sr-only">Reports</caption>
-                        <thead>
-                          <tr className="bg-neutral-900 text-primary">
-                            <th scope="col" className="p-2 text-left font-semibold">Type</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Reporter</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Reason</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {reports.map(r => (
-                            <tr key={r._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2 font-medium text-primary">{r.type}</td>
-                              <td className="p-2 text-neutral-400">{r.targetId}</td>
-                              <td className="p-2 text-neutral-400">{r.reporter?.fullName || r.reporter?.username || r.reporter?.email || 'Unknown'}</td>
-                              <td className="p-2 text-neutral-400">{r.reason}</td>
-                              <td className="p-2">
-                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${r.status === 'open' ? 'bg-warning text-warning-contrast' : 'bg-success text-success-contrast'}`}>{r.status}</span>
-                              </td>
-                              <td className="p-2">
-                                {r.status === 'open' && (
-                                  <button
-                                    className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark"
-                                    disabled={resolvingReportId === r._id}
-                                    onClick={() => handleResolveReport(r._id)}
-                                  >
-                                    {resolvingReportId === r._id ? 'Resolving...' : 'Resolve'}
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              ),
-            },
-            {
-              label: 'Appeals',
-              content: (
-                <div>
-                  {appealsLoading ? (
-                    <div className="text-neutral-400">Loading appeals...</div>
-                  ) : appealsError ? (
-                    <div className="text-danger-500">{appealsError}</div>
-                  ) : (
-                    <div className="overflow-x-auto rounded shadow">
-                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                        <caption className="sr-only">Appeals</caption>
-                        <thead>
-                          <tr className="bg-neutral-900 text-primary">
-                            <th scope="col" className="p-2 text-left font-semibold">Type</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Target ID</th>
-                            <th scope="col" className="p-2 text-left font-semibold">User</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Reason</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Status</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Outcome</th>
-                            <th scope="col" className="p-2 text-left font-semibold">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {appeals.map(a => (
-                            <tr key={a._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                              <td className="p-2 font-medium text-primary">{a.type}</td>
-                              <td className="p-2 text-neutral-400">{a.targetId}</td>
-                              <td className="p-2 text-neutral-400">{a.user?.username || a.user?.email || 'Unknown'}</td>
-                              <td className="p-2 text-neutral-400">{a.reason}</td>
-                              <td className="p-2">
-                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${a.status === 'open' ? 'bg-warning text-warning-contrast' : 'bg-success text-success-contrast'}`}>{a.status}</span>
-                              </td>
-                              <td className="p-2 text-neutral-400">{a.outcome || '-'}</td>
-                              <td className="p-2">
-                                {a.status === 'open' && (
-                                  <div className="flex items-center gap-2">
-                                    <input
-                                      type="text"
-                                      className="border border-neutral-900 rounded px-2 py-1 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
-                                      placeholder="Outcome (required)"
-                                      value={resolvingAppealId === a._id ? appealOutcome : ''}
-                                      onChange={e => setAppealOutcome(e.target.value)}
-                                      style={{ width: 120 }}
-                                      disabled={resolvingAppealId !== a._id}
-                                    />
-                                    <button
-                                      className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark"
-                                      disabled={resolvingAppealId === a._id && !appealOutcome}
-                                      onClick={() => handleResolveAppeal(a._id)}
-                                    >
-                                      {resolvingAppealId === a._id ? 'Resolving...' : 'Resolve'}
-                                    </button>
-                                  </div>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              ),
-            },
-          ]}
-          value={tabIdx}
-          onChange={setTabIdx}
-        />
-      </div>
+                ),
+              },
+            ]}
+            value={tabIdx}
+            onChange={setTabIdx}
+          />
+        </div>
+      </main>
       {/* Modal styling to match DareReveal */}
       <Modal
         open={!!editUserId}

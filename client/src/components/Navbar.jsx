@@ -1,44 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
-import { useEffect, useState } from 'react';
-import { HomeIcon, PlusCircleIcon, PlayCircleIcon, GlobeAltIcon, Squares2X2Icon, ChartBarIcon, TrophyIcon, UserCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Define navigation links
-  const links = [
-    { to: '/', label: 'Home' },
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/dares', label: 'Dares' },
-    { to: '/switches', label: 'Switch Games' },
-    { to: '/leaderboard', label: 'Leaderboard' },
-    { to: '/profile', label: 'Profile' },
-  ];
-
-  // Helper for link classes
-  const currentPath = window.location.pathname;
-  function linkClass(link) {
-    return (
-      'px-3 py-2 rounded font-semibold transition-colors ' +
-      (currentPath === link.to
-        ? 'bg-primary text-primary-contrast'
-        : 'text-neutral-200 hover:bg-neutral-800 hover:text-primary')
-    );
-  }
-
-  const handleLogout = () => {
-    logout();
-    localStorage.removeItem('impersonatorToken');
-    navigate('/login');
-  };
+  const [impersonationError, setImpersonationError] = useState(null);
 
   // Impersonation banner logic
   const isImpersonating = Boolean(localStorage.getItem('impersonatorToken'));
-  const [impersonationError, setImpersonationError] = useState(null);
   const handleReturnToAdmin = () => {
     const adminToken = localStorage.getItem('impersonatorToken');
     if (adminToken) {
@@ -52,24 +24,135 @@ export default function Navbar() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('impersonatorToken');
+    navigate('/login');
+  };
+
+  // Navigation links
+  const navLinks = [
+    { to: '/dares', label: 'Dares' },
+    { to: '/dare/create', label: 'Create Dare' },
+    { to: '/switches', label: 'Switch Games' },
+    { to: '/dare/perform', label: 'Perform Dare' },
+    { to: '/leaderboard', label: 'Leaderboard' },
+    { to: '/game-history', label: 'Game History', auth: true },
+    { to: '/user-activity', label: 'Activity', auth: true },
+    { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
+    { to: '/admin', label: 'Admin', admin: true },
+  ];
+
+  // Helper for link classes
+  const currentPath = window.location.pathname;
+  function linkClass(link) {
+    return (
+      'text-[#888] hover:text-white transition-colors px-2 py-1 rounded font-semibold ' +
+      (currentPath === link.to ? 'bg-primary text-primary-contrast' : '')
+    );
+  }
+
   return (
-    <nav role="navigation" aria-label="Main navigation" className="bg-neutral-900 px-4 py-2 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <a href="/" className="text-xl font-bold text-primary">AppName</a>
+    <nav className="bg-[#060606] border-b border-[#282828] min-h-[50px] mb-6">
+      <div className="container mx-auto flex flex-wrap items-center justify-between px-4 py-2 min-h-[50px]">
+        <div className="flex items-center space-x-4">
+          <Link className="text-xl font-bold tracking-tight text-white" to="/">DDV5</Link>
+        </div>
+        {/* Hamburger menu button for mobile */}
+        <div className="flex items-center sm:hidden">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-gray-300 hover:text-white focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        {/* Desktop links */}
+        <ul className="hidden sm:flex flex-wrap items-center space-x-3">
+          {navLinks.map(link => {
+            if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+            if (link.auth && !user) return null;
+            return (
+              <li key={link.to}>
+                <Link to={link.to} className={linkClass(link)}>{link.label}</Link>
+              </li>
+            );
+          })}
+        </ul>
+        {/* User section (desktop) */}
+        <div className="hidden sm:flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
+          {user ? (
+            <>
+              <NotificationDropdown />
+              <button
+                onClick={() => navigate('/profile')}
+                className="focus:outline-none"
+                aria-label="Go to profile"
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#282828]" />
+                ) : (
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-neutral-800 text-neutral-300 border-2 border-[#282828]">
+                    <i className="fas fa-user text-lg" />
+                  </span>
+                )}
+              </button>
+              <span className="font-semibold text-white">{user.username}</span>
+              <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
+            </>
+          ) : (
+            <>
+              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/login">Login</Link>
+              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/register">Register</Link>
+            </>
+          )}
+        </div>
       </div>
-      <ul className="flex gap-4">
-        {links.map(link => (
-          <li key={link.to}>
-            <a
-              href={link.to}
-              className={linkClass(link)}
-              aria-current={currentPath === link.to ? 'page' : undefined}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* Impersonation banner */}
+      {isImpersonating && (
+        <div className="bg-yellow-400 text-black px-4 py-2 rounded flex items-center space-x-2 ml-4">
+          <span>You are impersonating another user.</span>
+          <button
+            className="bg-white text-black rounded px-2 py-1 text-xs font-semibold hover:bg-gray-100"
+            onClick={handleReturnToAdmin}
+          >
+            Return to Admin
+          </button>
+          {impersonationError && (
+            <div className="bg-red-500 text-white rounded px-2 py-1 text-xs ml-2">{impersonationError}</div>
+          )}
+        </div>
+      )}
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
+          <ul className="flex flex-col space-y-1">
+            {navLinks.map(link => {
+              if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+              if (link.auth && !user) return null;
+              return (
+                <li key={link.to}>
+                  <Link className="text-[#888] hover:text-white transition-colors" to={link.to} onClick={() => setMobileMenuOpen(false)}>{link.label}</Link>
+                </li>
+              );
+            })}
+            {user ? (
+              <>
+                <li className="text-[#aaa] text-sm">{user.username}</li>
+                <li><button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="px-3 py-1 rounded bg-[#222] text-[#eee] hover:bg-[#333] text-sm w-full text-left">Logout</button></li>
+              </>
+            ) : (
+              <>
+                <li><Link className="text-[#888] hover:text-white transition-colors" to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link></li>
+                <li><Link className="text-[#888] hover:text-white transition-colors" to="/register" onClick={() => setMobileMenuOpen(false)}>Register</Link></li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 } 

@@ -61,39 +61,42 @@ export default function ActivityFeed() {
           aria-label="Search activity feed"
         />
       </div>
-      <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
-        {loading ? (
-          <div className="flex flex-col gap-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                <div className="w-9 h-9 rounded-full bg-neutral-700" />
-                <div className="flex-1">
-                  <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
-                  <div className="h-2 bg-neutral-800 rounded w-1/3" />
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          {loading ? (
+            <div className="flex flex-col gap-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                  <div className="w-9 h-9 rounded-full bg-neutral-700" />
+                  <div className="flex-1">
+                    <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
+                    <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                  </div>
+                  <div className="w-16 h-3 bg-neutral-700 rounded" />
                 </div>
-                <div className="w-16 h-3 bg-neutral-700 rounded" />
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <Banner type="error" message={error} onClose={() => setError('')} />
-        ) : filteredActivities.length === 0 ? (
-          <div className="text-neutral-400 text-center">No recent activity.</div>
-        ) : (
-          <ul className="space-y-2">
-            {filteredActivities.map((a, idx) => (
-              <li key={a._id || idx} className="flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                <Avatar user={a.user} size={36} alt={`Avatar for ${a.user?.fullName || a.user?.username || 'user'}`} />
-                <div className="flex-1">
-                  <div className="font-semibold">{a.user?.fullName || a.user?.username || 'Unknown'}</div>
-                  <div className="text-neutral-400 text-xs">{a.type} {a.dare?.description && `- ${a.dare.description}`}</div>
-                  {a.createdAt && <time dateTime={a.createdAt} className="text-neutral-500 text-xs">{new Date(a.createdAt).toLocaleString()}</time>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : error ? (
+            <Banner type="error" message={error} onClose={() => setError('')} />
+          ) : filteredActivities.length === 0 ? (
+            <div className="text-neutral-400 text-center">No recent activity.</div>
+          ) : (
+            <ul className="space-y-2">
+              {filteredActivities.map((a, idx) => (
+                <li key={a._id || idx} className="flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
+                  <Avatar user={a.user} size={36} alt={`Avatar for ${a.user?.fullName || a.user?.username || 'user'}`} />
+                  <div className="flex-1">
+                    <div className="font-semibold">{a.user?.fullName || a.user?.username || 'Unknown'}</div>
+                    <div className="text-neutral-400 text-xs">{a.type} {a.dare?.description && `- ${a.dare.description}`}</div>
+                    {a.createdAt && <time dateTime={a.createdAt} className="text-neutral-500 text-xs">{new Date(a.createdAt).toLocaleString()}</time>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
