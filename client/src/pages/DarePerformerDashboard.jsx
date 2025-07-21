@@ -79,6 +79,19 @@ function difficultyBadge(level) {
   return <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${badgeClass} ml-2`} title={label}>{label}</span>;
 }
 
+// Helper: status badge (fix ReferenceError)
+function statusBadge(status) {
+  const map = {
+    waiting_for_participant: { label: 'Waiting', color: 'bg-blue-700 text-white' },
+    in_progress: { label: 'In Progress', color: 'bg-info text-info-contrast' },
+    completed: { label: 'Completed', color: 'bg-green-700 text-white' },
+    forfeited: { label: 'Forfeited', color: 'bg-red-700 text-white' },
+    expired: { label: 'Expired', color: 'bg-neutral-700 text-white' },
+  };
+  const s = map[status] || { label: status, color: 'bg-neutral-700 text-white' };
+  return <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${s.color}`} title={status}>{s.label}</span>;
+}
+
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
   // Notification system
