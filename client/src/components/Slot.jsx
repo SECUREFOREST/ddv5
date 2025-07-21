@@ -27,7 +27,7 @@ export default function Slot({ empty, url, imageUrl, difficulty, status, onWithd
         </div>
       )}
       {onWithdraw && (
-        <button className="btn btn-danger mt-2 px-2 py-1 bg-red-600 text-white rounded w-full" onClick={onWithdraw} aria-label="Withdraw this dare">Withdraw</button>
+        <button className="btn btn-danger mt-2 px-2 py-1 bg-red-600 text-white rounded w-full shadow-lg" onClick={onWithdraw} aria-label="Withdraw this dare">Withdraw</button>
       )}
     </a>
   );

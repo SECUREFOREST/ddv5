@@ -100,7 +100,7 @@ export default function Navbar() {
                   </span>
                 )}
               </button>
-              <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Logout</button>
+              <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2 shadow-lg">Logout</button>
             </>
           ) : (
             <>

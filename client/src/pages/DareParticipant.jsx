@@ -170,7 +170,7 @@ export default function DareParticipant() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Progress Bar */}
@@ -178,7 +178,7 @@ export default function DareParticipant() {
           <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: consented ? '100%' : '50%' }} />
         </div>
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
             <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
           </h1>
@@ -189,7 +189,7 @@ export default function DareParticipant() {
         <div className="border-t border-neutral-800 my-4" />
         <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
         {!consented && (
-          <div className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <div className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
             {/* Difficulty Selection */}
             <div>
               <label className="block font-semibold mb-1 text-primary">Select Difficulty</label>
@@ -219,7 +219,7 @@ export default function DareParticipant() {
             </div>
             <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
               <button
-                className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+                className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
                 onClick={handleConsent}
                 disabled={loading || !consentChecked}
                 aria-busy={loading}
@@ -235,10 +235,10 @@ export default function DareParticipant() {
             {noDare && (
               <div className="text-danger text-sm font-medium text-center">
                 No available dare found for this difficulty.<br />
-                <button className="mt-2 bg-info text-info-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-info-dark transition-colors focus:outline-none focus:ring-2 focus:ring-info-contrast flex items-center gap-2 justify-center text-lg" onClick={handleTryDifferent}>
+                <button className="mt-2 bg-info text-info-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-info-dark transition-colors focus:outline-none focus:ring-2 focus:ring-info-contrast flex items-center gap-2 justify-center text-lg shadow-lg" onClick={handleTryDifferent}>
                   Try a Different Difficulty
                 </button>
-                <button className="mt-2 ml-2 bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" onClick={handleConsent} disabled={loading || !consentChecked}>
+                <button className="mt-2 ml-2 bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" onClick={handleConsent} disabled={loading || !consentChecked}>
                   Refresh Pool
                 </button>
               </div>
@@ -292,7 +292,7 @@ export default function DareParticipant() {
               {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
               {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
               <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-busy={proofLoading}>
+                <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={proofLoading} aria-busy={proofLoading}>
                   {proofLoading ? (
                     <span>
                       <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
@@ -305,7 +305,7 @@ export default function DareParticipant() {
             {/* Chicken Out button, only if dare is in progress */}
             {dare.status === 'in_progress' && (
               <button
-                className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg"
+                className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg"
                 onClick={handleChickenOut}
                 disabled={chickenOutLoading}
                 aria-busy={chickenOutLoading}

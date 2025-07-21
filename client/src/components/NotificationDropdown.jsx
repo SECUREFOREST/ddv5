@@ -259,7 +259,7 @@ export default function NotificationDropdown() {
         </span>
       </span>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] shadow-sm rounded-none z-50 p-[15px] text-neutral-100" role="menu">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] rounded-none z-50 p-[15px] text-neutral-100" role="menu">
           {items}
         </ul>
       )}
@@ -268,7 +268,7 @@ export default function NotificationDropdown() {
           <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Notification Settings</h2>
             <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
-            <button className="bg-primary text-primary-contrast px-4 py-2 rounded" onClick={() => setShowSettings(false)}>Close</button>
+            <button className="bg-primary text-primary-contrast px-4 py-2 rounded shadow-lg" onClick={() => setShowSettings(false)}>Close</button>
           </div>
         </div>
       )}

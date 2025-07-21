@@ -601,9 +601,9 @@ const allCompletedDares = [
   // ... existing code ...
 
   return (
-    <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Performer Dashboard
         </h1>
@@ -618,10 +618,10 @@ const allCompletedDares = [
                 <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
-                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/subs/new')}>
+                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/subs/new')}>
                     Create Dare
                   </button>
-                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/subs/select')}>
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/subs/select')}>
                     Perform Dare
                   </button>
                   <a className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
@@ -658,7 +658,7 @@ const allCompletedDares = [
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {filterAndSortAllDares(allActiveDares).map(dare => (
-                      <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
+                      <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
                         <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
@@ -667,13 +667,13 @@ const allCompletedDares = [
                         </div>
                         {/* In-place actions */}
                         {dare._type === 'perform' && dare.status === 'in_progress' && (
-                          <button className="ml-2 px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
+                          <button className="ml-2 px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
                         )}
                         {dare._type === 'perform' && dare.status === 'in_progress' && (
-                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>Reject</button>
+                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>Reject</button>
                         )}
                         {dare._type === 'demand' && dare.status === 'in_progress' && (
-                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
+                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
                         )}
                       </div>
                     ))}
@@ -685,7 +685,7 @@ const allCompletedDares = [
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {filterAndSortAllDares(allCompletedDares).map(dare => (
-                      <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
+                      <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
                         <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
@@ -728,7 +728,7 @@ const allCompletedDares = [
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
                         .map((dare, idx) => (
-                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
                             <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
                             <div className="flex-1 min-w-0">
                               <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
@@ -751,10 +751,10 @@ const allCompletedDares = [
                 <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
-                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/switches/create')}>
+                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/switches/create')}>
                     Create Switch Game
                   </button>
-                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/switches/participate')}>
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/switches/participate')}>
                     Join Switch Game
                   </button>
                 </div>
@@ -789,7 +789,7 @@ const allCompletedDares = [
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
-                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
+                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
                         <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
@@ -808,7 +808,7 @@ const allCompletedDares = [
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {filterAndSortSwitchGames(filteredSwitchGameHistory).map(game => (
-                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
+                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
                         <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
@@ -852,7 +852,7 @@ const allCompletedDares = [
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
                         .map((dare, idx) => (
-                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:shadow-lg transition-all duration-150">
+                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
                             <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
                             <div className="flex-1 min-w-0">
                               <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
@@ -881,12 +881,12 @@ const allCompletedDares = [
       {/* Confirmation dialog for withdraw */}
       {confirmWithdrawIdx !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="withdraw-dialog-title">
-          <div className="bg-white rounded shadow-lg p-6 max-w-sm w-full">
+          <div className="bg-white rounded p-6 max-w-sm w-full">
             <div className="text-lg font-bold mb-2" id="withdraw-dialog-title">Withdraw Demand Dare</div>
             <div className="mb-4">Are you sure you want to withdraw this dare? This action cannot be undone.</div>
             <div className="flex gap-2 justify-end">
-              <button className="btn btn-secondary px-4 py-2 bg-gray-300 text-gray-800 rounded" onClick={() => setConfirmWithdrawIdx(null)} aria-label="Cancel withdraw">Cancel</button>
-              <button className="btn btn-danger px-4 py-2 bg-red-600 text-white rounded" onClick={async () => { await handleWithdrawDemand(confirmWithdrawIdx); setConfirmWithdrawIdx(null); }} aria-label="Confirm withdraw">Withdraw</button>
+              <button className="btn btn-secondary px-4 py-2 bg-gray-300 text-gray-800 rounded shadow-lg" onClick={() => setConfirmWithdrawIdx(null)} aria-label="Cancel withdraw">Cancel</button>
+              <button className="btn btn-danger px-4 py-2 bg-red-600 text-white rounded shadow-lg" onClick={async () => { await handleWithdrawDemand(confirmWithdrawIdx); setConfirmWithdrawIdx(null); }} aria-label="Confirm withdraw">Withdraw</button>
             </div>
           </div>
         </div>
@@ -925,13 +925,13 @@ const allCompletedDares = [
         {roleStats && <DashboardChart stats={roleStats} />}
       </div>
       {/* Add dashboard settings modal (stub) */}
-      <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
+      <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4 shadow-lg" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
       {showDashboardSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Dashboard Settings</h2>
             <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
-            <button className="bg-primary text-primary-contrast px-4 py-2 rounded" onClick={() => setShowDashboardSettings(false)}>Close</button>
+            <button className="bg-primary text-primary-contrast px-4 py-2 rounded shadow-lg" onClick={() => setShowDashboardSettings(false)}>Close</button>
           </div>
         </div>
       )}

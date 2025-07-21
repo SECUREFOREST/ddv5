@@ -395,29 +395,29 @@ export default function SwitchGameDetails() {
   };
 
   if (loading) {
-    return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg shadow p-6 text-center text-neutral-400">Loading...</div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-neutral-800 rounded-lg p-6 text-center text-neutral-400">Loading...</div>;
   }
   if (!game) {
     return (
-      <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5">
+      <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none p-[15px] mb-5">
         <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
           <h1 className="text-xl font-bold mb-4">Switch Game Not Found</h1>
         </div>
         <div className="text-danger font-medium mb-4">No switch game with this ID exists.</div>
-        <button className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-900" onClick={() => navigate('/switches')}>Back to Switch Games</button>
+        <button className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-900 shadow-lg" onClick={() => navigate('/switches')}>Back to Switch Games</button>
       </div>
     );
   }
   if (!user) {
-    return <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 text-center text-[#888]">Please log in to view this game.</div>;
+    return <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none p-[15px] mb-5 text-center text-[#888]">Please log in to view this game.</div>;
   }
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress/Accent Bar */}
       <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> Switch Game Details
         </h1>
@@ -426,19 +426,19 @@ export default function SwitchGameDetails() {
       <div className="flex justify-center mb-4">
         {game && (
           game.status === 'completed' ? (
-            <span className="inline-flex items-center gap-2 bg-green-900/90 border border-green-700 text-green-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <span className="inline-flex items-center gap-2 bg-green-900/90 border border-green-700 text-green-200 rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
               <CheckCircleIcon className="w-6 h-6" /> Completed
             </span>
           ) : game.status === 'expired' ? (
-            <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
               <ExclamationTriangleIcon className="w-6 h-6" /> Expired
             </span>
           ) : game.status === 'in_progress' ? (
-            <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <span className="inline-flex items-center gap-2 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
               <ClockIcon className="w-6 h-6" /> In Progress
             </span>
           ) : (
-            <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+            <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
               <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
             </span>
           )
@@ -446,9 +446,9 @@ export default function SwitchGameDetails() {
       </div>
       <div className="border-t border-neutral-800 my-4" />
       {/* Main card background for all content */}
-      <div className="max-w-md w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+      <div className="max-w-md w-full mx-auto bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
         {/* User info card */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
           {/* Avatars, role badges, usernames for creator/participant */}
           <div className="flex flex-col items-center">
             <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
@@ -464,7 +464,7 @@ export default function SwitchGameDetails() {
           </div>
         </div>
         {/* Description card */}
-        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           <div className="font-bold text-xl text-primary mb-2">Game Description</div>
           <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.description}</div>
           <div className="flex flex-wrap justify-center gap-2 mt-2">
@@ -478,7 +478,7 @@ export default function SwitchGameDetails() {
         <div className="sticky bottom-0  py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
           {/* Action buttons here, styled as in DareReveal */}
           {!hasJoined && game.status === 'waiting_for_participant' && !game.participant && !isCreator && (
-            <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setShowJoinModal(true)} disabled={joining}>
+            <button className="bg-primary text-white rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" onClick={() => setShowJoinModal(true)} disabled={joining}>
               {joining ? 'Joining...' : 'Join Switch Game'}
             </button>
           )}
@@ -524,10 +524,10 @@ export default function SwitchGameDetails() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300" onClick={() => setShowJoinModal(false)}>
+                  <button type="button" className="bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold text-sm hover:bg-gray-300 shadow-lg" onClick={() => setShowJoinModal(false)}>
                     Cancel
                   </button>
-                  <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={joining}>
+                  <button type="submit" className="bg-primary text-white rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark shadow-lg" disabled={joining}>
                     {joining ? 'Joining...' : 'Join'}
                   </button>
                 </div>
@@ -567,7 +567,7 @@ export default function SwitchGameDetails() {
             <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
               <b>Awaiting proof from the loser.</b>
               {isLoser && !game.proof && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
                   <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
                   <form onSubmit={handleProofSubmit}>
                     <div className="mb-2">
@@ -584,7 +584,7 @@ export default function SwitchGameDetails() {
                     </div>
                     {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
                     {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
-                    <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
+                    <button type="submit" className="btn btn-accent shadow-lg" disabled={proofSubmitting}>
                       {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
                     </button>
                   </form>
@@ -672,7 +672,7 @@ export default function SwitchGameDetails() {
                       placeholder="Optional feedback"
                     />
                     {gradeError && <div className="text-danger text-sm">{gradeError}</div>}
-                    <button type="submit" className="btn btn-primary" disabled={grading}>
+                    <button type="submit" className="btn btn-primary shadow-lg" disabled={grading}>
                       {grading ? 'Submitting...' : 'Submit Grade'}
                     </button>
                   </form>
@@ -699,7 +699,7 @@ export default function SwitchGameDetails() {
                     </div>
                     <input className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
                     {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark" disabled={grading || !grade}>
+                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark shadow-lg" disabled={grading || !grade}>
                       {grading ? 'Submitting...' : 'Submit Grade'}
                     </button>
                   </form>
@@ -713,7 +713,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Grading/Feedback Form for Participants */}
           {canGrade && !myGivenGrade && (
-            <div className="bg-white rounded shadow p-4 mt-6">
+            <div className="bg-white rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
               {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
               <form role="form" aria-labelledby="switch-grade-title" onSubmit={handleGrade} className="space-y-6">
@@ -749,7 +749,7 @@ export default function SwitchGameDetails() {
                   />
                 </div>
                 {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-                <button type="submit" className="btn btn-primary" disabled={grading || !!myGivenGrade}>
+                <button type="submit" className="btn btn-primary shadow-lg" disabled={grading || !!myGivenGrade}>
                   {grading ? 'Submitting...' : 'Submit Grade'}
                 </button>
               </form>
@@ -757,7 +757,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Show the grade/feedback you gave */}
           {myGivenGrade && (
-            <div className="bg-green-50 border border-green-200 rounded shadow p-4 mt-6">
+            <div className="bg-green-50 border border-green-200 rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Your Grade for Opponent</h2>
               <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
               {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
@@ -765,7 +765,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Show the grade/feedback you received from your opponent */}
           {myReceivedGrade && (
-            <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+            <div className="bg-blue-50 border border-blue-200 rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
               <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
               {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
@@ -773,7 +773,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Show all grades/feedback if more than one exists */}
           {allGrades.length > 1 && (
-            <div className="bg-gray-50 border border-gray-200 rounded shadow p-4 mt-6">
+            <div className="bg-gray-50 border border-gray-200 rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
               <ul className="list-disc pl-5">
                 {allGrades.map((g, i) => (
@@ -802,7 +802,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Proof Submission (Loser) */}
           {isLoser && game.status === 'awaiting_proof' && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded shadow p-4 mt-6">
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
               <form onSubmit={handleProofSubmit}>
                 <div className="mb-2">
@@ -819,7 +819,7 @@ export default function SwitchGameDetails() {
                 </div>
                 {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
                 {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
-                <button type="submit" className="btn btn-accent" disabled={proofSubmitting}>
+                <button type="submit" className="btn btn-accent shadow-lg" disabled={proofSubmitting}>
                   {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
                 </button>
               </form>
@@ -827,7 +827,7 @@ export default function SwitchGameDetails() {
           )}
           {/* Proof Review (Winner) */}
           {isWinner && game.status === 'proof_submitted' && game.proof && (
-            <div className="bg-blue-50 border border-blue-200 rounded shadow p-4 mt-6">
+            <div className="bg-blue-50 border border-blue-200 rounded p-4 mt-6">
               <h2 className="text-lg font-bold mb-2">Review Submitted Proof</h2>
               <div className="mb-2"><span className="font-semibold">Proof:</span> {game.proof.text}</div>
               <div className="mb-2">
@@ -844,8 +844,8 @@ export default function SwitchGameDetails() {
               {reviewError && <div className="text-red-500 mb-2">{reviewError}</div>}
               {reviewSuccess && <div className="text-green-600 mb-2">{reviewSuccess}</div>}
               <div className="flex space-x-2">
-                <button className="btn btn-success" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
-                <button className="btn btn-danger" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
+                <button className="btn btn-success shadow-lg" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
+                <button className="btn btn-danger shadow-lg" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
               </div>
             </div>
           )}
@@ -897,7 +897,7 @@ export default function SwitchGameDetails() {
           </div>
         )}
         {errorToast && (
-          <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-700 text-white px-4 py-2 rounded shadow z-50 text-center" aria-live="assertive">
+          <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-red-700 text-white px-4 py-2 rounded z-50 text-center" aria-live="assertive">
             {errorToast}
           </div>
         )}

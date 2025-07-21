@@ -80,13 +80,13 @@ export default function DareCreator() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress Bar */}
       <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
         <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '100%' }} />
       </div>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Create a Dare</h1>
       </div>
       {/* Step indicator */}
@@ -124,7 +124,7 @@ export default function DareCreator() {
                   onFocus={e => e.target.select()}
                   aria-label="Claimable Link"
                 />
-                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark mb-3" onClick={() => navigator.clipboard.writeText(claimLink)}>
+                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark mb-3 shadow-lg shadow-lg" onClick={() => navigator.clipboard.writeText(claimLink)}>
                   Copy Link
                 </button>
               </>
@@ -139,23 +139,23 @@ export default function DareCreator() {
               onFocus={e => e.target.select()}
               aria-label="Sharable Link"
             />
-            <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark mb-3" onClick={() => navigator.clipboard.writeText(dareUrl)}>
+            <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark mb-3 shadow-lg shadow-lg" onClick={() => navigator.clipboard.writeText(dareUrl)}>
               Copy Link
             </button>
-            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark mb-3" onClick={handleCreateAnother}>
+            <button className="w-full bg-success text-success-contrast rounded px-4 py-2 font-semibold hover:bg-success-dark mb-3 shadow-lg shadow-lg" onClick={handleCreateAnother}>
               Create Another Dare
             </button>
             <Link to="/" className="w-full inline-block mb-2">
-              <button className="w-full bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold hover:bg-gray-300">Back to Home</button>
+              <button className="w-full bg-gray-200 text-gray-800 rounded px-4 py-2 font-semibold hover:bg-gray-300 shadow-lg shadow-lg">Back to Home</button>
             </Link>
             <Link to="/dares" className="w-full inline-block">
-              <button className="w-full bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark">View All Dares</button>
+              <button className="w-full bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark shadow-lg shadow-lg">View All Dares</button>
             </Link>
           </div>
         </div>
       )}
       {!showModal && (
-        <form role="form" aria-labelledby="dare-create-title" onSubmit={handleCreate} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form role="form" aria-labelledby="dare-create-title" onSubmit={handleCreate} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           {/* Difficulty Group */}
           <div>
             <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
@@ -230,7 +230,7 @@ export default function DareCreator() {
           {createError && <div className="text-danger text-sm font-medium" role="alert">{createError}</div>}
           {/* Sticky footer for action button on mobile */}
           <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow-lg hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={creating}>
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow-lg hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={creating}>
               {creating ? (
                 <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
               ) : (

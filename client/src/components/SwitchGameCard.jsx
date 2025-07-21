@@ -116,10 +116,10 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
       </div>
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-2">
-        {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onSubmitProof}>Submit Proof</button>}
-        {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onReviewProof}>Review Proof</button>}
-        {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onGrade}>Grade</button>}
-        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold" onClick={onForfeit}>Forfeit</button>}
+        {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>Submit Proof</button>}
+        {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
+        {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
+        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onForfeit}>Forfeit</button>}
         {actions}
       </div>
     </div>

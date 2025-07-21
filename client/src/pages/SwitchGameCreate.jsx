@@ -69,14 +69,14 @@ export default function SwitchGameCreate() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
       </div>
       {/* Toast notification for feedback (if needed) */}
       {toast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">{toast}</div>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded z-50 text-center" aria-live="polite">{toast}</div>
       )}
       {error && (
         <div className="mb-4 text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
@@ -84,7 +84,7 @@ export default function SwitchGameCreate() {
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Card-like section for form content */}
-        <form role="form" aria-labelledby="switch-game-create-title" onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form role="form" aria-labelledby="switch-game-create-title" onSubmit={handleSubmit} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           {/* Difficulty selection */}
           <div>
             <div className="font-bold text-xl text-primary mb-4">Choose a difficulty</div>

@@ -157,18 +157,18 @@ export default function Dares() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden" role="main" aria-label="My Dares">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden" role="main" aria-label="My Dares">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
             <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> My Dares
           </h1>
         </div>
         {/* Visually distinct status badge below header */}
         <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
             <Squares2X2Icon className="w-6 h-6" /> Your Dares
           </span>
         </div>
@@ -209,7 +209,7 @@ export default function Dares() {
               </select>
             </div>
             {user && (
-              <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => setShowCreate(true)} aria-label="Create New Dare">
+              <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" onClick={() => setShowCreate(true)} aria-label="Create New Dare">
                 + Create Dare
               </button>
             )}
@@ -259,10 +259,10 @@ export default function Dares() {
         {/* Create Dare Modal */}
         {showCreate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-lg mx-4 relative">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-lg mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Create New Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setShowCreate(false)}>&times;</button>
+                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setShowCreate(false)}>&times;</button>
               </div>
               <form onSubmit={handleCreate}>
                 <div className="px-6 py-4 space-y-4">
@@ -308,7 +308,7 @@ export default function Dares() {
                   {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
                 </div>
                 <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={creating}>
+                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={creating}>
                     {creating ? 'Creating...' : 'Create Dare'}
                   </button>
                 </div>
@@ -319,10 +319,10 @@ export default function Dares() {
         {/* Post-create sharing modal */}
         {createdDareId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Share Your Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setCreatedDareId(null)}>&times;</button>
+                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setCreatedDareId(null)}>&times;</button>
               </div>
               <div className="px-6 py-4">
                 <label htmlFor="dares-sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
@@ -336,13 +336,13 @@ export default function Dares() {
                     onFocus={e => e.target.select()}
                     aria-label="Sharable Dare Link"
                   />
-                  <button className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-600" onClick={handleShareClick} aria-label="Copy Sharable Link">
+                  <button className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-600 shadow-lg" onClick={handleShareClick} aria-label="Copy Sharable Link">
                     Copy
                   </button>
                 </div>
               </div>
               <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark" onClick={() => setCreatedDareId(null)} aria-label="Done Sharing">
+                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" onClick={() => setCreatedDareId(null)} aria-label="Done Sharing">
                   Done
                 </button>
               </div>
@@ -352,10 +352,10 @@ export default function Dares() {
         {/* Accept Dare Modal */}
         {acceptDareId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 relative">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Start / Accept Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none" onClick={() => setAcceptDareId(null)}>&times;</button>
+                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setAcceptDareId(null)}>&times;</button>
               </div>
               <form onSubmit={handleAcceptSubmit}>
                 <div className="px-6 py-4 space-y-4">
@@ -373,7 +373,7 @@ export default function Dares() {
                   {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
                 </div>
                 <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={acceptLoading || !acceptConsent}>
+                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={acceptLoading || !acceptConsent}>
                     {acceptLoading ? 'Starting...' : 'Start / Accept'}
                   </button>
                 </div>

@@ -174,13 +174,13 @@ export default function DarePerform() {
   }, [dare, proofSuccess]);
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress Bar */}
       <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
         <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: consented ? '100%' : '50%' }} />
       </div>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
         </h1>
@@ -190,7 +190,7 @@ export default function DarePerform() {
       {/* Section divider */}
       <div className="border-t border-neutral-800 my-4" />
       {!consented ? (
-        <form role="form" aria-labelledby="dare-perform-title" onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form role="form" aria-labelledby="dare-perform-title" onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           <h1 id="dare-perform-title" className="text-2xl font-bold mb-4">Perform Dare</h1>
           {/* Difficulty Selection */}
           <div>
@@ -230,7 +230,7 @@ export default function DarePerform() {
             <label htmlFor="perform-consent" className="text-sm">I consent to perform a random dare.</label>
           </div>
           <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={loading || !consentChecked}>
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={loading || !consentChecked}>
               {loading ? (
                 <span>
                   <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
@@ -278,7 +278,7 @@ export default function DarePerform() {
             </div>
           </div>
           {/* Proof submission */}
-          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
             <div>
               <label htmlFor="perform-proof-text" className="block font-semibold mb-1 text-primary">Proof (text, link, or upload)</label>
               <textarea
@@ -306,7 +306,7 @@ export default function DarePerform() {
             {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
             {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
             <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-busy={proofLoading}>
+              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={proofLoading} aria-busy={proofLoading}>
                 {proofLoading ? (
                   <span>
                     <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>

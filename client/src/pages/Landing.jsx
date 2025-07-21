@@ -17,7 +17,7 @@ const Landing = () => {
   if (loading) return null;
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-12 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-12 overflow-hidden">
       <Helmet>
         <title>Deviant Dare | Social Dares, Challenges & Leaderboards</title>
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
@@ -32,7 +32,7 @@ const Landing = () => {
         <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
         </h1>
@@ -52,10 +52,10 @@ const Landing = () => {
           </ul>
           <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-xs mx-auto">
             <Link to="/login" className="flex-1">
-              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Log In">Log In</button>
+              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" aria-label="Log In">Log In</button>
             </Link>
             <Link to="/register" className="flex-1">
-              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" aria-label="Register">Register</button>
+              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" aria-label="Register">Register</button>
             </Link>
           </div>
           <div className="mt-10 text-neutral-400 text-xs max-w-md mx-auto">

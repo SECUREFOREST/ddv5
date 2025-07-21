@@ -11,7 +11,7 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
   // Memoize current user id for highlight
   const currentUserId = useMemo(() => user?.id || user?._id, [user]);
   return (
-    <div className="bg-neutral-900/90 border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
+    <div className="bg-neutral-900/90 border border-[#282828] rounded-2xl p-0 sm:p-[15px] mb-8 overflow-hidden">
       <div className="overflow-x-auto">
         {loading ? (
           <div className="text-neutral-400 py-4 text-center">Loading leaderboard...</div>

@@ -157,14 +157,14 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
         {/* Card-like section for form content */}
-        <form onSubmit={handleFindGame} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <form onSubmit={handleFindGame} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           <div>
             <div className="font-bold text-xl text-primary mb-4">Choose a difficulty</div>
             <div className="flex flex-col gap-4">
@@ -228,7 +228,7 @@ export default function SwitchGameParticipate() {
             />
             <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
           </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg" disabled={searching} aria-label="Find Game">
+          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg shadow-lg" disabled={searching} aria-label="Find Game">
             {searching ? (
               <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
             ) : (
@@ -240,10 +240,10 @@ export default function SwitchGameParticipate() {
     );
   } else if (error) {
     content = (
-      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
         {/* Progress/Accent Bar */}
         <div className="w-full bg-primary h-1 mb-1" />
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         <div className="border-t border-neutral-800 my-4" />
@@ -257,15 +257,15 @@ export default function SwitchGameParticipate() {
       </div>
     );
   } else if (!game) {
-    content = <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
+    content = <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
   } else {
     const u = game.creator;
     content = (
-      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+      <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
         {/* Progress/Accent Bar */}
         <div className="w-full bg-primary h-1 mb-1" />
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
         </div>
         <div className="border-t border-neutral-800 my-4" />
@@ -277,7 +277,7 @@ export default function SwitchGameParticipate() {
           </div>
         )}
         {/* User info card */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
           <div className="flex flex-col items-center">
             {game.creator && (
               <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
@@ -302,7 +302,7 @@ export default function SwitchGameParticipate() {
           )}
         </div>
         {/* Game info and join form */}
-        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           <div className="font-bold text-xl text-primary mb-2">Game Details</div>
           <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.difficultyDescription}</div>
           <div className="flex flex-wrap justify-center gap-2 mt-2">
@@ -372,7 +372,7 @@ export default function SwitchGameParticipate() {
                 </div>
               )}
             </div>
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg">Join Game</button>
+            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg shadow-lg">Join Game</button>
           </form>
         {/* 6. Add timestamps/meta at the bottom */}
         {game.createdAt && (

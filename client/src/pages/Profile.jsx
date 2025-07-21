@@ -235,13 +235,13 @@ export default function Profile() {
     if (!roles) return null;
     if (roles.includes('admin')) {
       return (
-        <span className="inline-flex items-center gap-1 bg-yellow-900/90 border border-yellow-700 text-yellow-200 rounded-full px-3 py-1 font-semibold shadow text-sm ml-2">
+        <span className="inline-flex items-center gap-1 bg-yellow-900/90 border border-yellow-700 text-yellow-200 rounded-full px-3 py-1 font-semibold text-sm ml-2">
           <ShieldCheckIcon className="w-4 h-4" /> Admin
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-3 py-1 font-semibold shadow text-sm ml-2">
+      <span className="inline-flex items-center gap-1 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-3 py-1 font-semibold text-sm ml-2">
         <UserIcon className="w-4 h-4" /> User
       </span>
     );
@@ -252,10 +252,10 @@ export default function Profile() {
   const submissivePercent = user?.natureRatio?.submission ?? null;
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <UserIcon className="w-7 h-7 text-primary" /> Profile
           <RoleBadge roles={user.roles} />
@@ -300,10 +300,10 @@ export default function Profile() {
                       {avatarSaved && (
                         <div className="text-success text-xs mt-2">Profile picture saved!</div>
                       )}
-                      <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast" onClick={() => { setTabIdx(0); setEditMode(true); }}>
+                      <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" onClick={() => { setTabIdx(0); setEditMode(true); }}>
                         Edit Profile
                       </button>
-                      <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast" onClick={logout}>
+                      <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast shadow-lg" onClick={logout}>
                         Logout
                       </button>
                       {/* Add Upgrade/Downgrade Admin button */}
@@ -401,8 +401,8 @@ export default function Profile() {
                             <TagsInput id="limits" value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
                           </div>
                           <div className="flex gap-2 mt-4">
-                            <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark" disabled={saving}>Save</button>
-                            <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
+                            <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" disabled={saving}>Save</button>
+                            <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800 shadow-lg" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
                           </div>
                           {error && <div className="text-danger mt-2">{error}</div>}
                         </form>

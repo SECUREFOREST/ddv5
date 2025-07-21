@@ -74,25 +74,25 @@ export default function ProfileView() {
   // If blocked, show message and block all interactions
   if (isBlocked) {
     return (
-      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
+      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-14 sm:h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-14 sm:h-16 mb-4">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
             <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
           </h1>
         </div>
         {/* Visually distinct status badge below header */}
         <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold shadow-lg text-lg animate-fade-in">
+          <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
             Blocked
           </span>
         </div>
         <div className="border-t border-neutral-800 my-4" />
         <div className="flex flex-col items-center min-w-[160px] mb-6">
           {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary shadow" />
+            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary " />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 border-2 border-primary shadow">
+            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 border-2 border-primary ">
               {profile.username[0].toUpperCase()}
             </div>
           )}
@@ -133,11 +133,11 @@ export default function ProfileView() {
   }
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
             <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
           </h1>
@@ -150,9 +150,9 @@ export default function ProfileView() {
         <div className="flex flex-wrap gap-8 mb-8">
           <div className="flex flex-col items-center min-w-[160px]">
             {profile.avatar ? (
-              <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-2 object-cover border-2 border-primary shadow" />
+              <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-2 object-cover border-2 border-primary " />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-5xl font-bold mb-2 border-2 border-primary shadow">
+              <div className="w-32 h-32 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-5xl font-bold mb-2 border-2 border-primary ">
                 {profile.username[0].toUpperCase()}
               </div>
             )}

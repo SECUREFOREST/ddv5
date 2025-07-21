@@ -103,18 +103,18 @@ export default function OfferSubmission() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress/Accent Bar */}
       <div className="w-full bg-primary h-1 mb-1" />
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <DocumentPlusIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Offer Submission
         </h1>
       </div>
       {/* Visually distinct status badge below header */}
       <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
           <DocumentPlusIcon className="w-6 h-6" /> Offer Submission
         </span>
       </div>
@@ -205,8 +205,8 @@ export default function OfferSubmission() {
           </div>
         </div>
         <div className="flex gap-3 mt-2">
-          <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}>{loading ? 'Submitting...' : 'Submit'}</button>
-          <button type="button" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg" onClick={() => navigate(-1)} disabled={loading}>Cancel</button>
+          <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}>{loading ? 'Submitting...' : 'Submit'}</button>
+          <button type="button" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg shadow-lg" onClick={() => navigate(-1)} disabled={loading}>Cancel</button>
         </div>
       </form>
     </div>

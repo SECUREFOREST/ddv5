@@ -48,7 +48,7 @@ export default function Modal({ open, onClose, title, children, actions, classNa
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <div className="bg-neutral-900 rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+      <div className="bg-neutral-900 rounded-lg max-w-lg w-full p-6 relative">
         <button
           type="button"
           className="absolute top-2 right-2 text-neutral-400 hover:text-neutral-100"
@@ -75,7 +75,7 @@ export function Banner({ type = 'info', message = '', onClose }) {
     <div className={`w-full px-4 py-3 mb-4 rounded flex items-center justify-between ${bg}`} role="alert" aria-live="assertive">
       <span>{message}</span>
       {onClose && (
-        <button className="ml-4 text-lg font-bold focus:outline-none" onClick={onClose} aria-label="Close">&times;</button>
+        <button className="ml-4 text-lg font-bold focus:outline-none shadow-lg" onClick={onClose} aria-label="Close">&times;</button>
       )}
     </div>
   );

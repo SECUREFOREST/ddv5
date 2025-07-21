@@ -25,16 +25,16 @@ export default function UIDemo() {
   const [error, setError] = useState('');
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <SparklesIcon className="w-7 h-7 text-primary" aria-hidden="true" /> UI Demo
         </h1>
       </div>
       {/* Visually distinct status badge below header */}
       <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold shadow-lg text-lg animate-fade-in">
+        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
           <SparklesIcon className="w-6 h-6" /> UI Demo
         </span>
       </div>
@@ -70,7 +70,7 @@ export default function UIDemo() {
       {/* Table */}
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Table</h2>
-        <div className="overflow-x-auto rounded shadow">
+        <div className="overflow-x-auto rounded ">
           <table className="min-w-full bg-neutral-800 text-sm text-[#fff] border border-neutral-900" role="table">
             <caption className="sr-only">Demo Table</caption>
             <thead>
@@ -113,7 +113,7 @@ export default function UIDemo() {
           className="w-full rounded border border-neutral-900 px-3 py-2 mb-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
           placeholder="Type here..."
         />
-        <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark">Submit</button>
+        <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg">Submit</button>
       </section>
 
       {/* Card */}
@@ -173,8 +173,8 @@ export default function UIDemo() {
           tags={["migration", "react", "legacy"]}
           user={{ username: "alice", avatar: "https://i.pravatar.cc/40?img=1" }}
           actions={[
-            <button key="view" className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold mr-2">View</button>,
-            <button key="complete" className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Complete</button>
+            <button key="view" className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold mr-2 shadow-lg">View</button>,
+            <button key="complete" className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg">Complete</button>
           ]}
         />
       </section>

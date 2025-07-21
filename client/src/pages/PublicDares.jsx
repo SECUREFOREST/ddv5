@@ -97,9 +97,9 @@ export default function PublicDares() {
   const showSwitches = filter === 'all' || filter === 'switches';
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Public Dares & Switch Games</h1>
       </div>
       {/* Section divider for main content */}
@@ -109,7 +109,7 @@ export default function PublicDares() {
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300 bg-green-700 text-white`} role="alert" aria-live="polite" onClick={() => setToast('')} tabIndex={0} onBlur={() => setToast('')}>{toast}</div>
       )}
       {/* Onboarding/Intro Banner */}
-      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow-lg flex items-center gap-3">
+      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 flex items-center gap-3">
         <span className="text-2xl">🌎</span>
         <div>
           <div className="font-bold text-lg text-primary">Participate in Public Dares & Switch Games</div>
@@ -117,7 +117,7 @@ export default function PublicDares() {
         </div>
       </div>
       {/* Filters and Search */}
-      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="mb-6 p-4 bg-neutral-900/90 rounded-xl border border-neutral-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex gap-2">
           {FILTERS.map(f => (
             <button
@@ -158,7 +158,7 @@ export default function PublicDares() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-1">
                     {filteredDares.map(dare => (
-                      <div key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
+                      <div key={dare._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 ">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="flex items-center gap-2">
                             <DifficultyBadge level={dare.difficulty} />
@@ -173,7 +173,7 @@ export default function PublicDares() {
                             <div className="flex-1" />
                             {/* Right: Participate button */}
                             <Link to={`/dare/consent/${dare._id}`} className="ml-auto">
-                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50 shadow-lg">Participate</button>
                             </Link>
                           </div>
                         </div>
@@ -191,7 +191,7 @@ export default function PublicDares() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-1">
                     {filteredSwitchGames.map(game => (
-                      <div key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 shadow-lg">
+                      <div key={game._id} className="transition-transform hover:scale-[1.01] hover:shadow-2xl group focus-within:shadow-2xl bg-neutral-900/90 border border-neutral-800 rounded-xl p-4 mb-4 ">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="flex items-center gap-2">
                             <DifficultyBadge level={game.creatorDare?.difficulty} />
@@ -204,7 +204,7 @@ export default function PublicDares() {
                           <div className="flex-1 min-w-0 flex items-center gap-2">
                             <div className="flex-1" />
                             <Link to={`/switches/consent/${game._id}`} className="ml-auto">
-                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50">Participate</button>
+                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50 shadow-lg">Participate</button>
                             </Link>
                           </div>
                         </div>

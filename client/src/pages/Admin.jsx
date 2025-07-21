@@ -31,12 +31,12 @@ export default function Admin() {
   if (loading) return null;
   if (!user || !user.roles?.includes('admin')) {
     return (
-      <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col items-center justify-center min-h-[60vh]">
         {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
+        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-danger tracking-tight flex items-center gap-2">
             <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
-            <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
+            <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold ml-4 text-base animate-fade-in">
               <ShieldCheckIcon className="w-5 h-5" /> Admin Only
             </span>
           </h1>
@@ -345,12 +345,12 @@ export default function Admin() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
+    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
           <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
-          <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold shadow ml-4 text-base animate-fade-in">
+          <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold ml-4 text-base animate-fade-in">
             <ShieldCheckIcon className="w-5 h-5" /> Admin Only
           </span>
         </h1>
@@ -370,7 +370,7 @@ export default function Admin() {
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Card-like section for tab content */}
-        <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+        <div className="p-6 bg-neutral-900 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
           <Tabs
             tabs={[
               {
@@ -380,7 +380,7 @@ export default function Admin() {
                     {/* Section header */}
                     <div className="text-xl font-bold text-primary mb-4">User Management</div>
                     {/* Search bar */}
-                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 w-full max-w-md mx-auto">
                       <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
                       <input
                         type="text"
@@ -416,7 +416,7 @@ export default function Admin() {
                         ))}
                       </div>
                     )}
-                    <div className="overflow-x-auto rounded shadow">
+                    <div className="overflow-x-auto rounded ">
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
                         <caption className="sr-only">User Management</caption>
                         <thead>
@@ -467,8 +467,8 @@ export default function Admin() {
                                 )}
                               </td>
                               <td className="p-2">
-                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
-                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
+                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning shadow-lg" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
+                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger shadow-lg" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
                                   {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
                                   Delete
                                 </button>
@@ -488,7 +488,7 @@ export default function Admin() {
                     {/* Section header */}
                     <div className="text-xl font-bold text-primary mb-4">Dare Management</div>
                     {/* Search bar */}
-                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 shadow-sm w-full max-w-md mx-auto">
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 w-full max-w-md mx-auto">
                       <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
                       <input
                         className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
@@ -512,7 +512,7 @@ export default function Admin() {
                         ))}
                       </div>
                     )}
-                    <div className="overflow-x-auto rounded shadow">
+                    <div className="overflow-x-auto rounded ">
                       <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
                         <caption className="sr-only">Dare Management</caption>
                         <thead>
@@ -544,11 +544,11 @@ export default function Admin() {
                                 <td className="p-2 space-x-2">
                                   {d && d.status === 'pending' && (
                                       <>
-                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
-                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
+                                      <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark shadow-lg" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
+                                      <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark shadow-lg" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
                                       </>
                                     )}
-                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
+                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
                                   </td>
                                 </tr>
                               ))}
@@ -568,15 +568,15 @@ export default function Admin() {
                     <div className="text-danger-500">{siteStatsError}</div>
                   ) : siteStats ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                      <Card className="shadow-lg hover:transition-all duration-200">
                         <div className="text-lg font-semibold text-neutral-700">Total Users</div>
                         <div className="text-2xl font-bold text-primary">{siteStats.totalUsers}</div>
                       </Card>
-                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                      <Card className="shadow-lg hover:transition-all duration-200">
                         <div className="text-lg font-semibold text-neutral-700">Total Dares</div>
                         <div className="text-2xl font-bold text-primary">{siteStats.totalDares}</div>
                       </Card>
-                      <Card className="shadow-lg hover:shadow-2xl transition-all duration-200">
+                      <Card className="shadow-lg hover:transition-all duration-200">
                         <div className="text-lg font-semibold text-neutral-700">Total Comments</div>
                         <div className="text-2xl font-bold text-primary">{siteStats.totalComments}</div>
                       </Card>
@@ -610,7 +610,7 @@ export default function Admin() {
                         Export All
                       </button>
                     </div>
-                      <div className="overflow-x-auto rounded shadow">
+                      <div className="overflow-x-auto rounded ">
                         <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
                           <caption className="sr-only">Audit Log</caption>
                           <thead>
@@ -653,7 +653,7 @@ export default function Admin() {
                     ) : reportsError ? (
                       <div className="text-danger-500">{reportsError}</div>
                     ) : (
-                      <div className="overflow-x-auto rounded shadow">
+                      <div className="overflow-x-auto rounded ">
                         <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
                           <caption className="sr-only">Reports</caption>
                           <thead>
@@ -705,7 +705,7 @@ export default function Admin() {
                     ) : appealsError ? (
                       <div className="text-danger-500">{appealsError}</div>
                     ) : (
-                      <div className="overflow-x-auto rounded shadow">
+                      <div className="overflow-x-auto rounded ">
                         <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
                           <caption className="sr-only">Appeals</caption>
                           <thead>
@@ -777,7 +777,7 @@ export default function Admin() {
         role="dialog"
         aria-modal="true"
       >
-        <div className="max-w-sm mx-auto bg-neutral-800 border border-neutral-700 rounded-xl shadow-lg p-6">
+        <div className="max-w-sm mx-auto bg-neutral-800 border border-neutral-700 rounded-xl p-6">
           <h1 className="text-2xl font-bold text-center mb-6 text-primary">Edit User</h1>
           <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleEditUserSave(); }}>
             <div>
@@ -817,8 +817,8 @@ export default function Admin() {
             </div>
             {editUserError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{editUserError}</div>}
             <div className="flex gap-2 mt-4">
-              <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
-              <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
+              <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold shadow-lg" onClick={closeEditUserModal} disabled={editUserLoading}>Cancel</button>
+              <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
             </div>
           </form>
         </div>

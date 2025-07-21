@@ -172,7 +172,7 @@ export default function DareReveal() {
   const statusStepIdx = dare ? STATUS_STEPS.findIndex(s => s.key === dare.status) : 0;
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Status Tracker Bar */}
       <div className="flex items-center justify-between w-full px-4 py-3">
         {STATUS_STEPS.map((step, idx) => (
@@ -187,7 +187,7 @@ export default function DareReveal() {
         ))}
       </div>
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Dare Reveal</h1>
       </div>
       {/* Section divider for main content */}
@@ -212,15 +212,15 @@ export default function DareReveal() {
       ) : dare ? (
         <>
           {/* --- User Info Section --- */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 shadow-lg">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
             {/* Creator */}
             <div className="flex flex-col items-center">
               {dare.creator?._id ? (
                 <a href={`/profile/${dare.creator._id}`} className="group" tabIndex={0} aria-label={`View ${dare.creator.username}'s profile`}>
-                  <img src={dare.creator.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow group-hover:scale-105 transition-transform" />
+                  <img src={dare.creator.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 group-hover:scale-105 transition-transform" />
                 </a>
               ) : (
-                <img src={dare.creator?.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
+                <img src={dare.creator?.avatar || '/default-avatar.png'} alt="Creator avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 " />
               )}
               <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
               <span className="font-semibold text-neutral-100">{dare.creator?.username}</span>
@@ -231,17 +231,17 @@ export default function DareReveal() {
             <div className="flex flex-col items-center">
               {dare.performer?._id ? (
                 <a href={`/profile/${dare.performer._id}`} className="group" tabIndex={0} aria-label={`View ${dare.performer.username}'s profile`}>
-                  <img src={dare.performer.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow group-hover:scale-105 transition-transform" />
+                  <img src={dare.performer.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 group-hover:scale-105 transition-transform" />
                 </a>
               ) : (
-                <img src={dare.performer?.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 shadow" />
+                <img src={dare.performer?.avatar || '/default-avatar.png'} alt="Performer avatar" className="w-14 h-14 rounded-full border-2 border-primary mb-1 " />
               )}
               <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Performer</span>
               <span className="font-semibold text-neutral-100">{dare.performer?.username}</span>
             </div>
           </div>
           {/* --- Dare Description Card --- */}
-          <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4">
+          <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
             <div className="font-bold text-xl text-primary mb-2">Dare Description</div>
             <div className="text-base font-normal mb-3 break-words text-primary-contrast">{dare.description}</div>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
@@ -264,7 +264,7 @@ export default function DareReveal() {
               {/* Proof Preview Section */}
               {dare.proof && dare.proof.fileUrl ? (
                 <div className="flex flex-col items-center mb-4">
-                  <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 shadow overflow-hidden" onClick={() => setProofModalOpen(true)}>
+                  <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden" onClick={() => setProofModalOpen(true)}>
                     {dare.proof.fileUrl.match(/\.(mp4)$/) ? (
                       <video src={dare.proof.fileUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
                     ) : (
@@ -274,7 +274,7 @@ export default function DareReveal() {
                       <PlayCircleIcon className="w-12 h-12 text-white" />
                     </div>
                   </div>
-                  <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
+                  <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center mb-4">
@@ -312,7 +312,7 @@ export default function DareReveal() {
                   </div>
                   {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}
                   <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg" disabled={proofLoading} aria-label="Submit Proof">
+                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={proofLoading} aria-label="Submit Proof">
                       {proofLoading ? (
                         <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
                       ) : (
@@ -358,21 +358,21 @@ export default function DareReveal() {
           {/* --- Action Buttons (Sticky Footer on Mobile) --- */}
           <div className="sticky bottom-0  py-4 flex flex-col sm:flex-row gap-3 justify-center items-center z-10 border-t border-neutral-800">
             {dare.status === 'in_progress' && (
-              <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold text-base shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast text-lg" disabled={chickenOutLoading}>
+              <button onClick={handleChickenOut} className="bg-danger text-white px-4 py-2 rounded font-bold text-base shadow hover:bg-danger-contrast transition-colors disabled:opacity-50 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger-contrast text-lg shadow-lg" disabled={chickenOutLoading}>
                 {chickenOutLoading && <span className="loader border-2 border-t-2 border-t-white border-danger rounded-full w-4 h-4 animate-spin"></span>}
                 {chickenOutLoading ? 'Forfeiting...' : 'Forfeit Dare'}
               </button>
             )}
             {(dare.status === 'completed' || dare.status === 'forfeited') && (
               <button
-                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+                className="w-full sm:w-auto bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
                 onClick={() => navigate('/dare/select')}
               >
                 Get Another Dare
               </button>
             )}
             <button
-              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg"
+              className="w-full sm:w-auto bg-neutral-700 text-neutral-100 rounded px-4 py-2 font-bold text-base hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg"
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
@@ -383,7 +383,7 @@ export default function DareReveal() {
             <Dialog open={proofModalOpen} onClose={() => setProofModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
               <div className="flex items-center justify-center min-h-screen">
                 <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" />
-                <div className="relative bg-neutral-900 rounded-lg p-6 shadow-2xl max-w-lg w-full animate-fade-in-scale">
+                <div className="relative bg-neutral-900 rounded-lg p-6 max-w-lg w-full animate-fade-in-scale">
                   <Dialog.Title className="text-lg font-bold mb-4 text-primary">Proof Preview</Dialog.Title>
                   {dare.proof.fileUrl && dare.proof.fileUrl.match(/\.(mp4)$/) ? (
                     <video src={dare.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay />
@@ -392,9 +392,9 @@ export default function DareReveal() {
                   )}
                   {/* Proof comment below media */}
                   {dare.proof.text && (
-                    <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded shadow-inner text-sm border border-neutral-700">{dare.proof.text}</div>
+                    <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded text-sm border border-neutral-700">{dare.proof.text}</div>
                   )}
-                  <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
+                  <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors shadow-lg" onClick={() => setProofModalOpen(false)}><XMarkIcon className="w-6 h-6" /></button>
                 </div>
               </div>
             </Dialog>

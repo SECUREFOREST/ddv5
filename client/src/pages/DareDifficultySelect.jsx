@@ -37,13 +37,13 @@ export default function DareDifficultySelect() {
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl shadow-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress Bar */}
       <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
         <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '50%' }} />
       </div>
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Select Dare Difficulty</h1>
       </div>
       {/* Step indicator */}
@@ -51,7 +51,7 @@ export default function DareDifficultySelect() {
       {/* Section divider */}
       <div className="border-t border-neutral-800 my-4" />
       {/* Card-like section for form content */}
-      <form role="form" aria-labelledby="dare-difficulty-title" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-shadow duration-200 mb-4" aria-label="Dare Difficulty Selection">
+      <form role="form" aria-labelledby="dare-difficulty-title" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4" aria-label="Dare Difficulty Selection">
         <h1 id="dare-difficulty-title" className="text-2xl font-bold mb-4">Choose Dare Difficulty</h1>
         <div>
           <div className="flex flex-col gap-4">
@@ -97,7 +97,7 @@ export default function DareDifficultySelect() {
         <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
           <button
             type="submit"
-            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
+            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
             disabled={loading}
             aria-label="Continue to next step"
           >
