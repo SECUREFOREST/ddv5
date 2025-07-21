@@ -149,8 +149,6 @@ export default function DarePerformerDashboard() {
   // Add Switch Game tab
   const TABS = [
     { key: 'all', label: 'All Dares' },
-    { key: 'perform', label: 'Perform Dare' },
-    { key: 'demand', label: 'Demand Dare' },
     { key: 'switch', label: 'Switch Games' },
   ];
 
@@ -776,26 +774,81 @@ const allCompletedDares = [
             )
           },
           {
-            label: 'Perform Dare',
-            content: (
-              <div>
-                {/* ...Perform Dare tab content here... */}
-              </div>
-            )
-          },
-          {
-            label: 'Demand Dare',
-            content: (
-              <div>
-                {/* ...Demand Dare tab content here... */}
-              </div>
-            )
-          },
-          {
             label: 'Switch Games',
             content: (
               <div>
-                {/* ...Switch Games tab content here... */}
+                <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
+                {/* Action Buttons */}
+                <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
+                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors" onClick={() => navigate('/switches/create')}>
+                    Create Switch Game
+                  </button>
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors" onClick={() => navigate('/switches/participate')}>
+                    Join Switch Game
+                  </button>
+                </div>
+                {/* Advanced Filters & Sorting for Switch Games */}
+                <div className="flex flex-wrap gap-2 mb-4 items-center">
+                  <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="waiting_for_participant">Waiting</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="forfeited">Forfeited</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                  <select value={switchDifficultyFilter} onChange={e => setSwitchDifficultyFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
+                    <option value="">All Difficulties</option>
+                    {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                  </select>
+                  <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by participant username" />
+                  <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort switch games">
+                    <option value="recent">Most Recent</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="status">Status</option>
+                    <option value="difficulty">Difficulty</option>
+                  </select>
+                </div>
+                <div className="border-t border-neutral-800 my-4" />
+                <h4 className="text-lg font-bold text-primary mb-2">Your Switch Games</h4>
+                {mySwitchGamesLoading ? (
+                  <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
+                ) : filterAndSortSwitchGames(filteredMySwitchGames).length === 0 ? (
+                  <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {filterAndSortSwitchGames(filteredMySwitchGames).map(game => (
+                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
+                        <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
+                          <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
+                {switchGameHistoryLoading ? (
+                  <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
+                ) : filterAndSortSwitchGames(filteredSwitchGameHistory).length === 0 ? (
+                  <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {filterAndSortSwitchGames(filteredSwitchGameHistory).map(game => (
+                      <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-lg transition-all duration-150 cursor-pointer group" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
+                        <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-primary truncate flex items-center">{game.description || 'Switch Game'} {difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
+                          <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
+                          <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
               </div>
             )
           }
