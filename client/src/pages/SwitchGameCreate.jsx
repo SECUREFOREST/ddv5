@@ -74,8 +74,6 @@ export default function SwitchGameCreate() {
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 shadow-sm flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
       </div>
-      {/* Section divider for main content */}
-      <div className="border-t border-neutral-800 my-4" />
       {/* Toast notification for feedback (if needed) */}
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded shadow z-50 text-center" aria-live="polite">{toast}</div>
