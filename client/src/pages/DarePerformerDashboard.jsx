@@ -666,7 +666,7 @@ const allCompletedDares = [
       <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
     </div>
     {/* Action buttons at the bottom */}
-    <div className="flex gap-2 mt-auto pt-2">
+    <div className="flex justify-center gap-2 mt-auto pt-2">
       {dare._type === 'perform' && dare.status === 'in_progress' && (
         <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
       )}
