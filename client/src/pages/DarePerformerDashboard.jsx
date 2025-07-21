@@ -656,40 +656,25 @@ const allCompletedDares = [
         {filterAndSortAllDares(allActiveDares).length === 0 ? (
           <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
         ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {filterAndSortAllDares(allActiveDares).map(dare => (
-                      <div key={dare._id} className="bg-neutral-900/80 border border-neutral-700 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-200 p-6 flex flex-col gap-3 group hover:scale-[1.02]">
-                        <div className="flex items-center gap-4">
+                      <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
                 <Avatar user={dare.creator} size={40} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
                 <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg font-bold text-primary truncate">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</span>
-                              <span className="bg-pink-500 text-white rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1"><Squares2X2Icon className="w-4 h-4" /> {difficultyBadge(dare.difficulty)}</span>
+                  <div className="font-bold text-primary truncate flex items-center">{dare.description || 'Dare'} {difficultyBadge(dare.difficulty)}</div>
+                  <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(dare.status)} <span className="ml-2">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span></div>
+                  <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
                 </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="bg-purple-600 text-white rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1"><Squares2X2Icon className="w-4 h-4" /> {statusBadge(dare.status)}</span>
-                              <span className="text-neutral-400 text-xs">{dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}</span>
-                            </div>
-                            <div className="text-neutral-400 text-xs mt-1">Creator: <span className="font-medium">{dare.creator?.username || 'Unknown'}</span> • Performer: <span className="font-medium">{dare.performer?.username || '—'}</span></div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 mt-4">
+                {/* In-place actions */}
                 {dare._type === 'perform' && dare.status === 'in_progress' && (
-                            <button className="flex-1 bg-green-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>
-                              <Squares2X2Icon className="w-4 h-4" /> Complete
-                            </button>
+                          <button className="ml-2 px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
                 )}
                 {dare._type === 'perform' && dare.status === 'in_progress' && (
-                            <button className="flex-1 bg-red-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>
-                              <Squares2X2Icon className="w-4 h-4" /> Reject
-                            </button>
+                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>Reject</button>
                 )}
                 {dare._type === 'demand' && dare.status === 'in_progress' && (
-                            <button className="flex-1 bg-red-700 text-white rounded-full px-4 py-2 font-bold shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>
-                              <Squares2X2Icon className="w-4 h-4" /> Withdraw
-                            </button>
+                          <button className="ml-2 px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
                 )}
-                        </div>
               </div>
             ))}
           </div>
