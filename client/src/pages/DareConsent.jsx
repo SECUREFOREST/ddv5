@@ -2,6 +2,15 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import api from '../api/axios';
+import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+
+const DIFFICULTIES = [
+  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
+  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
+  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
+  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
+  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
+];
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -108,7 +117,15 @@ const DareConsent = () => {
             <span className="font-semibold text-neutral-300">Difficulty:</span>
             <DifficultyBadge level={dare.difficulty} />
           </div>
-          {/* Creator info already shown above */}
+          {(() => {
+            const diff = DIFFICULTIES.find(d => d.value === dare.difficulty);
+            return diff ? (
+              <div className="flex flex-col items-center mt-2">
+                <div>{diff.icon}</div>
+                <div className="text-xs text-neutral-400 mt-1 text-center">{diff.desc}</div>
+              </div>
+            ) : null;
+          })()}
         </div>
         <div className="mb-2 text-center">
           <p className="text-neutral-200">Will you agree to perform their dare?</p>
