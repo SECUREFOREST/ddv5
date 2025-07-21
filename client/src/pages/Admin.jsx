@@ -355,7 +355,6 @@ export default function Admin() {
           </span>
         </h1>
       </div>
-      <div className="border-t border-neutral-800 my-4 w-full" />
       {/* Add a toast/banner for feedback */}
       {(success || error) && (
         <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
