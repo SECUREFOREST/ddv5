@@ -28,6 +28,14 @@ export default function DareParticipant() {
 
   const MAX_PROOF_SIZE_MB = 10;
 
+  const DIFFICULTY_ICONS = {
+    titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
+    arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
+    explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
+    edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+    hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
+  };
+
   // If id param is present, fetch that dare directly
   React.useEffect(() => {
     if (id) {
@@ -174,7 +182,7 @@ export default function DareParticipant() {
                   <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
                     ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
                     <input type="radio" name="difficulty" value={opt.value} checked={difficulty === opt.value} onChange={() => setDifficulty(opt.value)} className="accent-primary bg-[#1a1a1a]" />
-                    {opt.icon}
+                    {DIFFICULTY_ICONS[opt.value]}
                     <b>{opt.label}</b>
                     <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
                   </label>
@@ -226,7 +234,7 @@ export default function DareParticipant() {
             <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
               <div className="mb-2 font-bold text-primary text-lg">Dare Description</div>
               <div className="mb-2">{dare.description}</div>
-              <div className="mb-2 flex items-center gap-2"><span className="font-semibold">Difficulty:</span> {DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
+              <div className="mb-2 flex items-center gap-2"><span className="font-semibold">Difficulty:</span> {DIFFICULTY_ICONS[dare.difficulty]} <b>{dare.difficulty}</b></div>
             </div>
             <form role="form" aria-labelledby="proof-submit-title" onSubmit={handleProofSubmit} className="space-y-6">
               <h1 id="proof-submit-title" className="text-2xl font-bold mb-4">Submit Proof</h1>

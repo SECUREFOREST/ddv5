@@ -13,6 +13,14 @@ const PRIVACY_OPTIONS = [
   { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.', icon: <TrashIcon className="w-5 h-5 text-danger" /> },
 ];
 
+const DIFFICULTY_ICONS = {
+  titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
+  arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
+  explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
+  edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+  hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
+};
+
 export default function DarePerform() {
   const { user } = useAuth();
   const { showNotification } = useNotification();
@@ -201,7 +209,7 @@ export default function DarePerform() {
                     id={`difficulty-${opt.value}`}
                     aria-required="true"
                   />
-                  {opt.icon}
+                  {DIFFICULTY_ICONS[opt.value]}
                   <b>{opt.label}</b>
                   <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
                 </label>
@@ -242,7 +250,7 @@ export default function DarePerform() {
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
             <div className="font-semibold text-primary mb-2">Your Dare:</div>
             <div className="text-lg font-bold mb-2">{dare.description}</div>
-            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
+            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTY_ICONS[dare.difficulty]} <b>{dare.difficulty}</b></div>
           </div>
           {/* Privacy Options */}
           <div className="mb-6">

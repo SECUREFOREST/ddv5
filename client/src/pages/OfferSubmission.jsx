@@ -19,6 +19,14 @@ function mapPrivacyValue(val) {
   return val;
 }
 
+const DIFFICULTY_ICONS = {
+  titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
+  arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
+  explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
+  edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+  hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
+};
+
 export default function OfferSubmission() {
   const { showNotification } = useNotification();
   const [difficulty, setDifficulty] = useState('');
@@ -160,7 +168,7 @@ export default function OfferSubmission() {
                   disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
                 />
                 <span className="flex items-center gap-2">
-                  {opt.icon}
+                  {DIFFICULTY_ICONS[opt.value]}
                   <b className="text-base text-primary-contrast">{opt.label}</b>
                 </span>
                 <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
