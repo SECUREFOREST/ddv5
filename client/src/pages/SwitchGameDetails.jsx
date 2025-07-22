@@ -115,7 +115,14 @@ export default function SwitchGameDetails() {
   const winnerId = game && game.winner && getId(game.winner);
   const creatorId = game && game.creator && getId(game.creator);
   const participantId = game && game.participant && getId(game.participant);
-  const loserId = winnerId && creatorId && participantId && (creatorId === winnerId ? participantId : creatorId);
+  let loserId = null;
+  if (winnerId && creatorId && participantId) {
+    if (winnerId === creatorId) {
+      loserId = participantId;
+    } else if (winnerId === participantId) {
+      loserId = creatorId;
+    }
+  }
   const isWinner = user && winnerId && (userId === winnerId);
   const isLoser = user && loserId && (userId === loserId);
 
