@@ -620,7 +620,7 @@ router.post('/:id/grade',
   }
 );
 
-// DELETE /api/switches/:id - only creator can delete
+// DELETE /api/switches/:id - allow deletion regardless of status
 router.delete('/:id', auth, async (req, res) => {
   try {
     const game = await SwitchGame.findById(req.params.id);
@@ -634,6 +634,7 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(403).json({ error: 'Only the creator or an admin can delete this switch game.' });
     }
 
+    // Allow deletion regardless of status (including legacy/unknown statuses)
     await game.deleteOne();
     res.json({ message: 'Switch game deleted.' });
   } catch (err) {
