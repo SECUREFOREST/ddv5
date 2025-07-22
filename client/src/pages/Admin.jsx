@@ -57,6 +57,8 @@ export default function Admin() {
   const [siteStatsLoading, setSiteStatsLoading] = useState(true);
   const [siteStatsError, setSiteStatsError] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [userSearchId, setUserSearchId] = useState("");
+  const [dareSearchId, setDareSearchId] = useState('');
   const [dareSearch, setDareSearch] = useState('');
   const [userPage, setUserPage] = useState(0);
   const USERS_PER_PAGE = 10;
@@ -173,7 +175,7 @@ export default function Admin() {
     try {
       await api.patch(`/reports/${id}`);
       fetchReports();
-    } catch {}
+    } catch { }
     setResolvingReportId(null);
   };
 
@@ -196,7 +198,7 @@ export default function Admin() {
       await api.patch(`/appeals/${id}`, { outcome: appealOutcome });
       setAppealOutcome('');
       fetchAppeals();
-    } catch {}
+    } catch { }
     setResolvingAppealId(null);
   };
 
@@ -458,56 +460,56 @@ export default function Admin() {
                         <tbody>
                           {users
                             .filter(u =>
-                              (userSearchId
-                                ? u._id === userSearchId
-                                : (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-                                  (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                              )
+                            (userSearchId
+                              ? u._id === userSearchId
+                              : (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+                              (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
+                            )
                             )
                             .slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE)
                             .map((user, idx) => (
-                            <tr
-                              key={user._id}
-                              className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
-                            >
-                              <td className="p-2 text-primary font-semibold">
-                                <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.fullName || user.username || 'Unknown'}</a>
-                              </td>
-                              <td className="p-2 text-neutral-300">{user.email}</td>
-                              <td className="p-2">
-                                {user.role === 'admin' ? (
-                                  <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
-                                    Admin
-                                  </span>
-                                ) : user.role === 'moderator' ? (
-                                  <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Moderator
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                    User
-                                  </span>
-                                )}
-                              </td>
-                              <td className="p-2">
-                                {!user.banned ? (
-                                  <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
-                                ) : (
-                                  <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
-                                )}
-                              </td>
-                              <td className="p-2">
-                                <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning shadow-lg" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
-                                <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger shadow-lg" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
-                                  {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                              <tr
+                                key={user._id}
+                                className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
+                              >
+                                <td className="p-2 text-primary font-semibold">
+                                  <a href={`/profile/${user._id}`} className="underline hover:text-danger focus:text-danger transition-colors" tabIndex={0} aria-label={`View profile for ${user.username}`}>{user.fullName || user.username || 'Unknown'}</a>
+                                </td>
+                                <td className="p-2 text-neutral-300">{user.email}</td>
+                                <td className="p-2">
+                                  {user.role === 'admin' ? (
+                                    <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+                                      Admin
+                                    </span>
+                                  ) : user.role === 'moderator' ? (
+                                    <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                      Moderator
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 bg-success/20 text-success font-bold rounded px-2 py-1 text-xs">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                      User
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="p-2">
+                                  {!user.banned ? (
+                                    <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold">Active</span>
+                                  ) : (
+                                    <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold">Inactive</span>
+                                  )}
+                                </td>
+                                <td className="p-2">
+                                  <button className="bg-warning text-warning-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-warning-dark mr-2 focus:outline-none focus:ring-2 focus:ring-warning shadow-lg" onClick={() => handleEditUser(user._id)} aria-label={`Edit user ${user.username}`}>Edit</button>
+                                  <button className="bg-danger text-danger-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-danger-dark disabled:opacity-60 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-danger shadow-lg" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading} aria-label={`Delete user ${user.username}`}>
+                                    {actionLoading ? <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : null}
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -572,11 +574,11 @@ export default function Admin() {
                         <tbody>
                           {dares
                             .filter(d =>
-                              (dareSearchId
-                                ? d._id === dareSearchId
-                                : (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
-                                  (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
-                              )
+                            (dareSearchId
+                              ? d._id === dareSearchId
+                              : (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+                            )
                             )
                             .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                             .map(d => (
@@ -590,17 +592,17 @@ export default function Admin() {
                                 <td className="p-2 text-neutral-400">{d && d.difficulty ? d.difficulty : '-'}</td>
                                 <td className="p-2 space-x-2">
                                   {d && d.status === 'pending' && (
-                                      <>
+                                    <>
                                       <button className="bg-success text-success-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-success-dark shadow-lg" disabled={actionLoading} onClick={() => handleApprove(d._id)}>Approve</button>
                                       <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark shadow-lg" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
-                                      </>
-                                    )}
+                                    </>
+                                  )}
                                   <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare(d)} aria-label={`Delete item ${d.description}`}>Delete</button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
                     </div>
                     <div className="flex justify-center gap-2 mt-4">
                       <button onClick={() => setDarePage(p => Math.max(0, p - 1))} disabled={darePage === 0} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Previous</button>
@@ -649,12 +651,12 @@ export default function Admin() {
                           <tbody>
                             {switchGames
                               .filter(g =>
-                                (switchGameSearchId
-                                  ? g._id === switchGameSearchId
-                                  : (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                    (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                    (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
-                                )
+                              (switchGameSearchId
+                                ? g._id === switchGameSearchId
+                                : (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
+                              )
                               )
                               .slice(switchGamePage * SWITCH_GAMES_PER_PAGE, (switchGamePage + 1) * SWITCH_GAMES_PER_PAGE)
                               .map(g => (
@@ -714,56 +716,56 @@ export default function Admin() {
                 label: 'Audit Log',
                 content: (
                   <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-4">
-                        <input
-                          className="border border-neutral-900 rounded px-3 py-1 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                          placeholder="Search audit log..."
-                          value={auditLogSearch}
-                          onChange={e => setAuditLogSearch(e.target.value)}
-                        />
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <input
+                        className="border border-neutral-900 rounded px-3 py-1 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                        placeholder="Search audit log..."
+                        value={auditLogSearch}
+                        onChange={e => setAuditLogSearch(e.target.value)}
+                      />
                       <button
-                          className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                          onClick={() => exportToCsv('audit_log.csv', auditLog)}
+                        className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
+                        onClick={() => exportToCsv('audit_log.csv', auditLog)}
                       >
                         Export CSV
                       </button>
                       <button
-                          className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
-                          onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
+                        className="bg-neutral-200 text-neutral-700 px-3 py-1 rounded text-sm border border-neutral-300 hover:bg-neutral-300"
+                        onClick={() => exportToCsv('audit_log_all.csv', auditLog)}
                       >
                         Export All
                       </button>
                     </div>
-                      <div className="overflow-x-auto rounded ">
-                        <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
-                          <caption className="sr-only">Audit Log</caption>
-                          <thead>
-                            <tr className="bg-neutral-900 text-primary">
-                              <th scope="col" className="p-2 text-left font-semibold">Action</th>
-                              <th scope="col" className="p-2 text-left font-semibold">User</th>
-                              <th scope="col" className="p-2 text-left font-semibold">Target</th>
-                              <th scope="col" className="p-2 text-left font-semibold">Timestamp</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {auditLog
-                              .filter(log =>
+                    <div className="overflow-x-auto rounded ">
+                      <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                        <caption className="sr-only">Audit Log</caption>
+                        <thead>
+                          <tr className="bg-neutral-900 text-primary">
+                            <th scope="col" className="p-2 text-left font-semibold">Action</th>
+                            <th scope="col" className="p-2 text-left font-semibold">User</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Target</th>
+                            <th scope="col" className="p-2 text-left font-semibold">Timestamp</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {auditLog
+                            .filter(log =>
                               log.action.toLowerCase().includes(auditLogSearch.toLowerCase()) ||
                               (log.user?.fullName || log.user?.username || '').toLowerCase().includes(auditLogSearch.toLowerCase()) ||
                               (log.target || '').toLowerCase().includes(auditLogSearch.toLowerCase())
-                              )
-                              .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
+                            )
+                            .slice(auditLogPage * AUDIT_LOGS_PER_PAGE, (auditLogPage + 1) * AUDIT_LOGS_PER_PAGE)
                             .map((log, i) => (
-                                <tr key={i} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                  <td className="p-2 font-medium text-primary">{log.action}</td>
-                                  <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
-                                  <td className="p-2 text-neutral-400">{log.target}</td>
-                                  <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
+                              <tr key={i} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                <td className="p-2 font-medium text-primary">{log.action}</td>
+                                <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
+                                <td className="p-2 text-neutral-400">{log.target}</td>
+                                <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
                               </tr>
                             ))}
-                          </tbody>
-                        </table>
-                      </div>
+                        </tbody>
+                      </table>
+                    </div>
                     {/* Pagination and other controls can be similarly refactored */}
                   </div>
                 ),
