@@ -7,31 +7,31 @@ export const DIFFICULTY_OPTIONS = [
     value: 'titillating',
     label: 'Titillating',
     desc: 'Fun, flirty, and easy. For beginners or light play.',
-    icon: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
+    icon: (props) => <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" {...props} />, 
   },
   {
     value: 'arousing',
     label: 'Arousing',
     desc: 'A bit more daring, but still approachable.',
-    icon: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
+    icon: (props) => <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" {...props} />, 
   },
   {
     value: 'explicit',
     label: 'Explicit',
     desc: 'Sexually explicit or more intense.',
-    icon: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
+    icon: (props) => <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" {...props} />, 
   },
   {
     value: 'edgy',
     label: 'Edgy',
     desc: 'Pushes boundaries, not for the faint of heart.',
-    icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+    icon: (props) => <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" {...props} />, 
   },
   {
     value: 'hardcore',
     label: 'Hardcore',
     desc: 'Extreme, risky, or very advanced.',
-    icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
+    icon: (props) => <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" {...props} />, 
   },
 ];
 
