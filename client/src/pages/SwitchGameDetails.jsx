@@ -66,7 +66,6 @@ export default function SwitchGameDetails() {
   const [moveSubmitting, setMoveSubmitting] = useState(false);
   const [proof, setProof] = useState('');
   const [showProofModal, setShowProofModal] = useState(false);
-  const [proofError, setProofError] = useState('');
   const [polling, setPolling] = useState(false);
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
@@ -344,7 +343,11 @@ export default function SwitchGameDetails() {
 
   // --- Proof Submission State ---
   const [proofFile, setProofFile] = useState(null);
+  const [proofText, setProofText] = useState('');
   const [proofLoading, setProofLoading] = useState(false);
+  const [proofError, setProofError] = useState('');
+  const [proofSuccess, setProofSuccess] = useState('');
+  const [proofModalOpen, setProofModalOpen] = useState(false);
 
   const handleProofFileChange = (e) => {
     const file = e.target.files[0];
@@ -359,6 +362,7 @@ export default function SwitchGameDetails() {
   const handleProofSubmit = async (e) => {
     e.preventDefault();
     setProofError('');
+    setProofSuccess('');
     setProofLoading(true);
     if (!proofFile || !proofFile.type.match(/^image\/(jpeg|png|gif|webp)$|^video\/mp4$/)) {
       setProofError('Please upload a proof file (image or video).');
@@ -366,12 +370,15 @@ export default function SwitchGameDetails() {
       return;
     }
     let formData = new FormData();
+    if (proofText) formData.append('text', proofText);
     formData.append('file', proofFile);
     try {
       await api.post(`/switches/${id}/proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setProofFile(null);
+      setProofText('');
+      setProofSuccess('Proof submitted successfully!');
       showNotification('Proof submitted successfully!', 'success');
       fetchGameWithFeedback(true);
     } catch (err) {
@@ -603,6 +610,7 @@ export default function SwitchGameDetails() {
                 onSubmit={handleProofSubmit}
                 className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
                 style={{ margin: '0 auto' }}
+                aria-label="Submit Proof Form"
               >
                 <div className="w-full text-center">
                   <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
@@ -626,9 +634,26 @@ export default function SwitchGameDetails() {
                     Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
                   </small>
                 </div>
+                <div className="w-full">
+                  <label htmlFor="proof-text" className="block font-semibold mb-1">Describe what you did (optional):</label>
+                  <textarea
+                    id="proof-text"
+                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                    value={proofText}
+                    onChange={e => setProofText(e.target.value)}
+                    rows={3}
+                    placeholder="Describe your proof, add context, or leave blank if uploading a file."
+                    aria-label="Proof description"
+                  />
+                </div>
                 {proofError && (
                   <div className="text-danger text-sm font-medium w-full text-center" role="alert">
                     {proofError}
+                  </div>
+                )}
+                {proofSuccess && (
+                  <div className="text-success text-sm font-medium w-full text-center" role="status">
+                    {proofSuccess}
                   </div>
                 )}
                 <div className="w-full pt-4 flex justify-end">
@@ -644,8 +669,39 @@ export default function SwitchGameDetails() {
               </form>
             </div>
           )}
-          {game.proof && (
-            <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} alt={`Avatar for ${game.proof.user?.fullName || game.proof.user?.username || 'user'}`} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
+          {game.proof && game.proof.fileUrl && (
+            <>
+              <div className="flex flex-col items-center mb-4 mt-8">
+                <div className="relative group cursor-pointer w-48 h-48 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden" onClick={() => setProofModalOpen(true)}>
+                  {game.proof.fileUrl.match(/\.(mp4)$/) ? (
+                    <video src={game.proof.fileUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
+                  ) : (
+                    <img src={game.proof.fileUrl} alt="Proof" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
+                  </div>
+                </div>
+                <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
+              </div>
+              {proofModalOpen && (
+                <div className="fixed z-50 inset-0 overflow-y-auto flex items-center justify-center">
+                  <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" onClick={() => setProofModalOpen(false)} />
+                  <div className="relative bg-neutral-900 rounded-lg p-6 max-w-lg w-full animate-fade-in-scale">
+                    <div className="text-lg font-bold mb-4 text-primary">Proof Preview</div>
+                    {game.proof.fileUrl.match(/\.(mp4)$/) ? (
+                      <video src={game.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay />
+                    ) : (
+                      <img src={game.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-lg" />
+                    )}
+                    {game.proof.text && (
+                      <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded text-sm border border-neutral-700">{game.proof.text}</div>
+                    )}
+                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors shadow-lg" onClick={() => setProofModalOpen(false)} aria-label="Close Proof Preview">×</button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
         {/* Timestamps/meta with icons */}
