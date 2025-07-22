@@ -6,6 +6,7 @@ import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
 import { Squares2X2Icon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All' },
@@ -62,6 +63,7 @@ export default function Dares() {
   const [acceptError, setAcceptError] = useState('');
   // Add meta state
   const [lastUpdated, setLastUpdated] = useState(null);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (!user) return;
@@ -115,8 +117,10 @@ export default function Dares() {
         },
       });
       setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
+      showNotification('Dare created successfully!', 'success');
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Failed to create dare');
+      showNotification('Failed to create dare.', 'error');
     } finally {
       setCreating(false);
     }
@@ -149,8 +153,10 @@ export default function Dares() {
       setAcceptDifficulty('');
       setAcceptConsent(false);
       navigate(`/dares/${acceptDareId}`);
+      showNotification('Dare accepted successfully!', 'success');
     } catch (err) {
       setAcceptError(err.response?.data?.error || 'Failed to accept dare.');
+      showNotification('Failed to accept dare.', 'error');
     } finally {
       setAcceptLoading(false);
     }

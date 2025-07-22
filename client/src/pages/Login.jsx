@@ -4,33 +4,30 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
+import { useNotification } from '../context/NotificationContext';
 
 export default function Login() {
   const { login } = useAuth();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     setLoading(true);
     try {
       await login(identifier, password);
-      setSuccess('Login successful! Redirecting...');
+      showNotification('Login successful! Redirecting...', 'success');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      console.error('Login error:', err);
       if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
+        showNotification(err.response.data.error, 'error');
       } else if (err.message) {
-        setError(err.message);
+        showNotification(err.message, 'error');
       } else {
-        setError('Login failed. Please try again.');
+        showNotification('Login failed. Please try again.', 'error');
       }
     } finally {
       setLoading(false);
@@ -87,8 +84,6 @@ export default function Login() {
                 aria-label="Password"
               />
             </div>
-            {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-            {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
             <button
               type="submit"
               className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"

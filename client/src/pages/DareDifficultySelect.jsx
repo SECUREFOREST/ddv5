@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -15,22 +16,21 @@ export default function DareDifficultySelect() {
   const navigate = useNavigate();
   const [difficulty, setDifficulty] = useState('titillating');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { showNotification } = useNotification();
 
   const handleContinue = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
         navigate(`/dare/consent/${res.data._id}`, { state: { dare: res.data } });
       } else {
-        setError('No dare found for this difficulty.');
+        showNotification('No dare found for this difficulty.', 'error');
       }
     } catch (err) {
       const apiError = err.response?.data?.error || err.message;
-      setError(apiError || 'Failed to fetch dare.');
+      showNotification(apiError || 'Failed to fetch dare.', 'error');
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,6 @@ export default function DareDifficultySelect() {
           </div>
         </div>
         {/* Error message above button */}
-        {error && <div className="bg-danger/10 text-danger text-center mt-2 mb-2 font-semibold rounded p-2 flex items-center gap-2 justify-center" role="alert"><ExclamationTriangleIcon className="w-5 h-5 inline text-danger" /> {error}</div>}
         <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
           <button
             type="submit"

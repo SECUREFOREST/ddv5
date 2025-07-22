@@ -3,27 +3,25 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
 import { KeyIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const token = searchParams.get('token');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
     setLoading(true);
     try {
       await api.post('/auth/reset-password', { token, newPassword });
-      setMessage('Password has been reset. You may now log in.');
+      showNotification('Password reset successful!', 'success');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Reset failed');
+      showNotification(err.response?.data?.error || 'Failed to reset password.', 'error');
     } finally {
       setLoading(false);
     }
@@ -64,8 +62,6 @@ export default function ResetPassword() {
               aria-required="true"
             />
           </div>
-          {message && <Banner type="success" message={message} onClose={() => setMessage('')} />}
-          {error && <Banner type="error" message={error} onClose={() => setError('')} />}
           <button
             type="submit"
             className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"

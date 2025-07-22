@@ -7,6 +7,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { DARE_DIFFICULTIES } from '../tailwindColors';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -78,6 +79,7 @@ export default function SwitchGameDetails() {
   const [generalSuccess, setGeneralSuccess] = useState('');
   const [fetchingGame, setFetchingGame] = useState(false);
   const [fetchGameError, setFetchGameError] = useState('');
+  const { showNotification } = useNotification();
 
   function getId(obj) {
     if (!obj) return undefined;
@@ -155,8 +157,7 @@ export default function SwitchGameDetails() {
 
   // Show error toast helper
   const showErrorToast = (msg) => {
-    setErrorToast(msg);
-    setTimeout(() => setErrorToast(''), 4000);
+    showNotification(msg, 'error');
   };
 
   // Custom comparison for relevant fields
@@ -208,9 +209,9 @@ export default function SwitchGameDetails() {
   // Show toast on status change
   useEffect(() => {
     if (!game) return;
-    if (game.status === 'in_progress') setToast('Game started!');
-    if (game.status === 'completed') setToast('Game completed!');
-    if (game.status === 'proof_submitted') setToast('Proof submitted!');
+    if (game.status === 'in_progress') showNotification('Game started!', 'success');
+    if (game.status === 'completed') showNotification('Game completed!', 'success');
+    if (game.status === 'proof_submitted') showNotification('Proof submitted!', 'success');
     if (toast) {
       if (toastTimeout.current) clearTimeout(toastTimeout.current);
       toastTimeout.current = setTimeout(() => setToast(''), 3000);
@@ -263,7 +264,7 @@ export default function SwitchGameDetails() {
     setGeneralSuccess('');
     if (!grade) {
       setGradeError('Please select a grade.');
-      setGeneralError('Please select a grade.');
+      showNotification('Please select a grade.', 'error');
       return;
     }
     setGrading(true);
@@ -272,10 +273,10 @@ export default function SwitchGameDetails() {
       setGrade('');
       setFeedback('');
       fetchGameWithFeedback(true);
-      setGeneralSuccess('Grade submitted successfully!');
+      showNotification('Grade submitted successfully!', 'success');
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
-      setGeneralError(err.response?.data?.error || 'Failed to submit grade');
+      showNotification(err.response?.data?.error || 'Failed to submit grade', 'error');
     } finally {
       setGrading(false);
     }
@@ -289,6 +290,7 @@ export default function SwitchGameDetails() {
     setGradeError('');
     if (!grade) {
       setGradeError('Please select a grade.');
+      showNotification('Please select a grade.', 'error');
       return;
     }
     setGrading(true);
@@ -296,10 +298,11 @@ export default function SwitchGameDetails() {
       await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback }); // Removed target
       setGrade('');
       setFeedback('');
-      setToast('Grade submitted!');
+      showNotification('Grade submitted!', 'success');
       fetchGameWithFeedback(true);
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
+      showNotification(err.response?.data?.error || 'Failed to submit grade', 'error');
     } finally {
       setGrading(false);
     }
@@ -353,6 +356,7 @@ export default function SwitchGameDetails() {
       fetchGameWithFeedback(true);
     } catch (err) {
       setProofSubmitError(err.response?.data?.error || 'Failed to submit proof.');
+      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     } finally {
       setProofSubmitting(false);
     }
@@ -370,6 +374,7 @@ export default function SwitchGameDetails() {
       fetchGameWithFeedback(true);
     } catch (err) {
       setReviewError(err.response?.data?.error || 'Failed to review proof.');
+      showNotification(err.response?.data?.error || 'Failed to review proof.', 'error');
     } finally {
       setReviewSubmitting(false);
     }
@@ -386,11 +391,12 @@ export default function SwitchGameDetails() {
     try {
       await api.post(`/switches/${id}/forfeit`);
       setChickenOutLoading(false);
-      setGeneralSuccess('You have chickened out of this switch game.');
+      showNotification('You have chickened out of this switch game.', 'success');
       fetchGameWithFeedback(true);
     } catch (err) {
       setChickenOutLoading(false);
       setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
+      showNotification(err.response?.data?.error || 'Failed to chicken out.', 'error');
     }
   };
 
@@ -500,6 +506,7 @@ export default function SwitchGameDetails() {
                   fetchGameWithFeedback(true);
                 } catch (err) {
                   setGeneralError(err.response?.data?.error || 'Failed to join the game.');
+                  showNotification(err.response?.data?.error || 'Failed to join the game.', 'error');
                 } finally {
                   setJoining(false);
                 }

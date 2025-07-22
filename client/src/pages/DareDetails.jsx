@@ -9,6 +9,7 @@ import StatusBadge from '../components/DareCard';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -55,6 +56,7 @@ export default function DareDetails() {
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
+  const { showNotification } = useNotification();
 
   const openReportModal = (commentId) => {
     setReportCommentId(commentId);
@@ -74,8 +76,10 @@ export default function DareDetails() {
       setReportMessage('Report submitted. Thank you for helping keep the community safe.');
       setReportReason('');
       setTimeout(() => setShowReportModal(false), 1500);
+      showNotification('Report submitted.', 'success');
     } catch (err) {
       setReportError(err.response?.data?.error || 'Failed to submit report.');
+      showNotification(err.response?.data?.error || 'Failed to submit report.', 'error');
     } finally {
       setReportLoading(false);
     }
@@ -85,7 +89,10 @@ export default function DareDetails() {
     setLoading(true);
     api.get(`/dares/${id}`)
       .then(res => setDare(res.data))
-      .catch(() => setDare(null))
+      .catch(() => {
+        setDare(null);
+        showNotification('Failed to load dare details.', 'error');
+      })
       .finally(() => setLoading(false));
   }, [id, refresh]);
 
@@ -104,8 +111,9 @@ export default function DareDetails() {
     try {
       await api.post(`/dares/${dare._id}/accept`);
       setRefresh(r => r + 1);
+      showNotification('Dare accepted!', 'success');
     } catch (err) {
-      setAcceptError(err.response?.data?.error || 'Failed to accept dare.');
+      showNotification(err.response?.data?.error || 'Failed to accept dare.', 'error');
     } finally {
       setAcceptLoading(false);
     }
@@ -125,8 +133,9 @@ export default function DareDetails() {
       setDare(res.data.dare);
       setShowRejectModal(false);
       setRejectReason('');
+      showNotification('Dare rejected.', 'success');
     } catch (err) {
-      setRejectError(err.response?.data?.error || 'Failed to reject dare.');
+      showNotification(err.response?.data?.error || 'Failed to reject dare.', 'error');
     } finally {
       setRejecting(false);
     }
@@ -162,10 +171,11 @@ export default function DareDetails() {
       setGrade('');
       setFeedback('');
       setRefresh(r => r + 1);
-      setGeneralSuccess('Grade submitted successfully!');
+      showNotification('Grade submitted successfully!', 'success');
     } catch (err) {
       setGradeError(err.response?.data?.error || 'Failed to submit grade');
       setGeneralError(err.response?.data?.error || 'Failed to submit grade');
+      showNotification(err.response?.data?.error || 'Failed to submit grade', 'error');
     } finally {
       setGrading(false);
     }
@@ -205,8 +215,10 @@ export default function DareDetails() {
       setAppealMessage('Appeal submitted. An admin will review your request.');
       setAppealReason('');
       setTimeout(() => setShowAppealModal(false), 1500);
+      showNotification('Appeal submitted.', 'success');
     } catch (err) {
       setAppealError(err.response?.data?.error || 'Failed to submit appeal.');
+      showNotification(err.response?.data?.error || 'Failed to submit appeal.', 'error');
     } finally {
       setAppealLoading(false);
     }
@@ -230,8 +242,10 @@ export default function DareDetails() {
       setEditCommentId(null);
       setEditCommentText('');
       setRefresh(r => r + 1);
+      showNotification('Comment edited.', 'success');
     } catch (err) {
       setEditError(err.response?.data?.error || 'Failed to edit comment.');
+      showNotification(err.response?.data?.error || 'Failed to edit comment.', 'error');
     } finally {
       setEditLoading(false);
     }
@@ -242,7 +256,10 @@ export default function DareDetails() {
     try {
       await api.delete(`/comments/${commentId}`);
       setRefresh(r => r + 1);
-    } catch {}
+      showNotification('Comment deleted.', 'success');
+    } catch {
+      showNotification('Failed to delete comment.', 'error');
+    }
   };
 
   const openModerateModal = (commentId) => {
@@ -262,8 +279,10 @@ export default function DareDetails() {
       setModerateCommentId(null);
       setModerationReason('');
       setRefresh(r => r + 1);
+      showNotification('Comment moderated.', 'success');
     } catch (err) {
       setModerateError(err.response?.data?.error || 'Failed to moderate comment.');
+      showNotification(err.response?.data?.error || 'Failed to moderate comment.', 'error');
     } finally {
       setModerateLoading(false);
     }
@@ -299,8 +318,10 @@ export default function DareDetails() {
       setProofFile(null);
       setSubmittedProof(null); // Will refresh below
       setRefresh(r => r + 1);
+      showNotification('Proof submitted.', 'success');
     } catch (err) {
       setProofError(err.response?.data?.error || "Failed to submit proof.");
+      showNotification(err.response?.data?.error || "Failed to submit proof.", 'error');
     } finally {
       setProofLoading(false);
       setProofProgress(0);

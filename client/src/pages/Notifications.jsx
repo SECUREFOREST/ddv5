@@ -5,6 +5,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { io } from 'socket.io-client';
 import { BellIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -14,13 +15,17 @@ export default function Notifications() {
   const [generalError, setGeneralError] = useState('');
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
+  const { showNotification } = useNotification();
 
   const fetchNotifications = () => {
     setLoading(true);
     setGeneralError('');
     api.get('/notifications')
       .then(res => setNotifications(Array.isArray(res.data) ? res.data : []))
-      .catch(() => { setNotifications([]); setGeneralError('Failed to load notifications.'); })
+      .catch(() => {
+        setNotifications([]);
+        showNotification('Failed to load notifications.', 'error');
+      })
       .finally(() => setLoading(false));
   };
 
@@ -38,14 +43,11 @@ export default function Notifications() {
       });
       socket.on('notification', (notif) => {
         setNotifications((prev) => [notif, ...prev]);
-        setToast('New notification received!');
-        if (toastTimeout.current) clearTimeout(toastTimeout.current);
-        toastTimeout.current = setTimeout(() => setToast(''), 3000);
+        showNotification('New notification received!', 'info');
       });
     }
     return () => {
       if (socket) socket.disconnect();
-      if (toastTimeout.current) clearTimeout(toastTimeout.current);
     };
   }, [accessToken]);
 
@@ -55,8 +57,9 @@ export default function Notifications() {
     try {
       await api.put(`/notifications/${id}/read`);
       fetchNotifications();
+      showNotification('Notification marked as read.', 'success');
     } catch (err) {
-      setGeneralError(err.response?.data?.error || 'Failed to mark notification as read.');
+      showNotification(err.response?.data?.error || 'Failed to mark notification as read.', 'error');
     }
     setActionLoading(false);
   };

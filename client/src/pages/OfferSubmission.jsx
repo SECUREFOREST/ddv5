@@ -3,6 +3,7 @@ import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -25,6 +26,7 @@ function mapPrivacyValue(val) {
 }
 
 export default function OfferSubmission() {
+  const { showNotification } = useNotification();
   const [difficulty, setDifficulty] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState([]);
@@ -53,7 +55,7 @@ export default function OfferSubmission() {
       setCooldown(slotsRes.data?.cooldownUntil ?? null);
       setPrivacy(privacyRes.data?.value || 'when_viewed');
     }).catch(() => {
-      setError('Failed to load slot or privacy info.');
+      showNotification('Failed to load slot or privacy info.', 'error');
     }).finally(() => setLoading(false));
   }, []);
 
@@ -64,8 +66,9 @@ export default function OfferSubmission() {
     try {
       await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
       setPrivacy(val);
+      showNotification('Privacy setting updated!', 'success');
     } catch {
-      setPrivacyError('Failed to update privacy setting.');
+      showNotification('Failed to update privacy setting.', 'error');
     } finally {
       setPrivacyLoading(false);
     }
@@ -79,12 +82,10 @@ export default function OfferSubmission() {
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!difficulty) return setError('Please select a difficulty.');
-    if (!description.trim()) return setError('Please enter a description or requirements.');
-    if (slotLimit) return setError('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.');
-    if (cooldown && new Date() < new Date(cooldown)) return setError('You are in cooldown and cannot offer a new submission until it ends.');
+    if (!difficulty) return showNotification('Please select a difficulty.', 'error');
+    if (!description.trim()) return showNotification('Please enter a description or requirements.', 'error');
+    if (slotLimit) return showNotification('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.', 'error');
+    if (cooldown && new Date() < new Date(cooldown)) return showNotification('You are in cooldown and cannot offer a new submission until it ends.', 'error');
     setLoading(true);
     try {
       await api.post('/subs', {
@@ -93,10 +94,10 @@ export default function OfferSubmission() {
         tags,
         privacy: mapPrivacyValue(privacy),
       });
-      setSuccess('Submission offer created!');
+      showNotification('Submission offer created!', 'success');
       setTimeout(() => navigate('/performer-dashboard'), 1200);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create submission offer.');
+      showNotification(err.response?.data?.error || 'Failed to create submission offer.', 'error');
     } finally {
       setLoading(false);
     }

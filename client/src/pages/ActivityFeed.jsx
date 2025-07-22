@@ -4,13 +4,14 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
 export default function ActivityFeed() {
+  const { showNotification } = useNotification();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [lastSeen, setLastSeen] = useState(() => {
     const stored = localStorage.getItem(LAST_SEEN_KEY);
     return stored ? new Date(stored) : null;
@@ -21,7 +22,7 @@ export default function ActivityFeed() {
     setLoading(true);
     api.get('/activity-feed?limit=30')
       .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setError('Failed to load activity feed.'))
+      .catch(() => showNotification('Failed to load activity feed.', 'error'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -77,8 +78,6 @@ export default function ActivityFeed() {
                 </div>
               ))}
             </div>
-          ) : error ? (
-            <Banner type="error" message={error} onClose={() => setError('')} />
           ) : filteredActivities.length === 0 ? (
             <div className="text-neutral-400 text-center">No recent activity.</div>
           ) : (

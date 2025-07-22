@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { ShieldCheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -119,6 +120,8 @@ export default function Admin() {
   const [editUserError, setEditUserError] = useState('');
   const [deleteUserError, setDeleteUserError] = useState('');
 
+  const { showNotification } = useNotification();
+
   const fetchUsers = () => {
     setDataLoading(true);
     setError('');
@@ -127,7 +130,7 @@ export default function Admin() {
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
         setUsers([]);
-        setError(err.response?.data?.error || 'Failed to load users.');
+        showNotification(err.response?.data?.error || 'Failed to load users.', 'error');
       })
       .finally(() => setDataLoading(false));
   };
@@ -140,7 +143,7 @@ export default function Admin() {
       .then(res => setDares(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
         setDares([]);
-        setError(err.response?.data?.error || 'Failed to load dares.');
+        showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
       })
       .finally(() => setDaresLoading(false));
   };
@@ -153,7 +156,7 @@ export default function Admin() {
       .then(res => setReports(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
         setReports([]);
-        setError(err.response?.data?.error || 'Failed to load reports.');
+        showNotification(err.response?.data?.error || 'Failed to load reports.', 'error');
       })
       .finally(() => setReportsLoading(false));
   };
@@ -175,7 +178,7 @@ export default function Admin() {
       .then(res => setAppeals(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
         setAppeals([]);
-        setError(err.response?.data?.error || 'Failed to load appeals.');
+        showNotification(err.response?.data?.error || 'Failed to load appeals.', 'error');
       })
       .finally(() => setAppealsLoading(false));
   };
@@ -197,10 +200,10 @@ export default function Admin() {
     setSuccess('');
     try {
       await api.post(`/dares/${dareId}/approve`);
-      setSuccess('Dare approved successfully!');
+      showNotification('Dare approved successfully!', 'success');
       fetchDares();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to approve dare.');
+      showNotification(err.response?.data?.error || 'Failed to approve dare.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -211,10 +214,10 @@ export default function Admin() {
     setSuccess('');
     try {
       await api.post(`/dares/${dareId}/reject`);
-      setSuccess('Dare rejected successfully!');
+      showNotification('Dare rejected successfully!', 'success');
       fetchDares();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to reject dare.');
+      showNotification(err.response?.data?.error || 'Failed to reject dare.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -226,10 +229,10 @@ export default function Admin() {
     setSuccess('');
     try {
       await api.delete(`/dares/${dareId}`);
-      setSuccess('Dare deleted successfully!');
+      showNotification('Dare deleted successfully!', 'success');
       fetchDares();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to delete dare.');
+      showNotification(err.response?.data?.error || 'Failed to delete dare.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -275,10 +278,10 @@ export default function Admin() {
     setSuccess('');
     try {
       await api.delete(`/users/${userId}`);
-      setSuccess('User deleted successfully!');
+      showNotification('User deleted successfully!', 'success');
       fetchUsers();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to delete user');
+      showNotification(err.response?.data?.error || 'Failed to delete user', 'error');
     }
     setActionLoading(false);
   };
@@ -334,11 +337,11 @@ export default function Admin() {
       if (roles) payload.roles = roles;
       if (role) payload.role = role;
       await api.patch(`/users/${editUserId}`, payload);
-      setSuccess('User updated successfully!');
+      showNotification('User updated successfully!', 'success');
       fetchUsers();
       closeEditUserModal();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update user');
+      showNotification(err.response?.data?.error || 'Failed to update user', 'error');
     } finally {
       setEditUserLoading(false);
     }

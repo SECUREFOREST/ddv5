@@ -5,9 +5,11 @@ import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
+import { useNotification } from '../context/NotificationContext';
 
 export default function Register() {
   const { register } = useAuth();
+  const { showNotification } = useNotification();
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,23 +18,21 @@ export default function Register() {
   const [gender, setGender] = useState('');
   const [interestedIn, setInterestedIn] = useState([]);
   const [limits, setLimits] = useState([]);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validate = () => {
     if (!username || !fullName || !email || !password || !dob || !gender || interestedIn.length === 0) {
-      setError('All fields are required.');
+      showNotification('All fields are required.', 'error');
       return false;
     }
     const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
     if (!emailRegex.test(email)) {
-      setError('Invalid email format.');
+      showNotification('Invalid email format.', 'error');
       return false;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      showNotification('Password must be at least 8 characters.', 'error');
       return false;
     }
     return true;
@@ -44,28 +44,14 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!validate()) return;
     setLoading(true);
-    // Ensure dob is a string, interestedIn and limits are arrays
-    const payload = {
-      username,
-      fullName,
-      email,
-      password,
-      dob: dob ? String(dob) : '',
-      gender,
-      interestedIn: Array.isArray(interestedIn) ? interestedIn : [],
-      limits: Array.isArray(limits) ? limits : [],
-    };
-    console.log('Register payload:', payload); // For debugging
+    if (!validate()) return;
     try {
-      await register(payload);
-      setSuccess('Registration successful! Redirecting...');
+      await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
+      showNotification('Registration successful! Redirecting...', 'success');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      showNotification(err.response?.data?.error || 'Registration failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -189,8 +175,6 @@ export default function Register() {
               <label className="block font-semibold mb-1 text-primary">Limits</label>
               <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." />
             </div>
-            {error && <Banner type="error" message={error} onClose={() => setError('')} />}
-            {success && <Banner type="success" message={success} onClose={() => setSuccess('')} />}
             <button
               type="submit"
               className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"

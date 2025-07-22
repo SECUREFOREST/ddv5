@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
 import TagsInput from '../components/TagsInput';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -14,6 +15,7 @@ const DIFFICULTIES = [
 ];
 
 export default function DareCreator() {
+  const { showNotification } = useNotification();
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('titillating');
   const [creating, setCreating] = useState(false);
@@ -36,8 +38,7 @@ export default function DareCreator() {
     setGeneralSuccess('');
     setClaimLink('');
     if (description.trim().length < 10) {
-      setCreateError('Description must be at least 10 characters.');
-      setGeneralError('Description must be at least 10 characters.');
+      showNotification('Description must be at least 10 characters.', 'error');
       return;
     }
     setCreating(true);
@@ -52,6 +53,7 @@ export default function DareCreator() {
         });
         setClaimLink(res.data.claimLink);
         setShowModal(true);
+        showNotification('Claimable dare created!', 'success');
       } else {
         res = await api.post('/dares', {
           description,
@@ -59,11 +61,11 @@ export default function DareCreator() {
           tags,
           public: publicDare,
         });
+        showNotification('Dare created!', 'success');
         navigate(`/dare/share/${res.data._id || res.data.id}`);
       }
     } catch (err) {
-      setCreateError(err.response?.data?.error || 'Failed to create dare');
-      setGeneralError(err.response?.data?.error || 'Failed to create dare');
+      showNotification(err.response?.data?.error || 'Failed to create dare', 'error');
     } finally {
       setCreating(false);
     }

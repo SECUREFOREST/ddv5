@@ -6,6 +6,7 @@ import { Banner } from '../components/Modal';
 import dayjs from 'dayjs';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
+import { useNotification } from '../context/NotificationContext';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -53,7 +54,6 @@ export default function DareReveal() {
   const { user, loading: authLoading } = useAuth();
   const [dare, setDare] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
   const [proof, setProof] = React.useState('');
   const [proofFile, setProofFile] = React.useState(null);
   const [proofLoading, setProofLoading] = React.useState(false);
@@ -66,7 +66,7 @@ export default function DareReveal() {
   const [generalError, setGeneralError] = React.useState('');
   const [generalSuccess, setGeneralSuccess] = React.useState('');
   const [proofModalOpen, setProofModalOpen] = React.useState(false);
-  const [toast, setToast] = React.useState({ message: '', type: '' });
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = React.useState('proof');
 
   React.useEffect(() => {
@@ -76,23 +76,22 @@ export default function DareReveal() {
       return;
     }
     setLoading(true);
-    setError('');
     api.get(`/dares/${dareId}`)
       .then(res => {
         if (res.data && res.data._id) {
           const performerId = res.data.performer?._id || res.data.performer;
           if (!user || !performerId || String(performerId) !== String(user._id)) {
             setDare(null);
-            setError('You are not authorized to view this dare.');
+            showNotification('You are not authorized to view this dare.', 'error');
           } else {
             setDare(res.data);
           }
         } else {
-          setError('Dare not found.');
+          showNotification('Dare not found.', 'error');
         }
       })
       .catch(() => {
-        setError('Failed to fetch dare.');
+        showNotification('Failed to fetch dare.', 'error');
       })
       .finally(() => setLoading(false));
   }, [dareId, navigate, user, authLoading]);
@@ -100,7 +99,7 @@ export default function DareReveal() {
   const handleProofFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.size > 10 * 1024 * 1024) {
-      setProofError('File too large. Max size is 10MB.');
+      showNotification('File too large. Max size is 10MB.', 'error');
       setProofFile(null);
       return;
     }
@@ -109,37 +108,27 @@ export default function DareReveal() {
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();
-    setProofError('');
-    setProofSuccess('');
-    setGeneralError('');
-    setGeneralSuccess('');
     setProofLoading(true);
+    if (!proofFile || !proofFile.type.match(/^image\/(jpeg|png|gif|webp)$|^video\/mp4$/)) {
+      showNotification('Please upload a proof file (image or video).', 'error');
+      setProofLoading(false);
+      return;
+    }
+    let formData = new FormData();
+    if (proof) formData.append('text', proof);
+    formData.append('file', proofFile);
+    formData.append('expireAfterView', expireAfterView);
     try {
-      // Require a proof file (image or video)
-      if (!proofFile || !proofFile.type.match(/^image\/(jpeg|png|gif|webp)$|^video\/mp4$/)) {
-        setProofError('Please upload a proof file (image or video).');
-        setProofLoading(false);
-        return;
-      }
-      let formData = new FormData();
-      if (proof) formData.append('text', proof);
-      formData.append('file', proofFile);
-      formData.append('expireAfterView', expireAfterView);
       await api.post(`/dares/${dare._id}/proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setProof('');
       setProofFile(null);
       setExpireAfterView(false);
-      setProofSuccess('Proof submitted successfully!');
-      setGeneralSuccess('Proof submitted successfully!');
-      setToast({ message: 'Proof submitted successfully!', type: 'success' });
-      // Optionally reload dare
+      showNotification('Proof submitted successfully!', 'success');
       api.get(`/dares/${dare._id}`).then(res => setDare(res.data));
     } catch (err) {
-      setProofError(err.response?.data?.error || 'Failed to submit proof.');
-      setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
-      setToast({ message: err.response?.data?.error || 'Failed to submit proof.', type: 'error' });
+      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     } finally {
       setProofLoading(false);
     }
@@ -147,19 +136,12 @@ export default function DareReveal() {
 
   const handleChickenOut = async () => {
     setChickenOutLoading(true);
-    setChickenOutError('');
-    setGeneralError('');
-    setGeneralSuccess('');
     try {
       await api.post(`/dares/${dare._id}/forfeit`);
-      setGeneralSuccess('You have successfully chickened out.');
-      setToast({ message: 'You have successfully forfeited the dare.', type: 'success' });
-      // Optionally reload dare
+      showNotification('You have successfully forfeited the dare.', 'success');
       api.get(`/dares/${dare._id}`).then(res => setDare(res.data));
     } catch (err) {
-      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
-      setGeneralError(err.response?.data?.error || 'Failed to chicken out.');
-      setToast({ message: err.response?.data?.error || 'Failed to forfeit dare.', type: 'error' });
+      showNotification(err.response?.data?.error || 'Failed to chicken out.', 'error');
     } finally {
       setChickenOutLoading(false);
     }
@@ -193,7 +175,8 @@ export default function DareReveal() {
 
 
       <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      {toast.message && (
+      {/* The following toast div is removed as per the edit hint to remove redundant error/success state */}
+      {/* {toast.message && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-base font-semibold transition-all duration-300
           ${toast.type === 'success' ? 'bg-green-700 text-white' : 'bg-red-700 text-white'}`}
           role="alert"
@@ -204,7 +187,7 @@ export default function DareReveal() {
         >
           {toast.message}
         </div>
-      )}
+      )} */}
       {loading ? (
         <div className="text-lg text-center">Loading dare...</div>
       ) : error ? (

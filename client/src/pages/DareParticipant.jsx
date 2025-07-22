@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -30,6 +31,7 @@ export default function DareParticipant() {
   const [chickenOutError, setChickenOutError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
+  const { showNotification } = useNotification();
 
   const MAX_PROOF_SIZE_MB = 10;
 
@@ -56,10 +58,6 @@ export default function DareParticipant() {
     setDare(null);
     setProof('');
     setProofFile(null);
-    setProofError('');
-    setProofSuccess('');
-    setGeneralError('');
-    setGeneralSuccess('');
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
@@ -67,11 +65,11 @@ export default function DareParticipant() {
         setConsented(true);
       } else {
         setNoDare(true);
-        setGeneralError('No dares available for this difficulty.');
+        showNotification('No dares available for this difficulty.', 'error');
       }
     } catch (err) {
       setNoDare(true);
-      setGeneralError(err.response?.data?.error || 'Failed to fetch dare.');
+      showNotification(err.response?.data?.error || 'Failed to fetch dare.', 'error');
     } finally {
       setLoading(false);
     }
@@ -79,17 +77,13 @@ export default function DareParticipant() {
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();
-    setProofError('');
-    setProofSuccess('');
-    setGeneralError('');
-    setGeneralSuccess('');
     setProofLoading(true);
+    if (!proof && !proofFile) {
+      showNotification('Please provide proof text or upload a file.', 'error');
+      setProofLoading(false);
+      return;
+    }
     try {
-      if (!proof && !proofFile) {
-        setProofError('Please provide proof text or upload a file.');
-        setProofLoading(false);
-        return;
-      }
       let formData;
       if (proofFile) {
         formData = new FormData();
@@ -105,19 +99,14 @@ export default function DareParticipant() {
       setProof('');
       setProofFile(null);
       setExpireAfterView(false);
-      setProofSuccess('Proof submitted successfully!');
-      setGeneralSuccess('Proof submitted successfully!');
+      showNotification('Proof submitted successfully!', 'success');
       setTimeout(() => {
         setConsented(false);
         setConsentChecked(false);
         setDare(null);
-        setProofSuccess('');
-        setGeneralSuccess('');
-        handleConsent();
       }, 1500);
     } catch (err) {
-      setProofError(err.response?.data?.error || 'Failed to submit proof.');
-      setGeneralError(err.response?.data?.error || 'Failed to submit proof.');
+      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     } finally {
       setProofLoading(false);
     }
@@ -125,9 +114,6 @@ export default function DareParticipant() {
 
   const handleChickenOut = async () => {
     setChickenOutLoading(true);
-    setChickenOutError('');
-    setGeneralError('');
-    setGeneralSuccess('');
     try {
       await api.post(`/dares/${dare._id}/forfeit`);
       setConsented(false);
@@ -135,12 +121,9 @@ export default function DareParticipant() {
       setDare(null);
       setProof('');
       setProofFile(null);
-      setProofError('');
-      setProofSuccess('');
-      setGeneralSuccess('You have successfully chickened out.');
+      showNotification('You have successfully chickened out.', 'success');
     } catch (err) {
-      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
-      setGeneralError(err.response?.data?.error || 'Failed to chicken out.');
+      showNotification(err.response?.data?.error || 'Failed to chicken out.', 'error');
     } finally {
       setChickenOutLoading(false);
     }

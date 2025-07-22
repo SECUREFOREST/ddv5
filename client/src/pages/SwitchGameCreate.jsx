@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -43,26 +44,23 @@ const DIFFICULTIES = [
 ];
 
 export default function SwitchGameCreate() {
+  const { showNotification } = useNotification();
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('titillating');
   const [move, setMove] = useState('rock');
   const [creating, setCreating] = useState(false);
-  const [toast, setToast] = useState('');
-  const [error, setError] = useState('');
   const [publicGame, setPublicGame] = useState(true);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCreating(true);
-    setError('');
-    setToast('');
     try {
       const res = await api.post('/switches', { description, difficulty, move, public: publicGame });
-      setToast('Switch Game created!');
+      showNotification('Switch Game created!', 'success');
       setTimeout(() => navigate(`/switches/${res.data._id}`), 1200);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create switch game.');
+      showNotification(err.response?.data?.error || 'Failed to create switch game.', 'error');
     } finally {
       setCreating(false);
     }
@@ -75,12 +73,7 @@ export default function SwitchGameCreate() {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Create a Switch Game</h1>
       </div>
       {/* Toast notification for feedback (if needed) */}
-      {toast && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-success text-success-contrast px-4 py-2 rounded z-50 text-center" aria-live="polite">{toast}</div>
-      )}
-      {error && (
-        <div className="mb-4 text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>
-      )}
+      {/* The global notification system handles this */}
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {/* Card-like section for form content */}

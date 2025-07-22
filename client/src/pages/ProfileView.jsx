@@ -4,6 +4,7 @@ import api from '../api/axios';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 export default function ProfileView() {
@@ -14,14 +15,12 @@ export default function ProfileView() {
   const [userActivities, setUserActivities] = useState([]);
   const [userActivitiesLoading, setUserActivitiesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [blockStatus, setBlockStatus] = useState('idle'); // idle | blocking | blocked | error
   const [blockError, setBlockError] = useState('');
 
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
-    setError('');
     Promise.all([
       api.get(`/users/${userId}`),
       api.get(`/stats/users/${userId}`),
@@ -32,7 +31,7 @@ export default function ProfileView() {
         setStats(statsRes.data);
         setUserActivities(Array.isArray(actRes.data) ? actRes.data : []);
       })
-      .catch(() => setError('User not found.'))
+      .catch(() => showNotification('User not found.', 'error'))
       .finally(() => { setLoading(false); setUserActivitiesLoading(false); });
   }, [userId]);
 
@@ -42,9 +41,10 @@ export default function ProfileView() {
     try {
       await api.post(`/users/${userId}/block`);
       setBlockStatus('blocked');
+      showNotification('User blocked successfully!', 'success');
     } catch (err) {
       setBlockStatus('error');
-      setBlockError(err.response?.data?.error || 'Failed to block user.');
+      showNotification(err.response?.data?.error || 'Failed to block user.', 'error');
     }
   };
 
@@ -69,7 +69,7 @@ export default function ProfileView() {
   };
 
   if (loading) return <div className="max-w-md w-full mx-auto mt-16 text-center text-neutral-400">Loading...</div>;
-  if (error || !profile) return <div className="max-w-md w-full mx-auto mt-16 text-center text-danger font-medium">{error || 'User not found.'}</div>;
+  if (!profile) return <div className="max-w-md w-full mx-auto mt-16 text-center text-danger font-medium">User not found.</div>;
 
   // If blocked, show message and block all interactions
   if (isBlocked) {

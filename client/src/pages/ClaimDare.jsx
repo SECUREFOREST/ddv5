@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -38,17 +39,16 @@ export default function ClaimDare() {
   const navigate = useNavigate();
   const [dare, setDare] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     api.get(`/dares/claim/${claimToken}`)
       .then(res => setDare(res.data))
-      .catch(() => setError('Dare not found or already claimed.'));
+      .catch(() => showNotification('Dare not found or already claimed.', 'error'));
   }, [claimToken]);
 
   const handleConsent = async (e) => {
     e.preventDefault();
-    setError('');
     try {
       const res = await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
       // Use dare ID from response for redirect
@@ -57,13 +57,13 @@ export default function ClaimDare() {
         navigate(`/dare/${dareId}/perform`);
       } else {
         setSubmitted(true);
+        showNotification('Thank you! You have consented to perform this dare.', 'success');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to consent to dare.');
+      showNotification(err.response?.data?.error || 'Failed to consent to dare.', 'error');
     }
   };
 
-  if (error) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden text-danger">{error}</div>;
   if (!dare) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden text-neutral-200">Loading...</div>;
   if (submitted) return <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden text-success">Thank you! You have consented to perform this dare.</div>;
 

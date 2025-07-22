@@ -13,8 +13,10 @@ import Countdown from '../components/Countdown';
 import Accordion from '../components/Accordion';
 import { Banner } from '../components/Modal';
 import { SparklesIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 export default function UIDemo() {
+  const { showNotification } = useNotification();
   const [modalOpen, setModalOpen] = useState(false);
   const [tabIdx, setTabIdx] = useState(0);
   const [tags, setTags] = useState(["react", "migration"]);
@@ -22,7 +24,7 @@ export default function UIDemo() {
   const [markdown, setMarkdown] = useState(`# Markdown Example\n\n- **Bold** and _italic_\n- [Link](https://example.com)\n- \`inline code\`\n\n1. List item\n2. List item\n\n> Blockquote\n\n\n\n`);
   const [countdownTarget, setCountdownTarget] = useState(null);
   const [countdownDone, setCountdownDone] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
@@ -39,7 +41,6 @@ export default function UIDemo() {
         </span>
       </div>
 
-      {error && <Banner type="error" message={error} onClose={() => setError('')} />}
       {/* Button */}
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Button</h2>

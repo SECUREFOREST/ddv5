@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 const DIFFICULTIES = [
   { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
@@ -21,6 +22,7 @@ const PRIVACY_OPTIONS = [
 
 export default function DarePerform() {
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [difficulty, setDifficulty] = useState('titillating');
   const [consented, setConsented] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -73,15 +75,13 @@ export default function DarePerform() {
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();
-    setProofError('');
-    setProofSuccess('');
     setProofLoading(true);
+    if (!proof && !proofFile) {
+      showNotification('Please provide proof text or upload a file.', 'error');
+      setProofLoading(false);
+      return;
+    }
     try {
-      if (!proof && !proofFile) {
-        setProofError('Please provide proof text or upload a file.');
-        setProofLoading(false);
-        return;
-      }
       let formData;
       if (proofFile) {
         formData = new FormData();
@@ -97,9 +97,9 @@ export default function DarePerform() {
       setProof('');
       setProofFile(null);
       setExpireAfterView(false);
-      setProofSuccess('Proof submitted successfully!');
+      showNotification('Proof submitted successfully!', 'success');
     } catch (err) {
-      setProofError(err.response?.data?.error || 'Failed to submit proof.');
+      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     } finally {
       setProofLoading(false);
     }
@@ -119,13 +119,12 @@ export default function DarePerform() {
   // Fetch dare details with grades after proof submission
   const fetchDare = async (dareId) => {
     setFetchingDare(true);
-    setFetchDareError('');
     try {
       const res = await api.get(`/dares/${dareId}`);
       setDare(res.data);
       setGrades(res.data.grades || []);
     } catch (err) {
-      setFetchDareError('Failed to load updated dare details. Please refresh the page.');
+      showNotification('Failed to load updated dare details. Please refresh the page.', 'error');
     } finally {
       setFetchingDare(false);
     }

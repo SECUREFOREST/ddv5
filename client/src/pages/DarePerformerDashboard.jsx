@@ -104,15 +104,11 @@ export default function DarePerformerDashboard() {
     notificationTimeout.current = setTimeout(() => setNotification(null), 4000);
   };
   // Loading states
-  const [slotsLoading, setSlotsLoading] = useState(false);
   const [completedLoading, setCompletedLoading] = useState(false);
   const [demandLoading, setDemandLoading] = useState(false);
   // Confirmation dialog for withdraw
   const [confirmWithdrawIdx, setConfirmWithdrawIdx] = useState(null);
 
-  // Slots management
-  const [slots, setSlots] = useState([]); // [{dare, status, ...}]
-  const [cooldownUntil, setCooldownUntil] = useState(null);
   // Ongoing/completed dares
   const [ongoing, setOngoing] = useState([]);
   const [completed, setCompleted] = useState([]);
@@ -129,22 +125,27 @@ export default function DarePerformerDashboard() {
   ];
   const [selectedTypes, setSelectedTypes] = useState([]);
   // Demand section filter and state variables
-  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
-  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
-  const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
-  const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
-  const [publicDemandDares, setPublicDemandDares] = useState([]);
-  const [publicDemandLoading, setPublicDemandLoading] = useState(false);
-  const [publicDemandError, setPublicDemandError] = useState('');
-  const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
-  const [completedDemand, setCompletedDemand] = useState([]);
+  // Remove demand-related state
+  // const [demandSlots, setDemandSlots] = useState([]);
+  // const [demandLoading, setDemandLoading] = useState(false);
+  // const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
+  // const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
+  // const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
+  // const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
+  // const [publicDemandDares, setPublicDemandDares] = useState([]);
+  // const [publicDemandLoading, setPublicDemandLoading] = useState(false);
+  // const [publicDemandError, setPublicDemandError] = useState('');
+  // const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
+  // const [completedDemand, setCompletedDemand] = useState([]);
+  // const [publicDemandPage, setPublicDemandPage] = useState(1);
+  // const [publicDemandTotal, setPublicDemandTotal] = useState(0);
   // Dashboard settings modal state
   const [showDashboardSettings, setShowDashboardSettings] = useState(false);
   // UI state
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(false);
   // Add demandSlots state
-  const [demandSlots, setDemandSlots] = useState([]);
+  // const [demandSlots, setDemandSlots] = useState([]);
   const [tab, setTab] = useState(() => localStorage.getItem('performerDashboardTab') || 'perform');
   // Add Switch Game tab
   const TABS = [
@@ -187,17 +188,8 @@ const [allDaresSort, setAllDaresSort] = useState("recent");
   }
 
 // Derived arrays for All Dares tab (must be inside component)
-const allActiveDares = [
-  ...ongoing.map(d => ({ ...d, _type: "perform" })),
-  ...demandSlots.map(d => ({ ...d, _type: "demand" }))
-].filter(dare => {
-  const userId = user?._id || user?.id;
-  return dare.creator?._id === userId || dare.creator?.id === userId || dare.performer?._id === userId || dare.performer?.id === userId || dare.participant?._id === userId || dare.participant?.id === userId;
-});
-const allCompletedDares = [
-  ...completed.map(d => ({ ...d, _type: "perform" })),
-  ...completedDemand.map(d => ({ ...d, _type: "demand" }))
-];
+const allActiveDares = ongoing.map(d => ({ ...d, _type: "perform" }));
+const allCompletedDares = completed.map(d => ({ ...d, _type: "perform" }));
   const navigate = useNavigate();
   const userId = user?._id || user?.id;
   const filteredMySwitchGames = mySwitchGames.filter(game =>
@@ -306,15 +298,8 @@ const allCompletedDares = [
   // Fetch slots, ongoing, completed, and cooldown from API
   useEffect(() => {
     if (!user) return;
-    setError('');
-    setSlotsLoading(true);
     setCompletedLoading(true);
     setDemandLoading(true);
-    // Fetch perform slots (ongoing dares)
-    api.get('/dares/performer?status=in_progress')
-      .then(res => setSlots(res.data))
-      .catch(() => setSlots([]))
-      .finally(() => setSlotsLoading(false));
     // Fetch completed dares
     api.get('/dares/performer?status=completed')
       .then(res => setCompleted(res.data))
@@ -324,11 +309,6 @@ const allCompletedDares = [
     api.get('/dares/performer?status=in_progress')
       .then(res => setOngoing(res.data))
       .catch(() => setOngoing([]));
-    // Fetch demand slots (dares created by user, in progress)
-    api.get(`/dares?creator=${user._id}&status=in_progress`)
-      .then(res => setDemandSlots(res.data))
-      .catch(() => setDemandSlots([]))
-      .finally(() => setDemandLoading(false));
     // TODO: Fetch cooldown from user profile if available
   }, [user]);
 
@@ -362,7 +342,13 @@ const allCompletedDares = [
     setPublicError('');
     api.get('/dares', { params: { public: true, status: statusFilter, tag: tagFilter } })
       .then(res => setPublicDares(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setPublicError('Failed to load public dares.'))
+      .catch(err => {
+        if (err.response?.status === 429) {
+          showNotification('You have reached the API rate limit. Please try again later.', 'error');
+        } else {
+          showNotification(err.response?.data?.error || 'Failed to load public dares.', 'error');
+        }
+      })
       .finally(() => setPublicLoading(false));
   }, [selectedDifficulties, selectedTypes, keywordFilter, creatorFilter, statusFilter, tagFilter]);
 
@@ -387,7 +373,7 @@ const allCompletedDares = [
 
   // Claim a public dare (if slots available and not in cooldown)
   const handleClaimDare = async (dare) => {
-    if (slots.length >= MAX_SLOTS) {
+    if (ongoing.length >= MAX_SLOTS) {
       showNotification('You have reached your maximum number of perform slots. Complete or reject a dare to free up a slot.', 'error');
       return;
     }
@@ -401,7 +387,6 @@ const allCompletedDares = [
       // Use /dares/random to claim a dare (optionally pass difficulty)
       const res = await api.get(`/dares/random${dare.difficulty ? `?difficulty=${dare.difficulty}` : ''}`);
       // Add to slots and refresh
-      setSlots(prev => [...prev, res.data]);
       setOngoing(prev => [...prev, res.data]);
       showNotification('Dare claimed successfully!', 'success');
     } catch (err) {
@@ -413,13 +398,14 @@ const allCompletedDares = [
 
   // Complete or reject a dare (free up slot)
   // Performer: Complete a dare by submitting proof (even if just text)
-  const handleCompleteDare = async (slotIdx) => {
-    const dare = slots[slotIdx];
+  const handleCompleteDare = async (dareId) => {
+    const dareIdx = ongoing.findIndex(d => d._id === dareId);
+    if (dareIdx === -1) return;
+    const dare = ongoing[dareIdx];
     try {
       // For now, submit minimal proof (could open a modal for real proof)
       await api.post(`/dares/${dare._id}/proof`, { text: 'Completed via dashboard quick-complete.' });
-      setSlots(prev => prev.filter((_, i) => i !== slotIdx));
-      setOngoing(prev => prev.filter((d, i) => i !== slotIdx));
+      setOngoing(prev => prev.filter((_, i) => i !== dareIdx));
       setCompleted(prev => [...prev, { ...dare, status: 'completed', completedAt: new Date() }]);
       showNotification('Dare marked as completed!', 'success');
     } catch (err) {
@@ -427,12 +413,13 @@ const allCompletedDares = [
     }
   };
   // Performer: Forfeit (reject) a dare
-  const handleRejectDare = async (slotIdx) => {
-    const dare = slots[slotIdx];
+  const handleRejectDare = async (dareId) => {
+    const dareIdx = ongoing.findIndex(d => d._id === dareId);
+    if (dareIdx === -1) return;
+    const dare = ongoing[dareIdx];
     try {
       await api.post(`/dares/${dare._id}/forfeit`);
-      setSlots(prev => prev.filter((_, i) => i !== slotIdx));
-      setOngoing(prev => prev.filter((d, i) => i !== slotIdx));
+      setOngoing(prev => prev.filter((_, i) => i !== dareIdx));
       // Start cooldown
       setCooldownUntil(new Date(Date.now() + COOLDOWN_SECONDS * 1000));
       showNotification('Dare rejected (forfeited). You are now in cooldown.', 'info');
@@ -626,7 +613,7 @@ const allCompletedDares = [
           </button>
                   <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
                     Offer Submission
-                  </button>
+          </button>
         </div>
         {/* Advanced Filters & Sorting */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
@@ -678,10 +665,10 @@ const allCompletedDares = [
                         {/* Action buttons at the bottom */}
                         <div className="flex justify-center gap-2 mt-auto pt-2">
                 {dare._type === 'perform' && dare.status === 'in_progress' && (
-                            <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => handleCompleteDare(slots.findIndex(d => d._id === dare._id))}>Complete</button>
+                            <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => handleCompleteDare(dare._id)}>Complete</button>
                 )}
                 {dare._type === 'perform' && dare.status === 'in_progress' && (
-                            <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={() => handleRejectDare(slots.findIndex(d => d._id === dare._id))}>Reject</button>
+                            <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={() => handleRejectDare(dare._id)}>Reject</button>
                 )}
                 {dare._type === 'demand' && dare.status === 'in_progress' && (
                             <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={() => setConfirmWithdrawIdx(demandSlots.findIndex(d => d._id === dare._id))}>Withdraw</button>
@@ -822,10 +809,10 @@ const allCompletedDares = [
                         {/* Action button at the bottom center */}
                         <div className="flex justify-center gap-2 mt-auto pt-2">
                 {game.status === 'in_progress' && (
-                            <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={e => { e.stopPropagation(); /* handle complete */ }}>Complete</button>
+                            <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={e => { e.stopPropagation(); handleCompleteSwitchGame(game._id); }}>Complete</button>
                           )}
                           {game.status === 'in_progress' && (
-                            <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={e => { e.stopPropagation(); /* handle reject */ }}>Reject</button>
+                            <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={e => { e.stopPropagation(); handleRejectSwitchGame(game._id); }}>Reject</button>
                           )}
                           {game.status === 'in_progress' && (
                             <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Participate" onClick={e => { e.stopPropagation(); navigate(`/switches/${game._id}`); }}>Participate</button>

@@ -8,6 +8,7 @@ import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { useNotification } from '../context/NotificationContext';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -18,6 +19,7 @@ function mapPrivacyValue(val) {
 
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
+  const { showNotification } = useNotification();
   const [stats, setStats] = useState(null);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
@@ -25,7 +27,6 @@ export default function Profile() {
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   const [userActivities, setUserActivities] = useState([]);
   const [userActivitiesLoading, setUserActivitiesLoading] = useState(true);
   const [blockedUsersInfo, setBlockedUsersInfo] = useState([]);
@@ -124,25 +125,17 @@ export default function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    console.log('user at save:', user);
-    console.log('user.id:', user?.id, 'user._id:', user?._id);
     if (!user || !(user.id || user._id)) {
-      setError('User not loaded. Please refresh and try again.');
-      setGeneralError('User not loaded. Please refresh and try again.');
+      showNotification('User not loaded. Please refresh and try again.', 'error');
       return;
     }
     const userId = user.id || user._id;
     setSaving(true);
-    setError('');
-    setGeneralError('');
-    setGeneralSuccess('');
     try {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
-      console.log('user before reload:', user);
       window.location.reload(); // reload to update context
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update profile');
-      setGeneralError(err.response?.data?.error || 'Failed to update profile');
+      showNotification(err.response?.data?.error || 'Failed to update profile', 'error');
     } finally {
       setSaving(false);
     }
@@ -150,8 +143,6 @@ export default function Profile() {
 
   const handleUnblock = async (blockedUserId) => {
     setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
-    setGeneralError('');
-    setGeneralSuccess('');
     try {
       await api.post(`/users/${blockedUserId}/unblock`);
       // Remove from local blockedUsers and blockedUsersInfo
@@ -161,10 +152,10 @@ export default function Profile() {
       }
       setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
-      setGeneralSuccess('User unblocked successfully!');
+      showNotification('User unblocked successfully!', 'success');
     } catch (err) {
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
-      setGeneralError(err.response?.data?.error || 'Failed to unblock user.');
+      showNotification(err.response?.data?.error || 'Failed to unblock user.', 'error');
     }
   };
 
@@ -191,10 +182,6 @@ export default function Profile() {
         const formData = new FormData();
         formData.append('file', file);
         setSaving(true);
-        setError('');
-        setAvatarSaved(false);
-        setGeneralError('');
-        setGeneralSuccess('');
         try {
           const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -202,10 +189,9 @@ export default function Profile() {
           setAvatar(uploadRes.data.url);
           setAvatarSaved(true);
           setTimeout(() => setAvatarSaved(false), 2000);
-          setGeneralSuccess('Profile picture saved!');
+          showNotification('Profile picture saved!', 'success');
         } catch (uploadErr) {
-          setError('Failed to upload avatar.');
-          setGeneralError('Failed to upload avatar.');
+          showNotification('Failed to upload avatar.', 'error');
         } finally {
           setSaving(false);
         }
@@ -402,7 +388,6 @@ export default function Profile() {
                             <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" disabled={saving}>Save</button>
                             <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800 shadow-lg" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
                           </div>
-                          {error && <div className="text-danger mt-2">{error}</div>}
                         </form>
                       ) : (
                         <>
