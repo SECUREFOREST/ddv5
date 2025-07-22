@@ -600,7 +600,7 @@ export default function DarePerformerDashboard() {
             label: 'All Dares',
             content: (
               <div>
-                <h3 className="section-description text-xl font-bold mb-2" aria-label="All Dares">All Dares (Perform & Demand)</h3>
+                <h3 className="section-description text-xl font-bold mb-2 text-center justify-center" aria-label="All Dares">All Dares (Perform & Demand)</h3>
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
                   <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/subs/new')}>
@@ -746,7 +746,7 @@ export default function DarePerformerDashboard() {
             label: 'Switch Games',
             content: (
               <div>
-                <h3 className="section-description text-xl font-bold mb-2" aria-label="Switch Games">Switch Games</h3>
+                <h3 className="section-description text-xl font-bold mb-2 text-center justify-center" aria-label="Switch Games">Switch Games</h3>
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
                   <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/switches/create')}>
