@@ -139,8 +139,15 @@ export default function Admin() {
     setDaresLoading(true);
     setError('');
     setSuccess('');
-    api.get('/dares')
-      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+    Promise.all([
+      api.get('/dares'),
+      api.get('/switches')
+    ])
+      .then(([daresRes, switchesRes]) => {
+        const dares = Array.isArray(daresRes.data) ? daresRes.data : [];
+        const switchGames = Array.isArray(switchesRes.data) ? switchesRes.data.map(sg => ({ ...sg, isSwitchGame: true })) : [];
+        setDares([...dares, ...switchGames]);
+      })
       .catch(err => {
         setDares([]);
         showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
@@ -542,7 +549,10 @@ export default function Admin() {
                             .map(d => (
                               <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                                 <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
-                                <td className="p-2 font-medium text-primary">{d && typeof d.description === 'string' ? d.description : '-'}</td>
+                                <td className="p-2 font-medium text-primary">
+                                  {d.isSwitchGame && <span className="bg-blue-700 text-white px-2 py-1 rounded text-xs mr-2">Switch Game</span>}
+                                  {d && typeof d.description === 'string' ? d.description : '-'}
+                                </td>
                                 <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
                                 <td className="p-2">
                                   <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
