@@ -158,7 +158,7 @@ export default function SwitchGameDetails() {
   const statusBadge = (status) => {
     if (status === 'waiting_for_participant') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Waiting for Participant</span>;
     if (status === 'in_progress') return <span className="inline-block bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold ml-2">In Progress</span>;
-    if (status === 'awaiting_proof') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Awaiting Proof</span>;
+    if (status === 'awaiting_proof') return <span className="inline-block bg-warning text-warning-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Waiting for Proof</span>;
     if (status === 'proof_submitted') return <span className="inline-block bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Proof Submitted</span>;
     if (status === 'expired') return <span className="inline-block bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold ml-2">Expired</span>;
     if (status === 'completed') return <span className="inline-block bg-neutral-500 text-white rounded px-2 py-1 text-xs font-semibold ml-2">Completed</span>;
@@ -524,7 +524,7 @@ export default function SwitchGameDetails() {
           {/* Show winner/loser and proof submission if awaiting_proof */}
           {game.status === 'awaiting_proof' && (
             <div className="mt-6 text-neutral-500 text-center font-semibold">
-              Awaiting proof from the loser.
+              Waiting for proof from the loser.
             </div>
           )}
         {/* Proof preview/modal if applicable */}
