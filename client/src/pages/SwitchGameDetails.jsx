@@ -616,7 +616,24 @@ export default function SwitchGameDetails() {
             </div>
           )}
           {isLoser && !game.proof && (
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center w-full">
+              {/* Winner's Dare Description Card */}
+              <div className="w-full max-w-md mb-6 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow p-4">
+                <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
+                <div className="flex flex-col items-center mb-2">
+                  <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Winner</span>
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold">Description:</span>
+                  <span className="ml-2">{game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.description : game.participantDare?.description}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Difficulty:</span>
+                  <span className="ml-2"><DifficultyBadge level={game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.difficulty : game.participantDare?.difficulty} /></span>
+                </div>
+              </div>
+              {/* Proof Submission Form */}
               <form
                 onSubmit={handleProofSubmit}
                 className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
