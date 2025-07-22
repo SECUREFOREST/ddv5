@@ -536,6 +536,7 @@ export default function Admin() {
                         <thead>
                           <tr className="bg-neutral-900 text-primary">
                             <th scope="col" className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
+                            <th scope="col" className="p-2 text-left font-semibold">Game Type</th>
                             <th scope="col" className="p-2 text-left font-semibold">Description</th>
                             <th scope="col" className="p-2 text-left font-semibold">Creator</th>
                             <th scope="col" className="p-2 text-left font-semibold">Status</th>
@@ -554,9 +555,9 @@ export default function Admin() {
                               <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                                 <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
                                 <td className="p-2 font-medium text-primary">
-                                  {d.isSwitchGame && <span className="bg-blue-700 text-white px-2 py-1 rounded text-xs mr-2">Switch Game</span>}
-                                  {d && typeof d.description === 'string' ? d.description : '-'}
+                                  {d.isSwitchGame ? <span className="bg-blue-700 text-white px-2 py-1 rounded text-xs">Switch Game</span> : <span className="bg-green-700 text-white px-2 py-1 rounded text-xs">Dare</span>}
                                 </td>
+                                <td className="p-2 text-neutral-100">{d && typeof d.description === 'string' ? d.description : '-'}</td>
                                 <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
                                 <td className="p-2">
                                   <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${d && d.status === 'pending' ? 'bg-warning text-warning-contrast' : d && d.status === 'approved' ? 'bg-success text-success-contrast' : d && d.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{d && d.status === 'waiting_for_participant' ? 'Waiting for Participant' : d && d.status}</span>
