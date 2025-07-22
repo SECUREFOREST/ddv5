@@ -810,6 +810,9 @@ export default function SwitchGameDetails() {
           {/* Proof Submission (Loser) */}
           {isLoser && game.status === 'awaiting_proof' && (
             <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
+              <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
+                You lost! Please submit your proof to complete the game.
+              </div>
               <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
               <form onSubmit={handleProofSubmit}>
                 <div className="mb-2">
