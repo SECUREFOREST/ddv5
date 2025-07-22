@@ -37,9 +37,6 @@ export default function Admin() {
         <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-danger tracking-tight flex items-center gap-2">
             <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
-            <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold ml-4 text-base animate-fade-in">
-              <ShieldCheckIcon className="w-5 h-5" /> Admin Only
-            </span>
           </h1>
         </div>
         <div className="border-t border-neutral-800 my-4 w-full" />
@@ -434,10 +431,11 @@ export default function Admin() {
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <ShieldCheckIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Admin Panel
-          <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold ml-4 text-base animate-fade-in">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex flex-col items-center justify-center h-20 mb-2 px-6 rounded-t-2xl">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-danger tracking-tight flex flex-col items-center gap-2">
+          <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" />
+          Admin Panel
+          <span className="inline-flex items-center gap-2 bg-danger/90 border border-danger text-danger-contrast rounded-full px-4 py-1 font-bold text-base animate-fade-in mt-2">
             <ShieldCheckIcon className="w-5 h-5" /> Admin Only
           </span>
         </h1>
