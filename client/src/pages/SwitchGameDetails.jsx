@@ -326,10 +326,10 @@ export default function SwitchGameDetails() {
 
   // Improved debug log for updated game state
   useEffect(() => {
-    if (game && (toast || proofError || generalSuccess)) {
+    if (game && (toast || generalSuccess)) {
       console.log('Updated switch game after action:', game);
     }
-  }, [game, toast, proofError, generalSuccess]);
+  }, [game, toast, generalSuccess]);
 
   // Find grades given and received
   const myGivenGrade = game && game.grades && user && game.grades.find(g => getId(g.user) === userId);
@@ -342,34 +342,43 @@ export default function SwitchGameDetails() {
   // const isWinner = user && winnerId && (user.id === winnerId || user._id === winnerId);
   // const isLoser = user && loserId && (user.id === loserId || user._id === loserId);
 
-  // Proof submission state
-  const [proofText, setProofText] = useState('');
-  const [proofSubmitting, setProofSubmitting] = useState(false);
-  const [proofSubmitError, setProofSubmitError] = useState('');
-  const [proofSubmitSuccess, setProofSubmitSuccess] = useState('');
+  // --- Proof Submission State ---
+  const [proofFile, setProofFile] = useState(null);
+  const [proofLoading, setProofLoading] = useState(false);
 
-  // Proof review state
-  const [reviewFeedback, setReviewFeedback] = useState('');
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [reviewError, setReviewError] = useState('');
-  const [reviewSuccess, setReviewSuccess] = useState('');
+  const handleProofFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > 10 * 1024 * 1024) {
+      showNotification('File too large. Max size is 10MB.', 'error');
+      setProofFile(null);
+      return;
+    }
+    setProofFile(file);
+  };
 
-  // Submit proof handler
   const handleProofSubmit = async (e) => {
     e.preventDefault();
-    setProofSubmitError('');
-    setProofSubmitSuccess('');
-    setProofSubmitting(true);
+    setProofError('');
+    setProofLoading(true);
+    if (!proofFile || !proofFile.type.match(/^image\/(jpeg|png|gif|webp)$|^video\/mp4$/)) {
+      setProofError('Please upload a proof file (image or video).');
+      setProofLoading(false);
+      return;
+    }
+    let formData = new FormData();
+    formData.append('file', proofFile);
     try {
-      await api.post(`/switches/${id}/proof`, { text: proofText });
-      setProofText('');
-      setProofSubmitSuccess('Proof submitted successfully!');
+      await api.post(`/switches/${id}/proof`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setProofFile(null);
+      showNotification('Proof submitted successfully!', 'success');
       fetchGameWithFeedback(true);
     } catch (err) {
-      setProofSubmitError(err.response?.data?.error || 'Failed to submit proof.');
+      setProofError(err.response?.data?.error || 'Failed to submit proof.');
       showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     } finally {
-      setProofSubmitting(false);
+      setProofLoading(false);
     }
   };
 
@@ -594,18 +603,17 @@ export default function SwitchGameDetails() {
                       <label className="block font-semibold mb-1">Proof (text):</label>
                       <textarea
                         className="border rounded px-2 py-1 w-full"
-                        value={proofText}
-                        onChange={e => setProofText(e.target.value)}
+                        value={proof}
+                        onChange={e => setProof(e.target.value)}
                         maxLength={1000}
                         rows={3}
                         required
-                        disabled={proofSubmitting}
+                        disabled={proofLoading}
                       />
                     </div>
-                    {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
-                    {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
-                    <button type="submit" className="btn btn-accent shadow-lg" disabled={proofSubmitting}>
-                      {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
+                    {proofError && <div className="text-red-500 mb-2">{proofError}</div>}
+                    <button type="submit" className="btn btn-accent shadow-lg" disabled={proofLoading}>
+                      {proofLoading ? 'Submitting...' : 'Submit Proof'}
                     </button>
                   </form>
                 </div>
@@ -827,23 +835,22 @@ export default function SwitchGameDetails() {
                 You lost! Please submit your proof to complete the game.
               </div>
               <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
-              <form onSubmit={handleProofSubmit}>
-                <div className="mb-2">
-                  <label className="block font-semibold mb-1">Proof (text):</label>
-                  <textarea
-                    className="border rounded px-2 py-1 w-full"
-                    value={proofText}
-                    onChange={e => setProofText(e.target.value)}
-                    maxLength={1000}
-                    rows={3}
-                    required
-                    disabled={proofSubmitting}
+              <form onSubmit={handleProofSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="proof-file" className="block font-semibold mb-1">Upload image or video proof:</label>
+                  <input
+                    type="file"
+                    id="proof-file"
+                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                    onChange={handleProofFileChange}
+                    accept="image/*,video/mp4,video/webm,video/quicktime"
+                    aria-required="true"
                   />
+                  <small className="text-gray-400">Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</small>
                 </div>
-                {proofSubmitError && <div className="text-red-500 mb-2">{proofSubmitError}</div>}
-                {proofSubmitSuccess && <div className="text-green-600 mb-2">{proofSubmitSuccess}</div>}
-                <button type="submit" className="btn btn-accent shadow-lg" disabled={proofSubmitting}>
-                  {proofSubmitting ? 'Submitting...' : 'Submit Proof'}
+                {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}
+                <button type="submit" className="btn btn-accent shadow-lg w-full" disabled={proofLoading} aria-label="Submit Proof">
+                  {proofLoading ? 'Submitting...' : 'Submit Proof'}
                 </button>
               </form>
             </div>
