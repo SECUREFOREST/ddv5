@@ -533,12 +533,12 @@ export default function Admin() {
                                 </td>
                                 <td className="p-2 text-neutral-300">{user.email}</td>
                                 <td className="p-2">
-                                  {user.role === 'admin' ? (
+                                  {user.roles && Array.isArray(user.roles) && user.roles.includes('admin') ? (
                                     <span className="inline-flex items-center gap-1 bg-danger/20 text-danger font-bold rounded px-2 py-1 text-xs">
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11V7m0 8h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
                                       Admin
                                     </span>
-                                  ) : user.role === 'moderator' ? (
+                                  ) : user.roles && Array.isArray(user.roles) && user.roles.includes('moderator') ? (
                                     <span className="inline-flex items-center gap-1 bg-info/20 text-info font-bold rounded px-2 py-1 text-xs">
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                       Moderator
