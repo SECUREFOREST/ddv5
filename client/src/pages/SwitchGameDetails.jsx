@@ -509,15 +509,22 @@ export default function SwitchGameDetails() {
             <DifficultyBadge level={game.participantDare?.difficulty} />
           </div>
         </div>
-        {/* Description card */}
-        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-          <div className="font-bold text-xl text-primary mb-2">Game Description</div>
-          <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.description}</div>
-          <div className="flex flex-wrap justify-center gap-2 mt-2">
-            <DifficultyBadge level={game.creatorDare?.difficulty} />
-            {/* tags here if any */}
-          </div>
-        </div>
+          {/* Waiting for other participant's move */}
+          {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
+            <div className="mt-6 text-primary font-semibold">Waiting for the other participant to choose...</div>
+          )}
+          {/* Show draw message if both moves are the same */}
+          {bothMoves && rpsResult === 'draw' && (
+            <div className="mt-6 bg-info bg-opacity-10 border border-info rounded p-4">
+              <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
+            </div>
+          )}
+          {/* Show winner/loser and proof submission if awaiting_proof */}
+          {game.status === 'awaiting_proof' && (
+            <div className="mt-6 text-neutral-500 text-center font-semibold">
+              Awaiting proof from the loser.
+            </div>
+          )}
         {/* Proof preview/modal if applicable */}
         {/* ...proof preview/modal code from DareReveal... */}
         {/* Sticky footer for action buttons */}
@@ -599,27 +606,8 @@ export default function SwitchGameDetails() {
               </div>
             </div>
           )}
-          {/* Waiting for other participant's move */}
-          {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
-            <div className="mt-6 text-primary font-semibold">Waiting for the other participant to choose...</div>
-          )}
-          {/* Show draw message if both moves are the same */}
-          {bothMoves && rpsResult === 'draw' && (
-            <div className="mt-6 bg-info bg-opacity-10 border border-info rounded p-4">
-              <b>It's a draw!</b> Both players chose {game.moves[game.participants[0]]}. Please choose again.
-            </div>
-          )}
-          {/* Show winner/loser and proof submission if awaiting_proof */}
-          {game.status === 'awaiting_proof' && (
-            <div className="mt-6 text-neutral-500 text-center font-semibold">
-              Awaiting proof from the loser.
-            </div>
-          )}
           {isLoser && !game.proof && (
             <>
-              <div className="mb-4 text-neutral-400 text-center font-semibold text-base">
-                Awaiting proof from the loser.
-              </div>
               <div className="flex flex-col items-center w-full">
                 {/* Winner's Dare Description Card */}
                 <div className="w-full max-w-lg mb-8 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6">
