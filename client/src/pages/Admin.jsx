@@ -229,17 +229,21 @@ export default function Admin() {
       setActionLoading(false);
     }
   };
-  const handleDeleteDare = async (dareId) => {
-    if (!window.confirm('Delete this dare?')) return;
+  const handleDeleteDare = async (dare) => {
+    if (!window.confirm('Delete this item?')) return;
     setActionLoading(true);
     setError('');
     setSuccess('');
     try {
-      await api.delete(`/dares/${dareId}`);
-      showNotification('Dare deleted successfully!', 'success');
+      if (dare.isSwitchGame) {
+        await api.delete(`/switches/${dare._id}`);
+      } else {
+        await api.delete(`/dares/${dare._id}`);
+      }
+      showNotification('Item deleted successfully!', 'success');
       fetchDares();
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to delete dare.', 'error');
+      showNotification(err.response?.data?.error || 'Failed to delete item.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -565,7 +569,7 @@ export default function Admin() {
                                       <button className="bg-warning text-warning-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-warning-dark shadow-lg" disabled={actionLoading} onClick={() => handleReject(d._id)}>Reject</button>
                                       </>
                                     )}
-                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare(d._id)}>Delete</button>
+                                  <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare(d)} aria-label={`Delete item ${d.description}`}>Delete</button>
                                   </td>
                                 </tr>
                               ))}
