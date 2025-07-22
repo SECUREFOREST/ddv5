@@ -480,6 +480,11 @@ export default function Admin() {
                         </tbody>
                       </table>
                     </div>
+                    <div className="flex justify-center gap-2 mt-4">
+                      <button onClick={() => setUserPage(p => Math.max(0, p - 1))} disabled={userPage === 0} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Previous</button>
+                      <span className="text-neutral-300">Page {userPage + 1} of {Math.max(1, Math.ceil(users.filter(u => (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) || (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))).length / USERS_PER_PAGE))}</span>
+                      <button onClick={() => setUserPage(p => p + 1)} disabled={(userPage + 1) * USERS_PER_PAGE >= users.filter(u => (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) || (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))).length} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Next</button>
+                    </div>
                   </div>
                 ),
               },
@@ -557,7 +562,11 @@ export default function Admin() {
                             </tbody>
                           </table>
                     </div>
-                    {/* Pagination and other controls can be similarly refactored */}
+                    <div className="flex justify-center gap-2 mt-4">
+                      <button onClick={() => setDarePage(p => Math.max(0, p - 1))} disabled={darePage === 0} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Previous</button>
+                      <span className="text-neutral-300">Page {darePage + 1} of {Math.max(1, Math.ceil(dares.filter(d => (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) || (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))).length / DARES_PER_PAGE))}</span>
+                      <button onClick={() => setDarePage(p => p + 1)} disabled={(darePage + 1) * DARES_PER_PAGE >= dares.filter(d => (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) || (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))).length} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Next</button>
+                    </div>
                   </div>
                 ),
               },

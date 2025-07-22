@@ -249,6 +249,29 @@ export default function Dares() {
             </div>
           </div>
         )}
+        <h2 className="text-lg font-bold mt-8 mb-2 text-primary">Switch Games</h2>
+        {dares.filter(d => d.dareType === 'switch' || d.assignedSwitch).length === 0 ? (
+          <div className="text-neutral-400 text-center py-4">No switch games found.</div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {dares.filter(d => d.dareType === 'switch' || d.assignedSwitch).map(dare => (
+              <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }} tabIndex={0} aria-label={`View switch game: ${dare.description}`}>
+                <DareCard
+                  description={dare.description}
+                  difficulty={dare.difficulty}
+                  tags={dare.tags}
+                  status={dare.status}
+                  creator={dare.creator}
+                  performer={dare.performer}
+                  assignedSwitch={dare.assignedSwitch}
+                  actions={[]}
+                  currentUserId={user?.id}
+                  style={{ cursor: 'pointer' }}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
         {/* Meta Section */}
         <div className="mt-6 text-xs text-neutral-500 flex flex-col items-center gap-1" aria-label="Dares meta info">
           <div className="flex items-center gap-1">
