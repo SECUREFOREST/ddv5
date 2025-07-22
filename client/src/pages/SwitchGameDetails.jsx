@@ -616,121 +616,126 @@ export default function SwitchGameDetails() {
             </div>
           )}
           {isLoser && !game.proof && (
-            <div className="flex flex-col items-center w-full">
-              {/* Winner's Dare Description Card */}
-              <div className="w-full max-w-md mb-6 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow p-4">
-                <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
-                <div className="flex flex-col items-center mb-2">
-                  <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
-                  <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Winner</span>
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold">Description:</span>
-                  <span className="ml-2">{game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.description : game.participantDare?.description}</span>
-                </div>
-                <div>
-                  <span className="font-semibold">Difficulty:</span>
-                  <span className="ml-2"><DifficultyBadge level={game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.difficulty : game.participantDare?.difficulty} /></span>
-                </div>
+            <>
+              <div className="mb-4 text-neutral-400 text-center font-semibold text-base">
+                Awaiting proof from the loser.
               </div>
-              {/* Proof Submission Form */}
-              <form
-                onSubmit={handleProofSubmit}
-                className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
-                style={{ margin: '0 auto' }}
-                aria-label="Submit Proof Form"
-              >
-                <div className="w-full text-center">
-                  <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
-                    You lost! Please submit your proof to complete the game.
-                  </div>
-                  <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
-                </div>
-                {/* Proof preview thumbnail before submit */}
-                {filePreviewUrl && (
+              <div className="flex flex-col items-center w-full">
+                {/* Winner's Dare Description Card */}
+                <div className="w-full max-w-md mb-6 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow p-4">
+                  <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
-                    <div className="relative w-32 h-32 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
-                      {proofFile && proofFile.type.startsWith('video') ? (
-                        <video src={filePreviewUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
-                      ) : (
-                        <img src={filePreviewUrl} alt="Preview" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
-                      )}
-                      <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 rounded-full p-1">
-                        {proofFile && proofFile.type.startsWith('video') ? (
-                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
-                        ) : (
-                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
-                        )}
-                      </div>
+                    <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
+                    <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Winner</span>
+                  </div>
+                  <div className="mb-2">
+                    <span className="font-semibold">Description:</span>
+                    <span className="ml-2">{game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.description : game.participantDare?.description}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Difficulty:</span>
+                    <span className="ml-2"><DifficultyBadge level={game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.difficulty : game.participantDare?.difficulty} /></span>
+                  </div>
+                </div>
+                {/* Proof Submission Form */}
+                <form
+                  onSubmit={handleProofSubmit}
+                  className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
+                  style={{ margin: '0 auto' }}
+                  aria-label="Submit Proof Form"
+                >
+                  <div className="w-full text-center">
+                    <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
+                      You lost! Please submit your proof to complete the game.
                     </div>
-                    <button type="button" className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setFilePreviewUrl(null)} aria-label="Remove preview">Remove</button>
+                    <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
                   </div>
-                )}
-                <div className="w-full">
-                  <label htmlFor="proof-file" className="block font-semibold mb-1">
-                    Upload image or video proof:
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
-                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                      aria-label="Choose file"
-                    >
-                      {proofFile ? (proofFile.name.length > 24 ? proofFile.name.slice(0, 21) + '...' : proofFile.name) : 'Choose File'}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      id="proof-file"
-                      className="hidden"
-                      onChange={handleProofFileChange}
-                      accept="image/*,video/mp4,video/webm,video/quicktime"
-                      aria-required="true"
+                  {/* Proof preview thumbnail before submit */}
+                  {filePreviewUrl && (
+                    <div className="flex flex-col items-center mb-2">
+                      <div className="relative w-32 h-32 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
+                        {proofFile && proofFile.type.startsWith('video') ? (
+                          <video src={filePreviewUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
+                        ) : (
+                          <img src={filePreviewUrl} alt="Preview" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
+                        )}
+                        <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 rounded-full p-1">
+                          {proofFile && proofFile.type.startsWith('video') ? (
+                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
+                          ) : (
+                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
+                          )}
+                        </div>
+                      </div>
+                      <button type="button" className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setFilePreviewUrl(null)} aria-label="Remove preview">Remove</button>
+                    </div>
+                  )}
+                  <div className="w-full">
+                    <label htmlFor="proof-file" className="block font-semibold mb-1">
+                      Upload image or video proof:
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
+                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        aria-label="Choose file"
+                      >
+                        {proofFile ? (proofFile.name.length > 24 ? proofFile.name.slice(0, 21) + '...' : proofFile.name) : 'Choose File'}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        id="proof-file"
+                        className="hidden"
+                        onChange={handleProofFileChange}
+                        accept="image/*,video/mp4,video/webm,video/quicktime"
+                        aria-required="true"
+                      />
+                      {proofFile && (
+                        <span className="text-xs text-gray-400">{proofFile.type.startsWith('video') ? 'Video' : 'Image'}</span>
+                      )}
+                    </div>
+                    <small className="text-gray-400">
+                      Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
+                    </small>
+                  </div>
+                  <div className="w-full">
+                    <label htmlFor="proof-text" className="block font-semibold mb-1">Describe what you did (optional):</label>
+                    <textarea
+                      id="proof-text"
+                      className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                      value={proofText}
+                      onChange={e => setProofText(e.target.value)}
+                      rows={3}
+                      placeholder="Describe your proof, add context, or leave blank if uploading a file."
+                      aria-label="Proof description"
                     />
-                    {proofFile && (
-                      <span className="text-xs text-gray-400">{proofFile.type.startsWith('video') ? 'Video' : 'Image'}</span>
-                    )}
                   </div>
-                  <small className="text-gray-400">
-                    Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
-                  </small>
-                </div>
-                <div className="w-full">
-                  <label htmlFor="proof-text" className="block font-semibold mb-1">Describe what you did (optional):</label>
-                  <textarea
-                    id="proof-text"
-                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                    value={proofText}
-                    onChange={e => setProofText(e.target.value)}
-                    rows={3}
-                    placeholder="Describe your proof, add context, or leave blank if uploading a file."
-                    aria-label="Proof description"
-                  />
-                </div>
-                {proofError && (
-                  <div className="text-danger text-sm font-medium w-full text-center" role="alert" aria-live="assertive">
-                    {proofError}
+                  {proofError && (
+                    <div className="text-danger text-sm font-medium w-full text-center" role="alert" aria-live="assertive">
+                      {proofError}
+                    </div>
+                  )}
+                  {proofSuccess && (
+                    <div className="flex flex-col items-center w-full text-center" role="status" aria-live="polite">
+                      <svg className="w-10 h-10 text-green-500 mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      <span className="text-success text-base font-bold">{proofSuccess}</span>
+                    </div>
+                  )}
+                  <div className="w-full pt-4 flex justify-end">
+                    <button
+                      type="submit"
+                      className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg"
+                      disabled={proofLoading}
+                      aria-label="Submit Proof"
+                    >
+                      {proofLoading ? 'Submitting...' : 'Submit Proof'}
+                    </button>
                   </div>
-                )}
-                {proofSuccess && (
-                  <div className="flex flex-col items-center w-full text-center" role="status" aria-live="polite">
-                    <svg className="w-10 h-10 text-green-500 mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    <span className="text-success text-base font-bold">{proofSuccess}</span>
-                  </div>
-                )}
-                <div className="w-full pt-4 flex justify-end">
-                  <button
-                    type="submit"
-                    className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg"
-                    disabled={proofLoading}
-                    aria-label="Submit Proof"
-                  >
-                    {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                  </button>
-                </div>
-              </form>
-            </div>
+                </form>
+              </div>
+            </>
           )}
           {game.proof && game.proof.fileUrl && (
             <>
