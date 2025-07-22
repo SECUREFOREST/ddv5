@@ -4,14 +4,8 @@ import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { DIFFICULTY_OPTIONS } from '../constants';
 
-const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
-];
 const PRIVACY_OPTIONS = [
   { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.' },
   { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.' },
@@ -137,7 +131,7 @@ export default function OfferSubmission() {
         <div>
           <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
           <div className="flex flex-col gap-4">
-            {DIFFICULTIES.map(opt => (
+            {DIFFICULTY_OPTIONS.map(opt => (
               <label
                 key={opt.value}
                 className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast w-full

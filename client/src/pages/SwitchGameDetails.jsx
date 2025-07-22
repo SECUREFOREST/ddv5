@@ -5,7 +5,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
-import { DARE_DIFFICULTIES } from '../tailwindColors';
+import { DIFFICULTY_OPTIONS } from '../constants';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
 
@@ -30,7 +30,7 @@ function getRpsResult(moveA, moveB) {
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
-  const found = DARE_DIFFICULTIES.find(d => d.value === level);
+  const found = DIFFICULTY_OPTIONS.find(d => d.value === level);
   let label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
   switch (level) {
     case 'titillating':

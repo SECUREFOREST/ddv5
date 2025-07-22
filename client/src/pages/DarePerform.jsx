@@ -5,14 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
-
-const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
-];
+import { DIFFICULTY_OPTIONS } from '../constants';
 
 const PRIVACY_OPTIONS = [
   { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.', icon: <LockClosedIcon className="w-5 h-5 text-primary" /> },
@@ -195,7 +188,7 @@ export default function DarePerform() {
           <div>
             <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Select Difficulty</label>
             <div className="flex flex-col gap-2">
-              {DIFFICULTIES.map(opt => (
+              {DIFFICULTY_OPTIONS.map(opt => (
                 <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
                   ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
                   <input
@@ -249,7 +242,7 @@ export default function DarePerform() {
           <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
             <div className="font-semibold text-primary mb-2">Your Dare:</div>
             <div className="text-lg font-bold mb-2">{dare.description}</div>
-            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTIES.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
+            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty)?.icon} <b>{dare.difficulty}</b></div>
           </div>
           {/* Privacy Options */}
           <div className="mb-6">

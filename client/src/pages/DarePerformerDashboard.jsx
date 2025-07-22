@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import DareCard from '../components/DareCard';
-import { DARE_DIFFICULTIES } from '../tailwindColors';
+import { DIFFICULTY_OPTIONS, TYPE_OPTIONS } from '../constants';
 import { useRef } from 'react';
 import Slot from '../components/Slot';
 import Accordion from '../components/Accordion';
@@ -66,7 +66,7 @@ function dedupeDaresByUser(dares) {
 
 // Helper: difficulty badge (fix ReferenceError)
 function difficultyBadge(level) {
-  const found = DARE_DIFFICULTIES.find(d => d.value === level);
+  const found = DIFFICULTY_OPTIONS.find(d => d.value === level);
   const label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
   let badgeClass = 'bg-neutral-700 text-neutral-100';
   switch (level) {
@@ -117,12 +117,6 @@ export default function DarePerformerDashboard() {
   const [publicLoading, setPublicLoading] = useState(false);
   const [publicError, setPublicError] = useState('');
   // Add multi-select type filter state
-  const TYPE_OPTIONS = [
-    { value: 'text', label: 'Text' },
-    { value: 'photo', label: 'Photo' },
-    { value: 'video', label: 'Video' },
-    { value: 'audio', label: 'Audio' },
-  ];
   const [selectedTypes, setSelectedTypes] = useState([]);
   // Demand section filter and state variables
   const [demandSlots, setDemandSlots] = useState([]);
@@ -451,7 +445,7 @@ export default function DarePerformerDashboard() {
   };
   const renderDifficultyChips = () => (
     <div className="flex gap-2 mb-4" aria-label="Filter by difficulty">
-      {DARE_DIFFICULTIES.map(d => (
+      {DIFFICULTY_OPTIONS.map(d => (
         <button
           key={d.value}
           type="button"
@@ -509,7 +503,7 @@ export default function DarePerformerDashboard() {
   // Multi-select demand difficulty filter UI
   const renderDemandDifficultyChips = () => (
     <div className="flex gap-2 mb-4" aria-label="Filter demand by difficulty">
-      {DARE_DIFFICULTIES.map(d => (
+      {DIFFICULTY_OPTIONS.map(d => (
         <button
           key={d.value}
           type="button"
@@ -626,7 +620,7 @@ export default function DarePerformerDashboard() {
                   </select>
                   <select value={allDaresDifficulty} onChange={e => setAllDaresDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
                     <option value="">All Difficulties</option>
-                    {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                    {DIFFICULTY_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                   </select>
                   <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by creator or performer username" />
                   <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort dares">
@@ -768,7 +762,7 @@ export default function DarePerformerDashboard() {
                   </select>
                   <select value={switchDifficultyFilter} onChange={e => setSwitchDifficultyFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
                     <option value="">All Difficulties</option>
-                    {DARE_DIFFICULTIES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                    {DIFFICULTY_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                   </select>
                   <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by participant username" />
                   <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort switch games">

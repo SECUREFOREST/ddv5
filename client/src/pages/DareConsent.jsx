@@ -4,14 +4,7 @@ import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import api from '../api/axios';
 import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
-
-const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
-];
+import { DIFFICULTY_OPTIONS } from '../constants';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -79,7 +72,7 @@ export default function DareConsent() {
 
   if (!dare) return <div className="text-neutral-400 text-center mt-8">Loading...</div>;
 
-  const diff = DIFFICULTIES.find(d => d.value === dare.difficulty);
+  const diff = DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty);
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">

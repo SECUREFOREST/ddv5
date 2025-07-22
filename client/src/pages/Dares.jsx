@@ -7,32 +7,7 @@ import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
 import { Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
-
-const STATUS_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'completed', label: 'Completed' },
-];
-const DIFFICULTY_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'titillating', label: 'Titillating' },
-  { value: 'arousing', label: 'Arousing' },
-  { value: 'explicit', label: 'Explicit' },
-  { value: 'edgy', label: 'Edgy' },
-  { value: 'hardcore', label: 'Hardcore' },
-];
-const DARE_TYPE_OPTIONS = [
-  { value: '', label: 'All Types' },
-  { value: 'submission', label: 'Submission' },
-  { value: 'domination', label: 'Domination' },
-  { value: 'switch', label: 'Switch' },
-];
-const ROLE_OPTIONS = [
-  { value: 'dominant', label: 'Dominant' },
-  { value: 'submissive', label: 'Submissive' },
-  { value: 'switch', label: 'Switch' },
-];
+import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS } from '../constants';
 
 export default function Dares() {
   const { user } = useAuth();

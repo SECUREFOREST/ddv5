@@ -3,14 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
-
-const DIFFICULTIES = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.', icon: <SparklesIcon className="w-6 h-6 text-pink-400" /> },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.', icon: <FireIcon className="w-6 h-6 text-purple-500" /> },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.', icon: <EyeDropperIcon className="w-6 h-6 text-red-500" /> },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.', icon: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" /> },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.', icon: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" /> },
-];
+import { DIFFICULTY_OPTIONS } from '../constants';
 
 export default function DareDifficultySelect() {
   const navigate = useNavigate();
@@ -46,7 +39,7 @@ export default function DareDifficultySelect() {
       <form role="form" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4" aria-label="Dare Difficulty Selection">
         <div>
           <div className="flex flex-col gap-4">
-            {DIFFICULTIES.map(opt => (
+            {DIFFICULTY_OPTIONS.map(opt => (
               <label
                 key={opt.value}
                 className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
