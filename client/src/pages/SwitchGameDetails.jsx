@@ -500,13 +500,11 @@ export default function SwitchGameDetails() {
             <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
             <span className="font-semibold text-lg text-primary mt-2">{game.creator?.username || '[deleted]'}</span>
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
-            <DifficultyBadge level={game.creatorDare?.difficulty} />
           </div>
           <div className="flex flex-col items-center">
             <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
             <span className="font-semibold text-lg text-blue-400 mt-2">{game.participant?.username || '[deleted]'}</span>
             <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
-            <DifficultyBadge level={game.participantDare?.difficulty} />
           </div>
         </div>
           {/* Waiting for other participant's move */}
