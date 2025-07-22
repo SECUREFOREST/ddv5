@@ -249,26 +249,33 @@ export default function Admin() {
     }
   };
 
+  const [switchGames, setSwitchGames] = useState([]);
+  const [switchGamesLoading, setSwitchGamesLoading] = useState(true);
+  const [switchGameSearch, setSwitchGameSearch] = useState('');
+  const [switchGamePage, setSwitchGamePage] = useState(0);
+  const SWITCH_GAMES_PER_PAGE = 10;
+
+  const fetchSwitchGames = () => {
+    setSwitchGamesLoading(true);
+    api.get('/switches')
+      .then(res => setSwitchGames(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setSwitchGames([]))
+      .finally(() => setSwitchGamesLoading(false));
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
   useEffect(() => {
     if (tabIdx === 1) fetchDares();
-    if (tabIdx === 2) {
+    if (tabIdx === 2) fetchSwitchGames();
+    if (tabIdx === 3) {
       setSiteStatsLoading(true);
       setSiteStatsError('');
       api.get('/stats/site')
         .then(res => setSiteStats(res.data))
         .catch(() => setSiteStatsError('Failed to load site stats.'))
         .finally(() => setSiteStatsLoading(false));
-    }
-    if (tabIdx === 3) {
-      setAuditLogLoading(true);
-      setAuditLogError('');
-      api.get('/audit-log')
-        .then(res => setAuditLog(Array.isArray(res.data) ? res.data : []))
-        .catch(() => setAuditLogError('Failed to load audit log.'))
-        .finally(() => setAuditLogLoading(false));
     }
     if (tabIdx === 4) fetchReports();
     if (tabIdx === 5) fetchAppeals();
@@ -536,7 +543,6 @@ export default function Admin() {
                         <thead>
                           <tr className="bg-neutral-900 text-primary">
                             <th scope="col" className="p-2"><input type="checkbox" checked={isAllDaresSelected} onChange={toggleAllDares} className="bg-[#1a1a1a]" /></th>
-                            <th scope="col" className="p-2 text-left font-semibold">Game Type</th>
                             <th scope="col" className="p-2 text-left font-semibold">Description</th>
                             <th scope="col" className="p-2 text-left font-semibold">Creator</th>
                             <th scope="col" className="p-2 text-left font-semibold">Status</th>
@@ -554,9 +560,6 @@ export default function Admin() {
                             .map(d => (
                               <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
                                 <td className="p-2"><input type="checkbox" checked={selectedDares.includes(d?._id)} onChange={() => toggleDare(d?._id)} className="bg-[#1a1a1a]" /></td>
-                                <td className="p-2 font-medium text-primary">
-                                  {d.isSwitchGame ? <span className="bg-blue-700 text-white px-2 py-1 rounded text-xs">Switch Game</span> : <span className="bg-green-700 text-white px-2 py-1 rounded text-xs">Dare</span>}
-                                </td>
                                 <td className="p-2 text-neutral-100">{d && typeof d.description === 'string' ? d.description : '-'}</td>
                                 <td className="p-2 text-neutral-400">{d && d.creator?.fullName ? d.creator.fullName : (d.creator?.username || 'Unknown')}</td>
                                 <td className="p-2">
@@ -582,6 +585,70 @@ export default function Admin() {
                       <span className="text-neutral-300">Page {darePage + 1} of {Math.max(1, Math.ceil(dares.filter(d => (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) || (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))).length / DARES_PER_PAGE))}</span>
                       <button onClick={() => setDarePage(p => p + 1)} disabled={(darePage + 1) * DARES_PER_PAGE >= dares.filter(d => (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) || (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))).length} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Next</button>
                     </div>
+                  </div>
+                ),
+              },
+              {
+                label: 'Switch Games',
+                content: (
+                  <div>
+                    <div className="text-xl font-bold text-primary mb-4">Switch Game Management</div>
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 w-full max-w-md mx-auto">
+                      <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
+                      <input
+                        className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
+                        placeholder="Search switch games..."
+                        value={switchGameSearch}
+                        onChange={e => setSwitchGameSearch(e.target.value)}
+                      />
+                    </div>
+                    {switchGamesLoading ? (
+                      <div className="flex flex-col gap-2">Loading switch games...</div>
+                    ) : (
+                      <div className="overflow-x-auto rounded ">
+                        <table className="min-w-full bg-neutral-800 text-sm text-neutral-100 border border-neutral-900" role="table">
+                          <caption className="sr-only">Switch Game Management</caption>
+                          <thead>
+                            <tr className="bg-neutral-900 text-primary">
+                              <th scope="col" className="p-2 text-left font-semibold">ID</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Description</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Creator</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Status</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Difficulty</th>
+                              <th scope="col" className="p-2 text-left font-semibold">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {switchGames
+                              .filter(g =>
+                                (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
+                              )
+                              .slice(switchGamePage * SWITCH_GAMES_PER_PAGE, (switchGamePage + 1) * SWITCH_GAMES_PER_PAGE)
+                              .map(g => (
+                                <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
+                                  <td className="p-2 text-xs text-neutral-400">{g._id}</td>
+                                  <td className="p-2 text-neutral-100">{g.creatorDare?.description || '-'}</td>
+                                  <td className="p-2 text-neutral-400">{g.creator?.fullName || g.creator?.username || 'Unknown'}</td>
+                                  <td className="p-2">
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${g.status === 'pending' ? 'bg-warning text-warning-contrast' : g.status === 'approved' ? 'bg-success text-success-contrast' : g.status === 'waiting_for_participant' ? 'bg-success text-success-contrast' : 'bg-danger text-danger-contrast'}`}>{g.status === 'waiting_for_participant' ? 'Waiting for Participant' : g.status}</span>
+                                  </td>
+                                  <td className="p-2 text-neutral-400">{g.creatorDare?.difficulty || '-'}</td>
+                                  <td className="p-2 space-x-2">
+                                    <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare({ ...g, isSwitchGame: true })} aria-label={`Delete switch game ${g._id}`}>Delete</button>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                        <div className="flex justify-center gap-2 mt-4">
+                          <button onClick={() => setSwitchGamePage(p => Math.max(0, p - 1))} disabled={switchGamePage === 0} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Previous</button>
+                          <span className="text-neutral-300">Page {switchGamePage + 1} of {Math.max(1, Math.ceil(switchGames.filter(g => (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) || (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) || (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))).length / SWITCH_GAMES_PER_PAGE))}</span>
+                          <button onClick={() => setSwitchGamePage(p => p + 1)} disabled={(switchGamePage + 1) * SWITCH_GAMES_PER_PAGE >= switchGames.filter(g => (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) || (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) || (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))).length} className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-800">Next</button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ),
               },
