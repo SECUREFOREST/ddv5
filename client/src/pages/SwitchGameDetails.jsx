@@ -622,11 +622,11 @@ export default function SwitchGameDetails() {
               </div>
               <div className="flex flex-col items-center w-full">
                 {/* Winner's Dare Description Card */}
-                <div className="w-full max-w-md mb-6 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow p-4">
+                <div className="w-full max-w-lg mb-8 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6">
                   <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
                     <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
-                    <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Winner</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Winner</span>
                   </div>
                   <div className="mb-2">
                     <span className="font-semibold">Description:</span>
@@ -640,17 +640,11 @@ export default function SwitchGameDetails() {
                 {/* Proof Submission Form */}
                 <form
                   onSubmit={handleProofSubmit}
-                  className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
+                  className="w-full max-w-lg bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6 flex flex-col items-center space-y-4"
                   style={{ margin: '0 auto' }}
                   aria-label="Submit Proof Form"
                 >
-                  <div className="w-full text-center">
-                    <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
-                      You lost! Please submit your proof to complete the game.
-                    </div>
-                    <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
-                  </div>
-                  {/* Proof preview thumbnail before submit */}
+                  {/* Proof preview thumbnail before submit (unchanged) */}
                   {filePreviewUrl && (
                     <div className="flex flex-col items-center mb-2">
                       <div className="relative w-32 h-32 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
