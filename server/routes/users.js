@@ -33,6 +33,10 @@ const userBlacklist = '-passwordHash -refreshTokens -passwordResetToken -passwor
 
 // GET /api/users (admin only)
 router.get('/', auth, checkPermission('view_users'), async (req, res) => {
+  if (req.query.id) {
+    const user = await User.findById(req.query.id).select('username email avatar roles banned');
+    return res.json(user ? [user] : []);
+  }
   const users = await User.find({}, 'username email avatar roles banned');
   res.json(users);
 });

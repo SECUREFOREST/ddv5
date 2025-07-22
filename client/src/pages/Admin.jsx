@@ -254,6 +254,7 @@ export default function Admin() {
   const [switchGameSearch, setSwitchGameSearch] = useState('');
   const [switchGamePage, setSwitchGamePage] = useState(0);
   const SWITCH_GAMES_PER_PAGE = 10;
+  const [switchGameSearchId, setSwitchGameSearchId] = useState('');
 
   const fetchSwitchGames = () => {
     setSwitchGamesLoading(true);
@@ -410,6 +411,12 @@ export default function Admin() {
                         onChange={e => setUserSearch(e.target.value)}
                         aria-label="Search users"
                       />
+                      <input
+                        className="w-48 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 ml-2"
+                        placeholder="Search by ID..."
+                        value={userSearchId || ''}
+                        onChange={e => setUserSearchId(e.target.value)}
+                      />
                       <button
                         className="bg-danger text-danger-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast transition"
                         onClick={handleUserSearch}
@@ -449,10 +456,16 @@ export default function Admin() {
                           </tr>
                         </thead>
                         <tbody>
-                          {users.filter(u =>
-                            (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-                            (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                          ).slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE).map((user, idx) => (
+                          {users
+                            .filter(u =>
+                              (userSearchId
+                                ? u._id === userSearchId
+                                : (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+                                  (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
+                              )
+                            )
+                            .slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE)
+                            .map((user, idx) => (
                             <tr
                               key={user._id}
                               className={`transition-colors duration-100 ${idx % 2 === 0 ? 'bg-neutral-900/80' : 'bg-neutral-800'} hover:bg-neutral-700 group`}
@@ -521,6 +534,12 @@ export default function Admin() {
                         value={dareSearch}
                         onChange={e => setDareSearch(e.target.value)}
                       />
+                      <input
+                        className="w-48 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 ml-2"
+                        placeholder="Search by ID..."
+                        value={dareSearchId || ''}
+                        onChange={e => setDareSearchId(e.target.value)}
+                      />
                     </div>
                     {/* Show loading skeletons when data is loading */}
                     {daresLoading && (
@@ -553,8 +572,11 @@ export default function Admin() {
                         <tbody>
                           {dares
                             .filter(d =>
-                              (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
-                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+                              (dareSearchId
+                                ? d._id === dareSearchId
+                                : (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
+                                  (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+                              )
                             )
                             .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                             .map(d => (
@@ -601,6 +623,12 @@ export default function Admin() {
                         value={switchGameSearch}
                         onChange={e => setSwitchGameSearch(e.target.value)}
                       />
+                      <input
+                        className="w-48 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400 ml-2"
+                        placeholder="Search by ID..."
+                        value={switchGameSearchId || ''}
+                        onChange={e => setSwitchGameSearchId(e.target.value)}
+                      />
                     </div>
                     {switchGamesLoading ? (
                       <div className="flex flex-col gap-2">Loading switch games...</div>
@@ -621,9 +649,12 @@ export default function Admin() {
                           <tbody>
                             {switchGames
                               .filter(g =>
-                                (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
+                                (switchGameSearchId
+                                  ? g._id === switchGameSearchId
+                                  : (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                    (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
+                                    (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
+                                )
                               )
                               .slice(switchGamePage * SWITCH_GAMES_PER_PAGE, (switchGamePage + 1) * SWITCH_GAMES_PER_PAGE)
                               .map(g => (

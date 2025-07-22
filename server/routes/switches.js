@@ -12,6 +12,11 @@ const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
+  if (req.query.id) {
+    const game = await SwitchGame.findById(req.query.id)
+      .populate('creator', 'username fullName avatar participant winner proof.user');
+    return res.json(game ? [game] : []);
+  }
   const user = await User.findById(req.userId).select('blockedUsers');
   // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
   const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };

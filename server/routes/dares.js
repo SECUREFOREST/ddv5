@@ -57,6 +57,13 @@ async function checkSlotAndCooldownAtomic(userId) {
 // GET /api/dares - list dares (optionally filter by status, difficulty, public, dareType, allowedRoles)
 router.get('/', auth, async (req, res, next) => {
   try {
+    if (req.query.id) {
+      const dare = await Dare.findById(req.query.id)
+        .populate('creator', 'username fullName avatar')
+        .populate('performer', 'username fullName avatar')
+        .populate('assignedSwitch', 'username fullName avatar');
+      return res.json(dare ? [dare] : []);
+    }
     const { status, difficulty, public: isPublic, dareType, role, creator, participant, assignedSwitch } = req.query;
     const filter = {};
     if (status) {
