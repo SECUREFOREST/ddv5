@@ -660,7 +660,6 @@ export default function Admin() {
                           <caption className="sr-only">Switch Game Management</caption>
                           <thead>
                             <tr className="bg-neutral-900 text-primary">
-                              <th scope="col" className="p-2 text-left font-semibold">ID</th>
                               <th scope="col" className="p-2 text-left font-semibold">Description</th>
                               <th scope="col" className="p-2 text-left font-semibold">Creator</th>
                               <th scope="col" className="p-2 text-left font-semibold">Status</th>
@@ -673,7 +672,6 @@ export default function Admin() {
                               .slice(switchGamePage * SWITCH_GAMES_PER_PAGE, (switchGamePage + 1) * SWITCH_GAMES_PER_PAGE)
                               .map(g => (
                                 <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
-                                  <td className="p-2 text-xs text-neutral-400">{g._id}</td>
                                   <td className="p-2 text-neutral-100">{g.creatorDare?.description || '-'}</td>
                                   <td className="p-2 text-neutral-400">{g.creator?.fullName || g.creator?.username || 'Unknown'}</td>
                                   <td className="p-2">
