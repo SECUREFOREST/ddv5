@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /server
+Disallow: /private
+Disallow: /reset-password
+
+Allow: /
+
+# If you have a sitemap, uncomment and update the following line:
+# Sitemap: https://www.deviantdare.com/sitemap.xml 
