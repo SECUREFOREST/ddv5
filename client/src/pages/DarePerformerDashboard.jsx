@@ -603,10 +603,10 @@ export default function DarePerformerDashboard() {
                 <h3 className="section-description text-xl font-bold mb-2 text-center justify-center" aria-label="All Dares">All Dares (Perform & Demand)</h3>
                 {/* Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
-                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/subs/new')}>
+                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/dare/create')}>
                     Create Dare
                   </button>
-                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/subs/select')}>
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/dare/select')}>
                     Perform Dare
                   </button>
                   <button className="btn btn-primary px-4 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors" onClick={() => navigate('/subs/new')}>
@@ -695,7 +695,7 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
                 {/* Browse Public Deviant Dares (added to All Dares tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
+                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Browse public dares">Browse Public Dares</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
@@ -848,7 +848,7 @@ export default function DarePerformerDashboard() {
                 )}
                 {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8" aria-label="Browse public dares">Browse Public Deviant Dares</h3>
+                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Browse public switch games">Browse Public Switch Games</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
