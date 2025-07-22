@@ -171,6 +171,7 @@ const [allDaresSort, setAllDaresSort] = useState("recent");
   const [keywordFilter, setKeywordFilter] = useState('');
   const [creatorFilter, setCreatorFilter] = useState('');
   const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
+  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
 
   // Filtering and sorting logic for All Dares tab (must be inside component)
   function filterAndSortAllDares(dares) {
