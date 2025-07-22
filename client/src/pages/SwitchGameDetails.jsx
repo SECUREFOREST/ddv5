@@ -497,13 +497,17 @@ export default function SwitchGameDetails() {
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
           {/* Avatars, role badges, usernames for creator/participant */}
           <div className="flex flex-col items-center">
-            <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
-            <span className="font-semibold text-lg text-primary mt-2">{game.creator?.username || '[deleted]'}</span>
+            <a href={game.creator?._id ? `/profile/${game.creator._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${game.creator?.fullName || game.creator?.username || 'creator'}'s profile`}>
+              <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
+              <span className="font-semibold text-lg text-primary mt-2 group-hover:underline group-focus:underline">{game.creator?.fullName || game.creator?.username || '[deleted]'}</span>
+            </a>
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
           </div>
           <div className="flex flex-col items-center">
-            <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
-            <span className="font-semibold text-lg text-blue-400 mt-2">{game.participant?.username || '[deleted]'}</span>
+            <a href={game.participant?._id ? `/profile/${game.participant._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${game.participant?.fullName || game.participant?.username}'s profile`}>
+              <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
+              <span className="font-semibold text-lg text-blue-400 mt-2 group-hover:underline group-focus:underline">{game.participant?.fullName || game.participant?.username || '[deleted]'}</span>
+            </a>
             <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
           </div>
         </div>
@@ -611,14 +615,20 @@ export default function SwitchGameDetails() {
                 <div className="w-full max-w-lg mb-8 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6">
                   <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
-                    {/* Winner's Avatar */}
-                    <Avatar user={game.winner} size={48} alt={`Avatar for ${game.winner?.fullName || game.winner?.username || 'winner'}`} />
-                    <span className="font-semibold text-base mt-2">{game.winner?.username || 'Winner'}</span>
+                    {/* Winner's Avatar and Username clickable */}
+                    <a href={game.winner?._id ? `/profile/${game.winner._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${game.winner?.fullName || game.winner?.username}'s profile`}>
+                      <Avatar user={game.winner} size={48} alt={`Avatar for ${game.winner?.fullName || game.winner?.username || 'winner'}`} />
+                      <span className="font-semibold text-base mt-2 group-hover:underline group-focus:underline">{game.winner?.fullName || game.winner?.username || 'Winner'}</span>
+                    </a>
                     <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Winner</span>
                   </div>
-                  <div>
-                    <span className="font-semibold">Difficulty:</span>
-                    <span className="ml-2"><DifficultyBadge level={game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.difficulty : game.participantDare?.difficulty} /></span>
+                  {/* Difficulty badge centered */}
+                  <div className="mt-2 mb-2 flex justify-center">
+                    <DifficultyBadge level={game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.difficulty : game.participantDare?.difficulty} />
+                  </div>
+                  {/* Winner's dare description centered and styled */}
+                  <div className="w-full text-center mt-2 mb-2 px-2 py-2 bg-neutral-900/80 rounded text-base font-medium border border-neutral-700">
+                    {game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.description : game.participantDare?.description}
                   </div>
                 </div>
                 {/* Proof Submission Form */}
