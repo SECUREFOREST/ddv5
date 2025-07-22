@@ -831,52 +831,6 @@ export default function SwitchGameDetails() {
               {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
             </div>
           )}
-          {/* Proof Submission (Loser) */}
-          {isLoser && !game.proof && (
-            <div className="flex justify-center">
-              <form
-                onSubmit={handleProofSubmit}
-                className="w-full max-w-md bg-neutral-100 rounded-xl shadow-lg p-6 border border-neutral-300 flex flex-col items-center space-y-4"
-                style={{ margin: '0 auto' }}
-              >
-                <div className="w-full text-center">
-                  <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
-                    You lost! Please submit your proof to complete the game.
-                  </div>
-                  <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
-                </div>
-                <div className="w-full">
-                  <label htmlFor="proof-file" className="block font-semibold mb-1">
-                    Upload image or video proof:
-                  </label>
-                  <input
-                    type="file"
-                    id="proof-file"
-                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                    onChange={handleProofFileChange}
-                    accept="image/*,video/mp4,video/webm,video/quicktime"
-                    aria-required="true"
-                  />
-                  <small className="text-gray-400">
-                    Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
-                  </small>
-                </div>
-                {proofError && (
-                  <div className="text-danger text-sm font-medium w-full text-center" role="alert">
-                    {proofError}
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg"
-                  disabled={proofLoading}
-                  aria-label="Submit Proof"
-                >
-                  {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                </button>
-              </form>
-            </div>
-          )}
           {/* Proof Review (Winner) */}
           {isWinner && game.status === 'proof_submitted' && game.proof && (
             <div className="bg-blue-50 border border-blue-200 rounded p-4 mt-6">
