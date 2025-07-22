@@ -425,7 +425,7 @@ export default function SwitchGameDetails() {
     return <div className="max-w-lg mx-auto mt-12 bg-[#222] border border-[#282828] rounded-none p-[15px] mb-5 text-center text-[#888]">Please log in to view this game.</div>;
   }
 
-  console.log('userId', userId, 'loserId', loserId, 'isLoser', isLoser, 'game.status', game.status, 'game.proof', game.proof);
+  console.log('userId', userId, 'winnerId', winnerId, 'creatorId', creatorId, 'participantId', participantId, 'loserId', loserId, 'isLoser', isLoser, 'game.status', game.status, 'game.proof', game.proof);
 
   return (
     <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
