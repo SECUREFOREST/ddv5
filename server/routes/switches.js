@@ -50,7 +50,7 @@ router.get('/performer', auth, async (req, res) => {
     const games = await SwitchGame.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('participant', 'username fullName avatar')
-      .populate('winner', 'username avatar')
+      .populate('winner', 'username fullName avatar')
       .sort({ updatedAt: -1 });
     res.json(games);
   } catch (err) {
@@ -78,7 +78,7 @@ router.get('/history', auth, async (req, res) => {
     const games = await SwitchGame.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('participant', 'username fullName avatar')
-      .populate('winner', 'username avatar')
+      .populate('winner', 'username fullName avatar')
       .sort({ updatedAt: -1 });
     res.json(games);
   } catch (err) {
@@ -98,7 +98,11 @@ router.get('/:id',
         details: errors.array().map(e => ({ field: e.param, message: e.msg }))
       });
     }
-    const game = await SwitchGame.findById(req.params.id).populate('creator participant winner proof.user');
+    const game = await SwitchGame.findById(req.params.id)
+      .populate('creator', 'username fullName avatar')
+      .populate('participant', 'username fullName avatar')
+      .populate('winner', 'username fullName avatar')
+      .populate('proof.user');
     if (!game) return res.status(404).json({ error: 'Not found' });
     // --- AUTO-FIX: If both moves are present and winner is not set, determine winner and update game ---
     if (
@@ -158,6 +162,7 @@ router.get('/:id',
     const creatorInfo = {
       _id: creator._id, // Add this line
       username: creator.username,
+      fullName: creator.fullName,
       avatar: creator.avatar,
       gender: creator.gender,
       age,
@@ -171,6 +176,7 @@ router.get('/:id',
     const participantInfo = participant ? {
       _id: participant._id,
       username: participant.username,
+      fullName: participant.fullName,
       avatar: participant.avatar,
       gender: participant.gender,
       // Add more fields if needed
@@ -180,6 +186,7 @@ router.get('/:id',
     const winnerInfo = winner ? {
       _id: winner._id,
       username: winner.username,
+      fullName: winner.fullName,
       avatar: winner.avatar,
       // Add more fields if needed
     } : null;
