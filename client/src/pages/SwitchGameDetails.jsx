@@ -348,15 +348,25 @@ export default function SwitchGameDetails() {
   const [proofError, setProofError] = useState('');
   const [proofSuccess, setProofSuccess] = useState('');
   const [proofModalOpen, setProofModalOpen] = useState(false);
+  const [filePreviewUrl, setFilePreviewUrl] = useState(null);
+  const fileInputRef = useRef(null);
+  const modalCloseBtnRef = useRef(null);
 
   const handleProofFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.size > 10 * 1024 * 1024) {
       showNotification('File too large. Max size is 10MB.', 'error');
       setProofFile(null);
+      setFilePreviewUrl(null);
       return;
     }
     setProofFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setFilePreviewUrl(url);
+    } else {
+      setFilePreviewUrl(null);
+    }
   };
 
   const handleProofSubmit = async (e) => {
@@ -377,6 +387,7 @@ export default function SwitchGameDetails() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setProofFile(null);
+      setFilePreviewUrl(null);
       setProofText('');
       setProofSuccess('Proof submitted successfully!');
       showNotification('Proof submitted successfully!', 'success');
@@ -618,18 +629,52 @@ export default function SwitchGameDetails() {
                   </div>
                   <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
                 </div>
+                {/* Proof preview thumbnail before submit */}
+                {filePreviewUrl && (
+                  <div className="flex flex-col items-center mb-2">
+                    <div className="relative w-32 h-32 flex items-center justify-center bg-neutral-800 rounded-lg border border-neutral-700 overflow-hidden">
+                      {proofFile && proofFile.type.startsWith('video') ? (
+                        <video src={filePreviewUrl} className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} controls={false} />
+                      ) : (
+                        <img src={filePreviewUrl} alt="Preview" className="w-full h-full object-cover" style={{ aspectRatio: '1 / 1' }} />
+                      )}
+                      <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 rounded-full p-1">
+                        {proofFile && proofFile.type.startsWith('video') ? (
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
+                        ) : (
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553 2.276A2 2 0 0121 14.118V17a2 2 0 01-2 2H5a2 2 0 01-2-2v-2.882a2 2 0 01.447-1.842L8 10m7 0V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v4m7 0H8" /></svg>
+                        )}
+                      </div>
+                    </div>
+                    <button type="button" className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setFilePreviewUrl(null)} aria-label="Remove preview">Remove</button>
+                  </div>
+                )}
                 <div className="w-full">
                   <label htmlFor="proof-file" className="block font-semibold mb-1">
                     Upload image or video proof:
                   </label>
-                  <input
-                    type="file"
-                    id="proof-file"
-                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                    onChange={handleProofFileChange}
-                    accept="image/*,video/mp4,video/webm,video/quicktime"
-                    aria-required="true"
-                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
+                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                      aria-label="Choose file"
+                    >
+                      {proofFile ? (proofFile.name.length > 24 ? proofFile.name.slice(0, 21) + '...' : proofFile.name) : 'Choose File'}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="proof-file"
+                      className="hidden"
+                      onChange={handleProofFileChange}
+                      accept="image/*,video/mp4,video/webm,video/quicktime"
+                      aria-required="true"
+                    />
+                    {proofFile && (
+                      <span className="text-xs text-gray-400">{proofFile.type.startsWith('video') ? 'Video' : 'Image'}</span>
+                    )}
+                  </div>
                   <small className="text-gray-400">
                     Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
                   </small>
@@ -647,13 +692,14 @@ export default function SwitchGameDetails() {
                   />
                 </div>
                 {proofError && (
-                  <div className="text-danger text-sm font-medium w-full text-center" role="alert">
+                  <div className="text-danger text-sm font-medium w-full text-center" role="alert" aria-live="assertive">
                     {proofError}
                   </div>
                 )}
                 {proofSuccess && (
-                  <div className="text-success text-sm font-medium w-full text-center" role="status">
-                    {proofSuccess}
+                  <div className="flex flex-col items-center w-full text-center" role="status" aria-live="polite">
+                    <svg className="w-10 h-10 text-green-500 mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    <span className="text-success text-base font-bold">{proofSuccess}</span>
                   </div>
                 )}
                 <div className="w-full pt-4 flex justify-end">
@@ -685,19 +731,19 @@ export default function SwitchGameDetails() {
                 <button className="mt-2 text-primary underline hover:text-primary-contrast transition-colors shadow-lg" onClick={() => setProofModalOpen(true)}>View Full Proof</button>
               </div>
               {proofModalOpen && (
-                <div className="fixed z-50 inset-0 overflow-y-auto flex items-center justify-center">
+                <div className="fixed z-50 inset-0 overflow-y-auto flex items-center justify-center animate-fade-in-scale" role="dialog" aria-modal="true">
                   <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" onClick={() => setProofModalOpen(false)} />
                   <div className="relative bg-neutral-900 rounded-lg p-6 max-w-lg w-full animate-fade-in-scale">
+                    <button ref={modalCloseBtnRef} className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors shadow-lg text-2xl font-bold" onClick={() => setProofModalOpen(false)} aria-label="Close Proof Preview">×</button>
                     <div className="text-lg font-bold mb-4 text-primary">Proof Preview</div>
                     {game.proof.fileUrl.match(/\.(mp4)$/) ? (
-                      <video src={game.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay />
+                      <video src={game.proof.fileUrl} className="w-full aspect-square rounded-lg" controls autoPlay onError={e => e.target.style.display = 'none'} />
                     ) : (
-                      <img src={game.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-lg" />
+                      <img src={game.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-lg" onError={e => e.target.style.display = 'none'} />
                     )}
                     {game.proof.text && (
                       <div className="mt-4 p-3 bg-neutral-800 text-neutral-200 rounded text-sm border border-neutral-700">{game.proof.text}</div>
                     )}
-                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-primary transition-colors shadow-lg" onClick={() => setProofModalOpen(false)} aria-label="Close Proof Preview">×</button>
                   </div>
                 </div>
               )}
