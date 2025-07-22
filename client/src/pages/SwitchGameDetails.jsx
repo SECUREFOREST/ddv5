@@ -612,7 +612,7 @@ export default function SwitchGameDetails() {
                   <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
                     <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Winner</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Is The Winner</span>
                   </div>
                   <div className="mb-2">
                     <span className="font-semibold">Description:</span>
