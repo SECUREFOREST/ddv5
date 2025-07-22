@@ -124,11 +124,12 @@ export default function Admin() {
 
   const { showNotification } = useNotification();
 
-  const fetchUsers = () => {
+  const fetchUsers = (searchId = "") => {
     setDataLoading(true);
-    setError('');
-    setSuccess('');
-    api.get('/users')
+    setError("");
+    setSuccess("");
+    const url = searchId ? `/users?id=${encodeURIComponent(searchId)}` : "/users";
+    api.get(url)
       .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(err => {
         setUsers([]);
@@ -137,24 +138,34 @@ export default function Admin() {
       .finally(() => setDataLoading(false));
   };
 
-  const fetchDares = () => {
+  const fetchDares = (searchId = "") => {
     setDaresLoading(true);
-    setError('');
-    setSuccess('');
-    Promise.all([
-      api.get('/dares'),
-      api.get('/switches')
-    ])
-      .then(([daresRes, switchesRes]) => {
-        const dares = Array.isArray(daresRes.data) ? daresRes.data : [];
-        const switchGames = Array.isArray(switchesRes.data) ? switchesRes.data.map(sg => ({ ...sg, isSwitchGame: true })) : [];
-        setDares([...dares, ...switchGames]);
-      })
-      .catch(err => {
-        setDares([]);
-        showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
-      })
-      .finally(() => setDaresLoading(false));
+    setError("");
+    setSuccess("");
+    if (searchId) {
+      api.get(`/dares?id=${encodeURIComponent(searchId)}`)
+        .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+        .catch(err => {
+          setDares([]);
+          showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
+        })
+        .finally(() => setDaresLoading(false));
+    } else {
+      Promise.all([
+        api.get('/dares'),
+        api.get('/switches')
+      ])
+        .then(([daresRes, switchesRes]) => {
+          const dares = Array.isArray(daresRes.data) ? daresRes.data : [];
+          const switchGames = Array.isArray(switchesRes.data) ? switchesRes.data.map(sg => ({ ...sg, isSwitchGame: true })) : [];
+          setDares([...dares, ...switchGames]);
+        })
+        .catch(err => {
+          setDares([]);
+          showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
+        })
+        .finally(() => setDaresLoading(false));
+    }
   };
 
   const fetchReports = () => {
@@ -258,9 +269,10 @@ export default function Admin() {
   const SWITCH_GAMES_PER_PAGE = 10;
   const [switchGameSearchId, setSwitchGameSearchId] = useState('');
 
-  const fetchSwitchGames = () => {
+  const fetchSwitchGames = (searchId = "") => {
     setSwitchGamesLoading(true);
-    api.get('/switches')
+    const url = searchId ? `/switches?id=${encodeURIComponent(searchId)}` : "/switches";
+    api.get(url)
       .then(res => setSwitchGames(Array.isArray(res.data) ? res.data : []))
       .catch(() => setSwitchGames([]))
       .finally(() => setSwitchGamesLoading(false));
@@ -368,6 +380,28 @@ export default function Admin() {
     }
   };
 
+  // Add effect hooks to trigger fetches on ID search changes
+  useEffect(() => {
+    if (tabIdx === 0) {
+      if (userSearchId) fetchUsers(userSearchId);
+      else fetchUsers();
+    }
+  }, [userSearchId, tabIdx]);
+
+  useEffect(() => {
+    if (tabIdx === 1) {
+      if (dareSearchId) fetchDares(dareSearchId);
+      else fetchDares();
+    }
+  }, [dareSearchId, tabIdx]);
+
+  useEffect(() => {
+    if (tabIdx === 2) {
+      if (switchGameSearchId) fetchSwitchGames(switchGameSearchId);
+      else fetchSwitchGames();
+    }
+  }, [switchGameSearchId, tabIdx]);
+
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
@@ -459,13 +493,6 @@ export default function Admin() {
                         </thead>
                         <tbody>
                           {users
-                            .filter(u =>
-                            (userSearchId
-                              ? u._id === userSearchId
-                              : (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-                              (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-                            )
-                            )
                             .slice(userPage * USERS_PER_PAGE, (userPage + 1) * USERS_PER_PAGE)
                             .map((user, idx) => (
                               <tr
@@ -573,13 +600,6 @@ export default function Admin() {
                         </thead>
                         <tbody>
                           {dares
-                            .filter(d =>
-                            (dareSearchId
-                              ? d._id === dareSearchId
-                              : (d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase())) ||
-                              (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
-                            )
-                            )
                             .slice(darePage * DARES_PER_PAGE, (darePage + 1) * DARES_PER_PAGE)
                             .map(d => (
                               <tr key={d?._id || Math.random()} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
@@ -650,14 +670,6 @@ export default function Admin() {
                           </thead>
                           <tbody>
                             {switchGames
-                              .filter(g =>
-                              (switchGameSearchId
-                                ? g._id === switchGameSearchId
-                                : (g.creatorDare?.description && g.creatorDare.description.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                (g.creator?.username && g.creator.username.toLowerCase().includes(switchGameSearch.toLowerCase())) ||
-                                (g._id && g._id.toLowerCase().includes(switchGameSearch.toLowerCase()))
-                              )
-                              )
                               .slice(switchGamePage * SWITCH_GAMES_PER_PAGE, (switchGamePage + 1) * SWITCH_GAMES_PER_PAGE)
                               .map(g => (
                                 <tr key={g._id} className="border-t border-neutral-900 hover:bg-neutral-700 transition">
