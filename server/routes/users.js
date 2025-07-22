@@ -28,6 +28,9 @@ const avatarStorage = multer.diskStorage({
 });
 const upload = multer({ storage: avatarStorage });
 
+// Use a blacklist for sensitive fields
+const userBlacklist = '-passwordHash -refreshTokens -passwordResetToken -passwordResetExpires';
+
 // GET /api/users (admin only)
 router.get('/', auth, checkPermission('view_users'), async (req, res) => {
   const users = await User.find({}, 'username email avatar roles banned');
@@ -56,7 +59,7 @@ router.get('/:id',
         const jwt = require('jsonwebtoken');
         const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
         const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.id).select('-passwordHash');
+        const user = await User.findById(decoded.id).select(userBlacklist);
         if (!user) {
           console.log('User not found for userId:', decoded.id);
           return res.status(404).json({ error: 'User not found.' });
@@ -68,7 +71,7 @@ router.get('/:id',
       }
     }
     try {
-      const user = await User.findById(req.params.id).select('-passwordHash');
+      const user = await User.findById(req.params.id).select(userBlacklist);
       if (!user) {
         console.log('User not found for id:', req.params.id);
         return res.status(404).json({ error: 'User not found.' });
@@ -85,7 +88,7 @@ router.get('/:id',
 router.get('/me', auth, async (req, res) => {
   console.log('GET /users/me called with userId:', req.userId);
   try {
-    const user = await User.findById(req.userId).select('-passwordHash');
+    const user = await User.findById(req.userId).select(userBlacklist);
     if (!user) {
       console.log('User not found for userId:', req.userId);
       return res.status(404).json({ error: 'User not found.' });
@@ -150,7 +153,7 @@ router.patch('/:id',
           }
         }
       }
-      const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
+      const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select(userBlacklist);
       await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
       res.json(user);
     } catch (err) {

@@ -160,16 +160,10 @@ router.get('/:id',
     const limits = creator.limits || [];
     // Attach stats to creator
     const creatorInfo = {
-      _id: creator._id, // Add this line
+      _id: creator._id,
       username: creator.username,
       fullName: creator.fullName,
       avatar: creator.avatar,
-      gender: creator.gender,
-      age,
-      daresPerformed,
-      daresCreated,
-      avgGrade,
-      limits
     };
     // Attach participant info
     const participant = game.participant;
@@ -178,8 +172,6 @@ router.get('/:id',
       username: participant.username,
       fullName: participant.fullName,
       avatar: participant.avatar,
-      gender: participant.gender,
-      // Add more fields if needed
     } : null;
     // Attach winner info
     const winner = game.winner;
@@ -212,13 +204,33 @@ router.get('/:id',
         difficultyDescription = '';
     }
     res.json({
-      ...game.toObject(),
+      _id: game._id,
+      status: game.status,
       creator: creatorInfo,
       participant: participantInfo,
       winner: winnerInfo,
-      difficulty: game.creatorDare.difficulty,
-      description: game.creatorDare.description,
-      difficultyDescription
+      loser: game.loser, // Only if needed by frontend
+      creatorDare: {
+        description: game.creatorDare.description,
+        difficulty: game.creatorDare.difficulty,
+      },
+      participantDare: game.participantDare ? {
+        description: game.participantDare.description,
+        difficulty: game.participantDare.difficulty,
+      } : null,
+      proof: game.proof ? {
+        user: game.proof.user,
+        text: game.proof.text,
+        review: game.proof.review,
+        fileUrl: game.proof.fileUrl,
+      } : null,
+      proofExpiresAt: game.proofExpiresAt,
+      expireProofAfterView: game.expireProofAfterView,
+      proofViewedAt: game.proofViewedAt,
+      grades: game.grades ? game.grades.map(g => ({ user: g.user, grade: g.grade, feedback: g.feedback, createdAt: g.createdAt })) : [],
+      public: game.public,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
     });
   }
 );
@@ -414,6 +426,8 @@ router.post('/:id/proof',
       const { text, expireAfterView } = req.body;
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
+      // Debug logging
+      console.log('[DEBUG] userId:', userId, 'game.loser:', game.loser, 'game.creator:', game.creator, 'game.participant:', game.participant, 'game.winner:', game.winner);
       if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
         throw new Error('Only the loser can submit proof');
       }
