@@ -611,8 +611,10 @@ export default function SwitchGameDetails() {
                 <div className="w-full max-w-lg mb-8 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6">
                   <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
-                    <span className="font-semibold text-base">{game.winner?.username || 'Winner'}</span>
-                    <span className="ml-2">{game.winner && getId(game.winner) === getId(game.creator) ? game.creatorDare?.description : game.participantDare?.description}</span>
+                    {/* Winner's Avatar */}
+                    <Avatar user={game.winner} size={48} alt={`Avatar for ${game.winner?.fullName || game.winner?.username || 'winner'}`} />
+                    <span className="font-semibold text-base mt-2">{game.winner?.username || 'Winner'}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Winner</span>
                   </div>
                   <div>
                     <span className="font-semibold">Difficulty:</span>
