@@ -156,6 +156,7 @@ router.get('/:id',
     const limits = creator.limits || [];
     // Attach stats to creator
     const creatorInfo = {
+      _id: creator._id, // Add this line
       username: creator.username,
       avatar: creator.avatar,
       gender: creator.gender,
