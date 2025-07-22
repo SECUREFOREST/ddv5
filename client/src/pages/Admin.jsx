@@ -431,7 +431,7 @@ export default function Admin() {
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
       {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-between h-16 mb-2 px-6 rounded-t-2xl">
+      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-2 px-6 rounded-t-2xl">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-danger tracking-tight flex items-center gap-2">
           <ShieldCheckIcon className="w-7 h-7 text-danger" aria-hidden="true" /> Admin Panel
         </h1>
