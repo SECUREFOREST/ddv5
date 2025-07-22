@@ -638,6 +638,7 @@ router.delete('/:id', auth, async (req, res) => {
     await game.deleteOne();
     res.json({ message: 'Switch game deleted.' });
   } catch (err) {
+    console.error('Failed to delete switch game:', err); // Log the error for debugging
     res.status(500).json({ error: 'Failed to delete switch game.' });
   }
 });
