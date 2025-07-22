@@ -83,7 +83,11 @@ export default function SwitchGameDetails() {
 
   function getId(obj) {
     if (!obj) return undefined;
-    if (typeof obj === 'object') return obj._id || obj.id || obj.username || obj;
+    if (typeof obj === 'object') {
+      if (obj._id) return obj._id;
+      if (obj.id) return obj.id;
+      return undefined;
+    }
     return obj;
   }
 
