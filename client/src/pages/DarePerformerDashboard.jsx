@@ -779,7 +779,7 @@ export default function DarePerformerDashboard() {
                   </select>
                 </div>
 
-                <h4 className="text-lg font-bold text-primary mb-2">Your ActiveSwitch Games</h4>
+                <h4 className="text-lg font-bold text-primary mb-2">Your Active Switch Games</h4>
                 {mySwitchGamesLoading ? (
                   <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
                 ) : filterAndSortSwitchGames(filteredMySwitchGames).length === 0 ? (

@@ -499,14 +499,14 @@ export default function SwitchGameDetails() {
           <div className="flex flex-col items-center">
             <a href={game.creator?._id ? `/profile/${game.creator._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.creator?.fullName || game.creator?.username || 'creator'}'s profile`}>
               <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
-              <span className="font-semibold text-lg text-primary mt-2 group-hover:underline group-focus:underline text-center">{game.creator?.fullName || game.creator?.username || '[deleted]'}</span>
+              <span className="font-semibold text-lg text-primary mt-2 group-hover:underline group-focus:underline text-center">{game.creator?.fullName || game.creator?.username || 'Not joined yet'}</span>
             </a>
             <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
           </div>
           <div className="flex flex-col items-center">
             <a href={game.participant?._id ? `/profile/${game.participant._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.participant?.fullName || game.participant?.username}'s profile`}>
               <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
-              <span className="font-semibold text-lg text-blue-400 mt-2 group-hover:underline group-focus:underline text-center">{game.participant?.fullName || game.participant?.username || '[deleted]'}</span>
+              <span className="font-semibold text-lg text-blue-400 mt-2 group-hover:underline group-focus:underline text-center">{game.participant?.fullName || game.participant?.username || 'Not joined yet'}</span>
             </a>
             <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
           </div>
