@@ -122,6 +122,11 @@ export default function Admin() {
   const [editUserError, setEditUserError] = useState('');
   const [deleteUserError, setDeleteUserError] = useState('');
 
+  // Add state for custom confirmation modal
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalMessage, setConfirmModalMessage] = useState('');
+  const [onConfirm, setOnConfirm] = useState(() => () => {});
+
   const { showNotification } = useNotification();
 
   const fetchUsers = (searchId = "") => {
@@ -242,27 +247,32 @@ export default function Admin() {
       setActionLoading(false);
     }
   };
-  const handleDeleteDare = async (dare) => {
-    console.log('Delete Dare clicked', dare);
-    if (!window.confirm('Delete this item?')) return;
-    setActionLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      if (dare.isSwitchGame) {
-        await api.delete(`/switches/${dare._id}`);
-      } else {
-        await api.delete(`/dares/${dare._id}`);
+  // Update handleDeleteDare to use the custom modal
+  const handleDeleteDare = (dare) => {
+    openConfirmModal(
+      dare.isSwitchGame ? 'Are you sure you want to delete this switch game?' : 'Are you sure you want to delete this dare?',
+      async () => {
+        setActionLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+          if (dare.isSwitchGame) {
+            await api.delete(`/switches/${dare._id}`);
+          } else {
+            await api.delete(`/dares/${dare._id}`);
+          }
+          showNotification('Item deleted successfully!', 'success');
+          fetchDares();
+          fetchSwitchGames();
+        } catch (err) {
+          console.error('Failed to delete item:', err, err?.response);
+          showNotification(err.response?.data?.error || 'Failed to delete item.', 'error');
+        } finally {
+          setActionLoading(false);
+          setConfirmModalOpen(false);
+        }
       }
-      showNotification('Item deleted successfully!', 'success');
-      fetchDares();
-      fetchSwitchGames(); // Ensure switch games list is refreshed
-    } catch (err) {
-      console.error('Failed to delete item:', err, err?.response);
-      showNotification(err.response?.data?.error || 'Failed to delete item.', 'error');
-    } finally {
-      setActionLoading(false);
-    }
+    );
   };
 
   const [switchGames, setSwitchGames] = useState([]);
@@ -306,21 +316,26 @@ export default function Admin() {
     setSuccess('');
   }, [tabIdx]);
 
-  const handleDelete = async (userId) => {
-    console.log('Delete User clicked', userId);
-    if (!window.confirm('Delete this user?')) return;
-    setActionLoading(true);
-    setDeleteUserError('');
-    setError('');
-    setSuccess('');
-    try {
-      await api.delete(`/users/${userId}`);
-      showNotification('User deleted successfully!', 'success');
-      fetchUsers();
-    } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to delete user', 'error');
-    }
-    setActionLoading(false);
+  // Update handleDelete to use the custom modal
+  const handleDelete = (userId) => {
+    openConfirmModal(
+      'Are you sure you want to delete this user?',
+      async () => {
+        setActionLoading(true);
+        setDeleteUserError('');
+        setError('');
+        setSuccess('');
+        try {
+          await api.delete(`/users/${userId}`);
+          showNotification('User deleted successfully!', 'success');
+          fetchUsers();
+        } catch (err) {
+          showNotification(err.response?.data?.error || 'Failed to delete user', 'error');
+        }
+        setActionLoading(false);
+        setConfirmModalOpen(false);
+      }
+    );
   };
 
   // Add a no-op handleUserSearch to prevent ReferenceError
@@ -405,6 +420,13 @@ export default function Admin() {
       else fetchSwitchGames();
     }
   }, [switchGameSearchId, tabIdx]);
+
+  // Helper to open the confirmation modal
+  const openConfirmModal = (message, onConfirmCallback) => {
+    setConfirmModalMessage(message);
+    setOnConfirm(() => onConfirmCallback);
+    setConfirmModalOpen(true);
+  };
 
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 sm:mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden flex flex-col min-h-[70vh]">
@@ -961,6 +983,25 @@ export default function Admin() {
               <button type="submit" className="w-1/2 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" disabled={editUserLoading}>{editUserLoading ? 'Saving...' : 'Save'}</button>
             </div>
           </form>
+        </div>
+      </Modal>
+      {/* Render the custom confirmation modal at the root of the component */}
+      <Modal
+        open={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={null}
+        actions={null}
+        size="sm"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="max-w-sm mx-auto bg-neutral-800 border border-neutral-700 rounded-xl p-6">
+          <h1 className="text-xl font-bold text-center mb-4 text-primary">Confirm Deletion</h1>
+          <div className="mb-6 text-neutral-200 text-center">{confirmModalMessage}</div>
+          <div className="flex gap-2 mt-4">
+            <button type="button" className="w-1/2 bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-semibold shadow-lg" onClick={() => setConfirmModalOpen(false)} disabled={actionLoading}>Cancel</button>
+            <button type="button" className="w-1/2 bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast shadow-lg" onClick={onConfirm} disabled={actionLoading}>{actionLoading ? 'Deleting...' : 'Confirm'}</button>
+          </div>
         </div>
       </Modal>
     </div>
