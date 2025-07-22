@@ -647,36 +647,34 @@ export default function SwitchGameDetails() {
                     </div>
                   )}
                   <div className="w-full">
-                    <div className="w-full flex flex-col items-center">
-                      <label htmlFor="proof-file" className="block font-semibold mb-1 text-center">
-                        Upload image or video proof:
-                      </label>
-                      <div className="flex items-center gap-2 justify-center">
-                        <button
-                          type="button"
-                          className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
-                          onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                          aria-label="Choose file"
-                        >
-                          {proofFile ? (proofFile.name.length > 24 ? proofFile.name.slice(0, 21) + '...' : proofFile.name) : 'Choose File'}
-                        </button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          id="proof-file"
-                          className="hidden"
-                          onChange={handleProofFileChange}
-                          accept="image/*,video/mp4,video/webm,video/quicktime"
-                          aria-required="true"
-                        />
-                        {proofFile && (
-                          <span className="text-xs text-gray-400">{proofFile.type.startsWith('video') ? 'Video' : 'Image'}</span>
-                        )}
-                      </div>
-                      <small className="text-gray-400 text-center block">
-                        Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
-                      </small>
+                    <label htmlFor="proof-file" className="block font-semibold mb-1">
+                      Upload image or video proof:
+                    </label>
+                    <div className="w-full flex items-center gap-2 mb-1">
+                      <button
+                        type="button"
+                        className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
+                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        aria-label="Choose file"
+                      >
+                        {proofFile ? (proofFile.name.length > 24 ? proofFile.name.slice(0, 21) + '...' : proofFile.name) : 'Choose File'}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        id="proof-file"
+                        className="hidden"
+                        onChange={handleProofFileChange}
+                        accept="image/*,video/mp4,video/webm,video/quicktime"
+                        aria-required="true"
+                      />
+                      {proofFile && (
+                        <span className="text-xs text-gray-400">{proofFile.type.startsWith('video') ? 'Video' : 'Image'}</span>
+                      )}
                     </div>
+                    <small className="text-gray-400 block mb-2">
+                      Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
+                    </small>
                   </div>
                   <div className="w-full">
                     <label htmlFor="proof-text" className="block font-semibold mb-1">Describe what you did (optional):</label>
