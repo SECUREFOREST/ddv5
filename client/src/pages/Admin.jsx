@@ -255,7 +255,9 @@ export default function Admin() {
       }
       showNotification('Item deleted successfully!', 'success');
       fetchDares();
+      fetchSwitchGames(); // Ensure switch games list is refreshed
     } catch (err) {
+      console.error('Failed to delete item:', err, err?.response);
       showNotification(err.response?.data?.error || 'Failed to delete item.', 'error');
     } finally {
       setActionLoading(false);
