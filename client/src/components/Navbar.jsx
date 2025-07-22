@@ -56,7 +56,7 @@ export default function Navbar() {
     <nav className="bg-[#060606] border-b border-[#282828] min-h-[50px] mb-6">
       <div className="container mx-auto flex flex-wrap items-center justify-between px-4 py-2 min-h-[50px]">
         <div className="flex items-center space-x-4">
-          <Link className="text-xl font-bold tracking-tight text-white" to="/">DDV5</Link>
+          <Link className="text-xl font-bold tracking-tight text-white" to="/">Deviant Dare</Link>
         </div>
         {/* Hamburger menu button for mobile */}
         <div className="flex items-center sm:hidden">
