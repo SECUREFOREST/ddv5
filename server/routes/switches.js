@@ -630,15 +630,15 @@ router.delete('/:id', auth, async (req, res) => {
     const user = await User.findById(req.userId);
     const isAdmin = user && user.roles && user.roles.includes('admin');
 
-    if (!game.creator.equals(req.userId) && !isAdmin) {
+    // If creator is missing or invalid, only allow admin to delete
+    if ((!game.creator || typeof game.creator.equals !== 'function' || !game.creator.equals(req.userId)) && !isAdmin) {
       return res.status(403).json({ error: 'Only the creator or an admin can delete this switch game.' });
     }
 
-    // Allow deletion regardless of status (including legacy/unknown statuses)
     await game.deleteOne();
     res.json({ message: 'Switch game deleted.' });
   } catch (err) {
-    console.error('Failed to delete switch game:', err); // Log the error for debugging
+    console.error('Failed to delete switch game:', err);
     res.status(500).json({ error: 'Failed to delete switch game.' });
   }
 });
