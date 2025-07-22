@@ -17,19 +17,30 @@ router.get('/', auth, async (req, res) => {
       .populate('creator', 'username fullName avatar participant winner proof.user');
     return res.json(game ? [game] : []);
   }
-  const user = await User.findById(req.userId).select('blockedUsers');
-  // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
-  const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
-  if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
-  let games = await SwitchGame.find(filter).populate('creator', 'username fullName avatar participant winner proof.user').sort({ createdAt: -1 });
-  if (user && user.blockedUsers && user.blockedUsers.length > 0) {
-    games = games.filter(g => {
-      // If creator or participant is blocked, filter out
-      const creatorId = g.creator?._id?.toString() || g.creator?.toString();
-      const participantId = g.participant?._id?.toString() || g.participant?.toString();
-      return !user.blockedUsers.map(bu => bu.toString()).includes(creatorId) &&
-             (!participantId || !user.blockedUsers.map(bu => bu.toString()).includes(participantId));
-    });
+  const user = await User.findById(req.userId).select('blockedUsers roles');
+  const isAdmin = user && user.roles && user.roles.includes('admin');
+  let games;
+  if (isAdmin) {
+    // Admin: return all switch games
+    games = await SwitchGame.find({})
+      .populate('creator', 'username fullName avatar participant winner proof.user')
+      .sort({ createdAt: -1 });
+  } else {
+    // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
+    const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
+    if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
+    games = await SwitchGame.find(filter)
+      .populate('creator', 'username fullName avatar participant winner proof.user')
+      .sort({ createdAt: -1 });
+    if (user && user.blockedUsers && user.blockedUsers.length > 0) {
+      games = games.filter(g => {
+        // If creator or participant is blocked, filter out
+        const creatorId = g.creator?._id?.toString() || g.creator?.toString();
+        const participantId = g.participant?._id?.toString() || g.participant?.toString();
+        return !user.blockedUsers.map(bu => bu.toString()).includes(creatorId) &&
+               (!participantId || !user.blockedUsers.map(bu => bu.toString()).includes(participantId));
+      });
+    }
   }
   res.json(games);
 });
