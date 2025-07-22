@@ -808,7 +808,7 @@ export default function SwitchGameDetails() {
             </div>
           )}
           {/* Proof Submission (Loser) */}
-          {isLoser && game.status === 'awaiting_proof' && (
+          {isLoser && !game.proof && (
             <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
               <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
                 You lost! Please submit your proof to complete the game.
