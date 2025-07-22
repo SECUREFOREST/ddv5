@@ -615,10 +615,10 @@ export default function SwitchGameDetails() {
                 <div className="w-full max-w-lg mb-8 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border-2 border-primary/40 text-neutral-100 rounded-2xl shadow-2xl p-6">
                   <div className="text-center mb-2 text-lg font-bold text-primary">Winner's Dare</div>
                   <div className="flex flex-col items-center mb-2">
-                    {/* Winner's Avatar and Username clickable */}
-                    <a href={game.winner?._id ? `/profile/${game.winner._id}` : '#'} className="group" tabIndex={0} aria-label={`View ${game.winner?.fullName || game.winner?.username}'s profile`}>
+                    {/* Winner's Avatar centered above full name */}
+                    <a href={game.winner?._id ? `/profile/${game.winner._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.winner?.fullName || game.winner?.username}'s profile`}>
                       <Avatar user={game.winner} size={48} alt={`Avatar for ${game.winner?.fullName || game.winner?.username || 'winner'}`} />
-                      <span className="font-semibold text-base mt-2 group-hover:underline group-focus:underline">{game.winner?.fullName || game.winner?.username || 'Winner'}</span>
+                      <span className="font-semibold text-base mt-2 group-hover:underline group-focus:underline text-center">{game.winner?.fullName || game.winner?.username || 'Winner'}</span>
                     </a>
                     <span className="inline-flex items-center gap-1 text-xs font-bold bg-primary text-primary-contrast px-2 py-0.5 rounded-full mt-1 shadow">Winner</span>
                   </div>
@@ -663,6 +663,9 @@ export default function SwitchGameDetails() {
                       Upload image or video proof:
                     </label>
                     <div className="w-full flex items-center gap-2 mb-1">
+                      <label htmlFor="proof-file" className="font-semibold mb-0 whitespace-nowrap mr-2">
+                        Upload image or video proof:
+                      </label>
                       <button
                         type="button"
                         className="bg-neutral-800 text-neutral-100 rounded px-4 py-2 font-semibold border border-neutral-700 hover:bg-primary/80 focus:outline-none focus:ring focus:border-primary"
