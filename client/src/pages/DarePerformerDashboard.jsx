@@ -125,20 +125,18 @@ export default function DarePerformerDashboard() {
   ];
   const [selectedTypes, setSelectedTypes] = useState([]);
   // Demand section filter and state variables
-  // Remove demand-related state
-  // const [demandSlots, setDemandSlots] = useState([]);
-  // const [demandLoading, setDemandLoading] = useState(false);
-  // const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
-  // const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
-  // const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
-  // const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
-  // const [publicDemandDares, setPublicDemandDares] = useState([]);
-  // const [publicDemandLoading, setPublicDemandLoading] = useState(false);
-  // const [publicDemandError, setPublicDemandError] = useState('');
-  // const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
-  // const [completedDemand, setCompletedDemand] = useState([]);
-  // const [publicDemandPage, setPublicDemandPage] = useState(1);
-  // const [publicDemandTotal, setPublicDemandTotal] = useState(0);
+  const [demandSlots, setDemandSlots] = useState([]);
+  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
+  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
+  const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
+  const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
+  const [publicDemandDares, setPublicDemandDares] = useState([]);
+  const [publicDemandLoading, setPublicDemandLoading] = useState(false);
+  const [publicDemandError, setPublicDemandError] = useState('');
+  const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
+  const [completedDemand, setCompletedDemand] = useState([]);
+  const [publicDemandPage, setPublicDemandPage] = useState(1);
+  const [publicDemandTotal, setPublicDemandTotal] = useState(0);
   // Dashboard settings modal state
   const [showDashboardSettings, setShowDashboardSettings] = useState(false);
   // UI state
@@ -170,8 +168,6 @@ const [allDaresSort, setAllDaresSort] = useState("recent");
   const [selectedDifficulties, setSelectedDifficulties] = useState([]);
   const [keywordFilter, setKeywordFilter] = useState('');
   const [creatorFilter, setCreatorFilter] = useState('');
-  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
-  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
 
   // Filtering and sorting logic for All Dares tab (must be inside component)
   function filterAndSortAllDares(dares) {
