@@ -243,6 +243,7 @@ export default function Admin() {
     }
   };
   const handleDeleteDare = async (dare) => {
+    console.log('Delete Dare clicked', dare);
     if (!window.confirm('Delete this item?')) return;
     setActionLoading(true);
     setError('');
@@ -306,6 +307,7 @@ export default function Admin() {
   }, [tabIdx]);
 
   const handleDelete = async (userId) => {
+    console.log('Delete User clicked', userId);
     if (!window.confirm('Delete this user?')) return;
     setActionLoading(true);
     setDeleteUserError('');
