@@ -593,275 +593,59 @@ export default function SwitchGameDetails() {
           )}
           {/* Show winner/loser and proof submission if awaiting_proof */}
           {game.status === 'awaiting_proof' && (
-            <div className="mt-6 bg-warning bg-opacity-10 border border-warning rounded p-4">
-              <b>Awaiting proof from the loser.</b>
-              {isLoser && !game.proof && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
+            <div className="mt-6 text-neutral-500 text-center font-semibold">
+              Awaiting proof from the loser.
+            </div>
+          )}
+          {isLoser && !game.proof && (
+            <div className="flex justify-center">
+              <form
+                onSubmit={handleProofSubmit}
+                className="w-full max-w-md bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] text-neutral-100 rounded-2xl shadow-lg p-6 flex flex-col items-center space-y-4"
+                style={{ margin: '0 auto' }}
+              >
+                <div className="w-full text-center">
                   <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
                     You lost! Please submit your proof to complete the game.
                   </div>
-                  <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
-                  <form onSubmit={handleProofSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="proof-file" className="block font-semibold mb-1">Upload image or video proof:</label>
-                      <input
-                        type="file"
-                        id="proof-file"
-                        className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                        onChange={handleProofFileChange}
-                        accept="image/*,video/mp4,video/webm,video/quicktime"
-                        aria-required="true"
-                      />
-                      <small className="text-gray-400">Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</small>
-                    </div>
-                    {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}
-                    <button type="submit" className="btn btn-accent shadow-lg w-full" disabled={proofLoading} aria-label="Submit Proof">
-                      {proofLoading ? 'Submitting...' : 'Submit Proof'}
-                    </button>
-                  </form>
+                  <h2 className="text-2xl font-bold mb-4 text-primary">Submit Proof</h2>
                 </div>
-              )}
-              {game.proof && (
-                <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} alt={`Avatar for ${game.proof.user?.fullName || game.proof.user?.username || 'user'}`} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
-              )}
-            </div>
-          )}
-          {game.status === 'proof_submitted' && (
-            <div className="mt-6 bg-success bg-opacity-10 border border-success rounded p-4">
-              <b>Proof submitted!</b> Proof by <span className="inline-flex items-center gap-2"><Avatar user={game.proof?.user} size={28} alt={`Avatar for ${game.proof?.user?.fullName || game.proof?.user?.username || 'user'}`} />{game.proof?.user?.username || '[deleted]'}</span>: {game.proof?.text}
-            </div>
-          )}
-          {game.status === 'expired' && (
-            <div className="mt-6 bg-danger bg-opacity-10 border border-danger rounded p-4">
-              <b>Proof submission window has expired.</b>
-            </div>
-          )}
-          {(game && (
-            (game.grades && game.grades.length > 0) ||
-            (isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed')) ||
-            (isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed'))
-          )) && (
-            <div className="bg-neutral-900 rounded p-4 mb-6 mt-6">
-              <div className="border-b pb-2 mb-4">
-                <h2 className="text-lg font-semibold text-center mb-4 text-[#888]">Grades</h2>
-              </div>
-              <div>
-                {fetchingGame && <div className="text-center text-info mb-2">Loading updated switch game details...</div>}
-                {fetchGameError && <div className="text-danger text-center mb-2">{fetchGameError}</div>}
-                {game.grades && game.grades.length > 0 ? (
-                  <ul className="space-y-2 mb-4">
-                    {game.grades.map((g, i) => (
-                      <li key={i} className="flex items-center gap-3 bg-neutral-800 rounded p-2">
-                        <Avatar user={g.user} size={24} alt={`Avatar for ${g.user?.fullName || g.user?.username || 'user'}`} />
-                        <span className="font-semibold">{g.user?.username || 'Unknown'}</span>
-                        <span className="text-xs text-gray-400">
-                          ({g.user && game.creator && (getId(g.user) === getId(game.creator) ? 'Creator' : 'Participant')})
-                        </span>
-                        <span className="mx-2">→</span>
-                        <Avatar user={g.target} size={24} alt={`Avatar for ${g.target?.fullName || g.target?.username || 'user'}`} />
-                        <span className="font-semibold">{g.target?.username || 'Unknown'}</span>
-                        <span className="text-xs text-gray-400">
-                          ({g.target && game.creator && (getId(g.target) === getId(game.creator) ? 'Creator' : 'Participant')})
-                        </span>
-                        <span className="ml-4 bg-primary text-white rounded px-2 py-1 text-xs font-semibold">
-                          {g.grade}
-                        </span>
-                        {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
-                        {g.createdAt && (
-                          <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-                {/* Creator grades participant */}
-                {isCreator && game.participant && !hasGradedParticipant && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
-                  <form onSubmit={e => handleBidirectionalGrade(e, getId(game.participant))} className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar user={game.participant} size={32} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
-                      <span className="font-semibold">{game.participant?.username || 'Participant'}</span>
-                    </div>
-                    <div className="flex gap-2 mb-2">
-                      {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                        <button
-                          type="button"
-                          key={num}
-                          className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                          onClick={() => setGrade(num)}
-                          aria-label={`Score ${num}`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                    <textarea
-                      className="border rounded px-2 py-1 w-full"
-                      value={feedback}
-                      onChange={e => setFeedback(e.target.value)}
-                      maxLength={500}
-                      rows={2}
-                      placeholder="Optional feedback"
-                    />
-                    {gradeError && <div className="text-danger text-sm">{gradeError}</div>}
-                    <button type="submit" className="btn btn-primary shadow-lg" disabled={grading}>
-                      {grading ? 'Submitting...' : 'Submit Grade'}
-                    </button>
-                  </form>
-                )}
-                {/* Participant grades creator */}
-                {isParticipant && game.creator && !hasGradedCreator && (granularStatus === 'proof_submitted' || granularStatus === 'completed') && (
-                  <form onSubmit={e => handleBidirectionalGrade(e, getId(game.creator))} className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar user={game.creator} size={32} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
-                      <span className="font-semibold">{game.creator?.username || 'Creator'}</span>
-                    </div>
-                    <div className="flex gap-2 mb-2">
-                      {[1,2,3,4,5,6,7,8,9,10].map(num => (
-                        <button
-                          type="button"
-                          key={num}
-                          className={`rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 transition-colors ${Number(grade) === num ? 'bg-primary text-primary-contrast border-primary' : 'bg-neutral-800 text-neutral-100 border-neutral-700 hover:bg-primary/20'}`}
-                          onClick={() => setGrade(num)}
-                          aria-label={`Score ${num}`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                    <input className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={feedback} onChange={e => setFeedback(e.target.value)} placeholder="Feedback (optional)" />
-                    {gradeError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{gradeError}</div>}
-                    <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark shadow-lg" disabled={grading || !grade}>
-                      {grading ? 'Submitting...' : 'Submit Grade'}
-                    </button>
-                  </form>
-                )}
-                {/* Show message if already graded */}
-                {(isCreator && hasGradedParticipant) || (isParticipant && hasGradedCreator) ? (
-                  <div className="text-success text-center font-medium mb-2">You have already graded this user for this switch game.</div>
-                ) : null}
-              </div>
-            </div>
-          )}
-          {/* Grading/Feedback Form for Participants */}
-          {canGrade && !myGivenGrade && (
-            <div className="bg-white rounded p-4 mt-6">
-              <h2 className="text-lg font-bold mb-2">Grade Your Opponent</h2>
-              {generalSuccess && <div className="text-green-600 mb-2">{generalSuccess}</div>}
-              <form role="form" aria-labelledby="switch-grade-title" onSubmit={handleGrade} className="space-y-6">
-                <h1 id="switch-grade-title" className="text-2xl font-bold mb-4">Grade Switch Game</h1>
-                <div className="mb-2">
-                  <label htmlFor="switch-grade" className="block font-semibold mb-1">Grade (1-10):</label>
-                  <select
-                    id="switch-grade"
-                    className="border rounded px-2 py-1"
-                    value={grade}
-                    onChange={e => setGrade(e.target.value)}
-                    required
-                    disabled={grading || !!myGivenGrade}
+                <div className="w-full">
+                  <label htmlFor="proof-file" className="block font-semibold mb-1">
+                    Upload image or video proof:
+                  </label>
+                  <input
+                    type="file"
+                    id="proof-file"
+                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                    onChange={handleProofFileChange}
+                    accept="image/*,video/mp4,video/webm,video/quicktime"
                     aria-required="true"
-                  >
-                    <option value="">Select</option>
-                    {[...Array(10)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>{i + 1}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="mb-2">
-                  <label htmlFor="switch-feedback" className="block font-semibold mb-1">Feedback (optional):</label>
-                  <textarea
-                    id="switch-feedback"
-                    className="border rounded px-2 py-1 w-full"
-                    value={feedback}
-                    onChange={e => setFeedback(e.target.value)}
-                    maxLength={500}
-                    rows={3}
-                    disabled={grading || !!myGivenGrade}
-                    aria-label="Feedback for the opponent"
                   />
+                  <small className="text-gray-400">
+                    Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.
+                  </small>
                 </div>
-                {gradeError && <div className="text-red-500 mb-2">{gradeError}</div>}
-                <button type="submit" className="btn btn-primary shadow-lg" disabled={grading || !!myGivenGrade}>
-                  {grading ? 'Submitting...' : 'Submit Grade'}
-                </button>
+                {proofError && (
+                  <div className="text-danger text-sm font-medium w-full text-center" role="alert">
+                    {proofError}
+                  </div>
+                )}
+                <div className="w-full pt-4 flex justify-end">
+                  <button
+                    type="submit"
+                    className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg"
+                    disabled={proofLoading}
+                    aria-label="Submit Proof"
+                  >
+                    {proofLoading ? 'Submitting...' : 'Submit Proof'}
+                  </button>
+                </div>
               </form>
             </div>
           )}
-          {/* Show the grade/feedback you gave */}
-          {myGivenGrade && (
-            <div className="bg-green-50 border border-green-200 rounded p-4 mt-6">
-              <h2 className="text-lg font-bold mb-2">Your Grade for Opponent</h2>
-              <div className="mb-1">Grade: <span className="font-semibold">{myGivenGrade.grade}</span></div>
-              {myGivenGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myGivenGrade.feedback}</span></div>}
-            </div>
-          )}
-          {/* Show the grade/feedback you received from your opponent */}
-          {myReceivedGrade && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-4 mt-6">
-              <h2 className="text-lg font-bold mb-2">Feedback You Received</h2>
-              <div className="mb-1">Grade: <span className="font-semibold">{myReceivedGrade.grade}</span></div>
-              {myReceivedGrade.feedback && <div className="mb-1">Feedback: <span className="italic">{myReceivedGrade.feedback}</span></div>}
-            </div>
-          )}
-          {/* Show all grades/feedback if more than one exists */}
-          {allGrades.length > 1 && (
-            <div className="bg-gray-50 border border-gray-200 rounded p-4 mt-6">
-              <h2 className="text-lg font-bold mb-2">All Grades & Feedback</h2>
-              <ul className="list-disc pl-5">
-                {allGrades.map((g, i) => (
-                  <li key={i} className="mb-1">
-                    <span className="font-semibold">Grade:</span> {g.grade}
-                    {g.feedback && <span> | <span className="font-semibold">Feedback:</span> <span className="italic">{g.feedback}</span></span>}
-                    {g.user && <span> | <span className="font-semibold">From:</span> {g.user.username || g.user._id || g.user}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {/* Chicken Out button for creator or participant when in progress */}
-          {game.status === 'in_progress' && (getId(user) === getId(game.creator) || getId(user) === getId(game.participant)) && (
-            <div className="mt-6">
-              <button
-                className="w-full bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
-                onClick={handleChickenOut}
-                disabled={chickenOutLoading}
-                aria-busy={chickenOutLoading}
-              >
-                {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
-              </button>
-              {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
-            </div>
-          )}
-          {/* Proof Review (Winner) */}
-          {isWinner && game.status === 'proof_submitted' && game.proof && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-4 mt-6">
-              <h2 className="text-lg font-bold mb-2">Review Submitted Proof</h2>
-              <div className="mb-2"><span className="font-semibold">Proof:</span> {game.proof.text}</div>
-              <div className="mb-2">
-                <label className="block font-semibold mb-1">Feedback (optional):</label>
-                <textarea
-                  className="border rounded px-2 py-1 w-full"
-                  value={reviewFeedback}
-                  onChange={e => setReviewFeedback(e.target.value)}
-                  maxLength={500}
-                  rows={2}
-                  disabled={reviewSubmitting}
-                />
-              </div>
-              {reviewError && <div className="text-red-500 mb-2">{reviewError}</div>}
-              {reviewSuccess && <div className="text-green-600 mb-2">{reviewSuccess}</div>}
-              <div className="flex space-x-2">
-                <button className="btn btn-success shadow-lg" disabled={reviewSubmitting} onClick={() => handleProofReview('approve')}>Approve</button>
-                <button className="btn btn-danger shadow-lg" disabled={reviewSubmitting} onClick={() => handleProofReview('reject')}>Reject</button>
-              </div>
-            </div>
-          )}
-          {/* Proof Review Status/Feedback */}
-          {game.proof && game.proof.review && (
-            <div className={`rounded shadow p-4 mt-6 ${game.proof.review.action === 'approved' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-              <h2 className="text-lg font-bold mb-2">Proof Review</h2>
-              <div className="mb-1">Status: <span className="font-semibold">{game.proof.review.action === 'approved' ? 'Approved' : 'Rejected'}</span></div>
-              {game.proof.review.feedback && <div className="mb-1">Feedback: <span className="italic">{game.proof.review.feedback}</span></div>}
-            </div>
+          {game.proof && (
+            <div className="mt-2 text-info">Proof submitted by <span className="inline-flex items-center gap-2"><Avatar user={game.proof.user} size={28} alt={`Avatar for ${game.proof.user?.fullName || game.proof.user?.username || 'user'}`} />{game.proof.user?.username || '[deleted]'}</span>: {game.proof.text}</div>
           )}
         </div>
         {/* Timestamps/meta with icons */}
