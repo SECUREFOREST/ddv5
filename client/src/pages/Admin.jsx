@@ -143,34 +143,19 @@ export default function Admin() {
       .finally(() => setDataLoading(false));
   };
 
+  // Update fetchDares to only fetch dares
   const fetchDares = (searchId = "") => {
     setDaresLoading(true);
     setError("");
     setSuccess("");
-    if (searchId) {
-      api.get(`/dares?id=${encodeURIComponent(searchId)}`)
-        .then(res => setDares(Array.isArray(res.data) ? res.data : []))
-        .catch(err => {
-          setDares([]);
-          showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
-        })
-        .finally(() => setDaresLoading(false));
-    } else {
-      Promise.all([
-        api.get('/dares'),
-        api.get('/switches')
-      ])
-        .then(([daresRes, switchesRes]) => {
-          const dares = Array.isArray(daresRes.data) ? daresRes.data : [];
-          const switchGames = Array.isArray(switchesRes.data) ? switchesRes.data.map(sg => ({ ...sg, isSwitchGame: true })) : [];
-          setDares([...dares, ...switchGames]);
-        })
-        .catch(err => {
-          setDares([]);
-          showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
-        })
-        .finally(() => setDaresLoading(false));
-    }
+    const url = searchId ? `/dares?id=${encodeURIComponent(searchId)}` : "/dares";
+    api.get(url)
+      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
+      .catch(err => {
+        setDares([]);
+        showNotification(err.response?.data?.error || 'Failed to load dares.', 'error');
+      })
+      .finally(() => setDaresLoading(false));
   };
 
   const fetchReports = () => {
