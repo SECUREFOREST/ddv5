@@ -289,7 +289,7 @@ export default function DareReveal() {
                       value={proof}
                       onChange={e => setProof(e.target.value)}
                       rows={3}
-                      placeholder="Describe your proof, add context, or leave blank if uploading a file."
+                      placeholder="Describe your proof, add context, or leave blank."
                       aria-label="Proof description"
                     />
                   </div>
