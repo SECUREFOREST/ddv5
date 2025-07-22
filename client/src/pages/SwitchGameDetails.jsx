@@ -659,10 +659,7 @@ export default function SwitchGameDetails() {
                     </div>
                   )}
                   <div className="w-full">
-                    <label htmlFor="proof-file" className="block font-semibold mb-1">
-                      Upload image or video proof:
-                    </label>
-                    <div className="w-full flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <label htmlFor="proof-file" className="font-semibold mb-0 whitespace-nowrap mr-2">
                         Upload image or video proof:
                       </label>
