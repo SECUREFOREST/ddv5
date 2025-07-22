@@ -250,23 +250,41 @@ export default function Admin() {
   // Update handleDeleteDare to use the custom modal
   const handleDeleteDare = (dare) => {
     openConfirmModal(
-      dare.isSwitchGame ? 'Are you sure you want to delete this switch game?' : 'Are you sure you want to delete this dare?',
+      'Are you sure you want to delete this dare?',
       async () => {
         setActionLoading(true);
         setError('');
         setSuccess('');
         try {
-          if (dare.isSwitchGame) {
-            await api.delete(`/switches/${dare._id}`);
-          } else {
-            await api.delete(`/dares/${dare._id}`);
-          }
-          showNotification('Item deleted successfully!', 'success');
+          await api.delete(`/dares/${dare._id}`);
+          showNotification('Dare deleted successfully!', 'success');
           fetchDares();
+        } catch (err) {
+          console.error('Failed to delete dare:', err, err?.response);
+          showNotification(err.response?.data?.error || 'Failed to delete dare.', 'error');
+        } finally {
+          setActionLoading(false);
+          setConfirmModalOpen(false);
+        }
+      }
+    );
+  };
+
+  // Add a dedicated handler for deleting switch games
+  const handleDeleteSwitchGame = (game) => {
+    openConfirmModal(
+      'Are you sure you want to delete this switch game?',
+      async () => {
+        setActionLoading(true);
+        setError('');
+        setSuccess('');
+        try {
+          await api.delete(`/switches/${game._id}`);
+          showNotification('Switch game deleted successfully!', 'success');
           fetchSwitchGames();
         } catch (err) {
-          console.error('Failed to delete item:', err, err?.response);
-          showNotification(err.response?.data?.error || 'Failed to delete item.', 'error');
+          console.error('Failed to delete switch game:', err, err?.response);
+          showNotification(err.response?.data?.error || 'Failed to delete switch game.', 'error');
         } finally {
           setActionLoading(false);
           setConfirmModalOpen(false);
@@ -705,7 +723,7 @@ export default function Admin() {
                                   </td>
                                   <td className="p-2 text-neutral-400">{g.creatorDare?.difficulty || '-'}</td>
                                   <td className="p-2 space-x-2">
-                                    <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteDare({ ...g, isSwitchGame: true })} aria-label={`Delete switch game ${g._id}`}>Delete</button>
+                                    <button className="bg-danger text-danger-contrast px-2 py-1 rounded text-xs font-semibold hover:bg-danger-dark shadow-lg" disabled={actionLoading} onClick={() => handleDeleteSwitchGame(g)} aria-label={`Delete switch game ${g._id}`}>Delete</button>
                                   </td>
                                 </tr>
                               ))}
