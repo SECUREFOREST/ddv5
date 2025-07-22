@@ -597,22 +597,25 @@ export default function SwitchGameDetails() {
               <b>Awaiting proof from the loser.</b>
               {isLoser && !game.proof && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-6">
+                  <div className="bg-danger/10 border border-danger text-danger text-lg font-bold rounded p-4 mb-4">
+                    You lost! Please submit your proof to complete the game.
+                  </div>
                   <h2 className="text-lg font-bold mb-2">Submit Proof</h2>
-                  <form onSubmit={handleProofSubmit}>
-                    <div className="mb-2">
-                      <label className="block font-semibold mb-1">Proof (text):</label>
-                      <textarea
-                        className="border rounded px-2 py-1 w-full"
-                        value={proof}
-                        onChange={e => setProof(e.target.value)}
-                        maxLength={1000}
-                        rows={3}
-                        required
-                        disabled={proofLoading}
+                  <form onSubmit={handleProofSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="proof-file" className="block font-semibold mb-1">Upload image or video proof:</label>
+                      <input
+                        type="file"
+                        id="proof-file"
+                        className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+                        onChange={handleProofFileChange}
+                        accept="image/*,video/mp4,video/webm,video/quicktime"
+                        aria-required="true"
                       />
+                      <small className="text-gray-400">Accepted file types: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</small>
                     </div>
-                    {proofError && <div className="text-red-500 mb-2">{proofError}</div>}
-                    <button type="submit" className="btn btn-accent shadow-lg" disabled={proofLoading}>
+                    {proofError && <div className="text-danger text-sm font-medium" role="alert">{proofError}</div>}
+                    <button type="submit" className="btn btn-accent shadow-lg w-full" disabled={proofLoading} aria-label="Submit Proof">
                       {proofLoading ? 'Submitting...' : 'Submit Proof'}
                     </button>
                   </form>
