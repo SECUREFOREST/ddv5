@@ -609,7 +609,15 @@ router.delete('/:id', auth, async (req, res) => {
   try {
     const game = await SwitchGame.findById(req.params.id);
     if (!game) return res.status(404).json({ error: 'Switch game not found.' });
-    if (!game.creator.equals(req.userId)) return res.status(403).json({ error: 'Only the creator can delete this switch game.' });
+
+    // Fetch the user and check for admin role
+    const user = await User.findById(req.userId);
+    const isAdmin = user && user.roles && user.roles.includes('admin');
+
+    if (!game.creator.equals(req.userId) && !isAdmin) {
+      return res.status(403).json({ error: 'Only the creator or an admin can delete this switch game.' });
+    }
+
     await game.deleteOne();
     res.json({ message: 'Switch game deleted.' });
   } catch (err) {
