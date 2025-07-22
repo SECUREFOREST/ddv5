@@ -695,7 +695,7 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
                 {/* Browse Public Deviant Dares (added to All Dares tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Browse public dares">Browse Public Dares</h3>
+                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public dares">Available Public Dares</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
@@ -848,7 +848,7 @@ export default function DarePerformerDashboard() {
                 )}
                 {switchGamesError && <div className="text-danger text-center mt-2">{switchGamesError}</div>}
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Browse public switch games">Browse Public Switch Games</h3>
+                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public switch games">Available Public Switch Games</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
