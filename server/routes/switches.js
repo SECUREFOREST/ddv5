@@ -166,6 +166,23 @@ router.get('/:id',
       avgGrade,
       limits
     };
+    // Attach participant info
+    const participant = game.participant;
+    const participantInfo = participant ? {
+      _id: participant._id,
+      username: participant.username,
+      avatar: participant.avatar,
+      gender: participant.gender,
+      // Add more fields if needed
+    } : null;
+    // Attach winner info
+    const winner = game.winner;
+    const winnerInfo = winner ? {
+      _id: winner._id,
+      username: winner.username,
+      avatar: winner.avatar,
+      // Add more fields if needed
+    } : null;
     // Add difficulty description
     let difficultyDescription = '';
     switch (game.creatorDare.difficulty) {
@@ -190,6 +207,8 @@ router.get('/:id',
     res.json({
       ...game.toObject(),
       creator: creatorInfo,
+      participant: participantInfo,
+      winner: winnerInfo,
       difficulty: game.creatorDare.difficulty,
       description: game.creatorDare.description,
       difficultyDescription
