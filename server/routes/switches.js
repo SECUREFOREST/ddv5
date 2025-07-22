@@ -383,6 +383,7 @@ router.post('/:id/move',
             game.winner = game.participant;
             winner = game.participant; loser = game.creator;
           }
+          game.loser = loser; // <-- Ensure loser is set
           game.status = 'awaiting_proof';
           game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
         }
