@@ -205,12 +205,9 @@ router.get('/mine', auth, async (req, res) => {
   try {
     const { status } = req.query;
     const mongoose = require('mongoose');
-    let userId;
-    try {
-      userId = mongoose.Types.ObjectId(req.userId);
-    } catch (e) {
-      console.error('[DEBUG] Invalid userId for ObjectId:', req.userId, e);
-      return res.status(400).json({ error: 'Invalid user ID.' });
+    let userId = req.userId;
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+      userId = mongoose.Types.ObjectId(userId);
     }
     const filter = {
       $or: [
