@@ -35,6 +35,7 @@ router.get('/', auth, async (req, res) => {
       ]
     })
       .populate('user', 'username avatar')
+      .populate('switchGame', 'description difficulty creator participant status')
       .sort({ createdAt: -1 })
       .limit(Number(req.query.limit) || 30);
 

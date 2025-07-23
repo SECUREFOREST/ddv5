@@ -5,6 +5,7 @@ const ActivitySchema = new mongoose.Schema({
   type: { type: String, required: true }, // 'dare', 'comment', 'grade', etc.
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   dare: { type: mongoose.Schema.Types.ObjectId, ref: 'Dare' },
+  switchGame: { type: mongoose.Schema.Types.ObjectId, ref: 'SwitchGame' },
   comment: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   details: { type: Object },
   createdAt: { type: Date, default: Date.now },
