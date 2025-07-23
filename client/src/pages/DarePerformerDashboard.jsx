@@ -672,13 +672,7 @@ export default function DarePerformerDashboard() {
   const paged = filterAndSortAllDares(allActiveDares).slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
   return paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
-      <span>No active dares. Want to create one?</span>
-      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/create')}>
-        <PlusIcon className="w-5 h-5" /> Create Dare
-      </button>
-      <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/select')}>
-        <PlayIcon className="w-5 h-5" /> Perform Dare
-      </button>
+      <span>No active dares.</span>
     </div>
   ) : (
     <>
@@ -742,9 +736,6 @@ export default function DarePerformerDashboard() {
                 {filterAndSortAllDares(allCompletedDares).length === 0 ? (
                   <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
                     <span>No completed dares yet.</span>
-                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/create')}>
-                      <PlusIcon className="w-5 h-5" /> Create Dare
-                    </button>
                   </div>
                 ) : (() => {
   const paged = filterAndSortAllDares(allCompletedDares).slice((completedPage - 1) * PAGE_SIZE, completedPage * PAGE_SIZE);
@@ -777,7 +768,7 @@ export default function DarePerformerDashboard() {
                 <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public dares">Available Public Dares</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
-                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
+                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {(publicActCounts.submission || 0) + (publicActCounts.domination || 0)}</span>
                   {publicActCounts.submission > 0 && (
                     <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
                   )}
@@ -876,12 +867,6 @@ export default function DarePerformerDashboard() {
   ) : paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
       <span>You have no active switch games. Want to create or join one?</span>
-      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/create')}>
-        <PlusIcon className="w-5 h-5" /> Create Switch Game
-      </button>
-      <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/participate')}>
-        <Squares2X2Icon className="w-5 h-5" /> Join Switch Game
-      </button>
     </div>
   ) : (
     <>
@@ -961,9 +946,6 @@ export default function DarePerformerDashboard() {
   ) : paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
       <span>No completed or forfeited switch games yet.</span>
-      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/create')}>
-        <PlusIcon className="w-5 h-5" /> Create Switch Game
-      </button>
     </div>
   ) : (
     <>
@@ -994,7 +976,7 @@ export default function DarePerformerDashboard() {
                 <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public switch games">Available Public Switch Games</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
-                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {publicActCounts.total}</span>
+                  <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Switch Games: {publicActCounts.switch || 0}</span>
                   {publicActCounts.submission > 0 && (
                     <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
                   )}

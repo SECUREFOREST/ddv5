@@ -184,4 +184,24 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
+// GET /api/stats/public-acts - counts of public dares by type, only those waiting for participant
+router.get('/public-acts', async (req, res) => {
+  try {
+    const filter = { public: true, status: 'waiting_for_participant' };
+    const [submission, domination, switchGames] = await Promise.all([
+      require('../models/Dare').countDocuments({ ...filter, dareType: 'submission' }),
+      require('../models/Dare').countDocuments({ ...filter, dareType: 'domination' }),
+      require('../models/Dare').countDocuments({ ...filter, dareType: 'switch' })
+    ]);
+    res.json({
+      total: submission + domination + switchGames,
+      submission,
+      domination,
+      switch: switchGames
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get public acts stats.' });
+  }
+});
+
 module.exports = router; 
