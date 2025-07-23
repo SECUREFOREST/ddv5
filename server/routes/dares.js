@@ -207,7 +207,7 @@ router.get('/mine', auth, async (req, res) => {
     const mongoose = require('mongoose');
     let userId = req.userId;
     if (mongoose.Types.ObjectId.isValid(userId)) {
-      userId = mongoose.Types.ObjectId(userId);
+      userId = new mongoose.Types.ObjectId(userId);
     }
     const filter = {
       $or: [
