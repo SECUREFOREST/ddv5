@@ -99,6 +99,8 @@ export default function DarePerformerDashboard() {
   const { user } = useAuth();
   // Notification system
   const [notification, setNotification] = useState(null);
+  const [activePage, setActivePage] = useState(1);
+  const [completedPage, setCompletedPage] = useState(1);
   const notificationTimeout = useRef(null);
   const showNotification = (msg, type = 'info') => {
     setNotification({ msg, type });
