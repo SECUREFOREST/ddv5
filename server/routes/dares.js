@@ -205,7 +205,13 @@ router.get('/mine', auth, async (req, res) => {
   try {
     const { status } = req.query;
     const mongoose = require('mongoose');
-    const userId = mongoose.Types.ObjectId(req.userId);
+    let userId;
+    try {
+      userId = mongoose.Types.ObjectId(req.userId);
+    } catch (e) {
+      console.error('[DEBUG] Invalid userId for ObjectId:', req.userId, e);
+      return res.status(400).json({ error: 'Invalid user ID.' });
+    }
     const filter = {
       $or: [
         { creator: userId },
@@ -213,19 +219,20 @@ router.get('/mine', auth, async (req, res) => {
       ]
     };
     if (status) {
-      // Support comma-separated status values
       if (status.includes(',')) {
         filter.status = { $in: status.split(',') };
       } else {
         filter.status = status;
       }
     }
+    console.log('[DEBUG] /dares/mine filter:', filter);
     const dares = await Dare.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
       .sort({ updatedAt: -1 });
     res.json(dares);
   } catch (err) {
+    console.error('[DEBUG] /dares/mine error:', err);
     res.status(500).json({ error: 'Failed to fetch your dares.' });
   }
 });
