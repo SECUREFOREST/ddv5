@@ -185,14 +185,16 @@ export default function DarePerformerDashboard() {
   }
 
   // Derived arrays for All Dares tab (must be inside component)
-  const allActiveDares = ongoing
-    .filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
-    .map(d => ({ ...d, _type: "perform" }));
-  const allCompletedDares = completed
-    .filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
-    .map(d => ({ ...d, _type: "perform" }));
-  const navigate = useNavigate();
   const userId = user?._id || user?.id;
+  const allActiveDares = userId
+    ? ongoing.filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
+        .map(d => ({ ...d, _type: "perform" }))
+    : [];
+  const allCompletedDares = userId
+    ? completed.filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
+        .map(d => ({ ...d, _type: "perform" }))
+    : [];
+  const navigate = useNavigate();
   const filteredMySwitchGames = mySwitchGames.filter(game =>
     game.creator?._id === userId || game.creator?.id === userId ||
     game.participant?._id === userId || game.participant?.id === userId
