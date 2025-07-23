@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
 const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
+const { logActivity } = require('../utils/activity');
 
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');
@@ -287,6 +288,7 @@ router.post('/',
       });
       await game.save();
       await game.populate('creator');
+      await logActivity({ type: 'switchgame_created', user: req.userId, switchGame: game._id });
       res.status(201).json(game);
     } catch (err) {
       res.status(500).json({ error: err.message || 'Failed to create switch game.' });
@@ -355,6 +357,7 @@ router.post('/:id/join',
       game.status = 'in_progress';
       await game.save();
       await game.populate('participant');
+      await logActivity({ type: 'switchgame_joined', user: req.userId, switchGame: game._id });
       res.json(game);
     } catch (err) {
       res.status(400).json({ error: err.message || 'Failed to join switch game.' });
@@ -418,6 +421,9 @@ router.post('/:id/move',
       }
       await game.save();
       await game.populate('creator participant winner');
+      if (winner) {
+        await logActivity({ type: 'switchgame_won', user: winner, switchGame: game._id });
+      }
       res.json(game);
     } catch (err) {
       res.status(400).json({ error: err.message || 'Failed to submit move.' });
@@ -566,6 +572,7 @@ router.post('/:id/forfeit',
       // Decrement openDares for the forfeiting user
       const User = require('../models/User');
       await User.findByIdAndUpdate(userId, { $inc: { openDares: -1 } });
+      await logActivity({ type: 'switchgame_forfeited', user: req.userId, switchGame: game._id });
       // Notify the other user
       const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
       if (otherUser) {
