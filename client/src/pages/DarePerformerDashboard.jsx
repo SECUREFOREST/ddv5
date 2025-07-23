@@ -588,6 +588,23 @@ export default function DarePerformerDashboard() {
   // (No need to render {tabContents[tabIdx]})
   // ... existing code ...
 
+  // Add state for switch game activity feed
+  const [switchGameActivityFeed, setSwitchGameActivityFeed] = useState([]);
+  const [switchGameActivityLoading, setSwitchGameActivityLoading] = useState(false);
+
+  // Fetch switch game activity feed when Switch Games tab is active
+  useEffect(() => {
+    if (tab !== 'switch') return;
+    setSwitchGameActivityLoading(true);
+    api.get('/activity-feed?limit=20')
+      .then(res => {
+        // Only keep activities related to switch games
+        setSwitchGameActivityFeed(Array.isArray(res.data) ? res.data.filter(a => a.switchGame) : []);
+      })
+      .catch(() => setSwitchGameActivityFeed([]))
+      .finally(() => setSwitchGameActivityLoading(false));
+  }, [tab]);
+
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
@@ -654,7 +671,15 @@ export default function DarePerformerDashboard() {
                 ) : (() => {
   const paged = filterAndSortAllDares(allActiveDares).slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
   return paged.length === 0 ? (
-    <div className="text-neutral-400 text-center py-4">No active dares. Claim or create a dare to get started!</div>
+    <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
+      <span>No active dares. Want to create one?</span>
+      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/create')}>
+        <PlusIcon className="w-5 h-5" /> Create Dare
+      </button>
+      <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/select')}>
+        <PlayIcon className="w-5 h-5" /> Perform Dare
+      </button>
+    </div>
   ) : (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -715,7 +740,12 @@ export default function DarePerformerDashboard() {
 })()}
                 <h4 className="text-lg font-bold text-primary mb-2 mt-8">Completed Dares</h4>
                 {filterAndSortAllDares(allCompletedDares).length === 0 ? (
-                  <div className="text-neutral-400 text-center py-4">No completed dares yet.</div>
+                  <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
+                    <span>No completed dares yet.</span>
+                    <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/dare/create')}>
+                      <PlusIcon className="w-5 h-5" /> Create Dare
+                    </button>
+                  </div>
                 ) : (() => {
   const paged = filterAndSortAllDares(allCompletedDares).slice((completedPage - 1) * PAGE_SIZE, completedPage * PAGE_SIZE);
   return paged.length === 0 ? (
@@ -861,7 +891,15 @@ export default function DarePerformerDashboard() {
       <div className="w-48 h-6 bg-neutral-700 rounded animate-pulse" />
     </div>
   ) : paged.length === 0 ? (
-    <div className="text-neutral-400 text-center py-4">You have no active switch games. Create or join one to get started!</div>
+    <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
+      <span>You have no active switch games. Want to create or join one?</span>
+      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/create')}>
+        <PlusIcon className="w-5 h-5" /> Create Switch Game
+      </button>
+      <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/participate')}>
+        <Squares2X2Icon className="w-5 h-5" /> Join Switch Game
+      </button>
+    </div>
   ) : (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -938,7 +976,12 @@ export default function DarePerformerDashboard() {
       <div className="w-48 h-6 bg-neutral-700 rounded animate-pulse" />
     </div>
   ) : paged.length === 0 ? (
-    <div className="text-neutral-400 text-center py-4">No completed or forfeited switch games yet.</div>
+    <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
+      <span>No completed or forfeited switch games yet.</span>
+      <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg mt-2" onClick={() => navigate('/switches/create')}>
+        <PlusIcon className="w-5 h-5" /> Create Switch Game
+      </button>
+    </div>
   ) : (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -1005,6 +1048,38 @@ export default function DarePerformerDashboard() {
                           </div>
                         ))}
                     </div>
+                  )}
+                </div>
+                <div className="activity-feed-section mt-8">
+                  <h3 className="text-xl font-bold mb-2">Recent Switch Game Activity</h3>
+                  {switchGameActivityLoading ? (
+                    <div className="text-neutral-400">Loading activity...</div>
+                  ) : switchGameActivityFeed.length === 0 ? (
+                    <div className="text-neutral-400">No recent switch game activity found.</div>
+                  ) : (
+                    <ul className="text-neutral-200 text-sm space-y-2">
+                      {switchGameActivityFeed.map((activity, idx) => (
+                        <li key={activity._id || idx}>
+                          {/* Format activity type. Adjust as needed for your activity schema. */}
+                          {activity.type === 'switchgame_created' && (
+                            <span><span className="text-primary font-bold">You created</span> Switch Game: <span className="font-semibold">{activity.switchGame?.description || 'Untitled'}</span> <span className="text-xs text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</span></span>
+                          )}
+                          {activity.type === 'switchgame_joined' && (
+                            <span><span className="text-info font-bold">You joined</span> Switch Game: <span className="font-semibold">{activity.switchGame?.description || 'Untitled'}</span> <span className="text-xs text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</span></span>
+                          )}
+                          {activity.type === 'switchgame_won' && (
+                            <span><span className="text-success font-bold">You won</span> Switch Game: <span className="font-semibold">{activity.switchGame?.description || 'Untitled'}</span> <span className="text-xs text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</span></span>
+                          )}
+                          {activity.type === 'switchgame_forfeited' && (
+                            <span><span className="text-danger font-bold">You forfeited</span> Switch Game: <span className="font-semibold">{activity.switchGame?.description || 'Untitled'}</span> <span className="text-xs text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</span></span>
+                          )}
+                          {/* Fallback for unknown types */}
+                          {!['switchgame_created','switchgame_joined','switchgame_won','switchgame_forfeited'].includes(activity.type) && (
+                            <span><span className="font-bold">Switch Game Activity</span>: <span className="font-semibold">{activity.switchGame?.description || 'Untitled'}</span> <span className="text-xs text-neutral-400">{new Date(activity.createdAt).toLocaleString()}</span></span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               </div>
@@ -1098,6 +1173,16 @@ export default function DarePerformerDashboard() {
           </div>
         </div>
       )}
+      <div className="activity-feed-section mt-8">
+        <h3 className="text-xl font-bold mb-2">Recent Activity</h3>
+        {/* Replace with real API data if available */}
+        <ul className="text-neutral-200 text-sm space-y-2">
+          <li><span className="text-success font-bold">You completed</span> Dare: <span className="font-semibold">"Try React Query"</span> <span className="text-xs text-neutral-400">2 hours ago</span></li>
+          <li><span className="text-info font-bold">You joined</span> Switch Game: <span className="font-semibold">"Rock-Paper-Scissors Showdown"</span> <span className="text-xs text-neutral-400">5 hours ago</span></li>
+          <li><span className="text-danger font-bold">You forfeited</span> Dare: <span className="font-semibold">"Dance in Public"</span> <span className="text-xs text-neutral-400">1 day ago</span></li>
+          <li><span className="text-primary font-bold">You created</span> Dare: <span className="font-semibold">"Build a UI Demo"</span> <span className="text-xs text-neutral-400">2 days ago</span></li>
+        </ul>
+      </div>
     </div>
   );
 }
