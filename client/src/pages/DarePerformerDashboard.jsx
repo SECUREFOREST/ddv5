@@ -308,7 +308,11 @@ export default function DarePerformerDashboard() {
       .finally(() => setCompletedLoading(false));
     // Fetch ongoing dares (alias for slots)
     api.get('/dares/mine?status=in_progress,waiting_for_participant')
-      .then(res => setOngoing(res.data))
+      .then(res => {
+        console.log('[DEBUG] /dares/mine?status=in_progress,waiting_for_participant response:', res.data);
+        setOngoing(res.data);
+        console.log('[DEBUG] ongoing array after set:', res.data);
+      })
       .catch(() => setOngoing([]));
     // TODO: Fetch cooldown from user profile if available
   }, [user]);
