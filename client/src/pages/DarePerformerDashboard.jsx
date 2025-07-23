@@ -23,6 +23,9 @@ import { PlusIcon, PlayIcon, DocumentPlusIcon, FilterIcon, XMarkIcon, ArrowDownI
 // Constants for slot limits and cooldown (stub values)
 const MAX_SLOTS = 5;
 const COOLDOWN_SECONDS = 60 * 5; // 5 minutes
+const PAGE_SIZE = 6;
+const [activePage, setActivePage] = useState(1);
+const [completedPage, setCompletedPage] = useState(1);
 
 // Helper for time ago/status
 function timeAgoOrDuration(start, end, status) {
