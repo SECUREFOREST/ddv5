@@ -635,7 +635,25 @@ export default function DarePerformerDashboard() {
                 </div>
                 {/* Advanced Filters & Sorting */}
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
-                  <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+                  {/* Difficulty filter chips */}
+                  <div className="flex gap-2">
+                    {DIFFICULTY_OPTIONS.map(d => (
+                      <button
+                        key={d.value}
+                        type="button"
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast
+                          ${allDaresDifficulty === d.value ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-300 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
+                        onClick={() => setAllDaresDifficulty(allDaresDifficulty === d.value ? '' : d.value)}
+                        aria-pressed={allDaresDifficulty === d.value}
+                        aria-label={`Filter by difficulty: ${d.label}`}
+                      >
+                        {DIFFICULTY_ICONS[d.value]}
+                        <span>{d.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Status filter */}
+                  <select value={allDaresStatus} onChange={e => setAllDaresStatus(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Filter by status">
                     <option value="">All Statuses</option>
                     <option value="waiting_for_participant">Waiting For Participant</option>
                     <option value="in_progress">In Progress</option>
@@ -644,18 +662,17 @@ export default function DarePerformerDashboard() {
                     <option value="cancelled">Cancelled</option>
                     <option value="forfeited">Forfeited</option>
                   </select>
-                  <select value={allDaresDifficulty} onChange={e => setAllDaresDifficulty(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
-                    <option value="">All Difficulties</option>
-                    {DIFFICULTY_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                  </select>
-                  <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by creator or performer username" />
-                  <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort dares">
+                  {/* Participant search */}
+                  <input type="text" value={allDaresParticipant} onChange={e => setAllDaresParticipant(e.target.value)} placeholder="Search by creator/performer" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Search by creator or performer username" />
+                  {/* Sort */}
+                  <select value={allDaresSort} onChange={e => setAllDaresSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Sort dares">
                     <option value="recent">Most Recent</option>
                     <option value="oldest">Oldest</option>
                     <option value="status">Status</option>
                     <option value="difficulty">Difficulty</option>
                   </select>
-                  <button className="ml-2 px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => { setAllDaresStatus(''); setAllDaresDifficulty(''); setAllDaresParticipant(''); setAllDaresSort('recent'); setSelectedDifficulties([]); setKeywordFilter(''); setCreatorFilter(''); }}>
+                  {/* Reset Filters button */}
+                  <button className="ml-2 px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => { setAllDaresStatus(''); setAllDaresDifficulty(''); setAllDaresParticipant(''); setAllDaresSort('recent'); }}>
                     <XMarkIcon className="w-4 h-4 inline-block mr-1" /> Reset Filters
                   </button>
                 </div>
