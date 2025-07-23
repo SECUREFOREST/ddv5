@@ -6,6 +6,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import { useNotification } from '../context/NotificationContext';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -70,6 +71,9 @@ export default function SwitchGameParticipate() {
   const [consent, setConsent] = useState(false);
   const [searching, setSearching] = useState(false);
   const [banner, setBanner] = useState({ type: '', message: '' });
+  const { showNotification } = useNotification();
+  const [chickenOutLoading, setChickenOutLoading] = useState(false);
+  const [chickenOutError, setChickenOutError] = useState('');
 
   // Handler for finding a game (for the difficulty/consent form)
   const handleFindGame = async (e) => {
@@ -127,6 +131,26 @@ export default function SwitchGameParticipate() {
       navigate(`/switches/${gameId}`);
     } catch (err) {
       setBanner({ type: 'error', message: err.response?.data?.error || 'Failed to join game.' });
+    }
+  };
+
+  // Helper to determine if current user is the loser
+  const userId = localStorage.getItem('userId'); // Or get from context if available
+  const isLoser = game && game.loser && (game.loser._id === userId || game.loser.id === userId || game.loser === userId);
+
+  const handleChickenOut = async () => {
+    setChickenOutLoading(true);
+    setChickenOutError('');
+    try {
+      await api.post(`/switches/${game._id}/forfeit`);
+      showNotification('You have successfully chickened out.', 'success');
+      // Optionally refresh or redirect
+      window.location.reload();
+    } catch (err) {
+      setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
+      showNotification(err.response?.data?.error || 'Failed to chicken out.', 'error');
+    } finally {
+      setChickenOutLoading(false);
     }
   };
 
@@ -366,6 +390,17 @@ export default function SwitchGameParticipate() {
             )}
           </div>
         )}
+        {isLoser && game.status === 'in_progress' && (
+          <button
+            className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg"
+            onClick={handleChickenOut}
+            disabled={chickenOutLoading}
+            aria-busy={chickenOutLoading}
+          >
+            {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
+          </button>
+        )}
+        {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
       </div>
     );
   }
