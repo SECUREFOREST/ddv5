@@ -185,9 +185,12 @@ export default function DarePerformerDashboard() {
   }
 
   // Derived arrays for All Dares tab (must be inside component)
-  const allActiveDares = ongoing.map(d => ({ ...d, _type: "perform" }));
-  const allCompletedDares = completed.map(d => ({ ...d, _type: "perform" }));
-  const allCreatedDares = [...ongoing, ...completed].filter(d => (d.creator?._id === userId || d.creator?.id === userId));
+  const allActiveDares = ongoing
+    .filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
+    .map(d => ({ ...d, _type: "perform" }));
+  const allCompletedDares = completed
+    .filter(d => (d.performer?._id === userId || d.performer?.id === userId || d.creator?._id === userId || d.creator?.id === userId))
+    .map(d => ({ ...d, _type: "perform" }));
   const navigate = useNavigate();
   const userId = user?._id || user?.id;
   const filteredMySwitchGames = mySwitchGames.filter(game =>
@@ -585,8 +588,6 @@ export default function DarePerformerDashboard() {
   // (No need to render {tabContents[tabIdx]})
   // ... existing code ...
 
-  const allCreatedSwitchGames = mySwitchGames.filter(game => (game.creator?._id === userId || game.creator?.id === userId));
-
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
@@ -707,57 +708,6 @@ export default function DarePerformerDashboard() {
           <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.max(1, p - 1))} disabled={activePage === 1} aria-label="Previous page">Prev</button>
           <span className="text-xs text-neutral-400">Page {activePage} of {Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE)}</span>
           <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.min(Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE), p + 1))} disabled={activePage === Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
-  );
-})()}
-                <h4 className="text-lg font-bold text-primary mb-2 mt-8">Your Created Dares</h4>
-                {(() => {
-  const paged = allCreatedDares.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
-  return paged.length === 0 ? (
-    <div className="text-neutral-400 text-center py-4">No created dares yet.</div>
-  ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(dare => (
-          <div key={dare._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-xl focus-within:shadow-xl transition-shadow duration-150 group min-h-[220px]" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}> 
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center mb-2">
-                <div>{difficultyBadge(dare.difficulty)}</div>
-                <div>{statusBadge(dare.status)}</div>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-neutral-400">Creator:</span>
-                <Avatar user={dare.creator} size={24} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
-                <span className="text-xs text-neutral-200" title={dare.creator?.fullName || dare.creator?.username}>{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-neutral-400">Performer:</span>
-                <Avatar user={dare.performer} size={24} alt={`Avatar for ${dare.performer?.username || 'performer'}`} />
-                <span className="text-xs text-neutral-200" title={dare.performer?.fullName || dare.performer?.username}>{dare.performer?.fullName || dare.performer?.username || '—'}</span>
-              </div>
-              {/* Description dropdown/accordion only if user is creator or performer/participant */}
-              {(dare.creator?._id === userId || dare.creator?.id === userId || dare.performer?._id === userId || dare.performer?.id === userId) ? (
-                <Accordion title="Show Description" defaultOpen={false}>
-                  <div className="text-neutral-300 text-sm truncate" title={dare.description}>{dare.description}</div>
-                </Accordion>
-              ) : (
-                <div className="text-neutral-400 text-xs italic">Description hidden</div>
-              )}
-            </div>
-            <div className="text-xs text-neutral-500 mt-2 text-center">
-              Last updated: {dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {allCreatedDares.length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Created dares pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.max(1, p - 1))} disabled={activePage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {activePage} of {Math.ceil(allCreatedDares.length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.min(Math.ceil(allCreatedDares.length / PAGE_SIZE), p + 1))} disabled={activePage === Math.ceil(allCreatedDares.length / PAGE_SIZE)} aria-label="Next page">Next</button>
         </div>
       )}
     </>
@@ -940,49 +890,6 @@ export default function DarePerformerDashboard() {
           <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.max(1, p - 1))} disabled={switchActivePage === 1} aria-label="Previous page">Prev</button>
           <span className="text-xs text-neutral-400">Page {switchActivePage} of {Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE)}</span>
           <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.min(Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE), p + 1))} disabled={switchActivePage === Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
-  );
-})()}
-                <h4 className="text-lg font-bold text-primary mb-2 mt-8">Your Created Switch Games</h4>
-                {(() => {
-  const paged = allCreatedSwitchGames.slice((switchActivePage - 1) * PAGE_SIZE, switchActivePage * PAGE_SIZE);
-  return paged.length === 0 ? (
-    <div className="text-neutral-400 text-center py-4">No created switch games yet.</div>
-  ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(game => (
-          <div key={game._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-xl focus-within:shadow-xl transition-shadow duration-150 group min-h-[220px] cursor-pointer" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center mb-2">
-                <div>{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
-                <div>{statusBadge(game.status)}</div>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-neutral-400">Creator:</span>
-                <Avatar user={game.creator} size={24} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
-                <span className="text-xs text-neutral-200" title={game.creator?.fullName || game.creator?.username}>{game.creator?.fullName || game.creator?.username || 'User'}</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-neutral-400">Performer:</span>
-                <Avatar user={game.participant} size={24} alt={`Avatar for ${game.participant?.username || 'participant'}`} />
-                <span className="text-xs text-neutral-200" title={game.participant?.fullName || game.participant?.username}>{game.participant ? game.participant.fullName || game.participant.username : '—'}</span>
-              </div>
-            </div>
-            <div className="text-xs text-neutral-500 mt-2 text-center">
-              Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {allCreatedSwitchGames.length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Created switch games pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.max(1, p - 1))} disabled={switchActivePage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {switchActivePage} of {Math.ceil(allCreatedSwitchGames.length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.min(Math.ceil(allCreatedSwitchGames.length / PAGE_SIZE), p + 1))} disabled={switchActivePage === Math.ceil(allCreatedSwitchGames.length / PAGE_SIZE)} aria-label="Next page">Next</button>
         </div>
       )}
     </>
