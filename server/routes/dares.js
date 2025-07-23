@@ -200,6 +200,28 @@ router.get('/performer', auth, async (req, res) => {
   }
 });
 
+// GET /api/dares/mine - get all dares where current user is creator or performer
+router.get('/mine', auth, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const userId = req.userId;
+    const filter = {
+      $or: [
+        { creator: userId },
+        { performer: userId }
+      ]
+    };
+    if (status) filter.status = status;
+    const dares = await Dare.find(filter)
+      .populate('creator', 'username fullName avatar')
+      .populate('performer', 'username fullName avatar')
+      .sort({ updatedAt: -1 });
+    res.json(dares);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch your dares.' });
+  }
+});
+
 // GET /api/dares/:id - get dare details
 router.get('/:id', async (req, res) => {
   try {
