@@ -204,14 +204,22 @@ router.get('/performer', auth, async (req, res) => {
 router.get('/mine', auth, async (req, res) => {
   try {
     const { status } = req.query;
-    const userId = req.userId;
+    const mongoose = require('mongoose');
+    const userId = mongoose.Types.ObjectId(req.userId);
     const filter = {
       $or: [
         { creator: userId },
         { performer: userId }
       ]
     };
-    if (status) filter.status = status;
+    if (status) {
+      // Support comma-separated status values
+      if (status.includes(',')) {
+        filter.status = { $in: status.split(',') };
+      } else {
+        filter.status = status;
+      }
+    }
     const dares = await Dare.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
