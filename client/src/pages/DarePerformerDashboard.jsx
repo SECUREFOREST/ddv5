@@ -797,17 +797,35 @@ export default function DarePerformerDashboard() {
               <div>
                 <h3 className="section-description text-xl font-bold mb-2 text-center justify-center" aria-label="Switch Games">Switch Games</h3>
                 {/* Action Buttons */}
-                <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center">
-                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors shadow-lg" onClick={() => navigate('/switches/create')}>
-                    Create Switch Game
+                <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center items-center bg-neutral-900/80 rounded-lg p-4 border border-neutral-800">
+                  <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark flex items-center gap-2 transition-colors shadow-lg" onClick={() => navigate('/switches/create')}>
+                    <PlusIcon className="w-5 h-5" /> Create Switch Game
                   </button>
-                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark transition-colors shadow-lg" onClick={() => navigate('/switches/participate')}>
-                    Join Switch Game
+                  <button className="bg-info text-info-contrast rounded px-4 py-2 font-semibold hover:bg-info-dark flex items-center gap-2 transition-colors shadow-lg" onClick={() => navigate('/switches/participate')}>
+                    <Squares2X2Icon className="w-5 h-5" /> Join Switch Game
                   </button>
                 </div>
                 {/* Advanced Filters & Sorting for Switch Games */}
                 <div className="flex flex-wrap gap-2 mb-4 items-center">
-                  <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by status">
+                  {/* Difficulty filter chips */}
+                  <div className="flex gap-2">
+                    {DIFFICULTY_OPTIONS.map(d => (
+                      <button
+                        key={d.value}
+                        type="button"
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast
+                          ${switchDifficultyFilter === d.value ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-300 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
+                        onClick={() => setSwitchDifficultyFilter(switchDifficultyFilter === d.value ? '' : d.value)}
+                        aria-pressed={switchDifficultyFilter === d.value}
+                        aria-label={`Filter by difficulty: ${d.label}`}
+                      >
+                        {DIFFICULTY_ICONS[d.value]}
+                        <span>{d.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Status filter */}
+                  <select value={switchStatusFilter} onChange={e => setSwitchStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Filter by status">
                     <option value="">All Statuses</option>
                     <option value="waiting_for_participant">Waiting For Participant</option>
                     <option value="in_progress">In Progress</option>
@@ -815,17 +833,19 @@ export default function DarePerformerDashboard() {
                     <option value="forfeited">Forfeited</option>
                     <option value="expired">Expired</option>
                   </select>
-                  <select value={switchDifficultyFilter} onChange={e => setSwitchDifficultyFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by difficulty">
-                    <option value="">All Difficulties</option>
-                    {DIFFICULTY_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                  </select>
-                  <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Search by participant username" />
-                  <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Sort switch games">
+                  {/* Participant search */}
+                  <input type="text" value={switchParticipantFilter} onChange={e => setSwitchParticipantFilter(e.target.value)} placeholder="Search by participant" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Search by participant username" />
+                  {/* Sort */}
+                  <select value={switchSort} onChange={e => setSwitchSort(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary text-xs" aria-label="Sort switch games">
                     <option value="recent">Most Recent</option>
                     <option value="oldest">Oldest</option>
                     <option value="status">Status</option>
                     <option value="difficulty">Difficulty</option>
                   </select>
+                  {/* Reset Filters button */}
+                  <button className="ml-2 px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => { setSwitchStatusFilter(''); setSwitchDifficultyFilter(''); setSwitchParticipantFilter(''); setSwitchSort('recent'); }}>
+                    <XMarkIcon className="w-4 h-4 inline-block mr-1" /> Reset Filters
+                  </button>
                 </div>
 
                 <h4 className="text-lg font-bold text-primary mb-2">Your Active Switch Games</h4>
@@ -862,6 +882,16 @@ export default function DarePerformerDashboard() {
                 <Avatar user={game.participant} size={24} alt={`Avatar for ${game.participant?.username || 'participant'}`} />
                 <span className="text-xs text-neutral-200" title={game.participant?.fullName || game.participant?.username}>{game.participant ? game.participant.fullName || game.participant.username : '—'}</span>
               </div>
+              {(game.creator?._id === userId || game.creator?.id === userId || game.participant?._id === userId || game.participant?.id === userId) ? (
+                <Accordion title="Show Description" defaultOpen={false}>
+                  <div className="text-neutral-300 text-sm truncate" title={game.creatorDare?.description || ''}>{game.creatorDare?.description || ''}</div>
+                  {game.participantDare?.description && (
+                    <div className="text-neutral-300 text-sm truncate mt-2" title={game.participantDare.description}><b>Your Demand:</b> {game.participantDare.description}</div>
+                  )}
+                </Accordion>
+              ) : (
+                <div className="text-neutral-400 text-xs italic">Description hidden</div>
+              )}
             </div>
             {/* Action button at the bottom center */}
             <div className="flex justify-center gap-2 mt-auto pt-2">
