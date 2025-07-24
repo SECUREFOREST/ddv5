@@ -689,18 +689,20 @@ export default function DarePerformerDashboard() {
   ) : (
     <div className="flex flex-col gap-4 mb-8">
       {paged.map(dare => (
-        <DareCard
-          key={dare._id}
-          description={dare.description}
-          difficulty={dare.difficulty}
-          tags={dare.tags}
-          status={dare.status}
-          creator={dare.creator}
-          performer={dare.performer}
-          assignedSwitch={dare.assignedSwitch}
-          actions={[]}
-          currentUserId={userId}
-        />
+        <div key={dare._id} className="min-h-[120px]">
+          <DareCard
+            key={dare._id}
+            description={dare.description}
+            difficulty={dare.difficulty}
+            tags={dare.tags}
+            status={dare.status}
+            creator={dare.creator}
+            performer={dare.performer}
+            assignedSwitch={dare.assignedSwitch}
+            actions={[]}
+            currentUserId={userId}
+          />
+        </div>
       ))}
     </div>
   );
@@ -717,18 +719,20 @@ export default function DarePerformerDashboard() {
   ) : (
     <div className="flex flex-col gap-4 mb-8">
       {paged.map(dare => (
-        <DareCard
-          key={dare._id}
-          description={dare.description}
-          difficulty={dare.difficulty}
-          tags={dare.tags}
-          status={dare.status}
-          creator={dare.creator}
-          performer={dare.performer}
-          assignedSwitch={dare.assignedSwitch}
-          actions={[]}
-          currentUserId={userId}
-        />
+        <div key={dare._id} className="min-h-[120px]">
+          <DareCard
+            key={dare._id}
+            description={dare.description}
+            difficulty={dare.difficulty}
+            tags={dare.tags}
+            status={dare.status}
+            creator={dare.creator}
+            performer={dare.performer}
+            assignedSwitch={dare.assignedSwitch}
+            actions={[]}
+            currentUserId={userId}
+          />
+        </div>
       ))}
     </div>
   );
@@ -886,18 +890,20 @@ export default function DarePerformerDashboard() {
   ) : (
     <div className="flex flex-col gap-4 mb-8">
       {paged.map(game => (
-        <DareCard
-          key={game._id}
-          description={game.creatorDare?.description || ''}
-          difficulty={game.difficulty || game.creatorDare?.difficulty}
-          tags={game.tags}
-          status={game.status}
-          creator={game.creator}
-          performer={game.participant}
-          assignedSwitch={null}
-          actions={[]}
-          currentUserId={userId}
-        />
+        <div key={game._id} className="min-h-[120px]">
+          <DareCard
+            key={game._id}
+            description={game.creatorDare?.description || ''}
+            difficulty={game.difficulty || game.creatorDare?.difficulty}
+            tags={game.tags}
+            status={game.status}
+            creator={game.creator}
+            performer={game.participant}
+            assignedSwitch={null}
+            actions={[]}
+            currentUserId={userId}
+          />
+        </div>
       ))}
     </div>
   );
@@ -918,18 +924,20 @@ export default function DarePerformerDashboard() {
   ) : (
     <div className="flex flex-col gap-4 mb-8">
       {paged.map(game => (
-        <DareCard
-          key={game._id}
-          description={game.creatorDare?.description || ''}
-          difficulty={game.difficulty || game.creatorDare?.difficulty}
-          tags={game.tags}
-          status={game.status}
-          creator={game.creator}
-          performer={game.participant}
-          assignedSwitch={null}
-          actions={[]}
-          currentUserId={userId}
-        />
+        <div key={game._id} className="min-h-[120px]">
+          <DareCard
+            key={game._id}
+            description={game.creatorDare?.description || ''}
+            difficulty={game.difficulty || game.creatorDare?.difficulty}
+            tags={game.tags}
+            status={game.status}
+            creator={game.creator}
+            performer={game.participant}
+            assignedSwitch={null}
+            actions={[]}
+            currentUserId={userId}
+          />
+        </div>
       ))}
     </div>
   );
