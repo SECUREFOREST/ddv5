@@ -667,11 +667,10 @@ export default function DarePerformerDashboard() {
 
                 <h4 className="text-lg font-bold text-primary mb-2">Your Active Dares</h4>
                 {completedLoading ? (
-                  <div className="text-center py-8 text-neutral-400 flex flex-col items-center">
-                    <SparklesIcon className="w-10 h-10 animate-pulse mb-2 text-primary" />
-                    <div className="w-40 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-                    <div className="w-32 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-                    <div className="w-48 h-6 bg-neutral-700 rounded animate-pulse" />
+                  <div className="flex flex-col gap-4">
+                    {[...Array(3)].map((_, i) => (
+                      <DareCard key={i} loading />
+                    ))}
                   </div>
                 ) : (() => {
   const paged = filterAndSortAllDares(allActiveDares).slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
@@ -680,61 +679,22 @@ export default function DarePerformerDashboard() {
       <span>No active dares.</span>
     </div>
   ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(dare => (
-          <div key={dare._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-xl focus-within:shadow-xl transition-shadow duration-150 group min-h-[220px]" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}>
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center mb-2">
-                <div>{difficultyBadge(dare.difficulty)}</div>
-                <div>{statusBadge(dare.status)}</div>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-neutral-400">Creator:</span>
-                <Avatar user={dare.creator} size={24} alt={`Avatar for ${dare.creator?.username || 'creator'}`} />
-                <span className="text-xs text-neutral-200" title={dare.creator?.fullName || dare.creator?.username}>{dare.creator?.fullName || dare.creator?.username || 'Unknown'}</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-neutral-400">Performer:</span>
-                <Avatar user={dare.performer} size={24} alt={`Avatar for ${dare.performer?.username || 'performer'}`} />
-                <span className="text-xs text-neutral-200" title={dare.performer?.fullName || dare.performer?.username}>{dare.performer?.fullName || dare.performer?.username || '—'}</span>
-              </div>
-              {/* Description dropdown/accordion only if user is creator or performer/participant */}
-              {(dare.creator?._id === userId || dare.creator?.id === userId || dare.performer?._id === userId || dare.performer?.id === userId) ? (
-                <Accordion title="Show Description" defaultOpen={false}>
-                  <div className="text-neutral-300 text-sm truncate" title={dare.description}>{dare.description}</div>
-                </Accordion>
-              ) : (
-                <div className="text-neutral-400 text-xs italic">Description hidden</div>
-              )}
-            </div>
-            {/* Action buttons at the bottom */}
-            <div className="flex justify-center gap-2 mt-auto pt-2">
-              {dare._type === 'perform' && dare.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={() => setConfirmWithdrawIdx({ type: 'complete', id: dare._id })}>Complete</button>
-              )}
-              {dare._type === 'perform' && dare.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={() => setConfirmWithdrawIdx({ type: 'reject', id: dare._id })}>Reject</button>
-              )}
-              {dare._type === 'demand' && dare.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={() => setConfirmWithdrawIdx({ type: 'withdraw', id: dare._id })}>Withdraw</button>
-              )}
-            </div>
-            <div className="text-xs text-neutral-500 mt-2 text-center">
-              Last updated: {dare.updatedAt ? new Date(dare.updatedAt).toLocaleString() : ''}
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {filterAndSortAllDares(allActiveDares).length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Active dares pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.max(1, p - 1))} disabled={activePage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {activePage} of {Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setActivePage(p => Math.min(Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE), p + 1))} disabled={activePage === Math.ceil(filterAndSortAllDares(allActiveDares).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
+    <div className="flex flex-col gap-4 mb-8">
+      {paged.map(dare => (
+        <DareCard
+          key={dare._id}
+          description={dare.description}
+          difficulty={dare.difficulty}
+          tags={dare.tags}
+          status={dare.status}
+          creator={dare.creator}
+          performer={dare.performer}
+          assignedSwitch={dare.assignedSwitch}
+          actions={[]}
+          currentUserId={userId}
+        />
+      ))}
+    </div>
   );
 })()}
                 <h4 className="text-lg font-bold text-primary mb-2 mt-8">Completed Dares</h4>
@@ -747,26 +707,22 @@ export default function DarePerformerDashboard() {
   return paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4">No completed dares yet.</div>
   ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(dare => (
-          <div key={dare._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group min-h-[120px]" tabIndex={0} aria-label={`View dare ${dare.description || dare._id}`}>
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-primary truncate flex items-center">{difficultyBadge(dare.difficulty)}</div>
-              <div className="text-xs text-neutral-400">Creator: {dare.creator?.username || 'Unknown'} Performer: {dare.performer?.username || '—'}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {filterAndSortAllDares(allCompletedDares).length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Completed dares pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setCompletedPage(p => Math.max(1, p - 1))} disabled={completedPage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {completedPage} of {Math.ceil(filterAndSortAllDares(allCompletedDares).length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setCompletedPage(p => Math.min(Math.ceil(filterAndSortAllDares(allCompletedDares).length / PAGE_SIZE), p + 1))} disabled={completedPage === Math.ceil(filterAndSortAllDares(allCompletedDares).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
+    <div className="flex flex-col gap-4 mb-8">
+      {paged.map(dare => (
+        <DareCard
+          key={dare._id}
+          description={dare.description}
+          difficulty={dare.difficulty}
+          tags={dare.tags}
+          status={dare.status}
+          creator={dare.creator}
+          performer={dare.performer}
+          assignedSwitch={dare.assignedSwitch}
+          actions={[]}
+          currentUserId={userId}
+        />
+      ))}
+    </div>
   );
 })()}
                 {/* Browse Public Deviant Dares (added to All Dares tab) */}
