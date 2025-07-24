@@ -774,6 +774,7 @@ export default function DarePerformerDashboard() {
                       <div className="flex flex-col gap-4">
                         {dedupeDaresByUser(publicDares)
                           .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
+                          .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                           .map((dare, idx) => (
                             <DareCard
                               key={dare._id || idx}
@@ -813,6 +814,7 @@ export default function DarePerformerDashboard() {
                       <div className="flex flex-col gap-4">
                         {dedupeDaresByUser(publicDares)
                           .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
+                          .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                           .map((dare, idx) => (
                             <DareCard
                               key={dare._id || idx}
@@ -973,6 +975,7 @@ export default function DarePerformerDashboard() {
                     <div className="flex flex-col gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
+                        .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                         .map((dare, idx) => (
                           <DareCard
                             key={dare._id || idx}
