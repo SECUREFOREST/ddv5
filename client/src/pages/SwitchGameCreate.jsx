@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import TagsInput from '../components/TagsInput';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -27,13 +28,14 @@ export default function SwitchGameCreate() {
   const [move, setMove] = useState('rock');
   const [creating, setCreating] = useState(false);
   const [publicGame, setPublicGame] = useState(true);
+  const [tags, setTags] = useState([]);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCreating(true);
     try {
-      const res = await api.post('/switches', { description, difficulty, move, public: publicGame });
+      const res = await api.post('/switches', { description, difficulty, move, public: publicGame, tags });
       showNotification('Switch Game created!', 'success');
       setTimeout(() => navigate(`/switches/${res.data._id}`), 1200);
     } catch (err) {
@@ -109,6 +111,11 @@ export default function SwitchGameCreate() {
               placeholder="Describe the dare..."
               aria-label="Description or requirements"
             />
+          </div>
+          {/* Tags section */}
+          <div>
+            <label className="block font-bold mb-1 text-primary text-lg">Tags <span className="text-xs text-neutral-400 font-normal">(optional, for filtering/discovery)</span></label>
+            <TagsInput value={tags} onChange={setTags} placeholder="Add tag..." />
           </div>
           {/* Move selection */}
           <div>
