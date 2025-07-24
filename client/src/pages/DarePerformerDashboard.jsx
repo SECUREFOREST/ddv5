@@ -506,7 +506,6 @@ export default function DarePerformerDashboard() {
           <option value="forfeited">Forfeited</option>
         </select>
       )}
-      <input value={tagFilter} onChange={e => setTagFilter(e.target.value)} placeholder="Filter by tag" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
     </div>
   );
 
