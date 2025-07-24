@@ -16,9 +16,8 @@ import Tabs from '../components/Tabs';
 import { PlusIcon, PlayIcon, DocumentPlusIcon, FunnelIcon, XMarkIcon, ArrowDownIcon, ArrowUpIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
 /**
- * DarePerformerDashboard - Modern React/Tailwind implementation of the legacy performer dashboard.
+ * DarePerformerDashboard - Modern React/Tailwind implementation of the performer dashboard.
  * Features: slots management, ongoing/completed dares, public dares browser, demand slots, cooldown, advanced filtering, accessibility.
- * All legacy flows and UI are preserved, with modern improvements and componentization.
  */
 // Constants for slot limits and cooldown (stub values)
 const MAX_SLOTS = 5;
