@@ -736,7 +736,7 @@ export default function DarePerformerDashboard() {
                 {/* Browse Public Deviant Dares (added to All Dares tab) */}
                 <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public dares">Available Public Dares</h3>
                 {/* Public dare counts summary */}
-                <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
+                <div className="flex flex-wrap gap-2 mb-4 justify-center items-center" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {(publicActCounts.submission || 0) + (publicActCounts.domination || 0)}</span>
                   {publicActCounts.submission > 0 && (
                     <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
@@ -937,7 +937,7 @@ export default function DarePerformerDashboard() {
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
                 <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public switch games">Available Public Switch Games</h3>
                 {/* Public dare counts summary */}
-                <div className="flex flex-wrap gap-2 mb-4" aria-label="Public dare counts">
+                <div className="flex flex-wrap gap-2 mb-4 justify-center items-center" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Switch Games: {publicActCounts.switch || 0}</span>
                   {publicActCounts.submission > 0 && (
                     <span className="inline-block bg-blue-600 text-white rounded px-2 py-1 text-xs font-semibold">Submission: {publicActCounts.submission}</span>
