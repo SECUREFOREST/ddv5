@@ -618,6 +618,7 @@ export default function DarePerformerDashboard() {
       .finally(() => setSwitchGameActivityLoading(false));
   }, [tab]);
 
+  // 1. Add fade-in animation utility (inline style)
   return (
     <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
@@ -738,7 +739,7 @@ export default function DarePerformerDashboard() {
   );
 })()}
                 {/* Browse Public Deviant Dares (added to All Dares tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public dares">Available Public Dares</h3>
+                <h3 className="section-description text-base sm:text-lg lg:text-xl font-bold mb-2 mt-8 text-center justify-center font-serif" aria-label="Available public dares">Available Public Dares</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4 justify-center items-center" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Dares: {(publicActCounts.submission || 0) + (publicActCounts.domination || 0)}</span>
@@ -771,23 +772,24 @@ export default function DarePerformerDashboard() {
                         <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
                       )
                     ) : (
-                      <div className="flex flex-col gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {dedupeDaresByUser(publicDares)
                           .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
                           .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                           .map((dare, idx) => (
-                            <DareCard
-                              key={dare._id || idx}
-                              description={dare.description}
-                              difficulty={dare.difficulty}
-                              tags={dare.tags}
-                              status={dare.status}
-                              creator={dare.creator}
-                              performer={dare.performer}
-                              assignedSwitch={dare.assignedSwitch}
-                              actions={[]}
-                              currentUserId={userId}
-                            />
+                            <div key={dare._id || idx} className="w-full group transition-all duration-200 hover:shadow-2xl hover:scale-105 cursor-pointer animate-fade-in min-h-[120px]">
+                              <DareCard
+                                description={dare.description}
+                                difficulty={dare.difficulty}
+                                tags={dare.tags}
+                                status={dare.status}
+                                creator={dare.creator}
+                                performer={dare.performer}
+                                assignedSwitch={dare.assignedSwitch}
+                                actions={[]}
+                                currentUserId={userId}
+                              />
+                            </div>
                           ))}
                       </div>
                     )}
@@ -811,23 +813,24 @@ export default function DarePerformerDashboard() {
                         <div className="text-neutral-400">No public switch games found. Try adjusting your filters or check back later for new games.</div>
                       )
                     ) : (
-                      <div className="flex flex-col gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {dedupeDaresByUser(publicDares)
                           .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
                           .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                           .map((dare, idx) => (
-                            <DareCard
-                              key={dare._id || idx}
-                              description={dare.description}
-                              difficulty={dare.difficulty}
-                              tags={dare.tags}
-                              status={dare.status}
-                              creator={dare.creator}
-                              performer={dare.performer}
-                              assignedSwitch={dare.assignedSwitch}
-                              actions={[]}
-                              currentUserId={userId}
-                            />
+                            <div key={dare._id || idx} className="w-full group transition-all duration-200 hover:shadow-2xl hover:scale-105 cursor-pointer animate-fade-in min-h-[120px]">
+                              <DareCard
+                                description={dare.description}
+                                difficulty={dare.difficulty}
+                                tags={dare.tags}
+                                status={dare.status}
+                                creator={dare.creator}
+                                performer={dare.performer}
+                                assignedSwitch={dare.assignedSwitch}
+                                actions={[]}
+                                currentUserId={userId}
+                              />
+                            </div>
                           ))}
                       </div>
                     )}
@@ -945,7 +948,7 @@ export default function DarePerformerDashboard() {
   );
 })()}
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
-                <h3 className="section-description text-xl font-bold mb-2 mt-8 text-center justify-center" aria-label="Available public switch games">Available Public Switch Games</h3>
+                <h3 className="section-description text-base sm:text-lg lg:text-xl font-bold mb-2 mt-8 text-center justify-center font-serif" aria-label="Available public switch games">Available Public Switch Games</h3>
                 {/* Public dare counts summary */}
                 <div className="flex flex-wrap gap-2 mb-4 justify-center items-center" aria-label="Public dare counts">
                   <span className="inline-block bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold">Total Public Switch Games: {publicActCounts.switch || 0}</span>
@@ -972,23 +975,24 @@ export default function DarePerformerDashboard() {
                       <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
                     )
                   ) : (
-                    <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
                         .filter(dare => dare.creator?._id !== userId && dare.creator?.id !== userId)
                         .map((dare, idx) => (
-                          <DareCard
-                            key={dare._id || idx}
-                            description={dare.description}
-                            difficulty={dare.difficulty}
-                            tags={dare.tags}
-                            status={dare.status}
-                            creator={dare.creator}
-                            performer={dare.performer}
-                            assignedSwitch={dare.assignedSwitch}
-                            actions={[]}
-                            currentUserId={userId}
-                          />
+                          <div key={dare._id || idx} className="w-full group transition-all duration-200 hover:shadow-2xl hover:scale-105 cursor-pointer animate-fade-in min-h-[120px]">
+                            <DareCard
+                              description={dare.description}
+                              difficulty={dare.difficulty}
+                              tags={dare.tags}
+                              status={dare.status}
+                              creator={dare.creator}
+                              performer={dare.performer}
+                              assignedSwitch={dare.assignedSwitch}
+                              actions={[]}
+                              currentUserId={userId}
+                            />
+                          </div>
                         ))}
                     </div>
                   )}
