@@ -483,8 +483,14 @@ export default function DarePerformerDashboard() {
 
   // Update renderFilters to use chips instead of dropdown for difficulty
   const renderFilters = () => (
-    <div className="flex flex-col md:flex-row gap-4 mb-4">
+    <div className="flex flex-wrap gap-4 mb-4 items-center">
       {renderDifficultyChips()}
+      <input
+        value={tagFilter}
+        onChange={e => setTagFilter(e.target.value)}
+        placeholder="Filter by tag"
+        className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+      />
     </div>
   );
 
