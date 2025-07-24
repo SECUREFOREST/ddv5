@@ -22,4 +22,4 @@ export const chartColors = {
   code: '#c7254e',
   codeBg: '#f9f2f4',
   // Add more as needed from 1.css
-}; 
+};

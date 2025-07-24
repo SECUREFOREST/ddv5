@@ -145,4 +145,4 @@ export default function DareConsent() {
       </div>
     </div>
   );
-}; 
+};

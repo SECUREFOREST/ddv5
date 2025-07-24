@@ -77,11 +77,11 @@ export default function DarePerform() {
   const handleProofSubmit = async (e) => {
     e.preventDefault();
     setProofLoading(true);
-    if (!proof && !proofFile) {
+      if (!proof && !proofFile) {
       showNotification('Please provide proof text or upload a file.', 'error');
-      setProofLoading(false);
-      return;
-    }
+        setProofLoading(false);
+        return;
+      }
     try {
       let formData;
       if (proofFile) {
