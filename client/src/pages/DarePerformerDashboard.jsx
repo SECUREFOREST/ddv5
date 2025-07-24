@@ -741,79 +741,84 @@ export default function DarePerformerDashboard() {
                   )}
                 </div>
                 {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
-                <div className="public-dares-browser mb-8">
-                  {renderFilters()}
-                  {renderAdvancedFilters()}
-                  {publicLoading ? (
-                    <div className="flex flex-col gap-4">
-                      {[...Array(3)].map((_, i) => (
-                        <DareCard key={i} loading />
-                      ))}
-                    </div>
-                  ) : publicDares.length === 0 ? (
-                    selectedDifficulties.length === 0 ? (
-                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
-                    ) : (
-                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
-                    )
-                  ) : (
-                    <div className="flex flex-col gap-4">
-                      {dedupeDaresByUser(publicDares)
-                        .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
-                        .map((dare, idx) => (
-                          <DareCard
-                            key={dare._id || idx}
-                            description={dare.description}
-                            difficulty={dare.difficulty}
-                            tags={dare.tags}
-                            status={dare.status}
-                            creator={dare.creator}
-                            performer={dare.performer}
-                            assignedSwitch={dare.assignedSwitch}
-                            actions={[]}
-                            currentUserId={userId}
-                          />
+                {/* In the 'All Dares' tab, only show regular public dares (not switch games) */}
+                {tab === 'all' && (
+                  <div className="public-dares-browser mb-8">
+                    {renderFilters()}
+                    {renderAdvancedFilters()}
+                    {publicLoading ? (
+                      <div className="flex flex-col gap-4">
+                        {[...Array(3)].map((_, i) => (
+                          <DareCard key={i} loading />
                         ))}
-                    </div>
-                  )}
-                </div>
-                {/* Public Switch Games */}
-                <div className="public-dares-browser mb-8">
-                  {renderFilters()}
-                  {renderAdvancedFilters()}
-                  {publicLoading ? (
-                    <div className="flex flex-col gap-4">
-                      {[...Array(3)].map((_, i) => (
-                        <DareCard key={i} loading />
-                      ))}
-                    </div>
-                  ) : publicDares.length === 0 ? (
-                    selectedDifficulties.length === 0 ? (
-                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                      </div>
+                    ) : publicDares.length === 0 ? (
+                      selectedDifficulties.length === 0 ? (
+                        <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                      ) : (
+                        <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                      )
                     ) : (
-                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
-                    )
-                  ) : (
-                    <div className="flex flex-col gap-4">
-                      {dedupeDaresByUser(publicDares)
-                        .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
-                        .map((dare, idx) => (
-                          <DareCard
-                            key={dare._id || idx}
-                            description={dare.description}
-                            difficulty={dare.difficulty}
-                            tags={dare.tags}
-                            status={dare.status}
-                            creator={dare.creator}
-                            performer={dare.performer}
-                            assignedSwitch={dare.assignedSwitch}
-                            actions={[]}
-                            currentUserId={userId}
-                          />
+                      <div className="flex flex-col gap-4">
+                        {dedupeDaresByUser(publicDares)
+                          .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
+                          .map((dare, idx) => (
+                            <DareCard
+                              key={dare._id || idx}
+                              description={dare.description}
+                              difficulty={dare.difficulty}
+                              tags={dare.tags}
+                              status={dare.status}
+                              creator={dare.creator}
+                              performer={dare.performer}
+                              assignedSwitch={dare.assignedSwitch}
+                              actions={[]}
+                              currentUserId={userId}
+                            />
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* In the 'Switch Games' tab, only show public switch games */}
+                {tab === 'switch' && (
+                  <div className="public-dares-browser mb-8">
+                    {renderFilters()}
+                    {renderAdvancedFilters()}
+                    {publicLoading ? (
+                      <div className="flex flex-col gap-4">
+                        {[...Array(3)].map((_, i) => (
+                          <DareCard key={i} loading />
                         ))}
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    ) : publicDares.length === 0 ? (
+                      selectedDifficulties.length === 0 ? (
+                        <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                      ) : (
+                        <div className="text-neutral-400">No public switch games found. Try adjusting your filters or check back later for new games.</div>
+                      )
+                    ) : (
+                      <div className="flex flex-col gap-4">
+                        {dedupeDaresByUser(publicDares)
+                          .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
+                          .map((dare, idx) => (
+                            <DareCard
+                              key={dare._id || idx}
+                              description={dare.description}
+                              difficulty={dare.difficulty}
+                              tags={dare.tags}
+                              status={dare.status}
+                              creator={dare.creator}
+                              performer={dare.performer}
+                              assignedSwitch={dare.assignedSwitch}
+                              actions={[]}
+                              currentUserId={userId}
+                            />
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
           },
