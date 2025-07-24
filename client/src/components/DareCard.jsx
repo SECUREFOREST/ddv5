@@ -1,6 +1,7 @@
 import React from 'react';
 import Card from './Card';
 import { Link } from 'react-router-dom';
+import Avatar from './Avatar';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -158,9 +159,7 @@ export default function DareCard({
           style={{ textDecoration: 'none' }}
         >
           <span className="text-neutral-400 text-xs mr-2">Creator:</span>
-          {creator?.avatar && (
-            <img src={creator.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
-          )}
+          <Avatar user={creator} size={28} border={true} shadow={false} alt={creator?.fullName || creator?.username || 'Creator avatar'} />
           <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{creator?.fullName || creator?.username || 'Anonymous'}</span>
         </Link>
         {performer && (
@@ -170,9 +169,7 @@ export default function DareCard({
             style={{ textDecoration: 'none' }}
           >
             <span className="text-neutral-400 text-xs mr-2">Performer:</span>
-            {performer.avatar && (
-              <img src={performer.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
-            )}
+            <Avatar user={performer} size={28} border={true} shadow={false} alt={performer?.fullName || performer?.username || 'Performer avatar'} />
             <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{performer?.fullName || performer?.username || 'Anonymous'}</span>
           </Link>
         )}
@@ -183,9 +180,7 @@ export default function DareCard({
             style={{ textDecoration: 'none' }}
           >
             <span className="text-neutral-400 text-xs mr-2">Switch:</span>
-            {assignedSwitch.avatar && (
-              <img src={assignedSwitch.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
-            )}
+            <Avatar user={assignedSwitch} size={28} border={true} shadow={false} alt={assignedSwitch?.fullName || assignedSwitch?.username || 'Switch avatar'} />
             <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{assignedSwitch?.fullName || assignedSwitch?.username || 'Anonymous'}</span>
           </Link>
         )}
