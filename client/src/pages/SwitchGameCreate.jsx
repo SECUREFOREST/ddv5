@@ -110,11 +110,6 @@ export default function SwitchGameCreate() {
               aria-label="Description or requirements"
             />
           </div>
-          {/* Public/private toggle */}
-          <div className="flex items-center justify-center">
-            <input id="switchgame-public" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]" />
-            <label htmlFor="switchgame-public" className="text-neutral-200">Make this switch game public (visible to others)</label>
-          </div>
           {/* Move selection */}
           <div>
             <div className="font-bold text-xl text-primary mb-2">Your Move</div>
@@ -139,6 +134,11 @@ export default function SwitchGameCreate() {
                 </label>
               ))}
             </div>
+          </div>
+          {/* Public/private toggle */}
+          <div className="flex items-center justify-center">
+            <input id="switchgame-public" type="checkbox" checked={publicGame} onChange={e => setPublicGame(e.target.checked)} className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]" />
+            <label htmlFor="switchgame-public" className="text-neutral-200">Make this switch game public (visible to others)</label>
           </div>
           <button
             type="submit"
