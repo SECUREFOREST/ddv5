@@ -488,16 +488,18 @@ export default function DarePerformerDashboard() {
     </div>
   );
 
-  // Advanced filter stubs (below existing filters)
-  const renderAdvancedFilters = () => (
+  // Refactor renderAdvancedFilters to accept a prop
+  const renderAdvancedFilters = ({ showStatusFilter = true } = {}) => (
     <div className="flex flex-col md:flex-row gap-4 mb-4">
-      <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by dare status">
-        <option value="">All Statuses</option>
-        <option value="completed">Completed</option>
-        <option value="in_progress">In Progress</option>
-        <option value="waiting_for_participant">Waiting for Participant</option>
-        <option value="forfeited">Forfeited</option>
-      </select>
+      {showStatusFilter && (
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-label="Filter by dare status">
+          <option value="">All Statuses</option>
+          <option value="completed">Completed</option>
+          <option value="in_progress">In Progress</option>
+          <option value="waiting_for_participant">Waiting for Participant</option>
+          <option value="forfeited">Forfeited</option>
+        </select>
+      )}
       <input value={tagFilter} onChange={e => setTagFilter(e.target.value)} placeholder="Filter by tag" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" />
     </div>
   );
@@ -745,7 +747,7 @@ export default function DarePerformerDashboard() {
                 {tab === 'all' && (
                   <div className="public-dares-browser mb-8">
                     {renderFilters()}
-                    {renderAdvancedFilters()}
+                    {renderAdvancedFilters({ showStatusFilter: false })}
                     {publicLoading ? (
                       <div className="flex flex-col gap-4">
                         {[...Array(3)].map((_, i) => (
@@ -784,7 +786,7 @@ export default function DarePerformerDashboard() {
                 {tab === 'switch' && (
                   <div className="public-dares-browser mb-8">
                     {renderFilters()}
-                    {renderAdvancedFilters()}
+                    {renderAdvancedFilters({ showStatusFilter: false })}
                     {publicLoading ? (
                       <div className="flex flex-col gap-4">
                         {[...Array(3)].map((_, i) => (
@@ -944,7 +946,7 @@ export default function DarePerformerDashboard() {
                 {publicError && <div className="text-danger text-center mb-2">{publicError}</div>}
                 <div className="public-dares-browser mb-8">
                   {renderFilters()}
-                  {renderAdvancedFilters()}
+                  {renderAdvancedFilters({ showStatusFilter: false })}
                   {publicLoading ? (
                     <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
                   ) : publicDares.length === 0 ? (
