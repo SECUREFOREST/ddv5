@@ -458,12 +458,12 @@ export default function DarePerformerDashboard() {
     hardcore: <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-14a6 6 0 110 12A6 6 0 0110 4z" /></svg>,
   };
   const renderDifficultyChips = () => (
-    <div className="flex gap-2" aria-label="Filter by difficulty">
+    <div className="flex gap-2 items-center flex-wrap gap-y-2" aria-label="Filter by difficulty">
       {DIFFICULTY_OPTIONS.map(d => (
         <button
           key={d.value}
           type="button"
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-contrast
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-base font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
             ${selectedDifficulties.includes(d.value)
               ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
@@ -483,13 +483,14 @@ export default function DarePerformerDashboard() {
 
   // Update renderFilters to use chips instead of dropdown for difficulty
   const renderFilters = () => (
-    <div className="flex flex-wrap gap-4 mb-4 items-center">
+    <div className="flex flex-wrap gap-2 gap-y-2 mb-4 items-center">
       {renderDifficultyChips()}
       <input
         value={tagFilter}
         onChange={e => setTagFilter(e.target.value)}
         placeholder="Filter by tag"
-        className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+        className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base"
+        aria-label="Filter by tag"
       />
     </div>
   );
