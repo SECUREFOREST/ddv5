@@ -106,7 +106,11 @@ export default function Dashboard() {
             ))}
           </ul>
           {loading ? (
-            <div className="text-neutral-400">Loading dares...</div>
+            <div className="flex flex-col gap-4">
+              {[...Array(3)].map((_, i) => (
+                <DareCard key={i} loading />
+              ))}
+            </div>
           ) : (
             <div>
               {dares.length === 0 ? (

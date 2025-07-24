@@ -198,7 +198,11 @@ export default function Dares() {
         </form>
         {/* Dares List Section */}
         {loading ? (
-          <div className="text-neutral-400 text-center py-8" role="status" aria-live="polite">Loading dares...</div>
+          <div className="flex flex-col gap-4">
+            {[...Array(3)].map((_, i) => (
+              <DareCard key={i} loading />
+            ))}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             {dares.length === 0 && !loading && (

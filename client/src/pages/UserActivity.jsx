@@ -172,7 +172,11 @@ export default function UserActivity() {
       content: (
         <div className="p-4 text-neutral-300">
           {loading ? (
-            <div className="text-center text-neutral-400">Loading...</div>
+            <div className="flex flex-col gap-4">
+              {[...Array(3)].map((_, i) => (
+                <DareCard key={i} loading />
+              ))}
+            </div>
           ) : error ? (
             <div className="text-center text-red-500">{error}</div>
           ) : (
