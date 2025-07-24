@@ -745,7 +745,11 @@ export default function DarePerformerDashboard() {
                   {renderFilters()}
                   {renderAdvancedFilters()}
                   {publicLoading ? (
-                    <div className="text-center py-8 text-neutral-400">Loading public dares...</div>
+                    <div className="flex flex-col gap-4">
+                      {[...Array(3)].map((_, i) => (
+                        <DareCard key={i} loading />
+                      ))}
+                    </div>
                   ) : publicDares.length === 0 ? (
                     selectedDifficulties.length === 0 ? (
                       <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
@@ -753,23 +757,63 @@ export default function DarePerformerDashboard() {
                       <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
                     )
                   ) : (
-                    <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType !== 'switch' && dare.type !== 'switch' && (!dare.tags || !dare.tags.includes('switch')))
                         .map((dare, idx) => (
-                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
-                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
-                              {/* Add more details as needed */}
-                            </div>
-                          </div>
+                          <DareCard
+                            key={dare._id || idx}
+                            description={dare.description}
+                            difficulty={dare.difficulty}
+                            tags={dare.tags}
+                            status={dare.status}
+                            creator={dare.creator}
+                            performer={dare.performer}
+                            assignedSwitch={dare.assignedSwitch}
+                            actions={[]}
+                            currentUserId={userId}
+                          />
                         ))}
                     </div>
                   )}
                 </div>
-                {/* TODO: Public dares browser, advanced filtering, etc. */}
+                {/* Public Switch Games */}
+                <div className="public-dares-browser mb-8">
+                  {renderFilters()}
+                  {renderAdvancedFilters()}
+                  {publicLoading ? (
+                    <div className="flex flex-col gap-4">
+                      {[...Array(3)].map((_, i) => (
+                        <DareCard key={i} loading />
+                      ))}
+                    </div>
+                  ) : publicDares.length === 0 ? (
+                    selectedDifficulties.length === 0 ? (
+                      <div className="text-neutral-400">You need to select at least one difficulty level in order to see some offers.</div>
+                    ) : (
+                      <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
+                    )
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {dedupeDaresByUser(publicDares)
+                        .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
+                        .map((dare, idx) => (
+                          <DareCard
+                            key={dare._id || idx}
+                            description={dare.description}
+                            difficulty={dare.difficulty}
+                            tags={dare.tags}
+                            status={dare.status}
+                            creator={dare.creator}
+                            performer={dare.performer}
+                            assignedSwitch={dare.assignedSwitch}
+                            actions={[]}
+                            currentUserId={userId}
+                          />
+                        ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )
           },
@@ -815,122 +859,66 @@ export default function DarePerformerDashboard() {
 
                 <h4 className="text-lg font-bold text-primary mb-2">Your Active Switch Games</h4>
                 {mySwitchGamesLoading ? (
-                  <div className="text-neutral-400 text-center py-4">Loading your switch games...</div>
+                  <div className="flex flex-col gap-4">
+                    {[...Array(3)].map((_, i) => (
+                      <DareCard key={i} loading />
+                    ))}
+                  </div>
                 ) : (() => {
   const paged = filterAndSortSwitchGames(filteredMySwitchGames).slice((switchActivePage - 1) * PAGE_SIZE, switchActivePage * PAGE_SIZE);
-  return mySwitchGamesLoading ? (
-    <div className="text-center py-8 text-neutral-400 flex flex-col items-center">
-      <SparklesIcon className="w-10 h-10 animate-pulse mb-2 text-primary" />
-      <div className="w-40 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-      <div className="w-32 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-      <div className="w-48 h-6 bg-neutral-700 rounded animate-pulse" />
-    </div>
-  ) : paged.length === 0 ? (
+  return paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
       <span>You have no active switch games. Want to create or join one?</span>
     </div>
   ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(game => (
-          <div key={game._id} className="flex flex-col h-full bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:shadow-xl focus-within:shadow-xl transition-shadow duration-150 group min-h-[220px] cursor-pointer" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center mb-2">
-                <div>{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
-                <div>{statusBadge(game.status)}</div>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-neutral-400">Creator:</span>
-                <Avatar user={game.creator} size={24} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
-                <span className="text-xs text-neutral-200" title={game.creator?.fullName || game.creator?.username}>{game.creator?.fullName || game.creator?.username || 'User'}</span>
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-neutral-400">Performer:</span>
-                <Avatar user={game.participant} size={24} alt={`Avatar for ${game.participant?.username || 'participant'}`} />
-                <span className="text-xs text-neutral-200" title={game.participant?.fullName || game.participant?.username}>{game.participant ? game.participant.fullName || game.participant.username : '—'}</span>
-              </div>
-              {(game.creator?._id === userId || game.creator?.id === userId || game.participant?._id === userId || game.participant?.id === userId) ? (
-                <Accordion title="Show Description" defaultOpen={false}>
-                  <div className="text-neutral-300 text-sm truncate" title={game.creatorDare?.description || ''}>{game.creatorDare?.description || ''}</div>
-                  {game.participantDare?.description && (
-                    <div className="text-neutral-300 text-sm truncate mt-2" title={game.participantDare.description}><b>Your Demand:</b> {game.participantDare.description}</div>
-                  )}
-                </Accordion>
-              ) : (
-                <div className="text-neutral-400 text-xs italic">Description hidden</div>
-              )}
-            </div>
-            {/* Action button at the bottom center */}
-            <div className="flex justify-center gap-2 mt-auto pt-2">
-              {game.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Complete" onClick={e => { e.stopPropagation(); setConfirmWithdrawIdx({ type: 'completeSwitch', id: game._id }); }}>Complete</button>
-              )}
-              {game.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Reject" onClick={e => { e.stopPropagation(); setConfirmWithdrawIdx({ type: 'rejectSwitch', id: game._id }); }}>Reject</button>
-              )}
-              {game.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-green-700 text-white text-xs font-semibold hover:bg-green-800 transition shadow-lg" title="Participate" onClick={e => { e.stopPropagation(); navigate(`/switches/${game._id}`); }}>Participate</button>
-              )}
-              {game.status === 'in_progress' && (
-                <button className="px-3 py-1 rounded bg-red-700 text-white text-xs font-semibold hover:bg-red-800 transition shadow-lg" title="Withdraw" onClick={e => { e.stopPropagation(); setConfirmWithdrawIdx({ type: 'withdrawSwitch', id: game._id }); }}>Withdraw</button>
-              )}
-            </div>
-            <div className="text-xs text-neutral-500 mt-2 text-center">
-              Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {filterAndSortSwitchGames(filteredMySwitchGames).length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Active switch games pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.max(1, p - 1))} disabled={switchActivePage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {switchActivePage} of {Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchActivePage(p => Math.min(Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE), p + 1))} disabled={switchActivePage === Math.ceil(filterAndSortSwitchGames(filteredMySwitchGames).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
+    <div className="flex flex-col gap-4 mb-8">
+      {paged.map(game => (
+        <DareCard
+          key={game._id}
+          description={game.creatorDare?.description || ''}
+          difficulty={game.difficulty || game.creatorDare?.difficulty}
+          tags={game.tags}
+          status={game.status}
+          creator={game.creator}
+          performer={game.participant}
+          assignedSwitch={null}
+          actions={[]}
+          currentUserId={userId}
+        />
+      ))}
+    </div>
   );
 })()}
                 <h4 className="text-lg font-bold text-primary mb-2 mt-8">Switch Game History</h4>
                 {switchGameHistoryLoading ? (
-                  <div className="text-neutral-400 text-center py-4">Loading switch game history...</div>
+                  <div className="flex flex-col gap-4">
+                    {[...Array(3)].map((_, i) => (
+                      <DareCard key={i} loading />
+                    ))}
+                  </div>
                 ) : (() => {
   const paged = filterAndSortSwitchGames(filteredSwitchGameHistory).slice((switchHistoryPage - 1) * PAGE_SIZE, switchHistoryPage * PAGE_SIZE);
-  return switchGameHistoryLoading ? (
-    <div className="text-center py-8 text-neutral-400 flex flex-col items-center">
-      <SparklesIcon className="w-10 h-10 animate-pulse mb-2 text-primary" />
-      <div className="w-40 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-      <div className="w-32 h-6 bg-neutral-700 rounded mb-2 animate-pulse" />
-      <div className="w-48 h-6 bg-neutral-700 rounded animate-pulse" />
-    </div>
-  ) : paged.length === 0 ? (
+  return paged.length === 0 ? (
     <div className="text-neutral-400 text-center py-4 flex flex-col items-center gap-2">
       <span>No completed or forfeited switch games yet.</span>
     </div>
   ) : (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {paged.map(game => (
-          <div key={game._id} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 hover:transition-all duration-150 group min-h-[120px] cursor-pointer" onClick={() => navigate(`/switches/${game._id}`)} tabIndex={0} aria-label={`View switch game ${game.description || game._id}`}> 
-            <Avatar user={game.creator} size={40} alt={`Avatar for ${game.creator?.username || 'creator'}`} />
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-primary truncate flex items-center">{difficultyBadge(game.difficulty || game.creatorDare?.difficulty)}</div>
-              <div className="text-sm text-neutral-300 truncate flex items-center gap-2">{statusBadge(game.status)} <span className="ml-2">{game.updatedAt ? new Date(game.updatedAt).toLocaleString() : ''}</span></div>
-              <div className="text-xs text-neutral-400">Participants: {game.creator?.username} {game.participant ? `vs ${game.participant?.username}` : ''}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Pagination controls */}
-      {filterAndSortSwitchGames(filteredSwitchGameHistory).length > PAGE_SIZE && (
-        <div className="flex justify-center items-center gap-2 mt-2" role="navigation" aria-label="Switch game history pagination">
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchHistoryPage(p => Math.max(1, p - 1))} disabled={switchHistoryPage === 1} aria-label="Previous page">Prev</button>
-          <span className="text-xs text-neutral-400">Page {switchHistoryPage} of {Math.ceil(filterAndSortSwitchGames(filteredSwitchGameHistory).length / PAGE_SIZE)}</span>
-          <button className="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition" onClick={() => setSwitchHistoryPage(p => Math.min(Math.ceil(filterAndSortSwitchGames(filteredSwitchGameHistory).length / PAGE_SIZE), p + 1))} disabled={switchHistoryPage === Math.ceil(filterAndSortSwitchGames(filteredSwitchGameHistory).length / PAGE_SIZE)} aria-label="Next page">Next</button>
-        </div>
-      )}
-    </>
+    <div className="flex flex-col gap-4 mb-8">
+      {paged.map(game => (
+        <DareCard
+          key={game._id}
+          description={game.creatorDare?.description || ''}
+          difficulty={game.difficulty || game.creatorDare?.difficulty}
+          tags={game.tags}
+          status={game.status}
+          creator={game.creator}
+          performer={game.participant}
+          assignedSwitch={null}
+          actions={[]}
+          currentUserId={userId}
+        />
+      ))}
+    </div>
   );
 })()}
                 {/* Browse Public Deviant Dares (added to Switch Games tab) */}
@@ -961,17 +949,22 @@ export default function DarePerformerDashboard() {
                       <div className="text-neutral-400">No public dares found. Try adjusting your filters or check back later for new dares.</div>
                     )
                   ) : (
-                    <div className="public-dares-list grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-4">
                       {dedupeDaresByUser(publicDares)
                         .filter(dare => dare.dareType === 'switch' || dare.type === 'switch' || (dare.tags && dare.tags.includes('switch')))
                         .map((dare, idx) => (
-                          <div key={dare._id || idx} className="flex items-center gap-4 bg-neutral-900 border border-neutral-700 rounded-xl p-5 mb-2 hover:transition-all duration-150">
-                            <img src={dare.user?.avatar || dare.creator?.avatar || '/default-avatar.png'} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-neutral-700" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-bold text-primary truncate">{dare.user?.username || dare.creator?.username || 'User'}</div>
-                              <div className="text-sm text-neutral-300 truncate">{dare.title || dare.description || ''}</div>
-                            </div>
-                          </div>
+                          <DareCard
+                            key={dare._id || idx}
+                            description={dare.description}
+                            difficulty={dare.difficulty}
+                            tags={dare.tags}
+                            status={dare.status}
+                            creator={dare.creator}
+                            performer={dare.performer}
+                            assignedSwitch={dare.assignedSwitch}
+                            actions={[]}
+                            currentUserId={userId}
+                          />
                         ))}
                     </div>
                   )}
