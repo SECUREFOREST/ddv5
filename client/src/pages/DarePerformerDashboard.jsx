@@ -458,7 +458,7 @@ export default function DarePerformerDashboard() {
     hardcore: <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-14a6 6 0 110 12A6 6 0 0110 4z" /></svg>,
   };
   const renderDifficultyChips = () => (
-    <div className="flex gap-2 mb-4" aria-label="Filter by difficulty">
+    <div className="flex gap-2" aria-label="Filter by difficulty">
       {DIFFICULTY_OPTIONS.map(d => (
         <button
           key={d.value}
