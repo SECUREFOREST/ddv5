@@ -51,7 +51,11 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
 
   const containerClasses = [
     'rounded-full flex items-center justify-center font-semibold text-white',
-    `w-${size} h-${size}`,
+    size === 32 ? 'w-8 h-8' : 
+    size === 64 ? 'w-16 h-16' : 
+    size === 128 ? 'w-32 h-32' : 
+    size === 256 ? 'w-64 h-64' : 
+    `w-${Math.floor(size/4)} h-${Math.floor(size/4)}`,
     border ? 'border-2 border-primary' : '',
     shadow ? 'shadow-lg' : '',
     onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : '',
