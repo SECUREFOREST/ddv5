@@ -294,45 +294,35 @@ router.post('/:id/unblock', auth, async (req, res) => {
 router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log('Avatar upload request for user:', userId);
     
     if (userId !== req.userId) {
-      console.log('Unauthorized: userId', userId, 'req.userId', req.userId);
       return res.status(403).json({ error: 'Unauthorized.' });
     }
     
     if (!req.file) {
-      console.log('No file uploaded');
       return res.status(400).json({ error: 'No file uploaded.' });
     }
-    
-    console.log('File uploaded:', req.file);
     
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(req.file.mimetype)) {
-      console.log('Invalid file type:', req.file.mimetype);
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.' });
     }
     
     // Validate file size (max 5MB)
     if (req.file.size > 5 * 1024 * 1024) {
-      console.log('File too large:', req.file.size);
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
     }
     
     const avatarUrl = `/uploads/${req.file.filename}`;
-    console.log('Avatar URL:', avatarUrl);
     
     // Update user's avatar
-    const updateResult = await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true });
-    console.log('Database update result:', updateResult);
+    await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true });
     
     res.json({ message: 'Avatar uploaded successfully.', avatar: avatarUrl });
   } catch (err) {
-    console.error('Avatar upload error:', err);
     if (req.file) {
       try {
         fs.unlinkSync(req.file.path);

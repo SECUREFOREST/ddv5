@@ -5,31 +5,18 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
   const [imageLoaded, setImageLoaded] = useState(false);
   const imgRef = useRef(null);
 
-  // Lazy loading with Intersection Observer
+  // Load image immediately when avatar changes
   useEffect(() => {
     if (!user?.avatar || imageError) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && imgRef.current) {
-            // Convert relative URL to full URL if needed
-            const avatarUrl = user.avatar.startsWith('http') 
-              ? user.avatar 
-              : `${window.location.origin}${user.avatar}`;
-            imgRef.current.src = avatarUrl;
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '50px' }
-    );
-
+    // Convert relative URL to full URL if needed
+    const avatarUrl = user.avatar.startsWith('http') 
+      ? user.avatar 
+      : `${window.location.origin}${user.avatar}`;
+    
     if (imgRef.current) {
-      observer.observe(imgRef.current);
+      imgRef.current.src = avatarUrl;
     }
-
-    return () => observer.disconnect();
   }, [user?.avatar, imageError]);
 
   const handleImageError = () => {
@@ -79,7 +66,6 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
           }`}
           onError={handleImageError}
           onLoad={handleImageLoad}
-          loading="lazy"
         />
       ) : (
         <div className={`w-full h-full rounded-full flex items-center justify-center text-sm font-semibold ${bgColor}`}>
