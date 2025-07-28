@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { io } from 'socket.io-client';
 import { formatRelativeTime } from '../utils/dateUtils';
+import { BellIcon } from '@heroicons/react/24/outline';
 
 function timeAgo(date) {
   return formatRelativeTime(date);
@@ -247,7 +248,7 @@ export default function NotificationDropdown() {
           aria-expanded={open}
           role="button"
         >
-          <span className="text-xl text-neutral-300 hover:text-white transition-colors">🔔</span>
+          <BellIcon className="h-6 w-6 text-neutral-300 hover:text-white transition-colors" />
           {unseenCount > 0 && (
             <span className="absolute -top-1 -right-2 bg-danger text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
           )}

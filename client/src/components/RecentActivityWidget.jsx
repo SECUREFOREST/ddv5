@@ -1,15 +1,16 @@
 import React from 'react';
 import { formatRelativeTime } from '../utils/dateUtils';
+import { ChatBubbleLeftIcon, CheckCircleIcon, StarIcon, CircleIcon } from '@heroicons/react/24/outline';
 
 function timeAgo(date) {
   return formatRelativeTime(date);
 }
 
 const ICONS = {
-  comment: <i className="fas fa-comment text-blue-400 mr-2" />,
-  dare: <i className="fas fa-check-circle text-green-500 mr-2" />,
-  grade: <i className="fas fa-star text-yellow-400 mr-2" />,
-  default: <i className="fas fa-circle text-gray-400 mr-2" />,
+  comment: <ChatBubbleLeftIcon className="w-4 h-4 text-blue-400 mr-2" />,
+  dare: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  grade: <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />,
+  default: <CircleIcon className="w-4 h-4 text-gray-400 mr-2" />,
 };
 
 // Comprehensive activity message generator

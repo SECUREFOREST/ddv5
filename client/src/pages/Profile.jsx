@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import api from '../api/axios';
-import Markdown from '../components/Markdown';
+import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
+import Banner from '../components/Banner';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
-import { Banner } from '../components/Modal';
-import Avatar from '../components/Avatar';
-import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
-import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { ClockIcon } from '@heroicons/react/24/solid';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -554,7 +555,7 @@ export default function Profile() {
       )}
       {false && (
         <button className={`btn btn-default ml-2 ${isBlocked ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'}`} onClick={handleBlockToggle} disabled={blocking} aria-label={isBlocked ? 'Unblock user' : 'Block user'}>
-          {blocking ? <span className="fa fa-spinner fa-spin mr-1" /> : <span className="fa fa-ban mr-1" />} {isBlocked ? 'Unblock' : 'Block'}
+          {blocking ? <ArrowPathIcon className="w-4 h-4 text-white mr-1" /> : <NoSymbolIcon className="w-4 h-4 text-white mr-1" />} {isBlocked ? 'Unblock' : 'Block'}
         </button>
       )}
       {blockError && <div className="text-red-600 text-xs mt-1">{blockError}</div>}
