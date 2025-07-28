@@ -79,6 +79,22 @@ export default function Profile() {
     }
   }, [user]);
 
+  // Refresh user data on mount to ensure we have the latest data
+  useEffect(() => {
+    if (user && (user.id || user._id)) {
+      const userId = user.id || user._id;
+      api.get(`/users/${userId}`)
+        .then(res => {
+          const updatedUser = res.data;
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        })
+        .catch(err => {
+          console.error('Failed to refresh user data:', err);
+        });
+    }
+  }, []);
+
   // Fetch content deletion setting on mount
   useEffect(() => {
     setContentDeletionLoading(true);
@@ -217,10 +233,16 @@ export default function Profile() {
           const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
-          setAvatar(uploadRes.data.avatar);
+          const newAvatarUrl = uploadRes.data.avatar;
+          setAvatar(newAvatarUrl);
           setAvatarSaved(true);
           setTimeout(() => setAvatarSaved(false), 2000);
           showNotification('Profile picture saved!', 'success');
+          
+          // Update user object in AuthContext and localStorage
+          const updatedUser = { ...user, avatar: newAvatarUrl };
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
         } catch (uploadErr) {
           showNotification('Failed to upload avatar.', 'error');
         } finally {
