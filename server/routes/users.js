@@ -193,7 +193,7 @@ router.patch('/:id', auth, async (req, res) => {
     }
     
     // Update allowed fields
-    const allowedUpdates = ['fullName', 'email', 'avatar', 'bio', 'preferences'];
+    const allowedUpdates = ['fullName', 'email', 'avatar', 'bio', 'preferences', 'username', 'roles'];
     const updates = {};
     
     allowedUpdates.forEach(field => {

@@ -8,10 +8,18 @@ const { body, validationResult, param } = require('express-validator');
 
 // Middleware to check admin
 function requireAdmin(req, res, next) {
-  if (!req.user || !req.user.roles || !req.user.roles.includes('admin')) {
-    return res.status(403).json({ error: 'Admin access required.' });
+  if (!req.userId) {
+    return res.status(401).json({ error: 'Authentication required.' });
   }
-  next();
+  User.findById(req.userId).then(user => {
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    req.user = user;
+    next();
+  }).catch(err => {
+    res.status(500).json({ error: 'Failed to verify admin status.' });
+  });
 }
 
 // GET /reports - list all reports
@@ -50,10 +58,10 @@ router.post('/',
         type: req.body.type,
         targetId: req.body.targetId,
         reason: req.body.reason,
-        reporter: req.user.id,
+        reporter: req.userId,
       });
       await report.save();
-      await logAudit({ action: 'submit_report', user: req.user.id, target: report._id });
+      await logAudit({ action: 'submit_report', user: req.userId, target: report._id });
       res.status(201).json(report);
     } catch (err) {
       res.status(500).json({ error: 'Failed to submit report.' });
@@ -75,10 +83,10 @@ router.patch('/:id',
       const report = await Report.findById(req.params.id);
       if (!report) return res.status(404).json({ error: 'Report not found.' });
       report.status = 'resolved';
-      report.resolvedBy = req.user.id;
+      report.resolvedBy = req.userId;
       report.resolvedAt = new Date();
       await report.save();
-      await logAudit({ action: 'resolve_report', user: req.user.id, target: req.params.id });
+      await logAudit({ action: 'resolve_report', user: req.userId, target: req.params.id });
       res.json({ message: 'Report resolved.' });
     } catch (err) {
       res.status(500).json({ error: 'Failed to resolve report.' });

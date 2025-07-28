@@ -8,10 +8,18 @@ const { body, validationResult, param } = require('express-validator');
 
 // Middleware to check admin
 function requireAdmin(req, res, next) {
-  if (!req.user || !req.user.roles || !req.user.roles.includes('admin')) {
-    return res.status(403).json({ error: 'Admin access required.' });
+  if (!req.userId) {
+    return res.status(401).json({ error: 'Authentication required.' });
   }
-  next();
+  User.findById(req.userId).then(user => {
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    req.user = user;
+    next();
+  }).catch(err => {
+    res.status(500).json({ error: 'Failed to verify admin status.' });
+  });
 }
 
 // POST /appeals - user submits an appeal
@@ -37,7 +45,7 @@ router.post('/',
     }
     try {
       const { type, targetId, reason } = req.body;
-      const userId = req.user?.id;
+      const userId = req.userId;
       if (!userId || !type || !reason) return res.status(400).json({ error: 'All fields required.' });
       const appeal = new Appeal({ type, targetId, user: userId, reason });
       await appeal.save();
@@ -74,10 +82,10 @@ router.patch('/:id',
       if (!appeal) return res.status(404).json({ error: 'Appeal not found.' });
       appeal.status = 'resolved';
       appeal.outcome = outcome;
-      appeal.resolvedBy = req.user.id;
+      appeal.resolvedBy = req.userId;
       appeal.resolvedAt = new Date();
       await appeal.save();
-      await logAudit({ action: 'resolve_appeal', user: req.user.id, target: req.params.id, details: { outcome } });
+      await logAudit({ action: 'resolve_appeal', user: req.userId, target: req.params.id, details: { outcome } });
       res.json({ message: 'Appeal resolved.' });
     } catch (err) {
       res.status(500).json({ error: 'Failed to resolve appeal.' });

@@ -11,14 +11,28 @@ const permissions = {
   // Add more as needed
 };
 
+const User = require('../models/User');
+
 function checkPermission(action) {
-  return (req, res, next) => {
-    const userRoles = req.user?.roles || [];
-    const allowedRoles = permissions[action] || [];
-    if (!allowedRoles.some(role => userRoles.includes(role))) {
-      return res.status(403).json({ error: 'Insufficient permissions.' });
+  return async (req, res, next) => {
+    if (!req.userId) {
+      return res.status(401).json({ error: 'Authentication required.' });
     }
-    next();
+    try {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found.' });
+      }
+      const userRoles = user.roles || [];
+      const allowedRoles = permissions[action] || [];
+      if (!allowedRoles.some(role => userRoles.includes(role))) {
+        return res.status(403).json({ error: 'Insufficient permissions.' });
+      }
+      req.user = user;
+      next();
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to verify permissions.' });
+    }
   };
 }
 

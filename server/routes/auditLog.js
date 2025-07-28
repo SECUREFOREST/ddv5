@@ -6,10 +6,18 @@ const { checkPermission } = require('../utils/permissions');
 
 // Middleware to check admin
 function requireAdmin(req, res, next) {
-  if (!req.user || !req.user.roles || !req.user.roles.includes('admin')) {
-    return res.status(403).json({ error: 'Admin access required.' });
+  if (!req.userId) {
+    return res.status(401).json({ error: 'Authentication required.' });
   }
-  next();
+  User.findById(req.userId).then(user => {
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    req.user = user;
+    next();
+  }).catch(err => {
+    res.status(500).json({ error: 'Failed to verify admin status.' });
+  });
 }
 
 // GET /audit-log - list all audit logs (admin only)

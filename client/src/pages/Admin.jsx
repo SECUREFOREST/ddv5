@@ -358,7 +358,7 @@ export default function Admin() {
       setEditUserData({
         username: user.username || '',
         email: user.email || '',
-        role: user.role || '',
+        roles: user.roles || [],
       });
       setEditUserError('');
     }
@@ -367,7 +367,7 @@ export default function Admin() {
   // Close modal
   const closeEditUserModal = () => {
     setEditUserId(null);
-    setEditUserData({ username: '', email: '', role: '' });
+    setEditUserData({ username: '', email: '', roles: [] });
     setEditUserError('');
   };
 
@@ -385,10 +385,9 @@ export default function Admin() {
     setSuccess('');
     try {
       // Only send editable fields
-      const { username, email, role, roles } = editUserData;
+      const { username, email, roles } = editUserData;
       const payload = { username, email };
-      if (roles) payload.roles = roles;
-      if (role) payload.role = role;
+      if (roles && Array.isArray(roles)) payload.roles = roles;
       await api.patch(`/users/${editUserId}`, payload);
       showNotification('User updated successfully!', 'success');
       fetchUsers();
@@ -972,14 +971,18 @@ export default function Admin() {
               />
             </div>
             <div>
-              <label htmlFor="edit-role" className="block font-semibold mb-1 text-primary">Role</label>
+              <label htmlFor="edit-roles" className="block font-semibold mb-1 text-primary">Roles (comma-separated)</label>
               <input
                 type="text"
-                name="role"
-                id="edit-role"
+                name="roles"
+                id="edit-roles"
                 className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
-                value={editUserData.role}
-                onChange={handleEditUserChange}
+                value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
+                onChange={(e) => {
+                  const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
+                  setEditUserData(prev => ({ ...prev, roles }));
+                }}
+                placeholder="admin, moderator, user"
               />
             </div>
             {editUserError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{editUserError}</div>}
