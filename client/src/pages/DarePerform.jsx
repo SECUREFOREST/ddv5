@@ -170,7 +170,7 @@ export default function DarePerform() {
   // Improved debug log for updated dare state
   React.useEffect(() => {
     if (dare && proofSuccess) {
-      console.log('Updated dare after proof submission:', dare);
+      
     }
   }, [dare, proofSuccess]);
 

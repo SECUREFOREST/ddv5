@@ -309,9 +309,7 @@ export default function DarePerformerDashboard() {
     // Fetch ongoing dares (alias for slots)
     api.get('/dares/mine?status=in_progress,waiting_for_participant')
       .then(res => {
-        console.log('[DEBUG] /dares/mine?status=in_progress,waiting_for_participant response:', res.data);
         setOngoing(res.data);
-        console.log('[DEBUG] ongoing array after set:', res.data);
       })
       .catch(() => setOngoing([]));
     // TODO: Fetch cooldown from user profile if available
@@ -370,7 +368,10 @@ export default function DarePerformerDashboard() {
 
   // Add real-time updates for public dares using socket.io-client
   useEffect(() => {
-    const socket = io('https://www.deviantdare.com'); // Replace with your backend URL
+    const socket = io('/', {
+      autoConnect: true,
+      transports: ['websocket'],
+    });
     socket.on('public_dare_publish', dare => setPublicDares(prev => [dare, ...prev]));
     socket.on('public_dare_unpublish', dareId => setPublicDares(prev => prev.filter(d => d._id !== dareId)));
     return () => socket.disconnect();
