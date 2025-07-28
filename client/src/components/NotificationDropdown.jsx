@@ -247,7 +247,7 @@ export default function NotificationDropdown() {
           aria-expanded={open}
           role="button"
         >
-          <i className="fas fa-bell text-xl" />
+          <span className="text-xl text-neutral-300 hover:text-white transition-colors">🔔</span>
           {unseenCount > 0 && (
             <span className="absolute -top-1 -right-2 bg-danger text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
           )}
