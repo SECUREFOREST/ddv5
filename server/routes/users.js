@@ -327,7 +327,7 @@ router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
     console.log('Avatar URL:', avatarUrl);
     
     // Update user's avatar
-    const updateResult = await User.findByIdAndUpdate(userId, { avatar: avatarUrl });
+    const updateResult = await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true });
     console.log('Database update result:', updateResult);
     
     res.json({ message: 'Avatar uploaded successfully.', avatar: avatarUrl });
