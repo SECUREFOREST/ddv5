@@ -25,6 +25,11 @@ export default function Profile() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState('');
   const [dares, setDares] = useState([]);
+  const [created, setCreated] = useState([]);
+  const [participating, setParticipating] = useState([]);
+  const [switchGames, setSwitch] = useState([]);
+  const [switchCreated, setSwitchCreated] = useState([]);
+  const [switchParticipating, setSwitchParticipating] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
   const [username, setUsername] = useState(user?.username || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
@@ -57,6 +62,22 @@ export default function Profile() {
   const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
   const [contentDeletionError, setContentDeletionError] = useState('');
   const [editMode, setEditMode] = useState(false);
+
+  // Initialize form fields when user data loads
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username || '');
+      setAvatar(user.avatar || '');
+      setBio(user.bio || '');
+      setGender(user.gender || '');
+      setDob(user.dob ? user.dob.slice(0, 10) : '');
+      setInterestedIn(user.interestedIn || []);
+      setLimits(user.limits || []);
+      setFullName(user.fullName || '');
+      setAvatarPreview(user.avatar || '');
+      setIsBlocked(user.blocked || false);
+    }
+  }, [user]);
 
   // Fetch content deletion setting on mount
   useEffect(() => {
@@ -91,6 +112,7 @@ export default function Profile() {
     const userId = getUserId(user);
     if (!userId) return;
     setStatsLoading(true);
+    setUserActivitiesLoading(true);
     Promise.all([
       api.get('/stats/users/' + userId),
       api.get('/dares', { params: { creator: userId } }),
@@ -109,7 +131,10 @@ export default function Profile() {
       setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
     }).catch(() => {
       setStatsError('Failed to load stats.');
-    }).finally(() => setStatsLoading(false));
+    }).finally(() => {
+      setStatsLoading(false);
+      setUserActivitiesLoading(false);
+    });
   }, [user]);
 
   useEffect(() => {
