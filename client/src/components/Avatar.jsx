@@ -9,10 +9,10 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
   useEffect(() => {
     if (!user?.avatar || imageError) return;
 
-    // Convert relative URL to full URL if needed
+    // Convert relative URL to full URL using API domain
     const avatarUrl = user.avatar.startsWith('http') 
       ? user.avatar 
-      : `${window.location.origin}${user.avatar}`;
+      : `https://api.deviantdare.com${user.avatar}`;
     
     if (imgRef.current) {
       imgRef.current.src = avatarUrl;
