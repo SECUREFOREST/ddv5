@@ -22,6 +22,7 @@ export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
   const { showNotification } = useNotification();
   const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
   const [username, setUsername] = useState(user?.username || '');
@@ -484,15 +485,8 @@ export default function Profile() {
           <ul className="space-y-3">
             {blockedUsersInfo.map(bu => (
               <li key={bu._id} className="flex items-center gap-3 bg-neutral-900 rounded p-3">
-                {bu.avatar ? (
-                  <img src={bu.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-lg font-bold">
-                    {bu.username[0].toUpperCase()}
-                  </div>
-                )}
+                <Avatar user={bu} size={28} alt={`Avatar for ${bu?.fullName || bu?.username || 'user'}`} />
                 <span className="inline-flex items-center gap-2">
-                  <Avatar user={bu} size={28} alt={`Avatar for ${bu?.fullName || bu?.username || 'user'}`} />
                   {bu.fullName || bu.username || 'Anonymous'}
                 </span>
                 <button
