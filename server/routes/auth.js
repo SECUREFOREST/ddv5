@@ -211,17 +211,28 @@ router.post('/refresh-token', [
   try {
     const { refreshToken } = req.body;
     
-    // Verify refresh token
-    const decoded = jwt.verify(refreshToken, JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    // Find user by refresh token
+    const user = await User.findOne({ refreshTokens: refreshToken });
     
     if (!user) {
       return res.status(401).json({ error: 'Invalid refresh token.' });
     }
     
     // Generate new tokens
-    const accessToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '15m' });
-    const newRefreshToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const accessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken();
+    
+    // Replace old token with new one (token rotation)
+    user.refreshTokens = user.refreshTokens.map(token => 
+      token === refreshToken ? newRefreshToken : token
+    );
+    
+    // Clean up old tokens (keep only last 5 tokens)
+    if (user.refreshTokens.length > 5) {
+      user.refreshTokens = user.refreshTokens.slice(-5);
+    }
+    
+    await user.save();
     
     res.json({
       accessToken,
@@ -229,6 +240,36 @@ router.post('/refresh-token', [
     });
   } catch (err) {
     res.status(401).json({ error: 'Invalid or expired refresh token.' });
+  }
+});
+
+// POST /api/auth/cleanup-tokens - cleanup excessive tokens (admin only)
+router.post('/cleanup-tokens', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    
+    // Find all users with more than 5 refresh tokens
+    const usersWithExcessiveTokens = await User.find({
+      $expr: { $gt: [{ $size: '$refreshTokens' }, 5] }
+    });
+    
+    let cleanedCount = 0;
+    for (const user of usersWithExcessiveTokens) {
+      // Keep only the last 5 tokens
+      user.refreshTokens = user.refreshTokens.slice(-5);
+      await user.save();
+      cleanedCount++;
+    }
+    
+    res.json({ 
+      message: `Cleaned up excessive tokens for ${cleanedCount} users.`,
+      cleanedCount 
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to cleanup tokens.' });
   }
 });
 
