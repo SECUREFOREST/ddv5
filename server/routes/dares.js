@@ -1,18 +1,20 @@
-console.log('Dares routes loaded');
 const express = require('express');
 const router = express.Router();
-const Dare = require('../models/Dare');
-const User = require('../models/User');
+const { body, param, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
+const { checkPermission } = require('../utils/permissions');
+const { sendNotification } = require('../utils/notification');
+const { logActivity } = require('../utils/activity');
+const { logAudit } = require('../utils/auditLog');
 const multer = require('multer');
 const path = require('path');
-const { logAudit } = require('../utils/auditLog');
-const { logActivity } = require('../utils/activity');
-const { checkPermission } = require('../utils/permissions');
 const fs = require('fs');
-const { sendNotification } = require('../utils/notification');
 const { v4: uuidv4 } = require('uuid');
-const { body, validationResult } = require('express-validator');
+
+// Import models
+const Dare = require('../models/Dare');
+const User = require('../models/User');
+
 const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
 const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -106,7 +108,6 @@ router.get('/', auth, async (req, res, next) => {
 
 // Add after other GET endpoints
 router.get('/random', auth, async (req, res) => {
-  console.log('--- /random endpoint hit ---');
   try {
     const { difficulty } = req.query;
     const userId = req.userId;
@@ -125,19 +126,14 @@ router.get('/random', auth, async (req, res) => {
     };
     if (difficulty) filter.difficulty = difficulty;
     if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
-    console.log('Random dare filter:', filter);
-    console.log('Exclude dares:', excludeDares);
     const count = await Dare.countDocuments(filter);
-    console.log('Matching dare count:', count);
     if (count === 0) {
-      console.warn('No dares found matching filter:', filter);
       return res.json({});
     }
     const rand = Math.floor(Math.random() * count);
     // Find a random dare first
     const dareDoc = await Dare.find(filter).skip(rand).limit(1);
     if (!dareDoc.length) {
-      console.warn('No dare could be assigned (possibly race condition), filter:', filter, 'rand:', rand);
       return res.json({});
     }
     // Prevent creator from performing their own dare
@@ -160,14 +156,12 @@ router.get('/random', auth, async (req, res) => {
       { new: true }
     );
     if (!dare) {
-      console.warn('No dare could be assigned (possibly race condition), filter:', filter, 'rand:', rand);
       return res.json({});
     }
     // Track consent in user
     await require('../models/User').findByIdAndUpdate(userId, { $addToSet: { consentedDares: dare._id } });
     // Audit log
     await require('../utils/auditLog').logAudit({ action: 'consent_dare', user: userId, target: dare._id });
-    console.log('Returning dare:', dare);
     res.json(dare);
   } catch (err) {
     // User-friendly error for cooldown or open dares limit
@@ -179,7 +173,6 @@ router.get('/random', auth, async (req, res) => {
         error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or forfeit some dares, or wait for your cooldown to expire.'
       });
     }
-    console.error('Error in /random endpoint:', err.message, err.stack);
     res.status(500).json({ error: 'Failed to get dare.' });
   }
 });
@@ -222,14 +215,12 @@ router.get('/mine', auth, async (req, res) => {
         filter.status = status;
       }
     }
-    console.log('[DEBUG] /dares/mine filter:', filter);
     const dares = await Dare.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
       .sort({ updatedAt: -1 });
     res.json(dares);
   } catch (err) {
-    console.error('[DEBUG] /dares/mine error:', err);
     res.status(500).json({ error: 'Failed to fetch your dares.' });
   }
 });
@@ -305,7 +296,7 @@ router.post('/',
       await dare.save();
       await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
       // Notify the creator
-      await sendNotification(req.userId, 'dare_created', `Your dare has been created.`);
+      await sendNotification(req.userId, 'dare_created', `Your dare has been created.`, req.userId);
       res.status(201).json(dare);
     } catch (err) {
       res.status(500).json({ error: 'Failed to create dare.' });
@@ -395,7 +386,8 @@ router.post('/:id/grade',
       await sendNotification(
         target,
         'dare_graded',
-        `You received a grade of ${grade} from ${graderUser?.username || 'someone'} for dare: "${dare.description}".`
+        `You received a grade of ${grade} from ${graderUser?.username || 'someone'} for dare: "${dare.description}".`,
+        req.userId
       );
       res.json({ message: 'Grade submitted.', dare });
     } catch (err) {
@@ -450,7 +442,7 @@ router.post('/:id/proof',
       await dare.save();
       await User.findByIdAndUpdate(req.userId, { $inc: { openDares: -1 } });
       // Notify creator
-      await sendNotification(dare.creator, 'proof_submitted', `Proof has been submitted for your dare "${dare.title}".`);
+      await sendNotification(dare.creator, 'proof_submitted', `Proof has been submitted for your dare "${dare.description}".`, req.userId);
       res.json({ message: 'Proof submitted.', proof: dare.proof });
     } catch (err) {
       // If file was uploaded but DB update failed, delete the file
@@ -458,7 +450,6 @@ router.post('/:id/proof',
         try {
           fs.unlinkSync(req.file.path);
         } catch (e) {
-          console.warn('Failed to clean up orphaned file:', req.file.path);
         }
       }
       res.status(400).json({ error: err.message || 'Failed to submit proof.' });
@@ -466,7 +457,7 @@ router.post('/:id/proof',
   }
 );
 
-// POST /dares/:id/accept - user consents to perform a dare, optionally sets difficulty
+// POST /api/dares/:id/accept - user consents to perform a dare, optionally sets difficulty
 router.post('/:id/accept',
   auth,
   [
@@ -502,9 +493,9 @@ router.post('/:id/accept',
       dare.status = 'waiting_for_participant'; // Reset to available
       await dare.save();
       // Notify performer (the user accepting)
-      await sendNotification(req.userId, 'dare_assigned', `You have been assigned as the performer for the dare: "${dare.description}"`);
+      await sendNotification(req.userId, 'dare_assigned', `You have been assigned as the performer for the dare: "${dare.description}"`, req.userId);
       // Optionally notify creator
-      await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`);
+      await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`, req.userId);
       res.json({ message: 'You are now the performer for this dare.', dare });
     } catch (err) {
       res.status(500).json({ error: 'Failed to accept dare.' });
@@ -530,12 +521,6 @@ router.post('/:id/forfeit',
     try {
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-      // Debug log for performer check
-      console.log('Forfeit debug:', {
-        dareId: dare._id,
-        darePerformer: dare.performer ? dare.performer.toString() : dare.performer,
-        reqUserId: req.userId
-      });
       if (!dare.performer || dare.performer.toString() !== req.userId) {
         return res.status(403).json({ error: 'Only the performer can forfeit this dare.' });
       }
@@ -549,7 +534,8 @@ router.post('/:id/forfeit',
       await sendNotification(
         dare.creator,
         'dare_forfeited',
-        'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.'
+        'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.',
+        req.userId
       );
       // Log activity
       await logActivity({ type: 'dare_forfeited', user: req.userId, dare: dare._id });
@@ -578,9 +564,9 @@ router.delete('/:id',
       if (dare.creator.toString() !== req.userId && !isAdmin) return res.status(403).json({ error: 'Only the creator or an admin can delete this dare.' });
       await dare.deleteOne();
       // Notify creator and performer if applicable
-      await sendNotification(dare.creator, 'dare_deleted', `Your dare has been deleted.`);
+      await sendNotification(dare.creator, 'dare_deleted', `Your dare has been deleted.`, req.userId);
       if (dare.performer) {
-        await sendNotification(dare.performer, 'dare_deleted', `A dare you were involved in has been deleted.`);
+        await sendNotification(dare.performer, 'dare_deleted', `A dare you were involved in has been deleted.`, req.userId);
       }
       res.json({ message: 'Dare deleted.' });
     } catch (err) {
@@ -605,7 +591,7 @@ router.post('/:id/approve',
       await logAudit({ action: 'approve_dare', user: req.userId, target: req.params.id });
       // Notify performer if exists
       if (dare.performer) {
-        await sendNotification(dare.performer, 'dare_approved', `Your dare "${dare.title}" has been approved.`);
+        await sendNotification(dare.performer, 'dare_approved', `Your dare "${dare.title}" has been approved.`, req.userId);
       }
       res.json({ message: 'Dare approved.', dare });
     } catch (err) {
@@ -630,7 +616,7 @@ router.post('/:id/reject',
       await logAudit({ action: 'reject_dare', user: req.userId, target: req.params.id });
       // Notify performer if exists
       if (dare.performer) {
-        await sendNotification(dare.performer, 'dare_rejected', `Your dare "${dare.title}" has been rejected.`);
+        await sendNotification(dare.performer, 'dare_rejected', `Your dare "${dare.title}" has been rejected.`, req.userId);
       }
       res.json({ message: 'Dare rejected.', dare });
     } catch (err) {
@@ -668,7 +654,7 @@ router.post('/claimable',
       });
       await dare.save();
       await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
-      await sendNotification(req.userId, 'dare_created', `Your claimable dare has been created.`);
+      await sendNotification(req.userId, 'dare_created', `Your claimable dare has been created.`, req.userId);
       res.status(201).json({ dare, claimLink: `${process.env.FRONTEND_URL || 'https://www.deviantdare.com'}/claim/${claimToken}` });
     } catch (err) {
       res.status(500).json({ error: 'Failed to create claimable dare.' });
@@ -762,10 +748,319 @@ router.post('/claim/:token', [body('demand').isString().isLength({ min: 5, max: 
     dare.claimable = false;
     await dare.save();
     // Optionally notify the creator
-    await sendNotification(dare.creator, 'dare_claimed', 'Your claimable dare has been claimed.');
+    await sendNotification(dare.creator, 'dare_claimed', 'Your claimable dare has been claimed.', req.userId);
     res.json({ message: 'Dare claimed successfully.', dare });
   } catch (err) {
     res.status(500).json({ error: 'Failed to claim dare.' });
+  }
+});
+
+// PATCH /api/dares/:id/start - start a dare (accept and begin)
+router.patch('/:id/start', auth, [
+  body('difficulty').optional().isString().isIn(['titillating', 'daring', 'shocking']).withMessage('Difficulty must be one of: titillating, daring, shocking.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { difficulty } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    if (dare.performer) {
+      return res.status(400).json({ error: 'Dare already has a performer.' });
+    }
+    
+    if (dare.creator.toString() === req.userId) {
+      return res.status(400).json({ error: 'You cannot perform your own dare.' });
+    }
+    
+    // Update dare with performer and difficulty
+    const updates = { 
+      performer: req.userId, 
+      status: 'in_progress',
+      updatedAt: new Date()
+    };
+    
+    if (difficulty) {
+      updates.difficulty = difficulty;
+    }
+    
+    const updatedDare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    ).populate('creator', 'username fullName avatar')
+     .populate('performer', 'username fullName avatar');
+    
+    // Notify creator
+    await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`, req.userId);
+    
+    res.json(updatedDare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to start dare.' });
+  }
+});
+
+// GET /api/dares/random - get a random dare (auth required)
+router.get('/random', auth, async (req, res) => {
+  try {
+    const { difficulty } = req.query;
+    const userId = req.userId;
+    
+    // Prevent claiming if in cooldown or at open dare limit
+    await checkSlotAndCooldownAtomic(userId);
+    
+    // Exclude dares already consented to or completed by this user
+    const user = await User.findById(userId).select('consentedDares completedDares');
+    const excludeDares = [
+      ...(user.consentedDares || []),
+      ...(user.completedDares || [])
+    ];
+    
+    const filter = {
+      status: 'waiting_for_participant',
+      performer: null,
+      creator: { $ne: userId }
+    };
+    
+    if (difficulty) filter.difficulty = difficulty;
+    if (excludeDares.length > 0) filter._id = { $nin: excludeDares };
+    
+    const count = await Dare.countDocuments(filter);
+    if (count === 0) {
+      return res.json({});
+    }
+    
+    const rand = Math.floor(Math.random() * count);
+    const dareDoc = await Dare.find(filter).skip(rand).limit(1);
+    
+    if (!dareDoc.length) {
+      return res.json({});
+    }
+    
+    // Prevent creator from performing their own dare
+    if (dareDoc[0].creator.toString() === userId) {
+      return res.status(400).json({ error: 'You cannot perform your own dare.' });
+    }
+    
+    // Blocked user check
+    const creator = await User.findById(dareDoc[0].creator).select('blockedUsers');
+    const performerUser = await User.findById(userId).select('blockedUsers');
+    
+    if (
+      (creator.blockedUsers && performerUser.blockedUsers && creator.blockedUsers.includes(userId)) ||
+      (creator.blockedUsers && performerUser.blockedUsers && performerUser.blockedUsers.includes(dareDoc[0].creator.toString()))
+    ) {
+      return res.status(400).json({ error: 'You cannot perform this dare due to user blocking.' });
+    }
+    
+    const dare = dareDoc[0].populate('creator', 'username fullName avatar');
+    res.json(dare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get random dare.' });
+  }
+});
+
+// POST /api/dares/:id/accept - accept a dare
+router.post('/:id/accept', auth, async (req, res) => {
+  try {
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    if (dare.performer) {
+      return res.status(400).json({ error: 'Dare already has a performer.' });
+    }
+    
+    if (dare.creator.toString() === req.userId) {
+      return res.status(400).json({ error: 'You cannot accept your own dare.' });
+    }
+    
+    // Update dare with performer
+    const updatedDare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      { 
+        performer: req.userId, 
+        status: 'in_progress',
+        updatedAt: new Date()
+      },
+      { new: true }
+    ).populate('creator', 'username fullName avatar')
+     .populate('performer', 'username fullName avatar');
+    
+    // Notify creator
+    await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`, req.userId);
+    
+    res.json(updatedDare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to accept dare.' });
+  }
+});
+
+// POST /api/dares/:id/reject - reject a dare
+router.post('/:id/reject', auth, [
+  body('reason').optional().isString().isLength({ max: 500 }).withMessage('Reason must be less than 500 characters.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { reason } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    if (dare.performer?.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Only the performer can reject this dare.' });
+    }
+    
+    // Update dare status
+    const updatedDare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status: 'rejected',
+        rejectionReason: reason,
+        updatedAt: new Date()
+      },
+      { new: true }
+    ).populate('creator', 'username fullName avatar')
+     .populate('performer', 'username fullName avatar');
+    
+    // Notify creator
+    await sendNotification(dare.creator, 'dare_rejected', `Your dare has been rejected.`, req.userId);
+    
+    res.json(updatedDare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject dare.' });
+  }
+});
+
+// POST /api/dares/:id/grade - grade a dare
+router.post('/:id/grade', auth, [
+  body('grade').isInt({ min: 1, max: 10 }).withMessage('Grade must be between 1 and 10.'),
+  body('feedback').optional().isString().isLength({ max: 1000 }).withMessage('Feedback must be less than 1000 characters.'),
+  body('target').optional().isMongoId().withMessage('Target must be a valid MongoDB ObjectId.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { grade, feedback, target } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Check if user can grade this dare
+    const canGrade = dare.creator.toString() === req.userId || 
+                    (dare.performer && dare.performer.toString() === req.userId);
+    
+    if (!canGrade) {
+      return res.status(403).json({ error: 'You cannot grade this dare.' });
+    }
+    
+    // Add grade to dare
+    const gradeData = {
+      user: req.userId,
+      grade: parseInt(grade),
+      feedback: feedback || '',
+      createdAt: new Date()
+    };
+    
+    if (target) {
+      gradeData.target = target;
+    }
+    
+    if (!dare.grades) dare.grades = [];
+    dare.grades.push(gradeData);
+    await dare.save();
+    
+    // Notify the other party
+    const targetUser = dare.creator.toString() === req.userId ? dare.performer : dare.creator;
+    if (targetUser) {
+      await sendNotification(
+        targetUser,
+        'dare_graded',
+        `You received a grade of ${grade} for dare: "${dare.description}".`,
+        req.userId
+      );
+    }
+    
+    res.json({ message: 'Grade submitted successfully.', dare });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit grade.' });
+  }
+});
+
+// POST /api/dares/:id/approve - approve a dare (admin/moderator)
+router.post('/:id/approve', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    
+    const dare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      { status: 'approved', updatedAt: new Date() },
+      { new: true }
+    );
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Notify performer if exists
+    if (dare.performer) {
+      await sendNotification(dare.performer, 'dare_approved', `Your dare has been approved.`, req.userId);
+    }
+    
+    res.json({ message: 'Dare approved successfully.', dare });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to approve dare.' });
+  }
+});
+
+// POST /api/dares/:id/reject - reject a dare (admin/moderator)
+router.post('/:id/reject', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    
+    const dare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      { status: 'rejected', updatedAt: new Date() },
+      { new: true }
+    );
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Notify performer if exists
+    if (dare.performer) {
+      await sendNotification(dare.performer, 'dare_rejected', `Your dare has been rejected.`, req.userId);
+    }
+    
+    res.json({ message: 'Dare rejected successfully.', dare });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject dare.' });
   }
 });
 

@@ -1,32 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { body, param, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
-const { logAudit } = require('../utils/auditLog');
-const { checkPermission } = require('../utils/permissions');
-const Dare = require('../models/Dare');
-const Notification = require('../models/Notification');
 const { sendNotification } = require('../utils/notification');
+const { logAudit } = require('../utils/auditLog');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { body, validationResult, param } = require('express-validator');
+
+// Import models
+const User = require('../models/User');
+const Dare = require('../models/Dare');
+const SwitchGame = require('../models/SwitchGame');
+const Notification = require('../models/Notification');
+
+const { checkPermission } = require('../utils/permissions');
 const allowedAvatarTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
 
-// Set up storage for avatars
-const avatarStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.join(__dirname, '..', 'uploads', 'avatars');
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  limits: {
+    fileSize: MAX_AVATAR_SIZE
   },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, req.params.id + '-' + Date.now() + ext);
+  fileFilter: (req, file, cb) => {
+    if (allowedAvatarTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'), false);
+    }
   }
 });
-const upload = multer({ storage: avatarStorage });
 
 // Use a blacklist for sensitive fields
 const userBlacklist = '-passwordHash -refreshTokens -passwordResetToken -passwordResetExpires';
@@ -41,131 +48,175 @@ router.get('/', auth, checkPermission('view_users'), async (req, res) => {
   res.json(users);
 });
 
-// GET /api/users/:id
-router.get('/:id',
-  (req, res, next) => {
-    if (req.params.id === 'me') return next();
-    // Validate as MongoId if not 'me'
-    if (!require('mongoose').Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid user id.' });
-    }
-    next();
-  },
-  async (req, res) => {
-    console.log('GET /users/:id called with id:', req.params.id);
+// GET /api/users/:id - get user by ID (public)
+router.get('/:id', async (req, res) => {
+  try {
+    let user;
     if (req.params.id === 'me') {
-      // If 'me', use the /me logic (requires auth)
-      if (!req.headers.authorization) {
-        return res.status(401).json({ error: 'Authorization required.' });
+      // Get current user from token
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ error: 'No token provided.' });
       }
-      try {
-        const token = req.headers.authorization.split(' ')[1];
-        const jwt = require('jsonwebtoken');
-        const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.id).select(userBlacklist);
-        if (!user) {
-          console.log('User not found for userId:', decoded.id);
-          return res.status(404).json({ error: 'User not found.' });
-        }
-        return res.json(user);
-      } catch (err) {
-        console.error('Error in GET /users/:id (me):', err);
-        return res.status(401).json({ error: 'Invalid or expired token.' });
-      }
-    }
-    try {
-      const user = await User.findById(req.params.id).select(userBlacklist);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      user = await User.findById(decoded.id).select('-password');
       if (!user) {
-        console.log('User not found for id:', req.params.id);
         return res.status(404).json({ error: 'User not found.' });
       }
-      res.json(user);
-    } catch (err) {
-      console.error('Error in GET /users/:id:', err);
-      res.status(500).json({ error: 'Failed to get user.' });
+    } else {
+      // Get user by ID
+      user = await User.findById(req.params.id).select('-password -blockedUsers');
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
     }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user.' });
   }
-);
+});
 
-// GET /api/users/me - get current user info (auth required)
+// GET /api/users/me - get current user (auth required)
 router.get('/me', auth, async (req, res) => {
-  console.log('GET /users/me called with userId:', req.userId);
   try {
-    const user = await User.findById(req.userId).select(userBlacklist);
+    const user = await User.findById(req.userId).select('-password');
     if (!user) {
-      console.log('User not found for userId:', req.userId);
       return res.status(404).json({ error: 'User not found.' });
     }
     res.json(user);
   } catch (err) {
-    console.error('Error in GET /users/me:', err);
-    res.status(500).json({ error: 'Failed to get user info.' });
+    res.status(500).json({ error: 'Failed to fetch user.' });
   }
 });
 
-// PATCH /api/users/:id (update own profile)
-router.patch('/:id',
-  auth,
-  [
-    body('username').optional().isString().withMessage('Username must be a string.'),
-    body('email').optional().isEmail().withMessage('Email must be a valid email address.'),
-    body('fullName').optional().isString().withMessage('Full name must be a string.'),
-    body('bio').optional().isString().withMessage('Bio must be a string.'),
-    body('avatar').optional().isString().withMessage('Avatar must be a string.'),
-    body('gender').optional().isString().withMessage('Gender must be a string.'),
-    body('dob').optional().isISO8601().withMessage('Date of birth must be a valid date.'),
-    body('interestedIn').optional().isArray().withMessage('InterestedIn must be an array.'),
-    body('limits').optional().isArray().withMessage('Limits must be an array.'),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
-      });
-    }
-    console.log('PATCH /users/:id handler called for', req.params.id, 'body:', req.body);
-    try {
-      // Allow user to update their own profile, or admin to update anyone
-      const isSelf = req.userId === req.params.id;
-      const isAdmin = req.user && req.user.roles && req.user.roles.includes('admin');
-      if (!isSelf && !isAdmin) {
-        return res.status(403).json({ error: 'Unauthorized.' });
-      }
-      const { username, avatar, bio, fullName, gender, dob, interestedIn, limits, roles } = req.body;
-      const update = {};
-      if (username) update.username = username;
-      if (avatar) update.avatar = avatar;
-      if (bio !== undefined) update.bio = bio;
-      if (fullName) update.fullName = fullName;
-      if (gender) update.gender = gender;
-      if (dob) update.dob = dob;
-      if (Array.isArray(interestedIn)) update.interestedIn = interestedIn;
-      if (Array.isArray(limits)) update.limits = limits;
-      // Allow self-promotion: allow user to update their own roles
-      if ((isSelf || isAdmin) && Array.isArray(roles)) {
-        update.roles = roles;
-        // If roles are being changed, send a notification
-        const targetUser = await User.findById(req.params.id);
-        if (targetUser && JSON.stringify(targetUser.roles) !== JSON.stringify(roles)) {
-          if (roles.includes('admin') && !targetUser.roles.includes('admin')) {
-            await sendNotification(req.params.id, 'role_change', 'You have been promoted to admin.');
-          } else if (!roles.includes('admin') && targetUser.roles.includes('admin')) {
-            await sendNotification(req.params.id, 'role_change', 'You have been demoted from admin.');
-          }
+// GET /api/users/associates - get user's associates (people they've interacted with)
+router.get('/associates', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    
+    // Find users the current user has interacted with (through dares or switch games)
+    const dares = await Dare.find({
+      $or: [
+        { creator: userId },
+        { performer: userId }
+      ]
+    }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar');
+    
+    const switchGames = await SwitchGame.find({
+      $or: [
+        { creator: userId },
+        { participant: userId }
+      ]
+    }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar');
+    
+    // Extract unique users from interactions
+    const associateIds = new Set();
+    const associates = [];
+    
+    // Add users from dares
+    dares.forEach(dare => {
+      if (dare.creator && dare.creator._id.toString() !== userId) {
+        if (!associateIds.has(dare.creator._id.toString())) {
+          associateIds.add(dare.creator._id.toString());
+          associates.push(dare.creator);
         }
       }
-      const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select(userBlacklist);
-      await logAudit({ action: 'update_profile', user: req.userId, target: req.params.id, details: update });
-      res.json(user);
-    } catch (err) {
-      console.error('PATCH /users/:id error:', err, '\nRequest body:', req.body);
-      res.status(500).json({ error: 'Failed to update profile.' });
-    }
+      if (dare.performer && dare.performer._id.toString() !== userId) {
+        if (!associateIds.has(dare.performer._id.toString())) {
+          associateIds.add(dare.performer._id.toString());
+          associates.push(dare.performer);
+        }
+      }
+    });
+    
+    // Add users from switch games
+    switchGames.forEach(game => {
+      if (game.creator && game.creator._id.toString() !== userId) {
+        if (!associateIds.has(game.creator._id.toString())) {
+          associateIds.add(game.creator._id.toString());
+          associates.push(game.creator);
+        }
+      }
+      if (game.participant && game.participant._id.toString() !== userId) {
+        if (!associateIds.has(game.participant._id.toString())) {
+          associateIds.add(game.participant._id.toString());
+          associates.push(game.participant);
+        }
+      }
+    });
+    
+    res.json(associates);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch associates.' });
   }
-);
+});
+
+// GET /api/user_settings - get user settings
+router.get('/user_settings', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('settings');
+    res.json({ dashboard_tab: user?.settings?.dashboard_tab || null });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user settings.' });
+  }
+});
+
+// POST /api/user_settings - update user settings
+router.post('/user_settings', auth, async (req, res) => {
+  try {
+    const { dashboard_tab } = req.body;
+    const updates = {};
+    
+    if (dashboard_tab !== undefined) {
+      updates['settings.dashboard_tab'] = dashboard_tab;
+    }
+    
+    await User.findByIdAndUpdate(req.userId, { $set: updates });
+    res.json({ message: 'Settings updated successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user settings.' });
+  }
+});
+
+// PATCH /api/users/:id - update user (auth required, admin or self)
+router.patch('/:id', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    
+    // Check if user is updating themselves or is admin
+    if (req.params.id !== req.userId) {
+      const currentUser = await User.findById(req.userId);
+      if (!currentUser || !currentUser.roles || !currentUser.roles.includes('admin')) {
+        return res.status(403).json({ error: 'Unauthorized.' });
+      }
+    }
+    
+    // Update allowed fields
+    const allowedUpdates = ['fullName', 'email', 'avatar', 'bio', 'preferences'];
+    const updates = {};
+    
+    allowedUpdates.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+    
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No valid updates provided.' });
+    }
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    ).select('-password');
+    
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user.' });
+  }
+});
 
 // DELETE /api/users/:id (admin only)
 router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => {
@@ -181,86 +232,249 @@ router.delete('/:id', auth, checkPermission('delete_user'), async (req, res) => 
   }
 });
 
-// POST /api/users/:id/block (block another user)
-router.post('/:id/block',
-  [param('id').isMongoId()],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+// POST /api/users/:id/block - block a user
+router.post('/:id/block', auth, async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const userId = req.userId;
+    
+    if (targetUserId === userId) {
+      return res.status(400).json({ error: 'You cannot block yourself.' });
     }
-    try {
-      if (req.userId === req.params.id) {
-        return res.status(400).json({ error: 'Cannot block yourself.' });
-      }
-      const user = await User.findById(req.userId);
-      if (!user) return res.status(404).json({ error: 'User not found.' });
-      if (!user.blockedUsers.includes(req.params.id)) {
-        user.blockedUsers.push(req.params.id);
-        await user.save();
-        await logAudit({ action: 'block_user', user: req.userId, target: req.params.id });
-        // Notify blocked user
-        await sendNotification(req.params.id, 'user_blocked', 'You have been blocked by another user.');
-      }
-      res.json({ message: 'User blocked.' });
-    } catch (err) {
-      res.status(500).json({ error: 'Failed to block user.' });
+    
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+    
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found.' });
     }
+    
+    if (!user.blockedUsers) user.blockedUsers = [];
+    if (!targetUser.blockedUsers) targetUser.blockedUsers = [];
+    
+    // Add to blocked users if not already blocked
+    if (!user.blockedUsers.includes(targetUserId)) {
+      user.blockedUsers.push(targetUserId);
+      await user.save();
+    }
+    
+    // Send notification to blocked user
+    await sendNotification(targetUserId, 'user_blocked', 'You have been blocked by another user.', userId);
+    
+    res.json({ message: 'User blocked successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to block user.' });
   }
-);
+});
 
-// POST /api/users/:id/unblock (unblock another user)
-router.post('/:id/unblock',
-  [param('id').isMongoId()],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+// POST /api/users/:id/unblock - unblock a user
+router.post('/:id/unblock', auth, async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const userId = req.userId;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
     }
-    try {
-      if (req.userId === req.params.id) {
-        return res.status(400).json({ error: 'Cannot unblock yourself.' });
-      }
-      const user = await User.findById(req.userId);
-      if (!user) return res.status(404).json({ error: 'User not found.' });
-      const idx = user.blockedUsers.indexOf(req.params.id);
-      if (idx !== -1) {
-        user.blockedUsers.splice(idx, 1);
-        await user.save();
-        await logAudit({ action: 'unblock_user', user: req.userId, target: req.params.id });
-      }
-      res.json({ message: 'User unblocked.' });
-    } catch (err) {
-      res.status(500).json({ error: 'Failed to unblock user.' });
-    }
+    
+    if (!user.blockedUsers) user.blockedUsers = [];
+    
+    // Remove from blocked users
+    user.blockedUsers = user.blockedUsers.filter(id => id.toString() !== targetUserId);
+    await user.save();
+    
+    res.json({ message: 'User unblocked successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to unblock user.' });
   }
-);
+});
 
-// POST /api/users/:id/avatar
-router.post('/:id/avatar',
-  [param('id').isMongoId()],
-  upload.single('file'),
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      if (req.file) fs.unlinkSync(req.file.path);
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+// POST /api/users/:id/avatar - upload avatar
+router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    if (userId !== req.userId) {
+      return res.status(403).json({ error: 'Unauthorized.' });
     }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.' });
+    }
+    
+    // Validate file size (max 5MB)
+    if (req.file.size > 5 * 1024 * 1024) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+    }
+    
+    const avatarUrl = `/uploads/${req.file.filename}`;
+    
+    // Update user's avatar
+    await User.findByIdAndUpdate(userId, { avatar: avatarUrl });
+    
+    res.json({ message: 'Avatar uploaded successfully.', avatar: avatarUrl });
+  } catch (err) {
     if (req.file) {
-      if (!allowedAvatarTypes.includes(req.file.mimetype)) {
+      try {
         fs.unlinkSync(req.file.path);
-        return res.status(400).json({ error: 'Invalid avatar file type.' });
-      }
-      if (req.file.size > MAX_AVATAR_SIZE) {
-        fs.unlinkSync(req.file.path);
-        return res.status(400).json({ error: 'Avatar file too large (max 5MB).' });
+      } catch (e) {
+        // Ignore cleanup errors
       }
     }
-    const apiBase = process.env.API_BASE_URL || 'https://api.deviantdare.com';
-    const avatarUrl = `${apiBase}/uploads/avatars/${req.file.filename}`;
-    await User.findByIdAndUpdate(req.params.id, { avatar: avatarUrl });
-    res.json({ avatar: avatarUrl });
+    res.status(500).json({ error: 'Failed to upload avatar.' });
   }
-);
+});
+
+// GET /api/user/slots - get user's slot information
+router.get('/user/slots', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    
+    // Count open dares (in_progress or waiting_for_participant)
+    const openDares = await Dare.countDocuments({
+      performer: req.userId,
+      status: { $in: ['in_progress', 'waiting_for_participant'] }
+    });
+    
+    // Count open switch games
+    const openSwitchGames = await SwitchGame.countDocuments({
+      $or: [
+        { creator: req.userId, status: { $in: ['in_progress', 'waiting_for_participant'] } },
+        { participant: req.userId, status: { $in: ['in_progress', 'waiting_for_participant'] } }
+      ]
+    });
+    
+    const totalOpenSlots = openDares + openSwitchGames;
+    const maxSlots = 5; // This could be configurable per user
+    
+    res.json({
+      openSlots: totalOpenSlots,
+      maxSlots,
+      cooldownUntil: user.cooldownUntil || null,
+      inCooldown: user.cooldownUntil && new Date(user.cooldownUntil) > new Date()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch slot information.' });
+  }
+});
+
+// POST /api/subs - submit an offer/dare submission
+router.post('/subs', auth, [
+  body('description').isString().isLength({ min: 10, max: 1000 }).withMessage('Description must be between 10 and 1000 characters.'),
+  body('difficulty').isString().isIn(['titillating', 'daring', 'shocking']).withMessage('Difficulty must be one of: titillating, daring, shocking.'),
+  body('tags').optional().isArray().withMessage('Tags must be an array.'),
+  body('privacy').optional().isString().isIn(['when_viewed', 'after_completion', 'never']).withMessage('Privacy must be one of: when_viewed, after_completion, never.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { description, difficulty, tags = [], privacy = 'when_viewed' } = req.body;
+    
+    // Check if user is in cooldown
+    const user = await User.findById(req.userId);
+    if (user.cooldownUntil && new Date(user.cooldownUntil) > new Date()) {
+      return res.status(400).json({ error: 'You are currently in cooldown. Please wait before submitting another offer.' });
+    }
+    
+    // Check slot limit
+    const openDares = await Dare.countDocuments({
+      performer: req.userId,
+      status: { $in: ['in_progress', 'waiting_for_participant'] }
+    });
+    
+    if (openDares >= 5) {
+      return res.status(400).json({ error: 'You have reached the maximum number of open dares (5).' });
+    }
+    
+    // Create the dare
+    const dare = new Dare({
+      description,
+      difficulty,
+      tags,
+      creator: req.userId,
+      status: 'waiting_for_participant',
+      public: true,
+      dareType: 'submission',
+      privacy
+    });
+    
+    await dare.save();
+    
+    // Update user's open dares count
+    await User.findByIdAndUpdate(req.userId, { $inc: { openDares: 1 } });
+    
+    res.status(201).json({ 
+      message: 'Offer submitted successfully!',
+      dare: {
+        _id: dare._id,
+        description: dare.description,
+        difficulty: dare.difficulty,
+        status: dare.status
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit offer.' });
+  }
+});
+
+// POST /api/blocks/:userId/:action - block/unblock user
+router.post('/blocks/:userId/:action', auth, async (req, res) => {
+  try {
+    const { userId, action } = req.params;
+    const currentUserId = req.userId;
+    
+    if (userId === currentUserId) {
+      return res.status(400).json({ error: 'You cannot block yourself.' });
+    }
+    
+    const user = await User.findById(currentUserId);
+    const targetUser = await User.findById(userId);
+    
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    
+    if (!user.blockedUsers) user.blockedUsers = [];
+    if (!targetUser.blockedUsers) targetUser.blockedUsers = [];
+    
+    if (action === 'block') {
+      // Add to blocked users if not already blocked
+      if (!user.blockedUsers.includes(userId)) {
+        user.blockedUsers.push(userId);
+        await user.save();
+      }
+      
+      // Send notification to blocked user
+      await sendNotification(userId, 'user_blocked', 'You have been blocked by another user.', currentUserId);
+      
+      res.json({ message: 'User blocked successfully.' });
+    } else if (action === 'unblock') {
+      // Remove from blocked users
+      user.blockedUsers = user.blockedUsers.filter(id => id.toString() !== userId);
+      await user.save();
+      
+      res.json({ message: 'User unblocked successfully.' });
+    } else {
+      return res.status(400).json({ error: 'Invalid action. Use "block" or "unblock".' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to process block action.' });
+  }
+});
 
 module.exports = router;

@@ -8,6 +8,7 @@ import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -762,26 +763,38 @@ export default function SwitchGameDetails() {
         </div>
         {/* Timestamps/meta with icons */}
         <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-          <div className="flex items-center gap-1" title={new Date(game.createdAt).toLocaleString()}>
+          <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.createdAt).tooltip}>
             <ClockIcon className="w-4 h-4 text-neutral-400" />
-            Created: {new Date(game.createdAt).toLocaleDateString()}
+            Created: 
+            <span className="cursor-help">
+              {formatRelativeTimeWithTooltip(game.createdAt).display}
+            </span>
           </div>
           {game.updatedAt && (
-            <div className="flex items-center gap-1" title={new Date(game.updatedAt).toLocaleString()}>
+            <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.updatedAt).tooltip}>
               <Squares2X2Icon className="w-4 h-4 text-blue-400" />
-              Updated: {new Date(game.updatedAt).toLocaleDateString()}
+              Updated: 
+              <span className="cursor-help">
+                {formatRelativeTimeWithTooltip(game.updatedAt).display}
+              </span>
             </div>
           )}
           {game.proofExpiresAt && (
-            <div className="flex items-center gap-1" title={proofExpiresAt ? new Date(proofExpiresAt).toLocaleString() : ''}>
+            <div className="flex items-center gap-1" title={proofExpiresAt ? formatRelativeTimeWithTooltip(proofExpiresAt).tooltip : ''}>
               <ExclamationTriangleIcon className="w-4 h-4 text-yellow-400" />
-              Proof Expires: {proofExpiresAt ? new Date(proofExpiresAt).toLocaleDateString() : 'N/A'}
+              Proof Expires: 
+              <span className="cursor-help">
+                {proofExpiresAt ? formatRelativeTimeWithTooltip(proofExpiresAt).display : 'N/A'}
+              </span>
             </div>
           )}
           {game.winner && (
-            <div className="flex items-center gap-1" title={new Date(game.winner.createdAt).toLocaleString()}>
+            <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.winner.createdAt).tooltip}>
               <CheckCircleIcon className="w-4 h-4 text-green-400" />
               Winner: {game.winner?.username || game.winner?._id || game.winner}
+              <span className="cursor-help ml-1">
+                ({formatRelativeTimeWithTooltip(game.winner.createdAt).display})
+              </span>
             </div>
           )}
         </div>

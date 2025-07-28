@@ -8,6 +8,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { ShieldCheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -793,7 +794,14 @@ export default function Admin() {
                                 <td className="p-2 font-medium text-primary">{log.action}</td>
                                 <td className="p-2 text-neutral-400">{log.user?.fullName || log.user?.username || 'Unknown'}</td>
                                 <td className="p-2 text-neutral-400">{log.target}</td>
-                                <td className="p-2 text-neutral-400">{new Date(log.timestamp).toLocaleString()}</td>
+                                <td className="p-2 text-neutral-400">
+                                  <span
+                                    className="cursor-help"
+                                    title={formatRelativeTimeWithTooltip(log.timestamp).tooltip}
+                                  >
+                                    {formatRelativeTimeWithTooltip(log.timestamp).display}
+                                  </span>
+                                </td>
                               </tr>
                             ))}
                         </tbody>

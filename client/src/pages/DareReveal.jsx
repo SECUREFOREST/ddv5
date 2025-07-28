@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -327,7 +328,14 @@ export default function DareReveal() {
                         </span>
                         {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
                         {g.createdAt && (
-                          <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
+                          <span className="ml-2 text-xs text-gray-500">
+                            <span
+                              className="cursor-help"
+                              title={formatRelativeTimeWithTooltip(g.createdAt).tooltip}
+                            >
+                              {formatRelativeTimeWithTooltip(g.createdAt).display}
+                            </span>
+                          </span>
                         )}
                       </li>
                     ))}

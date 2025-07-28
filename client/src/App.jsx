@@ -1,9 +1,12 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import ErrorBoundary from './components/ErrorBoundary';
+import { AccessibilityProvider } from './components/AccessibilityProvider';
+import { safeStorage } from './utils/cleanup';
 import DareCreator from './pages/DareCreator';
 import DareParticipant from './pages/DareParticipant';
 import ProfileView from './pages/ProfileView';
@@ -41,6 +44,14 @@ const PublicDares = React.lazy(() => import('./pages/PublicDares'));
 function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
+
+  // Save current path to localStorage (excluding auth pages)
+  useEffect(() => {
+    const authPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+    if (!authPaths.includes(location.pathname)) {
+      safeStorage.set('lastVisitedPath', location.pathname);
+    }
+  }, [location.pathname]);
 
   // Hide Navbar if not logged in and on the landing, login, or registration page
   const hideNavbarPaths = ['/', '/login', '/register'];
@@ -96,9 +107,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </AccessibilityProvider>
+    </ErrorBoundary>
   );
 }
 

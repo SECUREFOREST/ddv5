@@ -6,6 +6,7 @@ import Avatar from '../components/Avatar';
 import { io } from 'socket.io-client';
 import { BellIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -195,7 +196,14 @@ export default function Notifications() {
                       {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}
                     </div>
                     <div className="text-neutral-400 text-sm">{n.body}</div>
-                    <div className="text-xs text-neutral-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                    <div className="text-xs text-neutral-400 mt-1">
+                      <span 
+                        className="cursor-help" 
+                        title={formatRelativeTimeWithTooltip(n.createdAt).tooltip}
+                      >
+                        {formatRelativeTimeWithTooltip(n.createdAt).display}
+                      </span>
+                    </div>
                     {/* Action button */}
                     {getNotificationAction(n) && (
                       <a

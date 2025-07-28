@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
@@ -86,6 +87,16 @@ export default function Dashboard() {
                       {activity.type === 'dare' && <span>Created dare: <span className="font-bold">{activity.title}</span></span>}
                       {activity.type === 'comment' && <span>Commented: <span className="italic">{activity.text}</span></span>}
                       {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.dare?.title}</span> ({activity.grade})</span>}
+                      {activity.createdAt && (
+                        <div className="text-xs text-neutral-400 mt-1">
+                          <span
+                            className="cursor-help"
+                            title={formatRelativeTimeWithTooltip(activity.createdAt).tooltip}
+                          >
+                            {formatRelativeTimeWithTooltip(activity.createdAt).display}
+                          </span>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

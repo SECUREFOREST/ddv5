@@ -9,6 +9,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -400,7 +401,15 @@ export default function Profile() {
                             <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
                           )}
                           {user.dob && (
-                            <div className="mt-2"><strong>Birth Date:</strong> {new Date(user.dob).toLocaleDateString()}</div>
+                            <div className="mt-2">
+                              <strong>Birth Date:</strong> 
+                              <span
+                                className="cursor-help ml-1"
+                                title={formatRelativeTimeWithTooltip(user.dob).tooltip}
+                              >
+                                {formatRelativeTimeWithTooltip(user.dob).display}
+                              </span>
+                            </div>
                           )}
                           {user.interestedIn && user.interestedIn.length > 0 && (
                             <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
@@ -508,12 +517,24 @@ export default function Profile() {
       <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
         <div className="flex items-center gap-1">
           <ClockIcon className="w-4 h-4 text-neutral-400" />
-          Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+          Joined: 
+          <span
+            className="cursor-help ml-1"
+            title={user.createdAt ? formatRelativeTimeWithTooltip(user.createdAt).tooltip : 'N/A'}
+          >
+            {user.createdAt ? formatRelativeTimeWithTooltip(user.createdAt).display : 'N/A'}
+          </span>
         </div>
         {user.updatedAt && (
           <div className="flex items-center gap-1">
             <ClockIcon className="w-4 h-4 text-blue-400" />
-            Last Updated: {new Date(user.updatedAt).toLocaleDateString()}
+            Last Updated: 
+            <span
+              className="cursor-help ml-1"
+              title={formatRelativeTimeWithTooltip(user.updatedAt).tooltip}
+            >
+              {formatRelativeTimeWithTooltip(user.updatedAt).display}
+            </span>
           </div>
         )}
       </div>

@@ -449,7 +449,7 @@ router.post('/:id/proof',
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
       // Debug logging
-      console.log('[DEBUG] userId:', userId, 'game.loser:', game.loser, 'game.creator:', game.creator, 'game.participant:', game.participant, 'game.winner:', game.winner);
+      // console.log('[DEBUG] userId:', userId, 'game.loser:', game.loser, 'game.creator:', game.creator, 'game.participant:', game.participant, 'game.winner:', game.winner);
       if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
         throw new Error('Only the loser can submit proof');
       }
@@ -463,23 +463,18 @@ router.post('/:id/proof',
       const creatorUser = await User.findById(game.creator).select('blockedUsers');
       const participantUser = await User.findById(game.participant).select('blockedUsers');
       if (
-        (creatorUser.blockedUsers && participantUser && participantUser._id && creatorUser.blockedUsers.includes(participantUser._id.toString())) ||
-        (participantUser && participantUser.blockedUsers && creatorUser._id && participantUser.blockedUsers.includes(creatorUser._id.toString()))
+        (creatorUser.blockedUsers && participantUser.blockedUsers && creatorUser.blockedUsers.includes(game.participant.toString())) ||
+        (creatorUser.blockedUsers && participantUser.blockedUsers && participantUser.blockedUsers.includes(game.creator.toString()))
       ) {
-        return res.status(400).json({ error: 'You cannot submit proof for this switch game due to user blocking.' });
+        return res.status(400).json({ error: 'You cannot submit proof due to user blocking.' });
       }
+      // Submit proof
       game.proof = { user: userId, text };
       game.status = 'proof_submitted';
-      if (expireAfterView) {
-        game.expireProofAfterView = true;
-        game.proofExpiresAt = undefined;
-      } else {
-        game.expireProofAfterView = false;
-        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
-      }
+      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48h from now
+      game.expireProofAfterView = expireAfterView || false;
       await game.save();
-      await game.populate('proof.user');
-      res.json(game);
+      res.json({ message: 'Proof submitted successfully.', game });
     } catch (err) {
       res.status(400).json({ error: err.message || 'Failed to submit proof.' });
     }
@@ -532,13 +527,13 @@ router.post('/:id/proof-review', auth, async (req, res) => {
       // Decrement openDares for the loser
       const User = require('../models/User');
       await User.findByIdAndUpdate(loserId, { $inc: { openDares: -1 } });
-      await sendNotification(loserId, 'switchgame_proof_approved', 'Your proof for the switch game was approved.');
+      await sendNotification(loserId, 'switchgame_proof_approved', 'Your proof for the switch game was approved.', req.userId);
       return res.json({ message: 'Proof approved.', game });
     } else {
       game.status = 'awaiting_proof';
       game.proof.review = { action: 'rejected', feedback: feedback || '' };
       await game.save();
-      await sendNotification(loserId, 'switchgame_proof_rejected', `Your proof for the switch game was rejected.${feedback ? ' Feedback: ' + feedback : ''}`);
+      await sendNotification(loserId, 'switchgame_proof_rejected', `Your proof for the switch game was rejected.${feedback ? ' Feedback: ' + feedback : ''}`, req.userId);
       return res.json({ message: 'Proof rejected.', game });
     }
   } catch (err) {
@@ -579,7 +574,8 @@ router.post('/:id/forfeit',
         await sendNotification(
           otherUser,
           'switchgame_forfeited',
-          `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`
+          `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`,
+          req.userId
         );
       }
       // Optionally log the action (if you have a logActivity util for switch games)
@@ -645,7 +641,7 @@ router.delete('/:id', auth, async (req, res) => {
     await game.deleteOne();
     res.json({ message: 'Switch game deleted.' });
   } catch (err) {
-    console.error('Failed to delete switch game:', err);
+    // console.error('Failed to delete switch game:', err);
     res.status(500).json({ error: 'Failed to delete switch game.' });
   }
 });

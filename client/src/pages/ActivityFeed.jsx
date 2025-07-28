@@ -5,6 +5,7 @@ import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -88,7 +89,16 @@ export default function ActivityFeed() {
                   <div className="flex-1">
                     <div className="font-semibold">{a.user?.fullName || a.user?.username || 'Unknown'}</div>
                     <div className="text-neutral-400 text-xs">{a.type} {a.dare?.description && `- ${a.dare.description}`}</div>
-                    {a.createdAt && <time dateTime={a.createdAt} className="text-neutral-500 text-xs">{new Date(a.createdAt).toLocaleString()}</time>}
+                    {a.createdAt && (
+                      <time dateTime={a.createdAt} className="text-neutral-500 text-xs">
+                        <span
+                          className="cursor-help"
+                          title={formatRelativeTimeWithTooltip(a.createdAt).tooltip}
+                        >
+                          {formatRelativeTimeWithTooltip(a.createdAt).display}
+                        </span>
+                      </time>
+                    )}
                   </div>
                 </li>
               ))}

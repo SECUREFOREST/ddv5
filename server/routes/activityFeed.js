@@ -45,4 +45,26 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// GET /activities - get activities for dashboard
+router.get('/activities', auth, async (req, res) => {
+  try {
+    const { limit = 20, userId } = req.query;
+    let filter = {};
+    
+    if (userId) {
+      filter.user = userId;
+    }
+    
+    const activities = await Activity.find(filter)
+      .populate('user', 'username fullName avatar')
+      .populate('dare', 'description difficulty')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+    
+    res.json(activities);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch activities.' });
+  }
+});
+
 module.exports = router; 

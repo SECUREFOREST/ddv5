@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Dare = require('../models/Dare');
 const auth = require('../middleware/auth');
 const { query, param, validationResult } = require('express-validator');
+const Activity = require('../models/Activity');
+const SwitchGame = require('../models/SwitchGame');
+const Dare = require('../models/Dare');
+const User = require('../models/User');
 
 // GET /api/stats/leaderboard - top users by dares created
 router.get('/leaderboard', auth, async (req, res) => {
@@ -108,61 +110,27 @@ router.get('/users/:id',
   }
 );
 
-// GET /api/stats/activities - recent user activities (dares, grades)
-router.get('/activities',
-  [
-    query('userId').isMongoId().withMessage('User ID must be a valid MongoDB ObjectId.'),
-    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be an integer between 1 and 100.')
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
-      });
+// GET /api/stats/activities - get activity feed
+router.get('/activities', async (req, res) => {
+  try {
+    const { limit = 20, userId } = req.query;
+    let filter = {};
+    
+    if (userId) {
+      filter.user = userId;
     }
-    try {
-      const { userId, limit = 10 } = req.query;
-      const mongoose = require('mongoose');
-      const uid = new mongoose.Types.ObjectId(userId);
-      // Recent dares created
-      const dares = await require('../models/Dare').find({ creator: uid })
-        .sort({ createdAt: -1 })
-        .limit(Number(limit))
-        .select('description createdAt')
-        .lean();
-      // Recent grades given
-      const daresWithGrades = await require('../models/Dare').find({ 'grades.user': uid })
-        .sort({ updatedAt: -1 })
-        .limit(Number(limit))
-        .select('description grades updatedAt')
-        .lean();
-      const grades = [];
-      daresWithGrades.forEach(dare => {
-        (dare.grades || []).forEach(g => {
-          if (g.user && g.user.toString() === userId) {
-            grades.push({
-              dare: { _id: dare._id, description: dare.description },
-              grade: g.grade,
-              feedback: g.feedback,
-              updatedAt: dare.updatedAt
-            });
-          }
-        });
-      });
-      // Merge and sort all activities by date
-      const activities = [
-        ...dares.map(d => ({ type: 'dare', description: d.description, createdAt: d.createdAt })),
-        ...grades.map(g => ({ type: 'grade', dare: g.dare, grade: g.grade, feedback: g.feedback, createdAt: g.updatedAt }))
-      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, Number(limit));
-      res.json(activities);
-    } catch (err) {
-      console.error('Failed to get activities:', err);
-      res.status(500).json({ error: 'Failed to get activities.' });
-    }
+    
+    const activities = await Activity.find(filter)
+      .populate('user', 'username fullName avatar')
+      .populate('dare', 'description difficulty')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+    
+    res.json(activities);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch activities.' });
   }
-);
+});
 
 // GET /api/stats/dashboard - general dashboard stats
 router.get('/dashboard', async (req, res) => {
@@ -184,23 +152,24 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// GET /api/stats/public-acts - counts of public dares by type, only those waiting for participant
+// GET /api/stats/public-acts - get public act counts
 router.get('/public-acts', async (req, res) => {
   try {
-    const filter = { public: true, status: 'waiting_for_participant' };
-    const [submission, domination, switchGames] = await Promise.all([
-      require('../models/Dare').countDocuments({ ...filter, dareType: 'submission' }),
-      require('../models/Dare').countDocuments({ ...filter, dareType: 'domination' }),
-      require('../models/Dare').countDocuments({ ...filter, dareType: 'switch' })
+    const [totalDares, submissionDares, dominationDares, switchGames] = await Promise.all([
+      Dare.countDocuments({ public: true, status: 'waiting_for_participant' }),
+      Dare.countDocuments({ public: true, status: 'waiting_for_participant', dareType: 'submission' }),
+      Dare.countDocuments({ public: true, status: 'waiting_for_participant', dareType: 'domination' }),
+      SwitchGame.countDocuments({ public: true, status: 'waiting_for_participant' })
     ]);
+    
     res.json({
-      total: submission + domination + switchGames,
-      submission,
-      domination,
+      total: totalDares + switchGames,
+      submission: submissionDares,
+      domination: dominationDares,
       switch: switchGames
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to get public acts stats.' });
+    res.status(500).json({ error: 'Failed to fetch public act counts.' });
   }
 });
 

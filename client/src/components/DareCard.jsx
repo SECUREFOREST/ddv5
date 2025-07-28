@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import Card from './Card';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 import { FireIcon, ClockIcon, CheckCircleIcon, XMarkIcon, UserIcon } from '@heroicons/react/24/solid';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 // Utility for fade-in animation
 function useFadeIn(ref, deps = []) {
@@ -124,7 +125,7 @@ function Tag({ tag }) {
   );
 }
 
-export default function DareCard({
+const DareCard = memo(function DareCard({
   description,
   difficulty,
   tags = [],
@@ -269,6 +270,17 @@ export default function DareCard({
         {grades && grades.length > 0 && (
           <div>Grade: {grades.map(g => g.grade).join(', ')}{feedback && ` | Feedback: ${feedback}`}</div>
         )}
+        {/* Add friendly timestamp with tooltip */}
+        {props.updatedAt && (
+          <div className="mt-1">
+            <span 
+              className="cursor-help" 
+              title={formatRelativeTimeWithTooltip(props.updatedAt).tooltip}
+            >
+              Updated {formatRelativeTimeWithTooltip(props.updatedAt).display}
+            </span>
+          </div>
+        )}
       </div>
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-2">
@@ -280,4 +292,6 @@ export default function DareCard({
       </div>
     </div>
   );
-} 
+});
+
+export default DareCard; 

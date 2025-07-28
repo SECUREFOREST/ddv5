@@ -10,6 +10,7 @@ import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -456,9 +457,14 @@ export default function DareDetails() {
                   {g.grade}
                 </span>
                 {g.feedback && <span className="text-gray-400 ml-2">({g.feedback})</span>}
-                {g.createdAt && (
-                  <span className="ml-2 text-xs text-gray-500">{new Date(g.createdAt).toLocaleString()}</span>
-                )}
+                <span className="ml-2 text-xs text-gray-500">
+                  <span
+                    className="cursor-help"
+                    title={formatRelativeTimeWithTooltip(g.createdAt).tooltip}
+                  >
+                    {formatRelativeTimeWithTooltip(g.createdAt).display}
+                  </span>
+                </span>
               </li>
             ))}
           </ul>

@@ -3,15 +3,10 @@ import Dropdown from './Dropdown';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { io } from 'socket.io-client';
+import { formatRelativeTime } from '../utils/dateUtils';
 
 function timeAgo(date) {
-  const now = new Date();
-  const d = new Date(date);
-  const diff = Math.floor((now - d) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  return formatRelativeTime(date);
 }
 
 // Comprehensive notification message generator

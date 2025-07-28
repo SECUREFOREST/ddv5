@@ -8,6 +8,7 @@ import StatusBadge from '../components/DareCard';
 import { Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
 import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS } from '../constants';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function Dares() {
   const { user } = useAuth();
@@ -260,7 +261,12 @@ export default function Dares() {
           {lastUpdated && (
             <div className="flex items-center gap-1">
               <span className="text-neutral-400">Last Updated:</span>
-              <span>{lastUpdated.toLocaleString()}</span>
+              <span
+                className="cursor-help"
+                title={formatRelativeTimeWithTooltip(lastUpdated).tooltip}
+              >
+                {formatRelativeTimeWithTooltip(lastUpdated).display}
+              </span>
             </div>
           )}
         </div>

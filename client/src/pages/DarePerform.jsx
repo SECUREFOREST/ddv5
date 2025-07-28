@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,7 @@ import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useNotification } from '../context/NotificationContext';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const PRIVACY_OPTIONS = [
   { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.', icon: <LockClosedIcon className="w-5 h-5 text-primary" /> },
@@ -252,6 +253,17 @@ export default function DarePerform() {
             <div className="text-lg font-bold mb-2">{dare.description}</div>
             <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTY_ICONS[dare.difficulty]} <b>{dare.difficulty}</b></div>
           </div>
+          {/* Add any timestamp displays here if they exist */}
+          {dare?.createdAt && (
+            <div className="text-xs text-neutral-400 mt-2">
+              <span
+                className="cursor-help"
+                title={formatRelativeTimeWithTooltip(dare.createdAt).tooltip}
+              >
+                Created {formatRelativeTimeWithTooltip(dare.createdAt).display}
+              </span>
+            </div>
+          )}
           {/* Privacy Options */}
           <div className="mb-6">
             <label htmlFor="privacy" className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>

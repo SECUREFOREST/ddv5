@@ -6,6 +6,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -180,7 +181,15 @@ export default function ProfileView() {
               <div className="mt-2"><strong>Gender:</strong> {profile.gender}</div>
             )}
             {profile.dob && (
-              <div className="mt-2"><strong>Birth Date:</strong> {new Date(profile.dob).toLocaleDateString()}</div>
+              <div className="mt-2">
+                <strong>Birth Date:</strong> 
+                <span
+                  className="cursor-help ml-1"
+                  title={formatRelativeTimeWithTooltip(profile.dob).tooltip}
+                >
+                  {formatRelativeTimeWithTooltip(profile.dob).display}
+                </span>
+              </div>
             )}
             {profile.interestedIn && profile.interestedIn.length > 0 && (
               <div className="mt-2"><strong>Interested In:</strong> {profile.interestedIn.join(', ')}</div>

@@ -5,6 +5,7 @@ import { Banner } from '../components/Modal';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useNotification } from '../context/NotificationContext';
+import { safeStorage } from '../utils/cleanup';
 
 export default function Login() {
   const { login } = useAuth();
@@ -19,8 +20,11 @@ export default function Login() {
     setLoading(true);
     try {
       await login(identifier, password);
+      // Get last visited path or default to dashboard
+      const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
+      const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;
+      navigate(redirectPath);
       showNotification('Login successful! Redirecting...', 'success');
-      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         showNotification(err.response.data.error, 'error');

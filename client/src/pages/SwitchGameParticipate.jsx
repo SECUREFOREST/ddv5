@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
-import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { useNotification } from '../context/NotificationContext';
+import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -378,14 +380,20 @@ export default function SwitchGameParticipate() {
         {/* 6. Add timestamps/meta at the bottom */}
         {game.createdAt && (
           <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1" title={game.createdAt}>
+            <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.createdAt).tooltip}>
               <ClockIcon className="w-4 h-4 text-neutral-400" />
-              Created: {new Date(game.createdAt).toLocaleString()}
+              Created: 
+              <span className="cursor-help">
+                {formatRelativeTimeWithTooltip(game.createdAt).display}
+              </span>
             </div>
             {game.updatedAt && (
-              <div className="flex items-center gap-1" title={game.updatedAt}>
-                <ArrowPathIcon className="w-4 h-4 text-blue-400" />
-                Last Updated: {new Date(game.updatedAt).toLocaleString()}
+              <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.updatedAt).tooltip}>
+                <Squares2X2Icon className="w-4 h-4 text-blue-400" />
+                Last Updated: 
+                <span className="cursor-help">
+                  {formatRelativeTimeWithTooltip(game.updatedAt).display}
+                </span>
               </div>
             )}
           </div>
