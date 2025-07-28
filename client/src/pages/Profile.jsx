@@ -78,42 +78,41 @@ export default function Profile() {
     }
   };
 
+  // Helper function to get user ID consistently
+  const getUserId = (user) => {
+    return user?.id || user?._id || user?.userId;
+  };
+
+  // Fetch user stats
+  useEffect(() => {
+    if (!user) return;
+    const userId = getUserId(user);
+    if (!userId) return;
+    setStatsLoading(true);
+    Promise.all([
+      api.get('/stats/users/' + userId),
+      api.get('/dares', { params: { creator: userId } }),
+      api.get('/dares', { params: { participant: userId } }),
+      api.get('/dares', { params: { assignedSwitch: userId } }),
+      api.get('/switches', { params: { creator: userId } }),
+      api.get('/switches', { params: { participant: userId } }),
+      api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
+    ]).then(([statsRes, createdRes, participatingRes, switchRes, switchCreatedRes, switchParticipatingRes, activitiesRes]) => {
+      setStats(statsRes.data);
+      setCreated(Array.isArray(createdRes.data) ? createdRes.data : []);
+      setParticipating(Array.isArray(participatingRes.data) ? participatingRes.data : []);
+      setSwitch(Array.isArray(switchRes.data) ? switchRes.data : []);
+      setSwitchCreated(Array.isArray(switchCreatedRes.data) ? switchCreatedRes.data : []);
+      setSwitchParticipating(Array.isArray(switchParticipatingRes.data) ? switchParticipatingRes.data : []);
+      setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
+    }).catch(() => {
+      setStatsError('Failed to load stats.');
+    }).finally(() => setStatsLoading(false));
+  }, [user]);
+
   useEffect(() => {
     if (loading) return;
-    console.log('user in useEffect:', user);
-    console.log('user.id:', user?.id, 'user._id:', user?._id);
-    if (!user || !(user.id || user._id)) return;
-    const userId = user.id || user._id;
-    api.get('/stats/users/' + userId)
-      .then(res => setStats(res.data))
-      .catch(() => setStats(null));
-    // Fetch dares created by user
-    const fetchCreated = api.get('/dares', { params: { creator: userId } });
-    // Fetch dares where user is a participant
-    const fetchParticipating = api.get('/dares', { params: { participant: userId } });
-    // Fetch dares assigned via switch games
-    const fetchSwitch = api.get('/dares', { params: { assignedSwitch: userId } });
-    Promise.all([fetchCreated, fetchParticipating, fetchSwitch])
-      .then(([createdRes, participatingRes, switchRes]) => {
-        const allDares = [
-          ...(createdRes.data || []),
-          ...(participatingRes.data || []),
-          ...(switchRes.data || [])
-        ];
-        // Deduplicate by _id
-        const uniqueDares = Object.values(
-          allDares.reduce((acc, dare) => {
-            acc[dare._id] = dare;
-            return acc;
-          }, {})
-        );
-        setDares(uniqueDares);
-      })
-      .catch(() => setDares([]));
-    api.get('/stats/activities', { params: { userId, limit: 10 } })
-      .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setUserActivities([]))
-      .finally(() => setUserActivitiesLoading(false));
+    if (!user) return;
     // Fetch info for blocked users
     if (user.blockedUsers && user.blockedUsers.length > 0) {
       Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
@@ -126,11 +125,15 @@ export default function Profile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!user || !(user.id || user._id)) {
+    if (!user) {
       showNotification('User not loaded. Please refresh and try again.', 'error');
       return;
     }
-    const userId = user.id || user._id;
+    const userId = getUserId(user);
+    if (!userId) {
+      showNotification('User ID not found. Please refresh and try again.', 'error');
+      return;
+    }
     setSaving(true);
     try {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });

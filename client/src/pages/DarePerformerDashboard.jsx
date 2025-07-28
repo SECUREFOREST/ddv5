@@ -273,28 +273,27 @@ export default function DarePerformerDashboard() {
       .catch(() => setRoleStats(null));
   }, [user]);
 
-  // On mount, fetch /user_settings for dashboard_tab
+  // Fetch user settings
   useEffect(() => {
-    let didSet = false;
-    api.get('/user_settings')
+    api.get('/users/user_settings')
       .then(res => {
         if (res.data && res.data.dashboard_tab) {
           setTab(res.data.dashboard_tab);
-          didSet = true;
         }
       })
       .catch(() => { });
-    // Fallback to localStorage if not set by API
-    if (!didSet) {
-      const saved = localStorage.getItem('performerDashboardTab');
-      if (saved) setTab(saved);
-    }
   }, []);
+
+  // Save user settings
+  const saveUserSettings = (tab) => {
+    api.post('/users/user_settings', { dashboard_tab: tab }).catch(() => { });
+  };
+
   // On tab change, persist to API and localStorage
   useEffect(() => {
     if (!tab) return;
     localStorage.setItem('performerDashboardTab', tab);
-    api.post('/user_settings', { dashboard_tab: tab }).catch(() => { });
+    saveUserSettings(tab);
   }, [tab]);
 
   // Fetch slots, ongoing, completed, and cooldown from API

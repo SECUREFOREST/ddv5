@@ -78,12 +78,12 @@ app.use('/audit-log', require('./routes/auditLog'));
 app.use('/safety', require('./routes/safety'));
 app.use('/activity-feed', require('./routes/activityFeed'));
 
-// Add missing route mounting
-app.use('/user_settings', require('./routes/users')); // User settings routes
-app.use('/subs', require('./routes/users')); // Subs/offer routes
-app.use('/comments', require('./routes/comments')); // Comments routes
-app.use('/activities', require('./routes/activityFeed')); // Activities routes
-app.use('/blocks', require('./routes/users')); // Blocks routes
+// Add missing route mounting - these are already handled by the above routes
+// app.use('/user_settings', require('./routes/users')); // User settings routes - ALREADY HANDLED BY /users
+// app.use('/subs', require('./routes/users')); // Subs/offer routes - ALREADY HANDLED BY /users  
+// app.use('/comments', require('./routes/comments')); // Comments routes - ALREADY HANDLED BY /comments
+// app.use('/activities', require('./routes/activityFeed')); // Activities routes - ALREADY HANDLED BY /activity-feed
+// app.use('/blocks', require('./routes/users')); // Blocks routes - ALREADY HANDLED BY /users
 
 app.get('/', (req, res) => {
   res.send('DDV5 API is running');

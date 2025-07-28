@@ -48,7 +48,7 @@ export default function OfferSubmission() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      api.get('/user/slots'),
+      api.get('/users/user/slots'),
       api.get('/safety/content_deletion'),
     ]).then(([slotsRes, privacyRes]) => {
       setSlotCount(slotsRes.data?.openSlots ?? 0);

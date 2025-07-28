@@ -25,15 +25,14 @@ export default function ProfileView() {
     Promise.all([
       api.get(`/users/${userId}`),
       api.get(`/stats/users/${userId}`),
-      api.get('/stats/activities', { params: { userId, limit: 10 } })
-    ])
-      .then(([userRes, statsRes, actRes]) => {
-        setProfile(userRes.data);
-        setStats(statsRes.data);
-        setUserActivities(Array.isArray(actRes.data) ? actRes.data : []);
-      })
-      .catch(() => showNotification('User not found.', 'error'))
-      .finally(() => { setLoading(false); setUserActivitiesLoading(false); });
+      api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
+    ]).then(([userRes, statsRes, activitiesRes]) => {
+      setProfile(userRes.data);
+      setStats(statsRes.data);
+      setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
+    }).catch(() => {
+      setError('Failed to load profile.');
+    }).finally(() => setLoading(false));
   }, [userId]);
 
   const handleBlock = async () => {

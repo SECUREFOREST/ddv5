@@ -33,14 +33,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    api.get(`/stats/users/${user.id}`)
+    const statsRes = api.get(`/stats/users/${user.id}`)
       .then(res => setStats(res.data))
       .catch(() => setStats(null));
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    api.get('/activities', { params: { limit: 10, userId: user.id } })
+    const activitiesRes = api.get('/activity-feed/activities', { params: { limit: 10, userId: user.id } })
       .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
       .catch(() => setActivities([]))
       .finally(() => setActivitiesLoading(false));
