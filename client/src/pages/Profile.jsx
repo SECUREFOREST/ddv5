@@ -535,7 +535,7 @@ export default function Profile() {
             {blockedUsersInfo.map(bu => (
               <li key={bu._id} className="flex items-center gap-3 bg-neutral-900 rounded p-3">
                 <Avatar user={bu} size={28} alt={`Avatar for ${bu?.fullName || bu?.username || 'user'}`} />
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-neutral-100">
                   {bu.fullName || bu.username || 'Anonymous'}
                 </span>
                 <button
