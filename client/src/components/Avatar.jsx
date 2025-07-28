@@ -13,7 +13,11 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting && imgRef.current) {
-            imgRef.current.src = user.avatar;
+            // Convert relative URL to full URL if needed
+            const avatarUrl = user.avatar.startsWith('http') 
+              ? user.avatar 
+              : `${window.location.origin}${user.avatar}`;
+            imgRef.current.src = avatarUrl;
             observer.unobserve(entry.target);
           }
         });
