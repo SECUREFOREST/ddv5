@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function Avatar({ user, size = 32, border = false, shadow = false, alt = '', className = '' }) {
+export default function Avatar({ user, size = 32, border = false, shadow = false, alt = '', className = '', onClick }) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const imgRef = useRef(null);
@@ -54,13 +54,14 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
     `w-${size} h-${size}`,
     border ? 'border-2 border-primary' : '',
     shadow ? 'shadow-lg' : '',
+    onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : '',
     className
   ].filter(Boolean).join(' ');
 
   const bgColor = user ? `bg-${getUserColor(user)}` : 'bg-neutral-600';
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} onClick={onClick}>
       {user?.avatar && !imageError ? (
         <img
           ref={imgRef}
