@@ -77,6 +77,7 @@ app.use('/appeals', require('./routes/appeals'));
 app.use('/audit-log', require('./routes/auditLog'));
 app.use('/safety', require('./routes/safety'));
 app.use('/activity-feed', require('./routes/activityFeed'));
+app.use('/comments', require('./routes/comments')); // Comments routes
 
 // Add missing route mounting - these are already handled by the above routes
 // app.use('/user_settings', require('./routes/users')); // User settings routes - ALREADY HANDLED BY /users

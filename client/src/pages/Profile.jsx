@@ -209,7 +209,7 @@ export default function Profile() {
     setBlockError('');
     try {
       const action = isBlocked ? 'unblock' : 'block';
-      await api.post(`/blocks/${user?._id}/${action}`);
+      await api.post(`/users/blocks/${user?._id}/${action}`);
       setIsBlocked(!isBlocked);
     } catch (err) {
       setBlockError('Failed to update block status.');

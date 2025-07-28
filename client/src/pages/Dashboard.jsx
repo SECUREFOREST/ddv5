@@ -24,27 +24,41 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
+    const userId = user.id || user._id;
+    if (!userId) return;
+    
     setLoading(true);
-    api.get('/dares', { params: { status: tab, userId: user.id } })
-      .then(res => setDares(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setDares([]))
-      .finally(() => setLoading(false));
-  }, [tab, user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const statsRes = api.get(`/stats/users/${user.id}`)
-      .then(res => setStats(res.data))
-      .catch(() => setStats(null));
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const activitiesRes = api.get('/activity-feed/activities', { params: { limit: 10, userId: user.id } })
-      .then(res => setActivities(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setActivities([]))
-      .finally(() => setActivitiesLoading(false));
-  }, [user]);
+    Promise.all([
+      api.get('/dares', { params: { status: tab, creator: userId } }),
+      api.get('/dares', { params: { status: tab, participant: userId } }),
+      api.get('/dares', { params: { status: tab, assignedSwitch: userId } }),
+      api.get(`/stats/users/${userId}`),
+      api.get('/activity-feed/activities', { params: { limit: 10, userId } })
+    ]).then(([createdRes, participatingRes, switchRes, statsRes, activitiesRes]) => {
+      // Combine all dares and deduplicate
+      const allDares = [
+        ...(Array.isArray(createdRes.data) ? createdRes.data : []),
+        ...(Array.isArray(participatingRes.data) ? participatingRes.data : []),
+        ...(Array.isArray(switchRes.data) ? switchRes.data : [])
+      ];
+      
+      // Deduplicate by _id
+      const uniqueDares = Object.values(
+        allDares.reduce((acc, dare) => {
+          acc[dare._id] = dare;
+          return acc;
+        }, {})
+      );
+      
+      setDares(uniqueDares);
+      setStats(statsRes.data);
+      setActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
+    }).catch(() => {
+      setDares([]);
+      setStats(null);
+      setActivities([]);
+    }).finally(() => setLoading(false));
+  }, [user, tab]);
 
   return (
     <div className="bg-neutral-800 rounded-lg p-4 mb-4">

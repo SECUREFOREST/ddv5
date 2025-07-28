@@ -90,7 +90,7 @@ export default function OfferSubmission() {
     if (cooldown && new Date() < new Date(cooldown)) return showNotification('You are in cooldown and cannot offer a new submission until it ends.', 'error');
     setLoading(true);
     try {
-      await api.post('/subs', {
+      await api.post('/users/subs', {
         difficulty,
         description,
         tags,

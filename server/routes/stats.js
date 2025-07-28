@@ -173,4 +173,43 @@ router.get('/public-acts', async (req, res) => {
   }
 });
 
+// GET /api/stats/site - get site-wide statistics for admin dashboard
+router.get('/site', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const [
+      totalUsers,
+      totalDares,
+      totalSwitchGames,
+      activeDares,
+      completedDares,
+      totalComments
+    ] = await Promise.all([
+      User.countDocuments(),
+      Dare.countDocuments(),
+      SwitchGame.countDocuments(),
+      Dare.countDocuments({ status: { $in: ['in_progress', 'waiting_for_participant'] } }),
+      Dare.countDocuments({ status: 'completed' }),
+      require('../models/Comment').countDocuments().catch(() => 0)
+    ]);
+
+    res.json({
+      totalUsers,
+      totalDares,
+      totalSwitchGames,
+      activeDares,
+      completedDares,
+      totalComments,
+      completionRate: totalDares > 0 ? Math.round((completedDares / totalDares) * 100) : 0
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch site statistics.' });
+  }
+});
+
 module.exports = router; 
