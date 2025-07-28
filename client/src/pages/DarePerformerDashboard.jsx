@@ -1077,8 +1077,8 @@ export default function DarePerformerDashboard() {
       <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4 shadow-lg" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
       {showDashboardSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Dashboard Settings</h2>
+          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md text-neutral-100">
+            <h2 className="text-xl font-bold mb-4 text-neutral-100">Dashboard Settings</h2>
             <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
             <button className="bg-primary text-primary-contrast px-4 py-2 rounded shadow-lg" onClick={() => setShowDashboardSettings(false)}>Close</button>
           </div>

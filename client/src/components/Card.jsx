@@ -33,7 +33,7 @@ export default function Card({ header, image, children, footer, className = '', 
           <span className="text-lg font-semibold">{header}</span>
         </div>
       )}
-      <div className="mb-2">{children}</div>
+      <div className="mb-2 text-neutral-100">{children}</div>
       {footer && (
         <div className="bg-[#3c3c3c] text-[#888] border-t border-[#282828] px-[15px] py-[10px] -mx-[15px] mb-[-15px] mt-4 rounded-b-none text-sm">{footer}</div>
       )}
