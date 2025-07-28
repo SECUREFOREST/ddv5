@@ -23,6 +23,7 @@ export default function Profile() {
   const { showNotification } = useNotification();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState('');
   const [dares, setDares] = useState([]);
   const [tabIdx, setTabIdx] = useState(0);
   const [username, setUsername] = useState(user?.username || '');
