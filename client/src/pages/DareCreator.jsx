@@ -105,7 +105,7 @@ export default function DareCreator() {
       )}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-          <div className="bg-neutral-900 rounded-lg  w-full max-w-md mx-4 relative p-6">
+          <div className="bg-neutral-900 rounded-lg  w-full max-w-md mx-4 relative p-6 text-neutral-100">
             <h2 className="text-lg font-semibold text-primary mb-4 text-center flex items-center gap-2 justify-center"><CheckCircleIcon className="w-6 h-6 text-success" /> Dare Created!</h2>
             {claimLink && (
               <>

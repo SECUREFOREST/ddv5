@@ -436,7 +436,7 @@ export default function DareDetails() {
         </div>
       )}
       {/* Grades Section */}
-      <div className="bg-neutral-900 rounded-xl p-4 mb-6 border border-neutral-800">
+      <div className="bg-neutral-900 rounded-xl p-4 mb-6 border border-neutral-800 text-neutral-100">
         <h2 className="text-lg font-semibold text-center mb-4 text-primary">Grades & Feedback</h2>
         {dare?.grades && dare.grades.length > 0 ? (
           <ul className="space-y-2 mb-4">

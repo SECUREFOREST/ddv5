@@ -198,11 +198,11 @@ export default function ProfileView() {
             )}
             {stats && (
               <div className="flex gap-4 mt-4">
-                <div className="bg-neutral-900 rounded p-3 flex-1">
+                <div className="bg-neutral-900 rounded p-3 flex-1 text-neutral-100">
                   <div className="text-base font-semibold text-primary">Dares Completed</div>
                   <div className="text-2xl text-primary">{stats.daresCount}</div>
                 </div>
-                <div className="bg-neutral-900 rounded p-3 flex-1">
+                <div className="bg-neutral-900 rounded p-3 flex-1 text-neutral-100">
                   <div className="text-base font-semibold text-primary">Avg. Grade</div>
                   <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
                 </div>
