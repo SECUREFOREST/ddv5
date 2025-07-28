@@ -6,24 +6,8 @@ const { logAudit } = require('../utils/auditLog');
 const { checkPermission } = require('../utils/permissions');
 const { body, validationResult, param } = require('express-validator');
 
-// Middleware to check admin
-function requireAdmin(req, res, next) {
-  if (!req.userId) {
-    return res.status(401).json({ error: 'Authentication required.' });
-  }
-  User.findById(req.userId).then(user => {
-    if (!user || !user.roles || !user.roles.includes('admin')) {
-      return res.status(403).json({ error: 'Admin access required.' });
-    }
-    req.user = user;
-    next();
-  }).catch(err => {
-    res.status(500).json({ error: 'Failed to verify admin status.' });
-  });
-}
-
 // GET /reports - list all reports
-router.get('/', requireAdmin, async (req, res) => {
+router.get('/', checkPermission('resolve_report'), async (req, res) => {
   try {
     const reports = await Report.find().populate('reporter', 'username email').sort({ createdAt: -1 });
     res.json(reports);
@@ -72,7 +56,6 @@ router.post('/',
 // PATCH /reports/:id - resolve a report
 router.patch('/:id',
   [param('id').isMongoId()],
-  requireAdmin,
   checkPermission('resolve_report'),
   async (req, res) => {
     const errors = validationResult(req);

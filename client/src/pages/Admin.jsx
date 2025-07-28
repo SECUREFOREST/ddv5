@@ -191,6 +191,19 @@ export default function Admin() {
       .finally(() => setAppealsLoading(false));
   };
 
+  const fetchAuditLog = () => {
+    setAuditLogLoading(true);
+    setError('');
+    setSuccess('');
+    api.get('/audit-log')
+      .then(res => setAuditLog(Array.isArray(res.data) ? res.data : []))
+      .catch(err => {
+        setAuditLog([]);
+        showNotification(err.response?.data?.error || 'Failed to load audit log.', 'error');
+      })
+      .finally(() => setAuditLogLoading(false));
+  };
+
   const handleResolveAppeal = async (id) => {
     setResolvingAppealId(id);
     try {
@@ -308,6 +321,7 @@ export default function Admin() {
     }
     if (tabIdx === 4) fetchReports();
     if (tabIdx === 5) fetchAppeals();
+    if (tabIdx === 6) fetchAuditLog();
     // eslint-disable-next-line
   }, [tabIdx]);
 
