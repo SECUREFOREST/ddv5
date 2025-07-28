@@ -239,7 +239,7 @@ export default function UserActivity() {
   ];
 
   return (
-    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded p-0 sm:p-8 text-neutral-100">
+    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded p-0 sm:p-8">
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-primary text-center">Your Activity</h1>
       {/* Stats/Analytics Section */}
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">

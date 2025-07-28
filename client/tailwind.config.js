@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      textColor: {
+        DEFAULT: '#ffffff', // Default text color for dark theme
+      },
       colors: {
         primary: {
           DEFAULT: '#D60B20', // main red

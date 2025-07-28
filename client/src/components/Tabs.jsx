@@ -83,7 +83,7 @@ export default function Tabs({
             {/* Continuous line under all tabs */}
             <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-[#888] z-0" />
           </div>
-          <div className="bg-[#222] rounded-none p-[15px] text-neutral-100">
+          <div className="bg-[#222] rounded-none p-[15px]">
             {tabs.map((tab, idx) => (
               <div
                 key={tab.label}

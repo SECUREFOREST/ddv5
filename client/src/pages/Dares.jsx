@@ -273,7 +273,7 @@ export default function Dares() {
         {/* Create Dare Modal */}
         {showCreate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-lg mx-4 relative text-neutral-100">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-lg mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Create New Dare</h2>
                 <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setShowCreate(false)}>&times;</button>
@@ -333,7 +333,7 @@ export default function Dares() {
         {/* Post-create sharing modal */}
         {createdDareId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative text-neutral-100">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Share Your Dare</h2>
                 <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setCreatedDareId(null)}>&times;</button>
@@ -366,7 +366,7 @@ export default function Dares() {
         {/* Accept Dare Modal */}
         {acceptDareId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative text-neutral-100">
+            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
               <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
                 <h2 className="text-lg font-semibold text-primary">Start / Accept Dare</h2>
                 <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setAcceptDareId(null)}>&times;</button>

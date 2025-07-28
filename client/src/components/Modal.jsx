@@ -48,7 +48,7 @@ export default function Modal({ open, onClose, title, children, actions, classNa
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <div className="bg-neutral-900 rounded-lg max-w-lg w-full p-6 relative text-neutral-100">
+      <div className="bg-neutral-900 rounded-lg max-w-lg w-full p-6 relative">
         <button
           type="button"
           className="absolute top-2 right-2 text-neutral-400 hover:text-neutral-100"
@@ -57,7 +57,7 @@ export default function Modal({ open, onClose, title, children, actions, classNa
         >
           &times;
         </button>
-        <h2 id={titleId} className="text-xl font-bold mb-4 text-neutral-100">{title}</h2>
+        <h2 id={titleId} className="text-xl font-bold mb-4">{title}</h2>
         {children}
       </div>
     </div>

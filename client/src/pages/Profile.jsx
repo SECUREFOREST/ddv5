@@ -445,16 +445,16 @@ export default function Profile() {
                         </form>
                       ) : (
                         <>
-                          <h2 className="text-xl font-bold mb-2 text-neutral-100">About Me</h2>
-                          <div className="mb-2 text-neutral-100">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
-                          <div className="text-neutral-100"><strong>Username:</strong> {user.username}</div>
-                          <div className="text-neutral-100"><strong>Full Name:</strong> {user.fullName}</div>
-                          <div className="text-neutral-100"><strong>Email:</strong> {user.email}</div>
+                          <h2 className="text-xl font-bold mb-2">About Me</h2>
+                          <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
+                          <div><strong>Username:</strong> {user.username}</div>
+                          <div><strong>Full Name:</strong> {user.fullName}</div>
+                          <div><strong>Email:</strong> {user.email}</div>
                           {user.gender && (
-                            <div className="mt-2 text-neutral-100"><strong>Gender:</strong> {user.gender}</div>
+                            <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
                           )}
                           {user.dob && (
-                            <div className="mt-2 text-neutral-100">
+                            <div className="mt-2">
                               <strong>Birth Date:</strong> 
                               <span
                                 className="cursor-help ml-1"
@@ -465,10 +465,10 @@ export default function Profile() {
                             </div>
                           )}
                           {user.interestedIn && user.interestedIn.length > 0 && (
-                            <div className="mt-2 text-neutral-100"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
+                            <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
                           )}
                           {user.limits && user.limits.length > 0 && (
-                            <div className="mt-2 text-neutral-100"><strong>Limits:</strong> {user.limits.join(', ')}</div>
+                            <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
                           )}
                         </>
                       )}
@@ -484,27 +484,27 @@ export default function Profile() {
               label: 'Privacy & Safety',
               content: (
                 <div className="mt-4">
-                  <h3 className="text-lg font-bold mb-2 text-neutral-100">Content Deletion Setting</h3>
+                  <h3 className="text-lg font-bold mb-2">Content Deletion Setting</h3>
                   {contentDeletionLoading ? (
                     <div className="text-neutral-400">Loading...</div>
                   ) : (
                     <form>
                       <div className="flex flex-col gap-3">
-                        <label className="flex items-start gap-2 text-neutral-100">
+                        <label className="flex items-start gap-2">
                           <input type="radio" name="contentDeletion" value="when_viewed" checked={contentDeletion === 'when_viewed'} onChange={() => handleContentDeletionChange('when_viewed')} disabled={contentDeletionLoading} />
                           <span>
                             <b>Delete once viewed</b><br/>
                             <span className="text-xs text-neutral-400">As soon as the other person has viewed the image, delete it completely.</span>
                           </span>
                         </label>
-                        <label className="flex items-start gap-2 text-neutral-100">
+                        <label className="flex items-start gap-2">
                           <input type="radio" name="contentDeletion" value="30_days" checked={contentDeletion === '30_days'} onChange={() => handleContentDeletionChange('30_days')} disabled={contentDeletionLoading} />
                           <span>
                             <b>Delete in 30 days</b><br/>
                             <span className="text-xs text-neutral-400">All pics are deleted thirty days after you upload them, whether they have been viewed or not.</span>
                           </span>
                         </label>
-                        <label className="flex items-start gap-2 text-neutral-100">
+                        <label className="flex items-start gap-2">
                           <input type="radio" name="contentDeletion" value="never" checked={contentDeletion === 'never'} onChange={() => handleContentDeletionChange('never')} disabled={contentDeletionLoading} />
                           <span>
                             <b>Never delete</b><br/>
@@ -535,7 +535,7 @@ export default function Profile() {
             {blockedUsersInfo.map(bu => (
               <li key={bu._id} className="flex items-center gap-3 bg-neutral-900 rounded p-3">
                 <Avatar user={bu} size={28} alt={`Avatar for ${bu?.fullName || bu?.username || 'user'}`} />
-                <span className="inline-flex items-center gap-2 text-neutral-100">
+                <span className="inline-flex items-center gap-2">
                   {bu.fullName || bu.username || 'Anonymous'}
                 </span>
                 <button
