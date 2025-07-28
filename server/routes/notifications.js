@@ -8,7 +8,8 @@ const { body, validationResult } = require('express-validator');
 router.get('/', auth, async (req, res) => {
   try {
     const notifications = await Notification.find({ user: req.userId })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate('sender', 'fullName username avatar');
     res.json(notifications);
   } catch (err) {
     res.status(500).json({ error: 'Failed to list notifications.' });

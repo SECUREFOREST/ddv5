@@ -66,27 +66,38 @@ export default function Notifications() {
 
   // Replace legacy notification message generator with the new one
   function getNotificationMessage(n) {
+    const senderName = n.sender?.fullName || n.sender?.username || 'someone';
     switch (n.type) {
       case 'dare_created':
-        return 'Your dare has been created.';
+        return `Your dare has been created${n.sender ? ' by ' + senderName : ''}.`;
       case 'dare_graded':
-        return `Your dare has been graded.`;
+        return `Your dare has been graded${n.sender ? ' by ' + senderName : ''}.`;
       case 'proof_submitted':
-        return 'Proof has been submitted for your dare.';
+        return `Proof has been submitted for your dare by ${senderName}.`;
       case 'dare_approved':
-        return 'Your dare has been approved!';
+        return `Your dare has been approved${n.sender ? ' by ' + senderName : ''}!`;
       case 'dare_rejected':
-        return 'Your dare has been rejected.';
+        return `Your dare has been rejected${n.sender ? ' by ' + senderName : ''}.`;
+      case 'dare_fulfilled':
+        return `Your dare has been fulfilled${n.sender ? ' by ' + senderName : ''}.`;
+      case 'dare_withdrawn':
+        return `A dare has been withdrawn${n.sender ? ' by ' + senderName : ''}.`;
+      case 'dare_switch':
+        return `A switch game event occurred${n.sender ? ' by ' + senderName : ''}.`;
+      case 'dare_claimed':
+        return `Your dare has been claimed${n.sender ? ' by ' + senderName : ''}.`;
+      case 'dare_completed':
+        return `Your dare has been completed${n.sender ? ' by ' + senderName : ''}.`;
       case 'role_change':
-        return n.message || 'Your role has changed.';
+        return n.message || `Your role has changed${n.sender ? ' by ' + senderName : ''}.`;
       case 'user_blocked':
-        return 'You have been blocked by another user.';
+        return `You have been blocked by ${senderName}.`;
       case 'user_banned':
-        return 'Your account has been banned by an admin.';
+        return `Your account has been banned by ${senderName}.`;
       case 'comment_reply':
-        return 'You have a new reply to your comment.';
+        return `You have a new reply from ${senderName}.`;
       case 'comment_moderated':
-        return 'Your comment has been moderated/hidden.';
+        return `Your comment has been moderated/hidden${n.sender ? ' by ' + senderName : ''}.`;
       default:
         return n.message || n.type || 'Notification';
     }

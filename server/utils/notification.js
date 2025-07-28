@@ -7,13 +7,13 @@ try {
   userSockets = null;
 }
 
-async function sendNotification(user, type, message, maxRetries = 2) {
+async function sendNotification(user, type, message, sender = null, maxRetries = 2) {
   let attempt = 0;
   let lastError = null;
   let notification = null;
   while (attempt <= maxRetries) {
     try {
-      notification = await Notification.create({ user, type, message });
+      notification = await Notification.create({ user, type, message, sender });
       break;
     } catch (err) {
       lastError = err;
@@ -31,6 +31,7 @@ async function sendNotification(user, type, message, maxRetries = 2) {
       message: notification.message,
       read: notification.read,
       createdAt: notification.createdAt,
+      sender: notification.sender,
     });
   }
   return true;
