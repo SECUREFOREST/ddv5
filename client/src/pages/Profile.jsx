@@ -186,13 +186,13 @@ export default function Profile() {
       if (user && (user.id || user._id)) {
         const userId = user.id || user._id;
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('avatar', file);
         setSaving(true);
         try {
           const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
-          setAvatar(uploadRes.data.url);
+          setAvatar(uploadRes.data.avatar);
           setAvatarSaved(true);
           setTimeout(() => setAvatarSaved(false), 2000);
           showNotification('Profile picture saved!', 'success');
