@@ -23,6 +23,9 @@ const UserSchema = new mongoose.Schema({
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
   refreshTokens: [{ type: String }],
+  settings: {
+    dashboard_tab: { type: String, default: null }
+  },
   contentDeletion: {
     type: String,
     enum: [

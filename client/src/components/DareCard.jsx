@@ -56,7 +56,7 @@ function DifficultyBadge({ level }) {
     default:
       label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
   }
-  const ref = useRef();
+  const ref = useRef(null);
   useFadeIn(ref, [level]);
   return (
     <span ref={ref} className={`inline-flex items-center px-3 py-1 text-xs font-semibold mr-2 ${badgeClass} transition-all duration-300 animate-badge-fade`}>
@@ -99,18 +99,18 @@ function StatusBadge({ status }) {
       badgeClass = 'bg-success text-success-contrast rounded-full shadow-success/40 shadow-md';
       text = 'Approved';
       break;
-    case 'cancelled':
-      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-full';
-      text = 'Cancelled';
+    case 'forfeited':
+      badgeClass = 'bg-danger text-danger-contrast rounded-full shadow-danger/40 shadow-md';
+      text = 'Forfeited';
       break;
-    case 'user_deleted':
-      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-full';
-      text = 'User deleted';
+    case 'expired':
+      badgeClass = 'bg-neutral-700 text-neutral-100 rounded-full shadow-neutral-400/40 shadow-md';
+      text = 'Expired';
       break;
     default:
       text = status ? status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
   }
-  const ref = useRef();
+  const ref = useRef(null);
   useFadeIn(ref, [status]);
   return (
     <span ref={ref} className={`inline-flex items-center px-3 py-1 text-xs font-semibold ml-2 ${badgeClass} transition-all duration-300 animate-badge-fade`}>
@@ -151,7 +151,7 @@ const DareCard = memo(function DareCard({
   const shownDescription = !isLong || expanded ? description : description.slice(0, 120) + '...';
 
   // Animate card on mount/hover
-  const cardRef = useRef();
+  const cardRef = useRef(null);
   useFadeIn(cardRef, []);
 
   // Responsive stacking
@@ -179,8 +179,8 @@ const DareCard = memo(function DareCard({
   };
 
   // Animate badge/avatar changes for new participants (simple fade-in)
-  const creatorRef = useRef();
-  const performerRef = useRef();
+  const creatorRef = useRef(null);
+  const performerRef = useRef(null);
   useFadeIn(creatorRef, [creator?.avatar]);
   useFadeIn(performerRef, [performer?.avatar]);
 

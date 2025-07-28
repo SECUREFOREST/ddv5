@@ -1051,7 +1051,7 @@ export default function DarePerformerDashboard() {
               <div className="flex flex-wrap gap-4 mb-2">
                 {row.map((a, idx) => (
                   <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === startIdx + idx ? null : startIdx + idx)}>
-                    <img src={a.avatar} alt={a.username} className="w-16 h-16 rounded-full border-2 border-neutral-700 mb-1" />
+                    <Avatar user={a} size={64} alt={`Avatar for ${a?.fullName || a?.username || 'user'}`} />
                     <span className="text-sm text-neutral-200">{a.username}</span>
                   </div>
                 ))}
