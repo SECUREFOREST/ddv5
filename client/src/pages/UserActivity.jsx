@@ -17,7 +17,7 @@ import {
 } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
-import { ActivityIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon } from '@heroicons/react/24/solid';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -282,7 +282,7 @@ export default function UserActivity() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <ActivityIcon className="w-12 h-12 text-white mr-4" />
+              <ChartBarIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Your Activity</h1>
             </div>
             <p className="text-xl text-white/80">Track your dares and switch games performance</p>
