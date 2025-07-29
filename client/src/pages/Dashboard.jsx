@@ -5,7 +5,7 @@ import Card, { StatsCard } from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, TrendingUpIcon, StarIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, ArrowTrendingUpIcon, StarIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../components/Toast';
 import Button from '../components/Button';
@@ -145,7 +145,7 @@ export default function Dashboard() {
                   title="Success Rate"
                   value={`${stats.successRate || 0}%`}
                   subtitle="Completion rate"
-                  icon={<TrendingUpIcon className="w-8 h-8 text-yellow-400" />}
+                  icon={<ArrowTrendingUpIcon className="w-8 h-8 text-yellow-400" />}
                   trend={8}
                   className="bg-gradient-to-br from-yellow-600/20 to-yellow-700/20 border-yellow-600/30"
                 />
