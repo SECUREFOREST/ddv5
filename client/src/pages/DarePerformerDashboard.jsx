@@ -1287,6 +1287,34 @@ export default function DarePerformerDashboard() {
                           )}
                         </div>
                       )}
+                      
+                      {/* Additional switch game buttons */}
+                      {game.status === 'waiting_for_participant' && game.creator?._id === (user?.id || user?._id) && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/edit`)}
+                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      
+                      {game.status === 'in_progress' && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}`)}
+                          className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                        >
+                          View Details
+                        </button>
+                      )}
+                      
+                      {game.status === 'waiting_for_participant' && game.creator?._id !== (user?.id || user?._id) && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/participate`)}
+                          className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
+                        >
+                          Participate
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Accordion>
@@ -1349,9 +1377,25 @@ export default function DarePerformerDashboard() {
                       >
                         View Details
                       </button>
+                      
+                      {game.status === 'completed' && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/results`)}
+                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        >
+                          View Results
+                        </button>
+                      )}
+                      
                       {game.status === 'completed' && game.winner && (
                         <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-lg text-xs font-semibold">
                           Winner: {game.winner.username}
+                        </span>
+                      )}
+                      
+                      {game.status === 'forfeited' && (
+                        <span className="px-2 py-1 bg-red-600/20 text-red-400 rounded-lg text-xs font-semibold">
+                          Forfeited
                         </span>
                       )}
                     </div>
