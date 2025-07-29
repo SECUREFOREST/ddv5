@@ -10,6 +10,7 @@ import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, Fire
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { ButtonLoading, ActionLoading, LoadingSpinner } from '../components/LoadingSpinner';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
@@ -503,12 +504,18 @@ export default function Admin() {
                             />
                           </div>
                         </div>
-                      <button
-                        onClick={handleUserSearch}
-                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                      <ButtonLoading
+                        loading={actionLoading}
+                        loadingText="Searching..."
                       >
-                        Search
-                      </button>
+                        <button
+                          onClick={handleUserSearch}
+                          disabled={actionLoading}
+                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                          Search
+                        </button>
+                      </ButtonLoading>
                     </div>
                     </div>
 
@@ -526,18 +533,30 @@ export default function Admin() {
                                 <div className="text-sm text-neutral-400">@{user.username}</div>
                             </div>
                               <div className="flex gap-2">
-                                <button
-                                  onClick={() => handleEditUser(user._id)}
-                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                                <ActionLoading
+                                  loading={actionLoading}
+                                  loadingText="Editing..."
                                 >
-                                  Edit
-                                </button>
-                                                                  <button
+                                  <button
+                                    onClick={() => handleEditUser(user._id)}
+                                    disabled={actionLoading}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    Edit
+                                  </button>
+                                </ActionLoading>
+                                <ActionLoading
+                                  loading={actionLoading}
+                                  loadingText="Deleting..."
+                                >
+                                  <button
                                     onClick={() => handleDeleteUser(user._id)}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                                    disabled={actionLoading}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     Delete
                                   </button>
+                                </ActionLoading>
                               </div>
                             </div>
                             ))}
@@ -568,12 +587,18 @@ export default function Admin() {
                       />
                     </div>
                             </div>
-                        <button
-                          onClick={() => fetchDares(dareSearchId)}
-                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                        <ButtonLoading
+                          loading={actionLoading}
+                          loadingText="Searching..."
                         >
-                          Search
-                        </button>
+                          <button
+                            onClick={() => fetchDares(dareSearchId)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            Search
+                          </button>
+                        </ButtonLoading>
                           </div>
                       </div>
 
@@ -596,24 +621,42 @@ export default function Admin() {
                     </div>
                   </div>
                                 <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleApprove(dare._id)}
-                                    className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                                  <ActionLoading
+                                    loading={actionLoading}
+                                    loadingText="Approving..."
                                   >
-                                    Approve
-                                  </button>
-                                  <button
-                                    onClick={() => handleReject(dare._id)}
-                                    className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                                    <button
+                                      onClick={() => handleApprove(dare._id)}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      Approve
+                                    </button>
+                                  </ActionLoading>
+                                  <ActionLoading
+                                    loading={actionLoading}
+                                    loadingText="Rejecting..."
                                   >
-                                    Reject
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteDare(dare)}
-                                    className="px-3 py-1 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
+                                    <button
+                                      onClick={() => handleReject(dare._id)}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      Reject
+                                    </button>
+                                  </ActionLoading>
+                                  <ActionLoading
+                                    loading={actionLoading}
+                                    loadingText="Deleting..."
                                   >
-                                    Delete
-                                  </button>
+                                    <button
+                                      onClick={() => handleDeleteDare(dare)}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      Delete
+                                    </button>
+                                  </ActionLoading>
                     </div>
                               </div>
                             </div>
@@ -709,13 +752,18 @@ export default function Admin() {
                                 </div>
                                 <div className="flex gap-2">
                                   {report.status === 'open' && (
-                                    <button
-                                      onClick={() => handleResolveReport(report._id)}
-                                      disabled={resolvingReportId === report._id}
-                                      className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+                                    <ActionLoading
+                                      loading={resolvingReportId === report._id}
+                                      loadingText="Resolving..."
                                     >
-                                      {resolvingReportId === report._id ? 'Resolving...' : 'Resolve'}
-                                    </button>
+                                      <button
+                                        onClick={() => handleResolveReport(report._id)}
+                                        disabled={resolvingReportId === report._id}
+                                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        Resolve
+                                      </button>
+                                    </ActionLoading>
                                   )}
                                 </div>
                               </div>
@@ -770,13 +818,18 @@ export default function Admin() {
                                         className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-sm text-white"
                                         disabled={resolvingAppealId !== appeal._id}
                                       />
-                                      <button
-                                        onClick={() => handleResolveAppeal(appeal._id)}
-                                        disabled={resolvingAppealId === appeal._id && !appealOutcome}
-                                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+                                      <ActionLoading
+                                        loading={resolvingAppealId === appeal._id}
+                                        loadingText="Resolving..."
                                       >
-                                        {resolvingAppealId === appeal._id ? 'Resolving...' : 'Resolve'}
-                                      </button>
+                                        <button
+                                          onClick={() => handleResolveAppeal(appeal._id)}
+                                          disabled={resolvingAppealId === appeal._id && !appealOutcome}
+                                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          Resolve
+                                        </button>
+                                      </ActionLoading>
                                     </div>
                                   )}
                                 </div>
@@ -810,12 +863,18 @@ export default function Admin() {
                             />
                           </div>
                         </div>
-                        <button
-                          onClick={() => fetchSwitchGames(switchGameSearchId)}
-                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                        <ButtonLoading
+                          loading={actionLoading}
+                          loadingText="Searching..."
                         >
-                          Search
-                        </button>
+                          <button
+                            onClick={() => fetchSwitchGames(switchGameSearchId)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            Search
+                          </button>
+                        </ButtonLoading>
                       </div>
                     </div>
 
@@ -838,12 +897,18 @@ export default function Admin() {
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleDeleteSwitchGame(game)}
-                                    className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                                  <ActionLoading
+                                    loading={actionLoading}
+                                    loadingText="Deleting..."
                                   >
-                                    Delete
-                                  </button>
+                                    <button
+                                      onClick={() => handleDeleteSwitchGame(game)}
+                                      disabled={actionLoading}
+                                      className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      Delete
+                                    </button>
+                                  </ActionLoading>
                                 </div>
                               </div>
                             </div>
@@ -978,13 +1043,18 @@ export default function Admin() {
             >
               Cancel
             </button>
-            <button
-              onClick={handleEditUserSave}
-              disabled={editUserLoading}
-              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+            <ButtonLoading
+              loading={editUserLoading}
+              loadingText="Saving..."
             >
-              {editUserLoading ? 'Saving...' : 'Save Changes'}
-            </button>
+              <button
+                onClick={handleEditUserSave}
+                disabled={editUserLoading}
+                className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                Save Changes
+              </button>
+            </ButtonLoading>
           </div>
         </div>
       </Modal>
