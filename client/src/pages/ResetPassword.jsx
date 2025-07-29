@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Banner } from '../components/Modal';
-import { KeyIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import Card from '../components/Card';
+import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
 
 export default function ResetPassword() {
@@ -132,15 +134,6 @@ export default function ResetPassword() {
           </main>
         </Card>
       </div>
-    </div>
-  );
-}
-
-// Card component for consistent styling
-function Card({ children, className = '' }) {
-  return (
-    <div className={`bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 shadow-2xl ${className}`}>
-      {children}
     </div>
   );
 } 

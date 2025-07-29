@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
 import { Banner } from '../components/Modal';
+import Card from '../components/Card';
 import { UserPlusIcon, EyeIcon, EyeSlashIcon, CheckIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
@@ -309,15 +310,6 @@ export default function Register() {
           </main>
         </Card>
       </div>
-    </div>
-  );
-}
-
-// Card component for consistent styling
-function Card({ children, className = '' }) {
-  return (
-    <div className={`bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 shadow-2xl ${className}`}>
-      {children}
     </div>
   );
 } 

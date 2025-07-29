@@ -45,12 +45,12 @@ export default function DashboardChart({ stats = {}, className = '' }) {
     },
   };
   return (
-    <div className={`panel panel-default ${className}`.trim()}>
-      <div className="panel-heading">
-        <h4 className="panel-title">User Stats</h4>
+    <div className={`bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-6 ${className}`}>
+      <div className="mb-4">
+        <h4 className="text-lg font-semibold text-white">User Stats</h4>
       </div>
-      <div className="panel-body">
-      <Bar data={data} options={options} height={220} />
+      <div className="bg-neutral-800/30 rounded-lg p-4">
+        <Bar data={data} options={options} height={220} />
       </div>
     </div>
   );

@@ -366,4 +366,5 @@ const DareCard = memo(function DareCard({
   );
 });
 
-export default DareCard; 
+export default DareCard;
+export { StatusBadge }; 

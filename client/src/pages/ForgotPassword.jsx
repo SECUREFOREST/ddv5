@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
+import { useNavigate, Link } from 'react-router-dom';
 import { Banner } from '../components/Modal';
-import { EnvelopeIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
-import { Link } from 'react-router-dom';
+import Card from '../components/Card';
+import { ArrowLeftIcon, EnvelopeIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
 
 export default function ForgotPassword() {
@@ -111,15 +113,6 @@ export default function ForgotPassword() {
           </main>
         </Card>
       </div>
-    </div>
-  );
-}
-
-// Card component for consistent styling
-function Card({ children, className = '' }) {
-  return (
-    <div className={`bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 shadow-2xl ${className}`}>
-      {children}
     </div>
   );
 } 
