@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
-import { Banner } from '../components/Modal';
+
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';

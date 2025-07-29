@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
-import { Banner } from '../components/Modal';
+
 import Avatar from '../components/Avatar';
 import { io } from 'socket.io-client';
 import { BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/solid';

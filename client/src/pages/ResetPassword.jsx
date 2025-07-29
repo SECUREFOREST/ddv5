@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
-import { Banner } from '../components/Modal';
+
 import Card from '../components/Card';
 import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';

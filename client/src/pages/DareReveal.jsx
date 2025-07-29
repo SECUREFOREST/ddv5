@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Banner } from '../components/Modal';
+
 import dayjs from 'dayjs';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon, ArrowRightIcon, EyeIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';

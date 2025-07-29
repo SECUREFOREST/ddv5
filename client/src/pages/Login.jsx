@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Banner } from '../components/Modal';
+
 import Card from '../components/Card';
 import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { Banner } from '../components/Modal';
+
 import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
 import { MagnifyingGlassIcon, ActivityIcon } from '@heroicons/react/24/solid';

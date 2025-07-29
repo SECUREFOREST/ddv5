@@ -4,7 +4,7 @@ import { useToast } from '../components/Toast';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
-import { Banner } from '../components/Modal';
+
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Markdown from '../components/Markdown';

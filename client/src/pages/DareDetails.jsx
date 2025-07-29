@@ -6,7 +6,7 @@ import Markdown from '../components/Markdown';
 import Modal from '../components/Modal';
 import Countdown from '../components/Countdown';
 import StatusBadge from '../components/DareCard';
-import { Banner } from '../components/Modal';
+
 import Avatar from '../components/Avatar';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, FireIcon, UserIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';

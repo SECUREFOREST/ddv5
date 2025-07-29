@@ -4,7 +4,7 @@ import Tabs from '../components/Tabs';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
-import { Banner } from '../components/Modal';
+
 import Avatar from '../components/Avatar';
 import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, FireIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';

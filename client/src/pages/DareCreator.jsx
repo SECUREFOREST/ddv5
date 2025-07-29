@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { Banner } from '../components/Modal';
+
 import TagsInput from '../components/TagsInput';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';

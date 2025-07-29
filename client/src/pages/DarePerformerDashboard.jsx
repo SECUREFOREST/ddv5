@@ -13,6 +13,7 @@ import { Squares2X2Icon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
+import { useToast } from '../components/Toast';
 import { PlusIcon, PlayIcon, DocumentPlusIcon, FunnelIcon, XMarkIcon, ArrowDownIcon, ArrowUpIcon, SparklesIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 
 /**
@@ -69,33 +70,34 @@ function dedupeDaresByUser(dares) {
 function difficultyBadge(level) {
   const found = DIFFICULTY_OPTIONS.find(d => d.value === level);
   const label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
-  let badgeClass = 'bg-neutral-700 text-neutral-100';
+  let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
   switch (level) {
-    case 'titillating': badgeClass = 'bg-pink-600 text-white'; break;
-    case 'arousing': badgeClass = 'bg-purple-700 text-white'; break;
-    case 'explicit': badgeClass = 'bg-red-700 text-white'; break;
-    case 'edgy': badgeClass = 'bg-yellow-700 text-white'; break;
-    case 'hardcore': badgeClass = 'bg-black text-white border border-red-700'; break;
+    case 'titillating': badgeClass = 'bg-pink-600/20 border border-pink-500/50 text-pink-300'; break;
+    case 'arousing': badgeClass = 'bg-purple-600/20 border border-purple-500/50 text-purple-300'; break;
+    case 'explicit': badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300'; break;
+    case 'edgy': badgeClass = 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300'; break;
+    case 'hardcore': badgeClass = 'bg-black/20 border border-white/50 text-white'; break;
     default: break;
   }
-  return <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${badgeClass} ml-2`} title={label}>{label}</span>;
+  return <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${badgeClass} ml-2`} title={label}>{label}</span>;
 }
 
 // Helper: status badge (fix ReferenceError)
 function statusBadge(status) {
   const map = {
-    waiting_for_participant: { label: 'Waiting For Participant', color: 'bg-blue-700 text-white' },
-    in_progress: { label: 'In Progress', color: 'bg-info text-info-contrast' },
-    completed: { label: 'Completed', color: 'bg-green-700 text-white' },
-    forfeited: { label: 'Forfeited', color: 'bg-red-700 text-white' },
-    expired: { label: 'Expired', color: 'bg-neutral-700 text-white' },
+    waiting_for_participant: { label: 'Waiting For Participant', color: 'bg-blue-600/20 border border-blue-500/50 text-blue-300' },
+    in_progress: { label: 'In Progress', color: 'bg-purple-600/20 border border-purple-500/50 text-purple-300' },
+    completed: { label: 'Completed', color: 'bg-green-600/20 border border-green-500/50 text-green-300' },
+    forfeited: { label: 'Forfeited', color: 'bg-red-600/20 border border-red-500/50 text-red-300' },
+    expired: { label: 'Expired', color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300' },
   };
-  const s = map[status] || { label: status, color: 'bg-neutral-700 text-white' };
-  return <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${s.color}`} title={status}>{s.label}</span>;
+  const s = map[status] || { label: status, color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300' };
+  return <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${s.color}`} title={status}>{s.label}</span>;
 }
 
 export default function DarePerformerDashboard() {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   // Notification system
   const [notification, setNotification] = useState(null);
   const [switchActivePage, setSwitchActivePage] = useState(1);
@@ -104,9 +106,10 @@ export default function DarePerformerDashboard() {
   const [completedPage, setCompletedPage] = useState(1);
   const notificationTimeout = useRef(null);
   const showNotification = (msg, type = 'info') => {
-    setNotification({ msg, type });
-    if (notificationTimeout.current) clearTimeout(notificationTimeout.current);
-    notificationTimeout.current = setTimeout(() => setNotification(null), 4000);
+    setNotification({ message: msg, type });
+    setTimeout(() => setNotification(null), 5000);
+    if (type === 'success') showSuccess(msg);
+    if (type === 'error') showError(msg);
   };
   // Loading states
   const [completedLoading, setCompletedLoading] = useState(false);
@@ -619,16 +622,18 @@ export default function DarePerformerDashboard() {
   }, [tab]);
 
   return (
-    <div className="max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
-      {/* Sticky header with improved spacing */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-20 mb-6 shadow-lg shadow-black/30 backdrop-blur-sm">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-3">
-          <UserIcon className="w-8 h-8 text-primary" aria-hidden="true" /> 
-          <span className="bg-gradient-to-r from-primary to-info bg-clip-text text-transparent">
-            Performer Dashboard
-          </span>
-        </h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Performer Dashboard</h1>
+            </div>
+            <p className="text-xl text-white/80">Manage your dares, perform challenges, and submit offers</p>
+          </div>
       
       {/* Tabs with improved styling */}
       <Tabs
@@ -1312,7 +1317,7 @@ export default function DarePerformerDashboard() {
       {notification && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white ${notification.type === 'error' ? 'bg-red-600' : notification.type === 'success' ? 'bg-green-600' : 'bg-blue-600'}`}
           role="alert" aria-live="assertive" aria-atomic="true">
-          {notification.msg}
+          {notification.message}
         </div>
       )}
       {/* Confirmation dialog for withdraw */}
@@ -1347,50 +1352,52 @@ export default function DarePerformerDashboard() {
           </div>
         </div>
       )}
-      {/* Associates Section (stub) */}
-      <div className="associates-section mt-8">
-        <h3 className="text-xl font-bold mb-2">Associates</h3>
-        {associateRows.map((row, rowIdx) => {
-          const startIdx = rowIdx * associatesPerRow;
-          const expandedIdxInRow = row.findIndex((_, i) => expandedAssociateIdx === startIdx + i);
-          return (
-            <React.Fragment key={rowIdx}>
-              <div className="flex flex-wrap gap-4 mb-2">
-                {row.map((a, idx) => (
-                  <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === startIdx + idx ? null : startIdx + idx)}>
-                    <Avatar user={a} size={64} alt={`Avatar for ${a?.fullName || a?.username || 'user'}`} />
-                    <span className="text-sm text-neutral-200">{a.username}</span>
+          {/* Associates Section (stub) */}
+          <div className="associates-section mt-8">
+            <h3 className="text-xl font-bold mb-2 text-white">Associates</h3>
+            {associateRows.map((row, rowIdx) => {
+              const startIdx = rowIdx * associatesPerRow;
+              const expandedIdxInRow = row.findIndex((_, i) => expandedAssociateIdx === startIdx + i);
+              return (
+                <React.Fragment key={rowIdx}>
+                  <div className="flex flex-wrap gap-4 mb-2">
+                    {row.map((a, idx) => (
+                      <div key={a.username} className="associate-avatar-link flex flex-col items-center cursor-pointer" onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === startIdx + idx ? null : startIdx + idx)}>
+                        <Avatar user={a} size={64} alt={`Avatar for ${a?.fullName || a?.username || 'user'}`} />
+                        <span className="text-sm text-white/80">{a.username}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              {expandedIdxInRow !== -1 && (
-                <Accordion title="Details" defaultOpen={true} className="mt-2 w-64 mx-auto">
-                  <div className="text-sm text-neutral-200">
-                    <div><b>Dares together:</b> {row[expandedIdxInRow].daresTogether}</div>
-                    <div><b>Last dare:</b> {row[expandedIdxInRow].lastDare}</div>
-                  </div>
-                </Accordion>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-      <div className="role-breakdown-section mt-8">
-        <h3 className="text-xl font-bold mb-2">Role Breakdown</h3>
-        {/* 3. Fetch role breakdown stats for the chart */}
-        {roleStats && <DashboardChart stats={roleStats} />}
-      </div>
-      {/* Add dashboard settings modal (stub) */}
-      <button className="bg-primary text-primary-contrast px-4 py-2 rounded mb-4 shadow-lg" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
-      {showDashboardSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Dashboard Settings</h2>
-            <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
-            <button className="bg-primary text-primary-contrast px-4 py-2 rounded shadow-lg" onClick={() => setShowDashboardSettings(false)}>Close</button>
+                  {expandedIdxInRow !== -1 && (
+                    <Accordion title="Details" defaultOpen={true} className="mt-2 w-64 mx-auto">
+                      <div className="text-sm text-white/80">
+                        <div><b>Dares together:</b> {row[expandedIdxInRow].daresTogether}</div>
+                        <div><b>Last dare:</b> {row[expandedIdxInRow].lastDare}</div>
+                      </div>
+                    </Accordion>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
+          <div className="role-breakdown-section mt-8">
+            <h3 className="text-xl font-bold mb-2 text-white">Role Breakdown</h3>
+            {/* 3. Fetch role breakdown stats for the chart */}
+            {roleStats && <DashboardChart stats={roleStats} />}
+          </div>
+          {/* Add dashboard settings modal (stub) */}
+          <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl mb-4 shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200" onClick={() => setShowDashboardSettings(true)}>Dashboard Settings</button>
+          {showDashboardSettings && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 w-full max-w-md shadow-2xl">
+                <h2 className="text-xl font-bold mb-4 text-white">Dashboard Settings</h2>
+                <div className="text-white/80 mb-4">(Settings coming soon...)</div>
+                <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200" onClick={() => setShowDashboardSettings(false)}>Close</button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 }
