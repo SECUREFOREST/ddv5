@@ -644,6 +644,7 @@ export default function DarePerformerDashboard() {
                 <div>
                   <div className="text-2xl font-bold text-blue-400">{ongoing.length}</div>
                   <div className="text-sm text-blue-300">Active Dares</div>
+                  <div className="text-xs text-blue-400/70">{ongoing.length}/{MAX_SLOTS} slots used</div>
                 </div>
                 <ClockIcon className="w-8 h-8 text-blue-400" />
               </div>
@@ -773,10 +774,15 @@ export default function DarePerformerDashboard() {
       icon: ClockIcon,
       content: (
         <div className="space-y-6">
-          {/* Filters */}
+          {/* Slot Management & Filters */}
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Active Dares</h3>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Active Dares</h3>
+                <div className="text-sm text-neutral-400">
+                  {ongoing.length}/{MAX_SLOTS} slots used • {MAX_SLOTS - ongoing.length} available
+                </div>
+              </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
@@ -878,6 +884,7 @@ export default function DarePerformerDashboard() {
                   creator={dare.creator}
                   performer={dare.performer}
                   assignedSwitch={dare.assignedSwitch}
+                  timeInfo={dare.createdAt ? timeAgoOrDuration(dare.createdAt, dare.completedAt, dare.status) : null}
                   actions={[
                     <button
                       key="complete"
@@ -1191,8 +1198,20 @@ export default function DarePerformerDashboard() {
             </div>
             
             <div className="space-y-4">
-              {filterAndSortSwitchGames(mySwitchGames).map(game => (
-                <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+              {filterAndSortSwitchGames(mySwitchGames).map((game, idx) => (
+                <Accordion
+                  key={game._id}
+                  title={
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex-1">
+                        <div className="font-semibold text-white">{game.creatorDare?.description || 'Switch Game'}</div>
+                        <div className="text-sm text-neutral-400">Status: {game.status}</div>
+                      </div>
+                      <StatusBadge status={game.status} />
+                    </div>
+                  }
+                  defaultOpen={false}
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="font-semibold text-white mb-2">{game.creatorDare?.description || 'Switch Game'}</div>
@@ -1270,7 +1289,7 @@ export default function DarePerformerDashboard() {
                       )}
                     </div>
                   </div>
-                </div>
+                </Accordion>
               ))}
               
               {filterAndSortSwitchGames(mySwitchGames).length === 0 && (
