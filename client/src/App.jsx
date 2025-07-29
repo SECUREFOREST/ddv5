@@ -61,7 +61,7 @@ function AppContent() {
     <div className="flex flex-col min-h-screen bg-[#060606]">
       {showNavbar && <Navbar />}
       <main className="flex-1">
-        <div className="container mx-auto px-4 max-w-[1170px] sm:max-w-[750px] md:max-w-[970px] lg:max-w-[1170px] w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <Route path="/" element={<Landing />} />
