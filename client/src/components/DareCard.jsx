@@ -10,7 +10,15 @@ function useFadeIn(ref, deps = []) {
   useEffect(() => {
     if (ref.current) {
       ref.current.classList.add('animate-fade-in');
-      setTimeout(() => ref.current.classList.remove('animate-fade-in'), 600);
+      const timeoutId = setTimeout(() => {
+        if (ref.current) {
+          ref.current.classList.remove('animate-fade-in');
+        }
+      }, 600);
+      
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
     // eslint-disable-next-line
   }, deps);
