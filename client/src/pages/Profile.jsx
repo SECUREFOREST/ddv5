@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
+import { useToast } from '../components/Toast';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
@@ -21,7 +21,7 @@ function mapPrivacyValue(val) {
 
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
-  const { showNotification } = useNotification();
+  const { showSuccess, showError } = useToast();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState('');
@@ -170,12 +170,12 @@ export default function Profile() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!user) {
-      showNotification('User not loaded. Please refresh and try again.', 'error');
+      showError('User not loaded. Please refresh and try again.');
       return;
     }
     const userId = getUserId(user);
     if (!userId) {
-      showNotification('User ID not found. Please refresh and try again.', 'error');
+      showError('User ID not found. Please refresh and try again.');
       return;
     }
     setSaving(true);
@@ -183,7 +183,7 @@ export default function Profile() {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
       window.location.reload(); // reload to update context
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to update profile', 'error');
+      showError(err.response?.data?.error || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -200,10 +200,10 @@ export default function Profile() {
       }
       setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
-      showNotification('User unblocked successfully!', 'success');
+      showSuccess('User unblocked successfully!');
     } catch (err) {
       setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
-      showNotification(err.response?.data?.error || 'Failed to unblock user.', 'error');
+      showError(err.response?.data?.error || 'Failed to unblock user.');
     }
   };
 
@@ -238,14 +238,14 @@ export default function Profile() {
           setAvatar(newAvatarUrl);
           setAvatarSaved(true);
           setTimeout(() => setAvatarSaved(false), 2000);
-          showNotification('Profile picture saved!', 'success');
+          showSuccess('Profile picture saved!');
           
           // Update user object in AuthContext and localStorage
           const updatedUser = { ...user, avatar: newAvatarUrl };
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
         } catch (uploadErr) {
-          showNotification('Failed to upload avatar.', 'error');
+          showError('Failed to upload avatar.');
         } finally {
           setSaving(false);
         }
@@ -292,7 +292,9 @@ export default function Profile() {
   const submissivePercent = user?.natureRatio?.submission ?? null;
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto space-y-8">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
       
       <main id="main-content" tabIndex="-1" role="main">
@@ -454,9 +456,9 @@ export default function Profile() {
                                 const updatedUser = { ...user, roles: ['user'] };
                                 localStorage.setItem('user', JSON.stringify(updatedUser));
                                 if (typeof setUser === 'function') setUser(updatedUser);
-                                showNotification('User downgraded to regular user!', 'success');
+                                showSuccess('User downgraded to regular user!');
                               } catch (err) {
-                                showNotification('Failed to downgrade user: ' + (err.response?.data?.error || err.message), 'error');
+                                showError('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
                               }
                             }}
                           >
@@ -474,9 +476,9 @@ export default function Profile() {
                                 const updatedUser = { ...user, roles: ['admin'] };
                                 localStorage.setItem('user', JSON.stringify(updatedUser));
                                 if (typeof setUser === 'function') setUser(updatedUser);
-                                showNotification('User upgraded to admin!', 'success');
+                                showSuccess('User upgraded to admin!');
                               } catch (err) {
-                                showNotification('Failed to upgrade user: ' + (err.response?.data?.error || err.message), 'error');
+                                showError('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
                               }
                             }}
                           >
@@ -869,6 +871,8 @@ export default function Profile() {
             </span>
           </div>
         )}
+      </div>
+        </div>
       </div>
     </div>
   );
