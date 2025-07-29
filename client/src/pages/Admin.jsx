@@ -53,7 +53,7 @@ export default function Admin() {
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
                     <ShieldCheckIcon className="w-10 h-10 text-white" />
-                  </div>
+        </div>
                 </div>
                 <h1 className="text-3xl font-bold text-red-400 mb-4">Access Denied</h1>
                 <p className="text-red-300 text-lg">This area is restricted to administrators only.</p>
@@ -141,7 +141,7 @@ export default function Admin() {
   const [editUserData, setEditUserData] = useState({ username: '', email: '', roles: [] });
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [editUserError, setEditUserError] = useState('');
-  
+
 
 
   const fetchUsers = (searchId = "") => {
@@ -274,11 +274,11 @@ export default function Admin() {
 
   const handleDeleteDare = (dare) => {
     if (!window.confirm(`Delete dare: ${dare.description}?`)) return;
-    setActionLoading(true);
+        setActionLoading(true);
     api.delete(`/dares/${dare._id}`)
       .then(() => {
         showSuccess('Dare deleted successfully!');
-        fetchDares();
+          fetchDares();
       })
       .catch((err) => {
         const errorMessage = err.response?.data?.error || 'Failed to delete dare.';
@@ -289,11 +289,11 @@ export default function Admin() {
 
   const handleDeleteSwitchGame = (game) => {
     if (!window.confirm(`Delete switch game: ${game.title}?`)) return;
-    setActionLoading(true);
+        setActionLoading(true);
     api.delete(`/switches/${game._id}`)
       .then(() => {
         showSuccess('Switch game deleted successfully!');
-        fetchSwitchGames();
+          fetchSwitchGames();
       })
       .catch((err) => {
         const errorMessage = err.response?.data?.error || 'Failed to delete switch game.';
@@ -319,11 +319,11 @@ export default function Admin() {
 
   const handleDelete = (userId) => {
     if (!window.confirm(`Delete user: ${userId}?`)) return;
-    setActionLoading(true);
+        setActionLoading(true);
     api.delete(`/users/${userId}`)
       .then(() => {
         showSuccess('User deleted successfully!');
-        fetchUsers();
+          fetchUsers();
       })
       .catch((err) => {
         const errorMessage = err.response?.data?.error || 'Failed to delete user.';
@@ -426,7 +426,7 @@ export default function Admin() {
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
                 <ShieldCheckIcon className="w-10 h-10 text-white" />
-              </div>
+      </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Admin Panel</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
@@ -468,8 +468,8 @@ export default function Admin() {
                 </div>
                 <div className="text-sm text-yellow-300">Pending Reports</div>
               </div>
-            </div>
-          )}
+        </div>
+      )}
 
           {/* Admin Tabs */}
           <Tabs
@@ -486,22 +486,22 @@ export default function Admin() {
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                            <input
-                              type="text"
+                      <input
+                        type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                              placeholder="Search users..."
-                              value={userSearch}
-                              onChange={e => setUserSearch(e.target.value)}
+                        placeholder="Search users..."
+                        value={userSearch}
+                        onChange={e => setUserSearch(e.target.value)}
                             />
                           </div>
                         </div>
-                        <button
-                          onClick={handleUserSearch}
+                      <button
+                        onClick={handleUserSearch}
                           className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
-                        >
-                          Search
-                        </button>
-                      </div>
+                      >
+                        Search
+                      </button>
+                    </div>
                     </div>
 
                     {/* Users List */}
@@ -513,10 +513,10 @@ export default function Admin() {
                           {users.map(user => (
                             <div key={user._id} className="flex items-center gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
                               <Avatar user={user} size={40} />
-                              <div className="flex-1">
+                            <div className="flex-1">
                                 <div className="font-semibold text-white">{user.fullName || user.username}</div>
                                 <div className="text-sm text-neutral-400">@{user.username}</div>
-                              </div>
+                            </div>
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleEditUser(user._id)}
@@ -528,13 +528,13 @@ export default function Admin() {
                                     onClick={() => handleDeleteUser(user._id)}
                                     className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
                                   >
-                                  Delete
-                                </button>
+                                    Delete
+                                  </button>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </div>
+                            ))}
+                    </div>
+                    </div>
                     )}
                   </div>
                 ),
@@ -551,23 +551,23 @@ export default function Admin() {
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                            <input
+                      <input
                               type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                              placeholder="Search dares..."
-                              value={dareSearch}
-                              onChange={e => setDareSearch(e.target.value)}
-                            />
-                          </div>
-                        </div>
+                        placeholder="Search dares..."
+                        value={dareSearch}
+                        onChange={e => setDareSearch(e.target.value)}
+                      />
+                    </div>
+                            </div>
                         <button
                           onClick={() => fetchDares(dareSearchId)}
                           className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
                         >
                           Search
                         </button>
+                          </div>
                       </div>
-                    </div>
 
                     {/* Dares List */}
                     {daresLoading ? (
@@ -582,11 +582,11 @@ export default function Admin() {
                                   <div className="font-semibold text-white mb-2">{dare.description}</div>
                                   <div className="text-sm text-neutral-400">
                                     Created by: {dare.creator?.username || 'Unknown'}
-                                  </div>
+                    </div>
                                   <div className="text-sm text-neutral-400">
                                     Status: {dare.status}
-                                  </div>
-                                </div>
+                    </div>
+                  </div>
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => handleApprove(dare._id)}
@@ -606,7 +606,7 @@ export default function Admin() {
                                   >
                                     Delete
                                   </button>
-                                </div>
+                    </div>
                               </div>
                             </div>
                           ))}
@@ -628,14 +628,14 @@ export default function Admin() {
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                            <input
+                      <input
                               type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                              placeholder="Search audit log..."
-                              value={auditLogSearch}
-                              onChange={e => setAuditLogSearch(e.target.value)}
-                            />
-                          </div>
+                        placeholder="Search audit log..."
+                        value={auditLogSearch}
+                        onChange={e => setAuditLogSearch(e.target.value)}
+                      />
+                    </div>
                         </div>
                       </div>
                     </div>
@@ -666,7 +666,7 @@ export default function Admin() {
                               </div>
                             </div>
                           ))}
-                        </div>
+                    </div>
                       </div>
                     )}
                   </div>
@@ -712,7 +712,7 @@ export default function Admin() {
                                 </div>
                               </div>
                             </div>
-                          ))}
+                            ))}
                         </div>
                       </div>
                     )}
@@ -905,7 +905,7 @@ export default function Admin() {
             value={tabIdx}
             onChange={setTabIdx}
           />
-        </main>
+      </main>
       </div>
 
       {/* User Edit Modal */}
@@ -917,45 +917,45 @@ export default function Admin() {
         aria-modal="true"
       >
         <div className="space-y-4">
-          <div>
+            <div>
             <label htmlFor="edit-username" className="block font-semibold mb-1 text-white">Username</label>
-            <input
-              type="text"
-              name="username"
-              id="edit-username"
+              <input
+                type="text"
+                name="username"
+                id="edit-username"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-              value={editUserData.username}
-              onChange={handleEditUserChange}
-              required
-            />
-          </div>
-          <div>
+                value={editUserData.username}
+                onChange={handleEditUserChange}
+                required
+              />
+            </div>
+            <div>
             <label htmlFor="edit-email" className="block font-semibold mb-1 text-white">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="edit-email"
+              <input
+                type="email"
+                name="email"
+                id="edit-email"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-              value={editUserData.email}
-              onChange={handleEditUserChange}
-              required
-            />
-          </div>
-          <div>
+                value={editUserData.email}
+                onChange={handleEditUserChange}
+                required
+              />
+            </div>
+            <div>
             <label htmlFor="edit-roles" className="block font-semibold mb-1 text-white">Roles (comma-separated)</label>
-            <input
-              type="text"
-              name="roles"
-              id="edit-roles"
+              <input
+                type="text"
+                name="roles"
+                id="edit-roles"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-              value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
-              onChange={(e) => {
-                const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
-                setEditUserData(prev => ({ ...prev, roles }));
-              }}
-              placeholder="admin, moderator, user"
-            />
-          </div>
+                value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
+                onChange={(e) => {
+                  const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
+                  setEditUserData(prev => ({ ...prev, roles }));
+                }}
+                placeholder="admin, moderator, user"
+              />
+            </div>
           {editUserError && (
             <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
               {editUserError}

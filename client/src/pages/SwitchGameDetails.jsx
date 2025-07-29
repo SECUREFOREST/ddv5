@@ -474,30 +474,30 @@ export default function SwitchGameDetails() {
               <GamepadIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Switch Game Details</h1>
             </div>
-          </div>
+      </div>
 
           {/* Status Badge */}
           <div className="flex justify-center mb-8">
-            {game && (
-              game.status === 'completed' ? (
+        {game && (
+          game.status === 'completed' ? (
                 <span className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/50 text-green-300 rounded-full px-6 py-3 font-semibold text-lg">
-                  <CheckCircleIcon className="w-6 h-6" /> Completed
-                </span>
-              ) : game.status === 'expired' ? (
+              <CheckCircleIcon className="w-6 h-6" /> Completed
+            </span>
+          ) : game.status === 'expired' ? (
                 <span className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/50 text-red-300 rounded-full px-6 py-3 font-semibold text-lg">
-                  <ExclamationTriangleIcon className="w-6 h-6" /> Expired
-                </span>
-              ) : game.status === 'in_progress' ? (
+              <ExclamationTriangleIcon className="w-6 h-6" /> Expired
+            </span>
+          ) : game.status === 'in_progress' ? (
                 <span className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/50 text-blue-300 rounded-full px-6 py-3 font-semibold text-lg">
-                  <ClockIcon className="w-6 h-6" /> In Progress
-                </span>
-              ) : (
+              <ClockIcon className="w-6 h-6" /> In Progress
+            </span>
+          ) : (
                 <span className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/50 text-purple-300 rounded-full px-6 py-3 font-semibold text-lg">
-                  <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
-                </span>
-              )
-            )}
-          </div>
+              <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
+            </span>
+          )
+        )}
+      </div>
 
           {/* Game Info Card */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
@@ -505,29 +505,29 @@ export default function SwitchGameDetails() {
             
             {/* Participants */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-8 mb-8">
-              <div className="flex flex-col items-center">
-                <a href={game.creator?._id ? `/profile/${game.creator._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.creator?.fullName || game.creator?.username || 'creator'}'s profile`}>
-                  <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
+          <div className="flex flex-col items-center">
+            <a href={game.creator?._id ? `/profile/${game.creator._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.creator?.fullName || game.creator?.username || 'creator'}'s profile`}>
+              <Avatar user={game.creator} size={60} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
                   <span className="font-semibold text-lg text-white mt-2 group-hover:underline group-focus:underline text-center">{game.creator?.fullName || game.creator?.username || 'Not joined yet'}</span>
-                </a>
+            </a>
                 <span className="inline-flex items-center gap-1 text-xs text-purple-300 font-bold bg-purple-500/20 px-3 py-1 rounded-full mt-2">Creator</span>
-              </div>
+          </div>
               
-              <div className="flex flex-col items-center">
-                <a href={game.participant?._id ? `/profile/${game.participant._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.participant?.fullName || game.participant?.username}'s profile`}>
-                  <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
+          <div className="flex flex-col items-center">
+            <a href={game.participant?._id ? `/profile/${game.participant._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.participant?.fullName || game.participant?.username}'s profile`}>
+              <Avatar user={game.participant} size={60} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
                   <span className="font-semibold text-lg text-white mt-2 group-hover:underline group-focus:underline text-center">{game.participant?.fullName || game.participant?.username || 'Not joined yet'}</span>
-                </a>
+            </a>
                 <span className="inline-flex items-center gap-1 text-xs text-blue-300 font-bold bg-blue-500/20 px-3 py-1 rounded-full mt-2">Participant</span>
-              </div>
-            </div>
+          </div>
+        </div>
 
             {/* Game Status Messages */}
-            {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
+          {hasJoined && game.status === 'in_progress' && canPlayRps && userMove && !bothMoves && (
               <div className="text-center text-white/80 font-semibold mb-4">Waiting for the other participant to choose...</div>
-            )}
+          )}
             
-            {bothMoves && rpsResult === 'draw' && (
+          {bothMoves && rpsResult === 'draw' && (
               <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-4 mb-4 text-center">
                 <div className="text-white font-bold mb-2">It's a draw!</div>
                 <div className="text-white/80">Both players chose {game.moves[game.participants[0]]}. Please choose again.</div>
@@ -794,24 +794,24 @@ export default function SwitchGameDetails() {
             <div className="fixed z-50 inset-0 overflow-y-auto flex items-center justify-center" role="dialog" aria-modal="true">
               <div className="fixed inset-0 bg-black bg-opacity-70 transition-opacity" onClick={() => setProofModalOpen(false)} />
               <div className="relative bg-neutral-900 rounded-2xl p-6 max-w-lg w-full mx-4">
-                <button 
+                  <button
                   ref={modalCloseBtnRef} 
                   className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors text-2xl font-bold" 
                   onClick={() => setProofModalOpen(false)} 
                   aria-label="Close Proof Preview"
                 >
                   ×
-                </button>
+                      </button>
                 <div className="text-xl font-bold mb-4 text-white">Proof Preview</div>
-                {game.proof.fileUrl.match(/\.(mp4)$/) ? (
+                  {game.proof.fileUrl.match(/\.(mp4)$/) ? (
                   <video src={game.proof.fileUrl} className="w-full aspect-square rounded-xl" controls autoPlay />
                 ) : (
                   <img src={game.proof.fileUrl} alt="Proof" className="w-full aspect-square rounded-xl" />
-                )}
-                {game.proof.text && (
+                    )}
+                    {game.proof.text && (
                   <div className="mt-4 p-4 bg-white/5 text-white/80 rounded-xl border border-white/10">{game.proof.text}</div>
-                )}
-              </div>
+          )}
+        </div>
             </div>
           )}
         </div>
