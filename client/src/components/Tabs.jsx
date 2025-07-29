@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 
 /**
- * Tabs component (Tailwind refactor)
- * @param {Array<{label: string, content: React.ReactNode, disabled?: boolean}>} tabs - Tab definitions
+ * Tabs component (Tailwind refactor with improved UX)
+ * @param {Array<{label: string, content: React.ReactNode, disabled?: boolean, icon?: React.Component}>} tabs - Tab definitions
  * @param {number} value - Controlled selected tab index
  * @param {function} onChange - Controlled tab change handler
  * @param {string} className - Additional classes
@@ -48,51 +48,59 @@ export default function Tabs({
         <div className="bg-warning bg-opacity-10 text-warning p-3 rounded mb-2 text-center" role="alert">All tabs are disabled.</div>
       ) : (
         <>
-          {/* Tab bar with continuous line */}
-          <div className="relative mb-4">
-            <ul className="flex z-10 relative" role="tablist">
-              {tabs.map((tab, idx) => (
-                <li key={tab.label} className="flex-1" role="presentation">
-                  <button
-                    ref={el => tabRefs.current[idx] = el}
-                    type="button"
-                    role="tab"
-                    aria-selected={selectedIndex === idx}
-                    aria-controls={`tabpanel-${idx}`}
-                    id={`tab-${idx}`}
-                    tabIndex={selectedIndex === idx ? 0 : -1}
-                    onClick={() => handleTabClick(idx)}
-                    onKeyDown={handleKeyDown}
-                    disabled={tab.disabled}
-                    className={`w-full flex-grow px-0 py-2 font-semibold text-center focus:outline-none transition-colors duration-200 whitespace-nowrap
-                      ${selectedIndex === idx
-                        ? 'border-b-2 border-danger text-danger bg-transparent z-10'
-                        : 'text-neutral-300 hover:text-danger focus:text-danger bg-transparent border-b-2 border-transparent'}
-                    `}
-                    style={{
-                      borderBottom: selectedIndex === idx ? 'none' : '2px solid transparent',
-                      marginBottom: selectedIndex === idx ? '-2px' : '0',
-                      borderRadius: 0,
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                </li>
-              ))}
+          {/* Tab bar with improved styling */}
+          <div className="relative mb-6">
+            <ul className="flex z-10 relative bg-neutral-900/60 rounded-xl p-1 border border-neutral-800/50" role="tablist">
+              {tabs.map((tab, idx) => {
+                const Icon = tab.icon;
+                return (
+                  <li key={tab.label} className="flex-1" role="presentation">
+                    <button
+                      ref={el => tabRefs.current[idx] = el}
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedIndex === idx}
+                      aria-controls={`tabpanel-${idx}`}
+                      id={`tab-${idx}`}
+                      tabIndex={selectedIndex === idx ? 0 : -1}
+                      onClick={() => handleTabClick(idx)}
+                      onKeyDown={handleKeyDown}
+                      disabled={tab.disabled}
+                      className={`w-full flex-grow px-4 py-3 font-semibold text-center focus:outline-none transition-all duration-200 whitespace-nowrap rounded-lg
+                        ${selectedIndex === idx
+                          ? 'bg-gradient-to-r from-primary to-primary-dark text-primary-contrast shadow-lg'
+                          : 'text-neutral-300 hover:text-white hover:bg-neutral-800/50'
+                        }
+                        ${tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                      `}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        {Icon && <Icon className="w-4 h-4" />}
+                        <span className="hidden sm:inline">{tab.label}</span>
+                        <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
-            {/* Continuous line under all tabs */}
-            <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-[#888] z-0" />
           </div>
-          <div className="bg-[#222] rounded-none p-[15px]">
+          
+          {/* Tab content with improved styling */}
+          <div className="bg-neutral-900/40 rounded-xl border border-neutral-800/30">
             {tabs.map((tab, idx) => (
               <div
                 key={tab.label}
-                className={selectedIndex === idx ? '' : 'hidden'}
+                className={selectedIndex === idx ? 'block' : 'hidden'}
                 id={`tabpanel-${idx}`}
                 role="tabpanel"
                 aria-labelledby={`tab-${idx}`}
               >
-                {selectedIndex === idx && tab.content}
+                {selectedIndex === idx && (
+                  <div className="p-6">
+                    {tab.content}
+                  </div>
+                )}
               </div>
             ))}
           </div>

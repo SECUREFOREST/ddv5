@@ -86,6 +86,55 @@ export default function Profile() {
     }
   }, [user]);
 
+
+
+  // Define handleSave function before it's used in useEffect
+  const handleSave = async (e, isAutoSave = false) => {
+    if (e) e.preventDefault();
+    
+    if (!user) {
+      showError('User not loaded. Please refresh and try again.');
+      return;
+    }
+    
+    const userId = getUserId(user);
+    if (!userId) {
+      showError('User ID not found. Please refresh and try again.');
+      return;
+    }
+    
+    const errors = validateForm();
+    setFormErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      if (!isAutoSave) {
+        showError('Please fix the errors before saving.');
+      }
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      
+      if (isAutoSave) {
+        showSuccess('Profile auto-saved!');
+      } else {
+        showSuccess('Profile updated successfully!');
+        // Update user object without reloading
+        const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (err) {
+      showError(err.response?.data?.error || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -93,7 +142,11 @@ export default function Profile() {
         switch(e.key) {
           case 's':
             e.preventDefault();
-            if (editMode) handleSave(e);
+            if (editMode) {
+              // Call handleSave directly since it's defined later
+              const saveEvent = { preventDefault: () => {} };
+              handleSave(saveEvent);
+            }
             break;
           case 'e':
             e.preventDefault();
@@ -253,53 +306,9 @@ export default function Profile() {
     }, 2000); // 2 second delay
     
     return () => clearTimeout(timeoutId);
-  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, validateForm, handleSave]);
+  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges]);
 
-  const handleSave = async (e, isAutoSave = false) => {
-    if (e) e.preventDefault();
-    
-    if (!user) {
-      showError('User not loaded. Please refresh and try again.');
-      return;
-    }
-    
-    const userId = getUserId(user);
-    if (!userId) {
-      showError('User ID not found. Please refresh and try again.');
-      return;
-    }
-    
-    const errors = validateForm();
-    setFormErrors(errors);
-    
-    if (Object.keys(errors).length > 0) {
-      if (!isAutoSave) {
-        showError('Please fix the errors before saving.');
-      }
-      return;
-    }
-    
-    setSaving(true);
-    try {
-      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      
-      if (isAutoSave) {
-        showSuccess('Profile auto-saved!');
-      } else {
-        showSuccess('Profile updated successfully!');
-        // Update user object without reloading
-        const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (err) {
-      showError(err.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
-  };
+
 
   const handleUnblock = async (blockedUserId) => {
     setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
