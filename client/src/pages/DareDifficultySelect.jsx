@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, TargetIcon } from '@heroicons/react/24/solid';
+import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
@@ -48,7 +48,7 @@ export default function DareDifficultySelect() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
-                <TargetIcon className="w-10 h-10 text-white" />
+                <FireIcon className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Choose Difficulty</h1>
