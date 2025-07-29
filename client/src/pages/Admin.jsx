@@ -10,7 +10,7 @@ import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, Fire
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ButtonLoading, ActionLoading, LoadingSpinner } from '../components/LoadingSpinner';
+import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/LoadingSpinner';
 
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
