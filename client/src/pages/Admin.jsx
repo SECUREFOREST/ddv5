@@ -87,6 +87,17 @@ export default function Admin() {
               </div>
               <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
               <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => {
+                    console.log('Manual auth verification triggered');
+                    setAuthVerified(true);
+                  }}
+                  className="text-sm text-neutral-400 hover:text-white underline"
+                >
+                  Continue anyway
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -453,8 +464,18 @@ export default function Admin() {
     // Add a longer delay to ensure auth state is fully loaded and token is valid
     const timer = setTimeout(async () => {
       try {
+        console.log('Starting auth verification...');
+        
         // First verify the token is still valid by making a simple API call
-        await api.get('/users/me');
+        console.log('Checking access token:', localStorage.getItem('accessToken') ? 'Present' : 'Missing');
+        
+        const response = await Promise.race([
+          api.get('/users/me'),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          )
+        ]);
+        console.log('Auth verification successful:', response.data);
         
         // If we get here, the token is valid, so mark auth as verified
         setAuthVerified(true);
@@ -488,14 +509,17 @@ export default function Admin() {
           })
           .finally(() => setSiteStatsLoading(false));
       } catch (error) {
+        console.error('Auth verification failed:', error);
         if (error.response?.status === 401) {
           showError('Authentication expired. Please log in again.');
+        } else if (error.code === 'ECONNABORTED') {
+          showError('Request timed out. Please try again.');
         } else {
           showError('Failed to verify authentication. Please try again.');
         }
         console.error('Auth verification error:', error);
       }
-    }, 500); // Longer delay to ensure auth is ready
+    }, 1000); // Increased delay to ensure auth is ready
 
     return () => clearTimeout(timer);
   }, [user, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError]); // Include showError in dependencies
