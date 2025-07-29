@@ -16,12 +16,15 @@ import {
   Legend,
 } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../components/Toast';
+import { ActivityIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 export default function UserActivity() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showError } = useToast();
   const [tabIdx, setTabIdx] = useState(0);
   const [activeDares, setActiveDares] = useState([]);
   const [activeSwitchGames, setActiveSwitchGames] = useState([]);
@@ -70,9 +73,10 @@ export default function UserActivity() {
       })
       .catch(err => {
         setError('Failed to load activity.');
+        showError('Failed to load activity.');
       })
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, showError]);
 
   // Compute stats from loaded data
   const dareTotal = activeDares.length + historyDares.length;
@@ -98,71 +102,107 @@ export default function UserActivity() {
   const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
 
   // Compute bar chart data for dares and switch games completed per month (last 6 months)
-  function getMonthKey(dateStr) {
-    const d = new Date(dateStr);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-  }
-  const now = new Date();
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
-  }
-  const dareMonthCounts = Object.fromEntries(months.map(m => [m, 0]));
-  const switchMonthCounts = Object.fromEntries(months.map(m => [m, 0]));
-  historyDares.forEach(d => {
-    if (d.status === 'completed' && d.completedAt) {
-      const key = getMonthKey(d.completedAt);
-      if (dareMonthCounts[key] !== undefined) dareMonthCounts[key]++;
-    }
-  });
-  historySwitchGames.forEach(g => {
-    if (g.status === 'completed' && g.updatedAt) {
-      const key = getMonthKey(g.updatedAt);
-      if (switchMonthCounts[key] !== undefined) switchMonthCounts[key]++;
-    }
-  });
+  const getMonthKey = (dateStr) => {
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  }).reverse();
+
+  const dareMonthlyData = last6Months.map(month => ({
+    month,
+    count: historyDares.filter(d => d.status === 'completed' && getMonthKey(d.completedAt) === month).length
+  }));
+
+  const switchMonthlyData = last6Months.map(month => ({
+    month,
+    count: historySwitchGames.filter(g => g.status === 'completed' && getMonthKey(g.completedAt) === month).length
+  }));
+
   const barData = {
-    labels: months,
+    labels: last6Months.map(m => new Date(m + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })),
     datasets: [
       {
         label: 'Dares Completed',
-        data: months.map(m => dareMonthCounts[m]),
-        backgroundColor: '#D60B20',
+        data: dareMonthlyData.map(d => d.count),
+        backgroundColor: 'rgba(147, 51, 234, 0.8)',
+        borderColor: 'rgba(147, 51, 234, 1)',
+        borderWidth: 1,
       },
       {
         label: 'Switch Games Completed',
-        data: months.map(m => switchMonthCounts[m]),
-        backgroundColor: '#0B8ED6',
+        data: switchMonthlyData.map(d => d.count),
+        backgroundColor: 'rgba(236, 72, 153, 0.8)',
+        borderColor: 'rgba(236, 72, 153, 1)',
+        borderWidth: 1,
       },
     ],
-  };
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Completions Per Month (Last 6 Months)' },
-    },
-    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
   };
 
-  // Compute pie chart data for switch game win/loss ratio
-  const winCount = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
-  const lossCount = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: 'rgba(255, 255, 255, 0.8)',
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)',
+        },
+      },
+      x: {
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.8)',
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.1)',
+        },
+      },
+    },
+  };
+
   const pieData = {
-    labels: ['Wins', 'Losses'],
+    labels: ['Completed', 'Forfeited', 'Expired'],
     datasets: [
       {
-        data: [winCount, lossCount],
-        backgroundColor: ['#22c55e', '#ef4444'],
+        data: [dareCompleted + switchCompleted, dareForfeited + switchForfeited, dareExpired + switchExpired],
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+          'rgba(156, 163, 175, 0.8)',
+        ],
+        borderColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(239, 68, 68, 1)',
+          'rgba(156, 163, 175, 1)',
+        ],
+        borderWidth: 1,
       },
     ],
   };
+
   const pieOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Switch Game Win/Loss Ratio' },
+      legend: {
+        labels: {
+          color: 'rgba(255, 255, 255, 0.8)',
+        },
+      },
     },
   };
 
@@ -170,19 +210,15 @@ export default function UserActivity() {
     {
       label: 'Active',
       content: (
-        <div className="p-4 text-neutral-300">
+        <div className="p-4 text-white/80">
           {loading ? (
-            <div className="flex flex-col gap-4">
-              {[...Array(3)].map((_, i) => (
-                <DareCard key={i} loading />
-              ))}
-            </div>
+            <div className="text-center text-white/60">Loading...</div>
           ) : error ? (
-            <div className="text-center text-red-500">{error}</div>
+            <div className="text-center text-red-400">{error}</div>
           ) : (
             <>
-              <h2 className="text-lg font-bold mb-2 text-primary">Active Dares</h2>
-              {activeDares.length === 0 ? <div className="mb-4">No active dares.</div> : activeDares.map(dare => (
+              <h2 className="text-lg font-bold mb-2 text-white">Active Dares</h2>
+              {activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activeDares.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -192,8 +228,8 @@ export default function UserActivity() {
                 />
               ))}
         
-              <h2 className="text-lg font-bold mb-2 text-primary">Active Switch Games</h2>
-              {activeSwitchGames.length === 0 ? <div>No active switch games.</div> : activeSwitchGames.map(game => (
+              <h2 className="text-lg font-bold mb-2 text-white">Active Switch Games</h2>
+              {activeSwitchGames.length === 0 ? <div className="text-white/60">No active switch games.</div> : activeSwitchGames.map(game => (
                 <SwitchGameCard
                   key={game._id}
                   game={game}
@@ -210,15 +246,15 @@ export default function UserActivity() {
     {
       label: 'History',
       content: (
-        <div className="p-4 text-neutral-300">
+        <div className="p-4 text-white/80">
           {loading ? (
-            <div className="text-center text-neutral-400">Loading...</div>
+            <div className="text-center text-white/60">Loading...</div>
           ) : error ? (
-            <div className="text-center text-red-500">{error}</div>
+            <div className="text-center text-red-400">{error}</div>
           ) : (
             <>
-              <h2 className="text-lg font-bold mb-2 text-primary">Dare History</h2>
-              {historyDares.length === 0 ? <div className="mb-4">No historical dares.</div> : historyDares.map(dare => (
+              <h2 className="text-lg font-bold mb-2 text-white">Dare History</h2>
+              {historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyDares.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -227,8 +263,8 @@ export default function UserActivity() {
                   onForfeit={() => navigate(`/dares/${dare._id}`)}
                 />
               ))}
-              <h2 className="text-lg font-bold mt-6 mb-2 text-primary">Switch Game History</h2>
-              {historySwitchGames.length === 0 ? <div>No historical switch games.</div> : historySwitchGames.map(game => (
+              <h2 className="text-lg font-bold mt-6 mb-2 text-white">Switch Game History</h2>
+              {historySwitchGames.length === 0 ? <div className="text-white/60">No historical switch games.</div> : historySwitchGames.map(game => (
                 <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />
               ))}
             </>
@@ -239,41 +275,66 @@ export default function UserActivity() {
   ];
 
   return (
-    <div className="max-w-md sm:max-w-2xl lg:max-w-3xl w-full mx-auto mt-12 bg-[#222] border border-[#282828] rounded p-0 sm:p-8">
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-primary text-center">Your Activity</h1>
-      {/* Stats/Analytics Section */}
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#181818] border border-[#282828] rounded p-4">
-          <h2 className="text-lg font-bold text-primary mb-2">Dares</h2>
-          <div className="text-neutral-300 text-sm">Total: <span className="font-semibold">{dareTotal}</span></div>
-          <div className="text-neutral-300 text-sm">Completed: <span className="font-semibold">{dareCompleted}</span></div>
-          <div className="text-neutral-300 text-sm">Forfeited: <span className="font-semibold">{dareForfeited}</span></div>
-          <div className="text-neutral-300 text-sm">Expired: <span className="font-semibold">{dareExpired}</span></div>
-          <div className="text-neutral-300 text-sm">Avg. Grade: <span className="font-semibold">{dareAvgGrade}</span></div>
-          <div className="text-neutral-300 text-sm">Completion Rate: <span className="font-semibold">{dareCompletionRate}</span></div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+      <main id="main-content" tabIndex="-1" role="main">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <ActivityIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Your Activity</h1>
+            </div>
+            <p className="text-xl text-white/80">Track your dares and switch games performance</p>
+          </div>
+
+          {/* Stats/Analytics Section */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl">
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <ChartBarIcon className="w-5 h-5" />
+                Dares
+              </h2>
+              <div className="space-y-2 text-white/80 text-sm">
+                <div>Total: <span className="font-semibold text-white">{dareTotal}</span></div>
+                <div>Completed: <span className="font-semibold text-green-300">{dareCompleted}</span></div>
+                <div>Forfeited: <span className="font-semibold text-red-300">{dareForfeited}</span></div>
+                <div>Expired: <span className="font-semibold text-neutral-300">{dareExpired}</span></div>
+                <div>Avg. Grade: <span className="font-semibold text-purple-300">{dareAvgGrade}</span></div>
+                <div>Completion Rate: <span className="font-semibold text-blue-300">{dareCompletionRate}</span></div>
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl">
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <ChartBarIcon className="w-5 h-5" />
+                Switch Games
+              </h2>
+              <div className="space-y-2 text-white/80 text-sm">
+                <div>Total: <span className="font-semibold text-white">{switchTotal}</span></div>
+                <div>Completed: <span className="font-semibold text-green-300">{switchCompleted}</span></div>
+                <div>Forfeited: <span className="font-semibold text-red-300">{switchForfeited}</span></div>
+                <div>Expired: <span className="font-semibold text-neutral-300">{switchExpired}</span></div>
+                <div>Wins: <span className="font-semibold text-green-300">{switchWins}</span></div>
+                <div>Losses: <span className="font-semibold text-red-300">{switchLosses}</span></div>
+                <div>Avg. Grade: <span className="font-semibold text-purple-300">{switchAvgGrade}</span></div>
+                <div>Completion Rate: <span className="font-semibold text-blue-300">{switchCompletionRate}</span></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Section */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl">
+              <Bar data={barData} options={barOptions} height={220} />
+            </div>
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl flex items-center justify-center">
+              <Pie data={pieData} options={pieOptions} height={220} />
+            </div>
+          </div>
+
+          <Tabs tabs={tabs} selected={tabIdx} onChange={setTabIdx} />
         </div>
-        <div className="bg-[#181818] border border-[#282828] rounded p-4">
-          <h2 className="text-lg font-bold text-primary mb-2">Switch Games</h2>
-          <div className="text-neutral-300 text-sm">Total: <span className="font-semibold">{switchTotal}</span></div>
-          <div className="text-neutral-300 text-sm">Completed: <span className="font-semibold">{switchCompleted}</span></div>
-          <div className="text-neutral-300 text-sm">Forfeited: <span className="font-semibold">{switchForfeited}</span></div>
-          <div className="text-neutral-300 text-sm">Expired: <span className="font-semibold">{switchExpired}</span></div>
-          <div className="text-neutral-300 text-sm">Wins: <span className="font-semibold">{switchWins}</span></div>
-          <div className="text-neutral-300 text-sm">Losses: <span className="font-semibold">{switchLosses}</span></div>
-          <div className="text-neutral-300 text-sm">Avg. Grade: <span className="font-semibold">{switchAvgGrade}</span></div>
-          <div className="text-neutral-300 text-sm">Completion Rate: <span className="font-semibold">{switchCompletionRate}</span></div>
-        </div>
-      </div>
-      {/* Charts Section */}
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#181818] border border-[#282828] rounded p-4">
-          <Bar data={barData} options={barOptions} height={220} />
-        </div>
-        <div className="bg-[#181818] border border-[#282828] rounded p-4 flex items-center justify-center">
-          <Pie data={pieData} options={pieOptions} height={220} />
-        </div>
-      </div>
-      <Tabs tabs={tabs} selected={tabIdx} onChange={setTabIdx} />
+      </main>
     </div>
   );
 } 
