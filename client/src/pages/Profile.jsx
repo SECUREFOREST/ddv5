@@ -7,6 +7,7 @@ import Tabs from '../components/Tabs';
 
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
@@ -48,6 +49,8 @@ export default function Profile() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(avatar || '');
   const [avatarSaved, setAvatarSaved] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
   // Add block/unblock state
@@ -63,6 +66,9 @@ export default function Profile() {
   const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
   const [contentDeletionError, setContentDeletionError] = useState('');
   const [editMode, setEditMode] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   // Initialize form fields when user data loads
   useEffect(() => {
@@ -79,6 +85,55 @@ export default function Profile() {
       setIsBlocked(user.blocked || false);
     }
   }, [user]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 's':
+            e.preventDefault();
+            if (editMode) handleSave(e);
+            break;
+          case 'e':
+            e.preventDefault();
+            setEditMode(!editMode);
+            break;
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [editMode]);
+
+  // Track form changes for auto-save
+  const handleFormChange = (field, value) => {
+    setHasUnsavedChanges(true);
+    switch(field) {
+      case 'username':
+        setUsername(value);
+        break;
+      case 'fullName':
+        setFullName(value);
+        break;
+      case 'bio':
+        setBio(value);
+        break;
+      case 'gender':
+        setGender(value);
+        break;
+      case 'dob':
+        setDob(value);
+        break;
+      case 'interestedIn':
+        setInterestedIn(value);
+        break;
+      case 'limits':
+        setLimits(value);
+        break;
+    }
+  };
 
   // Refresh user data on mount to ensure we have the latest data
   useEffect(() => {
@@ -167,21 +222,70 @@ export default function Profile() {
     }
   }, [user, loading]);
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+    if (!username.trim()) errors.username = 'Username is required';
+    if (username.length < 3) errors.username = 'Username must be at least 3 characters';
+    if (username.length > 20) errors.username = 'Username must be less than 20 characters';
+    if (fullName && fullName.length > 50) errors.fullName = 'Full name must be less than 50 characters';
+    if (bio && bio.length > 300) errors.bio = 'Bio must be less than 300 characters';
+    return errors;
+  };
+
+  // Auto-save with debouncing
+  useEffect(() => {
+    if (!editMode || !hasUnsavedChanges) return;
+    
+    const timeoutId = setTimeout(() => {
+      const errors = validateForm();
+      if (Object.keys(errors).length === 0) {
+        handleSave(null, true); // Auto-save
+      }
+    }, 2000); // 2 second delay
+    
+    return () => clearTimeout(timeoutId);
+  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode]);
+
+  const handleSave = async (e, isAutoSave = false) => {
+    if (e) e.preventDefault();
+    
     if (!user) {
       showError('User not loaded. Please refresh and try again.');
       return;
     }
+    
     const userId = getUserId(user);
     if (!userId) {
       showError('User ID not found. Please refresh and try again.');
       return;
     }
+    
+    const errors = validateForm();
+    setFormErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      if (!isAutoSave) {
+        showError('Please fix the errors before saving.');
+      }
+      return;
+    }
+    
     setSaving(true);
     try {
       await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
-      window.location.reload(); // reload to update context
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      
+      if (isAutoSave) {
+        showSuccess('Profile auto-saved!');
+      } else {
+        showSuccess('Profile updated successfully!');
+        // Update user object without reloading
+        const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
     } catch (err) {
       showError(err.response?.data?.error || 'Failed to update profile');
     } finally {
@@ -215,29 +319,66 @@ export default function Profile() {
     document.getElementById('avatar-upload').click();
   };
 
+  // File validation helper
+  const validateFile = (file) => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    
+    if (file.size > maxSize) {
+      setUploadError('File size must be less than 5MB');
+      return false;
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Please upload a JPEG, PNG, or WebP image');
+      return false;
+    }
+    
+    setUploadError('');
+    return true;
+  };
+
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (!validateFile(file)) {
+        return;
+      }
+      
       setAvatarFile(file);
+      setUploadProgress(0);
+      setUploadError('');
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
       };
       reader.readAsDataURL(file);
-      // Auto-upload avatar
+      
+      // Auto-upload avatar with progress tracking
       if (user && (user.id || user._id)) {
         const userId = user.id || user._id;
         const formData = new FormData();
         formData.append('avatar', file);
         setSaving(true);
+        
         try {
           const uploadRes = await api.post('/users/' + userId + '/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress: (progressEvent) => {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(progress);
+            }
           });
+          
           const newAvatarUrl = uploadRes.data.avatar;
           setAvatar(newAvatarUrl);
           setAvatarSaved(true);
-          setTimeout(() => setAvatarSaved(false), 2000);
+          setUploadProgress(100);
+          setTimeout(() => {
+            setAvatarSaved(false);
+            setUploadProgress(0);
+          }, 2000);
           showSuccess('Profile picture saved!');
           
           // Update user object in AuthContext and localStorage
@@ -245,6 +386,8 @@ export default function Profile() {
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
         } catch (uploadErr) {
+          setUploadError('Failed to upload avatar. Please try again.');
+          setUploadProgress(0);
           showError('Failed to upload avatar.');
         } finally {
           setSaving(false);
@@ -326,10 +469,28 @@ export default function Profile() {
                 className="hidden"
               />
               
+              {/* Upload Progress */}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="w-full bg-neutral-700 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              )}
+              
+              {/* Upload Status Messages */}
               {avatarSaved && (
-                <div className="text-success text-sm font-semibold flex items-center gap-2">
+                <div className="text-green-400 text-sm font-semibold flex items-center gap-2 mt-2">
                   <CheckCircleIcon className="w-4 h-4" />
                   Avatar saved!
+                </div>
+              )}
+              
+              {uploadError && (
+                <div className="text-red-400 text-sm font-semibold flex items-center gap-2 mt-2">
+                  <ExclamationTriangleIcon className="w-4 h-4" />
+                  {uploadError}
                 </div>
               )}
             </div>
@@ -363,10 +524,13 @@ export default function Profile() {
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 <button
                   onClick={() => setEditMode(!editMode)}
-                  className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-lg px-4 py-2 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2"
+                  className="group bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-lg px-4 py-2 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95"
                 >
                   <PencilIcon className="w-4 h-4" />
                   {editMode ? 'Cancel Edit' : 'Edit Profile'}
+                  <span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity">
+                    (Ctrl+E)
+                  </span>
                 </button>
                 
                 {isBlocked && (
@@ -376,31 +540,66 @@ export default function Profile() {
                   </div>
                 )}
               </div>
+              
+              {/* Keyboard Shortcuts Hint */}
+              {editMode && (
+                <div className="text-xs text-neutral-400 mt-2 flex items-center gap-4">
+                  <span>💡 Keyboard shortcuts: Ctrl+S to save, Ctrl+E to toggle edit mode</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Stats Overview */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
-              <div className="text-2xl font-bold text-primary">{stats.daresCount || 0}</div>
-              <div className="text-sm text-primary-300">Total Dares</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-4 sm:p-6 border border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xl sm:text-2xl font-bold text-primary group-hover:scale-105 transition-transform duration-200">{stats.daresCount || 0}</div>
+                  <div className="text-xs sm:text-sm text-primary-300">Total Dares</div>
+                </div>
+                <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <FireIcon className="w-4 h-4 text-primary" />
+                </div>
+              </div>
             </div>
             
-            <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
-              <div className="text-2xl font-bold text-green-400">{stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}</div>
-              <div className="text-sm text-green-300">Avg Grade</div>
+            <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-4 sm:p-6 border border-green-600/30 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xl sm:text-2xl font-bold text-green-400 group-hover:scale-105 transition-transform duration-200">{stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}</div>
+                  <div className="text-xs sm:text-sm text-green-300">Avg Grade</div>
+                </div>
+                <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                  <ChartBarIcon className="w-4 h-4 text-green-400" />
+                </div>
+              </div>
             </div>
             
-            <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
-              <div className="text-2xl font-bold text-blue-400">{stats.completedCount || 0}</div>
-              <div className="text-sm text-blue-300">Completed</div>
+            <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-4 sm:p-6 border border-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-400 group-hover:scale-105 transition-transform duration-200">{stats.completedCount || 0}</div>
+                  <div className="text-xs sm:text-sm text-blue-300">Completed</div>
+                </div>
+                <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                  <CheckCircleIcon className="w-4 h-4 text-blue-400" />
+                </div>
+              </div>
             </div>
             
-            <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-6 border border-purple-600/30">
-              <div className="text-2xl font-bold text-purple-400">{stats.activeCount || 0}</div>
-              <div className="text-sm text-purple-300">Active</div>
+            <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 sm:p-6 border border-purple-600/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xl sm:text-2xl font-bold text-purple-400 group-hover:scale-105 transition-transform duration-200">{stats.activeCount || 0}</div>
+                  <div className="text-xs sm:text-sm text-purple-300">Active</div>
+                </div>
+                <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                  <ClockIcon className="w-4 h-4 text-purple-400" />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -412,16 +611,41 @@ export default function Profile() {
               content: (
                 <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                   {loading ? (
-                    <div className="flex flex-col md:flex-row gap-8">
-                      <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
-                        <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse mb-4" />
-                        <div className="h-4 w-24 bg-neutral-700 rounded mb-2 animate-pulse" />
-                        <div className="h-4 w-24 bg-neutral-800 rounded mb-2 animate-pulse" />
+                    <div className="space-y-8">
+                      {/* Profile Header Skeleton */}
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div className="flex flex-col items-center md:items-start gap-4">
+                          <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse" />
+                          <div className="h-4 w-24 bg-neutral-700 rounded animate-pulse" />
+                        </div>
+                        <div className="flex-1 space-y-4">
+                          <div className="h-8 bg-neutral-700 rounded w-1/3 animate-pulse" />
+                          <div className="h-4 bg-neutral-700 rounded w-1/2 animate-pulse" />
+                          <div className="h-4 bg-neutral-700 rounded w-2/3 animate-pulse" />
+                        </div>
                       </div>
-                      <div className="flex-1 space-y-4">
-                        {[...Array(5)].map((_, i) => (
-                          <div key={i} className="h-4 w-full bg-neutral-700 rounded animate-pulse mb-2" />
+                      
+                      {/* Stats Skeleton */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                        {[...Array(4)].map((_, i) => (
+                          <div key={i} className="bg-neutral-800/50 rounded-xl p-4 sm:p-6 border border-neutral-700/30">
+                            <div className="h-6 bg-neutral-700 rounded w-1/2 animate-pulse mb-2" />
+                            <div className="h-4 bg-neutral-700 rounded w-1/3 animate-pulse" />
+                          </div>
                         ))}
+                      </div>
+                      
+                      {/* Form Skeleton */}
+                      <div className="space-y-6">
+                        <div className="h-6 bg-neutral-700 rounded w-1/4 animate-pulse mb-4" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {[...Array(4)].map((_, i) => (
+                            <div key={i} className="space-y-2">
+                              <div className="h-4 bg-neutral-700 rounded w-1/3 animate-pulse" />
+                              <div className="h-12 bg-neutral-700 rounded animate-pulse" />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -500,13 +724,21 @@ export default function Profile() {
                                 <input 
                                   type="text" 
                                   id="username" 
-                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
+                                  className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
+                                    formErrors.username ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
+                                  }`}
                                   value={username} 
-                                  onChange={e => setUsername(e.target.value)} 
+                                  onChange={e => handleFormChange('username', e.target.value)} 
                                   required 
                                   aria-required="true" 
                                   aria-label="Username" 
                                 />
+                                {formErrors.username && (
+                                  <div className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-4 h-4" />
+                                    {formErrors.username}
+                                  </div>
+                                )}
                               </div>
                               
                               <div>
@@ -514,10 +746,18 @@ export default function Profile() {
                                 <input
                                   id="fullName"
                                   value={fullName}
-                                  onChange={e => setFullName(e.target.value)}
-                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                                  onChange={e => handleFormChange('fullName', e.target.value)}
+                                  className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
+                                    formErrors.fullName ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
+                                  }`}
                                   aria-label="Full Name"
                                 />
+                                {formErrors.fullName && (
+                                  <div className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-4 h-4" />
+                                    {formErrors.fullName}
+                                  </div>
+                                )}
                               </div>
                             </div>
                             
@@ -525,15 +765,28 @@ export default function Profile() {
                               <label htmlFor="bio" className="block font-semibold mb-2 text-primary text-sm">Bio</label>
                               <textarea 
                                 id="bio" 
-                                className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
+                                className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
+                                  formErrors.bio ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
+                                }`}
                                 value={bio} 
-                                onChange={e => setBio(e.target.value)} 
+                                onChange={e => handleFormChange('bio', e.target.value)} 
                                 rows={3} 
                                 maxLength={300} 
                                 placeholder="Write something about yourself..." 
                                 aria-label="Bio" 
                                 aria-required="true" 
                               />
+                              <div className="flex justify-between items-center mt-1">
+                                <div className="text-xs text-neutral-400">
+                                  {bio.length}/300 characters
+                                </div>
+                                {formErrors.bio && (
+                                  <div className="text-red-400 text-sm flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-4 h-4" />
+                                    {formErrors.bio}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -542,7 +795,7 @@ export default function Profile() {
                                 <select
                                   id="gender"
                                   value={gender}
-                                  onChange={e => setGender(e.target.value)}
+                                  onChange={e => handleFormChange('gender', e.target.value)}
                                   className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                                   required
                                   aria-label="Gender"
@@ -562,7 +815,7 @@ export default function Profile() {
                                   id="dob" 
                                   className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
                                   value={dob} 
-                                  onChange={e => setDob(e.target.value)} 
+                                  onChange={e => handleFormChange('dob', e.target.value)} 
                                   required 
                                   aria-required="true" 
                                   aria-label="Birth Date" 
@@ -572,40 +825,71 @@ export default function Profile() {
                             
                             <div>
                               <label htmlFor="interestedIn" className="block font-semibold mb-2 text-primary text-sm">Interested In</label>
-                              <TagsInput id="interestedIn" value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
+                              <TagsInput id="interestedIn" value={interestedIn} onChange={(value) => handleFormChange('interestedIn', value)} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
                             </div>
                             
                             <div>
                               <label htmlFor="limits" className="block font-semibold mb-2 text-primary text-sm">Limits</label>
-                              <TagsInput id="limits" value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
+                              <TagsInput id="limits" value={limits} onChange={(value) => handleFormChange('limits', value)} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
                             </div>
                             
-                            <div className="flex gap-4 pt-4">
-                              <button 
-                                type="submit" 
-                                className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
-                                disabled={saving}
-                              >
-                                {saving ? (
-                                  <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Saving...
-                                  </>
-                                ) : (
-                                  <>
-                                    <CheckCircleIcon className="w-5 h-5" />
-                                    Save Changes
-                                  </>
+                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                              <div className="flex-1 flex gap-4">
+                                <button 
+                                  type="submit" 
+                                  className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 flex items-center gap-2 shadow-lg" 
+                                  disabled={saving}
+                                >
+                                  <span className="relative z-10 flex items-center gap-2">
+                                    {saving ? (
+                                      <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        Saving...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircleIcon className="w-5 h-5" />
+                                        Save Changes
+                                      </>
+                                    )}
+                                  </span>
+                                  <div className="absolute inset-0 bg-gradient-to-r from-primary-dark to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </button>
+                                <button 
+                                  type="button" 
+                                  className="bg-neutral-700 text-neutral-100 rounded-xl px-6 py-3 font-semibold hover:bg-neutral-600 transition-all duration-200 flex items-center gap-2" 
+                                  onClick={() => {
+                                    if (hasUnsavedChanges) {
+                                      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+                                        setEditMode(false);
+                                        setHasUnsavedChanges(false);
+                                        setFormErrors({});
+                                      }
+                                    } else {
+                                      setEditMode(false);
+                                    }
+                                  }} 
+                                  disabled={saving}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                              
+                              {/* Save Status */}
+                              <div className="flex items-center gap-2 text-sm">
+                                {hasUnsavedChanges && (
+                                  <div className="text-yellow-400 flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-4 h-4" />
+                                    Unsaved changes
+                                  </div>
                                 )}
-                              </button>
-                              <button 
-                                type="button" 
-                                className="bg-neutral-700 text-neutral-100 rounded-xl px-6 py-3 font-semibold hover:bg-neutral-600 transition-all duration-200 flex items-center gap-2" 
-                                onClick={() => setEditMode(false)} 
-                                disabled={saving}
-                              >
-                                Cancel
-                              </button>
+                                {lastSaved && (
+                                  <div className="text-green-400 flex items-center gap-1">
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                    Last saved: {lastSaved.toLocaleTimeString()}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </form>
                         ) : (
