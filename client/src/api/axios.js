@@ -40,14 +40,24 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
-        // If refresh fails, clear tokens and redirect to login
-        // But only if we're not already on the login page
-        if (window.location.pathname !== '/login') {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+        // If refresh fails, clear tokens but don't redirect immediately
+        // Let the component handle the error gracefully
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        
+        // Only redirect if we're not already on auth pages
+        const isAuthPage = window.location.pathname === '/login' || 
+                          window.location.pathname === '/register' || 
+                          window.location.pathname === '/forgot-password';
+        
+        if (!isAuthPage) {
+          // Use a more graceful redirect that doesn't break the current flow
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 100);
         }
+        
         return Promise.reject(refreshErr);
       }
     }

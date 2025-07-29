@@ -33,6 +33,7 @@ function exportToCsv(filename, rows) {
 export default function Admin() {
   const { user, loading } = useAuth();
   const { showSuccess, showError } = useToast();
+  const [authVerified, setAuthVerified] = useState(false);
   
   if (loading) {
     return (
@@ -62,11 +63,30 @@ export default function Admin() {
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
                     <ShieldCheckIcon className="w-10 h-10 text-white" />
-        </div>
+                  </div>
                 </div>
                 <h1 className="text-3xl font-bold text-red-400 mb-4">Access Denied</h1>
                 <p className="text-red-300 text-lg">This area is restricted to administrators only.</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while verifying authentication
+  if (!authVerified) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
+              <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
             </div>
           </div>
         </div>
@@ -430,37 +450,52 @@ export default function Admin() {
       return;
     }
 
-    // Add a small delay to ensure auth state is fully loaded
-    const timer = setTimeout(() => {
-      // Load all data on component mount
-      fetchUsers();
-      fetchDares();
-      fetchAuditLog();
-      fetchReports();
-      fetchAppeals();
-      fetchSwitchGames();
-      
-      // Fetch site stats
-      setSiteStatsLoading(true);
-      setSiteStatsError('');
-      api.get('/stats/site')
-        .then(res => {
-          setSiteStats(res.data);
-        })
-        .catch((error) => {
-          if (error.response?.status === 401) {
-            // Handle unauthorized - user might need to re-authenticate
-            showError('Authentication expired. Please log in again.');
-          } else if (error.code === 'ECONNABORTED') {
-            setSiteStatsError('Request timed out. Please try again.');
-          } else {
-            setSiteStatsError('Failed to load site stats.');
-            showError('Failed to load site stats. Please try again.');
-          }
-          console.error('Site stats loading error:', error);
-        })
-        .finally(() => setSiteStatsLoading(false));
-    }, 200); // Slightly longer delay to ensure auth is ready
+    // Add a longer delay to ensure auth state is fully loaded and token is valid
+    const timer = setTimeout(async () => {
+      try {
+        // First verify the token is still valid by making a simple API call
+        await api.get('/users/me');
+        
+        // If we get here, the token is valid, so mark auth as verified
+        setAuthVerified(true);
+        
+        // Now load all data
+        fetchUsers();
+        fetchDares();
+        fetchAuditLog();
+        fetchReports();
+        fetchAppeals();
+        fetchSwitchGames();
+        
+        // Fetch site stats
+        setSiteStatsLoading(true);
+        setSiteStatsError('');
+        api.get('/stats/site')
+          .then(res => {
+            setSiteStats(res.data);
+          })
+          .catch((error) => {
+            if (error.response?.status === 401) {
+              // Handle unauthorized - user might need to re-authenticate
+              showError('Authentication expired. Please log in again.');
+            } else if (error.code === 'ECONNABORTED') {
+              setSiteStatsError('Request timed out. Please try again.');
+            } else {
+              setSiteStatsError('Failed to load site stats.');
+              showError('Failed to load site stats. Please try again.');
+            }
+            console.error('Site stats loading error:', error);
+          })
+          .finally(() => setSiteStatsLoading(false));
+      } catch (error) {
+        if (error.response?.status === 401) {
+          showError('Authentication expired. Please log in again.');
+        } else {
+          showError('Failed to verify authentication. Please try again.');
+        }
+        console.error('Auth verification error:', error);
+      }
+    }, 500); // Longer delay to ensure auth is ready
 
     return () => clearTimeout(timer);
   }, [user, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError]); // Include showError in dependencies
