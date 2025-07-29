@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 import Tabs from '../components/Tabs';
 import Card from '../components/Card';
@@ -144,7 +144,7 @@ export default function Admin() {
 
 
 
-  const fetchUsers = (searchId = "") => {
+  const fetchUsers = useCallback((searchId = "") => {
     setDataLoading(true);
     api.get('/users', { params: { search: searchId } })
       .then(res => {
@@ -156,9 +156,9 @@ export default function Admin() {
         console.error('Users loading error:', error);
       })
       .finally(() => setDataLoading(false));
-  };
+  }, [showError]);
 
-  const fetchDares = (searchId = "") => {
+  const fetchDares = useCallback((searchId = "") => {
     setDaresLoading(true);
     api.get('/dares', { params: { search: searchId } })
       .then(res => {
@@ -170,9 +170,9 @@ export default function Admin() {
         console.error('Dares loading error:', error);
       })
       .finally(() => setDaresLoading(false));
-  };
+  }, [showError]);
 
-  const fetchReports = () => {
+  const fetchReports = useCallback(() => {
     setReportsLoading(true);
     setReportsError('');
     api.get('/reports')
@@ -190,7 +190,7 @@ export default function Admin() {
         console.error('Reports loading error:', error);
       })
       .finally(() => setReportsLoading(false));
-  };
+  }, [showError]);
 
   const handleResolveReport = async (id) => {
     try {
@@ -203,7 +203,7 @@ export default function Admin() {
     }
   };
 
-  const fetchAppeals = () => {
+  const fetchAppeals = useCallback(() => {
     setAppealsLoading(true);
     setAppealsError('');
     api.get('/appeals')
@@ -221,9 +221,9 @@ export default function Admin() {
         console.error('Appeals loading error:', error);
       })
       .finally(() => setAppealsLoading(false));
-  };
+  }, [showError]);
 
-  const fetchAuditLog = () => {
+  const fetchAuditLog = useCallback(() => {
     setAuditLogLoading(true);
     api.get('/audit-log')
       .then(res => {
@@ -240,7 +240,7 @@ export default function Admin() {
         console.error('Audit log loading error:', error);
       })
       .finally(() => setAuditLogLoading(false));
-  };
+  }, [showError]);
 
   const handleResolveAppeal = async (id) => {
     try {
@@ -311,8 +311,8 @@ export default function Admin() {
       .finally(() => setActionLoading(false));
   };
 
-  const fetchSwitchGames = (searchId = "") => {
-    setActionLoading(true);
+  const fetchSwitchGames = useCallback((searchId = "") => {
+    setSwitchGamesLoading(true);
     api.get('/switches', { params: { search: searchId } })
       .then(res => {
         setSwitchGames(Array.isArray(res.data) ? res.data : []);
@@ -322,8 +322,8 @@ export default function Admin() {
         showError('Failed to load switch games. Please try again.');
         console.error('Switch games loading error:', error);
       })
-      .finally(() => setActionLoading(false));
-  };
+      .finally(() => setSwitchGamesLoading(false));
+  }, [showError]);
 
   const handleDelete = (userId) => {
     if (!window.confirm(`Delete user: ${userId}?`)) return;
@@ -400,28 +400,13 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    // Stagger API calls to prevent conflicts
+    // Load all data on component mount
     fetchUsers();
-    
-    setTimeout(() => {
-      fetchDares();
-    }, 100);
-    
-    setTimeout(() => {
-      fetchAuditLog();
-    }, 200);
-    
-    setTimeout(() => {
-      fetchReports();
-    }, 300);
-    
-    setTimeout(() => {
-      fetchAppeals();
-    }, 400);
-    
-    setTimeout(() => {
-      fetchSwitchGames();
-    }, 500);
+    fetchDares();
+    fetchAuditLog();
+    fetchReports();
+    fetchAppeals();
+    fetchSwitchGames();
     
     // Fetch site stats
     setSiteStatsLoading(true);
@@ -436,7 +421,7 @@ export default function Admin() {
         console.error('Site stats loading error:', error);
       })
       .finally(() => setSiteStatsLoading(false));
-  }, []); // Remove toast functions from dependencies
+  }, [fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]); // Include all fetch functions
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
