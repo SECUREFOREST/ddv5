@@ -163,7 +163,7 @@ export default function Dares() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
         <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
@@ -171,13 +171,13 @@ export default function Dares() {
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-2xl shadow-2xl shadow-primary/25">
                 <FireIcon className="w-8 h-8 text-white" />
-              </div>
+            </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Your Dares</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
               Manage and track all your dare activities
             </p>
-          </div>
+            </div>
 
           {/* Filters and Actions */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
@@ -192,7 +192,7 @@ export default function Dares() {
                   {STATUS_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-                </select>
+              </select>
                 
                 <select
                   value={difficulty}
@@ -203,7 +203,7 @@ export default function Dares() {
                   {DIFFICULTY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-                </select>
+              </select>
                 
                 <input
                   type="text"
@@ -212,7 +212,7 @@ export default function Dares() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
-              </div>
+            </div>
               
               <button
                 onClick={() => setShowCreate(true)}
@@ -225,7 +225,7 @@ export default function Dares() {
           </div>
 
           {/* Dares Grid */}
-          {loading ? (
+        {loading ? (
             <ListSkeleton count={6} />
           ) : dares.length === 0 ? (
             <div className="text-center py-16">
@@ -239,8 +239,8 @@ export default function Dares() {
                   Create Your First Dare
                 </button>
               </div>
-            </div>
-          ) : (
+          </div>
+        ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {dares.map(dare => (
                 <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
@@ -255,8 +255,8 @@ export default function Dares() {
                   />
                 </div>
               ))}
-            </div>
-          )}
+          </div>
+        )}
 
           {/* Last Updated */}
           {lastUpdated && (
@@ -265,7 +265,7 @@ export default function Dares() {
             </div>
           )}
         </main>
-      </div>
+          </div>
     </div>
   );
 } 

@@ -97,7 +97,7 @@ export default function PublicDares() {
   const showSwitches = filter === 'all' || filter === 'switches';
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Public Dares & Switch Games</h1>
@@ -122,9 +122,10 @@ export default function PublicDares() {
           {FILTERS.map(f => (
             <button
               key={f.key}
-              className={`px-3 py-1 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
+              className={`px-4 py-2 rounded font-semibold text-sm border border-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast min-h-[44px] ${filter === f.key ? 'bg-primary text-primary-contrast' : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800'}`}
               onClick={() => setFilter(f.key)}
               aria-pressed={filter === f.key}
+              aria-label={`Filter by ${f.label.toLowerCase()}`}
             >
               {f.label}
             </button>
@@ -141,9 +142,19 @@ export default function PublicDares() {
       </div>
       {error && <Banner type="error" message={error} onClose={() => setError('')} />}
       {loading ? (
-        <div className="flex flex-col gap-2">
+        <div className="space-y-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse h-32 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
+            <div key={i} className="animate-pulse bg-neutral-900/90 border border-neutral-800 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-neutral-700" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-neutral-700 rounded w-1/3" />
+                  <div className="h-3 bg-neutral-700 rounded w-2/3" />
+                  <div className="h-3 bg-neutral-700 rounded w-1/2" />
+                </div>
+                <div className="w-20 h-8 bg-neutral-700 rounded" />
+              </div>
+            </div>
           ))}
         </div>
       ) : (
@@ -173,7 +184,7 @@ export default function PublicDares() {
                             <div className="flex-1" />
                             {/* Right: Participate button */}
                             <Link to={`/dare/consent/${dare._id}`} className="ml-auto">
-                              <button className="bg-primary text-primary-contrast rounded px-4 py-2 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50 shadow-lg">Participate</button>
+                              <button className="bg-primary text-primary-contrast rounded px-4 py-3 font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast disabled:opacity-50 shadow-lg min-h-[44px] min-w-[100px]" aria-label="Participate in this dare">Participate</button>
                             </Link>
                           </div>
                         </div>

@@ -395,7 +395,7 @@ export default function DareDetails() {
                       <TagIcon className="w-4 h-4 text-neutral-400" />
                       <div className="flex flex-wrap gap-2">
                         {dare.tags.map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-neutral-700/50 text-neutral-300 rounded text-xs">
+                          <span key={index} className="px-3 py-2 bg-neutral-700/50 text-neutral-300 rounded text-sm">
                             {tag}
                           </span>
                         ))}

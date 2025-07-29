@@ -37,24 +37,24 @@ export default function Navbar() {
     {
       title: 'Main',
       links: [
-        { to: '/dares', label: 'Dares', auth: true },
-        { to: '/dare/create', label: 'Create Dare', auth: true },
+    { to: '/dares', label: 'Dares', auth: true },
+    { to: '/dare/create', label: 'Create Dare', auth: true },
         { to: '/dare/select', label: 'Perform Dare', auth: true },
       ]
     },
     {
       title: 'Community',
       links: [
-        { to: '/switches', label: 'Switch Games', auth: true },
-        { to: '/leaderboard', label: 'Leaderboard', auth: true },
-        { to: '/user-activity', label: 'Activity', auth: true },
+    { to: '/switches', label: 'Switch Games', auth: true },
+    { to: '/leaderboard', label: 'Leaderboard', auth: true },
+    { to: '/user-activity', label: 'Activity', auth: true },
       ]
     },
     {
       title: 'Special',
       links: [
-        { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
-        { to: '/admin', label: 'Admin', admin: true },
+    { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
+    { to: '/admin', label: 'Admin', admin: true },
       ]
     }
   ];
@@ -82,14 +82,14 @@ export default function Navbar() {
           {navGroups.map(group => (
             <div key={group.title} className="flex items-center space-x-1">
               {group.links.map(link => {
-                if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-                if (link.auth && !user) return null;
-                return (
+            if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+            if (link.auth && !user) return null;
+            return (
                   <Link key={link.to} to={link.to} className={linkClass(link)}>
                     {link.label}
                   </Link>
-                );
-              })}
+            );
+          })}
               {group.title !== 'Special' && <div className="w-px h-6 bg-neutral-700 mx-2" />}
             </div>
           ))}
@@ -129,7 +129,7 @@ export default function Navbar() {
         {/* Mobile menu button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="lg:hidden p-3 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? (
@@ -145,15 +145,15 @@ export default function Navbar() {
         <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-3">
           <div className="container mx-auto flex items-center justify-between">
             <span className="text-yellow-200 text-sm font-medium">You are impersonating another user.</span>
-            <button
+          <button
               className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-3 py-1 text-sm font-medium transition-all duration-200"
-              onClick={handleReturnToAdmin}
-            >
-              Return to Admin
-            </button>
-            {impersonationError && (
+            onClick={handleReturnToAdmin}
+          >
+            Return to Admin
+          </button>
+          {impersonationError && (
               <div className="bg-red-500 text-white rounded-lg px-3 py-1 text-sm">{impersonationError}</div>
-            )}
+          )}
           </div>
         </div>
       )}
@@ -175,7 +175,7 @@ export default function Navbar() {
                 <h2 className="text-lg font-semibold text-white">Menu</h2>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200"
+                  className="p-3 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
@@ -190,23 +190,24 @@ export default function Navbar() {
                     </h3>
                     <div className="space-y-1">
                       {group.links.map(link => {
-                        if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-                        if (link.auth && !user) return null;
-                        return (
+              if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+              if (link.auth && !user) return null;
+              return (
                           <Link
                             key={link.to}
                             to={link.to}
-                            className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
+                            className={`block px-4 py-4 rounded-lg transition-all duration-200 min-h-[44px] flex items-center ${
                               currentPath === link.to 
                                 ? 'bg-primary/20 text-primary border border-primary/30' 
                                 : 'text-neutral-300 hover:text-white hover:bg-neutral-800/50'
                             }`}
                             onClick={() => setMobileMenuOpen(false)}
+                            aria-label={`Navigate to ${link.label}`}
                           >
                             {link.label}
                           </Link>
-                        );
-                      })}
+              );
+            })}
                     </div>
                   </div>
                 ))}
@@ -214,7 +215,7 @@ export default function Navbar() {
 
               {/* User section */}
               <div className="p-4 border-t border-neutral-800">
-                {user ? (
+            {user ? (
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3 p-3 bg-neutral-800/50 rounded-lg">
                       <Avatar user={user} size={40} border shadow />
@@ -225,24 +226,27 @@ export default function Navbar() {
                     </div>
                     <button 
                       onClick={() => { setMobileMenuOpen(false); handleLogout(); }} 
-                      className="w-full bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                      className="w-full bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-4 font-medium transition-all duration-200 min-h-[44px] flex items-center justify-center"
+                      aria-label="Logout from account"
                     >
                       Logout
                     </button>
                   </div>
-                ) : (
+            ) : (
                   <div className="space-y-3">
                     <Link 
                       to="/login" 
-                      className="block w-full text-center bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                      className="block w-full text-center bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg px-4 py-4 font-medium transition-all duration-200 min-h-[44px] flex items-center justify-center"
                       onClick={() => setMobileMenuOpen(false)}
+                      aria-label="Navigate to login page"
                     >
                       Login
                     </Link>
                     <Link 
                       to="/register" 
-                      className="block w-full text-center bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                      className="block w-full text-center bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-4 font-medium transition-all duration-200 min-h-[44px] flex items-center justify-center"
                       onClick={() => setMobileMenuOpen(false)}
+                      aria-label="Navigate to registration page"
                     >
                       Register
                     </Link>
@@ -250,7 +254,7 @@ export default function Navbar() {
                 )}
               </div>
             </div>
-          </div>
+        </div>
         </>
       )}
     </nav>

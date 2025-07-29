@@ -155,7 +155,7 @@ export default function DareReveal() {
   const statusStepIdx = dare ? STATUS_STEPS.findIndex(s => s.key === dare.status) : 0;
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Status Tracker Bar */}
       <div className="flex items-center justify-between w-full px-4 py-3">
         {STATUS_STEPS.map((step, idx) => (

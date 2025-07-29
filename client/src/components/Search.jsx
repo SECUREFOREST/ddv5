@@ -113,6 +113,11 @@ export default function Search({
           }}
           className="w-full pl-10 pr-10 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
           placeholder={placeholder}
+          aria-label={`Search ${placeholder.toLowerCase()}`}
+          aria-expanded={isOpen}
+          aria-autocomplete="list"
+          role="combobox"
+          aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
           {...props}
         />
         {query && (
@@ -130,15 +135,20 @@ export default function Search({
         <div
           ref={suggestionsRef}
           className="absolute z-50 w-full mt-2 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl overflow-hidden"
+          role="listbox"
+          aria-label="Search suggestions"
         >
           <div className="max-h-60 overflow-y-auto">
             {filteredSuggestions.map((suggestion, index) => (
               <button
                 key={index}
+                id={`suggestion-${index}`}
                 onClick={() => handleSuggestionSelect(suggestion)}
                 className={`w-full px-4 py-3 text-left text-neutral-200 hover:bg-neutral-800 transition-colors ${
                   index === selectedIndex ? 'bg-primary/20 text-primary' : ''
                 }`}
+                role="option"
+                aria-selected={index === selectedIndex}
               >
                 {suggestion}
               </button>

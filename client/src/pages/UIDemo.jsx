@@ -27,7 +27,7 @@ export default function UIDemo() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
@@ -100,11 +100,11 @@ export default function UIDemo() {
       {/* Badge */}
       <section className="mb-8">
         <h2 className="font-semibold text-lg mb-2 text-primary">Badges</h2>
-        <span className="inline-block bg-primary text-primary-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Primary</span>
-        <span className="inline-block bg-success text-success-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Success</span>
-        <span className="inline-block bg-info text-info-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Info</span>
-        <span className="inline-block bg-warning text-warning-contrast rounded-none px-3 py-1 text-xs font-semibold mr-2">Warning</span>
-        <span className="inline-block bg-danger text-danger-contrast rounded-none px-3 py-1 text-xs font-semibold">Danger</span>
+        <span className="inline-block bg-primary text-primary-contrast rounded-none px-4 py-2 text-sm font-semibold mr-2">Primary</span>
+<span className="inline-block bg-success text-success-contrast rounded-none px-4 py-2 text-sm font-semibold mr-2">Success</span>
+<span className="inline-block bg-info text-info-contrast rounded-none px-4 py-2 text-sm font-semibold mr-2">Info</span>
+<span className="inline-block bg-warning text-warning-contrast rounded-none px-4 py-2 text-sm font-semibold mr-2">Warning</span>
+<span className="inline-block bg-danger text-danger-contrast rounded-none px-4 py-2 text-sm font-semibold">Danger</span>
       </section>
 
       {/* Inputs */}
@@ -174,8 +174,8 @@ export default function UIDemo() {
           tags={["migration", "react", "legacy"]}
           user={{ username: "alice", avatar: "https://i.pravatar.cc/40?img=1" }}
           actions={[
-            <button key="view" className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold mr-2 shadow-lg">View</button>,
-            <button key="complete" className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg">Complete</button>
+            <button key="view" className="bg-primary text-primary-contrast rounded px-4 py-2 text-sm font-semibold mr-2 shadow-lg">View</button>,
+            <button key="complete" className="bg-success text-success-contrast rounded px-4 py-2 text-sm font-semibold shadow-lg">Complete</button>
           ]}
         />
       </section>

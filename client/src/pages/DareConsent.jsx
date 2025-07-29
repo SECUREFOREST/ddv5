@@ -34,7 +34,7 @@ function DifficultyBadge({ level }) {
       label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
   }
   return (
-    <span className={`px-2 py-1 rounded-none text-xs font-semibold mr-2 ${badgeClass}`}>{label}</span>
+    <span className={`px-3 py-2 rounded-none text-sm font-semibold mr-2 ${badgeClass}`}>{label}</span>
   );
 }
 
@@ -75,7 +75,7 @@ export default function DareConsent() {
   const diff = DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty);
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
+    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
       {/* Progress Bar */}
       <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
         <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '100%' }} />

@@ -81,7 +81,7 @@ const Landing = () => {
               <span className="bg-gradient-to-r from-primary via-red-500 to-pink-500 bg-clip-text text-transparent">
                 Deviant Dare
               </span>
-            </h1>
+        </h1>
             <p className="text-xl sm:text-2xl text-neutral-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               The ultimate platform for social dares, challenges, and friendly competition. 
               Create, accept, and share dares with friends or the community.
@@ -91,12 +91,12 @@ const Landing = () => {
                 <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25 hover:shadow-3xl">
                   Get Started
                 </button>
-              </Link>
+            </Link>
               <Link to="/register" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border-2 border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-primary hover:text-white transform hover:-translate-y-1 shadow-lg">
                   Join Community
                 </button>
-              </Link>
+            </Link>
             </div>
           </div>
 
@@ -151,8 +151,8 @@ const Landing = () => {
             <p className="text-neutral-500 text-sm max-w-4xl mx-auto">
               <strong>SEO Keywords:</strong> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure
             </p>
-          </div>
-        </main>
+        </div>
+      </main>
       </div>
     </div>
   );

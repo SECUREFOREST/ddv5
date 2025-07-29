@@ -4,7 +4,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 
 export default function NotFound() {
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-32 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-8 mb-8 overflow-hidden text-center">
+    <div className="w-full mx-auto mt-32 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-8 mb-8 overflow-hidden text-center">
       {/* Sticky header at the top */}
       <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Page Not Found</h1>

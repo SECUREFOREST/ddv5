@@ -4,35 +4,40 @@ import { AuthContext } from '../context/AuthContext';
 import { Banner } from '../components/Modal';
 import Avatar from '../components/Avatar';
 import { io } from 'socket.io-client';
-import { BellIcon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
+import { BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
+  const { showSuccess, showError } = useToast();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
-  const { showNotification } = useNotification();
 
   const fetchNotifications = () => {
     setLoading(true);
     setGeneralError('');
     api.get('/notifications')
-      .then(res => setNotifications(Array.isArray(res.data) ? res.data : []))
-      .catch(() => {
+      .then(res => {
+        setNotifications(Array.isArray(res.data) ? res.data : []);
+        showSuccess('Notifications loaded successfully!');
+      })
+      .catch((error) => {
         setNotifications([]);
-        showNotification('Failed to load notifications.', 'error');
+        showError('Failed to load notifications. Please try again.');
+        console.error('Notifications loading error:', error);
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [showSuccess, showError]);
 
   useEffect(() => {
     let socket;
@@ -44,13 +49,13 @@ export default function Notifications() {
       });
       socket.on('notification', (notif) => {
         setNotifications((prev) => [notif, ...prev]);
-        showNotification('New notification received!', 'info');
+        showSuccess('New notification received!');
       });
     }
     return () => {
       if (socket) socket.disconnect();
     };
-  }, [accessToken]);
+  }, [accessToken, showSuccess]);
 
   const handleMarkRead = async (id) => {
     setActionLoading(true);
@@ -58,9 +63,10 @@ export default function Notifications() {
     try {
       await api.put(`/notifications/${id}/read`);
       fetchNotifications();
-      showNotification('Notification marked as read.', 'success');
+      showSuccess('Notification marked as read.');
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to mark notification as read.', 'error');
+      const errorMessage = err.response?.data?.error || 'Failed to mark notification as read.';
+      showError(errorMessage);
     }
     setActionLoading(false);
   };
@@ -98,138 +104,178 @@ export default function Notifications() {
       case 'comment_reply':
         return `You have a new reply from ${senderName}.`;
       case 'comment_moderated':
-        return `Your comment has been moderated/hidden${n.sender ? ' by ' + senderName : ''}.`;
+        return `Your comment has been moderated${n.sender ? ' by ' + senderName : ''}.`;
+      case 'appeal_submitted':
+        return `An appeal has been submitted${n.sender ? ' by ' + senderName : ''}.`;
+      case 'appeal_resolved':
+        return `An appeal has been resolved${n.sender ? ' by ' + senderName : ''}.`;
+      case 'report_submitted':
+        return `A report has been submitted${n.sender ? ' by ' + senderName : ''}.`;
+      case 'report_resolved':
+        return `A report has been resolved${n.sender ? ' by ' + senderName : ''}.`;
       default:
-        return n.message || n.type || 'Notification';
+        return n.message || 'You have a new notification.';
     }
   }
 
   function getNotificationAction(n) {
-    // Returns { label, to } or null
     switch (n.type) {
       case 'dare_created':
-      case 'dare_graded':
       case 'dare_approved':
       case 'dare_rejected':
-      case 'dare_completed':
-      case 'dare_claimed':
       case 'dare_fulfilled':
-      case 'dare_withdrawn':
-      case 'dare_switch':
-        if (n.dareId || n.dare?._id) {
-          return { label: 'Go to Dare', to: `/dare/${n.dareId || n.dare._id}` };
-        }
-        break;
+      case 'dare_completed':
+        return n.dareId ? `/dares/${n.dareId}` : '/dares';
       case 'proof_submitted':
-        if (n.dareId || n.dare?._id) {
-          return { label: 'View Proof', to: `/dare/${n.dareId || n.dare._id}/perform` };
-        }
-        break;
+        return n.dareId ? `/dares/${n.dareId}` : '/dares';
+      case 'dare_claimed':
+        return n.dareId ? `/dares/${n.dareId}` : '/dares';
       case 'comment_reply':
-        if (n.dareId || n.dare?._id) {
-          return { label: 'Reply', to: `/dare/${n.dareId || n.dare._id}` };
-        }
-        break;
+        return n.commentId ? `/comments/${n.commentId}` : '/activity';
+      case 'role_change':
+        return '/profile';
+      case 'user_blocked':
+      case 'user_banned':
+        return '/profile';
+      case 'appeal_submitted':
+      case 'appeal_resolved':
+        return '/appeals';
+      case 'report_submitted':
+      case 'report_resolved':
+        return '/reports';
       default:
         return null;
     }
-    return null;
   }
 
   function batchNotifications(notifications) {
-    // Group by type and message
-    const batches = {};
-    notifications.forEach(n => {
-      const key = n.type + '|' + (n.description || n.message || '');
-      if (!batches[key]) batches[key] = [];
-      batches[key].push(n);
+    const batched = [];
+    const grouped = {};
+    
+    notifications.forEach(notification => {
+      const key = `${notification.type}_${notification.sender?._id || 'system'}_${notification.dareId || 'none'}`;
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(notification);
     });
-    return Object.values(batches);
+    
+    Object.values(grouped).forEach(group => {
+      if (group.length === 1) {
+        batched.push(group[0]);
+      } else {
+        const first = group[0];
+        const count = group.length;
+        batched.push({
+          ...first,
+          count,
+          message: `${count} similar notifications`
+        });
+      }
+    });
+    
+    return batched;
   }
 
-  if (!user) {
-    return <div className="text-center mt-12 text-[#888]">Please log in to view notifications.</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <ListSkeleton count={10} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <BellIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Notifications
-        </h1>
-      </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
-          <BellIcon className="w-6 h-6" /> Notifications
-        </span>
-      </div>
-
-      {toast && (
-        <div className="mb-4 bg-info text-info-contrast px-4 py-2 rounded font-semibold text-center animate-pulse">{toast}</div>
-      )}
-      <Banner type={generalError ? 'error' : 'info'} message={generalError} onClose={() => setGeneralError('')} />
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        {loading ? (
-          <div className="flex flex-col gap-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse h-20 bg-neutral-900/90 border border-neutral-800 rounded-xl mb-4" />
-            ))}
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <BellIcon className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Notifications</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Stay updated with your latest activities
+            </p>
           </div>
-        ) : notifications.length === 0 ? (
-          <div className="text-center text-neutral-400">No notifications.</div>
-        ) : (
-          <ul className="divide-y divide-neutral-900 overflow-x-auto">
-            {batchNotifications(notifications).map((batch, i) => {
-              const n = batch[0];
-              const count = batch.length;
-              return (
-                <li
-                  key={n._id + '-' + count}
-                  className={`py-4 flex items-start gap-3 ${n.read ? 'bg-neutral-800' : 'bg-info bg-opacity-10'}`}
-                >
-                  {n.sender && <Avatar user={n.sender} size={32} alt={`Avatar for ${n.sender?.fullName || n.sender?.username || 'sender'}`} />}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-primary">
-                      {count > 1 ? `${count} ${getNotificationMessage(n).replace(/^Your /, '').replace(/^You have /, '')}` : getNotificationMessage(n)}
+
+          {/* Notifications List */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+            {notifications.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">No notifications yet</div>
+                <p className="text-neutral-500 text-sm">
+                  You'll see notifications here when you receive them.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {batchNotifications(notifications).map((notification, index) => (
+                  <div
+                    key={notification._id || index}
+                    className={`p-4 rounded-xl border transition-all duration-200 ${
+                      notification.read
+                        ? 'bg-neutral-800/30 border-neutral-700/30'
+                        : 'bg-primary/10 border-primary/30'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <Avatar user={notification.sender} size={40} />
+                      
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="font-semibold text-white mb-1">
+                              {getNotificationMessage(notification)}
+                            </div>
+                            <div className="text-sm text-neutral-400">
+                              {notification.createdAt && formatRelativeTimeWithTooltip(notification.createdAt).display}
+                            </div>
+                            {notification.count > 1 && (
+                              <div className="text-xs text-primary mt-1">
+                                +{notification.count - 1} more similar
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            {!notification.read && (
+                              <button
+                                onClick={() => handleMarkRead(notification._id)}
+                                disabled={actionLoading}
+                                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                                title="Mark as read"
+                              >
+                                <CheckIcon className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-neutral-400 text-sm">{n.body}</div>
-                    <div className="text-xs text-neutral-400 mt-1">
-                      <span 
-                        className="cursor-help" 
-                        title={formatRelativeTimeWithTooltip(n.createdAt).tooltip}
-                      >
-                        {formatRelativeTimeWithTooltip(n.createdAt).display}
-                      </span>
-                    </div>
-                    {/* Action button */}
-                    {getNotificationAction(n) && (
-                      <a
-                        href={getNotificationAction(n).to}
-                        className="inline-block mt-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {getNotificationAction(n).label}
-                      </a>
-                    )}
                   </div>
-                  {!n.read && (
-                    <button
-                      className="ml-2 bg-primary text-primary-contrast rounded px-3 py-1 text-xs font-semibold hover:bg-primary-dark"
-                      onClick={() => handleMarkRead(n._id)}
-                    >
-                      Mark as read
-                    </button>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </main>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Error Messages */}
+          {generalError && (
+            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+              {generalError}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 } 

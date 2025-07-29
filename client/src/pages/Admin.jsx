@@ -424,14 +424,14 @@ export default function Admin() {
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleEditUser(user._id)}
-                                  className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
                                 >
                                   Edit
                                 </button>
-                                <button
-                                  onClick={() => handleDeleteUser(user._id)}
-                                  className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
-                                >
+                                                                  <button
+                                    onClick={() => handleDeleteUser(user._id)}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                                  >
                                   Delete
                                 </button>
                               </div>
