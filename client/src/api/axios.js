@@ -18,7 +18,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    
+    // Don't handle auth endpoints - let them fail normally
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/') || 
+                          originalRequest.url?.includes('/login') || 
+                          originalRequest.url?.includes('/register');
+    
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -29,20 +35,11 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
-        // If refresh fails, clear tokens but don't redirect for login/auth endpoints
+        // If refresh fails, clear tokens and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        
-        // Only redirect if it's not a login/auth endpoint to avoid infinite loops
-        const isAuthEndpoint = originalRequest.url?.includes('/auth/') || 
-                              originalRequest.url?.includes('/login') || 
-                              originalRequest.url?.includes('/register');
-        
-        if (!isAuthEndpoint) {
-          window.location.href = '/login';
-        }
-        
+        window.location.href = '/login';
         return Promise.reject(refreshErr);
       }
     }
