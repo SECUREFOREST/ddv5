@@ -88,6 +88,17 @@ export default function Profile() {
 
 
 
+  // Form validation - define before handleSave
+  const validateForm = () => {
+    const errors = {};
+    if (!username.trim()) errors.username = 'Username is required';
+    if (username.length < 3) errors.username = 'Username must be at least 3 characters';
+    if (username.length > 20) errors.username = 'Username must be less than 20 characters';
+    if (fullName && fullName.length > 50) errors.fullName = 'Full name must be less than 50 characters';
+    if (bio && bio.length > 300) errors.bio = 'Bio must be less than 300 characters';
+    return errors;
+  };
+
   // Define handleSave function before it's used in useEffect
   const handleSave = useCallback(async (e, isAutoSave = false) => {
     if (e) e.preventDefault();
@@ -292,16 +303,7 @@ export default function Profile() {
     }
   }, [user, loading, showError]);
 
-  // Form validation
-  const validateForm = () => {
-    const errors = {};
-    if (!username.trim()) errors.username = 'Username is required';
-    if (username.length < 3) errors.username = 'Username must be at least 3 characters';
-    if (username.length > 20) errors.username = 'Username must be less than 20 characters';
-    if (fullName && fullName.length > 50) errors.fullName = 'Full name must be less than 50 characters';
-    if (bio && bio.length > 300) errors.bio = 'Bio must be less than 300 characters';
-    return errors;
-  };
+
 
 
 
