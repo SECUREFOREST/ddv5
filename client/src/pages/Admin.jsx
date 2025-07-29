@@ -120,12 +120,12 @@ function Admin() {
         setReports([]);
         if (error.response?.status === 401) {
           setReportsError('Access denied. You may not have permission to view reports.');
-          // Don't show error toast for 401 - let the interceptor handle it
+          // Don't show error toast for 401 on admin page - user has admin role
         } else if (error.code === 'ECONNABORTED') {
           setReportsError('Request timed out. Please try again.');
         } else {
           setReportsError('Failed to load reports. Please try again.');
-          showError('Failed to load reports. Please try again.');
+          // Don't show error toast for admin endpoints
         }
         console.error('Reports loading error:', error);
       })
@@ -143,12 +143,12 @@ function Admin() {
         setAppeals([]);
         if (error.response?.status === 401) {
           setAppealsError('Access denied. You may not have permission to view appeals.');
-          // Don't show error toast for 401 - let the interceptor handle it
+          // Don't show error toast for 401 on admin page - user has admin role
         } else if (error.code === 'ECONNABORTED') {
           setAppealsError('Request timed out. Please try again.');
         } else {
           setAppealsError('Failed to load appeals. Please try again.');
-          showError('Failed to load appeals. Please try again.');
+          // Don't show error toast for admin endpoints
         }
         console.error('Appeals loading error:', error);
       })
@@ -165,12 +165,12 @@ function Admin() {
         setAuditLog([]);
         if (error.response?.status === 401) {
           setAuditLogError('Access denied. You may not have permission to view audit log.');
-          // Don't show error toast for 401 - let the interceptor handle it
+          // Don't show error toast for 401 on admin page - user has admin role
         } else if (error.code === 'ECONNABORTED') {
           setAuditLogError('Request timed out. Please try again.');
         } else {
           setAuditLogError('Failed to load audit log.');
-          showError('Failed to load audit log. Please try again.');
+          // Don't show error toast for admin endpoints
         }
         console.error('Audit log loading error:', error);
       })
@@ -250,6 +250,9 @@ function Admin() {
 
     console.log('Auth verified, loading admin data...');
     
+    // Show success message that admin interface is working
+    showSuccess('Admin interface loaded successfully!');
+    
     // Load all data now that auth is verified
     fetchUsers();
     fetchDares();
@@ -268,17 +271,18 @@ function Admin() {
       .catch((error) => {
         if (error.response?.status === 401) {
           // Handle unauthorized - user might need to re-authenticate
-          showError('Authentication expired. Please log in again.');
+          setSiteStatsError('Authentication expired. Please log in again.');
+          // Don't show error toast for 401 on admin page
         } else if (error.code === 'ECONNABORTED') {
           setSiteStatsError('Request timed out. Please try again.');
         } else {
           setSiteStatsError('Failed to load site stats.');
-          showError('Failed to load site stats. Please try again.');
+          // Don't show error toast for admin endpoints
         }
         console.error('Site stats loading error:', error);
       })
       .finally(() => setSiteStatsLoading(false));
-  }, [user, authVerified, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError]); // Include authVerified in dependencies
+  }, [user, authVerified, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError, showSuccess]); // Include authVerified in dependencies
 
   // Add a fallback timer to proceed if verification takes too long
   useEffect(() => {
