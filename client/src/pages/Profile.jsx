@@ -139,6 +139,7 @@ export default function Profile() {
   useEffect(() => {
     if (user && (user.id || user._id)) {
       const userId = user.id || user._id;
+      setStatsLoading(true);
       api.get(`/users/${userId}`)
         .then(res => {
           const updatedUser = res.data;
@@ -147,9 +148,13 @@ export default function Profile() {
         })
         .catch(err => {
           console.error('Failed to refresh user data:', err);
+          showError('Failed to refresh profile data. Please try again.');
+        })
+        .finally(() => {
+          setStatsLoading(false);
         });
     }
-  }, []);
+  }, [user, setUser, showError]);
 
   // Fetch content deletion setting on mount
   useEffect(() => {
@@ -166,8 +171,11 @@ export default function Profile() {
     try {
       await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
       setContentDeletion(val);
-    } catch {
-      setContentDeletionError('Failed to update setting.');
+      showSuccess('Content deletion setting updated successfully!');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to update setting.';
+      setContentDeletionError(errorMessage);
+      showError(errorMessage);
     } finally {
       setContentDeletionLoading(false);
     }
@@ -245,7 +253,7 @@ export default function Profile() {
     }, 2000); // 2 second delay
     
     return () => clearTimeout(timeoutId);
-  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode]);
+  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, validateForm, handleSave]);
 
   const handleSave = async (e, isAutoSave = false) => {
     if (e) e.preventDefault();
@@ -1187,41 +1195,77 @@ function ChangePasswordForm() {
   };
 
   return (
-    <div className="max-w-md">
-      <form onSubmit={handleChangePassword} className="space-y-4">
-        <h3 className="text-2xl font-bold text-center mb-6 text-[#888]">Change Password</h3>
-        <div>
-          <label htmlFor="oldPassword" className="block font-semibold mb-1 text-primary">Old Password</label>
-          <input
-            type="password"
-            id="oldPassword"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={oldPassword}
-            onChange={e => setOldPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="newPassword" className="block font-semibold mb-1 text-primary">New Password</label>
-          <input
-            type="password"
-            id="newPassword"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            required
-          />
-        </div>
-        {message && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{message}</div>}
-        {error && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{error}</div>}
-        <button
-          type="submit"
-          className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark"
-          disabled={loading}
-        >
-          {loading ? 'Changing...' : 'Change Password'}
-        </button>
-      </form>
+    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+      <div className="max-w-md mx-auto">
+        <form onSubmit={handleChangePassword} className="space-y-6">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-white mb-2">Change Password</h3>
+            <p className="text-neutral-400 text-sm">Update your account password</p>
+          </div>
+          
+          <div>
+            <label htmlFor="oldPassword" className="block font-semibold mb-2 text-primary text-sm">Current Password</label>
+            <input
+              type="password"
+              id="oldPassword"
+              className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              value={oldPassword}
+              onChange={e => setOldPassword(e.target.value)}
+              required
+              placeholder="Enter your current password"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="newPassword" className="block font-semibold mb-2 text-primary text-sm">New Password</label>
+            <input
+              type="password"
+              id="newPassword"
+              className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              required
+              placeholder="Enter your new password"
+            />
+          </div>
+          
+          {message && (
+            <div className="bg-green-900/20 border border-green-800/30 rounded-lg p-4 text-green-300" role="status" aria-live="polite">
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="w-4 h-4" />
+                {message}
+              </div>
+            </div>
+          )}
+          
+          {error && (
+            <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300" role="alert" aria-live="assertive">
+              <div className="flex items-center gap-2">
+                <ExclamationTriangleIcon className="w-4 h-4" />
+                {error}
+              </div>
+            </div>
+          )}
+          
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Changing Password...
+              </>
+            ) : (
+              <>
+                <CheckCircleIcon className="w-5 h-5" />
+                Change Password
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 } 

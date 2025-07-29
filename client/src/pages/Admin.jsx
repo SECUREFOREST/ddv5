@@ -696,6 +696,12 @@ function Admin() {
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
         <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
+          {/* Live Status Indicator */}
+          <div aria-live="polite" aria-label="Admin operations status" className="sr-only">
+            {Object.values(operationLoading).some(loading => loading) && (
+              <span>Processing admin operations...</span>
+            )}
+          </div>
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -704,9 +710,18 @@ function Admin() {
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Admin Panel</h1>
-            <p className="text-xl sm:text-2xl text-neutral-300">
+            <p className="text-xl sm:text-2xl text-neutral-300 mb-4">
               Manage users, dares, and system settings
             </p>
+            
+            {/* Keyboard Shortcuts Hint */}
+            <div className="text-sm text-neutral-400 bg-neutral-800/50 rounded-lg p-3 inline-block">
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                <span>💡 Keyboard shortcuts:</span>
+                <span>Ctrl+F to search</span>
+                <span>Ctrl+1-6 to switch tabs</span>
+              </div>
+            </div>
           </div>
 
           {/* Stats Overview */}
@@ -847,13 +862,55 @@ function Admin() {
                       <ListSkeleton count={10} />
                     ) : (
                       <Card header="Users List">
+                        {/* Bulk Actions */}
+                        {selectedItems.length > 0 && (
+                          <div className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/30 mb-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-white font-semibold">
+                                {selectedItems.length} users selected
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleBulkAction('delete', selectedItems)}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
+                                >
+                                  Delete Selected
+                                </button>
+                                <button
+                                  onClick={() => setSelectedItems([])}
+                                  className="bg-neutral-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-neutral-700 transition-all"
+                                >
+                                  Clear Selection
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
                         <div className="space-y-4">
                           {users.map(user => (
-                            <div key={user._id} className="flex items-center gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                            <div key={user._id} className="flex items-center gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/50 transition-all">
+                              <input
+                                type="checkbox"
+                                checked={selectedItems.includes(user._id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedItems([...selectedItems, user._id]);
+                                  } else {
+                                    setSelectedItems(selectedItems.filter(id => id !== user._id));
+                                  }
+                                }}
+                                className="w-4 h-4 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
+                              />
                               <Avatar user={user} size={40} />
                               <div className="flex-1">
                                 <div className="font-semibold text-white">{user.fullName || user.username}</div>
                                 <div className="text-sm text-neutral-400">@{user.username}</div>
+                                {user.roles && user.roles.length > 0 && (
+                                  <div className="text-xs text-neutral-500">
+                                    Roles: {user.roles.join(', ')}
+                                  </div>
+                                )}
                               </div>
                               <div className="flex gap-2">
                                 <ActionLoading
@@ -873,7 +930,12 @@ function Admin() {
                                   loadingText="Deleting..."
                                 >
                                   <button
-                                    onClick={() => handleDeleteUser(user._id)}
+                                    onClick={() => showConfirmation(
+                                      'Delete User',
+                                      `Are you sure you want to delete user "${user.fullName || user.username}"? This action cannot be undone.`,
+                                      () => handleDeleteUser(user._id),
+                                      'danger'
+                                    )}
                                     disabled={actionLoading}
                                     className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
@@ -930,50 +992,107 @@ function Admin() {
                       <ListSkeleton count={10} />
                     ) : (
                       <Card header="Dares List">
+                        {/* Export and Bulk Actions */}
+                        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                          <button
+                            onClick={() => exportToCsv('dares.csv', dares.map(dare => ({
+                              ID: dare._id,
+                              Description: dare.description,
+                              Creator: dare.creator?.username || 'Unknown',
+                              Status: dare.status,
+                              Created: dare.createdAt ? new Date(dare.createdAt).toLocaleDateString() : 'Unknown'
+                            })))}
+                            className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-lg text-sm hover:from-purple-700 hover:to-purple-600 transition-all flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export CSV
+                          </button>
+                          
+                          <div className="text-sm text-neutral-400 flex items-center gap-2">
+                            <span>Total: {dares.length} dares</span>
+                            <span>•</span>
+                            <span>Pending: {dares.filter(d => d.status === 'pending').length}</span>
+                            <span>•</span>
+                            <span>Approved: {dares.filter(d => d.status === 'approved').length}</span>
+                          </div>
+                        </div>
+                        
                         <div className="space-y-4">
                           {dares.map(dare => (
-                            <div key={dare._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                            <div key={dare._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/50 transition-all">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="font-semibold text-white mb-2">{dare.description}</div>
-                                  <div className="text-sm text-neutral-400">
+                                  <div className="text-sm text-neutral-400 mb-1">
                                     Created by: {dare.creator?.username || 'Unknown'}
                                   </div>
-                                  <div className="text-sm text-neutral-400">
-                                    Status: {dare.status}
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                      dare.status === 'approved' ? 'bg-green-600/20 text-green-400' :
+                                      dare.status === 'rejected' ? 'bg-red-600/20 text-red-400' :
+                                      'bg-yellow-600/20 text-yellow-400'
+                                    }`}>
+                                      {dare.status}
+                                    </span>
+                                    {dare.createdAt && (
+                                      <span className="text-xs text-neutral-500">
+                                        {formatRelativeTimeWithTooltip(dare.createdAt).display}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
-                                  <ActionLoading
-                                    loading={actionLoading}
-                                    loadingText="Approving..."
-                                  >
-                                    <button
-                                      onClick={() => handleApprove(dare._id)}
-                                      disabled={actionLoading}
-                                      className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      Approve
-                                    </button>
-                                  </ActionLoading>
-                                  <ActionLoading
-                                    loading={actionLoading}
-                                    loadingText="Rejecting..."
-                                  >
-                                    <button
-                                      onClick={() => handleReject(dare._id)}
-                                      disabled={actionLoading}
-                                      className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      Reject
-                                    </button>
-                                  </ActionLoading>
+                                  {dare.status === 'pending' && (
+                                    <>
+                                      <ActionLoading
+                                        loading={actionLoading}
+                                        loadingText="Approving..."
+                                      >
+                                        <button
+                                          onClick={() => showConfirmation(
+                                            'Approve Dare',
+                                            `Are you sure you want to approve this dare?`,
+                                            () => handleApprove(dare._id),
+                                            'info'
+                                          )}
+                                          disabled={actionLoading}
+                                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          Approve
+                                        </button>
+                                      </ActionLoading>
+                                      <ActionLoading
+                                        loading={actionLoading}
+                                        loadingText="Rejecting..."
+                                      >
+                                        <button
+                                          onClick={() => showConfirmation(
+                                            'Reject Dare',
+                                            `Are you sure you want to reject this dare?`,
+                                            () => handleReject(dare._id),
+                                            'warning'
+                                          )}
+                                          disabled={actionLoading}
+                                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          Reject
+                                        </button>
+                                      </ActionLoading>
+                                    </>
+                                  )}
                                   <ActionLoading
                                     loading={actionLoading}
                                     loadingText="Deleting..."
                                   >
                                     <button
-                                      onClick={() => handleDeleteDare(dare)}
+                                      onClick={() => showConfirmation(
+                                        'Delete Dare',
+                                        `Are you sure you want to delete this dare? This action cannot be undone.`,
+                                        () => handleDeleteDare(dare),
+                                        'danger'
+                                      )}
                                       disabled={actionLoading}
                                       className="px-3 py-1 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
@@ -1303,6 +1422,52 @@ function Admin() {
           />
       </main>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal
+        open={confirmAction.show}
+        onClose={closeConfirmation}
+        title={confirmAction.title}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+              confirmAction.type === 'danger' ? 'bg-red-600/20' : 
+              confirmAction.type === 'warning' ? 'bg-yellow-600/20' : 'bg-blue-600/20'
+            }`}>
+              <ExclamationTriangleIcon className={`w-8 h-8 ${
+                confirmAction.type === 'danger' ? 'text-red-400' : 
+                confirmAction.type === 'warning' ? 'text-yellow-400' : 'text-blue-400'
+              }`} />
+            </div>
+            <p className="text-neutral-300 text-lg">{confirmAction.message}</p>
+          </div>
+          
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={closeConfirmation}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmAction}
+              className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                confirmAction.type === 'danger' 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
+                  : confirmAction.type === 'warning'
+                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* User Edit Modal */}
       <Modal
