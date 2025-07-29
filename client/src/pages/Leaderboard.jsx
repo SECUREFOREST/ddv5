@@ -1,7 +1,9 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon, TrophyIcon, FireIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
 
@@ -10,73 +12,139 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     setLoading(true);
     api.get('/stats/leaderboard')
-      .then(res => setUsers(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setError('Failed to load leaderboard.'))
+      .then(res => {
+        setUsers(Array.isArray(res.data) ? res.data : []);
+        showSuccess('Leaderboard loaded successfully!');
+      })
+      .catch((err) => {
+        setError('Failed to load leaderboard.');
+        showError('Failed to load leaderboard. Please try again.');
+        console.error('Leaderboard loading error:', err);
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [showSuccess, showError]);
 
   const filteredUsers = users.filter(u =>
-    u.user?.username?.toLowerCase().includes(search.toLowerCase())
+    u.user?.username?.toLowerCase().includes(search.toLowerCase()) ||
+    u.user?.fullName?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Leaderboard</h1>
-      </div>
-
-      {/* Search/Filter Bar */}
-      <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mb-4 w-full max-w-md mx-auto">
-        <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400 mr-2" />
-        <input
-          type="text"
-          className="flex-1 bg-[#1a1a1a] border-none focus:ring-0 focus:outline-none text-neutral-100 placeholder-neutral-400"
-          placeholder="Search users..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          aria-label="Search leaderboard users"
-        />
-      </div>
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-          {loading ? (
-            <div className="flex flex-col gap-2">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse flex items-center gap-3 p-3 bg-neutral-900/90 border border-neutral-800 rounded-lg mb-2">
-                  <div className="w-9 h-9 rounded-full bg-neutral-700" />
-                  <div className="flex-1">
-                    <div className="h-3 bg-neutral-700 rounded w-1/2 mb-1" />
-                    <div className="h-2 bg-neutral-800 rounded w-1/3" />
-                  </div>
-                  <div className="w-16 h-3 bg-neutral-700 rounded" />
-                </div>
-              ))}
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-2xl shadow-2xl shadow-primary/25">
+                <TrophyIcon className="w-8 h-8 text-white" />
+              </div>
             </div>
-          ) : error ? (
-            <div className="text-danger text-center mb-4">{error}</div>
-          ) : filteredUsers.length === 0 ? (
-            <div className="text-neutral-400 text-center">No users found.</div>
-          ) : (
-            <div className="mb-8">
-              <Suspense fallback={<div className="text-neutral-400 text-center">Loading leaderboard...</div>}>
-                <LeaderboardWidget leaders={filteredUsers.map(u => ({
-                  id: u.user?.id,
-                  username: u.user?.username,
-                  fullName: u.user?.fullName,
-                  avatar: u.user?.avatar,
-                  daresCount: u.daresCount
-                }))} loading={loading} />
-              </Suspense>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Leaderboard</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              See who's leading the challenge
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+            <div className="relative max-w-md mx-auto">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+              </div>
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                placeholder="Search users..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Search leaderboard users"
+              />
+            </div>
+          </div>
+
+          {/* Leaderboard Content */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            {loading ? (
+              <ListSkeleton count={10} />
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-8">
+                  <div className="text-red-400 text-xl mb-4">Failed to load leaderboard</div>
+                  <p className="text-red-300 text-sm">{error}</p>
+                </div>
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="bg-neutral-800/50 rounded-xl p-8 border border-neutral-700/30">
+                  <div className="text-neutral-400 text-xl mb-4">No users found</div>
+                  <p className="text-neutral-500 text-sm">
+                    {search ? 'Try adjusting your search terms.' : 'The leaderboard is empty.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-primary/20 rounded-lg">
+                    <FireIcon className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Top Performers</h2>
+                    <p className="text-neutral-400">Ranked by dare completion</p>
+                  </div>
+                </div>
+                
+                <Suspense fallback={<ListSkeleton count={5} />}>
+                  <LeaderboardWidget 
+                    leaders={filteredUsers.map(u => ({
+                      id: u.user?.id,
+                      username: u.user?.username,
+                      fullName: u.user?.fullName,
+                      avatar: u.user?.avatar,
+                      daresCount: u.daresCount
+                    }))} 
+                    loading={loading} 
+                  />
+                </Suspense>
+              </div>
+            )}
+          </div>
+
+          {/* Stats Summary */}
+          {!loading && !error && filteredUsers.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30 text-center">
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {filteredUsers.length}
+                </div>
+                <div className="text-sm text-primary-300">Total Participants</div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30 text-center">
+                <div className="text-3xl font-bold text-green-400 mb-2">
+                  {filteredUsers.reduce((sum, u) => sum + (u.daresCount || 0), 0)}
+                </div>
+                <div className="text-sm text-green-300">Total Dares Completed</div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30 text-center">
+                <div className="text-3xl font-bold text-blue-400 mb-2">
+                  {filteredUsers[0]?.daresCount || 0}
+                </div>
+                <div className="text-sm text-blue-300">Top Score</div>
+              </div>
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 } 

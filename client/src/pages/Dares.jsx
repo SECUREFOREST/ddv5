@@ -5,8 +5,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
-import { Squares2X2Icon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
+import { Squares2X2Icon, PlusIcon, FireIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -14,6 +15,7 @@ export default function Dares() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [dares, setDares] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
@@ -39,7 +41,6 @@ export default function Dares() {
   const [acceptError, setAcceptError] = useState('');
   // Add meta state
   const [lastUpdated, setLastUpdated] = useState(null);
-  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (!user) return;
@@ -54,10 +55,16 @@ export default function Dares() {
         const unique = Array.from(new Map(all.map(d => [d._id, d])).values());
         setDares(unique);
         setLastUpdated(new Date());
+        showSuccess('Dares loaded successfully!');
       })
-      .catch(() => { setDares([]); setLastUpdated(new Date()); })
+      .catch((error) => { 
+        setDares([]); 
+        setLastUpdated(new Date()); 
+        showError('Failed to load dares. Please try again.');
+        console.error('Dares loading error:', error);
+      })
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, showSuccess, showError]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -93,309 +100,172 @@ export default function Dares() {
         },
       });
       setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
-      showNotification('Dare created successfully!', 'success');
+      showSuccess('Dare created successfully!');
     } catch (err) {
-      setCreateError(err.response?.data?.error || 'Failed to create dare');
-      showNotification('Failed to create dare.', 'error');
+      const errorMessage = err.response?.data?.error || 'Failed to create dare. Please try again.';
+      setCreateError(errorMessage);
+      showError(errorMessage);
     } finally {
       setCreating(false);
     }
   };
 
-  // Sharable link logic for post-create modal
-  const dareUrl = createdDareId && typeof window !== 'undefined' ? `${window.location.origin}/dares/${createdDareId}` : '';
   const handleShareClick = () => {
-    const input = document.getElementById('sharable-link-input-modal');
-    if (input) {
-      input.select();
-      document.execCommand('copy');
+    if (createdDareId) {
+      const shareUrl = `${window.location.origin}/dare/share/${createdDareId}`;
+      navigator.clipboard.writeText(shareUrl);
+      showSuccess('Share link copied to clipboard!');
     }
   };
 
   const openAcceptModal = (dare) => {
     setAcceptDareId(dare._id);
-    setAcceptDifficulty(dare.difficulty || '');
+    setAcceptDifficulty('');
     setAcceptConsent(false);
     setAcceptError('');
   };
 
   const handleAcceptSubmit = async (e) => {
     e.preventDefault();
+    if (!acceptConsent) {
+      setAcceptError('You must consent to participate in this dare.');
+      return;
+    }
     setAcceptLoading(true);
-    setAcceptError('');
     try {
-      await api.patch(`/dares/${acceptDareId}/start`, { difficulty: acceptDifficulty });
-      setAcceptDareId(null);
-      setAcceptDifficulty('');
-      setAcceptConsent(false);
-      navigate(`/dares/${acceptDareId}`);
-      showNotification('Dare accepted successfully!', 'success');
+      await api.post(`/dares/${acceptDareId}/accept`, {
+        difficulty: acceptDifficulty,
+        consent: acceptConsent,
+      });
+      showSuccess('Dare accepted successfully!');
+      // Refresh dares
+      setLoading(true);
+      const daresRes = await api.get('/dares', {
+        params: {
+          status: status || undefined,
+          difficulty: difficulty || undefined,
+          search: search || undefined,
+          public: isPublic || undefined,
+          dareType: dareType || undefined,
+          role: user?.roles?.[0] || undefined,
+        },
+      });
+      setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
     } catch (err) {
-      setAcceptError(err.response?.data?.error || 'Failed to accept dare.');
-      showNotification('Failed to accept dare.', 'error');
+      const errorMessage = err.response?.data?.error || 'Failed to accept dare. Please try again.';
+      setAcceptError(errorMessage);
+      showError(errorMessage);
     } finally {
       setAcceptLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden" role="main" aria-label="My Dares">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-            <Squares2X2Icon className="w-7 h-7 text-primary" aria-hidden="true" /> My Dares
-          </h1>
-        </div>
-        {/* Visually distinct status badge below header */}
-        <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
-            <Squares2X2Icon className="w-6 h-6" /> Your Dares
-          </span>
-        </div>
-  
-  
-        {/* Filters/Form Section */}
-        <form role="form" aria-labelledby="dares-filter-title" onSubmit={e => e.preventDefault()} className="space-y-6">
-          <h1 id="dares-filter-title" className="text-2xl font-bold mb-4">Filter Dares</h1>
-          <div className="flex flex-wrap gap-4 items-end mb-6" aria-label="Filter Dares">
-            <div className="flex flex-col min-w-[120px] flex-1">
-              <label htmlFor="dares-status" className="font-semibold mb-1 text-primary">Status</label>
-              <select id="dares-status" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={status} onChange={e => setStatus(e.target.value)} aria-required="true">
-                {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-2xl shadow-2xl shadow-primary/25">
+                <FireIcon className="w-8 h-8 text-white" />
+              </div>
             </div>
-            <div className="flex flex-col min-w-[120px] flex-1">
-              <label htmlFor="dares-difficulty" className="font-semibold mb-1 text-primary">Difficulty</label>
-              <select id="dares-difficulty" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={difficulty} onChange={e => setDifficulty(e.target.value)} aria-required="true">
-                {DIFFICULTY_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
-            </div>
-            <div className="flex flex-col min-w-[120px] flex-1">
-              <label htmlFor="dares-search" className="font-semibold mb-1 text-primary">Search</label>
-              <input id="dares-search" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={search} onChange={e => setSearch(e.target.value)} placeholder="Description or tags" aria-label="Search Dares" aria-required="false" />
-            </div>
-            <div className="flex flex-col min-w-[120px] flex-1">
-              <label htmlFor="dares-type" className="font-semibold mb-1 text-primary">Type</label>
-              <select id="dares-type" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dareType} onChange={e => setDareType(e.target.value)} aria-required="true">
-                {DARE_TYPE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
-            </div>
-            <div className="flex flex-col min-w-[120px] flex-1">
-              <label htmlFor="dares-visibility" className="font-semibold mb-1 text-primary">Visibility</label>
-              <select id="dares-visibility" className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={isPublic} onChange={e => setIsPublic(e.target.value)} aria-required="true">
-                <option value="">All</option>
-                <option value="true">Public</option>
-                <option value="false">Private</option>
-              </select>
-            </div>
-            {user && (
-              <button type="button" className="ml-auto bg-primary text-primary-contrast rounded px-4 py-2 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" onClick={() => setShowCreate(true)} aria-label="Create New Dare">
-                + Create Dare
-              </button>
-            )}
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Your Dares</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Manage and track all your dare activities
+            </p>
           </div>
-        </form>
-        {/* Dares List Section */}
-        {loading ? (
-          <div className="flex flex-col gap-4">
-            {[...Array(3)].map((_, i) => (
-              <DareCard key={i} loading />
-            ))}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {dares.length === 0 && !loading && (
-              <div className="text-neutral-400 text-center py-8">No dares found.</div>
-            )}
-            <div className="flex flex-col gap-4">
-              {dares.map(dare => (
-                <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }} tabIndex={0} aria-label={`View dare: ${dare.description}`}>
-                  <DareCard
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    tags={dare.tags}
-                    status={dare.status}
-                    creator={dare.creator}
-                    performer={dare.performer}
-                    assignedSwitch={dare.assignedSwitch}
-                    actions={[]}
-                    currentUserId={user?.id}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-        <h2 className="text-lg font-bold mt-8 mb-2 text-primary">Switch Games</h2>
-        {dares.filter(d => d.dareType === 'switch' || d.assignedSwitch).length === 0 ? (
-          <div className="text-neutral-400 text-center py-4">No switch games found.</div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {dares.filter(d => d.dareType === 'switch' || d.assignedSwitch).map(dare => (
-              <Link to={`/dares/${dare._id}`} key={dare._id} style={{ textDecoration: 'none' }} tabIndex={0} aria-label={`View switch game: ${dare.description}`}>
-                <DareCard
-                  description={dare.description}
-                  difficulty={dare.difficulty}
-                  tags={dare.tags}
-                  status={dare.status}
-                  creator={dare.creator}
-                  performer={dare.performer}
-                  assignedSwitch={dare.assignedSwitch}
-                  actions={[]}
-                  currentUserId={user?.id}
-                  style={{ cursor: 'pointer' }}
+
+          {/* Filters and Actions */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+              <div className="flex flex-wrap gap-4">
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                >
+                  <option value="">All Status</option>
+                  {STATUS_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+                
+                <select
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                  className="px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                >
+                  <option value="">All Difficulties</option>
+                  {DIFFICULTY_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+                
+                <input
+                  type="text"
+                  placeholder="Search dares..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
-              </Link>
-            ))}
-          </div>
-        )}
-        {/* Meta Section */}
-        <div className="mt-6 text-xs text-neutral-500 flex flex-col items-center gap-1" aria-label="Dares meta info">
-          <div className="flex items-center gap-1">
-            <Squares2X2Icon className="w-4 h-4 text-primary" />
-            Total Dares: <span className="font-bold text-primary ml-1">{dares.length}</span>
-          </div>
-          {lastUpdated && (
-            <div className="flex items-center gap-1">
-              <span className="text-neutral-400">Last Updated:</span>
-              <span
-                className="cursor-help"
-                title={formatRelativeTimeWithTooltip(lastUpdated).tooltip}
+              </div>
+              
+              <button
+                onClick={() => setShowCreate(true)}
+                className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center gap-2"
               >
-                {formatRelativeTimeWithTooltip(lastUpdated).display}
-              </span>
-            </div>
-          )}
-        </div>
-        {/* Create Dare Modal */}
-        {showCreate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-lg mx-4 relative">
-              <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">Create New Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setShowCreate(false)}>&times;</button>
-              </div>
-              <form onSubmit={handleCreate}>
-                <div className="px-6 py-4 space-y-4">
-                  <div>
-                    <label htmlFor="dares-createDescription" className="block font-semibold mb-1 text-primary">Description</label>
-                    <textarea id="dares-createDescription" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDescription} onChange={e => setCreateDescription(e.target.value)} required rows={3} maxLength={300} placeholder="Describe the dare..." aria-label="Dare Description" aria-required="true" />
-                  </div>
-                  <div>
-                    <label htmlFor="dares-createDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-                    <select id="dares-createDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDifficulty} onChange={e => setCreateDifficulty(e.target.value)} aria-required="true">
-                      {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="dares-createTags" className="block font-semibold mb-1 text-primary">Tags</label>
-                    <TagsInput id="dares-createTags" value={createTags} onChange={setCreateTags} placeholder="Add a tag..." aria-label="Dare Tags" aria-required="false" />
-                  </div>
-                  <div>
-                    <label htmlFor="dares-createDareType" className="block font-semibold mb-1 text-primary">Type</label>
-                    <select id="dares-createDareType" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createDareType} onChange={e => setCreateDareType(e.target.value)} aria-required="true">
-                      {DARE_TYPE_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="dares-createPublic" className="block font-semibold mb-1 text-primary">Visibility</label>
-                    <select id="dares-createPublic" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={createPublic ? 'true' : 'false'} onChange={e => setCreatePublic(e.target.value === 'true')} aria-required="true">
-                      <option value="true">Public</option>
-                      <option value="false">Private</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="dares-createAllowedRoles" className="block font-semibold mb-1 text-primary">Allowed Roles (optional)</label>
-                    <select id="dares-createAllowedRoles" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" multiple value={createAllowedRoles} onChange={e => setCreateAllowedRoles(Array.from(e.target.selectedOptions, o => o.value))} aria-required="false">
-                      {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                    <small className="text-neutral-400">If set, only users with these roles can participate.</small>
-                  </div>
-                  <div>
-                    <label htmlFor="dares-consentChecked" className="inline-flex items-center">Consent</label>
-                    <input id="dares-consentChecked" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={consentChecked} onChange={e => setConsentChecked(e.target.checked)} required aria-required="true" />
-                    I consent to perform or participate in this dare as described.
-                  </div>
-                  {createError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{createError}</div>}
-                </div>
-                <div className="border-t border-neutral-900 px-6 py-3 flex justify-end space-x-2">
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={creating}>
-                    {creating ? 'Creating...' : 'Create Dare'}
-                  </button>
-                </div>
-              </form>
+                <PlusIcon className="w-5 h-5" />
+                Create Dare
+              </button>
             </div>
           </div>
-        )}
-        {/* Post-create sharing modal */}
-        {createdDareId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
-              <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">Share Your Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setCreatedDareId(null)}>&times;</button>
-              </div>
-              <div className="px-6 py-4">
-                <label htmlFor="dares-sharable-link-input-modal" className="block font-semibold mb-1 text-primary">Sharable Link</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="dares-sharable-link-input-modal"
-                    className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                    type="text"
-                    value={dareUrl}
-                    readOnly
-                    onFocus={e => e.target.select()}
-                    aria-label="Sharable Dare Link"
-                  />
-                  <button className="bg-neutral-700 text-neutral-100 rounded px-3 py-1 font-semibold text-xs hover:bg-neutral-600 shadow-lg" onClick={handleShareClick} aria-label="Copy Sharable Link">
-                    Copy
-                  </button>
-                </div>
-              </div>
-              <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-                <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" onClick={() => setCreatedDareId(null)} aria-label="Done Sharing">
-                  Done
+
+          {/* Dares Grid */}
+          {loading ? (
+            <ListSkeleton count={6} />
+          ) : dares.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="bg-neutral-800/50 rounded-xl p-12 border border-neutral-700/30">
+                <div className="text-neutral-400 text-xl mb-4">No dares found</div>
+                <p className="text-neutral-500 text-sm mb-6">Start by creating your first dare or accepting one from the community.</p>
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                >
+                  Create Your First Dare
                 </button>
               </div>
             </div>
-          </div>
-        )}
-        {/* Accept Dare Modal */}
-        {acceptDareId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog" aria-modal="true">
-            <div className="bg-neutral-900 rounded-lg w-full max-w-md mx-4 relative">
-              <div className="flex items-center justify-between border-b border-neutral-800 px-6 py-4">
-                <h2 className="text-lg font-semibold text-primary">Start / Accept Dare</h2>
-                <button type="button" className="text-neutral-400 hover:text-neutral-100 text-2xl font-bold focus:outline-none shadow-lg" onClick={() => setAcceptDareId(null)}>&times;</button>
-              </div>
-              <form onSubmit={handleAcceptSubmit}>
-                <div className="px-6 py-4 space-y-4">
-                  <div>
-                    <label htmlFor="dares-acceptDifficulty" className="block font-semibold mb-1 text-primary">Difficulty</label>
-                    <select id="dares-acceptDifficulty" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={acceptDifficulty} onChange={e => setAcceptDifficulty(e.target.value)} required aria-required="true">
-                      {DIFFICULTY_OPTIONS.filter(opt => opt.value).map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="dares-acceptConsent" className="inline-flex items-center">Accept Consent</label>
-                    <input id="dares-acceptConsent" type="checkbox" className="form-checkbox mr-2 bg-[#1a1a1a]" checked={acceptConsent} onChange={e => setAcceptConsent(e.target.checked)} required aria-required="true" />
-                    I consent to perform or participate in this dare as described.
-                  </div>
-                  {acceptError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{acceptError}</div>}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {dares.map(dare => (
+                <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
+                  <DareCard
+                    title={dare.title}
+                    description={dare.description}
+                    difficulty={dare.difficulty}
+                    tags={dare.tags || []}
+                    status={dare.status}
+                    user={dare.creator}
+                    actions={[]}
+                  />
                 </div>
-                <div className="border-t border-neutral-900 px-6 py-3 flex justify-end">
-                  <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={acceptLoading || !acceptConsent}>
-                    {acceptLoading ? 'Starting...' : 'Start / Accept'}
-                  </button>
-                </div>
-              </form>
+              ))}
             </div>
-          </div>
-        )}
-      </main>
+          )}
+
+          {/* Last Updated */}
+          {lastUpdated && (
+            <div className="text-center text-neutral-500 text-sm">
+              Last updated: {formatRelativeTimeWithTooltip(lastUpdated).display}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 } 
