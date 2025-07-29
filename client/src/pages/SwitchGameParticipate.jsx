@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Banner } from '../components/Modal';
+import { useToast } from '../components/Toast';
+import ListSkeleton from '../components/ListSkeleton';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
-import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon } from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
-import { useNotification } from '../context/NotificationContext';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];
@@ -20,22 +20,22 @@ function StatusBadge({ status }) {
   let text = status;
   switch (status) {
     case 'waiting_for_participant':
-      badgeClass = 'bg-blue-900/90 border border-blue-700 text-blue-200';
+      badgeClass = 'bg-blue-600/20 border border-blue-500/50 text-blue-300';
       icon = <ClockIcon className="w-5 h-5" />;
       text = 'Waiting for Participant';
       break;
     case 'in_progress':
-      badgeClass = 'bg-blue-900/90 border border-blue-700 text-blue-200';
+      badgeClass = 'bg-blue-600/20 border border-blue-500/50 text-blue-300';
       icon = <ClockIcon className="w-5 h-5" />;
       text = 'In Progress';
       break;
     case 'completed':
-      badgeClass = 'bg-green-900/90 border border-green-700 text-green-200';
+      badgeClass = 'bg-green-600/20 border border-green-500/50 text-green-300';
       icon = <CheckCircleIcon className="w-5 h-5" />;
       text = 'Completed';
       break;
     case 'forfeited':
-      badgeClass = 'bg-red-900/90 border border-red-700 text-red-200';
+      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
       icon = <ExclamationTriangleIcon className="w-5 h-5" />;
       text = 'Forfeited';
       break;
@@ -45,7 +45,7 @@ function StatusBadge({ status }) {
       text = status;
   }
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-4 py-1 font-semibold shadow-lg text-lg ${badgeClass} mx-auto mb-4`}>
+    <span className={`inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold shadow-lg text-lg ${badgeClass} mx-auto mb-6`}>
       {icon} {text}
     </span>
   );
@@ -72,22 +72,21 @@ export default function SwitchGameParticipate() {
   const [difficulty, setDifficulty] = useState('');
   const [consent, setConsent] = useState(false);
   const [searching, setSearching] = useState(false);
-  const [banner, setBanner] = useState({ type: '', message: '' });
-  const { showNotification } = useNotification();
+  const { showSuccess, showError } = useToast();
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Handler for finding a game (for the difficulty/consent form)
   const handleFindGame = async (e) => {
     e.preventDefault();
     setError('');
-    setBanner({ type: '', message: '' });
     if (!difficulty) {
-      setBanner({ type: 'error', message: 'Please select a difficulty.' });
+      showError('Please select a difficulty.');
       return;
     }
     if (!consent) {
-      setBanner({ type: 'error', message: 'You must consent to participate.' });
+      showError('You must consent to participate.');
       return;
     }
     setSearching(true);
@@ -98,10 +97,10 @@ export default function SwitchGameParticipate() {
       if (games.length > 0 && games[0]._id) {
         navigate(`/switches/participate/${games[0]._id}`);
       } else {
-        setBanner({ type: 'error', message: 'No open switch games available for this difficulty.' });
+        showError('No open switch games available for this difficulty.');
       }
     } catch (err) {
-      setBanner({ type: 'error', message: 'Failed to find a switch game.' });
+      showError('Failed to find a switch game.');
     } finally {
       setSearching(false);
     }
@@ -110,29 +109,36 @@ export default function SwitchGameParticipate() {
   // Fetch game if gameId is present
   useEffect(() => {
     if (!gameId) return;
+    setLoading(true);
     api.get(`/switches/${gameId}`)
-      .then(res => setGame(res.data))
-      .catch(() => setError('Game not found.'));
+      .then(res => {
+        setGame(res.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Game not found.');
+        setLoading(false);
+      });
   }, [gameId]);
 
   // In the handleSubmit function, update the join POST request:
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setBanner({ type: '', message: '' });
     if (!demand || demand.length < 10) {
-      setBanner({ type: 'error', message: 'Please enter a demand of at least 10 characters.' });
+      showError('Please enter a demand of at least 10 characters.');
       return;
     }
     if (!gesture) {
-      setBanner({ type: 'error', message: 'Please select your gesture.' });
+      showError('Please select your gesture.');
       return;
     }
     try {
       await api.post(`/switches/${gameId}/join`, { move: gesture, consent: true, difficulty: game.difficulty });
+      showSuccess('Successfully joined the game!');
       navigate(`/switches/${gameId}`);
     } catch (err) {
-      setBanner({ type: 'error', message: err.response?.data?.error || 'Failed to join game.' });
+      showError(err.response?.data?.error || 'Failed to join game.');
     }
   };
 
@@ -145,12 +151,12 @@ export default function SwitchGameParticipate() {
     setChickenOutError('');
     try {
       await api.post(`/switches/${game._id}/forfeit`);
-      showNotification('You have successfully chickened out.', 'success');
+      showSuccess('You have successfully chickened out.');
       // Optionally refresh or redirect
       window.location.reload();
     } catch (err) {
       setChickenOutError(err.response?.data?.error || 'Failed to chicken out.');
-      showNotification(err.response?.data?.error || 'Failed to chicken out.', 'error');
+      showError(err.response?.data?.error || 'Failed to chicken out.');
     } finally {
       setChickenOutLoading(false);
     }
@@ -160,262 +166,350 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-        {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
-        </div>
-        <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
-        {/* Card-like section for form content */}
-        <form onSubmit={handleFindGame} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-          <div>
-            <div className="font-bold text-xl text-primary mb-4">Choose a difficulty</div>
-            <div className="flex flex-col gap-4">
-              {DIFFICULTY_OPTIONS.map(opt => (
-                <label
-                  key={opt.value}
-                  className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
-                    ${difficulty === opt.value
-                      ? 'border-primary bg-primary/10 shadow-lg scale-105'
-                      : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
-                  `}
-                  tabIndex={0}
-                  aria-label={`Select ${opt.label} difficulty`}
-                  role="radio"
-                  aria-checked={difficulty === opt.value}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="difficulty"
-                    value={opt.value}
-                    checked={difficulty === opt.value}
-                    onChange={() => setDifficulty(opt.value)}
-                    className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
-                    aria-checked={difficulty === opt.value}
-                    aria-label={opt.label}
-                    tabIndex={-1}
-                  />
-                  <span className="flex items-center gap-2">
-                    {DIFFICULTY_ICONS[opt.value]}
-                    <b className="text-base text-primary-contrast">{opt.label}</b>
-                  </span>
-                  <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
-                </label>
-              ))}
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
             </div>
+            <p className="text-xl text-white/80">Join an existing game or find a new one</p>
           </div>
-          <div>
-            <label className="block font-bold text-primary mb-2">Description / Requirements</label>
-            <textarea
-              className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-              value={demand}
-              onChange={e => setDemand(e.target.value)}
-              rows={3}
-              required
-              minLength={10}
-              placeholder="Describe the dare you want the other to perform if they lose..."
-              aria-label="Description or requirements"
-            />
+
+          {/* Form Card */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
+            <form onSubmit={handleFindGame} className="space-y-8">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-6 text-center">Choose Difficulty</h2>
+                <div className="grid gap-4">
+                  {DIFFICULTY_OPTIONS.map(opt => (
+                    <label
+                      key={opt.value}
+                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-105
+                        ${difficulty === opt.value
+                          ? 'border-purple-400 bg-purple-500/20 shadow-lg'
+                          : 'border-white/20 hover:border-purple-400/50 bg-white/5'}
+                      `}
+                      tabIndex={0}
+                      aria-label={`Select ${opt.label} difficulty`}
+                      role="radio"
+                      aria-checked={difficulty === opt.value}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="difficulty"
+                        value={opt.value}
+                        checked={difficulty === opt.value}
+                        onChange={() => setDifficulty(opt.value)}
+                        className="sr-only"
+                        aria-checked={difficulty === opt.value}
+                        aria-label={opt.label}
+                        tabIndex={-1}
+                      />
+                      <span className="flex items-center gap-3">
+                        {DIFFICULTY_ICONS[opt.value]}
+                        <div>
+                          <div className="font-bold text-white text-lg">{opt.label}</div>
+                          <div className="text-white/70 text-sm">{opt.desc}</div>
+                        </div>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-white mb-3">Your Demand (if they lose)</label>
+                <textarea
+                  className="w-full rounded-xl border border-white/20 px-4 py-3 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                  value={demand}
+                  onChange={e => setDemand(e.target.value)}
+                  rows={4}
+                  required
+                  minLength={10}
+                  placeholder="Describe the dare you want the other to perform if they lose..."
+                  aria-label="Description or requirements"
+                />
+                <p className="text-white/60 text-sm mt-2">They will only see this if they lose the game</p>
+              </div>
+
+              <div className="flex items-center justify-center">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={e => setConsent(e.target.checked)}
+                    className="w-5 h-5 text-purple-600 bg-white/10 border-white/20 rounded focus:ring-purple-400"
+                    required
+                  />
+                  <span className="text-white">I consent to participate in a switch game at this difficulty</span>
+                </label>
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" 
+                disabled={searching}
+                aria-label="Find Game"
+              >
+                {searching ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                    Finding Game...
+                  </div>
+                ) : (
+                  'Find Game'
+                )}
+              </button>
+            </form>
           </div>
-          <div className="flex items-center justify-center mb-4">
-            <input
-              type="checkbox"
-              id="consent"
-              checked={consent}
-              onChange={e => setConsent(e.target.checked)}
-              className="mr-2 accent-primary focus:ring-2 focus:ring-primary-contrast bg-[#1a1a1a]"
-              required
-            />
-            <label htmlFor="consent" className="text-neutral-200">I consent to participate in a switch game at this difficulty</label>
-          </div>
-          <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg shadow-lg" disabled={searching} aria-label="Find Game">
-            {searching ? (
-              <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-            ) : (
-              <>Find Game</>
-            )}
-          </button>
-        </form>
+        </div>
       </div>
     );
   } else if (error) {
     content = (
-      <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-        {/* Progress/Accent Bar */}
-        <div className="w-full bg-primary h-1 mb-1" />
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
+            </div>
+          </div>
+
+          {/* Error Card */}
+          <div className="bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-8 shadow-2xl text-center">
+            <ExclamationTriangleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">Game Not Found</h2>
+            <p className="text-white/80 mb-6">{error}</p>
+            <button
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              onClick={() => navigate('/switches/participate')}
+            >
+              Try Another Game
+            </button>
+          </div>
         </div>
-  
-        <Banner type="error" message={error} onClose={() => setError('')} />
-        <button
-          className="mt-4 bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg"
-          onClick={() => navigate('/switches/participate')}
-        >
-          Try Another Game
-        </button>
       </div>
     );
-  } else if (!game) {
-    content = <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden text-neutral-200 flex items-center justify-center min-h-[200px]">Loading...</div>;
+  } else if (!game || loading) {
+    content = (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <ListSkeleton />
+        </div>
+      </div>
+    );
   } else {
     const u = game.creator;
     content = (
-      <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-        {/* Progress/Accent Bar */}
-        <div className="w-full bg-primary h-1 mb-1" />
-        {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Participate in a Switch Game</h1>
-        </div>
-  
-        <Banner type={banner.type} message={banner.message} onClose={() => setBanner({ type: '', message: '' })} />
-        {/* 3. In the main render, after the sticky header, add: */}
-        {game && (
-          <div className="flex justify-center mb-4">
-            <StatusBadge status={game.status} />
-          </div>
-        )}
-        {/* User info card */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-6 bg-neutral-900/80 rounded-xl p-4 border border-neutral-800 ">
-          <div className="flex flex-col items-center">
-            {game.creator && (
-              <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
-                <Avatar user={game.creator} size="lg" alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
-              </a>
-            )}
-            <span className="inline-flex items-center gap-1 text-xs text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full mt-1">Creator</span>
-            <span className="font-semibold text-neutral-100">{game.creator?.username}</span>
-          </div>
-          {/* Add participant info if available */}
-          {game.participant && (
-            <>
-              <span className="hidden sm:block text-neutral-500 text-3xl mx-4">→</span>
-              <div className="flex flex-col items-center">
-                <a href={`/profile/${game.participant._id || game.participant.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.participant.username}'s profile`}>
-                  <Avatar user={game.participant} size="lg" alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
-                </a>
-                <span className="inline-flex items-center gap-1 text-xs text-blue-400 font-bold bg-blue-400/10 px-2 py-0.5 rounded-full mt-1">Participant</span>
-                <span className="font-semibold text-neutral-100">{game.participant?.username}</span>
-              </div>
-            </>
-          )}
-        </div>
-        {/* Game info and join form */}
-        <div className="p-4 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-          <div className="font-bold text-xl text-primary mb-2">Game Details</div>
-          <div className="text-base font-normal mb-3 break-words text-primary-contrast">{game.difficultyDescription}</div>
-          <div className="flex flex-wrap justify-center gap-2 mt-2">
-            <span className="inline-flex items-center gap-1 bg-primary text-primary-contrast rounded-full px-3 py-1 text-xs font-semibold border border-primary">
-              <TagIcon className="w-3 h-3" /> {game.difficulty}
-            </span>
-            {game.tags && game.tags.map(tag => (
-              <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
-                <TagIcon className="w-3 h-3" /> {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-        <form role="form" aria-labelledby="switch-game-participate-title" onSubmit={handleSubmit} className="space-y-4">
-            <h1 id="switch-game-participate-title" className="text-2xl font-bold mb-4">Participate in Switch Game</h1>
-            <div>
-              <div className="font-bold text-base text-primary mb-1">Your demand, if they lose</div>
-              <textarea
-                rows={4}
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-contrast focus:border-primary"
-                required
-                aria-required="true"
-                name="switch[demand]"
-                id="switch_demand"
-                value={demand}
-                onChange={e => setDemand(e.target.value)}
-                placeholder="Describe the dare you want the other to perform if they lose..."
-              />
-              <p className="help-block text-xs text-neutral-400">They will only see this if they lose the game</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
             </div>
-            <div>
-              <div className="font-bold text-base text-primary mb-1">Your gesture</div>
-              <div className="flex gap-4 mb-2 justify-center">
-                {MOVES.map(opt => (
-                  <label key={opt} className={`cursor-pointer px-3 py-2 rounded-lg border transition-all duration-150 flex flex-col items-center
-                    ${gesture === opt ? 'bg-primary text-primary-contrast border-primary scale-105 shadow-lg' : 'bg-neutral-900 text-neutral-100 border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}`}
-                    tabIndex={0} aria-label={`Select gesture ${opt}`}>
-                    <input
-                      className="hidden"
-                      required
-                      aria-required="true"
-                      type="radio"
-                      value={opt}
-                      name="switch[gesture]"
-                      checked={gesture === opt}
-                      onChange={e => setGesture(e.target.value)}
-                    />
-                    <span className="text-2xl mb-1">{opt === 'rock' ? '🪨' : opt === 'paper' ? '📄' : '✂️'}</span>
-                    <span className="font-semibold">{opt.charAt(0).toUpperCase() + opt.slice(1)}</span>
-                  </label>
-                ))}
+          </div>
+
+          {/* Status Badge */}
+          {game && <StatusBadge status={game.status} />}
+
+          {/* Game Info Card */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Game Details</h2>
+            
+            {/* Participants */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-8 mb-8">
+              <div className="flex flex-col items-center">
+                {game.creator && (
+                  <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
+                    <Avatar user={game.creator} size="lg" alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
+                  </a>
+                )}
+                <span className="inline-flex items-center gap-1 text-xs text-purple-300 font-bold bg-purple-500/20 px-3 py-1 rounded-full mt-2">Creator</span>
+                <span className="font-semibold text-white mt-1">{game.creator?.username}</span>
               </div>
-              <p className="help-block text-xs text-neutral-400">
-                The winner is determined by this game of rock-paper-scissors. Wondering what happens on a draw?{' '}
-                <a href="#rules" onClick={e => { e.preventDefault(); setShowRules(!showRules); }} className="underline cursor-pointer">See more details</a>
-              </p>
-              {showRules && (
-                <div className="well mt-2 bg-neutral-800 p-3 rounded">
-                  <h4 className="heading font-bold mb-2">Game rules</h4>
-                  <div className="details text-sm text-neutral-200">
-                    <p>If you don't know what rock-paper-scissors is, check out <a href="https://en.wikipedia.org/wiki/Rock-paper-scissors" className="underline text-info" target="_blank" rel="noopener noreferrer">the wikipedia article</a>.</p>
-                    <p>In the case of a draw, what happens depend on which gesture you both picked:</p>
-                    <p><strong>Rock:</strong> You both lose and both have to perform the other person's demand.</p>
-                    <p><strong>Paper:</strong> You both win, and no one has to do anything. You might want to start another game.</p>
-                    <p><strong>Scissors:</strong> Deep in the bowels of our data center, a trained monkey flips a coin and the loser is randomly determined.</p>
+              
+              {game.participant && (
+                <>
+                  <span className="hidden sm:block text-white/50 text-4xl mx-4">→</span>
+                  <div className="flex flex-col items-center">
+                    <a href={`/profile/${game.participant._id || game.participant.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.participant.username}'s profile`}>
+                      <Avatar user={game.participant} size="lg" alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
+                    </a>
+                    <span className="inline-flex items-center gap-1 text-xs text-blue-300 font-bold bg-blue-500/20 px-3 py-1 rounded-full mt-2">Participant</span>
+                    <span className="font-semibold text-white mt-1">{game.participant?.username}</span>
                   </div>
+                </>
+              )}
+            </div>
+
+            {/* Game Description */}
+            <div className="text-center mb-6">
+              <p className="text-white/90 text-lg leading-relaxed">{game.difficultyDescription}</p>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <span className="inline-flex items-center gap-2 bg-purple-500/20 text-purple-300 rounded-full px-4 py-2 text-sm font-semibold border border-purple-500/30">
+                <TagIcon className="w-4 h-4" /> {game.difficulty}
+              </span>
+              {game.tags && game.tags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 rounded-full px-4 py-2 text-sm font-semibold border border-blue-500/30">
+                  <TagIcon className="w-4 h-4" /> {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Join Form Card */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Join Game</h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block font-bold text-white mb-3">Your demand, if they lose</label>
+                <textarea
+                  rows={4}
+                  className="w-full rounded-xl border border-white/20 px-4 py-3 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                  required
+                  aria-required="true"
+                  name="switch[demand]"
+                  id="switch_demand"
+                  value={demand}
+                  onChange={e => setDemand(e.target.value)}
+                  placeholder="Describe the dare you want the other to perform if they lose..."
+                />
+                <p className="text-white/60 text-sm mt-2">They will only see this if they lose the game</p>
+              </div>
+
+              <div>
+                <label className="block font-bold text-white mb-3">Your gesture</label>
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  {MOVES.map(opt => (
+                    <label 
+                      key={opt} 
+                      className={`cursor-pointer p-4 rounded-xl border transition-all duration-200 flex flex-col items-center hover:scale-105
+                        ${gesture === opt 
+                          ? 'bg-purple-500/20 text-purple-300 border-purple-400 shadow-lg' 
+                          : 'bg-white/10 text-white border-white/20 hover:border-purple-400/50'
+                        }`}
+                      tabIndex={0} 
+                      aria-label={`Select gesture ${opt}`}
+                    >
+                      <input
+                        className="sr-only"
+                        required
+                        aria-required="true"
+                        type="radio"
+                        value={opt}
+                        name="switch[gesture]"
+                        checked={gesture === opt}
+                        onChange={e => setGesture(e.target.value)}
+                      />
+                      <span className="text-4xl mb-2">{opt === 'rock' ? '🪨' : opt === 'paper' ? '📄' : '✂️'}</span>
+                      <span className="font-semibold text-lg">{opt.charAt(0).toUpperCase() + opt.slice(1)}</span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-white/60 text-sm">
+                  The winner is determined by this game of rock-paper-scissors. Wondering what happens on a draw?{' '}
+                  <button 
+                    type="button"
+                    onClick={() => setShowRules(!showRules)} 
+                    className="text-purple-300 underline hover:text-purple-200"
+                  >
+                    See more details
+                  </button>
+                </p>
+                
+                {showRules && (
+                  <div className="mt-4 bg-white/10 p-4 rounded-xl border border-white/20">
+                    <h4 className="font-bold text-white mb-3">Game rules</h4>
+                    <div className="text-sm text-white/80 space-y-2">
+                      <p>If you don't know what rock-paper-scissors is, check out <a href="https://en.wikipedia.org/wiki/Rock-paper-scissors" className="text-purple-300 underline hover:text-purple-200" target="_blank" rel="noopener noreferrer">the wikipedia article</a>.</p>
+                      <p>In the case of a draw, what happens depend on which gesture you both picked:</p>
+                      <p><strong>Rock:</strong> You both lose and both have to perform the other person's demand.</p>
+                      <p><strong>Paper:</strong> You both win, and no one has to do anything. You might want to start another game.</p>
+                      <p><strong>Scissors:</strong> Deep in the bowels of our data center, a trained monkey flips a coin and the loser is randomly determined.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
+                Join Game
+              </button>
+            </form>
+          </div>
+
+          {/* Timestamps */}
+          {game.createdAt && (
+            <div className="mt-8 text-center">
+              <div className="inline-flex flex-col gap-2 text-sm text-white/60">
+                <div className="flex items-center justify-center gap-2" title={formatRelativeTimeWithTooltip(game.createdAt).tooltip}>
+                  <ClockIcon className="w-4 h-4" />
+                  Created: 
+                  <span className="cursor-help">
+                    {formatRelativeTimeWithTooltip(game.createdAt).display}
+                  </span>
+                </div>
+                {game.updatedAt && (
+                  <div className="flex items-center justify-center gap-2" title={formatRelativeTimeWithTooltip(game.updatedAt).tooltip}>
+                    <Squares2X2Icon className="w-4 h-4" />
+                    Last Updated: 
+                    <span className="cursor-help">
+                      {formatRelativeTimeWithTooltip(game.updatedAt).display}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Chicken Out Button */}
+          {isLoser && game.status === 'in_progress' && (
+            <div className="mt-8">
+              <button
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                onClick={handleChickenOut}
+                disabled={chickenOutLoading}
+                aria-busy={chickenOutLoading}
+              >
+                {chickenOutLoading ? (
+                  <>
+                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                    Chickening Out...
+                  </>
+                ) : (
+                  'Chicken Out'
+                )}
+              </button>
+              {chickenOutError && (
+                <div className="text-red-300 text-sm font-medium mt-3 text-center" role="alert" aria-live="assertive">
+                  {chickenOutError}
                 </div>
               )}
             </div>
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast text-base text-lg shadow-lg">Join Game</button>
-          </form>
-        {/* 6. Add timestamps/meta at the bottom */}
-        {game.createdAt && (
-          <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.createdAt).tooltip}>
-              <ClockIcon className="w-4 h-4 text-neutral-400" />
-              Created: 
-              <span className="cursor-help">
-                {formatRelativeTimeWithTooltip(game.createdAt).display}
-              </span>
-            </div>
-            {game.updatedAt && (
-              <div className="flex items-center gap-1" title={formatRelativeTimeWithTooltip(game.updatedAt).tooltip}>
-                <Squares2X2Icon className="w-4 h-4 text-blue-400" />
-                Last Updated: 
-                <span className="cursor-help">
-                  {formatRelativeTimeWithTooltip(game.updatedAt).display}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-        {isLoser && game.status === 'in_progress' && (
-          <button
-            className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-bold text-base hover:bg-danger-dark transition-colors focus:outline-none focus:ring-2 focus:ring-danger-contrast flex items-center gap-2 justify-center text-lg"
-            onClick={handleChickenOut}
-            disabled={chickenOutLoading}
-            aria-busy={chickenOutLoading}
-          >
-            {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
-          </button>
-        )}
-        {chickenOutError && <div className="text-danger text-sm font-medium mt-2" role="alert" aria-live="assertive">{chickenOutError}</div>}
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
         {content}
       </main>

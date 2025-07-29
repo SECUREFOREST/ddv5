@@ -4,8 +4,9 @@ import api from '../api/axios';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext';
-import { UserIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import ListSkeleton from '../components/ListSkeleton';
+import { UserIcon, ShieldCheckIcon, ClockIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function ProfileView() {
@@ -18,10 +19,13 @@ export default function ProfileView() {
   const [loading, setLoading] = useState(true);
   const [blockStatus, setBlockStatus] = useState('idle'); // idle | blocking | blocked | error
   const [blockError, setBlockError] = useState('');
+  const [error, setError] = useState('');
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
+    setError('');
     Promise.all([
       api.get(`/users/${userId}`),
       api.get(`/stats/users/${userId}`),
@@ -32,8 +36,9 @@ export default function ProfileView() {
       setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
     }).catch(() => {
       setError('Failed to load profile.');
+      showError('Failed to load profile.');
     }).finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, showError]);
 
   const handleBlock = async () => {
     setBlockStatus('blocking');
@@ -41,10 +46,10 @@ export default function ProfileView() {
     try {
       await api.post(`/users/${userId}/block`);
       setBlockStatus('blocked');
-      showNotification('User blocked successfully!', 'success');
+      showSuccess('User blocked successfully!');
     } catch (err) {
       setBlockStatus('error');
-      showNotification(err.response?.data?.error || 'Failed to block user.', 'error');
+      showError(err.response?.data?.error || 'Failed to block user.');
     }
   };
 
@@ -57,6 +62,7 @@ export default function ProfileView() {
     try {
       await api.post(`/users/${userId}/unblock`);
       setBlockStatus('idle');
+      showSuccess('User unblocked successfully!');
       // Remove userId from blockedUsers in context (optional: reload user)
       if (user && user.blockedUsers) {
         const idx = user.blockedUsers.indexOf(userId);
@@ -65,51 +71,81 @@ export default function ProfileView() {
     } catch (err) {
       setBlockStatus('error');
       setBlockError(err.response?.data?.error || 'Failed to unblock user.');
+      showError(err.response?.data?.error || 'Failed to unblock user.');
     }
   };
 
-  if (loading) return <div className="max-w-md w-full mx-auto mt-16 text-center text-neutral-400">Loading...</div>;
-  if (!profile) return <div className="max-w-md w-full mx-auto mt-16 text-center text-danger font-medium">User not found.</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <ListSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-8 shadow-2xl text-center">
+            <ExclamationTriangleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">User Not Found</h2>
+            <p className="text-white/80">The requested user profile could not be found.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If blocked, show message and block all interactions
   if (isBlocked) {
     return (
-      <div className="max-w-md w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-[15px] mb-8 overflow-hidden text-center">
-        {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-14 sm:h-16 mb-4">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-            <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
-          </h1>
-        </div>
-        {/* Visually distinct status badge below header */}
-        <div className="flex justify-center mb-4">
-          <span className="inline-flex items-center gap-2 bg-red-900/90 border border-red-700 text-red-200 rounded-full px-4 py-1 font-semibold text-lg animate-fade-in">
-            Blocked
-          </span>
-        </div>
-  
-        <div className="flex flex-col items-center min-w-[160px] mb-6">
-          {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-2 object-cover border-2 border-primary " />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-2 border-2 border-primary ">
-              {profile.username[0].toUpperCase()}
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">User Profile</h1>
             </div>
-          )}
-          <div className="font-medium text-[#eee] text-lg">{profile.username}</div>
-        </div>
-        <div className="text-warning font-semibold text-lg mt-4">You have blocked this user.</div>
-        <div className="mt-4">
-          <button
-            className={`px-4 py-2 rounded bg-warning text-warning-contrast font-semibold text-sm hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed`}
-            onClick={handleUnblock}
-            disabled={blockStatus === 'blocking'}
-          >
-            {blockStatus === 'blocking' ? 'Unblocking...' : 'Unblock User'}
-          </button>
-          {blockStatus === 'error' && (
-            <div className="text-danger text-xs mt-2">{blockError}</div>
-          )}
+          </div>
+
+          {/* Blocked Status Card */}
+          <div className="bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-8 shadow-2xl text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <span className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/50 text-red-300 rounded-full px-6 py-3 font-semibold text-lg">
+                <ExclamationTriangleIcon className="w-6 h-6" />
+                Blocked User
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center mb-6">
+              {profile.avatar ? (
+                <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-4 object-cover border-2 border-red-400" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-4 border-2 border-red-400">
+                  {profile.username[0].toUpperCase()}
+                </div>
+              )}
+              <div className="font-medium text-white text-xl">{profile.username}</div>
+            </div>
+
+            <div className="text-white/80 text-lg mb-6">You have blocked this user.</div>
+            
+            <button
+              className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleUnblock}
+              disabled={blockStatus === 'blocking'}
+            >
+              {blockStatus === 'blocking' ? 'Unblocking...' : 'Unblock User'}
+            </button>
+            
+            {blockStatus === 'error' && (
+              <div className="text-red-300 text-sm mt-4">{blockError}</div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -120,95 +156,144 @@ export default function ProfileView() {
     if (!roles) return null;
     if (roles.includes('admin')) {
       return (
-        <span className="inline-flex items-center gap-1 bg-primary text-primary-contrast rounded-full px-3 py-1 text-xs font-bold border border-primary ml-2">
-          <ShieldCheckIcon className="w-4 h-4" /> Admin
+        <span className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/50 text-purple-300 rounded-full px-4 py-2 text-sm font-semibold">
+          <ShieldCheckIcon className="w-5 h-5" /> Admin
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 bg-neutral-700 text-neutral-100 rounded-full px-3 py-1 text-xs font-bold border border-neutral-700 ml-2">
-        <UserIcon className="w-4 h-4" /> User
+      <span className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/50 text-blue-300 rounded-full px-4 py-2 text-sm font-semibold">
+        <UserIcon className="w-5 h-5" /> User
       </span>
     );
   }
 
   return (
-    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
       <main id="main-content" tabIndex="-1" role="main">
-        {/* Sticky header at the top */}
-        <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-            <UserIcon className="w-7 h-7 text-primary" aria-hidden="true" /> User Profile
-          </h1>
-        </div>
-        {/* Visually distinct status badge below header */}
-        <div className="flex justify-center mb-4">
-          <RoleBadge roles={profile.roles || []} />
-        </div>
-  
-        <div className="flex flex-wrap gap-8 mb-8">
-          <div className="flex flex-col items-center min-w-[160px]">
-            {profile.avatar ? (
-              <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-2 object-cover border-2 border-primary " />
-            ) : (
-              <div className="w-32 h-32 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-5xl font-bold mb-2 border-2 border-primary ">
-                {profile.username[0].toUpperCase()}
-              </div>
-            )}
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <UserIcon className="w-12 h-12 text-white mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">User Profile</h1>
+            </div>
           </div>
-          <div className="flex-1 min-w-[220px]">
-            <div className="font-bold text-xl text-primary mb-2">{profile.username}</div>
-            {/* User tags section */}
-            {Array.isArray(profile.tags) && profile.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {profile.tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center gap-1 bg-blue-900 text-blue-200 rounded-full px-3 py-1 text-xs font-semibold border border-blue-700">
-                    {/* Optionally add a tag icon here if you want: <TagIcon className="w-3 h-3" /> */}
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            {profile.bio && (
-              <div className="mt-2">
-                <strong>Bio:</strong>
-                <div className="mt-1"><Markdown>{profile.bio}</Markdown></div>
-              </div>
-            )}
-            {profile.gender && (
-              <div className="mt-2"><strong>Gender:</strong> {profile.gender}</div>
-            )}
-            {profile.dob && (
-              <div className="mt-2">
-                <strong>Birth Date:</strong> 
-                <span
-                  className="cursor-help ml-1"
-                  title={formatRelativeTimeWithTooltip(profile.dob).tooltip}
-                >
-                  {formatRelativeTimeWithTooltip(profile.dob).display}
-                </span>
-              </div>
-            )}
-            {profile.interestedIn && profile.interestedIn.length > 0 && (
-              <div className="mt-2"><strong>Interested In:</strong> {profile.interestedIn.join(', ')}</div>
-            )}
-            {profile.limits && profile.limits.length > 0 && (
-              <div className="mt-2"><strong>Limits:</strong> {profile.limits.join(', ')}</div>
-            )}
-            {stats && (
-              <div className="flex gap-4 mt-4">
-                <div className="bg-neutral-900 rounded p-3 flex-1">
-                  <div className="text-base font-semibold text-primary">Dares Completed</div>
-                  <div className="text-2xl text-primary">{stats.daresCount}</div>
-                </div>
-                <div className="bg-neutral-900 rounded p-3 flex-1">
-                  <div className="text-base font-semibold text-primary">Avg. Grade</div>
-                  <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
+
+          {/* Role Badge */}
+          <div className="flex justify-center mb-8">
+            <RoleBadge roles={profile.roles || []} />
+          </div>
+
+          {/* Profile Card */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center lg:items-start">
+                {profile.avatar ? (
+                  <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-4 object-cover border-4 border-white/20" />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-white/10 text-white flex items-center justify-center text-5xl font-bold mb-4 border-4 border-white/20">
+                    {profile.username[0].toUpperCase()}
+                  </div>
+                )}
+                <div className="text-center lg:text-left">
+                  <h2 className="font-bold text-2xl text-white mb-2">{profile.username}</h2>
+                  {profile.fullName && profile.fullName !== profile.username && (
+                    <p className="text-white/70 text-lg">{profile.fullName}</p>
+                  )}
                 </div>
               </div>
-            )}
+
+              {/* Profile Details */}
+              <div className="flex-1 space-y-6">
+                {/* User Tags */}
+                {Array.isArray(profile.tags) && profile.tags.length > 0 && (
+                  <div>
+                    <h3 className="font-bold text-white mb-3">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.tags.map(tag => (
+                        <span key={tag} className="inline-flex items-center gap-1 bg-blue-500/20 text-blue-300 rounded-full px-3 py-1 text-sm font-semibold border border-blue-500/30">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bio */}
+                {profile.bio && (
+                  <div>
+                    <h3 className="font-bold text-white mb-3">Bio</h3>
+                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                      <Markdown>{profile.bio}</Markdown>
+                    </div>
+                  </div>
+                )}
+
+                {/* Personal Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {profile.gender && (
+                    <div>
+                      <h3 className="font-bold text-white mb-2">Gender</h3>
+                      <p className="text-white/80">{profile.gender}</p>
+                    </div>
+                  )}
+                  
+                  {profile.dob && (
+                    <div>
+                      <h3 className="font-bold text-white mb-2">Birth Date</h3>
+                      <p className="text-white/80 cursor-help" title={formatRelativeTimeWithTooltip(profile.dob).tooltip}>
+                        {formatRelativeTimeWithTooltip(profile.dob).display}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {profile.interestedIn && profile.interestedIn.length > 0 && (
+                    <div>
+                      <h3 className="font-bold text-white mb-2">Interested In</h3>
+                      <p className="text-white/80">{profile.interestedIn.join(', ')}</p>
+                    </div>
+                  )}
+                  
+                  {profile.limits && profile.limits.length > 0 && (
+                    <div>
+                      <h3 className="font-bold text-white mb-2">Limits</h3>
+                      <p className="text-white/80">{profile.limits.join(', ')}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Stats Card */}
+          {stats && (
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">Statistics</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 text-center">
+                  <div className="text-lg font-semibold text-white mb-2">Dares Completed</div>
+                  <div className="text-4xl font-bold text-purple-300">{stats.daresCount}</div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 text-center">
+                  <div className="text-lg font-semibold text-white mb-2">Average Grade</div>
+                  <div className="text-4xl font-bold text-purple-300">
+                    {stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Activity */}
+          {userActivities.length > 0 && (
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">Recent Activity</h2>
+              <RecentActivityWidget activities={userActivities} />
+            </div>
+          )}
         </div>
       </main>
     </div>
