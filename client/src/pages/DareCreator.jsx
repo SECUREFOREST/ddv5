@@ -6,6 +6,7 @@ import TagsInput from '../components/TagsInput';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DareCreator() {
   const { showSuccess, showError } = useToast();

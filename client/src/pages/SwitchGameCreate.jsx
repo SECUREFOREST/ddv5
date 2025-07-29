@@ -5,6 +5,7 @@ import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, Rocket
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import TagsInput from '../components/TagsInput';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {

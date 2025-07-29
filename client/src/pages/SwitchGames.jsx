@@ -1,15 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import api from '../api/axios';
 
 export default function SwitchGames() {
   const { user } = useAuth ? useAuth() : { user: null };
   const { showSuccess, showError } = useToast();
-  // Placeholder for future error/info state
-  const [generalError, setGeneralError] = React.useState('');
-  const [generalInfo, setGeneralInfo] = React.useState('');
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [generalError, setGeneralError] = useState('');
+  const [generalInfo, setGeneralInfo] = useState('');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/switches/stats');
+        setStats(response.data);
+        showSuccess('Switch games loaded successfully!');
+      } catch (error) {
+        console.error('Failed to load switch games stats:', error);
+        showError('Failed to load switch games data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [showSuccess, showError]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Loading Switch Games</h2>
+              <p className="text-white/70">Please wait while we load the latest games...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
