@@ -6,7 +6,7 @@ import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
 import { Banner } from '../components/Modal';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
@@ -212,7 +212,7 @@ export default function Profile() {
   };
 
   const handleAvatarClick = () => {
-    document.getElementById('avatar-upload-input').click();
+    document.getElementById('avatar-upload').click();
   };
 
   const handleAvatarChange = async (e) => {
@@ -292,17 +292,117 @@ export default function Profile() {
   const submissivePercent = user?.natureRatio?.submission ?? null;
 
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-8 overflow-hidden">
-      <Banner type={generalError ? 'error' : 'success'} message={generalError || generalSuccess} onClose={() => { setGeneralError(''); setGeneralSuccess(''); }} />
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <UserIcon className="w-7 h-7 text-primary" /> Profile
-          <RoleBadge roles={user.roles} />
-        </h1>
-      </div>
+    <div className="max-w-7xl mx-auto p-6 space-y-8">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      
       <main id="main-content" tabIndex="-1" role="main">
+        {/* Profile Header */}
+        <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            {/* Avatar Section */}
+            <div className="flex flex-col items-center md:items-start gap-4">
+              <div className="relative group">
+                <Avatar 
+                  user={user} 
+                  size={120} 
+                  border={true} 
+                  shadow={true}
+                  onClick={handleAvatarClick}
+                  className="cursor-pointer hover:scale-105 transition-transform duration-200"
+                />
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                  <PencilIcon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              
+              {/* Avatar Upload */}
+              <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+              
+              {avatarSaved && (
+                <div className="text-success text-sm font-semibold flex items-center gap-2">
+                  <CheckCircleIcon className="w-4 h-4" />
+                  Avatar saved!
+                </div>
+              )}
+            </div>
+
+            {/* User Info */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                <h1 className="text-3xl font-bold text-white">{user?.fullName || user?.username}</h1>
+                {user?.roles && user.roles.length > 0 && (
+                  <RoleBadge roles={user.roles} />
+                )}
+              </div>
+              
+              <div className="flex items-center justify-center md:justify-start gap-4 mb-4 text-sm text-neutral-400">
+                <span>@{user?.username}</span>
+                {user?.gender && (
+                  <span>• {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}</span>
+                )}
+                {user?.dob && (
+                  <span>• {new Date(user.dob).getFullYear()}</span>
+                )}
+              </div>
+              
+              {bio && (
+                <p className="text-neutral-300 mb-4 max-w-2xl">
+                  {bio}
+                </p>
+              )}
+              
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                <button
+                  onClick={() => setEditMode(!editMode)}
+                  className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-lg px-4 py-2 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2"
+                >
+                  <PencilIcon className="w-4 h-4" />
+                  {editMode ? 'Cancel Edit' : 'Edit Profile'}
+                </button>
+                
+                {isBlocked && (
+                  <div className="bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2 text-red-300 flex items-center gap-2">
+                    <ExclamationTriangleIcon className="w-4 h-4" />
+                    Account Blocked
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Overview */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
+              <div className="text-2xl font-bold text-primary">{stats.daresCount || 0}</div>
+              <div className="text-sm text-primary-300">Total Dares</div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
+              <div className="text-2xl font-bold text-green-400">{stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}</div>
+              <div className="text-sm text-green-300">Avg Grade</div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
+              <div className="text-2xl font-bold text-blue-400">{stats.completedCount || 0}</div>
+              <div className="text-sm text-blue-300">Completed</div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-6 border border-purple-600/30">
+              <div className="text-2xl font-bold text-purple-400">{stats.activeCount || 0}</div>
+              <div className="text-sm text-purple-300">Active</div>
+            </div>
+          </div>
+        )}
+
         <Tabs
           tabs={[
             {

@@ -5,12 +5,13 @@ import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
-  { key: 'in_progress', label: 'Perform' },
-  { key: 'pending', label: 'Demand' },
-  { key: 'completed', label: 'Completed' },
+  { key: 'in_progress', label: 'Perform', icon: ClockIcon },
+  { key: 'pending', label: 'Demand', icon: ChartBarIcon },
+  { key: 'completed', label: 'Completed', icon: TrophyIcon },
 ];
 
 export default function Dashboard() {
@@ -61,77 +62,138 @@ export default function Dashboard() {
   }, [user, tab]);
 
   return (
-    <div className="bg-neutral-800 rounded-lg p-4 mb-4">
+    <div className="max-w-7xl mx-auto p-6 space-y-8">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+      
       <main id="main-content" tabIndex="-1" role="main">
-        <div className="border-b border-neutral-900 pb-2 mb-4">
-          <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+          <p className="text-neutral-400 text-lg">Welcome back, {user?.fullName || user?.username}!</p>
         </div>
-        <div>
-          {stats && (
-            <>
-              <div className="mb-6">
-                <Suspense fallback={<div className="text-neutral-400 text-center">Loading chart...</div>}>
-                  <DashboardChart stats={stats} />
-                </Suspense>
+
+        {/* Stats Overview */}
+        {stats && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <ChartBarIcon className="w-6 h-6 text-primary" />
+                Performance Overview
+              </h2>
+              
+              <Suspense fallback={
+                <div className="bg-neutral-800/50 rounded-xl p-8 border border-neutral-700/30">
+                  <div className="text-neutral-400 text-center">Loading chart...</div>
+                </div>
+              }>
+                <DashboardChart stats={stats} />
+              </Suspense>
+            </div>
+            
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
+                <div className="flex items-center gap-3 mb-2">
+                  <TrophyIcon className="w-6 h-6 text-primary" />
+                  <span className="text-lg font-semibold text-primary">Dares Completed</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{stats.daresCount}</div>
               </div>
-              <div className="flex flex-wrap gap-4 mb-6">
-                <Card className="flex-1 min-w-[180px]">
-                  <div className="text-base font-semibold text-primary">Dares Completed</div>
-                  <div className="text-2xl text-primary">{stats.daresCount}</div>
-                </Card>
-                <Card className="flex-1 min-w-[180px]">
-                  <div className="text-base font-semibold text-primary">Avg. Grade</div>
-                  <div className="text-2xl text-primary">{stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}</div>
-                </Card>
+              
+              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
+                <div className="flex items-center gap-3 mb-2">
+                  <CheckCircleIcon className="w-6 h-6 text-green-400" />
+                  <span className="text-lg font-semibold text-green-400">Avg. Grade</span>
+                </div>
+                <div className="text-3xl font-bold text-white">
+                  {stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}
+                </div>
               </div>
-            </>
-          )}
-          <div className="flex flex-wrap gap-8 mb-8">
-            <Card className="flex-1">
-              <div className="font-semibold text-primary mb-2">Recent Activity</div>
-              {activitiesLoading ? (
-                <div className="text-neutral-400">Loading activities...</div>
-              ) : activities.length === 0 ? (
-                <div className="text-neutral-400">No recent activities found.</div>
-              ) : (
-                <ul className="space-y-2">
-                  {activities.map((activity, idx) => (
-                    <li key={idx} className="text-neutral-200 text-sm">
-                      {activity.type === 'dare' && <span>Created dare: <span className="font-bold">{activity.title}</span></span>}
-                      {activity.type === 'comment' && <span>Commented: <span className="italic">{activity.text}</span></span>}
-                      {activity.type === 'grade' && <span>Graded: <span className="font-bold">{activity.dare?.title}</span> ({activity.grade})</span>}
-                      {activity.createdAt && (
-                        <div className="text-xs text-neutral-400 mt-1">
-                          <span
-                            className="cursor-help"
-                            title={formatRelativeTimeWithTooltip(activity.createdAt).tooltip}
-                          >
-                            {formatRelativeTimeWithTooltip(activity.createdAt).display}
-                          </span>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
+              
+              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
+                <div className="flex items-center gap-3 mb-2">
+                  <ClockIcon className="w-6 h-6 text-blue-400" />
+                  <span className="text-lg font-semibold text-blue-400">Active Dares</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{dares.length}</div>
+              </div>
+            </div>
           </div>
-          <ul className="flex border-b border-neutral-900 mb-4">
+        )}
+
+        {/* Recent Activity */}
+        <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <ClockIcon className="w-6 h-6 text-primary" />
+            Recent Activity
+          </h2>
+          
+          {activitiesLoading ? (
+            <div className="text-center py-8">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="text-neutral-400">Loading activities...</div>
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-neutral-400 text-lg mb-2">No recent activities</div>
+              <p className="text-neutral-500 text-sm">Start creating dares to see activity here</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {activities.map((activity, idx) => (
+                <div key={idx} className="bg-neutral-800/50 rounded-lg p-4 border border-neutral-700/30 hover:bg-neutral-800/70 transition-all">
+                  <div className="text-neutral-200 text-sm">
+                    {activity.type === 'dare' && (
+                      <span>Created dare: <span className="font-bold text-primary">{activity.title}</span></span>
+                    )}
+                    {activity.type === 'comment' && (
+                      <span>Commented: <span className="italic text-neutral-300">{activity.text}</span></span>
+                    )}
+                    {activity.type === 'grade' && (
+                      <span>Graded: <span className="font-bold text-primary">{activity.dare?.title}</span> ({activity.grade})</span>
+                    )}
+                  </div>
+                  {activity.createdAt && (
+                    <div className="text-xs text-neutral-400 mt-2">
+                      <span
+                        className="cursor-help hover:text-neutral-300 transition-colors"
+                        title={formatRelativeTimeWithTooltip(activity.createdAt).tooltip}
+                      >
+                        {formatRelativeTimeWithTooltip(activity.createdAt).display}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Dares Tabs */}
+        <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <h2 className="text-2xl font-bold text-white mb-6">Your Dares</h2>
+          
+          {/* Tab Navigation */}
+          <div className="flex border-b border-neutral-700 mb-6">
             {TABS.map(t => (
-              <li key={t.key} className={tab === t.key ? 'border-b-2 border-primary text-primary font-semibold -mb-px' : 'text-neutral-400'}>
-                <a
-                  href="#"
-                  className="px-4 py-2 inline-block focus:outline-none"
-                  onClick={e => { e.preventDefault(); setTab(t.key); }}
-                >
-                  {t.label}
-                </a>
-              </li>
+              <button
+                key={t.key}
+                className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all duration-200 ${
+                  tab === t.key 
+                    ? 'border-b-2 border-primary text-primary bg-primary/10' 
+                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'
+                }`}
+                onClick={() => setTab(t.key)}
+              >
+                <t.icon className="w-5 h-5" />
+                {t.label}
+              </button>
             ))}
-          </ul>
+          </div>
+
+          {/* Dares Content */}
           {loading ? (
-            <div className="flex flex-col gap-4">
+            <div className="grid gap-6">
               {[...Array(3)].map((_, i) => (
                 <DareCard key={i} loading />
               ))}
@@ -139,11 +201,16 @@ export default function Dashboard() {
           ) : (
             <div>
               {dares.length === 0 ? (
-                <div className="text-neutral-400">No dares found for this tab.</div>
+                <div className="text-center py-12">
+                  <div className="bg-neutral-800/50 rounded-xl p-8 border border-neutral-700/30">
+                    <div className="text-neutral-400 text-lg mb-2">No dares found</div>
+                    <p className="text-neutral-500 text-sm">No dares found for this category</p>
+                  </div>
+                </div>
               ) : (
-                <ul className="space-y-4">
+                <div className="grid gap-6">
                   {dares.map(dare => (
-                    <li key={dare._id} className="dare">
+                    <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
                       <DareCard
                         title={dare.title}
                         description={dare.description}
@@ -153,9 +220,9 @@ export default function Dashboard() {
                         user={dare.creator}
                         actions={[]}
                       />
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           )}
