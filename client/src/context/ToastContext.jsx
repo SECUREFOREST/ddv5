@@ -8,12 +8,7 @@ export function ToastProvider({ children }) {
   const addToast = (message, type = 'info', duration = 5000) => {
     const id = Date.now() + Math.random();
     const newToast = { id, message, type, duration };
-    console.log('Adding toast:', newToast);
-    setToasts(prev => {
-      const newToasts = [...prev, newToast];
-      console.log('Updated toasts:', newToasts);
-      return newToasts;
-    });
+    setToasts(prev => [...prev, newToast]);
     return id;
   };
 
@@ -22,10 +17,7 @@ export function ToastProvider({ children }) {
   };
 
   const showSuccess = (message, duration) => addToast(message, 'success', duration);
-  const showError = (message, duration) => {
-    console.log('ToastContext showError called with:', message);
-    return addToast(message, 'error', duration);
-  };
+  const showError = (message, duration) => addToast(message, 'error', duration);
   const showWarning = (message, duration) => addToast(message, 'warning', duration);
   const showInfo = (message, duration) => addToast(message, 'info', duration);
 

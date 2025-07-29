@@ -19,13 +19,11 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     try {
-      console.log('Form submitted, preventing default');
       e.preventDefault();
       e.stopPropagation();
       setLoading(true);
       
       try {
-        console.log('Attempting login...');
         await login(identifier, password);
         // Get last visited path or default to dashboard
         const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
@@ -36,16 +34,12 @@ export default function Login() {
           navigate(redirectPath);
         }, 1000);
       } catch (err) {
-        console.log('Login error:', err);
         const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
-        console.log('Showing error toast:', errorMessage);
         showError(errorMessage);
       } finally {
-        console.log('Setting loading to false');
         setLoading(false);
       }
     } catch (outerErr) {
-      console.error('Unexpected error in form submission:', outerErr);
       setLoading(false);
     }
   };
