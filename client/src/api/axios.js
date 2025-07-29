@@ -25,6 +25,9 @@ api.interceptors.response.use(
                           originalRequest.url?.includes('/login') || 
                           originalRequest.url?.includes('/register');
     
+    // Don't redirect on admin pages - let admin handle auth differently
+    const isAdminPage = window.location.pathname === '/admin';
+    
     if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       try {
@@ -46,12 +49,12 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         
-        // Only redirect if we're not already on auth pages
+        // Only redirect if we're not already on auth pages and not on admin page
         const isAuthPage = window.location.pathname === '/login' || 
                           window.location.pathname === '/register' || 
                           window.location.pathname === '/forgot-password';
         
-        if (!isAuthPage) {
+        if (!isAuthPage && !isAdminPage) {
           // Use a more graceful redirect that doesn't break the current flow
           setTimeout(() => {
             window.location.href = '/login';
