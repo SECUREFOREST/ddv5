@@ -673,6 +673,32 @@ export default function DarePerformerDashboard() {
                   </div>
                 </div>
                 
+                {/* Dare Stats */}
+                <div className="bg-neutral-900/40 rounded-xl p-6 border border-neutral-800/30">
+                  <h4 className="text-lg font-semibold mb-4 text-primary flex items-center gap-2">
+                    <SparklesIcon className="w-5 h-5" />
+                    Your Dares Overview
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-lg p-4 border border-primary/30">
+                      <div className="text-2xl font-bold text-primary">{allActiveDares.length + allCompletedDares.length}</div>
+                      <div className="text-sm text-primary-300">Total Dares</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-lg p-4 border border-green-600/30">
+                      <div className="text-2xl font-bold text-green-400">{allActiveDares.length}</div>
+                      <div className="text-sm text-green-300">Active Dares</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-lg p-4 border border-blue-600/30">
+                      <div className="text-2xl font-bold text-blue-400">{allCompletedDares.length}</div>
+                      <div className="text-sm text-blue-300">Completed</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-lg p-4 border border-purple-600/30">
+                      <div className="text-2xl font-bold text-purple-400">{allActiveDares.filter(d => d.status === 'in_progress').length}</div>
+                      <div className="text-sm text-purple-300">In Progress</div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Advanced Filters with improved styling */}
                 <div className="bg-neutral-900/40 rounded-xl p-6 border border-neutral-800/30">
                   <h4 className="text-lg font-semibold mb-4 text-primary flex items-center gap-2">
