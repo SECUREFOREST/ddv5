@@ -38,7 +38,15 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ListSkeleton count={5} />
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
+              <p className="text-white/70">Please wait while we verify your permissions...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -184,6 +192,9 @@ export default function Admin() {
         setReports([]);
         if (error.response?.status === 401) {
           setReportsError('Access denied. You may not have permission to view reports.');
+          // Don't show error toast for 401 - let the interceptor handle it
+        } else if (error.code === 'ECONNABORTED') {
+          setReportsError('Request timed out. Please try again.');
         } else {
           setReportsError('Failed to load reports. Please try again.');
           showError('Failed to load reports. Please try again.');
@@ -215,6 +226,9 @@ export default function Admin() {
         setAppeals([]);
         if (error.response?.status === 401) {
           setAppealsError('Access denied. You may not have permission to view appeals.');
+          // Don't show error toast for 401 - let the interceptor handle it
+        } else if (error.code === 'ECONNABORTED') {
+          setAppealsError('Request timed out. Please try again.');
         } else {
           setAppealsError('Failed to load appeals. Please try again.');
           showError('Failed to load appeals. Please try again.');
@@ -234,6 +248,9 @@ export default function Admin() {
         setAuditLog([]);
         if (error.response?.status === 401) {
           setAuditLogError('Access denied. You may not have permission to view audit log.');
+          // Don't show error toast for 401 - let the interceptor handle it
+        } else if (error.code === 'ECONNABORTED') {
+          setAuditLogError('Request timed out. Please try again.');
         } else {
           setAuditLogError('Failed to load audit log.');
           showError('Failed to load audit log. Please try again.');
@@ -401,28 +418,52 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    // Load all data on component mount
-    fetchUsers();
-    fetchDares();
-    fetchAuditLog();
-    fetchReports();
-    fetchAppeals();
-    fetchSwitchGames();
-    
-    // Fetch site stats
-    setSiteStatsLoading(true);
-    setSiteStatsError('');
-    api.get('/stats/site')
-      .then(res => {
-        setSiteStats(res.data);
-      })
-      .catch((error) => {
-        setSiteStatsError('Failed to load site stats.');
-        showError('Failed to load site stats. Please try again.');
-        console.error('Site stats loading error:', error);
-      })
-      .finally(() => setSiteStatsLoading(false));
-  }, [fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]); // Include all fetch functions
+    // Only load data when user is authenticated and has admin role
+    if (!user || !user.roles?.includes('admin')) {
+      return;
+    }
+
+    // Check if access token is available
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      showError('Authentication token not found. Please log in again.');
+      return;
+    }
+
+    // Add a small delay to ensure auth state is fully loaded
+    const timer = setTimeout(() => {
+      // Load all data on component mount
+      fetchUsers();
+      fetchDares();
+      fetchAuditLog();
+      fetchReports();
+      fetchAppeals();
+      fetchSwitchGames();
+      
+      // Fetch site stats
+      setSiteStatsLoading(true);
+      setSiteStatsError('');
+      api.get('/stats/site')
+        .then(res => {
+          setSiteStats(res.data);
+        })
+        .catch((error) => {
+          if (error.response?.status === 401) {
+            // Handle unauthorized - user might need to re-authenticate
+            showError('Authentication expired. Please log in again.');
+          } else if (error.code === 'ECONNABORTED') {
+            setSiteStatsError('Request timed out. Please try again.');
+          } else {
+            setSiteStatsError('Failed to load site stats.');
+            showError('Failed to load site stats. Please try again.');
+          }
+          console.error('Site stats loading error:', error);
+        })
+        .finally(() => setSiteStatsLoading(false));
+    }, 200); // Slightly longer delay to ensure auth is ready
+
+    return () => clearTimeout(timer);
+  }, [user, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError]); // Include showError in dependencies
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">

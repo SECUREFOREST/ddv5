@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 10000, // 10 second timeout
 });
 
 // Attach JWT if present
@@ -29,6 +30,10 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
+        
+        // Add a small delay before attempting refresh to avoid race conditions
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const res = await api.post('/auth/refresh-token', { refreshToken });
         localStorage.setItem('accessToken', res.data.accessToken);
         localStorage.setItem('refreshToken', res.data.refreshToken);
@@ -36,10 +41,13 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshErr) {
         // If refresh fails, clear tokens and redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        // But only if we're not already on the login page
+        if (window.location.pathname !== '/login') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshErr);
       }
     }
