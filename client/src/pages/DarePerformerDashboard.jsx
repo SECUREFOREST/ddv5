@@ -104,10 +104,49 @@ export default function DarePerformerDashboard() {
     search: ''
   });
   
+  // Advanced filter states (restored)
+  const [selectedDifficulties, setSelectedDifficulties] = useState([]);
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [keywordFilter, setKeywordFilter] = useState('');
+  const [creatorFilter, setCreatorFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
+  
+  // Demand section states (restored)
+  const [demandSlots, setDemandSlots] = useState([]);
+  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
+  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
+  const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
+  const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
+  const [publicDemandDares, setPublicDemandDares] = useState([]);
+  const [publicDemandLoading, setPublicDemandLoading] = useState(false);
+  const [publicDemandError, setPublicDemandError] = useState('');
+  const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
+  const [completedDemand, setCompletedDemand] = useState([]);
+  const [publicDemandTotal, setPublicDemandTotal] = useState(0);
+  
+  // Switch Games advanced states (restored)
+  const [switchStatusFilter, setSwitchStatusFilter] = useState('');
+  const [switchDifficultyFilter, setSwitchDifficultyFilter] = useState('');
+  const [switchParticipantFilter, setSwitchParticipantFilter] = useState('');
+  const [switchSort, setSwitchSort] = useState('recent');
+  const [switchGameActivityFeed, setSwitchGameActivityFeed] = useState([]);
+  const [switchGameActivityLoading, setSwitchGameActivityLoading] = useState(false);
+  
+  // Associates and stats states (restored)
+  const [associates, setAssociates] = useState([]);
+  const [expandedAssociateIdx, setExpandedAssociateIdx] = useState(null);
+  const [roleStats, setRoleStats] = useState(null);
+  const [publicActCounts, setPublicActCounts] = useState({ total: 0, submission: 0, domination: 0, switch: 0 });
+  
   // UI states
   const [showFilters, setShowFilters] = useState(false);
   const [expandedDare, setExpandedDare] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [expandedOngoingIdx, setExpandedOngoingIdx] = useState(null);
+  const [expandedPublicIdx, setExpandedPublicIdx] = useState(null);
+  const [showDashboardSettings, setShowDashboardSettings] = useState(false);
+  const [confirmWithdrawIdx, setConfirmWithdrawIdx] = useState(null);
   
   // Notification system
   const notificationTimeout = useRef(null);
@@ -196,6 +235,59 @@ export default function DarePerformerDashboard() {
     fetchData();
   }, [user]);
 
+  // Additional useEffect hooks for restored features
+  useEffect(() => {
+    if (!user) return;
+    
+    // Fetch associates
+    api.get('/users/associates')
+      .then(res => setAssociates(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setAssociates([]));
+    
+    // Fetch role stats
+    api.get(`/stats/users/${user.id || user._id}`)
+      .then(res => setRoleStats(res.data))
+      .catch(() => setRoleStats(null));
+    
+    // Fetch public act counts
+    api.get('/stats/public-acts')
+      .then(res => setPublicActCounts(res.data))
+      .catch(() => setPublicActCounts({}));
+  }, [user]);
+
+  // Fetch public demand dares
+  useEffect(() => {
+    setPublicDemandLoading(true);
+    setPublicDemandError('');
+    api.get('/dares', { params: { public: true, dareType: 'domination' } })
+      .then(res => setPublicDemandDares(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setPublicDemandError('Failed to load public demand dares.'))
+      .finally(() => setPublicDemandLoading(false));
+  }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
+
+  // Fetch switch game activity feed
+  useEffect(() => {
+    if (activeTab !== 'switch') return;
+    setSwitchGameActivityLoading(true);
+    api.get('/activity-feed?limit=20')
+      .then(res => {
+        setSwitchGameActivityFeed(Array.isArray(res.data) ? res.data.filter(a => a.switchGame) : []);
+      })
+      .catch(() => setSwitchGameActivityFeed([]))
+      .finally(() => setSwitchGameActivityLoading(false));
+  }, [activeTab]);
+
+  // Real-time updates for public dares
+  useEffect(() => {
+    const socket = io('/', {
+      autoConnect: true,
+      transports: ['websocket'],
+    });
+    socket.on('public_dare_publish', dare => setPublicDares(prev => [dare, ...prev]));
+    socket.on('public_dare_unpublish', dareId => setPublicDares(prev => prev.filter(d => d._id !== dareId)));
+    return () => socket.disconnect();
+  }, []);
+
   // Filter functions
   const filterDares = (dares) => {
     return dares.filter(dare => {
@@ -211,6 +303,123 @@ export default function DarePerformerDashboard() {
       return true;
     });
   };
+
+  // Advanced filtering functions (restored)
+  const filterAndSortAllDares = (dares) => {
+    let filtered = dares;
+    if (statusFilter) filtered = filtered.filter(d => d.status === statusFilter);
+    if (selectedDifficulties.length > 0) filtered = filtered.filter(d => selectedDifficulties.includes(d.difficulty));
+    if (keywordFilter) filtered = filtered.filter(d => 
+      d.description?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
+      d.creator?.username?.toLowerCase().includes(keywordFilter.toLowerCase())
+    );
+    if (creatorFilter) filtered = filtered.filter(d =>
+      d.creator?.username?.toLowerCase().includes(creatorFilter.toLowerCase())
+    );
+    return filtered;
+  };
+
+  const filterAndSortSwitchGames = (games) => {
+    let filtered = games;
+    if (switchStatusFilter) filtered = filtered.filter(g => g.status === switchStatusFilter);
+    if (switchDifficultyFilter) filtered = filtered.filter(g => 
+      g.difficulty === switchDifficultyFilter || g.creatorDare?.difficulty === switchDifficultyFilter
+    );
+    if (switchParticipantFilter) filtered = filtered.filter(g =>
+      (g.creator?.username && g.creator.username.toLowerCase().includes(switchParticipantFilter.toLowerCase())) ||
+      (g.participant?.username && g.participant.username.toLowerCase().includes(switchParticipantFilter.toLowerCase()))
+    );
+    if (switchSort === 'recent') filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+    if (switchSort === 'oldest') filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
+    if (switchSort === 'status') filtered = filtered.slice().sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+    if (switchSort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || a.creatorDare?.difficulty || '').localeCompare(b.difficulty || b.creatorDare?.difficulty || ''));
+    return filtered;
+  };
+
+  // Helper functions (restored)
+  const dedupeDaresByUser = (dares) => {
+    const seen = new Set();
+    return dares.filter(dare => {
+      const id = dare.user?._id || dare.user?.id || dare.creator?._id || dare.creator?.id;
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  };
+
+  const getRejectionExplanation = (reason) => {
+    const map = {
+      chicken: 'chickened out',
+      impossible: 'think it\'s not possible or safe for anyone to do',
+      incomprehensible: 'couldn\'t understand what was being demanded',
+      abuse: 'have reported the demand as abuse',
+    };
+    return map[reason] || reason;
+  };
+
+  // Advanced filtering UI components (restored)
+  const renderDifficultyChips = () => (
+    <div className="flex gap-2 items-center flex-wrap gap-y-2" aria-label="Filter by difficulty">
+      {DIFFICULTY_OPTIONS.map(d => (
+        <button
+          key={d.value}
+          type="button"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-base font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+            ${selectedDifficulties.includes(d.value)
+              ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
+              : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
+          onClick={() => setSelectedDifficulties(selectedDifficulties.includes(d.value)
+            ? selectedDifficulties.filter(diff => diff !== d.value)
+            : [...selectedDifficulties, d.value])}
+          aria-pressed={selectedDifficulties.includes(d.value)}
+          aria-label={`Toggle difficulty: ${d.label}`}
+        >
+          <span>{d.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+
+  const renderDemandDifficultyChips = () => (
+    <div className="flex gap-2 mb-4" aria-label="Filter demand by difficulty">
+      {DIFFICULTY_OPTIONS.map(d => (
+        <button
+          key={d.value}
+          type="button"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+            ${selectedDemandDifficulties.includes(d.value)
+              ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
+              : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
+          onClick={() => setSelectedDemandDifficulties(selectedDemandDifficulties.includes(d.value)
+            ? selectedDemandDifficulties.filter(diff => diff !== d.value)
+            : [...selectedDemandDifficulties, d.value])}
+          aria-pressed={selectedDemandDifficulties.includes(d.value)}
+          aria-label={`Toggle demand difficulty: ${d.label}`}
+        >
+          <span>{d.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+
+  const renderDemandTypeChips = () => (
+    <div className="flex gap-2 mb-4" aria-label="Filter demand by type">
+      {TYPE_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDemandTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          onClick={() => setSelectedDemandTypes(selectedDemandTypes.includes(opt.value)
+            ? selectedDemandTypes.filter(t => t !== opt.value)
+            : [...selectedDemandTypes, opt.value])}
+          aria-pressed={selectedDemandTypes.includes(opt.value)}
+          aria-label={`Toggle demand type: ${opt.label}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
 
   // Action handlers
   const handleClaimDare = async (dare) => {
@@ -249,6 +458,31 @@ export default function DarePerformerDashboard() {
     } catch (err) {
       console.error('Complete dare error:', err);
       showNotification(err.response?.data?.error || 'Failed to complete dare.', 'error');
+    }
+  };
+
+  // Additional action handlers (restored)
+  const handleRejectDare = async (dareId) => {
+    const dareIdx = ongoing.findIndex(d => d._id === dareId);
+    if (dareIdx === -1) return;
+    const dare = ongoing[dareIdx];
+    try {
+      await api.post(`/dares/${dare._id}/forfeit`);
+      setOngoing(prev => prev.filter((_, i) => i !== dareIdx));
+      showNotification('Dare rejected (forfeited).', 'info');
+    } catch (err) {
+      showNotification('Failed to reject dare.', 'error');
+    }
+  };
+
+  const handleWithdrawDemand = async (slotIdx) => {
+    const dare = demandSlots[slotIdx];
+    try {
+      await api.patch(`/dares/${dare._id}`, { status: 'cancelled' });
+      setDemandSlots(prev => prev.filter((_, i) => i !== slotIdx));
+      showNotification('Demand dare withdrawn.', 'success');
+    } catch (err) {
+      showNotification('Failed to withdraw demand dare.', 'error');
     }
   };
 
@@ -532,6 +766,136 @@ export default function DarePerformerDashboard() {
                     <FireIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                     <div className="text-neutral-400 text-lg mb-2">No switch games</div>
                     <p className="text-neutral-500 text-sm">Create or join a switch game to get started</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'demand',
+      label: 'Demand Dares',
+      icon: DocumentPlusIcon,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
+            <h3 className="text-lg font-semibold text-white mb-4">Demand Dares</h3>
+            <div className="space-y-4">
+              {demandSlots.map((slot, idx) => (
+                <div key={slot._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-semibold text-white mb-2">{slot.description}</div>
+                      <div className="text-sm text-neutral-400">
+                        Creator: {slot.creator?.username || 'Unknown'}
+                      </div>
+                      <div className="text-sm text-neutral-400">
+                        Status: {slot.status}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleWithdrawDemand(idx)}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                      >
+                        Withdraw
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {demandSlots.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
+                    <DocumentPlusIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No demand dares</div>
+                    <p className="text-neutral-500 text-sm">Create demand dares to see them here</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'public',
+      label: 'Public Dares',
+      icon: SparklesIcon,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
+            <h3 className="text-lg font-semibold text-white mb-4">Public Dares</h3>
+            <div className="space-y-4">
+              {dedupeDaresByUser(publicDares)
+                .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+                .map(dare => (
+                  <DareCard
+                    key={dare._id}
+                    description={dare.description}
+                    difficulty={dare.difficulty}
+                    tags={dare.tags}
+                    status={dare.status}
+                    creator={dare.creator}
+                    performer={dare.performer}
+                    assignedSwitch={dare.assignedSwitch}
+                    actions={[
+                      <button
+                        key="claim"
+                        onClick={() => handleClaimDare(dare)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                      >
+                        Claim
+                      </button>
+                    ]}
+                    currentUserId={user?.id || user?._id}
+                  />
+                ))}
+              
+              {publicDares.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
+                    <SparklesIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No public dares available</div>
+                    <p className="text-neutral-500 text-sm">Check back later for new dares</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'associates',
+      label: 'Associates',
+      icon: UserIcon,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
+            <h3 className="text-lg font-semibold text-white mb-4">Associates</h3>
+            <div className="space-y-4">
+              {associates.map((associate, idx) => (
+                <div key={associate._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                  <div className="flex items-center gap-4">
+                    <Avatar user={associate} size={48} />
+                    <div className="flex-1">
+                      <div className="font-semibold text-white">{associate.fullName || associate.username}</div>
+                      <div className="text-sm text-neutral-400">@{associate.username}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {associates.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
+                    <UserIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No associates found</div>
+                    <p className="text-neutral-500 text-sm">Connect with other users to see them here</p>
                   </div>
                 </div>
               )}
