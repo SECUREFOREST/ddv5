@@ -713,23 +713,57 @@ export default function DarePerformerDashboard() {
           {/* Recent Activity */}
           <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              {ongoing.slice(0, 3).map(dare => (
-                <div key={dare._id} className="flex items-center justify-between p-3 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                  <div className="flex items-center gap-3">
-                    <StatusBadge status={dare.status} />
-                    <span className="text-white text-sm truncate">{dare.description}</span>
+            <div className="space-y-4">
+              {switchGameActivityFeed.length > 0 ? (
+                switchGameActivityFeed.slice(0, 5).map((activity, idx) => (
+                  <div key={idx} className="p-3 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                    <div className="text-sm text-neutral-300">{activity.description}</div>
+                    <div className="text-xs text-neutral-500 mt-1">
+                      {new Date(activity.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setExpandedDare(expandedDare === dare._id ? null : dare._id)}
-                    className="text-neutral-400 hover:text-white transition-colors"
-                  >
-                    <ArrowRightIcon className="w-4 h-4" />
-                  </button>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-neutral-400 text-lg mb-2">No recent activity</div>
+                  <p className="text-neutral-500 text-sm">Complete dares to see activity here</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
+
+          {/* Stats Dashboard */}
+          {roleStats && (
+            <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
+              <h3 className="text-lg font-semibold text-white mb-4">Your Stats</h3>
+              <DashboardChart stats={roleStats} />
+            </div>
+          )}
+
+          {/* Public Act Counts */}
+          {publicActCounts && Object.keys(publicActCounts).length > 0 && (
+            <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
+              <h3 className="text-lg font-semibold text-white mb-4">Public Act Statistics</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-400">{publicActCounts.total || 0}</div>
+                  <div className="text-sm text-blue-300">Total Acts</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-400">{publicActCounts.submission || 0}</div>
+                  <div className="text-sm text-green-300">Submissions</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-400">{publicActCounts.domination || 0}</div>
+                  <div className="text-sm text-purple-300">Domination</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-400">{publicActCounts.switch || 0}</div>
+                  <div className="text-sm text-orange-300">Switch Games</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )
     },
@@ -1025,7 +1059,16 @@ export default function DarePerformerDashboard() {
       content: (
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <h3 className="text-lg font-semibold text-white mb-4">My Switch Games</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">My Switch Games</h3>
+              <button
+                onClick={() => navigate('/switches/create')}
+                className="bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-primary-dark hover:to-primary transition-all duration-300 flex items-center gap-2"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Create Switch Game
+              </button>
+            </div>
             
             {/* Advanced Filters */}
             {renderSwitchGameFilters()}
@@ -1054,12 +1097,60 @@ export default function DarePerformerDashboard() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleWithdrawSwitchGame(mySwitchGames.findIndex(g => g._id === game._id))}
-                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
-                      >
-                        Withdraw
-                      </button>
+                      {game.status === 'waiting_for_participant' && (
+                        <button
+                          onClick={() => handleJoinSwitchGame(game._id)}
+                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                        >
+                          Join
+                        </button>
+                      )}
+                      
+                      {game.status === 'in_progress' && game.participant?._id === (user?.id || user?._id) && (
+                        <button
+                          onClick={() => {
+                            const proofText = prompt('Enter your proof:');
+                            if (proofText) handleSubmitSwitchProof(game._id, proofText);
+                          }}
+                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        >
+                          Submit Proof
+                        </button>
+                      )}
+                      
+                      {game.status === 'in_progress' && game.creator?._id === (user?.id || user?._id) && (
+                        <button
+                          onClick={() => {
+                            const proofText = prompt('Enter your proof:');
+                            if (proofText) handleSubmitSwitchProof(game._id, proofText);
+                          }}
+                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        >
+                          Submit Proof
+                        </button>
+                      )}
+                      
+                      {(game.status === 'waiting_for_participant' || game.status === 'in_progress') && (
+                        <button
+                          onClick={() => handleWithdrawSwitchGame(mySwitchGames.findIndex(g => g._id === game._id))}
+                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                        >
+                          Withdraw
+                        </button>
+                      )}
+                      
+                      {game.status === 'completed' && (
+                        <div className="flex gap-1">
+                          <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded-lg text-xs font-semibold">
+                            Completed
+                          </span>
+                          {game.winner && (
+                            <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-lg text-xs font-semibold">
+                              Winner: {game.winner.username}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1113,6 +1204,19 @@ export default function DarePerformerDashboard() {
                         <div className="text-sm text-neutral-400">
                           Created: {new Date(game.createdAt).toLocaleDateString()}
                         </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/switches/${game._id}`)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                      >
+                        View Details
+                      </button>
+                      {game.status === 'completed' && game.winner && (
+                        <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-lg text-xs font-semibold">
+                          Winner: {game.winner.username}
+                        </span>
                       )}
                     </div>
                   </div>
