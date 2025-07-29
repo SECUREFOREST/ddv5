@@ -408,215 +408,401 @@ export default function Profile() {
             {
               label: 'About',
               content: (
-                loading ? (
-                  <div className="flex flex-col md:flex-row gap-8 mb-8">
-                    <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
-                      <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse mb-4" />
-                      <div className="h-4 w-24 bg-neutral-700 rounded mb-2 animate-pulse" />
-                      <div className="h-4 w-24 bg-neutral-800 rounded mb-2 animate-pulse" />
-                    </div>
-                    <div className="flex-1 space-y-4">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className="h-4 w-full bg-neutral-700 rounded animate-pulse mb-2" />
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col md:flex-row gap-8 mb-8">
-                    <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
-                      <input
-                        id="avatar-upload-input"
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={handleAvatarChange}
-                      />
-                      <div className="relative group">
-                        <Avatar user={user} size={128} onClick={handleAvatarClick} border shadow alt={`Avatar for ${user?.fullName || user?.username || 'user'}`} />
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 rounded-full pointer-events-none select-none transition-opacity">Edit</span>
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  {loading ? (
+                    <div className="flex flex-col md:flex-row gap-8">
+                      <div className="flex flex-col items-center min-w-[160px] mb-6 md:mb-0">
+                        <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse mb-4" />
+                        <div className="h-4 w-24 bg-neutral-700 rounded mb-2 animate-pulse" />
+                        <div className="h-4 w-24 bg-neutral-800 rounded mb-2 animate-pulse" />
                       </div>
-                      {avatarSaved && (
-                        <div className="text-success text-xs mt-2">Profile picture saved!</div>
-                      )}
-                      <button className="bg-primary text-primary-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-contrast shadow-lg" onClick={() => { setTabIdx(0); setEditMode(true); }}>
-                        Edit Profile
-                      </button>
-                      <button className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast shadow-lg" onClick={logout}>
-                        Logout
-                      </button>
-                      {/* Add Upgrade/Downgrade Admin button */}
-                      {user.roles?.includes('admin') ? (
-                        <button
-                          className="bg-danger text-danger-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-danger-dark focus:outline-none focus:ring-2 focus:ring-danger-contrast"
-                          onClick={async () => {
-                            if (!user || !(user.id || user._id)) return;
-                            const userId = user.id || user._id;
-                            try {
-                              await api.patch(`/users/${userId}`, { roles: ['user'] });
-                              // Update user in AuthContext and localStorage
-                              const updatedUser = { ...user, roles: ['user'] };
-                              localStorage.setItem('user', JSON.stringify(updatedUser));
-                              if (typeof setUser === 'function') setUser(updatedUser);
-                              alert('User downgraded to regular user!');
-                            } catch (err) {
-                              alert('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
-                            }
-                          }}
-                        >
-                          Downgrade to User
-                        </button>
-                      ) : (
-                        <button
-                          className="bg-warning text-warning-contrast rounded px-4 py-2 mt-2 w-32 font-semibold text-sm hover:bg-warning-dark focus:outline-none focus:ring-2 focus:ring-warning-contrast"
-                          onClick={async () => {
-                            if (!user || !(user.id || user._id)) return;
-                            const userId = user.id || user._id;
-                            try {
-                              await api.patch(`/users/${userId}`, { roles: ['admin'] });
-                              // Update user in AuthContext and localStorage
-                              const updatedUser = { ...user, roles: ['admin'] };
-                              localStorage.setItem('user', JSON.stringify(updatedUser));
-                              if (typeof setUser === 'function') setUser(updatedUser);
-                              alert('User upgraded to admin!');
-                            } catch (err) {
-                              alert('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
-                            }
-                          }}
-                        >
-                          Upgrade to Admin
-                        </button>
-                      )}
+                      <div className="flex-1 space-y-4">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="h-4 w-full bg-neutral-700 rounded animate-pulse mb-2" />
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      {editMode ? (
-                        <form role="form" aria-labelledby="profile-edit-title" onSubmit={handleSave} className="space-y-6">
-                          <h1 id="profile-edit-title" className="text-2xl font-bold mb-4">Edit Profile</h1>
-                          <div>
-                            <label htmlFor="username" className="block font-semibold mb-1 text-primary">Username</label>
-                            <input type="text" id="username" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={username} onChange={e => setUsername(e.target.value)} required aria-required="true" aria-label="Username" />
-                          </div>
-                          <div>
-                            <label htmlFor="fullName" className="block font-semibold mb-1 text-primary">Full Name</label>
-                            <input
-                              id="fullName"
-                              value={fullName}
-                              onChange={e => setFullName(e.target.value)}
-                              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
-                              aria-label="Full Name"
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor="bio" className="block font-semibold mb-1 text-primary">Bio</label>
-                            <textarea id="bio" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={bio} onChange={e => setBio(e.target.value)} rows={3} maxLength={300} placeholder="Write something about yourself..." aria-label="Bio" aria-required="true" />
-                          </div>
-                          <div>
-                            <label htmlFor="gender" className="block font-semibold mb-1 text-primary">Gender</label>
-                            <select
-                              id="gender"
-                              value={gender}
-                              onChange={e => setGender(e.target.value)}
-                              className="w-full rounded border border-neutral-900 px-3 py-2 text-neutral-100 focus:outline-none focus:ring focus:border-primary bg-[#1a1a1a]"
-                              required
-                              aria-label="Gender"
-                              aria-required="true"
-                            >
-                              <option value="">Select...</option>
-                              <option value="male">Male</option>
-                              <option value="female">Female</option>
-                              <option value="other">Other</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label htmlFor="dob" className="block font-semibold mb-1 text-primary">Birth Date</label>
-                            <input type="date" id="dob" className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" value={dob} onChange={e => setDob(e.target.value)} required aria-required="true" aria-label="Birth Date" />
-                          </div>
-                          <div>
-                            <label htmlFor="interestedIn" className="block font-semibold mb-1 text-primary">Interested In</label>
-                            <TagsInput id="interestedIn" value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
-                          </div>
-                          <div>
-                            <label htmlFor="limits" className="block font-semibold mb-1 text-primary">Limits</label>
-                            <TagsInput id="limits" value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
-                          </div>
-                          <div className="flex gap-2 mt-4">
-                            <button type="submit" className="bg-primary text-primary-contrast rounded-none px-4 py-2 font-semibold hover:bg-primary-dark shadow-lg" disabled={saving}>Save</button>
-                            <button type="button" className="bg-neutral-700 text-neutral-100 rounded-none px-4 py-2 font-semibold hover:bg-neutral-800 shadow-lg" onClick={() => setEditMode(false)} disabled={saving}>Cancel</button>
-                          </div>
-                        </form>
-                      ) : (
-                        <>
-                          <h2 className="text-xl font-bold mb-2">About Me</h2>
-                          <div className="mb-2">{bio || <span className="text-neutral-400">No bio yet.</span>}</div>
-                          <div><strong>Username:</strong> {user.username}</div>
-                          <div><strong>Full Name:</strong> {user.fullName}</div>
-                          <div><strong>Email:</strong> {user.email}</div>
-                          {user.gender && (
-                            <div className="mt-2"><strong>Gender:</strong> {user.gender}</div>
-                          )}
-                          {user.dob && (
-                            <div className="mt-2">
-                              <strong>Birth Date:</strong> 
-                              <span
-                                className="cursor-help ml-1"
-                                title={formatRelativeTimeWithTooltip(user.dob).tooltip}
-                              >
-                                {formatRelativeTimeWithTooltip(user.dob).display}
-                              </span>
+                  ) : (
+                    <div className="space-y-8">
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                        <button 
+                          className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
+                          onClick={() => { setTabIdx(0); setEditMode(true); }}
+                        >
+                          <PencilIcon className="w-5 h-5" />
+                          Edit Profile
+                        </button>
+                        
+                        <button 
+                          className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-red-700 hover:to-red-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
+                          onClick={logout}
+                        >
+                          <ArrowPathIcon className="w-5 h-5" />
+                          Logout
+                        </button>
+                        
+                        {/* Admin Controls */}
+                        {user.roles?.includes('admin') ? (
+                          <button
+                            className="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-orange-700 hover:to-orange-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                            onClick={async () => {
+                              if (!user || !(user.id || user._id)) return;
+                              const userId = user.id || user._id;
+                              try {
+                                await api.patch(`/users/${userId}`, { roles: ['user'] });
+                                const updatedUser = { ...user, roles: ['user'] };
+                                localStorage.setItem('user', JSON.stringify(updatedUser));
+                                if (typeof setUser === 'function') setUser(updatedUser);
+                                showNotification('User downgraded to regular user!', 'success');
+                              } catch (err) {
+                                showNotification('Failed to downgrade user: ' + (err.response?.data?.error || err.message), 'error');
+                              }
+                            }}
+                          >
+                            <ShieldCheckIcon className="w-5 h-5" />
+                            Downgrade to User
+                          </button>
+                        ) : (
+                          <button
+                            className="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-yellow-700 hover:to-yellow-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                            onClick={async () => {
+                              if (!user || !(user.id || user._id)) return;
+                              const userId = user.id || user._id;
+                              try {
+                                await api.patch(`/users/${userId}`, { roles: ['admin'] });
+                                const updatedUser = { ...user, roles: ['admin'] };
+                                localStorage.setItem('user', JSON.stringify(updatedUser));
+                                if (typeof setUser === 'function') setUser(updatedUser);
+                                showNotification('User upgraded to admin!', 'success');
+                              } catch (err) {
+                                showNotification('Failed to upgrade user: ' + (err.response?.data?.error || err.message), 'error');
+                              }
+                            }}
+                          >
+                            <ShieldCheckIcon className="w-5 h-5" />
+                            Upgrade to Admin
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Profile Form/Info */}
+                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                        {editMode ? (
+                          <form role="form" aria-labelledby="profile-edit-title" onSubmit={handleSave} className="space-y-6">
+                            <h2 id="profile-edit-title" className="text-2xl font-bold text-white mb-6">Edit Profile</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label htmlFor="username" className="block font-semibold mb-2 text-primary text-sm">Username</label>
+                                <input 
+                                  type="text" 
+                                  id="username" 
+                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
+                                  value={username} 
+                                  onChange={e => setUsername(e.target.value)} 
+                                  required 
+                                  aria-required="true" 
+                                  aria-label="Username" 
+                                />
+                              </div>
+                              
+                              <div>
+                                <label htmlFor="fullName" className="block font-semibold mb-2 text-primary text-sm">Full Name</label>
+                                <input
+                                  id="fullName"
+                                  value={fullName}
+                                  onChange={e => setFullName(e.target.value)}
+                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                                  aria-label="Full Name"
+                                />
+                              </div>
                             </div>
-                          )}
-                          {user.interestedIn && user.interestedIn.length > 0 && (
-                            <div className="mt-2"><strong>Interested In:</strong> {user.interestedIn.join(', ')}</div>
-                          )}
-                          {user.limits && user.limits.length > 0 && (
-                            <div className="mt-2"><strong>Limits:</strong> {user.limits.join(', ')}</div>
-                          )}
-                        </>
-                      )}
-                      <div className="mt-6">
+                            
+                            <div>
+                              <label htmlFor="bio" className="block font-semibold mb-2 text-primary text-sm">Bio</label>
+                              <textarea 
+                                id="bio" 
+                                className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
+                                value={bio} 
+                                onChange={e => setBio(e.target.value)} 
+                                rows={3} 
+                                maxLength={300} 
+                                placeholder="Write something about yourself..." 
+                                aria-label="Bio" 
+                                aria-required="true" 
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label htmlFor="gender" className="block font-semibold mb-2 text-primary text-sm">Gender</label>
+                                <select
+                                  id="gender"
+                                  value={gender}
+                                  onChange={e => setGender(e.target.value)}
+                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                                  required
+                                  aria-label="Gender"
+                                  aria-required="true"
+                                >
+                                  <option value="">Select gender...</option>
+                                  <option value="male">Male</option>
+                                  <option value="female">Female</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </div>
+                              
+                              <div>
+                                <label htmlFor="dob" className="block font-semibold mb-2 text-primary text-sm">Birth Date</label>
+                                <input 
+                                  type="date" 
+                                  id="dob" 
+                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
+                                  value={dob} 
+                                  onChange={e => setDob(e.target.value)} 
+                                  required 
+                                  aria-required="true" 
+                                  aria-label="Birth Date" 
+                                />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <label htmlFor="interestedIn" className="block font-semibold mb-2 text-primary text-sm">Interested In</label>
+                              <TagsInput id="interestedIn" value={interestedIn} onChange={setInterestedIn} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
+                            </div>
+                            
+                            <div>
+                              <label htmlFor="limits" className="block font-semibold mb-2 text-primary text-sm">Limits</label>
+                              <TagsInput id="limits" value={limits} onChange={setLimits} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
+                            </div>
+                            
+                            <div className="flex gap-4 pt-4">
+                              <button 
+                                type="submit" 
+                                className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
+                                disabled={saving}
+                              >
+                                {saving ? (
+                                  <>
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Saving...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircleIcon className="w-5 h-5" />
+                                    Save Changes
+                                  </>
+                                )}
+                              </button>
+                              <button 
+                                type="button" 
+                                className="bg-neutral-700 text-neutral-100 rounded-xl px-6 py-3 font-semibold hover:bg-neutral-600 transition-all duration-200 flex items-center gap-2" 
+                                onClick={() => setEditMode(false)} 
+                                disabled={saving}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="space-y-6">
+                            <h2 className="text-2xl font-bold text-white mb-6">About Me</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-4">
+                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                  <div className="text-sm text-neutral-400 mb-1">Username</div>
+                                  <div className="text-white font-semibold">@{user.username}</div>
+                                </div>
+                                
+                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                  <div className="text-sm text-neutral-400 mb-1">Full Name</div>
+                                  <div className="text-white font-semibold">{user.fullName}</div>
+                                </div>
+                                
+                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                  <div className="text-sm text-neutral-400 mb-1">Email</div>
+                                  <div className="text-white font-semibold">{user.email}</div>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-4">
+                                {user.gender && (
+                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                    <div className="text-sm text-neutral-400 mb-1">Gender</div>
+                                    <div className="text-white font-semibold capitalize">{user.gender}</div>
+                                  </div>
+                                )}
+                                
+                                {user.dob && (
+                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                    <div className="text-sm text-neutral-400 mb-1">Birth Date</div>
+                                    <div className="text-white font-semibold">
+                                      <span
+                                        className="cursor-help hover:text-neutral-300 transition-colors"
+                                        title={formatRelativeTimeWithTooltip(user.dob).tooltip}
+                                      >
+                                        {formatRelativeTimeWithTooltip(user.dob).display}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {user.interestedIn && user.interestedIn.length > 0 && (
+                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                    <div className="text-sm text-neutral-400 mb-1">Interested In</div>
+                                    <div className="flex flex-wrap gap-2">
+                                      {user.interestedIn.map((interest, idx) => (
+                                        <span key={idx} className="bg-primary/20 text-primary px-2 py-1 rounded-full text-xs font-semibold">
+                                          {interest}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {bio && (
+                              <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                <div className="text-sm text-neutral-400 mb-2">Bio</div>
+                                <div className="text-white">{bio}</div>
+                              </div>
+                            )}
+                            
+                            {user.limits && user.limits.length > 0 && (
+                              <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
+                                <div className="text-sm text-neutral-400 mb-2">Limits</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {user.limits.map((limit, idx) => (
+                                    <span key={idx} className="bg-red-600/20 text-red-400 px-2 py-1 rounded-full text-xs font-semibold">
+                                      {limit}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Recent Activity */}
+                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
                         <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
                       </div>
                     </div>
-                  </div>
-                )
+                  )}
+                </div>
               ),
             },
             {
               label: 'Privacy & Safety',
               content: (
-                <div className="mt-4">
-                  <h3 className="text-lg font-bold mb-2">Content Deletion Setting</h3>
-                  {contentDeletionLoading ? (
-                    <div className="text-neutral-400">Loading...</div>
-                  ) : (
-                    <form>
-                      <div className="flex flex-col gap-3">
-                        <label className="flex items-start gap-2">
-                          <input type="radio" name="contentDeletion" value="when_viewed" checked={contentDeletion === 'when_viewed'} onChange={() => handleContentDeletionChange('when_viewed')} disabled={contentDeletionLoading} />
-                          <span>
-                            <b>Delete once viewed</b><br/>
-                            <span className="text-xs text-neutral-400">As soon as the other person has viewed the image, delete it completely.</span>
-                          </span>
-                        </label>
-                        <label className="flex items-start gap-2">
-                          <input type="radio" name="contentDeletion" value="30_days" checked={contentDeletion === '30_days'} onChange={() => handleContentDeletionChange('30_days')} disabled={contentDeletionLoading} />
-                          <span>
-                            <b>Delete in 30 days</b><br/>
-                            <span className="text-xs text-neutral-400">All pics are deleted thirty days after you upload them, whether they have been viewed or not.</span>
-                          </span>
-                        </label>
-                        <label className="flex items-start gap-2">
-                          <input type="radio" name="contentDeletion" value="never" checked={contentDeletion === 'never'} onChange={() => handleContentDeletionChange('never')} disabled={contentDeletionLoading} />
-                          <span>
-                            <b>Never delete</b><br/>
-                            <span className="text-xs text-neutral-400">Keep your images on the site permanently. We don't necessarily recommend this setting. Please note images will be deleted if you fail to log in for 2 months.</span>
-                          </span>
-                        </label>
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
+                  <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <ShieldCheckIcon className="w-6 h-6 text-primary" />
+                      Content Deletion Setting
+                    </h3>
+                    
+                    {contentDeletionLoading ? (
+                      <div className="text-center py-8">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <div className="text-neutral-400">Loading settings...</div>
                       </div>
-                      {contentDeletionError && <div className="text-danger mt-2">{contentDeletionError}</div>}
-                    </form>
-                  )}
+                    ) : (
+                      <form className="space-y-4">
+                        <div className="space-y-4">
+                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                            <input 
+                              type="radio" 
+                              name="contentDeletion" 
+                              value="when_viewed" 
+                              checked={contentDeletion === 'when_viewed'} 
+                              onChange={() => handleContentDeletionChange('when_viewed')} 
+                              disabled={contentDeletionLoading}
+                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                            />
+                            <div className="flex-1">
+                              <div className="font-semibold text-white mb-1">Delete once viewed</div>
+                              <div className="text-sm text-neutral-400">As soon as the other person has viewed the image, delete it completely.</div>
+                            </div>
+                          </label>
+                          
+                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                            <input 
+                              type="radio" 
+                              name="contentDeletion" 
+                              value="30_days" 
+                              checked={contentDeletion === '30_days'} 
+                              onChange={() => handleContentDeletionChange('30_days')} 
+                              disabled={contentDeletionLoading}
+                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                            />
+                            <div className="flex-1">
+                              <div className="font-semibold text-white mb-1">Delete after 30 days</div>
+                              <div className="text-sm text-neutral-400">Keep the image for 30 days, then automatically delete it.</div>
+                            </div>
+                          </label>
+                          
+                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                            <input 
+                              type="radio" 
+                              name="contentDeletion" 
+                              value="never" 
+                              checked={contentDeletion === 'never'} 
+                              onChange={() => handleContentDeletionChange('never')} 
+                              disabled={contentDeletionLoading}
+                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                            />
+                            <div className="flex-1">
+                              <div className="font-semibold text-white mb-1">Never delete</div>
+                              <div className="text-sm text-neutral-400">Keep the image indefinitely (not recommended for privacy).</div>
+                            </div>
+                          </label>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                  
+                  <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <NoSymbolIcon className="w-6 h-6 text-red-400" />
+                      Block Settings
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-700/30">
+                        <div>
+                          <div className="font-semibold text-white">Account Status</div>
+                          <div className="text-sm text-neutral-400">
+                            {isBlocked ? 'Your account is currently blocked' : 'Your account is active'}
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleBlockToggle}
+                          disabled={blocking}
+                          className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                            isBlocked 
+                              ? 'bg-green-600 hover:bg-green-700 text-white' 
+                              : 'bg-red-600 hover:bg-red-700 text-white'
+                          }`}
+                        >
+                          {blocking ? 'Processing...' : (isBlocked ? 'Unblock Account' : 'Block Account')}
+                        </button>
+                      </div>
+                      
+                      {blockError && (
+                        <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300">
+                          {blockError}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )
+              ),
             },
             {
               label: 'Change Password',
@@ -721,7 +907,7 @@ function ChangePasswordForm() {
           <input
             type="password"
             id="oldPassword"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={oldPassword}
             onChange={e => setOldPassword(e.target.value)}
             required
@@ -732,7 +918,7 @@ function ChangePasswordForm() {
           <input
             type="password"
             id="newPassword"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-neutral-900 text-neutral-100 focus:outline-none focus:ring focus:border-primary"
+            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
             required

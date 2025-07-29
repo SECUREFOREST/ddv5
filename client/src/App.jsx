@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AccessibilityProvider } from './components/AccessibilityProvider';
+import { ToastContainer, useToast } from './components/Toast';
 import { safeStorage } from './utils/cleanup';
 import DareCreator from './pages/DareCreator';
 import DareParticipant from './pages/DareParticipant';
@@ -44,6 +45,7 @@ const PublicDares = React.lazy(() => import('./pages/PublicDares'));
 function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const { toasts, removeToast } = useToast();
 
   // Save current path to localStorage (excluding auth pages)
   useEffect(() => {
@@ -101,6 +103,9 @@ function AppContent() {
         </div>
       </main>
       <Footer />
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
