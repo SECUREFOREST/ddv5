@@ -73,6 +73,9 @@ function Admin() {
   const [editUserData, setEditUserData] = useState({});
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', onConfirm: null });
+  const [auditLogSearch, setAuditLogSearch] = useState('');
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserError, setEditUserError] = useState('');
   
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
@@ -239,13 +242,6 @@ function Admin() {
   };
   const clearSelectedDares = () => setSelectedDares([]);
   
-  // Additional state variables
-  const [auditLogSearch, setAuditLogSearch] = useState('');
-  const [editUserId, setEditUserId] = useState(null);
-  const [editUserError, setEditUserError] = useState('');
-
-
-
   const fetchUsers = useCallback((searchId = "") => {
     setDataLoading(true);
     api.get('/users', { params: { search: searchId } })
