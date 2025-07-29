@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 import TagsInput from '../components/TagsInput';
+import Modal from '../components/Modal';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
