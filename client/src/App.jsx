@@ -62,7 +62,7 @@ function AppContent() {
   return (
     <div className="flex flex-col min-h-screen bg-[#060606]">
       {showNavbar && <Navbar />}
-      <main className="flex-1 pb-24 lg:pb-0">
+      <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
@@ -103,6 +103,8 @@ function AppContent() {
         </div>
       </main>
       <Footer />
+      
+      {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
@@ -111,11 +113,11 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AccessibilityProvider>
+      <AccessibilityProvider>
+        <AuthProvider>
           <AppContent />
-        </AccessibilityProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </AccessibilityProvider>
     </ErrorBoundary>
   );
 }
