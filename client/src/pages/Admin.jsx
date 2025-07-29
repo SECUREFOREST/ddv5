@@ -118,6 +118,31 @@ export default function Admin() {
   const [auditLogLoading, setAuditLogLoading] = useState(true);
   const [auditLogError, setAuditLogError] = useState('');
   const [auditLogSearch, setAuditLogSearch] = useState('');
+  
+  // Additional state for missing functionality
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
+  const [reportsError, setReportsError] = useState('');
+  const [resolvingReportId, setResolvingReportId] = useState(null);
+  
+  const [appeals, setAppeals] = useState([]);
+  const [appealsLoading, setAppealsLoading] = useState(false);
+  const [appealsError, setAppealsError] = useState('');
+  const [resolvingAppealId, setResolvingAppealId] = useState(null);
+  const [appealOutcome, setAppealOutcome] = useState('');
+  
+  const [switchGames, setSwitchGames] = useState([]);
+  const [switchGamesLoading, setSwitchGamesLoading] = useState(true);
+  const [switchGameSearch, setSwitchGameSearch] = useState('');
+  const [switchGameSearchId, setSwitchGameSearchId] = useState('');
+  
+  // User edit modal state
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserData, setEditUserData] = useState({ username: '', email: '', roles: [] });
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [editUserError, setEditUserError] = useState('');
+  
+
 
   const fetchUsers = (searchId = "") => {
     setDataLoading(true);
@@ -150,7 +175,19 @@ export default function Admin() {
   };
 
   const fetchReports = () => {
-    // Implementation for fetching reports
+    setReportsLoading(true);
+    setReportsError('');
+    api.get('/reports')
+      .then(res => {
+        setReports(Array.isArray(res.data) ? res.data : []);
+        showSuccess('Reports loaded successfully!');
+      })
+      .catch((error) => {
+        setReports([]);
+        showError('Failed to load reports. Please try again.');
+        console.error('Reports loading error:', error);
+      })
+      .finally(() => setReportsLoading(false));
   };
 
   const handleResolveReport = async (id) => {
@@ -165,7 +202,19 @@ export default function Admin() {
   };
 
   const fetchAppeals = () => {
-    // Implementation for fetching appeals
+    setAppealsLoading(true);
+    setAppealsError('');
+    api.get('/appeals')
+      .then(res => {
+        setAppeals(Array.isArray(res.data) ? res.data : []);
+        showSuccess('Appeals loaded successfully!');
+      })
+      .catch((error) => {
+        setAppeals([]);
+        showError('Failed to load appeals. Please try again.');
+        console.error('Appeals loading error:', error);
+      })
+      .finally(() => setAppealsLoading(false));
   };
 
   const fetchAuditLog = () => {
@@ -292,19 +341,48 @@ export default function Admin() {
   };
 
   const handleEditUser = (userId) => {
-    // Implementation for editing user
+    const user = users.find(u => u._id === userId);
+    if (user) {
+      setEditUserId(userId);
+      setEditUserData({
+        username: user.username || '',
+        email: user.email || '',
+        roles: user.roles || [],
+      });
+      setEditUserError('');
+    }
   };
 
   const closeEditUserModal = () => {
-    // Implementation for closing edit modal
+    setEditUserId(null);
+    setEditUserData({ username: '', email: '', roles: [] });
+    setEditUserError('');
   };
 
   const handleEditUserChange = (e) => {
-    // Implementation for handling user edit changes
+    const { name, value } = e.target;
+    setEditUserData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEditUserSave = async () => {
-    // Implementation for saving user edits
+    setEditUserLoading(true);
+    setEditUserError('');
+    try {
+      const { username, email, roles } = editUserData;
+      const payload = { username, email };
+      if (roles && Array.isArray(roles)) payload.roles = roles;
+      
+      await api.patch(`/users/${editUserId}`, payload);
+      showSuccess('User updated successfully!');
+      fetchUsers();
+      closeEditUserModal();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to update user.';
+      setEditUserError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setEditUserLoading(false);
+    }
   };
 
   const openConfirmModal = (message, onConfirmCallback) => {
@@ -317,6 +395,24 @@ export default function Admin() {
     fetchUsers();
     fetchDares();
     fetchAuditLog();
+    fetchReports();
+    fetchAppeals();
+    fetchSwitchGames();
+    
+    // Fetch site stats
+    setSiteStatsLoading(true);
+    setSiteStatsError('');
+    api.get('/stats/site')
+      .then(res => {
+        setSiteStats(res.data);
+        showSuccess('Site stats loaded successfully!');
+      })
+      .catch((error) => {
+        setSiteStatsError('Failed to load site stats.');
+        showError('Failed to load site stats. Please try again.');
+        console.error('Site stats loading error:', error);
+      })
+      .finally(() => setSiteStatsLoading(false));
   }, [showSuccess, showError]);
 
   return (
@@ -576,12 +672,314 @@ export default function Admin() {
                   </div>
                 ),
               },
+              {
+                label: 'Reports',
+                content: (
+                  <div className="space-y-6">
+                    {reportsLoading ? (
+                      <ListSkeleton count={10} />
+                    ) : (
+                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                        <div className="space-y-4">
+                          {reports.map(report => (
+                            <div key={report._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-2">{report.type}</div>
+                                  <div className="text-sm text-neutral-400">
+                                    Target: {report.targetId}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Reporter: {report.reporter?.username || 'Unknown'}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Reason: {report.reason}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Status: {report.status}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  {report.status === 'open' && (
+                                    <button
+                                      onClick={() => handleResolveReport(report._id)}
+                                      disabled={resolvingReportId === report._id}
+                                      className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+                                    >
+                                      {resolvingReportId === report._id ? 'Resolving...' : 'Resolve'}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                label: 'Appeals',
+                content: (
+                  <div className="space-y-6">
+                    {appealsLoading ? (
+                      <ListSkeleton count={10} />
+                    ) : (
+                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                        <div className="space-y-4">
+                          {appeals.map(appeal => (
+                            <div key={appeal._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-2">{appeal.type}</div>
+                                  <div className="text-sm text-neutral-400">
+                                    Target: {appeal.targetId}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    User: {appeal.user?.username || 'Unknown'}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Reason: {appeal.reason}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Status: {appeal.status}
+                                  </div>
+                                  {appeal.outcome && (
+                                    <div className="text-sm text-neutral-400">
+                                      Outcome: {appeal.outcome}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  {appeal.status === 'open' && (
+                                    <div className="flex flex-col gap-2">
+                                      <input
+                                        type="text"
+                                        placeholder="Outcome"
+                                        value={resolvingAppealId === appeal._id ? appealOutcome : ''}
+                                        onChange={e => setAppealOutcome(e.target.value)}
+                                        className="px-3 py-1 bg-neutral-800 border border-neutral-700 rounded text-sm text-white"
+                                        disabled={resolvingAppealId !== appeal._id}
+                                      />
+                                      <button
+                                        onClick={() => handleResolveAppeal(appeal._id)}
+                                        disabled={resolvingAppealId === appeal._id && !appealOutcome}
+                                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+                                      >
+                                        {resolvingAppealId === appeal._id ? 'Resolving...' : 'Resolve'}
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                label: 'Switch Games',
+                content: (
+                  <div className="space-y-6">
+                    {/* Switch Games Search */}
+                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1">
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+                            </div>
+                            <input
+                              type="text"
+                              className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                              placeholder="Search switch games..."
+                              value={switchGameSearch}
+                              onChange={e => setSwitchGameSearch(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => fetchSwitchGames(switchGameSearchId)}
+                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                        >
+                          Search
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Switch Games List */}
+                    {switchGamesLoading ? (
+                      <ListSkeleton count={10} />
+                    ) : (
+                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                        <div className="space-y-4">
+                          {switchGames.map(game => (
+                            <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-2">{game.title || 'Switch Game'}</div>
+                                  <div className="text-sm text-neutral-400">
+                                    Creator: {game.creator?.username || 'Unknown'}
+                                  </div>
+                                  <div className="text-sm text-neutral-400">
+                                    Status: {game.status}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleDeleteSwitchGame(game)}
+                                    className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                label: 'Stats',
+                content: (
+                  <div className="space-y-6">
+                    {siteStatsLoading ? (
+                      <ListSkeleton count={5} />
+                    ) : siteStatsError ? (
+                      <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                        {siteStatsError}
+                      </div>
+                    ) : siteStats ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
+                          <div className="flex items-center gap-3 mb-2">
+                            <UserGroupIcon className="w-6 h-6 text-primary" />
+                            <div className="text-2xl font-bold text-primary">{siteStats.totalUsers || 0}</div>
+                          </div>
+                          <div className="text-sm text-primary-300">Total Users</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
+                          <div className="flex items-center gap-3 mb-2">
+                            <FireIcon className="w-6 h-6 text-green-400" />
+                            <div className="text-2xl font-bold text-green-400">{siteStats.totalDares || 0}</div>
+                          </div>
+                          <div className="text-sm text-green-300">Total Dares</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
+                          <div className="flex items-center gap-3 mb-2">
+                            <ChartBarIcon className="w-6 h-6 text-blue-400" />
+                            <div className="text-2xl font-bold text-blue-400">{siteStats.totalComments || 0}</div>
+                          </div>
+                          <div className="text-sm text-blue-300">Total Comments</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 rounded-xl p-6 border border-yellow-600/30">
+                          <div className="flex items-center gap-3 mb-2">
+                            <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" />
+                            <div className="text-2xl font-bold text-yellow-400">{siteStats.pendingReports || 0}</div>
+                          </div>
+                          <div className="text-sm text-yellow-300">Pending Reports</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="text-neutral-400 text-xl mb-4">No stats available</div>
+                        <p className="text-neutral-500 text-sm">
+                          Site statistics will appear here.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
             ]}
             value={tabIdx}
             onChange={setTabIdx}
           />
         </main>
       </div>
+
+      {/* User Edit Modal */}
+      <Modal
+        open={!!editUserId}
+        onClose={closeEditUserModal}
+        title="Edit User"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="edit-username" className="block font-semibold mb-1 text-white">Username</label>
+            <input
+              type="text"
+              name="username"
+              id="edit-username"
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              value={editUserData.username}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="edit-email" className="block font-semibold mb-1 text-white">Email</label>
+            <input
+              type="email"
+              name="email"
+              id="edit-email"
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              value={editUserData.email}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="edit-roles" className="block font-semibold mb-1 text-white">Roles (comma-separated)</label>
+            <input
+              type="text"
+              name="roles"
+              id="edit-roles"
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
+              onChange={(e) => {
+                const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
+                setEditUserData(prev => ({ ...prev, roles }));
+              }}
+              placeholder="admin, moderator, user"
+            />
+          </div>
+          {editUserError && (
+            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+              {editUserError}
+            </div>
+          )}
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={closeEditUserModal}
+              disabled={editUserLoading}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditUserSave}
+              disabled={editUserLoading}
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              {editUserLoading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 } 
