@@ -29,11 +29,20 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
-        // If refresh fails, clear tokens and redirect to login if desired
+        // If refresh fails, clear tokens but don't redirect for login/auth endpoints
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        
+        // Only redirect if it's not a login/auth endpoint to avoid infinite loops
+        const isAuthEndpoint = originalRequest.url?.includes('/auth/') || 
+                              originalRequest.url?.includes('/login') || 
+                              originalRequest.url?.includes('/register');
+        
+        if (!isAuthEndpoint) {
+          window.location.href = '/login';
+        }
+        
         return Promise.reject(refreshErr);
       }
     }
