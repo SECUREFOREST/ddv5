@@ -11,31 +11,33 @@ import React from 'react';
 export default function Card({ header, image, children, footer, className = '', ...props }) {
   return (
     <div
-      className={`bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6 mb-5 w-full max-w-md sm:max-w-lg lg:max-w-xl ${className}`.trim()}
+      className={`bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 sm:p-8 w-full ${className}`.trim()}
       {...props}
     >
       {image && (
-        <div className="mb-4">
+        <div className="mb-6 -mx-6 -mt-6 sm:-mx-8 sm:-mt-8">
           {typeof image === 'string' ? (
             <img
               src={image}
               alt=""
-              className="w-full object-cover"
+              className="w-full h-48 sm:h-64 object-cover rounded-t-2xl"
               loading="lazy"
               srcSet={image.replace(/\.(jpg|jpeg|png)$/, '.webp') + ' 800w, ' + image + ' 400w'}
-              sizes="(max-width: 600px) 100vw, 600px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : image}
         </div>
       )}
       {header && (
-        <div className="bg-[#3c3c3c] text-[#888] border-b border-[#282828] px-[15px] py-[10px] -mx-[15px] mt-[-15px] mb-4 rounded-t-none">
+        <div className="bg-neutral-800/50 text-neutral-200 border-b border-neutral-700/50 px-6 py-4 -mx-6 sm:-mx-8 mt-0 mb-6 rounded-t-2xl">
           <span className="text-lg font-semibold">{header}</span>
         </div>
       )}
-      <div className="mb-2">{children}</div>
+      <div className="space-y-4">{children}</div>
       {footer && (
-        <div className="bg-[#3c3c3c] text-[#888] border-t border-[#282828] px-[15px] py-[10px] -mx-[15px] mb-[-15px] mt-4 rounded-b-none text-sm">{footer}</div>
+        <div className="bg-neutral-800/50 text-neutral-300 border-t border-neutral-700/50 px-6 py-4 -mx-6 sm:-mx-8 mt-6 mb-0 rounded-b-2xl text-sm">
+          {footer}
+        </div>
       )}
     </div>
   );

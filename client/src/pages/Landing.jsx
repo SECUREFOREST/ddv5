@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SparklesIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 
 const Landing = () => {
@@ -16,8 +16,41 @@ const Landing = () => {
 
   if (loading) return null;
 
+  const features = [
+    {
+      icon: <FireIcon className="w-8 h-8 text-red-500" />,
+      title: "Create & Accept",
+      description: "Create and accept dares in a safe, supportive environment"
+    },
+    {
+      icon: <TrophyIcon className="w-8 h-8 text-yellow-500" />,
+      title: "Compete & Win",
+      description: "Compete on the global leaderboard and track your progress"
+    },
+    {
+      icon: <UserGroupIcon className="w-8 h-8 text-blue-500" />,
+      title: "Connect",
+      description: "Connect with a vibrant community of challenge-seekers"
+    },
+    {
+      icon: <BellIcon className="w-8 h-8 text-green-500" />,
+      title: "Stay Updated",
+      description: "Get notified about new dares, achievements, and activity"
+    },
+    {
+      icon: <ShareIcon className="w-8 h-8 text-purple-500" />,
+      title: "Share Victories",
+      description: "Share your victories and inspire others to join the fun"
+    },
+    {
+      icon: <SparklesIcon className="w-8 h-8 text-primary" />,
+      title: "Daily Adventure",
+      description: "Make every day an adventure with exciting challenges"
+    }
+  ];
+
   return (
-    <div className="max-w-md sm:max-w-xl lg:max-w-2xl w-full mx-auto mt-20 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-8 mb-12 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <Helmet>
         <title>Deviant Dare | Social Dares, Challenges & Leaderboards</title>
         <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
@@ -31,37 +64,96 @@ const Landing = () => {
         <meta name="twitter:description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
         <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <SparklesIcon className="w-7 h-7 text-primary" /> Deviant Dare
-        </h1>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <SparklesIcon className="w-12 h-12 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-primary via-red-500 to-pink-500 bg-clip-text text-transparent">
+                Deviant Dare
+              </span>
+            </h1>
+            <p className="text-xl sm:text-2xl text-neutral-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              The ultimate platform for social dares, challenges, and friendly competition. 
+              Create, accept, and share dares with friends or the community.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/login" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25 hover:shadow-3xl">
+                  Get Started
+                </button>
+              </Link>
+              <Link to="/register" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto border-2 border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-primary hover:text-white transform hover:-translate-y-1 shadow-lg">
+                  Join Community
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Features Grid */}
+          <div className="mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">
+              Why Choose Deviant Dare?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <div 
+                  key={index}
+                  className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-neutral-800/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+                  </div>
+                  <p className="text-neutral-300 leading-relaxed">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border border-primary/30 rounded-3xl p-8 sm:p-12 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+              Ready to Start Your Adventure?
+            </h2>
+            <p className="text-xl text-neutral-300 mb-8 max-w-2xl mx-auto">
+              Join thousands of users who are already creating, accepting, and sharing exciting dares. 
+              Your next challenge awaits!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/register" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25">
+                  Create Account
+                </button>
+              </Link>
+              <Link to="/login" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto bg-neutral-800 hover:bg-neutral-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                  Sign In
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* SEO Footer */}
+          <div className="mt-16 text-center">
+            <p className="text-neutral-500 text-sm max-w-4xl mx-auto">
+              <strong>SEO Keywords:</strong> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure
+            </p>
+          </div>
+        </main>
       </div>
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="flex flex-col items-center text-center px-6 pb-8">
-          <p className="text-lg mb-8 text-center text-primary-contrast font-semibold leading-relaxed">Deviant Dare is the ultimate platform for social dares, challenges, and friendly competition. Create, accept, and share dares with friends or the community. Climb the leaderboard, earn rewards, and make every day an adventure!</p>
-          <h3 className="text-lg font-semibold text-primary mb-4">Why Deviant Dare?</h3>
-          <ul className="text-left mb-10 text-neutral-300 list-disc list-inside text-base max-w-xs mx-auto space-y-3">
-            <li className="flex items-start gap-2"><span className="text-xl">🔥</span> <span><b>Create</b> and <b>accept</b> dares in a safe, supportive environment</span></li>
-            <li className="flex items-start gap-2"><span className="text-xl">🏆</span> <span><b>Compete</b> on the global leaderboard and track your progress</span></li>
-            <li className="flex items-start gap-2"><span className="text-xl">🤝</span> <span><b>Connect</b> with a vibrant community of challenge-seekers</span></li>
-            <li className="flex items-start gap-2"><span className="text-xl">🔔</span> <span><b>Get notified</b> about new dares, achievements, and activity</span></li>
-            <li className="flex items-start gap-2"><span className="text-xl">🎉</span> <span><b>Share</b> your victories and inspire others to join the fun</span></li>
-          </ul>
-          <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-xs mx-auto">
-            <Link to="/login" className="flex-1">
-              <button className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" aria-label="Log In">Log In</button>
-            </Link>
-            <Link to="/register" className="flex-1">
-              <button className="w-full border-2 border-primary text-primary rounded px-4 py-2 font-bold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" aria-label="Register">Register</button>
-            </Link>
-          </div>
-          <div className="mt-10 text-neutral-400 text-xs max-w-md mx-auto">
-            <p><b>SEO Keywords:</b> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure</p>
-          </div>
-        </div>
-      </main>
     </div>
   );
 };
