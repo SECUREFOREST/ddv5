@@ -957,8 +957,52 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Switch Games</h3>
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <button
+                onClick={() => navigate('/switches')}
+                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Browse Switch Games
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/create')}
+                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Create Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/participate')}
+                className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Participate in Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/join')}
+                className="group bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl p-4 font-semibold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Join Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/history')}
+                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <TrophyIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                View History
+              </button>
+            </div>
+            
             <div className="space-y-4">
-              {mySwitchGames.map(game => (
+              {mySwitchGames.map((game, idx) => (
                 <DareCard
                   key={game._id}
                   description={game.creatorDare?.description || ''}
@@ -968,6 +1012,52 @@ export default function DarePerformerDashboard() {
                   creator={game.creator}
                   performer={game.participant}
                   currentUserId={user?.id || user?._id}
+                  actions={
+                    <div className="flex items-center gap-2">
+                      {game.status === 'waiting_for_participant' && game.creator?._id === user?.id && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/edit`)}
+                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      
+                      <button
+                        onClick={() => navigate(`/switches/${game._id}`)}
+                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                      >
+                        View Details
+                      </button>
+                      
+                      {game.status === 'waiting_for_participant' && game.creator?._id !== user?.id && (
+                        <button
+                          onClick={() => handleJoinSwitchGame(game._id)}
+                          className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
+                        >
+                          Participate
+                        </button>
+                      )}
+                      
+                      {game.status === 'in_progress' && game.participant?._id === user?.id && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/perform`)}
+                          className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                        >
+                          Perform
+                        </button>
+                      )}
+                      
+                      {game.status === 'completed' && (
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}/results`)}
+                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                        >
+                          View Results
+                        </button>
+                      )}
+                    </div>
+                  }
                 />
               ))}
               
