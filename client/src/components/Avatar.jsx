@@ -12,10 +12,17 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
     // Convert relative URL to full URL using API domain
     const avatarUrl = user.avatar.startsWith('http') 
       ? user.avatar 
-      : `https://api.deviantdare.com${user.avatar}`;
+      : `${import.meta.env.VITE_API_URL || 'https://api.deviantdare.com'}${user.avatar}`;
     
     if (imgRef.current) {
-      imgRef.current.src = avatarUrl;
+      // Add a small delay to prevent layout issues
+      const timer = setTimeout(() => {
+        if (imgRef.current) {
+          imgRef.current.src = avatarUrl;
+        }
+      }, 50);
+      
+      return () => clearTimeout(timer);
     }
   }, [user?.avatar, imageError]);
 
@@ -41,7 +48,7 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
   };
 
   const containerClasses = [
-    'rounded-full flex items-center justify-center font-semibold text-white',
+    'rounded-full flex items-center justify-center font-semibold text-white avatar-container',
     size === 32 ? 'w-8 h-8' : 
     size === 64 ? 'w-16 h-16' : 
     size === 128 ? 'w-32 h-32' : 
@@ -66,6 +73,8 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
           }`}
           onError={handleImageError}
           onLoad={handleImageLoad}
+          loading="lazy"
+          crossOrigin="anonymous"
         />
       ) : (
         <div className={`w-full h-full rounded-full flex items-center justify-center text-sm font-semibold ${bgColor}`}>

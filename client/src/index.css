@@ -101,4 +101,42 @@ body {
 /* Touch-friendly interactions */
 .touch-manipulation {
   touch-action: manipulation;
+}
+
+/* Prevent layout shifts during loading */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent flash of unstyled content */
+html {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Prevent layout shifts for avatars */
+.avatar-container {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 } 
