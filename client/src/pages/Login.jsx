@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { safeStorage } from '../utils/cleanup';
 
 export default function Login() {
