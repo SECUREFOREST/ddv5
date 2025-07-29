@@ -80,141 +80,7 @@ function Admin() {
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
   
-  // Add immediate bypass effect for users with admin role
-  useEffect(() => {
-    if (!authVerified && user && user.roles && user.roles.includes('admin')) {
-      console.log('User has admin role, bypassing verification via useEffect');
-      setAuthVerified(true);
-    }
-  }, [authVerified, user]);
-  
-  // Add localStorage fallback effect
-  useEffect(() => {
-    if (!authVerified && !user) {
-      const userFromStorage = localStorage.getItem('user');
-      if (userFromStorage) {
-        try {
-          const parsedUser = JSON.parse(userFromStorage);
-          console.log('Found user in localStorage:', parsedUser);
-          if (parsedUser.roles && parsedUser.roles.includes('admin')) {
-            console.log('User from localStorage has admin role, bypassing verification via useEffect');
-            setAuthVerified(true);
-          }
-        } catch (error) {
-          console.error('Error parsing user from localStorage:', error);
-        }
-      }
-    }
-  }, [authVerified, user]);
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center py-16">
-              <div className="flex items-center justify-center mb-8">
-                <LoadingSpinner variant="spinner" size="lg" color="primary" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
-              <p className="text-white/70">Please wait while we verify your permissions...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!user || !user.roles?.includes('admin')) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center py-16">
-              <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-12">
-                <div className="flex items-center justify-center gap-3 mb-6">
-                  <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
-                    <ShieldCheckIcon className="w-10 h-10 text-white" />
-                  </div>
-                </div>
-                <h1 className="text-3xl font-bold text-red-400 mb-4">Access Denied</h1>
-                <p className="text-red-300 text-lg">This area is restricted to administrators only.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state while verifying authentication
-  if (!authVerified) {
-    console.log('=== AUTH VERIFICATION DEBUG ===');
-    console.log('User object:', user);
-    console.log('User from localStorage:', localStorage.getItem('user'));
-    console.log('Loading state:', loading);
-    console.log('Auth verified:', authVerified);
-    
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center py-16">
-              <div className="flex items-center justify-center mb-8">
-                <LoadingSpinner variant="spinner" size="lg" color="primary" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
-              <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
-              <div className="mt-4">
-                <button 
-                  onClick={() => {
-                    console.log('Manual auth verification triggered');
-                    setAuthVerified(true);
-                  }}
-                  className="text-sm text-neutral-400 hover:text-white underline"
-                >
-                  Continue anyway
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-    
-  const allFilteredUserIds = users.filter(u =>
-    (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
-    (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
-  ).map(u => u._id);
-  const isAllSelected = allFilteredUserIds.length > 0 && allFilteredUserIds.every(id => selectedUsers.includes(id));
-  const toggleAll = () => {
-    if (isAllSelected) setSelectedUsers(selectedUsers.filter(id => !allFilteredUserIds.includes(id)));
-    else setSelectedUsers([...new Set([...selectedUsers, ...allFilteredUserIds])]);
-  };
-  const toggleUser = (id) => {
-    setSelectedUsers(selectedUsers.includes(id)
-      ? selectedUsers.filter(uid => uid !== id)
-      : [...selectedUsers, id]);
-  };
-  const clearSelectedUsers = () => setSelectedUsers([]);
-  
-  const allFilteredDareIds = dares.filter(d =>
-    d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase()) ||
-    (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
-  ).map(d => d._id);
-  const isAllDaresSelected = allFilteredDareIds.length > 0 && allFilteredDareIds.every(id => selectedDares.includes(id));
-  const toggleAllDares = () => {
-    if (isAllDaresSelected) setSelectedDares(selectedDares.filter(id => !allFilteredDareIds.includes(id)));
-    else setSelectedDares([...new Set([...selectedDares, ...allFilteredDareIds])]);
-  };
-  const toggleDare = (id) => {
-    setSelectedDares(selectedDares.includes(id)
-      ? selectedDares.filter(did => did !== id)
-      : [...selectedDares, id]);
-  };
-  const clearSelectedDares = () => setSelectedDares([]);
-  
+  // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
     setDataLoading(true);
     api.get('/users', { params: { search: searchId } })
@@ -266,17 +132,6 @@ function Admin() {
       .finally(() => setReportsLoading(false));
   }, [showError]);
 
-  const handleResolveReport = async (id) => {
-    try {
-      await api.post(`/reports/${id}/resolve`);
-      showSuccess('Report resolved successfully!');
-      fetchReports();
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to resolve report.';
-      showError(errorMessage);
-    }
-  };
-
   const fetchAppeals = useCallback(() => {
     setAppealsLoading(true);
     setAppealsError('');
@@ -322,75 +177,6 @@ function Admin() {
       .finally(() => setAuditLogLoading(false));
   }, [showError]);
 
-  const handleResolveAppeal = async (id) => {
-    try {
-      await api.post(`/appeals/${id}/resolve`);
-      showSuccess('Appeal resolved successfully!');
-      fetchAppeals();
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to resolve appeal.';
-      showError(errorMessage);
-    }
-  };
-
-  const handleApprove = async (dareId) => {
-    setActionLoading(true);
-    try {
-      await api.post(`/dares/${dareId}/approve`);
-      showSuccess('Dare approved successfully!');
-      fetchDares();
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to approve dare.';
-      showError(errorMessage);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleReject = async (dareId) => {
-    setActionLoading(true);
-    try {
-      await api.post(`/dares/${dareId}/reject`);
-      showSuccess('Dare rejected successfully!');
-      fetchDares();
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to reject dare.';
-      showError(errorMessage);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleDeleteDare = (dare) => {
-    if (!window.confirm(`Delete dare: ${dare.description}?`)) return;
-        setActionLoading(true);
-    api.delete(`/dares/${dare._id}`)
-      .then(() => {
-        showSuccess('Dare deleted successfully!');
-          fetchDares();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete dare.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
-  };
-
-  const handleDeleteSwitchGame = (game) => {
-    if (!window.confirm(`Delete switch game: ${game.title}?`)) return;
-        setActionLoading(true);
-    api.delete(`/switches/${game._id}`)
-      .then(() => {
-        showSuccess('Switch game deleted successfully!');
-          fetchSwitchGames();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete switch game.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
-  };
-
   const fetchSwitchGames = useCallback((searchId = "") => {
     setSwitchGamesLoading(true);
     api.get('/switches', { params: { search: searchId } })
@@ -404,81 +190,36 @@ function Admin() {
       })
       .finally(() => setSwitchGamesLoading(false));
   }, [showError]);
-
-  const handleDelete = (userId) => {
-    if (!window.confirm(`Delete user: ${userId}?`)) return;
-        setActionLoading(true);
-    api.delete(`/users/${userId}`)
-      .then(() => {
-        showSuccess('User deleted successfully!');
-          fetchUsers();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete user.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
-  };
-
-  const handleUserSearch = () => {
-    fetchUsers(userSearchId);
-  };
-
-  const handleDeleteUser = (userId) => {
-    handleDelete(userId);
-  };
-
-  const handleEditUser = (userId) => {
-    const user = users.find(u => u._id === userId);
-    if (user) {
-      setEditUserId(userId);
-      setEditUserData({
-        username: user.username || '',
-        email: user.email || '',
-        roles: user.roles || [],
-      });
-      setEditUserError('');
+  
+  // All useEffect hooks must be called before any early returns
+  // Add immediate bypass effect for users with admin role
+  useEffect(() => {
+    if (!authVerified && user && user.roles && user.roles.includes('admin')) {
+      console.log('User has admin role, bypassing verification via useEffect');
+      setAuthVerified(true);
     }
-  };
-
-  const closeEditUserModal = () => {
-    setEditUserId(null);
-    setEditUserData({ username: '', email: '', roles: [] });
-    setEditUserError('');
-  };
-
-  const handleEditUserChange = (e) => {
-    const { name, value } = e.target;
-    setEditUserData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditUserSave = async () => {
-    setEditUserLoading(true);
-    setEditUserError('');
-    try {
-      const { username, email, roles } = editUserData;
-      const payload = { username, email };
-      if (roles && Array.isArray(roles)) payload.roles = roles;
-      
-      await api.patch(`/users/${editUserId}`, payload);
-      showSuccess('User updated successfully!');
-      fetchUsers();
-      closeEditUserModal();
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to update user.';
-      setEditUserError(errorMessage);
-      showError(errorMessage);
-    } finally {
-      setEditUserLoading(false);
+  }, [authVerified, user]);
+  
+  // Add localStorage fallback effect
+  useEffect(() => {
+    if (!authVerified && !user) {
+      const userFromStorage = localStorage.getItem('user');
+      if (userFromStorage) {
+        try {
+          const parsedUser = JSON.parse(userFromStorage);
+          console.log('Found user in localStorage:', parsedUser);
+          if (parsedUser.roles && parsedUser.roles.includes('admin')) {
+            console.log('User from localStorage has admin role, bypassing verification via useEffect');
+            setAuthVerified(true);
+          }
+        } catch (error) {
+          console.error('Error parsing user from localStorage:', error);
+        }
+      }
     }
-  };
+  }, [authVerified, user]);
 
-  const openConfirmModal = (message, onConfirmCallback) => {
-    if (window.confirm(message)) {
-      onConfirmCallback();
-    }
-  };
-
+  // Main data loading effect
   useEffect(() => {
     console.log('Admin useEffect triggered');
     console.log('User:', user);
@@ -597,6 +338,268 @@ function Admin() {
     
     return () => clearTimeout(fallbackTimer);
   }, [user]);
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
+              <p className="text-white/70">Please wait while we verify your permissions...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!user || !user.roles?.includes('admin')) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-12">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
+                    <ShieldCheckIcon className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+                <h1 className="text-3xl font-bold text-red-400 mb-4">Access Denied</h1>
+                <p className="text-red-300 text-lg">This area is restricted to administrators only.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while verifying authentication
+  if (!authVerified) {
+    console.log('=== AUTH VERIFICATION DEBUG ===');
+    console.log('User object:', user);
+    console.log('User from localStorage:', localStorage.getItem('user'));
+    console.log('Loading state:', loading);
+    console.log('Auth verified:', authVerified);
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
+              <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => {
+                    console.log('Manual auth verification triggered');
+                    setAuthVerified(true);
+                  }}
+                  className="text-sm text-neutral-400 hover:text-white underline"
+                >
+                  Continue anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+    
+  const allFilteredUserIds = users.filter(u =>
+    (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
+    (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
+  ).map(u => u._id);
+  const isAllSelected = allFilteredUserIds.length > 0 && allFilteredUserIds.every(id => selectedUsers.includes(id));
+  const toggleAll = () => {
+    if (isAllSelected) setSelectedUsers(selectedUsers.filter(id => !allFilteredUserIds.includes(id)));
+    else setSelectedUsers([...new Set([...selectedUsers, ...allFilteredUserIds])]);
+  };
+  const toggleUser = (id) => {
+    setSelectedUsers(selectedUsers.includes(id)
+      ? selectedUsers.filter(uid => uid !== id)
+      : [...selectedUsers, id]);
+  };
+  const clearSelectedUsers = () => setSelectedUsers([]);
+  
+  const allFilteredDareIds = dares.filter(d =>
+    d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase()) ||
+    (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
+  ).map(d => d._id);
+  const isAllDaresSelected = allFilteredDareIds.length > 0 && allFilteredDareIds.every(id => selectedDares.includes(id));
+  const toggleAllDares = () => {
+    if (isAllDaresSelected) setSelectedDares(selectedDares.filter(id => !allFilteredDareIds.includes(id)));
+    else setSelectedDares([...new Set([...selectedDares, ...allFilteredDareIds])]);
+  };
+  const toggleDare = (id) => {
+    setSelectedDares(selectedDares.includes(id)
+      ? selectedDares.filter(did => did !== id)
+      : [...selectedDares, id]);
+  };
+  const clearSelectedDares = () => setSelectedDares([]);
+  
+  const handleResolveReport = async (id) => {
+    try {
+      await api.post(`/reports/${id}/resolve`);
+      showSuccess('Report resolved successfully!');
+      fetchReports();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to resolve report.';
+      showError(errorMessage);
+    }
+  };
+
+  const handleResolveAppeal = async (id) => {
+    try {
+      await api.post(`/appeals/${id}/resolve`);
+      showSuccess('Appeal resolved successfully!');
+      fetchAppeals();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to resolve appeal.';
+      showError(errorMessage);
+    }
+  };
+
+  const handleApprove = async (dareId) => {
+    setActionLoading(true);
+    try {
+      await api.post(`/dares/${dareId}/approve`);
+      showSuccess('Dare approved successfully!');
+      fetchDares();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to approve dare.';
+      showError(errorMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReject = async (dareId) => {
+    setActionLoading(true);
+    try {
+      await api.post(`/dares/${dareId}/reject`);
+      showSuccess('Dare rejected successfully!');
+      fetchDares();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to reject dare.';
+      showError(errorMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteDare = (dare) => {
+    if (!window.confirm(`Delete dare: ${dare.description}?`)) return;
+        setActionLoading(true);
+    api.delete(`/dares/${dare._id}`)
+      .then(() => {
+        showSuccess('Dare deleted successfully!');
+          fetchDares();
+      })
+      .catch((err) => {
+        const errorMessage = err.response?.data?.error || 'Failed to delete dare.';
+        showError(errorMessage);
+      })
+      .finally(() => setActionLoading(false));
+  };
+
+  const handleDeleteSwitchGame = (game) => {
+    if (!window.confirm(`Delete switch game: ${game.title}?`)) return;
+        setActionLoading(true);
+    api.delete(`/switches/${game._id}`)
+      .then(() => {
+        showSuccess('Switch game deleted successfully!');
+          fetchSwitchGames();
+      })
+      .catch((err) => {
+        const errorMessage = err.response?.data?.error || 'Failed to delete switch game.';
+        showError(errorMessage);
+      })
+      .finally(() => setActionLoading(false));
+  };
+
+  const handleDelete = (userId) => {
+    if (!window.confirm(`Delete user: ${userId}?`)) return;
+        setActionLoading(true);
+    api.delete(`/users/${userId}`)
+      .then(() => {
+        showSuccess('User deleted successfully!');
+          fetchUsers();
+      })
+      .catch((err) => {
+        const errorMessage = err.response?.data?.error || 'Failed to delete user.';
+        showError(errorMessage);
+      })
+      .finally(() => setActionLoading(false));
+  };
+
+  const handleUserSearch = () => {
+    fetchUsers(userSearchId);
+  };
+
+  const handleDeleteUser = (userId) => {
+    handleDelete(userId);
+  };
+
+  const handleEditUser = (userId) => {
+    const user = users.find(u => u._id === userId);
+    if (user) {
+      setEditUserId(userId);
+      setEditUserData({
+        username: user.username || '',
+        email: user.email || '',
+        roles: user.roles || [],
+      });
+      setEditUserError('');
+    }
+  };
+
+  const closeEditUserModal = () => {
+    setEditUserId(null);
+    setEditUserData({ username: '', email: '', roles: [] });
+    setEditUserError('');
+  };
+
+  const handleEditUserChange = (e) => {
+    const { name, value } = e.target;
+    setEditUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditUserSave = async () => {
+    setEditUserLoading(true);
+    setEditUserError('');
+    try {
+      const { username, email, roles } = editUserData;
+      const payload = { username, email };
+      if (roles && Array.isArray(roles)) payload.roles = roles;
+      
+      await api.patch(`/users/${editUserId}`, payload);
+      showSuccess('User updated successfully!');
+      fetchUsers();
+      closeEditUserModal();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to update user.';
+      setEditUserError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setEditUserLoading(false);
+    }
+  };
+
+  const openConfirmModal = (message, onConfirmCallback) => {
+    if (window.confirm(message)) {
+      onConfirmCallback();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
