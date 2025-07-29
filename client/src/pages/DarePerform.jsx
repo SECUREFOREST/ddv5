@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
-import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
+import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -24,7 +25,7 @@ const DIFFICULTY_ICONS = {
 
 export default function DarePerform() {
   const { user } = useAuth();
-  const { showNotification } = useNotification();
+  const { showSuccess, showError } = useToast();
   const [difficulty, setDifficulty] = useState('titillating');
   const [consented, setConsented] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -61,15 +62,19 @@ export default function DarePerform() {
         const isCreator = user && ((typeof res.data.creator === 'object' ? res.data.creator._id : res.data.creator) === user.id);
         if (isCreator) {
           setNoDare(true);
+          showError('You cannot perform your own dares. Try a different difficulty.');
         } else {
           setDare(res.data);
           setConsented(true);
+          showSuccess('Dare loaded successfully!');
         }
       } else {
         setNoDare(true);
+        showError('No dares available for this difficulty level.');
       }
     } catch (err) {
       setNoDare(true);
+      showError('Failed to load dare. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -78,11 +83,15 @@ export default function DarePerform() {
   const handleProofSubmit = async (e) => {
     e.preventDefault();
     setProofLoading(true);
-      if (!proof && !proofFile) {
-      showNotification('Please provide proof text or upload a file.', 'error');
-        setProofLoading(false);
-        return;
-      }
+    setProofError('');
+    setProofSuccess('');
+    
+    if (!proof && !proofFile) {
+      showError('Please provide proof text or upload a file.');
+      setProofLoading(false);
+      return;
+    }
+    
     try {
       let formData;
       if (proofFile) {
@@ -98,254 +107,300 @@ export default function DarePerform() {
       }
       setProof('');
       setProofFile(null);
-      setExpireAfterView(false);
-      showNotification('Proof submitted successfully!', 'success');
+      setProofSuccess('Proof submitted successfully!');
+      showSuccess('Proof submitted successfully!');
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
+      const errorMessage = err.response?.data?.error || 'Failed to submit proof.';
+      setProofError(errorMessage);
+      showError(errorMessage);
     } finally {
       setProofLoading(false);
     }
   };
 
   const handleTryDifferent = () => {
-    setNoDare(false);
     setConsented(false);
-    setConsentChecked(false);
     setDare(null);
+    setNoDare(false);
     setProof('');
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
   };
 
-  // Fetch dare details with grades after proof submission
   const fetchDare = async (dareId) => {
     setFetchingDare(true);
+    setFetchDareError('');
     try {
       const res = await api.get(`/dares/${dareId}`);
       setDare(res.data);
-      setGrades(res.data.grades || []);
+      setConsented(true);
+      showSuccess('Dare loaded successfully!');
     } catch (err) {
-      showNotification('Failed to load updated dare details. Please refresh the page.', 'error');
+      setFetchDareError('Failed to load dare.');
+      showError('Failed to load dare. Please try again.');
     } finally {
       setFetchingDare(false);
     }
   };
 
-  // After proof submission, fetch dare details
-  React.useEffect(() => {
-    if (proofSuccess && dare?._id) {
-      fetchDare(dare._id);
-    }
-  }, [proofSuccess, dare?._id]);
-
-  // Grading logic
-  const hasGradedPerformer = user && dare && grades && dare.performer && grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === dare.performer._id || g.target === dare.performer._id || g.target === dare.performer));
-  const hasGradedCreator = user && dare && grades && dare.creator && grades.some(g => g.user && (g.user._id === user.id || g.user === user.id) && g.target && (g.target._id === dare.creator._id || g.target === dare.creator._id || g.target === dare.creator));
   const handleGrade = async (e, targetId) => {
     e.preventDefault();
-    setGradeError('');
-    if (!grade) {
-      setGradeError('Please select a grade.');
-      return;
-    }
     setGrading(true);
+    setGradeError('');
     try {
-      await api.post(`/dares/${dare._id}/grade`, { grade: Number(grade), feedback, target: targetId });
+      await api.post(`/dares/${dare._id}/grade`, {
+        targetId,
+        grade,
+        feedback,
+      });
       setGrade('');
       setFeedback('');
-      fetchDare(dare._id);
+      showSuccess('Grade submitted successfully!');
     } catch (err) {
-      setGradeError(err.response?.data?.error || 'Failed to submit grade');
+      const errorMessage = err.response?.data?.error || 'Failed to submit grade.';
+      setGradeError(errorMessage);
+      showError(errorMessage);
     } finally {
       setGrading(false);
     }
   };
 
-  // Helper to normalize MongoDB IDs
   const getId = (obj) => (typeof obj === 'object' && obj !== null ? obj._id : obj);
-  const isCreator = user && dare && getId(dare.creator) === user.id;
-  const isPerformer = user && dare && getId(dare.performer) === user.id;
 
-  // Improved debug log for updated dare state
-  React.useEffect(() => {
-    if (dare && proofSuccess) {
-      
-    }
-  }, [dare, proofSuccess]);
+  if (fetchingDare) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <ListSkeleton count={5} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Progress Bar */}
-      <div className="w-full bg-neutral-700 rounded-full h-2 mt-4 mb-2">
-        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: consented ? '100%' : '50%' }} />
-      </div>
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <FireIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Perform Dare
-        </h1>
-      </div>
-      {/* Step indicator */}
-      <div className="text-center text-xs text-neutral-400 font-semibold mb-2">{consented ? 'Step 2 of 2: Submit Proof' : 'Step 1 of 2: Consent & Get Dare'}</div>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <PlayIcon className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Perform a Dare</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Challenge yourself with exciting dares
+            </p>
+          </div>
 
+          {!consented ? (
+            /* Consent Form */
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Choose Your Challenge</h2>
+                <p className="text-neutral-300 mb-6">
+                  Select a difficulty level and consent to perform a random dare
+                </p>
+              </div>
 
-      {!consented ? (
-        <form role="form" aria-labelledby="dare-perform-title" onSubmit={e => { e.preventDefault(); handleConsent(); }} className="space-y-6 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-          <h1 id="dare-perform-title" className="text-2xl font-bold mb-4">Perform Dare</h1>
-          {/* Difficulty Selection */}
-          <div>
-            <label htmlFor="difficulty" className="block font-semibold mb-1 text-primary">Select Difficulty</label>
-            <div className="flex flex-col gap-2">
-              {DIFFICULTY_OPTIONS.map(opt => (
-                <label key={opt.value} className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors
-                  ${difficulty === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
+              {/* Difficulty Selection */}
+              <div className="mb-8">
+                <label className="block text-lg font-semibold text-white mb-4">Difficulty Level</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {DIFFICULTY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDifficulty(option.value)}
+                      className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                        difficulty === option.value
+                          ? 'border-primary bg-primary/20 text-primary'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {DIFFICULTY_ICONS[option.value]}
+                        <div className="text-left">
+                          <div className="font-semibold">{option.label}</div>
+                          <div className="text-sm opacity-75">{option.description}</div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Consent Checkbox */}
+              <div className="mb-8">
+                <div className="flex items-start gap-3">
                   <input
-                    type="radio"
-                    name="difficulty"
-                    value={opt.value}
-                    checked={difficulty === opt.value}
-                    onChange={() => setDifficulty(opt.value)}
-                    className="accent-primary bg-[#1a1a1a]"
-                    id={`difficulty-${opt.value}`}
-                    aria-required="true"
+                    type="checkbox"
+                    id="consent"
+                    checked={consentChecked}
+                    onChange={(e) => setConsentChecked(e.target.checked)}
+                    className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2 mt-1"
                   />
-                  {DIFFICULTY_ICONS[opt.value]}
-                  <b>{opt.label}</b>
-                  <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
-                </label>
-              ))}
+                  <label htmlFor="consent" className="text-white">
+                    I consent to perform a dare of the selected difficulty level. I understand that I can decline any dare that makes me uncomfortable.
+                  </label>
+                </div>
+              </div>
+
+              {/* Get Dare Button */}
+              <div className="text-center">
+                <button
+                  onClick={handleConsent}
+                  disabled={!consentChecked || loading}
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <FireIcon className="w-6 h-6" />
+                      Get Random Dare
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-          {/* Consent Checkbox */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="perform-consent"
-              checked={consentChecked}
-              onChange={e => setConsentChecked(e.target.checked)}
-              className="mr-2 bg-[#1a1a1a]"
-              required
-              aria-required="true"
-            />
-            <label htmlFor="perform-consent" className="text-sm">I consent to perform a random dare.</label>
-          </div>
-          <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-            <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={loading || !consentChecked}>
-              {loading ? (
-                <span>
-                  <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
-                  Loading...
-                </span>
-              ) : (
-                <>
-                  Get Dare <ArrowRightIcon className="inline w-5 h-5 ml-1" />
-                </>
-              )}
-            </button>
-          </div>
-          {noDare && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">No dare found for this difficulty. Try a different one.</div>}
-        </form>
-      ) : dare ? (
-        <div>
-          <div className="mb-4 p-4 bg-neutral-900 rounded text-neutral-100 border border-neutral-800">
-            <div className="font-semibold text-primary mb-2">Your Dare:</div>
-            <div className="text-lg font-bold mb-2">{dare.description}</div>
-            <div className="text-sm text-neutral-400 flex items-center gap-2">Difficulty: {DIFFICULTY_ICONS[dare.difficulty]} <b>{dare.difficulty}</b></div>
-          </div>
-          {/* Add any timestamp displays here if they exist */}
-          {dare?.createdAt && (
-            <div className="text-xs text-neutral-400 mt-2">
-              <span
-                className="cursor-help"
-                title={formatRelativeTimeWithTooltip(dare.createdAt).tooltip}
-              >
-                Created {formatRelativeTimeWithTooltip(dare.createdAt).display}
-              </span>
-            </div>
-          )}
-          {/* Privacy Options */}
-          <div className="mb-6">
-            <label htmlFor="privacy" className="block font-semibold mb-1 text-primary">Content Deletion / Privacy</label>
-            <div className="flex flex-col gap-2">
-              {PRIVACY_OPTIONS.map(opt => (
-                <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                  <input
-                    type="radio"
-                    name="privacy"
-                    value={opt.value}
-                    checked={privacy === opt.value}
-                    onChange={() => setPrivacy(opt.value)}
-                    className="mt-1 accent-primary bg-[#1a1a1a]"
-                    id={`privacy-${opt.value}`}
-                    aria-required="true"
-                  />
-                  <span className="flex items-center gap-2">
-                    {opt.icon}
-                    <b>{opt.label}</b>
-                  </span>
-                  <span className="text-xs text-neutral-400 ml-2">{opt.desc}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          {/* Proof submission */}
-          <form onSubmit={handleProofSubmit} className="space-y-4 p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 shadow-lg hover:shadow-2xl transition-duration-200 mb-4">
-            <div>
-              <label htmlFor="perform-proof-text" className="block font-semibold mb-1 text-primary">Proof (text, link, or upload)</label>
-              <textarea
-                id="perform-proof-text"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                value={proof}
-                onChange={e => setProof(e.target.value)}
-                rows={3}
-                placeholder="Describe your proof, add a link, or leave blank if uploading a file."
-                aria-required="true"
-              />
-            </div>
-            <div>
-              <label htmlFor="perform-proof-file" className="block font-semibold mb-1 text-primary">Upload image or video proof (optional)</label>
-              <input
-                id="perform-proof-file"
-                type="file"
-                className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-                onChange={e => setProofFile(e.target.files[0])}
-                accept="image/*,video/mp4,video/webm,video/quicktime"
-                aria-required="false"
-              />
-              <small className="text-gray-400">Accepted: images (jpg, png, gif) or video (mp4, mov, webm). Max size: 50MB.</small>
-            </div>
-            {proofError && <div className="text-danger text-sm font-medium" role="alert" aria-live="assertive">{proofError}</div>}
-            {proofSuccess && <div className="text-success text-sm font-medium" role="status" aria-live="polite">{proofSuccess}</div>}
-            <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-              <button type="submit" className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={proofLoading} aria-busy={proofLoading}>
-                {proofLoading ? (
-                  <span>
-                    <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-contrast rounded-full animate-spin align-middle mr-2"></span>
-                    Submitting...
-                  </span>
-                ) : (
-                  <>
-                    Submit Proof <ArrowRightIcon className="inline w-5 h-5 ml-1" />
-                  </>
+          ) : dare ? (
+            /* Dare Display and Proof Submission */
+            <div className="space-y-8">
+              {/* Dare Card */}
+              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-xl">
+                    {DIFFICULTY_ICONS[dare.difficulty]}
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-white mb-2">Your Dare</h2>
+                    <div className="text-neutral-300 mb-4">{dare.description}</div>
+                    <div className="flex items-center gap-4 text-sm text-neutral-400">
+                      <span>Difficulty: {dare.difficulty}</span>
+                      {dare.creator && (
+                        <span>Created by: {dare.creator.fullName || dare.creator.username}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleTryDifferent}
+                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                  >
+                    Try Different Dare
+                  </button>
+                </div>
+              </div>
+
+              {/* Proof Submission */}
+              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
+                
+                <form onSubmit={handleProofSubmit} className="space-y-6">
+                  <div>
+                    <label htmlFor="proof-text" className="block font-semibold mb-2 text-white">Proof Description</label>
+                    <textarea
+                      id="proof-text"
+                      value={proof}
+                      onChange={(e) => setProof(e.target.value)}
+                      className="w-full h-32 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+                      placeholder="Describe how you completed the dare..."
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="proof-file" className="block font-semibold mb-2 text-white">Proof File (Optional)</label>
+                    <input
+                      type="file"
+                      id="proof-file"
+                      onChange={(e) => setProofFile(e.target.files[0])}
+                      className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                      accept="image/*,video/*"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="expire-after-view"
+                      checked={expireAfterView}
+                      onChange={(e) => setExpireAfterView(e.target.checked)}
+                      className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
+                    />
+                    <label htmlFor="expire-after-view" className="text-white">
+                      Delete proof after viewing
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={proofLoading || (!proof && !proofFile)}
+                    className="w-full bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                  >
+                    {proofLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <ArrowRightIcon className="w-6 h-6" />
+                        Submit Proof
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {proofError && (
+                  <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                    {proofError}
+                  </div>
                 )}
-              </button>
+
+                {proofSuccess && (
+                  <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+                    {proofSuccess}
+                  </div>
+                )}
+              </div>
             </div>
-          </form>
-          {/* Chicken Out button, only if dare is in progress */}
-          {dare.status === 'in_progress' && (
-            <button
-              className="w-full mt-4 bg-danger text-danger-contrast rounded px-4 py-2 font-semibold hover:bg-danger-dark disabled:opacity-50"
-              // onClick={handleChickenOut} // Not implemented in this file
-              disabled={false}
-              aria-busy={false}
-            >
-              {/* {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'} */}
-              Chicken Out
-            </button>
-          )}
-        </div>
-      ) : null}
+          ) : noDare ? (
+            /* No Dare Available */
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+              <div className="text-neutral-400 text-xl mb-4">No dares available</div>
+              <p className="text-neutral-500 text-sm mb-6">
+                No dares are available for the selected difficulty level. Try a different difficulty or create your own dare.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={handleTryDifferent}
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                >
+                  Try Different Difficulty
+                </button>
+                <Link
+                  to="/dares/create"
+                  className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                >
+                  Create Dare
+                </Link>
+              </div>
+            </div>
+          ) : null}
+        </main>
+      </div>
     </div>
   );
 } 
