@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { Squares2X2Icon, GamepadIcon } from '@heroicons/react/24/solid';
+import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
 
 export default function SwitchGames() {
   const { user } = useAuth ? useAuth() : { user: null };
@@ -19,7 +19,7 @@ export default function SwitchGames() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <GamepadIcon className="w-12 h-12 text-white mr-4" />
+              <PlayIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Switch Games</h1>
             </div>
             <p className="text-xl text-white/80">Create or participate in switch games</p>
@@ -47,7 +47,7 @@ export default function SwitchGames() {
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <GamepadIcon className="w-8 h-8 text-blue-300" />
+                  <PlayIcon className="w-8 h-8 text-blue-300" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-4">Participate in a Switch Game</h2>
                 <p className="text-white/70 mb-6">Join an existing switch game and challenge others</p>
