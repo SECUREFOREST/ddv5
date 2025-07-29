@@ -1163,7 +1163,7 @@ export default function DarePerformerDashboard() {
             {renderSwitchGameFilters()}
             
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
               <button
                 onClick={() => navigate('/switches')}
                 className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
@@ -1181,8 +1181,16 @@ export default function DarePerformerDashboard() {
               </button>
               
               <button
-                onClick={() => navigate('/switches/join')}
+                onClick={() => navigate('/switches/participate')}
                 className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Participate in Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/join')}
+                className="group bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl p-4 font-semibold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
                 Join Switch Game
