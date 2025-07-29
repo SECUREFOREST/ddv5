@@ -121,20 +121,39 @@ export default function DarePerformerDashboard() {
 
   // Fetch data on mount
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user found, skipping dashboard data fetch');
+      return;
+    }
     
     const fetchData = async () => {
       setIsLoading(true);
       setError('');
       
       try {
+        console.log('Fetching dashboard data for user:', user.id || user._id);
+        
+        // Check if user is authenticated
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+          throw new Error('No access token found. Please log in again.');
+        }
+        
         const [ongoingRes, completedRes, publicRes, switchRes, historyRes] = await Promise.all([
           api.get('/dares/mine?status=in_progress,waiting_for_participant'),
           api.get('/dares/mine?status=completed'),
-          api.get('/dares/public'),
+          api.get('/dares?public=true&status=waiting_for_participant'),
           api.get('/switches/performer'),
           api.get('/switches/history')
         ]);
+        
+        console.log('Dashboard data loaded successfully:', {
+          ongoing: ongoingRes.data?.length || 0,
+          completed: completedRes.data?.length || 0,
+          public: publicRes.data?.length || 0,
+          switches: switchRes.data?.length || 0,
+          history: historyRes.data?.length || 0
+        });
         
         setOngoing(Array.isArray(ongoingRes.data) ? ongoingRes.data : []);
         setCompleted(Array.isArray(completedRes.data) ? completedRes.data : []);
@@ -144,8 +163,25 @@ export default function DarePerformerDashboard() {
         
         showNotification('Dashboard loaded successfully!', 'success');
       } catch (err) {
-        setError('Failed to load dashboard data. Please try again.');
-        showNotification('Failed to load dashboard data.', 'error');
+        console.error('Dashboard loading error:', err);
+        console.error('Error response:', err.response);
+        console.error('Error status:', err.response?.status);
+        console.error('Error data:', err.response?.data);
+        
+        let errorMessage = 'Failed to load dashboard data. Please try again.';
+        
+        if (err.response?.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.';
+        } else if (err.response?.status === 404) {
+          errorMessage = 'Some dashboard features are not available. Please try again later.';
+        } else if (err.response?.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (err.response?.data?.error) {
+          errorMessage = err.response.data.error;
+        }
+        
+        setError(errorMessage);
+        showNotification(errorMessage, 'error');
       } finally {
         setIsLoading(false);
         setDataLoading({
@@ -184,10 +220,19 @@ export default function DarePerformerDashboard() {
     }
     
     try {
-      const res = await api.get(`/dares/random${dare.difficulty ? `?difficulty=${dare.difficulty}` : ''}`);
-      setOngoing(prev => [...prev, res.data]);
-      showNotification('Dare claimed successfully!', 'success');
+      const params = new URLSearchParams();
+      if (dare.difficulty) {
+        params.append('difficulty', dare.difficulty);
+      }
+      const res = await api.get(`/dares/random?${params.toString()}`);
+      if (res.data && Object.keys(res.data).length > 0) {
+        setOngoing(prev => [...prev, res.data]);
+        showNotification('Dare claimed successfully!', 'success');
+      } else {
+        showNotification('No available dares found with the specified criteria.', 'error');
+      }
     } catch (err) {
+      console.error('Claim dare error:', err);
       showNotification(err.response?.data?.error || 'Failed to claim dare.', 'error');
     }
   };
@@ -202,7 +247,8 @@ export default function DarePerformerDashboard() {
       setCompleted(prev => [...prev, { ...ongoing[dareIdx], status: 'completed', completedAt: new Date() }]);
       showNotification('Dare completed successfully!', 'success');
     } catch (err) {
-      showNotification('Failed to complete dare.', 'error');
+      console.error('Complete dare error:', err);
+      showNotification(err.response?.data?.error || 'Failed to complete dare.', 'error');
     }
   };
 
@@ -495,6 +541,28 @@ export default function DarePerformerDashboard() {
       )
     }
   ];
+
+  // Check if user is authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-red-400 mb-4">Authentication Required</h2>
+              <p className="text-red-300 mb-4">Please log in to access the performer dashboard.</p>
+              <button
+                onClick={() => navigate('/login')}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

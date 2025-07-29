@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import api from '../api/axios';
@@ -88,53 +88,6 @@ export default function Profile() {
 
 
 
-  // Define handleSave function before it's used in useEffect
-  const handleSave = async (e, isAutoSave = false) => {
-    if (e) e.preventDefault();
-    
-    if (!user) {
-      showError('User not loaded. Please refresh and try again.');
-      return;
-    }
-    
-    const userId = getUserId(user);
-    if (!userId) {
-      showError('User ID not found. Please refresh and try again.');
-      return;
-    }
-    
-    const errors = validateForm();
-    setFormErrors(errors);
-    
-    if (Object.keys(errors).length > 0) {
-      if (!isAutoSave) {
-        showError('Please fix the errors before saving.');
-      }
-      return;
-    }
-    
-    setSaving(true);
-    try {
-      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
-      
-      if (isAutoSave) {
-        showSuccess('Profile auto-saved!');
-      } else {
-        showSuccess('Profile updated successfully!');
-        // Update user object without reloading
-        const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (err) {
-      showError(err.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -143,9 +96,7 @@ export default function Profile() {
           case 's':
             e.preventDefault();
             if (editMode) {
-              // Call handleSave directly since it's defined later
-              const saveEvent = { preventDefault: () => {} };
-              handleSave(saveEvent);
+              handleSave(e);
             }
             break;
           case 'e':
@@ -158,7 +109,7 @@ export default function Profile() {
     
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [editMode]);
+  }, [editMode, handleSave]);
 
   // Track form changes for auto-save
   const handleFormChange = (field, value) => {
@@ -246,6 +197,8 @@ export default function Profile() {
     if (!userId) return;
     setStatsLoading(true);
     setUserActivitiesLoading(true);
+    setStatsError('');
+    
     Promise.all([
       api.get('/stats/users/' + userId),
       api.get('/dares', { params: { creator: userId } }),
@@ -262,26 +215,35 @@ export default function Profile() {
       setSwitchCreated(Array.isArray(switchCreatedRes.data) ? switchCreatedRes.data : []);
       setSwitchParticipating(Array.isArray(switchParticipatingRes.data) ? switchParticipatingRes.data : []);
       setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
-    }).catch(() => {
-      setStatsError('Failed to load stats.');
+    }).catch((error) => {
+      console.error('Failed to load profile data:', error);
+      setStatsError('Failed to load profile statistics. Please refresh the page.');
+      showError('Failed to load profile data. Please try again.');
     }).finally(() => {
       setStatsLoading(false);
       setUserActivitiesLoading(false);
     });
-  }, [user]);
+  }, [user, showError]);
 
   useEffect(() => {
     if (loading) return;
     if (!user) return;
-    // Fetch info for blocked users
+    
+    // Fetch info for blocked users with loading state
     if (user.blockedUsers && user.blockedUsers.length > 0) {
+      setUserActivitiesLoading(true);
       Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
         .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data)))
-        .catch(() => setBlockedUsersInfo([]));
+        .catch((error) => {
+          console.error('Failed to load blocked users:', error);
+          setBlockedUsersInfo([]);
+          showError('Failed to load blocked users information.');
+        })
+        .finally(() => setUserActivitiesLoading(false));
     } else {
       setBlockedUsersInfo([]);
     }
-  }, [user, loading]);
+  }, [user, loading, showError]);
 
   // Form validation
   const validateForm = () => {
@@ -293,6 +255,53 @@ export default function Profile() {
     if (bio && bio.length > 300) errors.bio = 'Bio must be less than 300 characters';
     return errors;
   };
+
+  // Define handleSave function after all helper functions
+  const handleSave = useCallback(async (e, isAutoSave = false) => {
+    if (e) e.preventDefault();
+    
+    if (!user) {
+      showError('User not loaded. Please refresh and try again.');
+      return;
+    }
+    
+    const userId = getUserId(user);
+    if (!userId) {
+      showError('User ID not found. Please refresh and try again.');
+      return;
+    }
+    
+    const errors = validateForm();
+    setFormErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      if (!isAutoSave) {
+        showError('Please fix the errors before saving.');
+      }
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      await api.patch(`/users/${userId}`, { username, avatar, bio, gender, dob, interestedIn, limits, fullName });
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+      
+      if (isAutoSave) {
+        showSuccess('Profile auto-saved!');
+      } else {
+        showSuccess('Profile updated successfully!');
+        // Update user object without reloading
+        const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (err) {
+      showError(err.response?.data?.error || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  }, [user, username, avatar, bio, gender, dob, interestedIn, limits, fullName, showError, showSuccess, setUser, validateForm]);
 
   // Auto-save with debouncing
   useEffect(() => {
@@ -306,7 +315,7 @@ export default function Profile() {
     }, 2000); // 2 second delay
     
     return () => clearTimeout(timeoutId);
-  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges]);
+  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, handleSave]);
 
 
 
@@ -392,25 +401,35 @@ export default function Profile() {
           setAvatar(newAvatarUrl);
           setAvatarSaved(true);
           setUploadProgress(100);
-          setTimeout(() => {
+          
+          // Clear success message after delay
+          const successTimer = setTimeout(() => {
             setAvatarSaved(false);
             setUploadProgress(0);
           }, 2000);
+          
           showSuccess('Profile picture saved!');
           
           // Update user object in AuthContext and localStorage
           const updatedUser = { ...user, avatar: newAvatarUrl };
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
+          
+          // Cleanup timer on component unmount
+          return () => clearTimeout(successTimer);
         } catch (uploadErr) {
+          console.error('Avatar upload failed:', uploadErr);
           setUploadError('Failed to upload avatar. Please try again.');
           setUploadProgress(0);
-          showError('Failed to upload avatar.');
+          showError('Failed to upload avatar. Please check your connection and try again.');
         } finally {
           setSaving(false);
         }
       }
     }
+    
+    // Clear the file input for future uploads
+    e.target.value = '';
   };
 
   // Block/unblock handler
