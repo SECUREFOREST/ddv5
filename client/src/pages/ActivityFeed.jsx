@@ -3,7 +3,7 @@ import api from '../api/axios';
 
 import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
-import { MagnifyingGlassIcon, ActivityIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
@@ -72,7 +72,7 @@ export default function ActivityFeed() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
-                <ActivityIcon className="w-10 h-10 text-white" />
+                <ChartBarIcon className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Activity Feed</h1>
