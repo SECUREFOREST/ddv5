@@ -429,6 +429,101 @@ export default function DarePerformerDashboard() {
     </div>
   );
 
+  // Advanced filtering UI components (restored)
+  const renderSwitchGameFilters = () => (
+    <div className="space-y-4 mb-6">
+      <div className="flex flex-wrap gap-4">
+        <select
+          value={switchStatusFilter}
+          onChange={(e) => setSwitchStatusFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="">All Status</option>
+          <option value="waiting_for_participant">Waiting</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="forfeited">Forfeited</option>
+        </select>
+        
+        <select
+          value={switchDifficultyFilter}
+          onChange={(e) => setSwitchDifficultyFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="">All Difficulties</option>
+          <option value="titillating">Titillating</option>
+          <option value="arousing">Arousing</option>
+          <option value="explicit">Explicit</option>
+          <option value="edgy">Edgy</option>
+          <option value="hardcore">Hardcore</option>
+        </select>
+        
+        <select
+          value={switchSort}
+          onChange={(e) => setSwitchSort(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="recent">Most Recent</option>
+          <option value="oldest">Oldest First</option>
+          <option value="status">By Status</option>
+          <option value="difficulty">By Difficulty</option>
+        </select>
+        
+        <input
+          type="text"
+          placeholder="Search participants..."
+          value={switchParticipantFilter}
+          onChange={(e) => setSwitchParticipantFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+    </div>
+  );
+
+  const renderAdvancedFilters = () => (
+    <div className="space-y-4 mb-6">
+      <div className="flex flex-wrap gap-4">
+        <input
+          type="text"
+          placeholder="Search by keyword..."
+          value={keywordFilter}
+          onChange={(e) => setKeywordFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        
+        <input
+          type="text"
+          placeholder="Filter by creator..."
+          value={creatorFilter}
+          onChange={(e) => setCreatorFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          <option value="">All Status</option>
+          <option value="in_progress">In Progress</option>
+          <option value="waiting_for_participant">Waiting</option>
+          <option value="completed">Completed</option>
+          <option value="forfeited">Forfeited</option>
+        </select>
+        
+        <input
+          type="text"
+          placeholder="Filter by tags..."
+          value={tagFilter}
+          onChange={(e) => setTagFilter(e.target.value)}
+          className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+      
+      {renderDifficultyChips()}
+    </div>
+  );
+
   // Action handlers
   const handleClaimDare = async (dare) => {
     if (ongoing.length >= MAX_SLOTS) {
@@ -877,8 +972,12 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Public Dares</h3>
+            
+            {/* Advanced Filters */}
+            {renderAdvancedFilters()}
+            
             <div className="space-y-4">
-              {dedupeDaresByUser(publicDares)
+              {filterAndSortAllDares(dedupeDaresByUser(publicDares))
                 .filter(dare => dare.creator?._id !== (user?.id || user?._id))
                 .map(dare => (
                   <DareCard
@@ -903,12 +1002,129 @@ export default function DarePerformerDashboard() {
                   />
                 ))}
               
-              {publicDares.length === 0 && (
+              {filterAndSortAllDares(dedupeDaresByUser(publicDares))
+                .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+                .length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
                     <SparklesIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                     <div className="text-neutral-400 text-lg mb-2">No public dares available</div>
                     <p className="text-neutral-500 text-sm">Check back later for new dares</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'switch',
+      label: 'Switch Games',
+      icon: PlayIcon,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
+            <h3 className="text-lg font-semibold text-white mb-4">My Switch Games</h3>
+            
+            {/* Advanced Filters */}
+            {renderSwitchGameFilters()}
+            
+            <div className="space-y-4">
+              {filterAndSortSwitchGames(mySwitchGames).map(game => (
+                <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-semibold text-white mb-2">{game.creatorDare?.description || 'Switch Game'}</div>
+                      <div className="text-sm text-neutral-400">
+                        Status: {game.status}
+                      </div>
+                      <div className="text-sm text-neutral-400">
+                        Creator: {game.creator?.username || 'Unknown'}
+                      </div>
+                      {game.participant && (
+                        <div className="text-sm text-neutral-400">
+                          Participant: {game.participant.username || 'Unknown'}
+                        </div>
+                      )}
+                      {game.winner && (
+                        <div className="text-sm text-neutral-400">
+                          Winner: {game.winner.username || 'Unknown'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleWithdrawSwitchGame(mySwitchGames.findIndex(g => g._id === game._id))}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                      >
+                        Withdraw
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {filterAndSortSwitchGames(mySwitchGames).length === 0 && (
+                <div className="text-center py-12">
+                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
+                    <PlayIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No switch games</div>
+                    <p className="text-neutral-500 text-sm">Create or join switch games to see them here</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'switch-history',
+      label: 'Switch History',
+      icon: TrophyIcon,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
+            <h3 className="text-lg font-semibold text-white mb-4">Switch Game History</h3>
+            <div className="space-y-4">
+              {switchGameHistory.map(game => (
+                <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-semibold text-white mb-2">{game.creatorDare?.description || 'Switch Game'}</div>
+                      <div className="text-sm text-neutral-400">
+                        Status: {game.status}
+                      </div>
+                      <div className="text-sm text-neutral-400">
+                        Creator: {game.creator?.username || 'Unknown'}
+                      </div>
+                      {game.participant && (
+                        <div className="text-sm text-neutral-400">
+                          Participant: {game.participant.username || 'Unknown'}
+                        </div>
+                      )}
+                      {game.winner && (
+                        <div className="text-sm text-neutral-400">
+                          Winner: {game.winner.username || 'Unknown'}
+                        </div>
+                      )}
+                      {game.createdAt && (
+                        <div className="text-sm text-neutral-400">
+                          Created: {new Date(game.createdAt).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {switchGameHistory.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
+                    <TrophyIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No switch game history</div>
+                    <p className="text-neutral-500 text-sm">Complete switch games to see them here</p>
                   </div>
                 </div>
               )}
