@@ -244,6 +244,60 @@ export default function DareCreator() {
           )}
         </main>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title="Dare Created Successfully!"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="space-y-4">
+          <div className="text-center">
+            <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Dare Created!</h3>
+            <p className="text-neutral-300 mb-4">
+              Your claimable dare has been created successfully.
+            </p>
+          </div>
+          
+          {claimLink && (
+            <div>
+              <label htmlFor="claim-link" className="block font-semibold mb-1 text-white">Claimable Link</label>
+              <input
+                id="claim-link"
+                type="text"
+                value={claimLink}
+                readOnly
+                className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                onFocus={(e) => e.target.select()}
+              />
+              <button
+                onClick={() => navigator.clipboard.writeText(claimLink)}
+                className="w-full mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Copy Link
+              </button>
+            </div>
+          )}
+          
+          <div className="flex gap-4">
+            <button
+              onClick={handleCreateAnother}
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Create Another Dare
+            </button>
+            <Link
+              to="/dares"
+              className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl text-center"
+            >
+              View All Dares
+            </Link>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 } 

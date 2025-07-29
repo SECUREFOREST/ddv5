@@ -516,6 +516,258 @@ export default function DareDetails() {
           )}
         </main>
       </div>
+
+      {/* Reject Dare Modal */}
+      <Modal
+        open={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        title="Reject Dare"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleReject} className="space-y-4">
+          <div>
+            <label htmlFor="reject-reason" className="block font-semibold mb-1 text-white">Reason for Rejection</label>
+            <textarea
+              id="reject-reason"
+              name="reason"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Please provide a reason for rejecting this dare..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowRejectModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-red-700 hover:to-red-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Reject Dare
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Proof Submission Modal */}
+      <Modal
+        open={showProofModal}
+        onClose={() => setShowProofModal(false)}
+        title="Submit Proof"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleProofSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="proof-description" className="block font-semibold mb-1 text-white">Description</label>
+            <textarea
+              id="proof-description"
+              name="description"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Describe how you completed the dare..."
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="proof-file" className="block font-semibold mb-1 text-white">Proof File (Optional)</label>
+            <input
+              type="file"
+              id="proof-file"
+              name="proofFile"
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              accept="image/*,video/*"
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowProofModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Submit Proof
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Report Modal */}
+      <Modal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        title="Report Dare"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleReportSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="report-reason" className="block font-semibold mb-1 text-white">Reason for Report</label>
+            <textarea
+              id="report-reason"
+              name="reason"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Please provide a reason for reporting this dare..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowReportModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-red-700 hover:to-red-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Submit Report
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Appeal Modal */}
+      <Modal
+        open={showAppealModal}
+        onClose={() => setShowAppealModal(false)}
+        title="Submit Appeal"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleAppealSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="appeal-reason" className="block font-semibold mb-1 text-white">Appeal Reason</label>
+            <textarea
+              id="appeal-reason"
+              name="reason"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Please provide a reason for your appeal..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowAppealModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Submit Appeal
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Comment Modal */}
+      <Modal
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Comment"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="edit-content" className="block font-semibold mb-1 text-white">Comment</label>
+            <textarea
+              id="edit-content"
+              name="content"
+              value={editCommentData.content}
+              onChange={(e) => setEditCommentData({ ...editCommentData, content: e.target.value })}
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Edit your comment..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Moderate Comment Modal */}
+      <Modal
+        open={showModerateModal}
+        onClose={() => setShowModerateModal(false)}
+        title="Moderate Comment"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleModerateSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="moderate-action" className="block font-semibold mb-1 text-white">Action</label>
+            <select
+              id="moderate-action"
+              name="action"
+              value={moderateData.action}
+              onChange={(e) => setModerateData({ ...moderateData, action: e.target.value })}
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              required
+            >
+              <option value="">Select action...</option>
+              <option value="hide">Hide Comment</option>
+              <option value="delete">Delete Comment</option>
+              <option value="warn">Warn User</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="moderate-reason" className="block font-semibold mb-1 text-white">Reason</label>
+            <textarea
+              id="moderate-reason"
+              name="reason"
+              value={moderateData.reason}
+              onChange={(e) => setModerateData({ ...moderateData, reason: e.target.value })}
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Provide a reason for moderation..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowModerateModal(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-red-700 hover:to-red-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              Moderate
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

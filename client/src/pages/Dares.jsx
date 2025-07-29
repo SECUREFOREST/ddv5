@@ -265,7 +265,97 @@ export default function Dares() {
             </div>
           )}
         </main>
+      </div>
+
+      {/* Create Dare Modal */}
+      <Modal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        title="Create New Dare"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label htmlFor="create-description" className="block font-semibold mb-1 text-white">Dare Description</label>
+            <textarea
+              id="create-description"
+              name="description"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Describe your dare..."
+              required
+            />
           </div>
+          <div>
+            <label htmlFor="create-difficulty" className="block font-semibold mb-1 text-white">Difficulty</label>
+            <select
+              id="create-difficulty"
+              name="difficulty"
+              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+              required
+            >
+              <option value="">Select difficulty...</option>
+              {DIFFICULTY_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowCreate(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={creating}
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              {creating ? 'Creating...' : 'Create Dare'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Accept Dare Modal */}
+      <Modal
+        open={showAccept}
+        onClose={() => setShowAccept(false)}
+        title="Accept Dare"
+        role="dialog"
+        aria-modal="true"
+      >
+        <form onSubmit={handleAcceptSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="accept-confirmation" className="block font-semibold mb-1 text-white">Confirmation</label>
+            <textarea
+              id="accept-confirmation"
+              name="confirmation"
+              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+              placeholder="Confirm that you accept this dare..."
+              required
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setShowAccept(false)}
+              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={accepting}
+              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              {accepting ? 'Accepting...' : 'Accept Dare'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 } 
