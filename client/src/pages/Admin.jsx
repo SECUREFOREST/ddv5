@@ -30,10 +30,10 @@ function exportToCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
-export default function Admin() {
+function Admin() {
   const { user, loading } = useAuth();
   const { showSuccess, showError } = useToast();
-  
+
   // All useState hooks must be called at the top level, before any early returns
   const [authVerified, setAuthVerified] = useState(false);
   const [users, setUsers] = useState([]);
@@ -239,8 +239,8 @@ export default function Admin() {
   };
   const clearSelectedDares = () => setSelectedDares([]);
   
+  // Additional state variables
   const [auditLogSearch, setAuditLogSearch] = useState('');
-  
   const [editUserId, setEditUserId] = useState(null);
   const [editUserError, setEditUserError] = useState('');
 
@@ -1265,4 +1265,6 @@ export default function Admin() {
       </Modal>
     </div>
   );
-} 
+};
+
+export default Admin;
