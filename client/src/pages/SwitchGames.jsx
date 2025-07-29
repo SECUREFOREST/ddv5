@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../api/axios';
 
 export default function SwitchGames() {
