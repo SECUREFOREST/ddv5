@@ -4,7 +4,7 @@ import Modal from '../components/Modal';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import ListSkeleton from '../components/ListSkeleton';
+import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, GamepadIcon } from '@heroicons/react/24/solid';

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Avatar from '../components/Avatar';
 import { useToast } from '../components/Toast';
-import ListSkeleton from '../components/ListSkeleton';
+import { ListSkeleton } from '../components/Skeleton';
 import { ClockIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 // Difficulty badge (reuse from DareCard)

@@ -5,7 +5,7 @@ import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import ListSkeleton from '../components/ListSkeleton';
+import { ListSkeleton } from '../components/Skeleton';
 import { UserIcon, ShieldCheckIcon, ClockIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 

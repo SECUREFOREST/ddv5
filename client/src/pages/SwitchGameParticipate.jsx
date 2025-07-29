@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import ListSkeleton from '../components/ListSkeleton';
+import { ListSkeleton } from '../components/Skeleton';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
