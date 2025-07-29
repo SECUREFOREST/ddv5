@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import Avatar from './Avatar';
 import { useState } from 'react';
+import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -31,121 +32,226 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  // Navigation links
-  const navLinks = [
-    { to: '/dares', label: 'Dares', auth: true },
-    { to: '/dare/create', label: 'Create Dare', auth: true },
-    { to: '/switches', label: 'Switch Games', auth: true },
-    { to: '/dare/select', label: 'Perform Dare', auth: true },
-    { to: '/leaderboard', label: 'Leaderboard', auth: true },
-    { to: '/game-history', label: 'Game History', auth: true },
-    { to: '/user-activity', label: 'Activity', auth: true },
-    { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
-    { to: '/admin', label: 'Admin', admin: true },
+  // Grouped navigation links for better organization
+  const navGroups = [
+    {
+      title: 'Main',
+      links: [
+        { to: '/dares', label: 'Dares', auth: true },
+        { to: '/dare/create', label: 'Create Dare', auth: true },
+        { to: '/dare/select', label: 'Perform Dare', auth: true },
+      ]
+    },
+    {
+      title: 'Community',
+      links: [
+        { to: '/switches', label: 'Switch Games', auth: true },
+        { to: '/leaderboard', label: 'Leaderboard', auth: true },
+        { to: '/user-activity', label: 'Activity', auth: true },
+      ]
+    },
+    {
+      title: 'Special',
+      links: [
+        { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
+        { to: '/admin', label: 'Admin', admin: true },
+      ]
+    }
   ];
 
   // Helper for link classes
   const currentPath = window.location.pathname;
   function linkClass(link) {
     return (
-      'text-[#888] hover:text-white transition-colors px-2 py-1 rounded font-semibold focus-visible:outline-none ' +
-      (currentPath === link.to ? 'bg-neutral-800 text-white' : '')
+      'text-neutral-300 hover:text-white transition-all duration-200 px-4 py-3 rounded-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ' +
+      (currentPath === link.to ? 'bg-primary/20 text-primary border border-primary/30' : 'hover:bg-neutral-800/50')
     );
   }
 
   return (
-    <nav className="bg-[#060606] border-b border-[#282828] min-h-[50px] mb-6">
-      <div className="container mx-auto flex flex-wrap items-center justify-between px-4 py-2 min-h-[50px]">
+    <nav className="bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex items-center space-x-4">
-          <Link className="text-xl font-bold tracking-tight text-white" to="/">Deviant Dare</Link>
+          <Link className="text-xl font-bold tracking-tight text-white hover:text-primary transition-colors" to="/">
+            Deviant Dare
+          </Link>
         </div>
-        {/* Hamburger menu button for mobile */}
-        <div className="flex items-center sm:hidden">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-gray-300 hover:text-white focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+        
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center space-x-1">
+          {navGroups.map(group => (
+            <div key={group.title} className="flex items-center space-x-1">
+              {group.links.map(link => {
+                if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+                if (link.auth && !user) return null;
+                return (
+                  <Link key={link.to} to={link.to} className={linkClass(link)}>
+                    {link.label}
+                  </Link>
+                );
+              })}
+              {group.title !== 'Special' && <div className="w-px h-6 bg-neutral-700 mx-2" />}
+            </div>
+          ))}
         </div>
-        {/* Desktop links */}
-        <ul className="hidden sm:flex flex-wrap items-center space-x-3">
-          {navLinks.map(link => {
-            if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-            if (link.auth && !user) return null;
-            return (
-              <li key={link.to}>
-                <Link to={link.to} className={linkClass(link)}>{link.label}</Link>
-              </li>
-            );
-          })}
-        </ul>
+
         {/* User section (desktop) */}
-        <div className="hidden sm:flex items-center space-x-4 ml-4 mt-2 sm:mt-0">
+        <div className="hidden lg:flex items-center space-x-4">
           {user ? (
             <>
               <NotificationDropdown />
               <button
                 onClick={() => navigate('/profile')}
-                className="focus:outline-none"
+                className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full"
                 aria-label="Go to profile"
               >
-                <Avatar user={user} size={32} border shadow />
+                <Avatar user={user} size={40} border shadow />
               </button>
-              <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 text-xs font-semibold ml-2 shadow-lg">Logout</button>
+              <button 
+                onClick={handleLogout} 
+                className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg"
+              >
+                Logout
+              </button>
             </>
           ) : (
-            <>
-              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/login">Login</Link>
-              <Link className="text-[#888] hover:text-white transition-colors px-2 py-1" to="/register">Register</Link>
-            </>
+            <div className="flex items-center space-x-3">
+              <Link className="text-neutral-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-neutral-800/50" to="/login">
+                Login
+              </Link>
+              <Link className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105" to="/register">
+                Register
+              </Link>
+            </div>
           )}
         </div>
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-2 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <XMarkIcon className="h-6 w-6" />
+          ) : (
+            <Bars3Icon className="h-6 w-6" />
+          )}
+        </button>
       </div>
+
       {/* Impersonation banner */}
       {isImpersonating && (
-        <div className="bg-yellow-400 text-black px-4 py-2 rounded flex items-center space-x-2 ml-4">
-          <span>You are impersonating another user.</span>
-          <button
-            className="bg-white text-black rounded px-2 py-1 text-xs font-semibold hover:bg-gray-100"
-            onClick={handleReturnToAdmin}
-          >
-            Return to Admin
-          </button>
-          {impersonationError && (
-            <div className="bg-red-500 text-white rounded px-2 py-1 text-xs ml-2">{impersonationError}</div>
-          )}
+        <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-3">
+          <div className="container mx-auto flex items-center justify-between">
+            <span className="text-yellow-200 text-sm font-medium">You are impersonating another user.</span>
+            <button
+              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-3 py-1 text-sm font-medium transition-all duration-200"
+              onClick={handleReturnToAdmin}
+            >
+              Return to Admin
+            </button>
+            {impersonationError && (
+              <div className="bg-red-500 text-white rounded-lg px-3 py-1 text-sm">{impersonationError}</div>
+            )}
+          </div>
         </div>
       )}
-      {/* Mobile menu dropdown */}
+
+      {/* Mobile menu overlay */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-[#181818] border-t border-[#282828] px-4 py-2">
-          <ul className="flex flex-col space-y-1">
-            {navLinks.map(link => {
-              if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-              if (link.auth && !user) return null;
-              return (
-                <li key={link.to}>
-                  <Link className="text-[#888] hover:text-white transition-colors" to={link.to} onClick={() => setMobileMenuOpen(false)}>{link.label}</Link>
-                </li>
-              );
-            })}
-            {user ? (
-              <>
-                <li className="text-[#aaa] text-sm">{user.username}</li>
-                <li><button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="px-3 py-1 rounded bg-[#222] text-[#eee] hover:bg-[#333] text-sm w-full text-left">Logout</button></li>
-              </>
-            ) : (
-              <>
-                <li><Link className="text-[#888] hover:text-white transition-colors" to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link></li>
-                <li><Link className="text-[#888] hover:text-white transition-colors" to="/register" onClick={() => setMobileMenuOpen(false)}>Register</Link></li>
-              </>
-            )}
-          </ul>
-        </div>
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          {/* Mobile menu drawer */}
+          <div className="fixed inset-y-0 right-0 w-80 bg-neutral-900 border-l border-neutral-800 z-50 lg:hidden transform transition-transform duration-300 ease-in-out">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+                <h2 className="text-lg font-semibold text-white">Menu</h2>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Navigation Groups */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {navGroups.map(group => (
+                  <div key={group.title}>
+                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">
+                      {group.title}
+                    </h3>
+                    <div className="space-y-1">
+                      {group.links.map(link => {
+                        if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+                        if (link.auth && !user) return null;
+                        return (
+                          <Link
+                            key={link.to}
+                            to={link.to}
+                            className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
+                              currentPath === link.to 
+                                ? 'bg-primary/20 text-primary border border-primary/30' 
+                                : 'text-neutral-300 hover:text-white hover:bg-neutral-800/50'
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {link.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* User section */}
+              <div className="p-4 border-t border-neutral-800">
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-3 bg-neutral-800/50 rounded-lg">
+                      <Avatar user={user} size={40} border shadow />
+                      <div>
+                        <div className="text-white font-medium">{user.fullName || user.username}</div>
+                        <div className="text-neutral-400 text-sm">{user.email}</div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => { setMobileMenuOpen(false); handleLogout(); }} 
+                      className="w-full bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Link 
+                      to="/login" 
+                      className="block w-full text-center bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="block w-full text-center bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-3 font-medium transition-all duration-200"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </nav>
   );
