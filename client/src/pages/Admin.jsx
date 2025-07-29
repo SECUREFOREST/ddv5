@@ -119,6 +119,12 @@ export default function Admin() {
 
   // Show loading state while verifying authentication
   if (!authVerified) {
+    console.log('=== AUTH VERIFICATION DEBUG ===');
+    console.log('User object:', user);
+    console.log('User from localStorage:', localStorage.getItem('user'));
+    console.log('Loading state:', loading);
+    console.log('Auth verified:', authVerified);
+    
     // Add immediate bypass for users with clear admin role
     if (user && user.roles && user.roles.includes('admin')) {
       console.log('User has admin role, bypassing verification');
@@ -138,6 +144,38 @@ export default function Admin() {
           </div>
         </div>
       );
+    }
+    
+    // Try to get user from localStorage if user object is null
+    if (!user) {
+      const userFromStorage = localStorage.getItem('user');
+      if (userFromStorage) {
+        try {
+          const parsedUser = JSON.parse(userFromStorage);
+          console.log('Found user in localStorage:', parsedUser);
+          if (parsedUser.roles && parsedUser.roles.includes('admin')) {
+            console.log('User from localStorage has admin role, bypassing verification');
+            setAuthVerified(true);
+            return (
+              <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="text-center py-16">
+                      <div className="flex items-center justify-center mb-8">
+                        <LoadingSpinner variant="spinner" size="lg" color="primary" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
+                      <p className="text-white/70">Please wait while we load the admin interface...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+        } catch (error) {
+          console.error('Error parsing user from localStorage:', error);
+        }
+      }
     }
     
     return (
