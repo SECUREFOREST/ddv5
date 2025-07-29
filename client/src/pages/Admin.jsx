@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 import Avatar from '../components/Avatar';
 import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, FireIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -413,7 +413,7 @@ export default function Admin() {
         console.error('Site stats loading error:', error);
       })
       .finally(() => setSiteStatsLoading(false));
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
