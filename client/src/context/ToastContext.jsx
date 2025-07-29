@@ -22,7 +22,10 @@ export function ToastProvider({ children }) {
   };
 
   const showSuccess = (message, duration) => addToast(message, 'success', duration);
-  const showError = (message, duration) => addToast(message, 'error', duration);
+  const showError = (message, duration) => {
+    console.log('ToastContext showError called with:', message);
+    return addToast(message, 'error', duration);
+  };
   const showWarning = (message, duration) => addToast(message, 'warning', duration);
   const showInfo = (message, duration) => addToast(message, 'info', duration);
 

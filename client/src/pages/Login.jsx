@@ -18,25 +18,34 @@ export default function Login() {
   const { showSuccess, showError } = useToast();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
     try {
-      await login(identifier, password);
-      // Get last visited path or default to dashboard
-      const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
-      const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;
+      console.log('Form submitted, preventing default');
+      e.preventDefault();
+      e.stopPropagation();
+      setLoading(true);
       
-      showSuccess('Login successful! Redirecting...');
-      setTimeout(() => {
-        navigate(redirectPath);
-      }, 1000);
-    } catch (err) {
-      console.log('Login error:', err);
-      const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
-      console.log('Showing error toast:', errorMessage);
-      showError(errorMessage);
-    } finally {
+      try {
+        console.log('Attempting login...');
+        await login(identifier, password);
+        // Get last visited path or default to dashboard
+        const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
+        const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;
+        
+        showSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          navigate(redirectPath);
+        }, 1000);
+      } catch (err) {
+        console.log('Login error:', err);
+        const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
+        console.log('Showing error toast:', errorMessage);
+        showError(errorMessage);
+      } finally {
+        console.log('Setting loading to false');
+        setLoading(false);
+      }
+    } catch (outerErr) {
+      console.error('Unexpected error in form submission:', outerErr);
       setLoading(false);
     }
   };
@@ -73,7 +82,7 @@ export default function Login() {
           <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
           
           <main id="main-content" tabIndex="-1" role="main">
-            <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-labelledby="login-title">
+            <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-labelledby="login-title" noValidate>
               <div>
                 <label htmlFor="login-identifier" className="block font-semibold mb-3 text-primary text-sm">
                   Username or Email
@@ -129,6 +138,12 @@ export default function Login() {
                 type="submit"
                 className="w-full bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-4 font-semibold text-base transition-all duration-300 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center justify-center gap-3 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:transform-none"
                 disabled={loading}
+                onClick={(e) => {
+                  if (loading) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
               >
                 {loading ? (
                   <>
