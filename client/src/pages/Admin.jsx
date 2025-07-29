@@ -77,6 +77,33 @@ export default function Admin() {
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
   
+  // Add immediate bypass effect for users with admin role
+  useEffect(() => {
+    if (!authVerified && user && user.roles && user.roles.includes('admin')) {
+      console.log('User has admin role, bypassing verification via useEffect');
+      setAuthVerified(true);
+    }
+  }, [authVerified, user]);
+  
+  // Add localStorage fallback effect
+  useEffect(() => {
+    if (!authVerified && !user) {
+      const userFromStorage = localStorage.getItem('user');
+      if (userFromStorage) {
+        try {
+          const parsedUser = JSON.parse(userFromStorage);
+          console.log('Found user in localStorage:', parsedUser);
+          if (parsedUser.roles && parsedUser.roles.includes('admin')) {
+            console.log('User from localStorage has admin role, bypassing verification via useEffect');
+            setAuthVerified(true);
+          }
+        } catch (error) {
+          console.error('Error parsing user from localStorage:', error);
+        }
+      }
+    }
+  }, [authVerified, user]);
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -125,58 +152,33 @@ export default function Admin() {
     console.log('Loading state:', loading);
     console.log('Auth verified:', authVerified);
     
-    // Add immediate bypass for users with clear admin role
-    if (user && user.roles && user.roles.includes('admin')) {
-      console.log('User has admin role, bypassing verification');
-      setAuthVerified(true);
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center py-16">
-                <div className="flex items-center justify-center mb-8">
-                  <LoadingSpinner variant="spinner" size="lg" color="primary" />
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
-                <p className="text-white/70">Please wait while we load the admin interface...</p>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-16">
+              <div className="flex items-center justify-center mb-8">
+                <LoadingSpinner variant="spinner" size="lg" color="primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
+              <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => {
+                    console.log('Manual auth verification triggered');
+                    setAuthVerified(true);
+                  }}
+                  className="text-sm text-neutral-400 hover:text-white underline"
+                >
+                  Continue anyway
+                </button>
               </div>
             </div>
           </div>
         </div>
-      );
-    }
-    
-    // Try to get user from localStorage if user object is null
-    if (!user) {
-      const userFromStorage = localStorage.getItem('user');
-      if (userFromStorage) {
-        try {
-          const parsedUser = JSON.parse(userFromStorage);
-          console.log('Found user in localStorage:', parsedUser);
-          if (parsedUser.roles && parsedUser.roles.includes('admin')) {
-            console.log('User from localStorage has admin role, bypassing verification');
-            setAuthVerified(true);
-            return (
-              <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                  <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-16">
-                      <div className="flex items-center justify-center mb-8">
-                        <LoadingSpinner variant="spinner" size="lg" color="primary" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
-                      <p className="text-white/70">Please wait while we load the admin interface...</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-        } catch (error) {
-          console.error('Error parsing user from localStorage:', error);
-        }
-      }
-    }
+      </div>
+    );
+  }
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
