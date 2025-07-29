@@ -1265,6 +1265,5 @@ function Admin() {
       </Modal>
     </div>
   );
-}
 
 export default Admin;
