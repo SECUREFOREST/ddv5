@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
+import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, TargetIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const DIFFICULTY_ICONS = {
@@ -15,9 +15,9 @@ const DIFFICULTY_ICONS = {
 
 export default function DareDifficultySelect() {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [difficulty, setDifficulty] = useState('titillating');
   const [loading, setLoading] = useState(false);
-  const { showNotification } = useNotification();
 
   const handleContinue = async (e) => {
     e.preventDefault();
@@ -25,83 +25,110 @@ export default function DareDifficultySelect() {
     try {
       const res = await api.get(`/dares/random?difficulty=${difficulty}`);
       if (res.data && res.data._id) {
+        showSuccess('Dare found! Redirecting...');
         navigate(`/dare/consent/${res.data._id}`, { state: { dare: res.data } });
       } else {
-        showNotification('No dare found for this difficulty.', 'error');
+        showError('No dare found for this difficulty level.');
       }
     } catch (err) {
       const apiError = err.response?.data?.error || err.message;
-      showNotification(apiError || 'Failed to fetch dare.', 'error');
+      showError(apiError || 'Failed to fetch dare.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">Choose Dare Difficulty</h1>
-      </div>
-      {/* Card-like section for form content */}
-      <form role="form" onSubmit={handleContinue} className="space-y-6 p-4 sm:p-6 bg-neutral-800/90 rounded-xl text-neutral-100 border border-neutral-700 text-center shadow-lg hover:shadow-2xl transition-duration-200 mb-4" aria-label="Dare Difficulty Selection">
-        <div>
-          <div className="flex flex-col gap-4">
-            {DIFFICULTY_OPTIONS.map(opt => (
-              <label
-                key={opt.value}
-                className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast
-                  ${difficulty === opt.value
-                    ? 'border-primary bg-primary/10 shadow-lg scale-105'
-                    : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
-                `}
-                tabIndex={0}
-                aria-label={`Select ${opt.label} difficulty`}
-                role="radio"
-                aria-checked={difficulty === opt.value}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
-                }}
-              >
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={opt.value}
-                  checked={difficulty === opt.value}
-                  onChange={() => setDifficulty(opt.value)}
-                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
-                  aria-checked={difficulty === opt.value}
-                  aria-label={opt.label}
-                  tabIndex={-1}
-                  aria-required="true"
-                />
-                <span className="flex items-center gap-2">
-                  {DIFFICULTY_ICONS[opt.value]}
-                  <b className="text-base text-primary-contrast">{opt.label}</b>
-                </span>
-                <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
-              </label>
-            ))}
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <TargetIcon className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Choose Difficulty</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Select the difficulty level for your dare
+            </p>
           </div>
-        </div>
-        {/* Error message above button */}
-        <div className="sticky bottom-0  py-4 flex justify-center z-10 border-t border-neutral-800">
-          <button
-            type="submit"
-            className="w-full bg-primary text-primary-contrast rounded px-4 py-2 font-bold text-base hover:bg-primary-contrast hover:text-primary transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg"
-            disabled={loading}
-            aria-label="Continue to next step"
-          >
-            {loading ? (
-              <svg className="animate-spin h-5 w-5 text-primary-contrast" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-            ) : (
-              <>
-                Continue <ArrowRightIcon className="inline w-5 h-5 ml-1" />
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+
+          {/* Difficulty Selection Form */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <form onSubmit={handleContinue} className="space-y-8">
+              <div>
+                <label className="block text-lg font-semibold text-white mb-6">
+                  Select Difficulty Level
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {DIFFICULTY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDifficulty(option.value)}
+                      className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${
+                        difficulty === option.value
+                          ? 'border-primary bg-primary/20 text-primary shadow-lg scale-105'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        {DIFFICULTY_ICONS[option.value]}
+                        <div className="font-semibold text-lg">{option.label}</div>
+                      </div>
+                      <div className="text-sm opacity-75 leading-relaxed">
+                        {option.description}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Continue Button */}
+              <div className="text-center">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      Finding Dare...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRightIcon className="w-6 h-6" />
+                      Continue to Dare
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Info Section */}
+          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-2xl p-6 border border-blue-800/30">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-white text-xs font-bold">i</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-400 mb-2">How it works</h3>
+                <p className="text-blue-300 text-sm leading-relaxed">
+                  After selecting a difficulty level, you'll be shown a random dare that matches your choice. 
+                  You can then review the dare details and decide whether to accept or decline it. 
+                  Remember, you can always decline any dare that makes you uncomfortable.
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 } 

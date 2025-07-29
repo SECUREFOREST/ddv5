@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
-import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { useNotification } from '../context/NotificationContext';
+import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const PRIVACY_OPTIONS = [
@@ -28,7 +29,7 @@ const DIFFICULTY_ICONS = {
 };
 
 export default function OfferSubmission() {
-  const { showNotification } = useNotification();
+  const { showSuccess, showError } = useToast();
   const [difficulty, setDifficulty] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState([]);
@@ -42,11 +43,12 @@ export default function OfferSubmission() {
   const [maxSlots, setMaxSlots] = useState(5);
   const [privacyLoading, setPrivacyLoading] = useState(false);
   const [privacyError, setPrivacyError] = useState('');
+  const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
 
   // Fetch slot/cooldown state and privacy setting
   useEffect(() => {
-    setLoading(true);
+    setFetching(true);
     Promise.all([
       api.get('/users/user/slots'),
       api.get('/safety/content_deletion'),
@@ -56,10 +58,12 @@ export default function OfferSubmission() {
       setSlotLimit((slotsRes.data?.openSlots ?? 0) >= (slotsRes.data?.maxSlots ?? 5));
       setCooldown(slotsRes.data?.cooldownUntil ?? null);
       setPrivacy(privacyRes.data?.value || 'when_viewed');
-    }).catch(() => {
-      showNotification('Failed to load slot or privacy info.', 'error');
-    }).finally(() => setLoading(false));
-  }, []);
+      showSuccess('Settings loaded successfully!');
+    }).catch((error) => {
+      showError('Failed to load slot or privacy info.');
+      console.error('Settings loading error:', error);
+    }).finally(() => setFetching(false));
+  }, [showSuccess, showError]);
 
   // Handle privacy change
   const handlePrivacyChange = async (val) => {
@@ -68,9 +72,11 @@ export default function OfferSubmission() {
     try {
       await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
       setPrivacy(val);
-      showNotification('Privacy setting updated!', 'success');
-    } catch {
-      showNotification('Failed to update privacy setting.', 'error');
+      showSuccess('Privacy setting updated successfully!');
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Failed to update privacy setting.';
+      setPrivacyError(errorMessage);
+      showError(errorMessage);
     } finally {
       setPrivacyLoading(false);
     }
@@ -84,11 +90,27 @@ export default function OfferSubmission() {
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!difficulty) return showNotification('Please select a difficulty.', 'error');
-    if (!description.trim()) return showNotification('Please enter a description or requirements.', 'error');
-    if (slotLimit) return showNotification('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.', 'error');
-    if (cooldown && new Date() < new Date(cooldown)) return showNotification('You are in cooldown and cannot offer a new submission until it ends.', 'error');
+    if (!difficulty) {
+      showError('Please select a difficulty.');
+      return;
+    }
+    if (!description.trim()) {
+      showError('Please enter a description or requirements.');
+      return;
+    }
+    if (slotLimit) {
+      showError('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.');
+      return;
+    }
+    if (cooldown && new Date() < new Date(cooldown)) {
+      showError('You are in cooldown and cannot offer a new submission until it ends.');
+      return;
+    }
+    
     setLoading(true);
+    setError('');
+    setSuccess('');
+    
     try {
       await api.post('/users/subs', {
         difficulty,
@@ -96,122 +118,229 @@ export default function OfferSubmission() {
         tags,
         privacy: mapPrivacyValue(privacy),
       });
-      showNotification('Submission offer created!', 'success');
+      setSuccess('Submission offer created successfully!');
+      showSuccess('Submission offer created successfully!');
       setTimeout(() => navigate('/performer-dashboard'), 1200);
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to create submission offer.', 'error');
+      const errorMessage = err.response?.data?.error || 'Failed to create submission offer.';
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="w-full mx-auto mt-16 bg-gradient-to-br from-[#232526] via-[#282828] to-[#1a1a1a] border border-[#282828] rounded-2xl p-0 sm:p-6 mb-8 overflow-hidden">
-      {/* Progress/Accent Bar */}
-      <div className="w-full bg-primary h-1 mb-1" />
-      {/* Sticky header at the top */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 flex items-center justify-center h-16 mb-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight flex items-center gap-2">
-          <DocumentPlusIcon className="w-7 h-7 text-primary" aria-hidden="true" /> Offer Submission
-        </h1>
+  if (fetching) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <ListSkeleton count={8} />
+          </div>
+        </div>
       </div>
-      {/* Visually distinct status badge below header */}
-      <div className="flex justify-center mb-4">
-        <span className="inline-flex items-center gap-2 bg-primary/90 border border-primary text-primary-contrast rounded-full px-5 py-2 font-bold text-lg animate-fade-in">
-          <DocumentPlusIcon className="w-6 h-6" /> Offer Submission
-        </span>
-      </div>
+    );
+  }
 
-      {error && <div className="bg-danger text-danger-contrast px-4 py-2 rounded mb-3">{error}</div>}
-      {success && <div className="bg-success text-success-contrast px-4 py-2 rounded mb-3">{success}</div>}
-      {slotLimit && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-3">
-          You can only have {maxSlots} open dares at a time. Complete or reject a dare to free up a slot.
-        </div>
-      )}
-      {cooldown && new Date() < new Date(cooldown) && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-3">
-          Cooldown active: You recently rejected a dare. You can offer a new submission after <b>{new Date(cooldown).toLocaleTimeString()}</b>.
-        </div>
-      )}
-      <form role="form" aria-labelledby="offer-submission-title" onSubmit={handleSubmit} className="space-y-6">
-        <h1 id="offer-submission-title" className="text-2xl font-bold mb-4">Submit Offer</h1>
-        <div>
-          <div className="font-bold text-xl text-primary mb-4 text-center">Choose a difficulty</div>
-          <div className="flex flex-col gap-4">
-            {DIFFICULTY_OPTIONS.map(opt => (
-              <label
-                key={opt.value}
-                className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150 focus-within:ring-2 focus-within:ring-primary-contrast w-full
-                  ${difficulty === opt.value
-                    ? 'border-primary bg-primary/10 shadow-lg scale-105'
-                    : 'border-neutral-700 hover:border-primary hover:bg-neutral-800/60'}
-                `}
-                tabIndex={0}
-                aria-label={`Select ${opt.label} difficulty`}
-                role="radio"
-                aria-checked={difficulty === opt.value}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
-                }}
-              >
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={opt.value}
-                  checked={difficulty === opt.value}
-                  onChange={() => setDifficulty(opt.value)}
-                  className="accent-primary focus:ring-2 focus:ring-primary-contrast focus:outline-none bg-[#1a1a1a]"
-                  aria-checked={difficulty === opt.value}
-                  aria-label={opt.label}
-                  tabIndex={-1}
-                  disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <DocumentPlusIcon className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Submit Offer</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Create a submission offer for performers
+            </p>
+          </div>
+
+          {/* Status Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Slot Status */}
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">{slotCount}</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Available Slots</h3>
+                  <p className="text-sm text-neutral-400">{slotCount} of {maxSlots} slots used</p>
+                </div>
+              </div>
+              {slotLimit && (
+                <div className="text-red-400 text-sm">
+                  You've reached the maximum number of open dares.
+                </div>
+              )}
+            </div>
+
+            {/* Cooldown Status */}
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <ClockIcon className="w-8 h-8 text-yellow-400" />
+                <div>
+                  <h3 className="font-semibold text-white">Cooldown Status</h3>
+                  <p className="text-sm text-neutral-400">
+                    {cooldown && new Date() < new Date(cooldown) 
+                      ? `Cooldown until ${new Date(cooldown).toLocaleString()}`
+                      : 'No active cooldown'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submission Form */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Difficulty Selection */}
+              <div>
+                <label className="block text-lg font-semibold text-white mb-4">
+                  Difficulty Level
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {DIFFICULTY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDifficulty(option.value)}
+                      className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                        difficulty === option.value
+                          ? 'border-primary bg-primary/20 text-primary'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {DIFFICULTY_ICONS[option.value]}
+                        <div className="text-left">
+                          <div className="font-semibold">{option.label}</div>
+                          <div className="text-sm opacity-75">{option.description}</div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label htmlFor="description" className="block text-lg font-semibold text-white mb-3">
+                  Description & Requirements
+                </label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full h-32 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+                  placeholder="Describe what you're looking for..."
+                  required
                 />
-                <span className="flex items-center gap-2">
-                  {DIFFICULTY_ICONS[opt.value]}
-                  <b className="text-base text-primary-contrast">{opt.label}</b>
-                </span>
-                <span className="text-xs text-neutral-400 ml-6 text-left">{opt.desc}</span>
-              </label>
-            ))}
+                <div className="text-sm text-neutral-400 mt-2">
+                  {description.length}/1000 characters
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-lg font-semibold text-white mb-3">
+                  Tags (Optional)
+                </label>
+                <TagsInput
+                  tags={tags}
+                  onChange={handleTags}
+                  className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                />
+              </div>
+
+              {/* Privacy Settings */}
+              <div>
+                <label className="block text-lg font-semibold text-white mb-4">
+                  Content Deletion Policy
+                </label>
+                <div className="space-y-3">
+                  {PRIVACY_OPTIONS.map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        privacy === option.value
+                          ? 'border-primary bg-primary/20 text-primary'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="privacy"
+                        value={option.value}
+                        checked={privacy === option.value}
+                        onChange={() => handlePrivacyChange(option.value)}
+                        className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2 mt-1"
+                        disabled={privacyLoading}
+                      />
+                      <div className="flex-1">
+                        <div className="font-semibold">{option.label}</div>
+                        <div className="text-sm opacity-75">{option.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                {privacyError && (
+                  <div className="mt-2 text-red-400 text-sm">{privacyError}</div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  type="submit"
+                  disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
+                  className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <DocumentPlusIcon className="w-6 h-6" />
+                      Create Submission Offer
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => navigate('/performer-dashboard')}
+                  className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+            </form>
+
+            {/* Error/Success Messages */}
+            {error && (
+              <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                {error}
+              </div>
+            )}
+            
+            {success && (
+              <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+                {success}
+              </div>
+            )}
           </div>
-        </div>
-        <div>
-          <label htmlFor="offer-description" className="block font-semibold mb-1">Description / Requirements</label>
-          <textarea
-            id="offer-description"
-            className="w-full rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}
-            required
-            aria-required="true"
-          />
-        </div>
-        <div>
-          <label htmlFor="offer-tags" className="block font-semibold mb-1">Tags <span className="text-xs text-neutral-400">(optional, for filtering/discovery)</span></label>
-          <TagsInput value={tags} onChange={handleTags} disabled={loading} />
-        </div>
-        <div>
-          <label htmlFor="offer-privacy" className="block font-semibold mb-1">Content Deletion / Privacy</label>
-          <div className="flex flex-col gap-2">
-            {PRIVACY_OPTIONS.map(opt => (
-              <label key={opt.value} className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${privacy === opt.value ? 'border-primary bg-primary bg-opacity-10' : 'border-neutral-700'}`}>
-                <input type="radio" name="privacy" value={opt.value} checked={privacy === opt.value} onChange={() => handlePrivacyChange(opt.value)} disabled={privacyLoading} className="rounded border border-neutral-900 px-3 py-2 bg-[#1a1a1a] text-neutral-100 focus:outline-none focus:ring focus:border-primary" aria-required="true" />
-                <span>
-                  <b>{opt.label}</b><br/>
-                  <span className="text-xs text-neutral-400">{opt.desc}</span>
-                </span>
-              </label>
-            ))}
-            {privacyError && <div className="text-danger mt-2">{privacyError}</div>}
-          </div>
-        </div>
-        <div className="flex gap-3 mt-2">
-          <button type="submit" className="bg-primary text-primary-contrast px-4 py-2 rounded font-bold text-base shadow hover:bg-primary-contrast hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center gap-2 justify-center text-lg shadow-lg" disabled={loading || slotLimit || (cooldown && new Date() < new Date(cooldown))}>{loading ? 'Submitting...' : 'Submit'}</button>
-          <button type="button" className="bg-neutral-700 text-neutral-100 px-4 py-2 rounded font-bold text-base shadow hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 flex items-center gap-2 justify-center text-lg shadow-lg" onClick={() => navigate(-1)} disabled={loading}>Cancel</button>
-        </div>
-      </form>
+        </main>
+      </div>
     </div>
   );
 } 
