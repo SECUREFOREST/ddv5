@@ -126,18 +126,8 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-3 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800/50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px] min-w-[44px] flex items-center justify-center"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? (
-            <XMarkIcon className="h-6 w-6" />
-          ) : (
-            <Bars3Icon className="h-6 w-6" />
-          )}
-        </button>
+        {/* Mobile menu button - hidden since we use bottom navigation */}
+        <div className="lg:hidden w-12" />
       </div>
 
       {/* Impersonation banner */}
