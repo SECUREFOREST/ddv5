@@ -265,6 +265,14 @@ export default function DarePerformerDashboard() {
       .finally(() => setPublicDemandLoading(false));
   }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
 
+  // Fetch user's demand slots (restored)
+  useEffect(() => {
+    if (!user) return;
+    api.get('/dares', { params: { creator: user.id || user._id, dareType: 'domination' } })
+      .then(res => setDemandSlots(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setDemandSlots([]));
+  }, [user]);
+
   // Fetch switch game activity feed
   useEffect(() => {
     if (activeTab !== 'switch') return;
@@ -483,6 +491,46 @@ export default function DarePerformerDashboard() {
       showNotification('Demand dare withdrawn.', 'success');
     } catch (err) {
       showNotification('Failed to withdraw demand dare.', 'error');
+    }
+  };
+
+  // Switch game action handlers (restored)
+  const handleWithdrawSwitchGame = async (gameIdx) => {
+    const game = mySwitchGames[gameIdx];
+    try {
+      await api.post(`/switches/${game._id}/forfeit`);
+      setMySwitchGames(prev => prev.filter((_, i) => i !== gameIdx));
+      showNotification('Switch game withdrawn.', 'success');
+    } catch (err) {
+      showNotification('Failed to withdraw switch game.', 'error');
+    }
+  };
+
+  const handleJoinSwitchGame = async (gameId) => {
+    try {
+      await api.post(`/switches/${gameId}/join`, {
+        difficulty: 'titillating',
+        move: 'rock',
+        consent: true
+      });
+      showNotification('Successfully joined switch game!', 'success');
+      // Refresh switch games
+      const switchRes = await api.get('/switches/performer');
+      setMySwitchGames(Array.isArray(switchRes.data) ? switchRes.data : []);
+    } catch (err) {
+      showNotification(err.response?.data?.error || 'Failed to join switch game.', 'error');
+    }
+  };
+
+  const handleSubmitSwitchProof = async (gameId, proofText) => {
+    try {
+      await api.post(`/switches/${gameId}/proof`, { text: proofText });
+      showNotification('Proof submitted successfully!', 'success');
+      // Refresh switch games
+      const switchRes = await api.get('/switches/performer');
+      setMySwitchGames(Array.isArray(switchRes.data) ? switchRes.data : []);
+    } catch (err) {
+      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
     }
   };
 
