@@ -8,18 +8,28 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 // Utility for fade-in animation
 function useFadeIn(ref, deps = []) {
   useEffect(() => {
-    if (ref.current) {
-      ref.current.classList.add('animate-fade-in');
-      const timeoutId = setTimeout(() => {
-        if (ref.current) {
-          ref.current.classList.remove('animate-fade-in');
-        }
-      }, 600);
-      
-      return () => {
+    let timeoutId;
+    
+    const addClass = () => {
+      if (ref.current && ref.current.classList) {
+        ref.current.classList.add('animate-fade-in');
+        timeoutId = setTimeout(() => {
+          if (ref.current && ref.current.classList) {
+            ref.current.classList.remove('animate-fade-in');
+          }
+        }, 600);
+      }
+    };
+    
+    // Use requestAnimationFrame to ensure DOM is ready
+    const rafId = requestAnimationFrame(addClass);
+    
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timeoutId) {
         clearTimeout(timeoutId);
-      };
-    }
+      }
+    };
     // eslint-disable-next-line
   }, deps);
 }
