@@ -487,39 +487,39 @@ export default function Admin() {
           {/* Stats Overview */}
           {siteStats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
+              <Card className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border-primary/30">
                 <div className="flex items-center gap-3 mb-2">
                   <UserGroupIcon className="w-6 h-6 text-primary" />
                   <div className="text-2xl font-bold text-primary">{siteStats.totalUsers || 0}</div>
                 </div>
                 <div className="text-sm text-primary-300">Total Users</div>
-              </div>
+              </Card>
               
-              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
+              <Card className="bg-gradient-to-r from-green-600/20 to-green-700/20 border-green-600/30">
                 <div className="flex items-center gap-3 mb-2">
                   <FireIcon className="w-6 h-6 text-green-400" />
                   <div className="text-2xl font-bold text-green-400">{siteStats.totalDares || 0}</div>
                 </div>
                 <div className="text-sm text-green-300">Total Dares</div>
-              </div>
+              </Card>
               
-              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
+              <Card className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border-blue-600/30">
                 <div className="flex items-center gap-3 mb-2">
                   <ChartBarIcon className="w-6 h-6 text-blue-400" />
                   <div className="text-2xl font-bold text-blue-400">{siteStats.activeDares || 0}</div>
                 </div>
                 <div className="text-sm text-blue-300">Active Dares</div>
-              </div>
+              </Card>
               
-              <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 rounded-xl p-6 border border-yellow-600/30">
+              <Card className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-600/30">
                 <div className="flex items-center gap-3 mb-2">
                   <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" />
                   <div className="text-2xl font-bold text-yellow-400">{siteStats.pendingReports || 0}</div>
                 </div>
                 <div className="text-sm text-yellow-300">Pending Reports</div>
-              </div>
-        </div>
-      )}
+              </Card>
+            </div>
+          )}
 
           {/* Admin Tabs */}
           <Tabs
@@ -529,50 +529,50 @@ export default function Admin() {
                 content: (
                   <div className="space-y-6">
                     {/* User Search */}
-                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                    <Card header="User Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                      <input
-                        type="text"
+                            <input
+                              type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                        placeholder="Search users..."
-                        value={userSearch}
-                        onChange={e => setUserSearch(e.target.value)}
+                              placeholder="Search users..."
+                              value={userSearch}
+                              onChange={e => setUserSearch(e.target.value)}
                             />
                           </div>
                         </div>
-                      <ButtonLoading
-                        loading={actionLoading}
-                        loadingText="Searching..."
-                      >
-                        <button
-                          onClick={handleUserSearch}
-                          disabled={actionLoading}
-                          className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        <ButtonLoading
+                          loading={actionLoading}
+                          loadingText="Searching..."
                         >
-                          Search
-                        </button>
-                      </ButtonLoading>
-                    </div>
-                    </div>
+                          <button
+                            onClick={handleUserSearch}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            Search
+                          </button>
+                        </ButtonLoading>
+                      </div>
+                    </Card>
 
                     {/* Users List */}
                     {dataLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Users List">
                         <div className="space-y-4">
                           {users.map(user => (
                             <div key={user._id} className="flex items-center gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
                               <Avatar user={user} size={40} />
-                            <div className="flex-1">
+                              <div className="flex-1">
                                 <div className="font-semibold text-white">{user.fullName || user.username}</div>
                                 <div className="text-sm text-neutral-400">@{user.username}</div>
-                            </div>
+                              </div>
                               <div className="flex gap-2">
                                 <ActionLoading
                                   loading={actionLoading}
@@ -600,9 +600,9 @@ export default function Admin() {
                                 </ActionLoading>
                               </div>
                             </div>
-                            ))}
-                    </div>
-                    </div>
+                          ))}
+                        </div>
+                      </Card>
                     )}
                   </div>
                 ),
@@ -611,23 +611,23 @@ export default function Admin() {
                 label: 'Dares',
                 content: (
                   <div className="space-y-6">
-                    {/* Dare Search */}
-                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                                        {/* Dare Search */}
+                    <Card header="Dare Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                      <input
+                            <input
                               type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                        placeholder="Search dares..."
-                        value={dareSearch}
-                        onChange={e => setDareSearch(e.target.value)}
-                      />
-                    </div>
-                            </div>
+                              placeholder="Search dares..."
+                              value={dareSearch}
+                              onChange={e => setDareSearch(e.target.value)}
+                            />
+                          </div>
+                        </div>
                         <ButtonLoading
                           loading={actionLoading}
                           loadingText="Searching..."
@@ -640,14 +640,14 @@ export default function Admin() {
                             Search
                           </button>
                         </ButtonLoading>
-                          </div>
                       </div>
+                    </Card>
 
                     {/* Dares List */}
                     {daresLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Dares List">
                         <div className="space-y-4">
                           {dares.map(dare => (
                             <div key={dare._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
@@ -656,11 +656,11 @@ export default function Admin() {
                                   <div className="font-semibold text-white mb-2">{dare.description}</div>
                                   <div className="text-sm text-neutral-400">
                                     Created by: {dare.creator?.username || 'Unknown'}
-                    </div>
+                                  </div>
                                   <div className="text-sm text-neutral-400">
                                     Status: {dare.status}
-                    </div>
-                  </div>
+                                  </div>
+                                </div>
                                 <div className="flex gap-2">
                                   <ActionLoading
                                     loading={actionLoading}
@@ -698,12 +698,12 @@ export default function Admin() {
                                       Delete
                                     </button>
                                   </ActionLoading>
-                    </div>
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Card>
                     )}
                   </div>
                 ),
@@ -713,30 +713,30 @@ export default function Admin() {
                 content: (
                   <div className="space-y-6">
                     {/* Audit Log Search */}
-                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                    <Card header="Audit Log Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                               <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
                             </div>
-                      <input
+                            <input
                               type="text"
                               className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                        placeholder="Search audit log..."
-                        value={auditLogSearch}
-                        onChange={e => setAuditLogSearch(e.target.value)}
-                      />
-                    </div>
+                              placeholder="Search audit log..."
+                              value={auditLogSearch}
+                              onChange={e => setAuditLogSearch(e.target.value)}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Card>
 
                     {/* Audit Log List */}
                     {auditLogLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Audit Log">
                         <div className="space-y-4">
                           {auditLog.map(log => (
                             <div key={log._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
@@ -758,8 +758,8 @@ export default function Admin() {
                               </div>
                             </div>
                           ))}
-                    </div>
-                      </div>
+                        </div>
+                      </Card>
                     )}
                   </div>
                 ),
@@ -771,7 +771,7 @@ export default function Admin() {
                     {reportsLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Reports">
                         <div className="space-y-4">
                           {reports.map(report => (
                             <div key={report._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
@@ -811,7 +811,7 @@ export default function Admin() {
                             </div>
                             ))}
                         </div>
-                      </div>
+                      </Card>
                     )}
                   </div>
                 ),
@@ -823,7 +823,7 @@ export default function Admin() {
                     {appealsLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Appeals">
                         <div className="space-y-4">
                           {appeals.map(appeal => (
                             <div key={appeal._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
@@ -878,7 +878,7 @@ export default function Admin() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Card>
                     )}
                   </div>
                 ),
@@ -888,7 +888,7 @@ export default function Admin() {
                 content: (
                   <div className="space-y-6">
                     {/* Switch Games Search */}
-                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                    <Card header="Switch Games Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
                           <div className="relative">
@@ -917,13 +917,13 @@ export default function Admin() {
                           </button>
                         </ButtonLoading>
                       </div>
-                    </div>
+                    </Card>
 
                     {/* Switch Games List */}
                     {switchGamesLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
-                      <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                      <Card header="Switch Games List">
                         <div className="space-y-4">
                           {switchGames.map(game => (
                             <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
@@ -955,7 +955,7 @@ export default function Admin() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Card>
                     )}
                   </div>
                 ),
