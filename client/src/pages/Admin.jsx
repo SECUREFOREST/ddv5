@@ -36,6 +36,7 @@ function Admin() {
 
   // All useState hooks must be called at the top level, before any early returns
   const [authVerified, setAuthVerified] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false); // Add flag to prevent multiple API calls
   const [users, setUsers] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -225,6 +226,7 @@ function Admin() {
     console.log('User:', user);
     console.log('Loading:', loading);
     console.log('Auth verified:', authVerified);
+    console.log('Data loaded:', dataLoaded);
     
     // Only load data when user is authenticated and has admin role
     if (!user || !user.roles?.includes('admin')) {
@@ -242,13 +244,16 @@ function Admin() {
       return;
     }
 
-    // Only proceed with API calls if auth is verified
-    if (!authVerified) {
-      console.log('Auth not verified yet, waiting...');
+    // Only proceed with API calls if auth is verified and data hasn't been loaded yet
+    if (!authVerified || dataLoaded) {
+      console.log('Auth not verified yet or data already loaded, waiting...');
       return;
     }
 
     console.log('Auth verified, loading admin data...');
+    
+    // Set data loaded flag to prevent multiple calls
+    setDataLoaded(true);
     
     // Show success message that admin interface is working
     showSuccess('Admin interface loaded successfully!');
@@ -282,7 +287,14 @@ function Admin() {
         console.error('Site stats loading error:', error);
       })
       .finally(() => setSiteStatsLoading(false));
-  }, [user, authVerified, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError, showSuccess]); // Include authVerified in dependencies
+  }, [user, authVerified, dataLoaded, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError, showSuccess]); // Include dataLoaded in dependencies
+
+  // Cleanup effect to reset data loaded flag when component unmounts
+  useEffect(() => {
+    return () => {
+      setDataLoaded(false);
+    };
+  }, []);
 
   // Add a fallback timer to proceed if verification takes too long
   useEffect(() => {
