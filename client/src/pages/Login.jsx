@@ -32,7 +32,9 @@ export default function Login() {
         navigate(redirectPath);
       }, 1000);
     } catch (err) {
+      console.log('Login error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
+      console.log('Showing error toast:', errorMessage);
       showError(errorMessage);
     } finally {
       setLoading(false);
