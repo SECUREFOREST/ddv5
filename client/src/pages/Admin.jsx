@@ -33,7 +33,49 @@ function exportToCsv(filename, rows) {
 export default function Admin() {
   const { user, loading } = useAuth();
   const { showSuccess, showError } = useToast();
+  
+  // All useState hooks must be called at the top level, before any early returns
   const [authVerified, setAuthVerified] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [tabIdx, setTabIdx] = useState(0);
+  const [dares, setDares] = useState([]);
+  const [daresLoading, setDaresLoading] = useState(true);
+  const [siteStats, setSiteStats] = useState(null);
+  const [siteStatsLoading, setSiteStatsLoading] = useState(true);
+  const [siteStatsError, setSiteStatsError] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [userSearchId, setUserSearchId] = useState("");
+  const [dareSearchId, setDareSearchId] = useState('');
+  const [dareSearch, setDareSearch] = useState('');
+  const [userPage, setUserPage] = useState(0);
+  const [darePage, setDarePage] = useState(0);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedDares, setSelectedDares] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState('');
+  const [appeals, setAppeals] = useState([]);
+  const [appealsLoading, setAppealsLoading] = useState(true);
+  const [appealsError, setAppealsError] = useState('');
+  const [auditLog, setAuditLog] = useState([]);
+  const [auditLogLoading, setAuditLogLoading] = useState(true);
+  const [auditLogError, setAuditLogError] = useState('');
+  const [switchGames, setSwitchGames] = useState([]);
+  const [switchGamesLoading, setSwitchGamesLoading] = useState(true);
+  const [switchGameSearch, setSwitchGameSearch] = useState('');
+  const [switchGameSearchId, setSwitchGameSearchId] = useState('');
+  const [resolvingReportId, setResolvingReportId] = useState(null);
+  const [resolvingAppealId, setResolvingAppealId] = useState(null);
+  const [appealOutcome, setAppealOutcome] = useState('');
+  const [editUserModal, setEditUserModal] = useState(false);
+  const [editUserData, setEditUserData] = useState({});
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ show: false, message: '', onConfirm: null });
+  
+  const USERS_PER_PAGE = 10;
+  const DARES_PER_PAGE = 10;
   
   if (loading) {
     return (
@@ -104,25 +146,6 @@ export default function Admin() {
       </div>
     );
   }
-
-  const [users, setUsers] = useState([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [tabIdx, setTabIdx] = useState(0);
-  const [dares, setDares] = useState([]);
-  const [daresLoading, setDaresLoading] = useState(true);
-  const [siteStats, setSiteStats] = useState(null);
-  const [siteStatsLoading, setSiteStatsLoading] = useState(true);
-  const [siteStatsError, setSiteStatsError] = useState('');
-  const [userSearch, setUserSearch] = useState('');
-  const [userSearchId, setUserSearchId] = useState("");
-  const [dareSearchId, setDareSearchId] = useState('');
-  const [dareSearch, setDareSearch] = useState('');
-  const [userPage, setUserPage] = useState(0);
-  const USERS_PER_PAGE = 10;
-  const [darePage, setDarePage] = useState(0);
-  const DARES_PER_PAGE = 10;
-  const [selectedUsers, setSelectedUsers] = useState([]);
   const allFilteredUserIds = users.filter(u =>
     (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
     (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
@@ -138,7 +161,7 @@ export default function Admin() {
       : [...selectedUsers, id]);
   };
   const clearSelectedUsers = () => setSelectedUsers([]);
-  const [selectedDares, setSelectedDares] = useState([]);
+  
   const allFilteredDareIds = dares.filter(d =>
     d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase()) ||
     (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
@@ -154,32 +177,10 @@ export default function Admin() {
       : [...selectedDares, id]);
   };
   const clearSelectedDares = () => setSelectedDares([]);
-  const [auditLog, setAuditLog] = useState([]);
-  const [auditLogLoading, setAuditLogLoading] = useState(true);
-  const [auditLogError, setAuditLogError] = useState('');
+  
   const [auditLogSearch, setAuditLogSearch] = useState('');
   
-  // Additional state for missing functionality
-  const [reports, setReports] = useState([]);
-  const [reportsLoading, setReportsLoading] = useState(true);
-  const [reportsError, setReportsError] = useState('');
-  const [resolvingReportId, setResolvingReportId] = useState(null);
-  
-  const [appeals, setAppeals] = useState([]);
-  const [appealsLoading, setAppealsLoading] = useState(true);
-  const [appealsError, setAppealsError] = useState('');
-  const [resolvingAppealId, setResolvingAppealId] = useState(null);
-  const [appealOutcome, setAppealOutcome] = useState('');
-  
-  const [switchGames, setSwitchGames] = useState([]);
-  const [switchGamesLoading, setSwitchGamesLoading] = useState(true);
-  const [switchGameSearch, setSwitchGameSearch] = useState('');
-  const [switchGameSearchId, setSwitchGameSearchId] = useState('');
-  
-  // User edit modal state
   const [editUserId, setEditUserId] = useState(null);
-  const [editUserData, setEditUserData] = useState({ username: '', email: '', roles: [] });
-  const [editUserLoading, setEditUserLoading] = useState(false);
   const [editUserError, setEditUserError] = useState('');
 
 
