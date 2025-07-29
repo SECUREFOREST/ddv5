@@ -9,7 +9,7 @@ import StatusBadge from '../components/DareCard';
 
 import Avatar from '../components/Avatar';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, FireIcon, UserIcon, TrophyIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -102,7 +102,7 @@ export default function DareDetails() {
         console.error('Dare details loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [id, refresh, showSuccess, showError]);
+  }, [id, refresh]); // Remove toast functions from dependencies
 
   // Remove all comment-related state, handlers, and UI
 

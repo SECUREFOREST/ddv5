@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { io } from 'socket.io-client';
 import { BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -37,7 +37,7 @@ export default function Notifications() {
 
   useEffect(() => {
     fetchNotifications();
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   useEffect(() => {
     let socket;

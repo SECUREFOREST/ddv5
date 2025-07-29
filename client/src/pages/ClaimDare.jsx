@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 
 function DifficultyBadge({ level }) {
@@ -71,7 +71,7 @@ export default function ClaimDare() {
         console.error('Dare claim loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [claimToken, showSuccess, showError]);
+  }, [claimToken]); // Remove toast functions from dependencies
 
   const handleConsent = async (e) => {
     e.preventDefault();

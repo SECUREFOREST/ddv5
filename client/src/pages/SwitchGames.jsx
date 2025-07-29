@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../api/axios';
@@ -30,7 +30,7 @@ export default function SwitchGames() {
     };
 
     fetchStats();
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   if (loading) {
     return (

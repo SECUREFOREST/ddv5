@@ -7,7 +7,7 @@ import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
@@ -65,7 +65,7 @@ export default function Dashboard() {
       showError('Failed to load dashboard data. Please try again.');
       console.error('Dashboard loading error:', error);
     }).finally(() => setLoading(false));
-  }, [user, tab, showSuccess, showError]);
+  }, [user, tab]); // Remove toast functions from dependencies
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">

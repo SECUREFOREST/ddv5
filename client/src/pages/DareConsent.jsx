@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import api from '../api/axios';
 import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
@@ -75,7 +75,7 @@ export default function DareConsent() {
         })
         .finally(() => setFetching(false));
     }
-  }, [dare, id, showSuccess, showError]);
+  }, [dare, id]); // Remove toast functions from dependencies
 
   const handleConsent = async () => {
     setLoading(true);

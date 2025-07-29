@@ -6,7 +6,7 @@ import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
 import { Squares2X2Icon, PlusIcon, FireIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
@@ -64,7 +64,7 @@ export default function Dares() {
         console.error('Dares loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [user, showSuccess, showError]);
+  }, [user]); // Remove toast functions from dependencies
 
   const handleCreate = async (e) => {
     e.preventDefault();

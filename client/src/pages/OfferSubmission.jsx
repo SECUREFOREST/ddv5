@@ -3,7 +3,7 @@ import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
@@ -63,7 +63,7 @@ export default function OfferSubmission() {
       showError('Failed to load slot or privacy info.');
       console.error('Settings loading error:', error);
     }).finally(() => setFetching(false));
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   // Handle privacy change
   const handlePrivacyChange = async (val) => {

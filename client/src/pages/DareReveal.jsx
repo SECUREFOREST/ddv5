@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import dayjs from 'dayjs';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIcon, PlayCircleIcon, TagIcon, ArrowPathIcon, ArrowRightIcon, EyeIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -111,7 +111,7 @@ export default function DareReveal() {
         console.error('Dare loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [dareId, navigate, user, authLoading, showSuccess, showError]);
+  }, [dareId, navigate, user, authLoading]); // Remove toast functions from dependencies
 
   const handleProofFileChange = (e) => {
     const file = e.target.files[0];

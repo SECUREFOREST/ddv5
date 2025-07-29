@@ -2,7 +2,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
@@ -27,7 +27,7 @@ export default function Leaderboard() {
         console.error('Leaderboard loading error:', err);
       })
       .finally(() => setLoading(false));
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   const filteredUsers = users.filter(u =>
     u.user?.username?.toLowerCase().includes(search.toLowerCase()) ||

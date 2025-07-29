@@ -4,7 +4,7 @@ import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
 import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -32,7 +32,7 @@ export default function ActivityFeed() {
         console.error('Activity feed loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [showSuccess, showError]);
+  }, []); // Remove toast functions from dependencies
 
   useEffect(() => {
     // On mount, update last seen to now
