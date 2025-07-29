@@ -121,12 +121,12 @@ export default function Admin() {
   
   // Additional state for missing functionality
   const [reports, setReports] = useState([]);
-  const [reportsLoading, setReportsLoading] = useState(false);
+  const [reportsLoading, setReportsLoading] = useState(true);
   const [reportsError, setReportsError] = useState('');
   const [resolvingReportId, setResolvingReportId] = useState(null);
   
   const [appeals, setAppeals] = useState([]);
-  const [appealsLoading, setAppealsLoading] = useState(false);
+  const [appealsLoading, setAppealsLoading] = useState(true);
   const [appealsError, setAppealsError] = useState('');
   const [resolvingAppealId, setResolvingAppealId] = useState(null);
   const [appealOutcome, setAppealOutcome] = useState('');
@@ -181,7 +181,12 @@ export default function Admin() {
       })
       .catch((error) => {
         setReports([]);
-        showError('Failed to load reports. Please try again.');
+        if (error.response?.status === 401) {
+          setReportsError('Access denied. You may not have permission to view reports.');
+        } else {
+          setReportsError('Failed to load reports. Please try again.');
+          showError('Failed to load reports. Please try again.');
+        }
         console.error('Reports loading error:', error);
       })
       .finally(() => setReportsLoading(false));
@@ -207,7 +212,12 @@ export default function Admin() {
       })
       .catch((error) => {
         setAppeals([]);
-        showError('Failed to load appeals. Please try again.');
+        if (error.response?.status === 401) {
+          setAppealsError('Access denied. You may not have permission to view appeals.');
+        } else {
+          setAppealsError('Failed to load appeals. Please try again.');
+          showError('Failed to load appeals. Please try again.');
+        }
         console.error('Appeals loading error:', error);
       })
       .finally(() => setAppealsLoading(false));
@@ -221,8 +231,12 @@ export default function Admin() {
       })
       .catch((error) => {
         setAuditLog([]);
-        setAuditLogError('Failed to load audit log.');
-        showError('Failed to load audit log. Please try again.');
+        if (error.response?.status === 401) {
+          setAuditLogError('Access denied. You may not have permission to view audit log.');
+        } else {
+          setAuditLogError('Failed to load audit log.');
+          showError('Failed to load audit log. Please try again.');
+        }
         console.error('Audit log loading error:', error);
       })
       .finally(() => setAuditLogLoading(false));
@@ -386,12 +400,28 @@ export default function Admin() {
   };
 
   useEffect(() => {
+    // Stagger API calls to prevent conflicts
     fetchUsers();
-    fetchDares();
-    fetchAuditLog();
-    fetchReports();
-    fetchAppeals();
-    fetchSwitchGames();
+    
+    setTimeout(() => {
+      fetchDares();
+    }, 100);
+    
+    setTimeout(() => {
+      fetchAuditLog();
+    }, 200);
+    
+    setTimeout(() => {
+      fetchReports();
+    }, 300);
+    
+    setTimeout(() => {
+      fetchAppeals();
+    }, 400);
+    
+    setTimeout(() => {
+      fetchSwitchGames();
+    }, 500);
     
     // Fetch site stats
     setSiteStatsLoading(true);
