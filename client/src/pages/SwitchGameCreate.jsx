@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, GamepadIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import TagsInput from '../components/TagsInput';
@@ -56,7 +56,7 @@ export default function SwitchGameCreate() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
-                <GamepadIcon className="w-10 h-10 text-white" />
+                <PlayIcon className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Create a Switch Game</h1>
@@ -181,7 +181,7 @@ export default function SwitchGameCreate() {
                     </>
                   ) : (
                     <>
-                      <GamepadIcon className="w-6 h-6" />
+                      <PlayIcon className="w-6 h-6" />
                       Create Switch Game
                     </>
                   )}
