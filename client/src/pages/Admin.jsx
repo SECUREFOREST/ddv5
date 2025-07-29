@@ -149,7 +149,6 @@ export default function Admin() {
     api.get('/users', { params: { search: searchId } })
       .then(res => {
         setUsers(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Users loaded successfully!');
       })
       .catch((error) => {
         setUsers([]);
@@ -164,7 +163,6 @@ export default function Admin() {
     api.get('/dares', { params: { search: searchId } })
       .then(res => {
         setDares(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Dares loaded successfully!');
       })
       .catch((error) => {
         setDares([]);
@@ -180,7 +178,6 @@ export default function Admin() {
     api.get('/reports')
       .then(res => {
         setReports(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Reports loaded successfully!');
       })
       .catch((error) => {
         setReports([]);
@@ -207,7 +204,6 @@ export default function Admin() {
     api.get('/appeals')
       .then(res => {
         setAppeals(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Appeals loaded successfully!');
       })
       .catch((error) => {
         setAppeals([]);
@@ -222,7 +218,6 @@ export default function Admin() {
     api.get('/audit-log')
       .then(res => {
         setAuditLog(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Audit log loaded successfully!');
       })
       .catch((error) => {
         setAuditLog([]);
@@ -307,7 +302,6 @@ export default function Admin() {
     api.get('/switches', { params: { search: searchId } })
       .then(res => {
         setSwitchGames(Array.isArray(res.data) ? res.data : []);
-        showSuccess('Switch games loaded successfully!');
       })
       .catch((error) => {
         setSwitchGames([]);
@@ -405,7 +399,6 @@ export default function Admin() {
     api.get('/stats/site')
       .then(res => {
         setSiteStats(res.data);
-        showSuccess('Site stats loaded successfully!');
       })
       .catch((error) => {
         setSiteStatsError('Failed to load site stats.');
