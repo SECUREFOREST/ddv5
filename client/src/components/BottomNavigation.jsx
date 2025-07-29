@@ -8,7 +8,7 @@ import {
   UserIcon, 
   BellIcon,
   PlusIcon,
-  GamepadIcon
+  PlayIcon
 } from '@heroicons/react/24/outline';
 import { 
   HomeIcon as HomeIconSolid, 
@@ -17,7 +17,7 @@ import {
   UserIcon as UserIconSolid, 
   BellIcon as BellIconSolid,
   PlusIcon as PlusIconSolid,
-  GamepadIcon as GamepadIconSolid
+  PlayIcon as PlayIconSolid
 } from '@heroicons/react/24/solid';
 
 export default function BottomNavigation() {
@@ -51,8 +51,8 @@ export default function BottomNavigation() {
     {
       to: '/switches',
       label: 'Games',
-      icon: GamepadIcon,
-      solidIcon: GamepadIconSolid,
+      icon: PlayIcon,
+      solidIcon: PlayIconSolid,
       auth: true
     },
     {
