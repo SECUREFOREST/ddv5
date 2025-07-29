@@ -640,7 +640,7 @@ function Admin() {
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
                 <ShieldCheckIcon className="w-10 h-10 text-white" />
-      </div>
+              </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Admin Panel</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
@@ -1265,6 +1265,6 @@ function Admin() {
       </Modal>
     </div>
   );
-};
+}
 
 export default Admin;
