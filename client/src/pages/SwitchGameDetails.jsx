@@ -7,7 +7,7 @@ import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS } from '../constants';
-import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, GamepadIcon } from '@heroicons/react/24/solid';
+import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];
@@ -471,7 +471,7 @@ export default function SwitchGameDetails() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <GamepadIcon className="w-12 h-12 text-white mr-4" />
+              <PlayIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Switch Game Details</h1>
             </div>
       </div>
