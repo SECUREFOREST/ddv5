@@ -183,33 +183,6 @@ function Admin() {
     );
   }
     
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center py-16">
-              <div className="flex items-center justify-center mb-8">
-                <LoadingSpinner variant="spinner" size="lg" color="primary" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
-              <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
-              <div className="mt-4">
-                <button 
-                  onClick={() => {
-                    console.log('Manual auth verification triggered');
-                    setAuthVerified(true);
-                  }}
-                  className="text-sm text-neutral-400 hover:text-white underline"
-                >
-                  Continue anyway
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
   const allFilteredUserIds = users.filter(u =>
     (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
     (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
@@ -1261,5 +1234,6 @@ function Admin() {
       </Modal>
     </div>
   );
+}
 
 export default Admin;
