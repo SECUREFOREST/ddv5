@@ -3,12 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import Avatar from './Avatar';
 import { useState } from 'react';
-import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [impersonationError, setImpersonationError] = useState(null);
 
   // Impersonation banner logic
