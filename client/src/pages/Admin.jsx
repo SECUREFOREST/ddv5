@@ -77,6 +77,23 @@ function Admin() {
   const [auditLogSearch, setAuditLogSearch] = useState('');
   const [editUserId, setEditUserId] = useState(null);
   const [editUserError, setEditUserError] = useState('');
+  const [confirmAction, setConfirmAction] = useState({
+    show: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    type: 'danger'
+  });
+  const [operationLoading, setOperationLoading] = useState({
+    users: false,
+    dares: false,
+    reports: false,
+    appeals: false,
+    switchGames: false
+  });
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
@@ -200,6 +217,31 @@ function Admin() {
       setAuthVerified(true);
     }
   }, [authVerified, user]);
+
+  // Real-time search with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (tabIdx === 0 && userSearch) {
+        fetchUsers(userSearch);
+      } else if (tabIdx === 1 && dareSearch) {
+        fetchDares(dareSearch);
+      } else if (tabIdx === 5 && switchGameSearch) {
+        fetchSwitchGames(switchGameSearch);
+      }
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [userSearch, dareSearch, switchGameSearch, tabIdx]);
+
+  // Real-time updates for critical data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (tabIdx === 3) fetchReports();
+      if (tabIdx === 4) fetchAppeals();
+    }, 30000); // Refresh every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [tabIdx]);
   
   // Add localStorage fallback effect
   useEffect(() => {
@@ -316,6 +358,34 @@ function Admin() {
     
     return () => clearTimeout(fallbackTimer);
   }, [user]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 'f':
+            e.preventDefault();
+            // Focus search input based on current tab
+            const searchInput = document.querySelector(`input[placeholder*="Search"]`);
+            if (searchInput) searchInput.focus();
+            break;
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+            e.preventDefault();
+            setTabIdx(parseInt(e.key) - 1);
+            break;
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
   
   if (loading) {
     return (
@@ -521,7 +591,7 @@ function Admin() {
   };
 
   const handleUserSearch = () => {
-    fetchUsers(userSearchId);
+    fetchUsers(userSearch);
   };
 
   const handleDeleteUser = (userId) => {
@@ -573,10 +643,51 @@ function Admin() {
     }
   };
 
-  const openConfirmModal = (message, onConfirmCallback) => {
-    if (window.confirm(message)) {
-      onConfirmCallback();
+  // Confirmation modal helpers
+  const showConfirmation = (title, message, onConfirm, type = 'danger') => {
+    setConfirmAction({ show: true, title, message, onConfirm, type });
+  };
+
+  const closeConfirmation = () => {
+    setConfirmAction({ show: false, title: '', message: '', onConfirm: null, type: 'danger' });
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmAction.onConfirm) {
+      confirmAction.onConfirm();
     }
+    closeConfirmation();
+  };
+
+  // Bulk action helpers
+  const handleBulkAction = async (action, items) => {
+    const itemType = tabIdx === 0 ? 'users' : tabIdx === 1 ? 'dares' : 'switch games';
+    const actionText = action === 'delete' ? 'delete' : action === 'approve' ? 'approve' : 'reject';
+    
+    showConfirmation(
+      `Bulk ${actionText}`,
+      `Are you sure you want to ${actionText} ${items.length} ${itemType}? This action cannot be undone.`,
+      async () => {
+        setOperationLoading(prev => ({ ...prev, [itemType]: true }));
+        try {
+          // Implement bulk action logic here
+          for (const item of items) {
+            if (action === 'delete') {
+              if (tabIdx === 0) await handleDelete(item._id);
+              else if (tabIdx === 1) await handleDeleteDare(item);
+              else await handleDeleteSwitchGame(item);
+            }
+          }
+          showSuccess(`Successfully ${actionText} ${items.length} ${itemType}`);
+          setSelectedItems([]);
+        } catch (error) {
+          showError(`Failed to ${actionText} ${itemType}`);
+        } finally {
+          setOperationLoading(prev => ({ ...prev, [itemType]: false }));
+        }
+      },
+      'danger'
+    );
   };
 
   return (
@@ -600,38 +711,95 @@ function Admin() {
 
           {/* Stats Overview */}
           {siteStats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border-primary/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <UserGroupIcon className="w-6 h-6 text-primary" />
-                  <div className="text-2xl font-bold text-primary">{siteStats.totalUsers || 0}</div>
-                </div>
-                <div className="text-sm text-primary-300">Total Users</div>
-              </Card>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                <Card className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary group-hover:scale-105 transition-transform duration-200">{siteStats.totalUsers || 0}</div>
+                      <div className="text-xs sm:text-sm text-primary-300">Total Users</div>
+                    </div>
+                    <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                      <UserGroupIcon className="w-4 h-4 text-primary" />
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-gradient-to-r from-green-600/20 to-green-700/20 border-green-600/30 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xl sm:text-2xl font-bold text-green-400 group-hover:scale-105 transition-transform duration-200">{siteStats.totalDares || 0}</div>
+                      <div className="text-xs sm:text-sm text-green-300">Total Dares</div>
+                    </div>
+                    <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                      <FireIcon className="w-4 h-4 text-green-400" />
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xl sm:text-2xl font-bold text-blue-400 group-hover:scale-105 transition-transform duration-200">{siteStats.activeDares || 0}</div>
+                      <div className="text-xs sm:text-sm text-blue-300">Active Dares</div>
+                    </div>
+                    <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                      <ChartBarIcon className="w-4 h-4 text-blue-400" />
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-600/30 hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-300 group">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xl sm:text-2xl font-bold text-yellow-400 group-hover:scale-105 transition-transform duration-200">{siteStats.pendingReports || 0}</div>
+                      <div className="text-xs sm:text-sm text-yellow-300">Pending Reports</div>
+                    </div>
+                    <div className="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+                      <ExclamationTriangleIcon className="w-4 h-4 text-yellow-400" />
+                    </div>
+                  </div>
+                </Card>
+              </div>
               
-              <Card className="bg-gradient-to-r from-green-600/20 to-green-700/20 border-green-600/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <FireIcon className="w-6 h-6 text-green-400" />
-                  <div className="text-2xl font-bold text-green-400">{siteStats.totalDares || 0}</div>
-                </div>
-                <div className="text-sm text-green-300">Total Dares</div>
-              </Card>
-              
-              <Card className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border-blue-600/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <ChartBarIcon className="w-6 h-6 text-blue-400" />
-                  <div className="text-2xl font-bold text-blue-400">{siteStats.activeDares || 0}</div>
-                </div>
-                <div className="text-sm text-blue-300">Active Dares</div>
-              </Card>
-              
-              <Card className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-600/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" />
-                  <div className="text-2xl font-bold text-yellow-400">{siteStats.pendingReports || 0}</div>
-                </div>
-                <div className="text-sm text-yellow-300">Pending Reports</div>
-              </Card>
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button 
+                  onClick={() => setTabIdx(3)}
+                  className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
+                >
+                  <ExclamationTriangleIcon className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="font-semibold">Review Reports</div>
+                  <div className="text-sm opacity-80">{siteStats.pendingReports || 0} pending</div>
+                </button>
+                
+                <button 
+                  onClick={() => setTabIdx(4)}
+                  className="bg-gradient-to-r from-orange-600 to-orange-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
+                >
+                  <ExclamationTriangleIcon className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="font-semibold">Handle Appeals</div>
+                  <div className="text-sm opacity-80">{appeals.length} active</div>
+                </button>
+                
+                <button 
+                  onClick={() => setTabIdx(1)}
+                  className="bg-gradient-to-r from-green-600 to-green-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
+                >
+                  <FireIcon className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="font-semibold">Manage Dares</div>
+                  <div className="text-sm opacity-80">{dares.length} total</div>
+                </button>
+                
+                <button 
+                  onClick={() => setTabIdx(0)}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
+                >
+                  <UserGroupIcon className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" />
+                  <div className="font-semibold">Manage Users</div>
+                  <div className="text-sm opacity-80">{users.length} total</div>
+                </button>
+              </div>
             </div>
           )}
 
@@ -746,11 +914,11 @@ function Admin() {
                           loading={actionLoading}
                           loadingText="Searching..."
                         >
-                          <button
-                            onClick={() => fetchDares(dareSearchId)}
-                            disabled={actionLoading}
-                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                          >
+                                                      <button
+                              onClick={() => fetchDares(dareSearch)}
+                              disabled={actionLoading}
+                              className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
                             Search
                           </button>
                         </ButtonLoading>
@@ -1022,11 +1190,11 @@ function Admin() {
                           loading={actionLoading}
                           loadingText="Searching..."
                         >
-                          <button
-                            onClick={() => fetchSwitchGames(switchGameSearchId)}
-                            disabled={actionLoading}
-                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                          >
+                                                      <button
+                              onClick={() => fetchSwitchGames(switchGameSearch)}
+                              disabled={actionLoading}
+                              className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
                             Search
                           </button>
                         </ButtonLoading>
