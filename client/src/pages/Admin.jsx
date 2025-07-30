@@ -139,32 +139,9 @@ function Admin() {
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
 
-  // Fetch site statistics
-  const fetchSiteStats = useCallback(() => {
-    if (!checkAdminPermission()) return;
-    
-    setSiteStatsLoading(true);
-    setSiteStatsError('');
-    api.get('/stats/site')
-      .then(res => {
-        setSiteStats(res.data);
-      })
-      .catch((error) => {
-        setSiteStats(null);
-        const errorType = handleApiError(error, 'load site statistics');
-        if (errorType === 'permission_denied') {
-          setSiteStatsError('Access denied. You may not have permission to view site statistics.');
-        } else if (errorType === 'timeout') {
-          setSiteStatsError('Request timed out. Please try again.');
-        } else {
-          setSiteStatsError('Failed to load site statistics.');
-        }
-      })
-      .finally(() => setSiteStatsLoading(false));
-  }, [checkAdminPermission, handleApiError]);
-  
   // Permission check utility
   const checkAdminPermission = useCallback(() => {
+    console.log('checkAdminPermission called with user:', user);
     if (!user || !user.roles || !user.roles.includes('admin')) {
       showError('Admin access required. You do not have permission to perform this action.');
       return false;
@@ -193,6 +170,30 @@ function Admin() {
       return 'general_error';
     }
   }, [showError]);
+
+  // Fetch site statistics
+  const fetchSiteStats = useCallback(() => {
+    if (!checkAdminPermission()) return;
+    
+    setSiteStatsLoading(true);
+    setSiteStatsError('');
+    api.get('/stats/site')
+      .then(res => {
+        setSiteStats(res.data);
+      })
+      .catch((error) => {
+        setSiteStats(null);
+        const errorType = handleApiError(error, 'load site statistics');
+        if (errorType === 'permission_denied') {
+          setSiteStatsError('Access denied. You may not have permission to view site statistics.');
+        } else if (errorType === 'timeout') {
+          setSiteStatsError('Request timed out. Please try again.');
+        } else {
+          setSiteStatsError('Failed to load site statistics.');
+        }
+      })
+      .finally(() => setSiteStatsLoading(false));
+  }, [checkAdminPermission, handleApiError]);
 
   // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
@@ -412,37 +413,7 @@ function Admin() {
     
     // Show success message that admin interface is working
     showSuccess('Admin interface loaded successfully!');
-    
-    // Load all data now that auth is verified
-    fetchUsers();
-    fetchDares();
-    fetchAuditLog();
-    fetchReports();
-    fetchAppeals();
-    fetchSwitchGames();
-    
-    // Fetch site stats
-    setSiteStatsLoading(true);
-    setSiteStatsError('');
-    api.get('/stats/site')
-      .then(res => {
-        setSiteStats(res.data);
-      })
-      .catch((error) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized - user might need to re-authenticate
-          setSiteStatsError('Authentication expired. Please log in again.');
-          // Don't show error toast for 401 on admin page
-        } else if (error.code === 'ECONNABORTED') {
-          setSiteStatsError('Request timed out. Please try again.');
-        } else {
-          setSiteStatsError('Failed to load site stats.');
-          // Don't show error toast for admin endpoints
-        }
-        console.error('Site stats loading error:', error);
-      })
-      .finally(() => setSiteStatsLoading(false));
-  }, [user, authVerified, dataLoaded, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, showError, showSuccess]); // Include dataLoaded in dependencies
+  }, [user, authVerified, dataLoaded, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, fetchSiteStats, showError, showSuccess]); // Include dataLoaded in dependencies
 
   // Cleanup effect to reset data loaded flag when component unmounts
   useEffect(() => {
