@@ -207,6 +207,7 @@ function Admin() {
   // Fetch site statistics
   const fetchSiteStats = useCallback(() => {
     setApiStatus(prev => ({ ...prev, siteStats: 'loading' }));
+    setSiteStatsLoading(true);
     api.get('/stats/site')
       .then(res => {
         setSiteStats(res.data);
@@ -215,7 +216,8 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, siteStats: 'error' }));
         handleApiError(err, 'load site stats');
-      });
+      })
+      .finally(() => setSiteStatsLoading(false));
   }, [handleApiError]);
 
   // All useCallback hooks must be called before any early returns
@@ -239,6 +241,7 @@ function Admin() {
 
   const fetchDares = useCallback(() => {
     setApiStatus(prev => ({ ...prev, dares: 'loading' }));
+    setDaresLoading(true);
     api.get('/dares')
       .then(res => {
         setDares(res.data);
@@ -247,11 +250,13 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, dares: 'error' }));
         handleApiError(err, 'load dares');
-      });
+      })
+      .finally(() => setDaresLoading(false));
   }, [handleApiError]);
 
   const fetchReports = useCallback(() => {
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
+    setReportsLoading(true);
     api.get('/reports')
       .then(res => {
         setReports(res.data);
@@ -260,11 +265,13 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, reports: 'error' }));
         handleApiError(err, 'load reports');
-      });
+      })
+      .finally(() => setReportsLoading(false));
   }, [handleApiError]);
 
   const fetchAppeals = useCallback(() => {
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
+    setAppealsLoading(true);
     api.get('/appeals')
       .then(res => {
         setAppeals(res.data);
@@ -273,11 +280,13 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, appeals: 'error' }));
         handleApiError(err, 'load appeals');
-      });
+      })
+      .finally(() => setAppealsLoading(false));
   }, [handleApiError]);
 
   const fetchAuditLog = useCallback(() => {
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
+    setAuditLogLoading(true);
     api.get('/audit-log')
       .then(res => {
         setAuditLog(res.data);
@@ -286,11 +295,13 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
         handleApiError(err, 'load audit log');
-      });
+      })
+      .finally(() => setAuditLogLoading(false));
   }, [handleApiError]);
 
   const fetchSwitchGames = useCallback(() => {
     setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
+    setSwitchGamesLoading(true);
     api.get('/switches')
       .then(res => {
         setSwitchGames(res.data);
@@ -299,7 +310,8 @@ function Admin() {
       .catch(err => {
         setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
         handleApiError(err, 'load switch games');
-      });
+      })
+      .finally(() => setSwitchGamesLoading(false));
   }, [handleApiError]);
   
   // All useEffect hooks must be called before any early returns
