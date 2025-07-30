@@ -12,6 +12,46 @@ import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/LoadingSpinner';
 
+// Validation utilities
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validateUsername = (username) => {
+  return username && username.length >= 3 && username.length <= 20 && /^[a-zA-Z0-9_]+$/.test(username);
+};
+
+const validateRoles = (roles) => {
+  const validRoles = ['admin', 'moderator', 'user'];
+  return Array.isArray(roles) && roles.every(role => validRoles.includes(role));
+};
+
+// Status mapping utilities
+const mapDareStatus = (status) => {
+  const statusMap = {
+    'waiting_for_participant': 'pending',
+    'in_progress': 'active',
+    'completed': 'completed',
+    'forfeited': 'forfeited',
+    'approved': 'approved',
+    'rejected': 'rejected'
+  };
+  return statusMap[status] || status;
+};
+
+const getStatusColor = (status) => {
+  const colorMap = {
+    'pending': 'bg-yellow-600/20 text-yellow-400',
+    'active': 'bg-blue-600/20 text-blue-400',
+    'completed': 'bg-green-600/20 text-green-400',
+    'forfeited': 'bg-red-600/20 text-red-400',
+    'approved': 'bg-green-600/20 text-green-400',
+    'rejected': 'bg-red-600/20 text-red-400'
+  };
+  return colorMap[status] || 'bg-gray-600/20 text-gray-400';
+};
+
 function exportToCsv(filename, rows) {
   if (!rows.length) return;
   const keys = Object.keys(rows[0]);
@@ -40,6 +80,7 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [tabIdx, setTabIdx] = useState(0);
   const [dares, setDares] = useState([]);
   const [daresLoading, setDaresLoading] = useState(true);
@@ -97,9 +138,66 @@ function Admin() {
   
   const USERS_PER_PAGE = 10;
   const DARES_PER_PAGE = 10;
+
+  // Fetch site statistics
+  const fetchSiteStats = useCallback(() => {
+    if (!checkAdminPermission()) return;
+    
+    setSiteStatsLoading(true);
+    setSiteStatsError('');
+    api.get('/stats/site')
+      .then(res => {
+        setSiteStats(res.data);
+      })
+      .catch((error) => {
+        setSiteStats(null);
+        const errorType = handleApiError(error, 'load site statistics');
+        if (errorType === 'permission_denied') {
+          setSiteStatsError('Access denied. You may not have permission to view site statistics.');
+        } else if (errorType === 'timeout') {
+          setSiteStatsError('Request timed out. Please try again.');
+        } else {
+          setSiteStatsError('Failed to load site statistics.');
+        }
+      })
+      .finally(() => setSiteStatsLoading(false));
+  }, [checkAdminPermission, handleApiError]);
   
+  // Permission check utility
+  const checkAdminPermission = useCallback(() => {
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      showError('Admin access required. You do not have permission to perform this action.');
+      return false;
+    }
+    return true;
+  }, [user, showError]);
+
+  // Enhanced error handling utility
+  const handleApiError = useCallback((error, operation) => {
+    console.error(`${operation} error:`, error);
+    
+    if (error.response?.status === 401) {
+      showError('Authentication required. Please log in again.');
+      return 'auth_required';
+    } else if (error.response?.status === 403) {
+      showError('Access denied. You do not have permission to perform this action.');
+      return 'permission_denied';
+    } else if (error.response?.status === 404) {
+      showError('Resource not found.');
+      return 'not_found';
+    } else if (error.code === 'ECONNABORTED') {
+      showError('Request timed out. Please try again.');
+      return 'timeout';
+    } else {
+      showError(`Failed to ${operation}. Please try again.`);
+      return 'general_error';
+    }
+  }, [showError]);
+
   // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
+    if (!checkAdminPermission()) return;
+    
     setDataLoading(true);
     api.get('/users', { params: { search: searchId } })
       .then(res => {
@@ -107,13 +205,14 @@ function Admin() {
       })
       .catch((error) => {
         setUsers([]);
-        showError('Failed to load users. Please try again.');
-        console.error('Users loading error:', error);
+        handleApiError(error, 'load users');
       })
       .finally(() => setDataLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
 
   const fetchDares = useCallback((searchId = "") => {
+    if (!checkAdminPermission()) return;
+    
     setDaresLoading(true);
     api.get('/dares', { params: { search: searchId } })
       .then(res => {
@@ -121,13 +220,14 @@ function Admin() {
       })
       .catch((error) => {
         setDares([]);
-        showError('Failed to load dares. Please try again.');
-        console.error('Dares loading error:', error);
+        handleApiError(error, 'load dares');
       })
       .finally(() => setDaresLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
 
   const fetchReports = useCallback(() => {
+    if (!checkAdminPermission()) return;
+    
     setReportsLoading(true);
     setReportsError('');
     api.get('/reports')
@@ -136,21 +236,21 @@ function Admin() {
       })
       .catch((error) => {
         setReports([]);
-        if (error.response?.status === 401) {
+        const errorType = handleApiError(error, 'load reports');
+        if (errorType === 'permission_denied') {
           setReportsError('Access denied. You may not have permission to view reports.');
-          // Don't show error toast for 401 on admin page - user has admin role
-        } else if (error.code === 'ECONNABORTED') {
+        } else if (errorType === 'timeout') {
           setReportsError('Request timed out. Please try again.');
         } else {
           setReportsError('Failed to load reports. Please try again.');
-          // Don't show error toast for admin endpoints
         }
-        console.error('Reports loading error:', error);
       })
       .finally(() => setReportsLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
 
   const fetchAppeals = useCallback(() => {
+    if (!checkAdminPermission()) return;
+    
     setAppealsLoading(true);
     setAppealsError('');
     api.get('/appeals')
@@ -159,21 +259,21 @@ function Admin() {
       })
       .catch((error) => {
         setAppeals([]);
-        if (error.response?.status === 401) {
+        const errorType = handleApiError(error, 'load appeals');
+        if (errorType === 'permission_denied') {
           setAppealsError('Access denied. You may not have permission to view appeals.');
-          // Don't show error toast for 401 on admin page - user has admin role
-        } else if (error.code === 'ECONNABORTED') {
+        } else if (errorType === 'timeout') {
           setAppealsError('Request timed out. Please try again.');
         } else {
           setAppealsError('Failed to load appeals. Please try again.');
-          // Don't show error toast for admin endpoints
         }
-        console.error('Appeals loading error:', error);
       })
       .finally(() => setAppealsLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
 
   const fetchAuditLog = useCallback(() => {
+    if (!checkAdminPermission()) return;
+    
     setAuditLogLoading(true);
     api.get('/audit-log')
       .then(res => {
@@ -181,21 +281,21 @@ function Admin() {
       })
       .catch((error) => {
         setAuditLog([]);
-        if (error.response?.status === 401) {
+        const errorType = handleApiError(error, 'load audit log');
+        if (errorType === 'permission_denied') {
           setAuditLogError('Access denied. You may not have permission to view audit log.');
-          // Don't show error toast for 401 on admin page - user has admin role
-        } else if (error.code === 'ECONNABORTED') {
+        } else if (errorType === 'timeout') {
           setAuditLogError('Request timed out. Please try again.');
         } else {
           setAuditLogError('Failed to load audit log.');
-          // Don't show error toast for admin endpoints
         }
-        console.error('Audit log loading error:', error);
       })
       .finally(() => setAuditLogLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
 
   const fetchSwitchGames = useCallback((searchId = "") => {
+    if (!checkAdminPermission()) return;
+    
     setSwitchGamesLoading(true);
     api.get('/switches', { params: { search: searchId } })
       .then(res => {
@@ -203,11 +303,10 @@ function Admin() {
       })
       .catch((error) => {
         setSwitchGames([]);
-        showError('Failed to load switch games. Please try again.');
-        console.error('Switch games loading error:', error);
+        handleApiError(error, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
-  }, [showError]);
+  }, [checkAdminPermission, handleApiError]);
   
   // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
@@ -238,10 +337,11 @@ function Admin() {
     const interval = setInterval(() => {
       if (tabIdx === 3) fetchReports();
       if (tabIdx === 4) fetchAppeals();
+      if (tabIdx === 2) fetchAuditLog(); // Refresh audit log periodically
     }, 30000); // Refresh every 30 seconds
     
     return () => clearInterval(interval);
-  }, [tabIdx]);
+  }, [tabIdx, fetchReports, fetchAppeals, fetchAuditLog]);
   
   // Add localStorage fallback effect
   useEffect(() => {
@@ -296,6 +396,19 @@ function Admin() {
     
     // Set data loaded flag to prevent multiple calls
     setDataLoaded(true);
+    
+    // Load all admin data
+    Promise.all([
+      fetchUsers(),
+      fetchDares(),
+      fetchReports(),
+      fetchAppeals(),
+      fetchAuditLog(),
+      fetchSwitchGames(),
+      fetchSiteStats()
+    ]).finally(() => {
+      setIsInitializing(false);
+    });
     
     // Show success message that admin interface is working
     showSuccess('Admin interface loaded successfully!');
@@ -387,7 +500,7 @@ function Admin() {
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, []);
   
-  if (loading) {
+  if (loading || isInitializing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -397,7 +510,7 @@ function Admin() {
                 <LoadingSpinner variant="spinner" size="lg" color="primary" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-4">Loading Admin Panel</h2>
-              <p className="text-white/70">Please wait while we verify your permissions...</p>
+              <p className="text-white/70">Please wait while we verify your permissions and load data...</p>
             </div>
           </div>
         </div>
@@ -496,98 +609,173 @@ function Admin() {
   const clearSelectedDares = () => setSelectedDares([]);
   
   const handleResolveReport = async (id) => {
+    if (!checkAdminPermission()) return;
+    
+    setResolvingReportId(id);
     try {
-      await api.post(`/reports/${id}/resolve`);
+      await api.patch(`/reports/${id}`, { status: 'resolved' });
       showSuccess('Report resolved successfully!');
-      fetchReports();
+      fetchReports(); // Refresh the reports list
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to resolve report.';
-      showError(errorMessage);
+      const errorType = handleApiError(err, 'resolve report');
+      if (errorType === 'auth_required') {
+        showError('Authentication required. Please log in again.');
+      } else if (errorType === 'permission_denied') {
+        showError('You do not have permission to resolve reports.');
+      }
+    } finally {
+      setResolvingReportId(null);
     }
   };
 
   const handleResolveAppeal = async (id) => {
+    if (!checkAdminPermission()) return;
+    
+    if (!appealOutcome.trim()) {
+      showError('Please provide an outcome for the appeal.');
+      return;
+    }
+    
+    setResolvingAppealId(id);
     try {
-      await api.post(`/appeals/${id}/resolve`);
+      await api.patch(`/appeals/${id}`, { outcome: appealOutcome.trim() });
       showSuccess('Appeal resolved successfully!');
-      fetchAppeals();
+      setAppealOutcome('');
+      fetchAppeals(); // Refresh the appeals list
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to resolve appeal.';
-      showError(errorMessage);
+      const errorType = handleApiError(err, 'resolve appeal');
+      if (errorType === 'auth_required') {
+        showError('Authentication required. Please log in again.');
+      } else if (errorType === 'permission_denied') {
+        showError('You do not have permission to resolve appeals.');
+      }
+    } finally {
+      setResolvingAppealId(null);
     }
   };
 
   const handleApprove = async (dareId) => {
+    if (!checkAdminPermission()) return;
+    
     setActionLoading(true);
     try {
       await api.post(`/dares/${dareId}/approve`);
       showSuccess('Dare approved successfully!');
-      fetchDares();
+      fetchDares(); // Refresh the dares list
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to approve dare.';
-      showError(errorMessage);
+      const errorType = handleApiError(err, 'approve dare');
+      if (errorType === 'auth_required') {
+        showError('Authentication required. Please log in again.');
+      } else if (errorType === 'permission_denied') {
+        showError('You do not have permission to approve dares.');
+      }
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleReject = async (dareId) => {
+    if (!checkAdminPermission()) return;
+    
     setActionLoading(true);
     try {
       await api.post(`/dares/${dareId}/reject`);
       showSuccess('Dare rejected successfully!');
-      fetchDares();
+      fetchDares(); // Refresh the dares list
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to reject dare.';
-      showError(errorMessage);
+      const errorType = handleApiError(err, 'reject dare');
+      if (errorType === 'auth_required') {
+        showError('Authentication required. Please log in again.');
+      } else if (errorType === 'permission_denied') {
+        showError('You do not have permission to reject dares.');
+      }
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleDeleteDare = (dare) => {
-    if (!window.confirm(`Delete dare: ${dare.description}?`)) return;
+    if (!checkAdminPermission()) return;
+    
+    showConfirmation(
+      'Delete Dare',
+      `Are you sure you want to delete dare: "${dare.description}"? This action cannot be undone.`,
+      async () => {
         setActionLoading(true);
-    api.delete(`/dares/${dare._id}`)
-      .then(() => {
-        showSuccess('Dare deleted successfully!');
-          fetchDares();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete dare.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
+        try {
+          await api.delete(`/dares/${dare._id}`);
+          showSuccess('Dare deleted successfully!');
+          fetchDares(); // Refresh the dares list
+        } catch (err) {
+          const errorType = handleApiError(err, 'delete dare');
+          if (errorType === 'auth_required') {
+            showError('Authentication required. Please log in again.');
+          } else if (errorType === 'permission_denied') {
+            showError('You do not have permission to delete dares.');
+          }
+        } finally {
+          setActionLoading(false);
+        }
+      },
+      'danger'
+    );
   };
 
   const handleDeleteSwitchGame = (game) => {
-    if (!window.confirm(`Delete switch game: ${game.title}?`)) return;
+    if (!checkAdminPermission()) return;
+    
+    showConfirmation(
+      'Delete Switch Game',
+      `Are you sure you want to delete switch game: "${game.title || 'Untitled'}"? This action cannot be undone.`,
+      async () => {
         setActionLoading(true);
-    api.delete(`/switches/${game._id}`)
-      .then(() => {
-        showSuccess('Switch game deleted successfully!');
-          fetchSwitchGames();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete switch game.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
+        try {
+          await api.delete(`/switches/${game._id}`);
+          showSuccess('Switch game deleted successfully!');
+          fetchSwitchGames(); // Refresh the switch games list
+        } catch (err) {
+          const errorType = handleApiError(err, 'delete switch game');
+          if (errorType === 'auth_required') {
+            showError('Authentication required. Please log in again.');
+          } else if (errorType === 'permission_denied') {
+            showError('You do not have permission to delete switch games.');
+          }
+        } finally {
+          setActionLoading(false);
+        }
+      },
+      'danger'
+    );
   };
 
   const handleDelete = (userId) => {
-    if (!window.confirm(`Delete user: ${userId}?`)) return;
+    if (!checkAdminPermission()) return;
+    
+    const user = users.find(u => u._id === userId);
+    const userName = user ? (user.fullName || user.username) : userId;
+    
+    showConfirmation(
+      'Delete User',
+      `Are you sure you want to delete user: "${userName}"? This action cannot be undone.`,
+      async () => {
         setActionLoading(true);
-    api.delete(`/users/${userId}`)
-      .then(() => {
-        showSuccess('User deleted successfully!');
-          fetchUsers();
-      })
-      .catch((err) => {
-        const errorMessage = err.response?.data?.error || 'Failed to delete user.';
-        showError(errorMessage);
-      })
-      .finally(() => setActionLoading(false));
+        try {
+          await api.delete(`/users/${userId}`);
+          showSuccess('User deleted successfully!');
+          fetchUsers(); // Refresh the users list
+        } catch (err) {
+          const errorType = handleApiError(err, 'delete user');
+          if (errorType === 'auth_required') {
+            showError('Authentication required. Please log in again.');
+          } else if (errorType === 'permission_denied') {
+            showError('You do not have permission to delete users.');
+          }
+        } finally {
+          setActionLoading(false);
+        }
+      },
+      'danger'
+    );
   };
 
   const handleUserSearch = () => {
@@ -623,21 +811,46 @@ function Admin() {
   };
 
   const handleEditUserSave = async () => {
+    if (!checkAdminPermission()) return;
+    
+    // Input validation
+    const { username, email, roles } = editUserData;
+    
+    if (!validateUsername(username)) {
+      setEditUserError('Username must be 3-20 characters and contain only letters, numbers, and underscores.');
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setEditUserError('Please enter a valid email address.');
+      return;
+    }
+    
+    if (!validateRoles(roles)) {
+      setEditUserError('Roles must be valid: admin, moderator, or user.');
+      return;
+    }
+    
     setEditUserLoading(true);
     setEditUserError('');
     try {
-      const { username, email, roles } = editUserData;
       const payload = { username, email };
       if (roles && Array.isArray(roles)) payload.roles = roles;
       
       await api.patch(`/users/${editUserId}`, payload);
       showSuccess('User updated successfully!');
-      fetchUsers();
+      fetchUsers(); // Refresh the users list
       closeEditUserModal();
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to update user.';
-      setEditUserError(errorMessage);
-      showError(errorMessage);
+      const errorType = handleApiError(err, 'update user');
+      if (errorType === 'auth_required') {
+        setEditUserError('Authentication required. Please log in again.');
+      } else if (errorType === 'permission_denied') {
+        setEditUserError('You do not have permission to update users.');
+      } else {
+        const errorMessage = err.response?.data?.error || 'Failed to update user.';
+        setEditUserError(errorMessage);
+      }
     } finally {
       setEditUserLoading(false);
     }
@@ -661,6 +874,8 @@ function Admin() {
 
   // Bulk action helpers
   const handleBulkAction = async (action, items) => {
+    if (!checkAdminPermission()) return;
+    
     const itemType = tabIdx === 0 ? 'users' : tabIdx === 1 ? 'dares' : 'switch games';
     const actionText = action === 'delete' ? 'delete' : action === 'approve' ? 'approve' : 'reject';
     
@@ -669,19 +884,46 @@ function Admin() {
       `Are you sure you want to ${actionText} ${items.length} ${itemType}? This action cannot be undone.`,
       async () => {
         setOperationLoading(prev => ({ ...prev, [itemType]: true }));
+        
         try {
-          // Implement bulk action logic here
-          for (const item of items) {
-            if (action === 'delete') {
-              if (tabIdx === 0) await handleDelete(item._id);
-              else if (tabIdx === 1) await handleDeleteDare(item);
-              else await handleDeleteSwitchGame(item);
-            }
+          let endpoint = '';
+          let payload = {};
+          
+          if (tabIdx === 0) {
+            endpoint = '/bulk/users';
+            payload = { action, userIds: items.map(item => item._id || item.id) };
+          } else if (tabIdx === 1) {
+            endpoint = '/bulk/dares';
+            payload = { action, dareIds: items.map(item => item._id || item.id) };
+          } else {
+            endpoint = '/bulk/switch-games';
+            payload = { action, gameIds: items.map(item => item._id || item.id) };
           }
-          showSuccess(`Successfully ${actionText} ${items.length} ${itemType}`);
+          
+          const response = await api.post(endpoint, payload);
+          const results = response.data;
+          
+          // Show results
+          if (results.success > 0) {
+            showSuccess(`Successfully ${actionText} ${results.success} ${itemType}`);
+          }
+          if (results.failed > 0) {
+            showError(`Failed to ${actionText} ${results.failed} ${itemType}`);
+          }
+          
+          // Refresh data
+          if (tabIdx === 0) fetchUsers();
+          else if (tabIdx === 1) fetchDares();
+          else fetchSwitchGames();
+          
           setSelectedItems([]);
         } catch (error) {
-          showError(`Failed to ${actionText} ${itemType}`);
+          const errorType = handleApiError(error, `${actionText} ${itemType}`);
+          if (errorType === 'auth_required') {
+            showError('Authentication required. Please log in again.');
+          } else if (errorType === 'permission_denied') {
+            showError('You do not have permission to perform bulk operations.');
+          }
         } finally {
           setOperationLoading(prev => ({ ...prev, [itemType]: false }));
         }
@@ -1013,9 +1255,9 @@ function Admin() {
                           <div className="text-sm text-neutral-400 flex items-center gap-2">
                             <span>Total: {dares.length} dares</span>
                             <span>•</span>
-                            <span>Pending: {dares.filter(d => d.status === 'pending').length}</span>
+                            <span>Pending: {dares.filter(d => mapDareStatus(d.status) === 'pending').length}</span>
                             <span>•</span>
-                            <span>Approved: {dares.filter(d => d.status === 'approved').length}</span>
+                            <span>Approved: {dares.filter(d => mapDareStatus(d.status) === 'approved').length}</span>
                           </div>
                         </div>
                         
@@ -1029,12 +1271,8 @@ function Admin() {
                                     Created by: {dare.creator?.username || 'Unknown'}
                                   </div>
                                   <div className="flex items-center gap-2 mb-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                      dare.status === 'approved' ? 'bg-green-600/20 text-green-400' :
-                                      dare.status === 'rejected' ? 'bg-red-600/20 text-red-400' :
-                                      'bg-yellow-600/20 text-yellow-400'
-                                    }`}>
-                                      {dare.status}
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(mapDareStatus(dare.status))}`}>
+                                      {mapDareStatus(dare.status)}
                                     </span>
                                     {dare.createdAt && (
                                       <span className="text-xs text-neutral-500">
@@ -1044,7 +1282,7 @@ function Admin() {
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
-                                  {dare.status === 'pending' && (
+                                  {mapDareStatus(dare.status) === 'pending' && (
                                     <>
                                       <ActionLoading
                                         loading={actionLoading}

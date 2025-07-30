@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import DareCard from '../components/DareCard';
-import { DIFFICULTY_OPTIONS, TYPE_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, TYPE_OPTIONS, STATUS_MAP, API_RESPONSE_TYPES, ERROR_MESSAGES, SUCCESS_MESSAGES, PAGINATION } from '../constants';
 import { useRef } from 'react';
 import Slot from '../components/Slot';
 import Accordion from '../components/Accordion';
@@ -14,6 +14,9 @@ import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { validateApiResponse, handleApiError, normalizeUserId, safeApiCall } from '../utils/apiUtils';
+import { useRealtimeUpdates, useSpecificRealtimeUpdates, useActivityRealtimeUpdates } from '../hooks/useRealtimeUpdates';
+import { usePagination } from '../hooks/usePagination';
 
 /**
  * DarePerformerDashboard - Modern React/Tailwind implementation with improved UX
@@ -52,23 +55,14 @@ function timeAgoOrDuration(start, end, status) {
   return 'Just now';
 }
 
-// Status mapping for better UX
-const statusMap = {
-  waiting_for_participant: { label: 'Waiting', color: 'bg-blue-600/20 border border-blue-500/50 text-blue-300' },
-  pending: { label: 'Pending', color: 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300' },
-  soliciting: { label: 'Soliciting', color: 'bg-purple-600/20 border border-purple-500/50 text-purple-300' },
-  in_progress: { label: 'In Progress', color: 'bg-green-600/20 border border-green-500/50 text-green-300' },
-  completed: { label: 'Completed', color: 'bg-emerald-600/20 border border-emerald-500/50 text-emerald-300' },
-  rejected: { label: 'Rejected', color: 'bg-red-600/20 border border-red-500/50 text-red-300' },
-  graded: { label: 'Graded', color: 'bg-indigo-600/20 border border-indigo-500/50 text-indigo-300' },
-  approved: { label: 'Approved', color: 'bg-green-600/20 border border-green-500/50 text-green-300' },
-  forfeited: { label: 'Forfeited', color: 'bg-red-600/20 border border-red-500/50 text-red-300' },
-  expired: { label: 'Expired', color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300' }
-};
-
 function StatusBadge({ status }) {
-  const s = statusMap[status] || { label: status, color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300' };
-  return <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${s.color}`} title={status}>{s.label}</span>;
+  const s = STATUS_MAP[status] || { label: status, color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300', icon: '❓' };
+  return (
+    <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${s.color}`} title={status}>
+      <span className="mr-1">{s.icon}</span>
+      {s.label}
+    </span>
+  );
 }
 
 export default function DarePerformerDashboard() {
@@ -76,24 +70,30 @@ export default function DarePerformerDashboard() {
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
   
+  // Normalize user ID for consistent usage
+  const userId = normalizeUserId(user);
+  
   // Core state with better organization
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Data states
+  // Data states with proper validation
   const [ongoing, setOngoing] = useState([]);
   const [completed, setCompleted] = useState([]);
   const [publicDares, setPublicDares] = useState([]);
   const [mySwitchGames, setMySwitchGames] = useState([]);
   const [switchGameHistory, setSwitchGameHistory] = useState([]);
   
-  // Loading states
+  // Loading states with improved management
   const [dataLoading, setDataLoading] = useState({
     ongoing: true,
     completed: true,
     public: true,
-    switchGames: true
+    switchGames: true,
+    associates: true,
+    stats: true,
+    activity: true
   });
   
   // Filter states
@@ -158,10 +158,10 @@ export default function DarePerformerDashboard() {
     if (type === 'error') showError(msg);
   };
 
-  // Fetch data on mount
+  // Fetch data on mount with improved error handling
   useEffect(() => {
-    if (!user) {
-      console.log('No user found, skipping dashboard data fetch');
+    if (!user || !userId) {
+      console.log('No user or user ID found, skipping dashboard data fetch');
       return;
     }
     
@@ -170,55 +170,67 @@ export default function DarePerformerDashboard() {
       setError('');
       
       try {
-        console.log('Fetching dashboard data for user:', user.id || user._id);
+        console.log('Fetching dashboard data for user:', userId);
         
-        // Check if user is authenticated
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-          throw new Error('No access token found. Please log in again.');
-        }
-        
-        const [ongoingRes, completedRes, publicRes, switchRes, historyRes] = await Promise.all([
-          api.get('/dares/mine?status=in_progress,waiting_for_participant'),
-          api.get('/dares/mine?status=completed'),
-          api.get('/dares?public=true&status=waiting_for_participant'),
-          api.get('/switches/performer'),
-          api.get('/switches/history')
+        // Use safeApiCall for consistent error handling
+        const [
+          { data: ongoingData, error: ongoingError },
+          { data: completedData, error: completedError },
+          { data: publicData, error: publicError },
+          { data: switchData, error: switchError },
+          { data: historyData, error: historyError }
+        ] = await Promise.all([
+          safeApiCall(
+            () => api.get('/dares/mine?status=in_progress,waiting_for_participant'),
+            'fetching ongoing dares',
+            API_RESPONSE_TYPES.DARE_ARRAY
+          ),
+          safeApiCall(
+            () => api.get('/dares/mine?status=completed'),
+            'fetching completed dares',
+            API_RESPONSE_TYPES.DARE_ARRAY
+          ),
+          safeApiCall(
+            () => api.get('/dares?public=true&status=waiting_for_participant'),
+            'fetching public dares',
+            API_RESPONSE_TYPES.DARE_ARRAY
+          ),
+          safeApiCall(
+            () => api.get('/switches/performer'),
+            'fetching switch games',
+            API_RESPONSE_TYPES.SWITCH_GAME_ARRAY
+          ),
+          safeApiCall(
+            () => api.get('/switches/history'),
+            'fetching switch game history',
+            API_RESPONSE_TYPES.SWITCH_GAME_ARRAY
+          )
         ]);
         
-        console.log('Dashboard data loaded successfully:', {
-          ongoing: ongoingRes.data?.length || 0,
-          completed: completedRes.data?.length || 0,
-          public: publicRes.data?.length || 0,
-          switches: switchRes.data?.length || 0,
-          history: historyRes.data?.length || 0
-        });
-        
-        setOngoing(Array.isArray(ongoingRes.data) ? ongoingRes.data : []);
-        setCompleted(Array.isArray(completedRes.data) ? completedRes.data : []);
-        setPublicDares(Array.isArray(publicRes.data) ? publicRes.data : []);
-        setMySwitchGames(Array.isArray(switchRes.data) ? switchRes.data : []);
-        setSwitchGameHistory(Array.isArray(historyRes.data) ? historyRes.data : []);
-        
-        showNotification('Dashboard loaded successfully!', 'success');
-      } catch (err) {
-        console.error('Dashboard loading error:', err);
-        console.error('Error response:', err.response);
-        console.error('Error status:', err.response?.status);
-        console.error('Error data:', err.response?.data);
-        
-        let errorMessage = 'Failed to load dashboard data. Please try again.';
-        
-        if (err.response?.status === 401) {
-          errorMessage = 'Authentication failed. Please log in again.';
-        } else if (err.response?.status === 404) {
-          errorMessage = 'Some dashboard features are not available. Please try again later.';
-        } else if (err.response?.status === 500) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (err.response?.data?.error) {
-          errorMessage = err.response.data.error;
+        // Handle individual errors
+        const errors = [ongoingError, completedError, publicError, switchError, historyError].filter(Boolean);
+        if (errors.length > 0) {
+          console.warn('Some API calls failed:', errors);
         }
         
+        // Set data with validation
+        setOngoing(ongoingData || []);
+        setCompleted(completedData || []);
+        setPublicDares(publicData || []);
+        setMySwitchGames(switchData || []);
+        setSwitchGameHistory(historyData || []);
+        
+        console.log('Dashboard data loaded successfully:', {
+          ongoing: ongoingData?.length || 0,
+          completed: completedData?.length || 0,
+          public: publicData?.length || 0,
+          switches: switchData?.length || 0,
+          history: historyData?.length || 0
+        });
+        
+        showNotification(SUCCESS_MESSAGES.DATA_LOADED, 'success');
+      } catch (err) {
+        const errorMessage = handleApiError(err, 'loading dashboard data');
         setError(errorMessage);
         showNotification(errorMessage, 'error');
       } finally {
@@ -227,33 +239,70 @@ export default function DarePerformerDashboard() {
           ongoing: false,
           completed: false,
           public: false,
-          switchGames: false
+          switchGames: false,
+          associates: false,
+          stats: false,
+          activity: false
         });
       }
     };
     
     fetchData();
-  }, [user]);
+  }, [user, userId]);
 
-  // Additional useEffect hooks for restored features
+  // Additional useEffect hooks for restored features with improved error handling
   useEffect(() => {
-    if (!user) return;
+    if (!user || !userId) return;
     
-    // Fetch associates
-    api.get('/users/associates')
-      .then(res => setAssociates(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setAssociates([]));
+    const fetchAdditionalData = async () => {
+      setDataLoading(prev => ({ ...prev, associates: true, stats: true }));
+      
+      try {
+        // Fetch associates with proper error handling
+        const { data: associatesData, error: associatesError } = await safeApiCall(
+          () => api.get('/users/associates'),
+          'fetching associates',
+          API_RESPONSE_TYPES.USER_ARRAY
+        );
+        
+        if (associatesError) {
+          console.warn('Failed to fetch associates:', associatesError);
+        }
+        setAssociates(associatesData || []);
+        
+        // Fetch role stats with proper error handling
+        const { data: statsData, error: statsError } = await safeApiCall(
+          () => api.get(`/stats/users/${userId}`),
+          'fetching user stats',
+          API_RESPONSE_TYPES.STATS
+        );
+        
+        if (statsError) {
+          console.warn('Failed to fetch user stats:', statsError);
+        }
+        setRoleStats(statsData);
+        
+        // Fetch public act counts with proper error handling
+        const { data: actCountsData, error: actCountsError } = await safeApiCall(
+          () => api.get('/stats/public-acts'),
+          'fetching public act counts',
+          API_RESPONSE_TYPES.STATS
+        );
+        
+        if (actCountsError) {
+          console.warn('Failed to fetch public act counts:', actCountsError);
+        }
+        setPublicActCounts(actCountsData || {});
+        
+      } catch (err) {
+        console.error('Error fetching additional data:', err);
+      } finally {
+        setDataLoading(prev => ({ ...prev, associates: false, stats: false }));
+      }
+    };
     
-    // Fetch role stats
-    api.get(`/stats/users/${user.id || user._id}`)
-      .then(res => setRoleStats(res.data))
-      .catch(() => setRoleStats(null));
-    
-    // Fetch public act counts
-    api.get('/stats/public-acts')
-      .then(res => setPublicActCounts(res.data))
-      .catch(() => setPublicActCounts({}));
-  }, [user]);
+    fetchAdditionalData();
+  }, [user, userId]);
 
   // Fetch public demand dares
   useEffect(() => {
@@ -285,16 +334,26 @@ export default function DarePerformerDashboard() {
       .finally(() => setSwitchGameActivityLoading(false));
   }, [activeTab]);
 
-  // Real-time updates for public dares
-  useEffect(() => {
-    const socket = io('/', {
-      autoConnect: true,
-      transports: ['websocket'],
+  // Real-time updates using custom hooks
+  const publicDaresRealtime = useSpecificRealtimeUpdates('dare', (dare) => {
+    setPublicDares(prev => [dare, ...prev]);
+  }, { enabled: activeTab === 'public' });
+
+  const activityRealtime = useActivityRealtimeUpdates((activity) => {
+    setSwitchGameActivityFeed(prev => [activity, ...prev.slice(0, 19)]); // Keep only 20 items
+  }, { enabled: activeTab === 'overview' });
+
+  // Real-time updates for switch games
+  const switchGamesRealtime = useSpecificRealtimeUpdates('switch_game', (game) => {
+    setMySwitchGames(prev => {
+      const existingIndex = prev.findIndex(g => g._id === game._id);
+      if (existingIndex >= 0) {
+        return prev.map((g, i) => i === existingIndex ? game : g);
+      } else {
+        return [game, ...prev];
+      }
     });
-    socket.on('public_dare_publish', dare => setPublicDares(prev => [dare, ...prev]));
-    socket.on('public_dare_unpublish', dareId => setPublicDares(prev => prev.filter(d => d._id !== dareId)));
-    return () => socket.disconnect();
-  }, []);
+  }, { enabled: activeTab === 'my-switch' });
 
   // Filter functions
   const filterDares = (dares) => {
@@ -524,7 +583,7 @@ export default function DarePerformerDashboard() {
     </div>
   );
 
-  // Action handlers
+  // Action handlers with improved error handling
   const handleClaimDare = async (dare) => {
     if (ongoing.length >= MAX_SLOTS) {
       showNotification('You have reached your maximum number of perform slots.', 'error');
@@ -536,16 +595,27 @@ export default function DarePerformerDashboard() {
       if (dare.difficulty) {
         params.append('difficulty', dare.difficulty);
       }
-      const res = await api.get(`/dares/random?${params.toString()}`);
-      if (res.data && Object.keys(res.data).length > 0) {
-        setOngoing(prev => [...prev, res.data]);
-        showNotification('Dare claimed successfully!', 'success');
+      
+      const { data: claimedDare, error } = await safeApiCall(
+        () => api.get(`/dares/random?${params.toString()}`),
+        'claiming dare',
+        API_RESPONSE_TYPES.DARE
+      );
+      
+      if (error) {
+        showNotification(error, 'error');
+        return;
+      }
+      
+      if (claimedDare && Object.keys(claimedDare).length > 0) {
+        setOngoing(prev => [...prev, claimedDare]);
+        showNotification(SUCCESS_MESSAGES.DARE_CREATED, 'success');
       } else {
         showNotification('No available dares found with the specified criteria.', 'error');
       }
     } catch (err) {
-      console.error('Claim dare error:', err);
-      showNotification(err.response?.data?.error || 'Failed to claim dare.', 'error');
+      const errorMessage = handleApiError(err, 'claiming dare');
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -554,13 +624,23 @@ export default function DarePerformerDashboard() {
     if (dareIdx === -1) return;
     
     try {
-      await api.post(`/dares/${ongoing[dareIdx]._id}/proof`, { text: 'Completed via dashboard.' });
+      const { error } = await safeApiCall(
+        () => api.post(`/dares/${ongoing[dareIdx]._id}/proof`, { text: 'Completed via dashboard.' }),
+        'completing dare',
+        API_RESPONSE_TYPES.DARE
+      );
+      
+      if (error) {
+        showNotification(error, 'error');
+        return;
+      }
+      
       setOngoing(prev => prev.filter((_, i) => i !== dareIdx));
       setCompleted(prev => [...prev, { ...ongoing[dareIdx], status: 'completed', completedAt: new Date() }]);
-      showNotification('Dare completed successfully!', 'success');
+      showNotification(SUCCESS_MESSAGES.DARE_COMPLETED, 'success');
     } catch (err) {
-      console.error('Complete dare error:', err);
-      showNotification(err.response?.data?.error || 'Failed to complete dare.', 'error');
+      const errorMessage = handleApiError(err, 'completing dare');
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -603,29 +683,67 @@ export default function DarePerformerDashboard() {
 
   const handleJoinSwitchGame = async (gameId) => {
     try {
-      await api.post(`/switches/${gameId}/join`, {
-        difficulty: 'titillating',
-        move: 'rock',
-        consent: true
-      });
-      showNotification('Successfully joined switch game!', 'success');
-      // Refresh switch games
-      const switchRes = await api.get('/switches/performer');
-      setMySwitchGames(Array.isArray(switchRes.data) ? switchRes.data : []);
+      const { error } = await safeApiCall(
+        () => api.post(`/switches/${gameId}/join`, {
+          difficulty: 'titillating',
+          move: 'rock',
+          consent: true
+        }),
+        'joining switch game',
+        API_RESPONSE_TYPES.SWITCH_GAME
+      );
+      
+      if (error) {
+        showNotification(error, 'error');
+        return;
+      }
+      
+      showNotification(SUCCESS_MESSAGES.SWITCH_GAME_JOINED, 'success');
+      
+      // Refresh switch games with proper error handling
+      const { data: updatedGames, error: refreshError } = await safeApiCall(
+        () => api.get('/switches/performer'),
+        'refreshing switch games',
+        API_RESPONSE_TYPES.SWITCH_GAME_ARRAY
+      );
+      
+      if (!refreshError) {
+        setMySwitchGames(updatedGames || []);
+      }
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to join switch game.', 'error');
+      const errorMessage = handleApiError(err, 'joining switch game');
+      showNotification(errorMessage, 'error');
     }
   };
 
   const handleSubmitSwitchProof = async (gameId, proofText) => {
     try {
-      await api.post(`/switches/${gameId}/proof`, { text: proofText });
-      showNotification('Proof submitted successfully!', 'success');
-      // Refresh switch games
-      const switchRes = await api.get('/switches/performer');
-      setMySwitchGames(Array.isArray(switchRes.data) ? switchRes.data : []);
+      const { error } = await safeApiCall(
+        () => api.post(`/switches/${gameId}/proof`, { text: proofText }),
+        'submitting switch game proof',
+        API_RESPONSE_TYPES.SWITCH_GAME
+      );
+      
+      if (error) {
+        showNotification(error, 'error');
+        return;
+      }
+      
+      showNotification(SUCCESS_MESSAGES.PROOF_SUBMITTED, 'success');
+      
+      // Refresh switch games with proper error handling
+      const { data: updatedGames, error: refreshError } = await safeApiCall(
+        () => api.get('/switches/performer'),
+        'refreshing switch games after proof submission',
+        API_RESPONSE_TYPES.SWITCH_GAME_ARRAY
+      );
+      
+      if (!refreshError) {
+        setMySwitchGames(updatedGames || []);
+      }
     } catch (err) {
-      showNotification(err.response?.data?.error || 'Failed to submit proof.', 'error');
+      const errorMessage = handleApiError(err, 'submitting switch game proof');
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -886,7 +1004,7 @@ export default function DarePerformerDashboard() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-6">Public Dares</h2>
             {filterAndSortAllDares(dedupeDaresByUser(publicDares))
-              .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+              .filter(dare => dare.creator?._id !== userId)
               .length === 0 ? (
               <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30 text-center">
                 <div className="text-neutral-400 text-lg">No public dares available.</div>
@@ -894,7 +1012,7 @@ export default function DarePerformerDashboard() {
             ) : (
               <div className="grid gap-4">
                 {filterAndSortAllDares(dedupeDaresByUser(publicDares))
-                  .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+                  .filter(dare => dare.creator?._id !== userId)
                   .map(dare => (
                     <div key={dare._id} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex items-center justify-between">
@@ -1087,7 +1205,7 @@ export default function DarePerformerDashboard() {
                       Complete
                     </button>
                   ]}
-                  currentUserId={user?.id || user?._id}
+                  currentUserId={userId}
                 />
               ))}
               
@@ -1124,7 +1242,7 @@ export default function DarePerformerDashboard() {
                   creator={dare.creator}
                   performer={dare.performer}
                   assignedSwitch={dare.assignedSwitch}
-                  currentUserId={user?.id || user?._id}
+                  currentUserId={userId}
                 />
               ))}
               
@@ -1256,11 +1374,11 @@ export default function DarePerformerDashboard() {
                     status={game.status}
                     creator={game.creator}
                     performer={game.participant}
-                    currentUserId={user?.id || user?._id}
+                    currentUserId={userId}
                     timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
                     actions={
                       <div className="flex items-center gap-2">
-                        {game.status === 'waiting_for_participant' && game.creator?._id === user?.id && (
+                        {game.status === 'waiting_for_participant' && game.creator?._id === userId && (
                           <button
                             onClick={() => navigate(`/switches/${game._id}/edit`)}
                             className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
@@ -1274,7 +1392,7 @@ export default function DarePerformerDashboard() {
                         >
                           View Details
                         </button>
-                        {game.status === 'waiting_for_participant' && game.creator?._id !== user?.id && (
+                        {game.status === 'waiting_for_participant' && game.creator?._id !== userId && (
                           <button
                             onClick={() => handleJoinSwitchGame(game._id)}
                             className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
@@ -1282,7 +1400,7 @@ export default function DarePerformerDashboard() {
                             Participate
                           </button>
                         )}
-                        {game.status === 'in_progress' && game.participant?._id === user?.id && (
+                        {game.status === 'in_progress' && game.participant?._id === userId && (
                           <button
                             onClick={() => navigate(`/switches/${game._id}/perform`)}
                             className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
@@ -1334,7 +1452,7 @@ export default function DarePerformerDashboard() {
                   status={game.status}
                   creator={game.creator}
                   performer={game.participant}
-                  currentUserId={user?.id || user?._id}
+                  currentUserId={userId}
                   timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
                   actions={
                     <button
@@ -1362,15 +1480,17 @@ export default function DarePerformerDashboard() {
     }
   ];
 
-  // Check if user is authenticated
-  if (!user) {
+  // Check if user is authenticated and has valid user ID
+  if (!user || !userId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center py-16">
             <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-8">
               <h2 className="text-2xl font-bold text-red-400 mb-4">Authentication Required</h2>
-              <p className="text-red-300 mb-4">Please log in to access the performer dashboard.</p>
+              <p className="text-red-300 mb-4">
+                {!user ? 'Please log in to access the performer dashboard.' : 'User data is invalid. Please log in again.'}
+              </p>
               <button
                 onClick={() => navigate('/login')}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors"

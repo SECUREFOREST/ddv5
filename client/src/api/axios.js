@@ -59,6 +59,9 @@ api.interceptors.response.use(
           setTimeout(() => {
             window.location.href = '/login';
           }, 100);
+        } else if (isAdminPage) {
+          // For admin pages, show a more specific error message
+          console.error('Admin authentication failed:', refreshErr);
         }
         
         return Promise.reject(refreshErr);

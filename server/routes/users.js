@@ -212,6 +212,16 @@ router.patch('/:id', auth, async (req, res) => {
       { new: true, runValidators: true }
     ).select('-password');
     
+    // Log audit if admin is updating another user
+    if (req.params.id !== req.userId) {
+      await logAudit({ 
+        action: 'update_user', 
+        user: req.userId, 
+        target: req.params.id,
+        details: { updatedFields: Object.keys(updates) }
+      });
+    }
+    
     res.json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user.' });

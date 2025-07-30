@@ -8,6 +8,9 @@ const permissions = {
   'view_audit_log': ['admin'],
   'resolve_report': ['admin', 'moderator'],
   'resolve_appeal': ['admin'],
+  'bulk_operations': ['admin'],
+  'view_site_stats': ['admin'],
+  'manage_switch_games': ['admin'],
   // Add more as needed
 };
 
