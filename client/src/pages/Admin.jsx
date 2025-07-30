@@ -206,28 +206,17 @@ function Admin() {
 
   // Fetch site statistics
   const fetchSiteStats = useCallback(() => {
-    console.log('fetchSiteStats called');
-    if (!checkAdminPermission()) return;
-    
-    setSiteStatsLoading(true);
-    setSiteStatsError('');
+    setApiStatus(prev => ({ ...prev, siteStats: 'loading' }));
     api.get('/stats/site')
       .then(res => {
         setSiteStats(res.data);
+        setApiStatus(prev => ({ ...prev, siteStats: 'success' }));
       })
-      .catch((error) => {
-        setSiteStats(null);
-        const errorType = handleApiError(error, 'load site statistics');
-        if (errorType === 'permission_denied') {
-          setSiteStatsError('Access denied. You may not have permission to view site statistics.');
-        } else if (errorType === 'timeout') {
-          setSiteStatsError('Request timed out. Please try again.');
-        } else {
-          setSiteStatsError('Failed to load site statistics.');
-        }
-      })
-      .finally(() => setSiteStatsLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, siteStats: 'error' }));
+        handleApiError(err, 'load site stats');
+      });
+  }, [handleApiError]);
 
   // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
@@ -248,104 +237,70 @@ function Admin() {
       .finally(() => setDataLoading(false));
   }, [checkAdminPermission, handleApiError]);
 
-  const fetchDares = useCallback((searchId = "") => {
-    if (!checkAdminPermission()) return;
-    
-    setDaresLoading(true);
-    api.get('/dares', { params: { search: searchId } })
+  const fetchDares = useCallback(() => {
+    setApiStatus(prev => ({ ...prev, dares: 'loading' }));
+    api.get('/dares')
       .then(res => {
-        setDares(Array.isArray(res.data) ? res.data : []);
+        setDares(res.data);
+        setApiStatus(prev => ({ ...prev, dares: 'success' }));
       })
-      .catch((error) => {
-        setDares([]);
-        handleApiError(error, 'load dares');
-      })
-      .finally(() => setDaresLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, dares: 'error' }));
+        handleApiError(err, 'load dares');
+      });
+  }, [handleApiError]);
 
   const fetchReports = useCallback(() => {
-    if (!checkAdminPermission()) return;
-    
-    setReportsLoading(true);
-    setReportsError('');
+    setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     api.get('/reports')
       .then(res => {
-        setReports(Array.isArray(res.data) ? res.data : []);
+        setReports(res.data);
+        setApiStatus(prev => ({ ...prev, reports: 'success' }));
       })
-      .catch((error) => {
-        setReports([]);
-        const errorType = handleApiError(error, 'load reports');
-        if (errorType === 'permission_denied') {
-          setReportsError('Access denied. You may not have permission to view reports.');
-        } else if (errorType === 'timeout') {
-          setReportsError('Request timed out. Please try again.');
-        } else {
-          setReportsError('Failed to load reports. Please try again.');
-        }
-      })
-      .finally(() => setReportsLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, reports: 'error' }));
+        handleApiError(err, 'load reports');
+      });
+  }, [handleApiError]);
 
   const fetchAppeals = useCallback(() => {
-    if (!checkAdminPermission()) return;
-    
-    setAppealsLoading(true);
-    setAppealsError('');
+    setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     api.get('/appeals')
       .then(res => {
-        setAppeals(Array.isArray(res.data) ? res.data : []);
+        setAppeals(res.data);
+        setApiStatus(prev => ({ ...prev, appeals: 'success' }));
       })
-      .catch((error) => {
-        setAppeals([]);
-        const errorType = handleApiError(error, 'load appeals');
-        if (errorType === 'permission_denied') {
-          setAppealsError('Access denied. You may not have permission to view appeals.');
-        } else if (errorType === 'timeout') {
-          setAppealsError('Request timed out. Please try again.');
-        } else {
-          setAppealsError('Failed to load appeals. Please try again.');
-        }
-      })
-      .finally(() => setAppealsLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, appeals: 'error' }));
+        handleApiError(err, 'load appeals');
+      });
+  }, [handleApiError]);
 
   const fetchAuditLog = useCallback(() => {
-    if (!checkAdminPermission()) return;
-    
-    setAuditLogLoading(true);
+    setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     api.get('/audit-log')
       .then(res => {
-        setAuditLog(Array.isArray(res.data) ? res.data : []);
+        setAuditLog(res.data);
+        setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
       })
-      .catch((error) => {
-        setAuditLog([]);
-        const errorType = handleApiError(error, 'load audit log');
-        if (errorType === 'permission_denied') {
-          setAuditLogError('Access denied. You may not have permission to view audit log.');
-        } else if (errorType === 'timeout') {
-          setAuditLogError('Request timed out. Please try again.');
-        } else {
-          setAuditLogError('Failed to load audit log.');
-        }
-      })
-      .finally(() => setAuditLogLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
+        handleApiError(err, 'load audit log');
+      });
+  }, [handleApiError]);
 
-  const fetchSwitchGames = useCallback((searchId = "") => {
-    if (!checkAdminPermission()) return;
-    
-    setSwitchGamesLoading(true);
-    api.get('/switches', { params: { search: searchId } })
+  const fetchSwitchGames = useCallback(() => {
+    setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
+    api.get('/switches')
       .then(res => {
-        setSwitchGames(Array.isArray(res.data) ? res.data : []);
+        setSwitchGames(res.data);
+        setApiStatus(prev => ({ ...prev, switchGames: 'success' }));
       })
-      .catch((error) => {
-        setSwitchGames([]);
-        console.log('Switch games fetch error:', error.response?.data || error.message);
-        handleApiError(error, 'load switch games');
-      })
-      .finally(() => setSwitchGamesLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
+        handleApiError(err, 'load switch games');
+      });
+  }, [handleApiError]);
   
   // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
