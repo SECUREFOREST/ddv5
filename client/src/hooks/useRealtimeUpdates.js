@@ -26,13 +26,24 @@ export function useRealtimeUpdates({
     if (!enabled || socketRef.current) return;
 
     try {
+      // Get authentication token
+      const accessToken = localStorage.getItem('accessToken');
+      
+      if (!accessToken) {
+        console.log('No access token found, skipping WebSocket connection');
+        return;
+      }
+
       socketRef.current = io(endpoint, {
         autoConnect: true,
         transports: ['websocket', 'polling'],
         timeout: 5000,
         reconnection: true,
         reconnectionAttempts: 5,
-        reconnectionDelay: 1000
+        reconnectionDelay: 1000,
+        auth: {
+          token: accessToken
+        }
       });
 
       // Set up event listeners
