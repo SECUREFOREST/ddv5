@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 const Appeal = require('../models/Appeal');
 const User = require('../models/User');
 const { logAudit } = require('../utils/auditLog');
@@ -7,7 +8,7 @@ const { checkPermission } = require('../utils/permissions');
 const { body, validationResult, param } = require('express-validator');
 
 // POST /appeals - user submits an appeal
-router.post('/',
+router.post('/', auth,
   [
     body('type')
       .isString().withMessage('Type must be a string.')
@@ -41,7 +42,7 @@ router.post('/',
 );
 
 // GET /appeals - admin lists all appeals
-router.get('/', checkPermission('resolve_appeal'), async (req, res) => {
+router.get('/', auth, checkPermission('resolve_appeal'), async (req, res) => {
   try {
     const appeals = await Appeal.find().populate('user', 'username email').sort({ createdAt: -1 });
     res.json(appeals);
@@ -53,6 +54,7 @@ router.get('/', checkPermission('resolve_appeal'), async (req, res) => {
 // PATCH /appeals/:id - admin resolves an appeal
 router.patch('/:id',
   [param('id').isMongoId(), body('outcome').isString().isLength({ min: 2, max: 200 }).trim().escape()],
+  auth,
   checkPermission('resolve_appeal'),
   async (req, res) => {
     const errors = validationResult(req);

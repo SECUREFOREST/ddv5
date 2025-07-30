@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 const Report = require('../models/Report');
 const User = require('../models/User');
 const { logAudit } = require('../utils/auditLog');
@@ -7,7 +8,7 @@ const { checkPermission } = require('../utils/permissions');
 const { body, validationResult, param } = require('express-validator');
 
 // GET /reports - list all reports
-router.get('/', checkPermission('resolve_report'), async (req, res) => {
+router.get('/', auth, checkPermission('resolve_report'), async (req, res) => {
   try {
     const reports = await Report.find().populate('reporter', 'username email').sort({ createdAt: -1 });
     res.json(reports);
@@ -17,7 +18,7 @@ router.get('/', checkPermission('resolve_report'), async (req, res) => {
 });
 
 // POST /reports - user submits a report (for dares or comments)
-router.post('/',
+router.post('/', auth,
   [
     body('type')
       .isString().withMessage('Type must be a string.')
@@ -56,6 +57,7 @@ router.post('/',
 // PATCH /reports/:id - resolve a report
 router.patch('/:id',
   [param('id').isMongoId()],
+  auth,
   checkPermission('resolve_report'),
   async (req, res) => {
     const errors = validationResult(req);
