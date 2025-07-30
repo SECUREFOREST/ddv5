@@ -733,6 +733,36 @@ export default function DarePerformerDashboard() {
             </div>
           </div>
 
+          {/* Associates */}
+          {associates.length > 0 && (
+            <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
+              <h3 className="text-lg font-semibold text-white mb-4">Associates</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {associates.slice(0, 6).map((associate, idx) => (
+                  <div key={associate._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                    <div className="flex items-center gap-3">
+                      <Avatar user={associate} size={32} />
+                      <div className="flex-1">
+                        <div className="font-semibold text-white text-sm">{associate.fullName || associate.username}</div>
+                        <div className="text-xs text-neutral-400">@{associate.username}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {associates.length > 6 && (
+                <div className="text-center mt-4">
+                  <button 
+                    onClick={() => navigate('/associates')}
+                    className="text-primary hover:text-primary-light text-sm font-medium"
+                  >
+                    View all {associates.length} associates
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stats Dashboard */}
           {roleStats && (
             <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
@@ -791,6 +821,7 @@ export default function DarePerformerDashboard() {
                 Filters
               </button>
             </div>
+            
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <select
@@ -802,6 +833,7 @@ export default function DarePerformerDashboard() {
                   <option value="in_progress">In Progress</option>
                   <option value="waiting_for_participant">Waiting</option>
                 </select>
+                
                 <select
                   value={filters.difficulty}
                   onChange={(e) => setFilters(prev => ({ ...prev, difficulty: e.target.value }))}
@@ -812,6 +844,7 @@ export default function DarePerformerDashboard() {
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+                
                 <input
                   type="text"
                   placeholder="Search dares..."
@@ -819,6 +852,7 @@ export default function DarePerformerDashboard() {
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
+                
                 <button
                   onClick={() => setFilters({ status: '', difficulty: '', type: '', search: '' })}
                   className="flex items-center justify-center gap-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg px-3 py-2 transition-colors"
@@ -829,6 +863,34 @@ export default function DarePerformerDashboard() {
               </div>
             )}
           </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <button
+              onClick={() => navigate('/dare/select')}
+              className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              Perform New Dare
+            </button>
+            
+            <button
+              onClick={() => navigate('/dare/create')}
+              className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              Create Dare
+            </button>
+            
+            <button
+              onClick={() => navigate('/public-dares')}
+              className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <SparklesIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              Browse Public Dares
+            </button>
+          </div>
+
           {/* Dares List */}
           {dataLoading.ongoing ? (
             <div className="space-y-4">
@@ -865,6 +927,7 @@ export default function DarePerformerDashboard() {
                   currentUserId={user?.id || user?._id}
                 />
               ))}
+              
               {filterDares(ongoing).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
@@ -901,6 +964,7 @@ export default function DarePerformerDashboard() {
                   currentUserId={user?.id || user?._id}
                 />
               ))}
+              
               {filterDares(completed).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
@@ -923,7 +987,37 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Public Dares</h3>
+            
+            {/* Advanced Filters */}
             {renderAdvancedFilters()}
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <button
+                onClick={() => navigate('/dare/select')}
+                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Perform Random Dare
+              </button>
+              
+              <button
+                onClick={() => navigate('/dare/create')}
+                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Create Public Dare
+              </button>
+              
+              <button
+                onClick={() => navigate('/subs/new')}
+                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Submit Offer
+              </button>
+            </div>
+            
             <div className="space-y-4">
               {filterAndSortAllDares(dedupeDaresByUser(publicDares))
                 .filter(dare => dare.creator?._id !== (user?.id || user?._id))
@@ -949,6 +1043,7 @@ export default function DarePerformerDashboard() {
                     currentUserId={user?.id || user?._id}
                   />
                 ))}
+              
               {filterAndSortAllDares(dedupeDaresByUser(publicDares))
                 .filter(dare => dare.creator?._id !== (user?.id || user?._id))
                 .length === 0 && (
@@ -973,7 +1068,53 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">My Switch Games</h3>
+            
+            {/* Advanced Filters */}
             {renderSwitchGameFilters()}
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <button
+                onClick={() => navigate('/switches')}
+                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Browse Switch Games
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/create')}
+                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Create Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/participate')}
+                className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Participate in Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/join')}
+                className="group bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl p-4 font-semibold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Join Switch Game
+              </button>
+              
+              <button
+                onClick={() => navigate('/switches/history')}
+                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <TrophyIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                View History
+              </button>
+            </div>
+            
             <div className="space-y-4">
               {filterAndSortSwitchGames(mySwitchGames.filter(game => game.status !== 'completed'))
                 .map((game, idx) => (
