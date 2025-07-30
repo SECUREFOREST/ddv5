@@ -89,28 +89,64 @@ export default function UserActivity() {
     setDataLoaded(false);
   }, [user]);
 
-  // Compute stats from loaded data
-  const dareTotal = activeDares.length + historyDares.length;
-  const dareCompleted = historyDares.filter(d => d.status === 'completed').length;
-  const dareForfeited = historyDares.filter(d => d.status === 'forfeited').length;
-  const dareExpired = historyDares.filter(d => d.status === 'expired').length;
-  const dareAvgGrade = (() => {
-    const grades = historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number');
-    return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
-  })();
-  const dareCompletionRate = dareTotal ? ((dareCompleted / dareTotal) * 100).toFixed(1) + '%' : 'N/A';
+  // Compute stats from loaded data with memoization
+  const stats = useMemo(() => {
+    const dareTotal = activeDares.length + historyDares.length;
+    const dareCompleted = historyDares.filter(d => d.status === 'completed').length;
+    const dareForfeited = historyDares.filter(d => d.status === 'forfeited').length;
+    const dareExpired = historyDares.filter(d => d.status === 'expired').length;
+    const dareAvgGrade = (() => {
+      const grades = historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number');
+      return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
+    })();
+    const dareCompletionRate = dareTotal ? ((dareCompleted / dareTotal) * 100).toFixed(1) + '%' : 'N/A';
 
-  const switchTotal = activeSwitchGames.length + historySwitchGames.length;
-  const switchCompleted = historySwitchGames.filter(g => g.status === 'completed').length;
-  const switchForfeited = historySwitchGames.filter(g => g.status === 'forfeited').length;
-  const switchExpired = historySwitchGames.filter(g => g.status === 'expired').length;
-  const switchWins = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
-  const switchLosses = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
-  const switchAvgGrade = (() => {
-    const grades = historySwitchGames.flatMap(g => (g.grades || []).map(gr => gr.grade)).filter(g => typeof g === 'number');
-    return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
-  })();
-  const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
+    const switchTotal = activeSwitchGames.length + historySwitchGames.length;
+    const switchCompleted = historySwitchGames.filter(g => g.status === 'completed').length;
+    const switchForfeited = historySwitchGames.filter(g => g.status === 'forfeited').length;
+    const switchExpired = historySwitchGames.filter(g => g.status === 'expired').length;
+    const switchWins = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
+    const switchLosses = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
+    const switchAvgGrade = (() => {
+      const grades = historySwitchGames.flatMap(g => (g.grades || []).map(gr => gr.grade)).filter(g => typeof g === 'number');
+      return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
+    })();
+    const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
+
+    return {
+      dareTotal,
+      dareCompleted,
+      dareForfeited,
+      dareExpired,
+      dareAvgGrade,
+      dareCompletionRate,
+      switchTotal,
+      switchCompleted,
+      switchForfeited,
+      switchExpired,
+      switchWins,
+      switchLosses,
+      switchAvgGrade,
+      switchCompletionRate
+    };
+  }, [activeDares, historyDares, activeSwitchGames, historySwitchGames, user]);
+
+  const {
+    dareTotal,
+    dareCompleted,
+    dareForfeited,
+    dareExpired,
+    dareAvgGrade,
+    dareCompletionRate,
+    switchTotal,
+    switchCompleted,
+    switchForfeited,
+    switchExpired,
+    switchWins,
+    switchLosses,
+    switchAvgGrade,
+    switchCompletionRate
+  } = stats;
 
   // Compute bar chart data for dares and switch games completed per month (last 6 months)
   const getMonthKey = (dateStr) => {
