@@ -173,6 +173,7 @@ function Admin() {
 
   // Fetch site statistics
   const fetchSiteStats = useCallback(() => {
+    console.log('fetchSiteStats called');
     if (!checkAdminPermission()) return;
     
     setSiteStatsLoading(true);
