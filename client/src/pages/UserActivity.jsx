@@ -149,46 +149,71 @@ export default function UserActivity() {
   } = stats;
 
   // Compute bar chart data for dares and switch games completed per month (last 6 months)
-  const getMonthKey = (dateStr) => {
-    const date = new Date(dateStr);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  };
+  const chartData = useMemo(() => {
+    const getMonthKey = (dateStr) => {
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    };
 
-  const last6Months = Array.from({ length: 6 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - i);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  }).reverse();
+    const last6Months = Array.from({ length: 6 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    }).reverse();
 
-  const dareMonthlyData = last6Months.map(month => ({
-    month,
-    count: historyDares.filter(d => d.status === 'completed' && getMonthKey(d.completedAt) === month).length
-  }));
+    const dareMonthlyData = last6Months.map(month => ({
+      month,
+      count: historyDares.filter(d => d.status === 'completed' && getMonthKey(d.completedAt) === month).length
+    }));
 
-  const switchMonthlyData = last6Months.map(month => ({
-    month,
-    count: historySwitchGames.filter(g => g.status === 'completed' && getMonthKey(g.completedAt) === month).length
-  }));
+    const switchMonthlyData = last6Months.map(month => ({
+      month,
+      count: historySwitchGames.filter(g => g.status === 'completed' && getMonthKey(g.completedAt) === month).length
+    }));
 
-  const barData = {
-    labels: last6Months.map(m => new Date(m + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })),
-    datasets: [
-      {
-        label: 'Dares Completed',
-        data: dareMonthlyData.map(d => d.count),
-        backgroundColor: 'rgba(147, 51, 234, 0.8)',
-        borderColor: 'rgba(147, 51, 234, 1)',
-        borderWidth: 1,
+    return {
+      barData: {
+        labels: last6Months.map(m => new Date(m + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })),
+        datasets: [
+          {
+            label: 'Dares Completed',
+            data: dareMonthlyData.map(d => d.count),
+            backgroundColor: 'rgba(147, 51, 234, 0.8)',
+            borderColor: 'rgba(147, 51, 234, 1)',
+            borderWidth: 1,
+          },
+          {
+            label: 'Switch Games Completed',
+            data: switchMonthlyData.map(d => d.count),
+            backgroundColor: 'rgba(236, 72, 153, 0.8)',
+            borderColor: 'rgba(236, 72, 153, 1)',
+            borderWidth: 1,
+          },
+        ],
       },
-      {
-        label: 'Switch Games Completed',
-        data: switchMonthlyData.map(d => d.count),
-        backgroundColor: 'rgba(236, 72, 153, 0.8)',
-        borderColor: 'rgba(236, 72, 153, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
+      pieData: {
+        labels: ['Completed', 'Forfeited', 'Expired'],
+        datasets: [
+          {
+            data: [dareCompleted + switchCompleted, dareForfeited + switchForfeited, dareExpired + switchExpired],
+            backgroundColor: [
+              'rgba(34, 197, 94, 0.8)',
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(156, 163, 175, 0.8)',
+            ],
+            borderColor: [
+              'rgba(34, 197, 94, 1)',
+              'rgba(239, 68, 68, 1)',
+              'rgba(156, 163, 175, 1)',
+            ],
+            borderWidth: 1,
+          },
+        ],
+      }
+    };
+  }, [historyDares, historySwitchGames, dareCompleted, switchCompleted, dareForfeited, switchForfeited, dareExpired, switchExpired]);
+
+  const { barData, pieData } = chartData;
 
   const barOptions = {
     responsive: true,
@@ -221,25 +246,7 @@ export default function UserActivity() {
     },
   };
 
-  const pieData = {
-    labels: ['Completed', 'Forfeited', 'Expired'],
-    datasets: [
-      {
-        data: [dareCompleted + switchCompleted, dareForfeited + switchForfeited, dareExpired + switchExpired],
-        backgroundColor: [
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(239, 68, 68, 0.8)',
-          'rgba(156, 163, 175, 0.8)',
-        ],
-        borderColor: [
-          'rgba(34, 197, 94, 1)',
-          'rgba(239, 68, 68, 1)',
-          'rgba(156, 163, 175, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+
 
   const pieOptions = {
     responsive: true,
