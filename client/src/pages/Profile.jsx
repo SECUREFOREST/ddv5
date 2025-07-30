@@ -384,10 +384,10 @@ export default function Profile() {
   };
 
   const handleAvatarClick = () => {
-    console.log('Avatar click handler triggered');
+    console.log('Avatar clicked!'); // Debug log
     if (fileInputRef.current) {
       fileInputRef.current.click();
-      console.log('File input clicked via ref');
+      console.log('File input clicked'); // Debug log
     } else {
       console.error('Avatar upload input ref not found');
       showError('Avatar upload not available. Please refresh the page.');
@@ -414,10 +414,8 @@ export default function Profile() {
   };
 
   const handleAvatarChange = async (e) => {
-    console.log('Avatar change event triggered', e.target.files);
     const file = e.target.files[0];
     if (file) {
-      console.log('File selected:', file.name, file.size, file.type);
       if (!validateFile(file)) {
         return;
       }
@@ -533,16 +531,15 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar Section */}
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="relative group">
+              <div className="relative group" onClick={handleAvatarClick}>
                 <Avatar 
                   user={user} 
                   size={120} 
                   border={true} 
                   shadow={true}
-                  onClick={handleAvatarClick}
                   className="cursor-pointer hover:scale-105 transition-transform duration-200"
                 />
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center pointer-events-none">
                   <PencilIcon className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -555,6 +552,8 @@ export default function Profile() {
                 accept="image/*"
                 onChange={handleAvatarChange}
                 className="hidden"
+                aria-label="Upload profile picture"
+                title="Upload profile picture"
               />
               
               {/* Upload Progress */}

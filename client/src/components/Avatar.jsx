@@ -63,7 +63,6 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
   const bgColor = user ? `bg-${getUserColor(user)}` : 'bg-neutral-600';
 
   const handleClick = (e) => {
-    console.log('Avatar component clicked');
     if (onClick) {
       onClick(e);
     }
@@ -82,6 +81,8 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
           onLoad={handleImageLoad}
           loading="lazy"
           crossOrigin="anonymous"
+          onClick={(e) => e.stopPropagation()}
+          style={{ pointerEvents: 'none' }}
         />
       ) : (
         <div className={`w-full h-full rounded-full flex items-center justify-center text-sm font-semibold ${bgColor}`}>
