@@ -12,7 +12,8 @@ console.warn = (...args) => {
   if (args[0] && typeof args[0] === 'string' && 
       (args[0].includes('window.styleMedia') || 
        args[0].includes('Layout was forced before the page was fully loaded') ||
-       args[0].includes('hydration'))) {
+       args[0].includes('hydration') ||
+       args[0].includes('FOUC'))) {
     return;
   }
   originalWarn.apply(console, args);

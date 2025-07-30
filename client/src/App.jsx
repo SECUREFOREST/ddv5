@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import BottomNavigation from './components/BottomNavigation';
@@ -48,6 +48,27 @@ function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const { toasts, removeToast } = useToast();
+  const [stylesLoaded, setStylesLoaded] = useState(false);
+
+  // Handle styles loading
+  useEffect(() => {
+    // Remove the loading screen and show content when styles are ready
+    const timer = setTimeout(() => {
+      setStylesLoaded(true);
+      // Remove the loading div from DOM
+      const loadingDiv = document.querySelector('.app-loading');
+      if (loadingDiv) {
+        loadingDiv.remove();
+      }
+      // Add loaded class to root
+      const root = document.getElementById('root');
+      if (root) {
+        root.classList.add('app-content', 'loaded');
+      }
+    }, 100); // Small delay to ensure styles are loaded
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Save current path to localStorage (excluding auth pages)
   useEffect(() => {
@@ -61,12 +82,24 @@ function AppContent() {
   const hideNavbarPaths = ['/', '/login', '/register'];
   const showNavbar = user || !hideNavbarPaths.includes(location.pathname);
 
+  // Show loading state while styles are loading
+  if (!stylesLoaded) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#060606]">
       {showNavbar && <Navbar />}
       <main className="flex-1 pb-20 lg:pb-0">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[50vh]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                <div className="text-white/60">Loading...</div>
+              </div>
+            </div>
+          }>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
