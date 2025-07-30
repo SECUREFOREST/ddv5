@@ -4,11 +4,9 @@ import { useToast } from '../components/Toast';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';
-
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { UserIcon, ShieldCheckIcon, PencilIcon, NoSymbolIcon, ExclamationTriangleIcon, ArrowPathIcon, CheckCircleIcon, ArrowRightOnRectangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
-import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
@@ -40,7 +38,7 @@ export default function Profile() {
   const [userActivities, setUserActivities] = useState([]);
   const [userActivitiesLoading, setUserActivitiesLoading] = useState(true);
   const [blockedUsersInfo, setBlockedUsersInfo] = useState([]);
-  const [unblockStatus, setUnblockStatus] = useState({}); // { userId: 'idle' | 'unblocking' | 'error' }
+  const [unblockStatus, setUnblockStatus] = useState({});
   const [gender, setGender] = useState(user?.gender || '');
   const [dob, setDob] = useState(user?.dob ? user.dob.slice(0, 10) : '');
   const [interestedIn, setInterestedIn] = useState(user?.interestedIn || []);
@@ -53,15 +51,9 @@ export default function Profile() {
   const [uploadError, setUploadError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [generalSuccess, setGeneralSuccess] = useState('');
-  // Add block/unblock state
   const [blocking, setBlocking] = useState(false);
   const [blockError, setBlockError] = useState('');
   const [isBlocked, setIsBlocked] = useState(user?.blocked || false);
-  // Add role tab state
-  // Prepare stub stats for dominant/submissive
-  const dominantStats = stats?.natures?.dominant || { withEveryone: {}, withYou: {}, tasks: [] };
-  const submissiveStats = stats?.natures?.submissive || { withEveryone: {}, withYou: {}, tasks: [] };
-  // Add state for content deletion setting
   const [contentDeletion, setContentDeletion] = useState('');
   const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
   const [contentDeletionError, setContentDeletionError] = useState('');
@@ -91,24 +83,7 @@ export default function Profile() {
     }
   }, [user]);
 
-  // Reset refs when user changes
-  useEffect(() => {
-    if (user) {
-      formInitializedRef.current = false;
-      userRefreshedRef.current = false;
-      statsFetchedRef.current = false;
-      blockedUsersFetchedRef.current = false;
-    }
-  }, [user?._id]); // Only reset when user ID changes
-
-  // Debug file input ref
-  useEffect(() => {
-    console.log('File input ref:', fileInputRef.current);
-  }, [fileInputRef.current]);
-
-
-
-  // Form validation - define before handleSave
+  // Form validation
   const validateForm = () => {
     const errors = {};
     if (!username.trim()) errors.username = 'Username is required';
@@ -119,7 +94,7 @@ export default function Profile() {
     return errors;
   };
 
-  // Define handleSave function before it's used in useEffect
+  // Handle save
   const handleSave = useCallback(async (e, isAutoSave = false) => {
     if (e) e.preventDefault();
     
@@ -128,7 +103,7 @@ export default function Profile() {
       return;
     }
     
-    const userId = getUserId(user);
+    const userId = user?.id || user?._id;
     if (!userId) {
       showError('User ID not found. Please refresh and try again.');
       return;
@@ -154,7 +129,6 @@ export default function Profile() {
         showSuccess('Profile auto-saved!');
       } else {
         showSuccess('Profile updated successfully!');
-        // Update user object without reloading
         const updatedUser = { ...user, username, bio, gender, dob, interestedIn, limits, fullName };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -164,30 +138,7 @@ export default function Profile() {
     } finally {
       setSaving(false);
     }
-  }, [user, username, avatar, bio, gender, dob, interestedIn, limits, fullName, setUser, validateForm]); // Removed showError and showSuccess from dependencies
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-          case 's':
-            e.preventDefault();
-            if (editMode) {
-              handleSave(e);
-            }
-            break;
-          case 'e':
-            e.preventDefault();
-            setEditMode(!editMode);
-            break;
-        }
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [editMode, handleSave]);
+  }, [user, username, avatar, bio, gender, dob, interestedIn, limits, fullName, setUser]);
 
   // Track form changes for auto-save
   const handleFormChange = (field, value) => {
@@ -217,33 +168,6 @@ export default function Profile() {
     }
   };
 
-  // Refresh user data on mount to ensure we have the latest data
-  const userRefreshedRef = useRef(false);
-  useEffect(() => {
-    if (user && (user.id || user._id)) {
-      const userId = user.id || user._id;
-      
-      // Prevent multiple refreshes for the same user
-      if (userRefreshedRef.current === userId) return;
-      userRefreshedRef.current = userId;
-      
-      setStatsLoading(true);
-      api.get(`/users/${userId}`)
-        .then(res => {
-          const updatedUser = res.data;
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-        })
-        .catch(err => {
-          console.error('Failed to refresh user data:', err);
-          showError('Failed to refresh profile data. Please try again.');
-        })
-        .finally(() => {
-          setStatsLoading(false);
-        });
-    }
-  }, [user]); // Removed setUser and showError from dependencies
-
   // Fetch content deletion setting on mount
   useEffect(() => {
     setContentDeletionLoading(true);
@@ -269,21 +193,11 @@ export default function Profile() {
     }
   };
 
-  // Helper function to get user ID consistently
-  const getUserId = (user) => {
-    return user?.id || user?._id || user?.userId;
-  };
-
   // Fetch user stats
-  const statsFetchedRef = useRef(false);
   useEffect(() => {
     if (!user) return;
-    const userId = getUserId(user);
+    const userId = user?.id || user?._id;
     if (!userId) return;
-    
-    // Prevent multiple fetches for the same user
-    if (statsFetchedRef.current === userId) return;
-    statsFetchedRef.current = userId;
     
     setStatsLoading(true);
     setUserActivitiesLoading(true);
@@ -313,75 +227,7 @@ export default function Profile() {
       setStatsLoading(false);
       setUserActivitiesLoading(false);
     });
-  }, [user]); // Removed showError from dependencies to prevent infinite loop
-
-  // Fetch blocked users info
-  const blockedUsersFetchedRef = useRef(false);
-  useEffect(() => {
-    if (loading) return;
-    if (!user) return;
-    
-    // Prevent multiple fetches for the same user
-    if (blockedUsersFetchedRef.current === user._id) return;
-    blockedUsersFetchedRef.current = user._id;
-    
-    // Fetch info for blocked users with loading state
-    if (user.blockedUsers && user.blockedUsers.length > 0) {
-      setUserActivitiesLoading(true);
-      Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
-        .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data)))
-        .catch((error) => {
-          console.error('Failed to load blocked users:', error);
-          setBlockedUsersInfo([]);
-          showError('Failed to load blocked users information.');
-        })
-        .finally(() => setUserActivitiesLoading(false));
-    } else {
-      setBlockedUsersInfo([]);
-    }
-  }, [user, loading]); // Removed showError from dependencies
-
-
-
-
-
-  // Auto-save with debouncing
-  useEffect(() => {
-    if (!editMode || !hasUnsavedChanges) return;
-    
-    const timeoutId = setTimeout(() => {
-      const errors = validateForm();
-      if (Object.keys(errors).length === 0) {
-        handleSave(null, true); // Auto-save
-      }
-    }, 2000); // 2 second delay
-    
-    return () => clearTimeout(timeoutId);
-  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, handleSave]);
-
-
-
-  const handleUnblock = async (blockedUserId) => {
-    setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
-    try {
-      await api.post(`/users/${blockedUserId}/unblock`);
-      // Remove from local blockedUsers and blockedUsersInfo
-      if (user && user.blockedUsers) {
-        const idx = user.blockedUsers.indexOf(blockedUserId);
-        if (idx !== -1) user.blockedUsers.splice(idx, 1);
-      }
-      setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
-      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
-      showSuccess('User unblocked successfully!');
-    } catch (err) {
-      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
-      showError(err.response?.data?.error || 'Failed to unblock user.');
-    }
-  };
-
-  const handleInterestedIn = (val) => {
-    setInterestedIn(prev => prev.includes(val) ? prev.filter(i => i !== val) : [...prev, val]);
-  };
+  }, [user]);
 
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
@@ -513,512 +359,248 @@ export default function Profile() {
     );
   }
 
-  // Compute role percentages
-  const dominantPercent = user?.natureRatio?.domination ?? null;
-  const submissivePercent = user?.natureRatio?.submission ?? null;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-      
-      <main id="main-content" tabIndex="-1" role="main">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            {/* Avatar Section */}
-            <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="relative group" onClick={handleAvatarClick}>
-                <Avatar 
-                  user={user} 
-                  size={80} 
-                  border={true} 
-                  shadow={true}
-                  className="cursor-pointer hover:scale-105 transition-transform duration-200"
-                />
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center pointer-events-none">
-                  <PencilIcon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              
-              {/* Avatar Upload */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                id="avatar-upload"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-                aria-label="Upload profile picture"
-                title="Upload profile picture"
-              />
-              
-              {/* Upload Progress */}
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="w-full bg-neutral-700 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-              )}
-              
-              {/* Upload Status Messages */}
-              {avatarSaved && (
-                <div className="text-green-400 text-sm font-semibold flex items-center gap-2 mt-2">
-                  <CheckCircleIcon className="w-4 h-4" />
-                  Avatar saved!
-                </div>
-              )}
-              
-              {uploadError && (
-                <div className="text-red-400 text-sm font-semibold flex items-center gap-2 mt-2">
-                  <ExclamationTriangleIcon className="w-4 h-4" />
-                  {uploadError}
-                </div>
-              )}
-            </div>
-
-            {/* User Info */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                <h1 className="text-3xl font-bold text-white">{user?.fullName || user?.username}</h1>
-                {user?.roles && user.roles.length > 0 && (
-                  <RoleBadge roles={user.roles} />
-                )}
-              </div>
-              
-              <div className="flex items-center justify-center md:justify-start gap-4 mb-4 text-sm text-neutral-400">
-                <span>@{user?.username}</span>
-                {user?.gender && (
-                  <span>• {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}</span>
-                )}
-                {user?.dob && (
-                  <span>• {new Date(user.dob).getFullYear()}</span>
-                )}
-              </div>
-              
-              {bio && (
-                <p className="text-neutral-300 mb-4 max-w-2xl">
-                  {bio}
-                </p>
-              )}
-              
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <button
-                  onClick={() => setEditMode(!editMode)}
-                  className="group bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-lg px-4 py-2 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95"
-                >
-                  <PencilIcon className="w-4 h-4" />
-                  {editMode ? 'Cancel Edit' : 'Edit Profile'}
-                  <span className="text-xs opacity-60 group-hover:opacity-100 transition-opacity">
-                    (Ctrl+E)
-                  </span>
-                </button>
-                
-                {isBlocked && (
-                  <div className="bg-red-900/20 border border-red-800/30 rounded-lg px-4 py-2 text-red-300 flex items-center gap-2">
-                    <ExclamationTriangleIcon className="w-4 h-4" />
-                    Account Blocked
-                  </div>
-                )}
-              </div>
-              
-              {/* Keyboard Shortcuts Hint */}
-              {editMode && (
-                <div className="text-xs text-neutral-400 mt-2 flex items-center gap-4">
-                  <span>💡 Keyboard shortcuts: Ctrl+S to save, Ctrl+E to toggle edit mode</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Overview */}
-        {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-4 sm:p-6 border border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-primary group-hover:scale-105 transition-transform duration-200">{stats.daresCount || 0}</div>
-                  <div className="text-xs sm:text-sm text-primary-300">Total Dares</div>
-                </div>
-                <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <FireIcon className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-4 sm:p-6 border border-green-600/30 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-green-400 group-hover:scale-105 transition-transform duration-200">{stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}</div>
-                  <div className="text-xs sm:text-sm text-green-300">Avg Grade</div>
-                </div>
-                <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
-                  <ChartBarIcon className="w-4 h-4 text-green-400" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-4 sm:p-6 border border-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-blue-400 group-hover:scale-105 transition-transform duration-200">{stats.completedCount || 0}</div>
-                  <div className="text-xs sm:text-sm text-blue-300">Completed</div>
-                </div>
-                <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                  <CheckCircleIcon className="w-4 h-4 text-blue-400" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 sm:p-6 border border-purple-600/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-purple-400 group-hover:scale-105 transition-transform duration-200">{stats.activeCount || 0}</div>
-                  <div className="text-xs sm:text-sm text-purple-300">Active</div>
-                </div>
-                <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                  <ClockIcon className="w-4 h-4 text-purple-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <Tabs
-          tabs={[
-            {
-              label: 'About',
-              content: (
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-                  {loading ? (
-                    <div className="space-y-8">
-                      {/* Profile Header Skeleton */}
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                        <div className="flex flex-col items-center md:items-start gap-4">
-                          <div className="w-24 h-24 rounded-full bg-neutral-700 animate-pulse" />
-                          <div className="h-4 w-24 bg-neutral-700 rounded animate-pulse" />
-                        </div>
-                        <div className="flex-1 space-y-4">
-                          <div className="h-8 bg-neutral-700 rounded w-1/3 animate-pulse" />
-                          <div className="h-4 bg-neutral-700 rounded w-1/2 animate-pulse" />
-                          <div className="h-4 bg-neutral-700 rounded w-2/3 animate-pulse" />
-                        </div>
+          <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+          
+          <main id="main-content" tabIndex="-1" role="main">
+            {/* Profile Header */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-neutral-900/90 to-neutral-800/70 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
+              <div className="relative p-8">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+                  {/* Avatar Section */}
+                  <div className="flex flex-col items-center lg:items-start gap-4">
+                    <div className="relative group" onClick={handleAvatarClick}>
+                      <div className="w-24 h-24 rounded-full ring-4 ring-white/10 group-hover:ring-primary/30 transition-all duration-300">
+                        <Avatar 
+                          user={user} 
+                          size={96} 
+                          border={false}
+                          shadow={false}
+                          className="cursor-pointer"
+                        />
                       </div>
-                      
-                      {/* Stats Skeleton */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="bg-neutral-800/50 rounded-xl p-4 sm:p-6 border border-neutral-700/30">
-                            <div className="h-6 bg-neutral-700 rounded w-1/2 animate-pulse mb-2" />
-                            <div className="h-4 bg-neutral-700 rounded w-1/3 animate-pulse" />
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Form Skeleton */}
-                      <div className="space-y-6">
-                        <div className="h-6 bg-neutral-700 rounded w-1/4 animate-pulse mb-4" />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {[...Array(4)].map((_, i) => (
-                            <div key={i} className="space-y-2">
-                              <div className="h-4 bg-neutral-700 rounded w-1/3 animate-pulse" />
-                              <div className="h-12 bg-neutral-700 rounded animate-pulse" />
-                            </div>
-                          ))}
-                        </div>
+                      <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                        <PencilIcon className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                  ) : (
-                    <div className="space-y-8">
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                        <button 
-                          className="bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
-                          onClick={() => { setTabIdx(0); setEditMode(true); }}
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                          Edit Profile
-                        </button>
-                        
-                        <button 
-                          className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-red-700 hover:to-red-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1" 
-                          onClick={logout}
-                        >
-                          <ArrowPathIcon className="w-5 h-5" />
-                          Logout
-                        </button>
-                        
-                        {/* Admin Controls */}
-                        {user.roles?.includes('admin') ? (
-                          <button
-                            className="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-orange-700 hover:to-orange-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={downgradeLoading}
-                            onClick={async () => {
-                              if (!user || !(user.id || user._id)) return;
-                              const userId = user.id || user._id;
-                              setDowngradeLoading(true);
-                              try {
-                                await api.patch(`/users/${userId}`, { roles: ['user'] });
-                                const updatedUser = { ...user, roles: ['user'] };
-                                localStorage.setItem('user', JSON.stringify(updatedUser));
-                                if (typeof setUser === 'function') setUser(updatedUser);
-                                showSuccess('User downgraded to regular user!');
-                              } catch (err) {
-                                showError('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
-                              } finally {
-                                setDowngradeLoading(false);
-                              }
-                            }}
-                          >
-                            <ShieldCheckIcon className="w-5 h-5" />
-                            {downgradeLoading ? 'Downgrading...' : 'Downgrade to User'}
-                          </button>
-                        ) : (
-                          <button
-                            className="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-yellow-700 hover:to-yellow-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={upgradeLoading}
-                            onClick={async () => {
-                              if (!user || !(user.id || user._id)) return;
-                              const userId = user.id || user._id;
-                              setUpgradeLoading(true);
-                              try {
-                                await api.patch(`/users/${userId}`, { roles: ['admin'] });
-                                const updatedUser = { ...user, roles: ['admin'] };
-                                localStorage.setItem('user', JSON.stringify(updatedUser));
-                                if (typeof setUser === 'function') setUser(updatedUser);
-                                showSuccess('User upgraded to admin!');
-                              } catch (err) {
-                                showError('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
-                              } finally {
-                                setUpgradeLoading(false);
-                              }
-                            }}
-                          >
-                            <ShieldCheckIcon className="w-5 h-5" />
-                            {upgradeLoading ? 'Upgrading...' : 'Upgrade to Admin'}
-                          </button>
-                        )}
+                    
+                    {/* Avatar Upload */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="avatar-upload"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                      aria-label="Upload profile picture"
+                      title="Upload profile picture"
+                    />
+                    
+                    {/* Upload Progress */}
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                      <div className="w-full bg-neutral-700/50 backdrop-blur-sm rounded-full h-2 mt-2">
+                        <div 
+                          className="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
                       </div>
+                    )}
+                    
+                    {/* Upload Status Messages */}
+                    {avatarSaved && (
+                      <div className="text-green-400 text-sm font-semibold flex items-center gap-2 mt-2">
+                        <CheckCircleIcon className="w-4 h-4" />
+                        Avatar saved!
+                      </div>
+                    )}
+                    
+                    {uploadError && (
+                      <div className="text-red-400 text-sm font-semibold flex items-center gap-2 mt-2">
+                        <ExclamationTriangleIcon className="w-4 h-4" />
+                        {uploadError}
+                      </div>
+                    )}
+                  </div>
 
-                      {/* Profile Form/Info */}
-                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
-                        {editMode ? (
-                          <form role="form" aria-labelledby="profile-edit-title" onSubmit={handleSave} className="space-y-6">
-                            <h2 id="profile-edit-title" className="text-2xl font-bold text-white mb-6">Edit Profile</h2>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <label htmlFor="username" className="block font-semibold mb-2 text-primary text-sm">Username</label>
-                                <input 
-                                  type="text" 
-                                  id="username" 
-                                  className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
-                                    formErrors.username ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
-                                  }`}
-                                  value={username} 
-                                  onChange={e => handleFormChange('username', e.target.value)} 
-                                  required 
-                                  aria-required="true" 
-                                  aria-label="Username" 
-                                />
-                                {formErrors.username && (
-                                  <div className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-4 h-4" />
-                                    {formErrors.username}
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div>
-                                <label htmlFor="fullName" className="block font-semibold mb-2 text-primary text-sm">Full Name</label>
-                                <input
-                                  id="fullName"
-                                  value={fullName}
-                                  onChange={e => handleFormChange('fullName', e.target.value)}
-                                  className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
-                                    formErrors.fullName ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
-                                  }`}
-                                  aria-label="Full Name"
-                                />
-                                {formErrors.fullName && (
-                                  <div className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-4 h-4" />
-                                    {formErrors.fullName}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label htmlFor="bio" className="block font-semibold mb-2 text-primary text-sm">Bio</label>
-                              <textarea 
-                                id="bio" 
-                                className={`w-full rounded-lg border px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 ${
-                                  formErrors.bio ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-primary'
-                                }`}
-                                value={bio} 
-                                onChange={e => handleFormChange('bio', e.target.value)} 
-                                rows={3} 
-                                maxLength={300} 
-                                placeholder="Write something about yourself..." 
-                                aria-label="Bio" 
-                                aria-required="true" 
-                              />
-                              <div className="flex justify-between items-center mt-1">
-                                <div className="text-xs text-neutral-400">
-                                  {bio.length}/300 characters
+                  {/* User Info */}
+                  <div className="flex-1 text-center lg:text-left">
+                    <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">
+                        {user?.fullName || user?.username}
+                      </h1>
+                      {user?.roles && user.roles.length > 0 && (
+                        <RoleBadge roles={user.roles} />
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-center lg:justify-start gap-4 mb-4 text-sm text-neutral-400">
+                      <span className="flex items-center gap-1">
+                        <UserIcon className="w-4 h-4" />
+                        @{user?.username}
+                      </span>
+                      {user?.gender && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-1 h-1 bg-neutral-500 rounded-full" />
+                          {user.gender.charAt(0).toUpperCase() + user.gender.slice(1)}
+                        </span>
+                      )}
+                      {user?.dob && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-1 h-1 bg-neutral-500 rounded-full" />
+                          {new Date(user.dob).getFullYear()}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {bio && (
+                      <p className="text-neutral-300 mb-6 max-w-2xl leading-relaxed">
+                        {bio}
+                      </p>
+                    )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                      <button
+                        onClick={() => setEditMode(!editMode)}
+                        className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          <PencilIcon className="w-4 h-4" />
+                          {editMode ? 'Cancel Edit' : 'Edit Profile'}
+                        </span>
+                        <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                      </button>
+                      
+                      {isBlocked && (
+                        <div className="bg-red-900/20 backdrop-blur-sm border border-red-800/30 rounded-xl px-4 py-3 text-red-300 flex items-center gap-2">
+                          <ExclamationTriangleIcon className="w-4 h-4" />
+                          Account Blocked
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Overview */}
+            {stats && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-white group-hover:scale-110 transition-transform duration-200">
+                        {stats.daresCount || 0}
+                      </div>
+                      <div className="text-sm text-neutral-400">Total Dares</div>
+                    </div>
+                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <FireIcon className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-green-400 group-hover:scale-110 transition-transform duration-200">
+                        {stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}
+                      </div>
+                      <div className="text-sm text-neutral-400">Avg Grade</div>
+                    </div>
+                    <div className="w-12 h-12 bg-green-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <ChartBarIcon className="w-6 h-6 text-green-400" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-blue-400 group-hover:scale-110 transition-transform duration-200">
+                        {stats.completedCount || 0}
+                      </div>
+                      <div className="text-sm text-neutral-400">Completed</div>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <CheckCircleIcon className="w-6 h-6 text-blue-400" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-purple-400 group-hover:scale-110 transition-transform duration-200">
+                        {stats.activeCount || 0}
+                      </div>
+                      <div className="text-sm text-neutral-400">Active</div>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <ClockIcon className="w-6 h-6 text-purple-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Tabs
+              tabs={[
+                {
+                  label: 'About',
+                  content: (
+                    <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
+                      <div className="p-8">
+                        {loading ? (
+                          <div className="space-y-8">
+                            <div className="h-8 bg-neutral-700/50 rounded w-1/3 animate-pulse" />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              {[...Array(4)].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                  <div className="h-4 bg-neutral-700/50 rounded w-1/3 animate-pulse" />
+                                  <div className="h-12 bg-neutral-700/50 rounded-xl animate-pulse" />
                                 </div>
-                                {formErrors.bio && (
-                                  <div className="text-red-400 text-sm flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-4 h-4" />
-                                    {formErrors.bio}
-                                  </div>
-                                )}
-                              </div>
+                              ))}
                             </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <label htmlFor="gender" className="block font-semibold mb-2 text-primary text-sm">Gender</label>
-                                <select
-                                  id="gender"
-                                  value={gender}
-                                  onChange={e => handleFormChange('gender', e.target.value)}
-                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                                  required
-                                  aria-label="Gender"
-                                  aria-required="true"
-                                >
-                                  <option value="">Select gender...</option>
-                                  <option value="male">Male</option>
-                                  <option value="female">Female</option>
-                                  <option value="other">Other</option>
-                                </select>
-                              </div>
-                              
-                              <div>
-                                <label htmlFor="dob" className="block font-semibold mb-2 text-primary text-sm">Birth Date</label>
-                                <input 
-                                  type="date" 
-                                  id="dob" 
-                                  className="w-full rounded-lg border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" 
-                                  value={dob} 
-                                  onChange={e => handleFormChange('dob', e.target.value)} 
-                                  required 
-                                  aria-required="true" 
-                                  aria-label="Birth Date" 
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label htmlFor="interestedIn" className="block font-semibold mb-2 text-primary text-sm">Interested In</label>
-                              <TagsInput id="interestedIn" value={interestedIn} onChange={(value) => handleFormChange('interestedIn', value)} suggestions={['male', 'female', 'other']} aria-label="Interested In" aria-required="true" />
-                            </div>
-                            
-                            <div>
-                              <label htmlFor="limits" className="block font-semibold mb-2 text-primary text-sm">Limits</label>
-                              <TagsInput id="limits" value={limits} onChange={(value) => handleFormChange('limits', value)} suggestions={['pain', 'public', 'humiliation', 'bondage']} aria-label="Limits" aria-required="true" />
-                            </div>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                              <div className="flex-1 flex gap-4">
-                                <button 
-                                  type="submit" 
-                                  className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 flex items-center gap-2 shadow-lg" 
-                                  disabled={saving}
-                                >
-                                  <span className="relative z-10 flex items-center gap-2">
-                                    {saving ? (
-                                      <>
-                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        Saving...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <CheckCircleIcon className="w-5 h-5" />
-                                        Save Changes
-                                      </>
-                                    )}
-                                  </span>
-                                  <div className="absolute inset-0 bg-gradient-to-r from-primary-dark to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                </button>
-                                <button 
-                                  type="button" 
-                                  className="bg-neutral-700 text-neutral-100 rounded-xl px-6 py-3 font-semibold hover:bg-neutral-600 transition-all duration-200 flex items-center gap-2" 
-                                  onClick={() => {
-                                    if (hasUnsavedChanges) {
-                                      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
-                                        setEditMode(false);
-                                        setHasUnsavedChanges(false);
-                                        setFormErrors({});
-                                      }
-                                    } else {
-                                      setEditMode(false);
-                                    }
-                                  }} 
-                                  disabled={saving}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                              
-                              {/* Save Status */}
-                              <div className="flex items-center gap-2 text-sm">
-                                {hasUnsavedChanges && (
-                                  <div className="text-yellow-400 flex items-center gap-1">
-                                    <ExclamationTriangleIcon className="w-4 h-4" />
-                                    Unsaved changes
-                                  </div>
-                                )}
-                                {lastSaved && (
-                                  <div className="text-green-400 flex items-center gap-1">
-                                    <CheckCircleIcon className="w-4 h-4" />
-                                    Last saved: {lastSaved.toLocaleTimeString()}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </form>
+                          </div>
                         ) : (
-                          <div className="space-y-6">
-                            <h2 className="text-2xl font-bold text-white mb-6">About Me</h2>
+                          <div className="space-y-8">
+                            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent mb-8">About Me</h2>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                               <div className="space-y-4">
-                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                  <div className="text-sm text-neutral-400 mb-1">Username</div>
-                                  <div className="text-white font-semibold">@{user.username}</div>
+                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Username</div>
+                                  <div className="text-white font-semibold text-lg">@{user.username}</div>
                                 </div>
                                 
-                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                  <div className="text-sm text-neutral-400 mb-1">Full Name</div>
-                                  <div className="text-white font-semibold">{user.fullName}</div>
+                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Full Name</div>
+                                  <div className="text-white font-semibold text-lg">{user.fullName}</div>
                                 </div>
                                 
-                                <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                  <div className="text-sm text-neutral-400 mb-1">Email</div>
-                                  <div className="text-white font-semibold">{user.email}</div>
+                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Email</div>
+                                  <div className="text-white font-semibold text-lg">{user.email}</div>
                                 </div>
                               </div>
                               
                               <div className="space-y-4">
                                 {user.gender && (
-                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                    <div className="text-sm text-neutral-400 mb-1">Gender</div>
-                                    <div className="text-white font-semibold capitalize">{user.gender}</div>
+                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                    <div className="text-sm text-neutral-400 mb-2 font-medium">Gender</div>
+                                    <div className="text-white font-semibold text-lg capitalize">{user.gender}</div>
                                   </div>
                                 )}
                                 
                                 {user.dob && (
-                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                    <div className="text-sm text-neutral-400 mb-1">Birth Date</div>
-                                    <div className="text-white font-semibold">
+                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                    <div className="text-sm text-neutral-400 mb-2 font-medium">Birth Date</div>
+                                    <div className="text-white font-semibold text-lg">
                                       <span
                                         className="cursor-help hover:text-neutral-300 transition-colors"
                                         title={formatRelativeTimeWithTooltip(user.dob).tooltip}
@@ -1030,11 +612,11 @@ export default function Profile() {
                                 )}
                                 
                                 {user.interestedIn && user.interestedIn.length > 0 && (
-                                  <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                    <div className="text-sm text-neutral-400 mb-1">Interested In</div>
+                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                    <div className="text-sm text-neutral-400 mb-3 font-medium">Interested In</div>
                                     <div className="flex flex-wrap gap-2">
                                       {user.interestedIn.map((interest, idx) => (
-                                        <span key={idx} className="bg-primary/20 text-primary px-2 py-1 rounded-full text-xs font-semibold">
+                                        <span key={idx} className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold border border-primary/30">
                                           {interest}
                                         </span>
                                       ))}
@@ -1045,210 +627,170 @@ export default function Profile() {
                             </div>
                             
                             {bio && (
-                              <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                <div className="text-sm text-neutral-400 mb-2">Bio</div>
-                                <div className="text-white">{bio}</div>
+                              <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                <div className="text-sm text-neutral-400 mb-3 font-medium">Bio</div>
+                                <div className="text-white leading-relaxed">{bio}</div>
                               </div>
                             )}
                             
                             {user.limits && user.limits.length > 0 && (
-                              <div className="bg-neutral-800/30 rounded-lg p-4 border border-neutral-700/30">
-                                <div className="text-sm text-neutral-400 mb-2">Limits</div>
+                              <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                <div className="text-sm text-neutral-400 mb-3 font-medium">Limits</div>
                                 <div className="flex flex-wrap gap-2">
                                   {user.limits.map((limit, idx) => (
-                                    <span key={idx} className="bg-red-600/20 text-red-400 px-2 py-1 rounded-full text-xs font-semibold">
+                                    <span key={idx} className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm font-semibold border border-red-500/30">
                                       {limit}
                                     </span>
                                   ))}
                                 </div>
                               </div>
                             )}
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                              <button 
+                                className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
+                                onClick={() => { setTabIdx(0); setEditMode(true); }}
+                              >
+                                <span className="relative z-10 flex items-center gap-2">
+                                  <PencilIcon className="w-5 h-5" />
+                                  Edit Profile
+                                </span>
+                                <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                              </button>
+                              
+                              <button 
+                                className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
+                                onClick={logout}
+                              >
+                                <span className="relative z-10 flex items-center gap-2">
+                                  <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                                  Logout
+                                </span>
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
-                      
-                      {/* Recent Activity */}
+                    </div>
+                  ),
+                },
+                {
+                  label: 'Privacy & Safety',
+                  content: (
+                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
                       <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
-                        <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ),
-            },
-            {
-              label: 'Privacy & Safety',
-              content: (
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
-                  <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <ShieldCheckIcon className="w-6 h-6 text-primary" />
-                      Content Deletion Setting
-                    </h3>
-                    
-                    {contentDeletionLoading ? (
-                      <div className="text-center py-8">
-                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <div className="text-neutral-400">Loading settings...</div>
-                      </div>
-                    ) : (
-                      <form className="space-y-4">
-                        <div className="space-y-4">
-                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                            <input 
-                              type="radio" 
-                              name="contentDeletion" 
-                              value="when_viewed" 
-                              checked={contentDeletion === 'when_viewed'} 
-                              onChange={() => handleContentDeletionChange('when_viewed')} 
-                              disabled={contentDeletionLoading}
-                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                            />
-                            <div className="flex-1">
-                              <div className="font-semibold text-white mb-1">Delete once viewed</div>
-                              <div className="text-sm text-neutral-400">As soon as the other person has viewed the image, delete it completely.</div>
-                            </div>
-                          </label>
-                          
-                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                            <input 
-                              type="radio" 
-                              name="contentDeletion" 
-                              value="30_days" 
-                              checked={contentDeletion === '30_days'} 
-                              onChange={() => handleContentDeletionChange('30_days')} 
-                              disabled={contentDeletionLoading}
-                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                            />
-                            <div className="flex-1">
-                              <div className="font-semibold text-white mb-1">Delete after 30 days</div>
-                              <div className="text-sm text-neutral-400">Keep the image for 30 days, then automatically delete it.</div>
-                            </div>
-                          </label>
-                          
-                          <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                            <input 
-                              type="radio" 
-                              name="contentDeletion" 
-                              value="never" 
-                              checked={contentDeletion === 'never'} 
-                              onChange={() => handleContentDeletionChange('never')} 
-                              disabled={contentDeletionLoading}
-                              className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                            />
-                            <div className="flex-1">
-                              <div className="font-semibold text-white mb-1">Never delete</div>
-                              <div className="text-sm text-neutral-400">Keep the image indefinitely (not recommended for privacy).</div>
-                            </div>
-                          </label>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                  
-                  <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <NoSymbolIcon className="w-6 h-6 text-red-400" />
-                      Block Settings
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-700/30">
-                        <div>
-                          <div className="font-semibold text-white">Account Status</div>
-                          <div className="text-sm text-neutral-400">
-                            {isBlocked ? 'Your account is currently blocked' : 'Your account is active'}
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                          <ShieldCheckIcon className="w-6 h-6 text-primary" />
+                          Content Deletion Setting
+                        </h3>
+                        
+                        {contentDeletionLoading ? (
+                          <div className="text-center py-8">
+                            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <div className="text-neutral-400">Loading settings...</div>
                           </div>
-                        </div>
-                        <button
-                          onClick={handleBlockToggle}
-                          disabled={blocking}
-                          className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                            isBlocked 
-                              ? 'bg-green-600 hover:bg-green-700 text-white' 
-                              : 'bg-red-600 hover:bg-red-700 text-white'
-                          }`}
-                        >
-                          {blocking ? 'Processing...' : (isBlocked ? 'Unblock Account' : 'Block Account')}
-                        </button>
+                        ) : (
+                          <form className="space-y-4">
+                            <div className="space-y-4">
+                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                                <input 
+                                  type="radio" 
+                                  name="contentDeletion" 
+                                  value="when_viewed" 
+                                  checked={contentDeletion === 'when_viewed'} 
+                                  onChange={() => handleContentDeletionChange('when_viewed')} 
+                                  disabled={contentDeletionLoading}
+                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-1">Delete once viewed</div>
+                                  <div className="text-sm text-neutral-400">As soon as the other person has viewed the image, delete it completely.</div>
+                                </div>
+                              </label>
+                              
+                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                                <input 
+                                  type="radio" 
+                                  name="contentDeletion" 
+                                  value="30_days" 
+                                  checked={contentDeletion === '30_days'} 
+                                  onChange={() => handleContentDeletionChange('30_days')} 
+                                  disabled={contentDeletionLoading}
+                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-1">Delete after 30 days</div>
+                                  <div className="text-sm text-neutral-400">Keep the image for 30 days, then automatically delete it.</div>
+                                </div>
+                              </label>
+                              
+                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                                <input 
+                                  type="radio" 
+                                  name="contentDeletion" 
+                                  value="never" 
+                                  checked={contentDeletion === 'never'} 
+                                  onChange={() => handleContentDeletionChange('never')} 
+                                  disabled={contentDeletionLoading}
+                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-white mb-1">Never delete</div>
+                                  <div className="text-sm text-neutral-400">Keep the image indefinitely (not recommended for privacy).</div>
+                                </div>
+                              </label>
+                            </div>
+                          </form>
+                        )}
                       </div>
                       
-                      {blockError && (
-                        <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300">
-                          {blockError}
+                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                          <NoSymbolIcon className="w-6 h-6 text-red-400" />
+                          Block Settings
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-700/30">
+                            <div>
+                              <div className="font-semibold text-white">Account Status</div>
+                              <div className="text-sm text-neutral-400">
+                                {isBlocked ? 'Your account is currently blocked' : 'Your account is active'}
+                              </div>
+                            </div>
+                            <button
+                              onClick={handleBlockToggle}
+                              disabled={blocking}
+                              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                                isBlocked 
+                                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                  : 'bg-red-600 hover:bg-red-700 text-white'
+                              }`}
+                            >
+                              {blocking ? 'Processing...' : (isBlocked ? 'Unblock Account' : 'Block Account')}
+                            </button>
+                          </div>
+                          
+                          {blockError && (
+                            <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300">
+                              {blockError}
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              label: 'Change Password',
-              content: <ChangePasswordForm />,
-            }
-          ]}
-          value={tabIdx}
-          onChange={setTabIdx}
-        />
-      </main>
-      {/* Blocked Users Section */}
-      {blockedUsersInfo.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-lg font-bold mb-2 text-primary">Blocked Users</h2>
-          <ul className="space-y-3">
-            {blockedUsersInfo.map(bu => (
-              <li key={bu._id} className="flex items-center gap-3 bg-neutral-900 rounded p-3">
-                <Avatar user={bu} size={28} alt={`Avatar for ${bu?.fullName || bu?.username || 'user'}`} />
-                <span className="inline-flex items-center gap-2">
-                  {bu.fullName || bu.username || 'Anonymous'}
-                </span>
-                <button
-                  className="ml-auto px-3 py-1 rounded bg-warning text-warning-contrast font-semibold text-xs hover:bg-warning-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  onClick={() => handleUnblock(bu._id)}
-                  disabled={unblockStatus[bu._id] === 'unblocking'}
-                >
-                  {unblockStatus[bu._id] === 'unblocking' ? 'Unblocking...' : 'Unblock'}
-                </button>
-                {unblockStatus[bu._id] === 'error' && (
-                  <span className="text-danger text-xs ml-2">Error</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {false && (
-        <button className={`btn btn-default ml-2 ${isBlocked ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-800'}`} onClick={handleBlockToggle} disabled={blocking} aria-label={isBlocked ? 'Unblock user' : 'Block user'}>
-          {blocking ? <ArrowPathIcon className="w-4 h-4 text-white mr-1" /> : <NoSymbolIcon className="w-4 h-4 text-white mr-1" />} {isBlocked ? 'Unblock' : 'Block'}
-        </button>
-      )}
-      {blockError && <div className="text-red-600 text-xs mt-1">{blockError}</div>}
-      {/* Meta/timestamps at the bottom */}
-      <div className="mt-4 text-xs text-neutral-500 flex flex-col items-center gap-1">
-        <div className="flex items-center gap-1">
-          <ClockIcon className="w-4 h-4 text-neutral-400" />
-          Joined: 
-          <span
-            className="cursor-help ml-1"
-            title={user.createdAt ? formatRelativeTimeWithTooltip(user.createdAt).tooltip : 'N/A'}
-          >
-            {user.createdAt ? formatRelativeTimeWithTooltip(user.createdAt).display : 'N/A'}
-          </span>
-        </div>
-        {user.updatedAt && (
-          <div className="flex items-center gap-1">
-            <ClockIcon className="w-4 h-4 text-blue-400" />
-            Last Updated: 
-            <span
-              className="cursor-help ml-1"
-              title={formatRelativeTimeWithTooltip(user.updatedAt).tooltip}
-            >
-              {formatRelativeTimeWithTooltip(user.updatedAt).display}
-            </span>
-          </div>
-        )}
-      </div>
+                  ),
+                },
+                {
+                  label: 'Change Password',
+                  content: <ChangePasswordForm />,
+                }
+              ]}
+              value={tabIdx}
+              onChange={setTabIdx}
+            />
+          </main>
         </div>
       </div>
     </div>
