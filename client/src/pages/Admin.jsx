@@ -1516,7 +1516,9 @@ function Admin() {
                                   </div>
                                   {log.details && (
                                     <div className="text-sm text-neutral-400 mt-2">
-                                      {log.details}
+                                      {typeof log.details === 'object'
+                                        ? <pre className="whitespace-pre-wrap">{JSON.stringify(log.details, null, 2)}</pre>
+                                        : log.details}
                                     </div>
                                   )}
                                 </div>
