@@ -52,6 +52,7 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
     'rounded-full flex items-center justify-center font-semibold text-white avatar-container',
     size === 32 ? 'w-8 h-8' : 
     size === 64 ? 'w-16 h-16' : 
+    size === 80 ? 'w-20 h-20' :
     size === 128 ? 'w-32 h-32' : 
     size === 256 ? 'w-64 h-64' : 
     `w-${Math.floor(size/4)} h-${Math.floor(size/4)}`,
@@ -83,7 +84,11 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
           loading="lazy"
           crossOrigin="anonymous"
           onClick={(e) => e.stopPropagation()}
-          style={{ pointerEvents: 'none' }}
+          style={{ 
+            pointerEvents: 'none',
+            aspectRatio: '1 / 1',
+            objectFit: 'cover'
+          }}
         />
       ) : (
         <div className={`w-full h-full rounded-full flex items-center justify-center text-sm font-semibold ${bgColor}`}>
