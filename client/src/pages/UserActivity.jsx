@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Tabs from '../components/Tabs';
 import { useAuth } from '../context/AuthContext';
 import DareCard from '../components/DareCard';
@@ -32,11 +32,16 @@ export default function UserActivity() {
   const [historySwitchGames, setHistorySwitchGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    setLoading(true);
-    setError('');
+    
+    // Reset data when user changes
+    if (!dataLoaded) {
+      setLoading(true);
+      setError('');
+    }
     // Fetch active dares (not completed/forfeited/expired)
     const activeStatuses = ['in_progress', 'waiting_for_participant', 'pending'];
     const historyStatuses = ['completed', 'forfeited', 'expired'];
@@ -70,13 +75,19 @@ export default function UserActivity() {
         setHistoryDares(mergeDares(createdHistoryRes.data, performedHistoryRes.data));
         setActiveSwitchGames(Array.isArray(activeSwitchRes.data) ? activeSwitchRes.data : []);
         setHistorySwitchGames(Array.isArray(historySwitchRes.data) ? historySwitchRes.data : []);
+        setDataLoaded(true);
       })
       .catch(err => {
         setError('Failed to load activity.');
         showError('Failed to load activity.');
       })
       .finally(() => setLoading(false));
-  }, [user, showError]);
+  }, [user, dataLoaded]); // Added dataLoaded to prevent unnecessary re-fetches
+
+  // Reset dataLoaded when user changes
+  useEffect(() => {
+    setDataLoaded(false);
+  }, [user]);
 
   // Compute stats from loaded data
   const dareTotal = activeDares.length + historyDares.length;
