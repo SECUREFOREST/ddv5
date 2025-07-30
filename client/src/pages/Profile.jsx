@@ -73,8 +73,9 @@ export default function Profile() {
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   // Initialize form fields when user data loads
+  const formInitializedRef = useRef(false);
   useEffect(() => {
-    if (user) {
+    if (user && !formInitializedRef.current) {
       setUsername(user.username || '');
       setAvatar(user.avatar || '');
       setBio(user.bio || '');
@@ -85,8 +86,19 @@ export default function Profile() {
       setFullName(user.fullName || '');
       setAvatarPreview(user.avatar || '');
       setIsBlocked(user.blocked || false);
+      formInitializedRef.current = true;
     }
   }, [user]);
+
+  // Reset refs when user changes
+  useEffect(() => {
+    if (user) {
+      formInitializedRef.current = false;
+      userRefreshedRef.current = false;
+      statsFetchedRef.current = false;
+      blockedUsersFetchedRef.current = false;
+    }
+  }, [user?._id]); // Only reset when user ID changes
 
 
 
@@ -146,7 +158,7 @@ export default function Profile() {
     } finally {
       setSaving(false);
     }
-  }, [user, username, avatar, bio, gender, dob, interestedIn, limits, fullName, showError, showSuccess, setUser, validateForm]);
+  }, [user, username, avatar, bio, gender, dob, interestedIn, limits, fullName, setUser, validateForm]); // Removed showError and showSuccess from dependencies
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -200,9 +212,15 @@ export default function Profile() {
   };
 
   // Refresh user data on mount to ensure we have the latest data
+  const userRefreshedRef = useRef(false);
   useEffect(() => {
     if (user && (user.id || user._id)) {
       const userId = user.id || user._id;
+      
+      // Prevent multiple refreshes for the same user
+      if (userRefreshedRef.current === userId) return;
+      userRefreshedRef.current = userId;
+      
       setStatsLoading(true);
       api.get(`/users/${userId}`)
         .then(res => {
@@ -218,7 +236,7 @@ export default function Profile() {
           setStatsLoading(false);
         });
     }
-  }, [user, setUser, showError]);
+  }, [user]); // Removed setUser and showError from dependencies
 
   // Fetch content deletion setting on mount
   useEffect(() => {
@@ -291,9 +309,15 @@ export default function Profile() {
     });
   }, [user]); // Removed showError from dependencies to prevent infinite loop
 
+  // Fetch blocked users info
+  const blockedUsersFetchedRef = useRef(false);
   useEffect(() => {
     if (loading) return;
     if (!user) return;
+    
+    // Prevent multiple fetches for the same user
+    if (blockedUsersFetchedRef.current === user._id) return;
+    blockedUsersFetchedRef.current = user._id;
     
     // Fetch info for blocked users with loading state
     if (user.blockedUsers && user.blockedUsers.length > 0) {
