@@ -10,9 +10,10 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
     if (!user?.avatar || imageError) return;
 
     // Convert relative URL to full URL using API domain
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://api.deviantdare.com';
     const avatarUrl = user.avatar.startsWith('http') 
       ? user.avatar 
-      : `${import.meta.env.VITE_API_URL || 'https://api.deviantdare.com'}${user.avatar}`;
+      : `${baseUrl.replace(/\/$/, '')}${user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar}`;
     
     if (imgRef.current) {
       // Add a small delay to prevent layout issues

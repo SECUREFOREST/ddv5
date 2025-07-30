@@ -384,10 +384,8 @@ export default function Profile() {
   };
 
   const handleAvatarClick = () => {
-    console.log('Avatar clicked!'); // Debug log
     if (fileInputRef.current) {
       fileInputRef.current.click();
-      console.log('File input clicked'); // Debug log
     } else {
       console.error('Avatar upload input ref not found');
       showError('Avatar upload not available. Please refresh the page.');
