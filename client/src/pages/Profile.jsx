@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import api from '../api/axios';
@@ -69,6 +69,8 @@ export default function Profile() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [downgradeLoading, setDowngradeLoading] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   // Initialize form fields when user data loads
   useEffect(() => {
@@ -249,10 +251,16 @@ export default function Profile() {
   };
 
   // Fetch user stats
+  const statsFetchedRef = useRef(false);
   useEffect(() => {
     if (!user) return;
     const userId = getUserId(user);
     if (!userId) return;
+    
+    // Prevent multiple fetches for the same user
+    if (statsFetchedRef.current === userId) return;
+    statsFetchedRef.current = userId;
+    
     setStatsLoading(true);
     setUserActivitiesLoading(true);
     setStatsError('');
@@ -281,7 +289,7 @@ export default function Profile() {
       setStatsLoading(false);
       setUserActivitiesLoading(false);
     });
-  }, [user, showError]);
+  }, [user]); // Removed showError from dependencies to prevent infinite loop
 
   useEffect(() => {
     if (loading) return;
@@ -301,7 +309,7 @@ export default function Profile() {
     } else {
       setBlockedUsersInfo([]);
     }
-  }, [user, loading, showError]);
+  }, [user, loading]); // Removed showError from dependencies
 
 
 
@@ -711,10 +719,12 @@ export default function Profile() {
                         {/* Admin Controls */}
                         {user.roles?.includes('admin') ? (
                           <button
-                            className="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-orange-700 hover:to-orange-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                            className="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-orange-700 hover:to-orange-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={downgradeLoading}
                             onClick={async () => {
                               if (!user || !(user.id || user._id)) return;
                               const userId = user.id || user._id;
+                              setDowngradeLoading(true);
                               try {
                                 await api.patch(`/users/${userId}`, { roles: ['user'] });
                                 const updatedUser = { ...user, roles: ['user'] };
@@ -723,18 +733,22 @@ export default function Profile() {
                                 showSuccess('User downgraded to regular user!');
                               } catch (err) {
                                 showError('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
+                              } finally {
+                                setDowngradeLoading(false);
                               }
                             }}
                           >
                             <ShieldCheckIcon className="w-5 h-5" />
-                            Downgrade to User
+                            {downgradeLoading ? 'Downgrading...' : 'Downgrade to User'}
                           </button>
                         ) : (
                           <button
-                            className="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-yellow-700 hover:to-yellow-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                            className="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-semibold hover:from-yellow-700 hover:to-yellow-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={upgradeLoading}
                             onClick={async () => {
                               if (!user || !(user.id || user._id)) return;
                               const userId = user.id || user._id;
+                              setUpgradeLoading(true);
                               try {
                                 await api.patch(`/users/${userId}`, { roles: ['admin'] });
                                 const updatedUser = { ...user, roles: ['admin'] };
@@ -743,11 +757,13 @@ export default function Profile() {
                                 showSuccess('User upgraded to admin!');
                               } catch (err) {
                                 showError('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
+                              } finally {
+                                setUpgradeLoading(false);
                               }
                             }}
                           >
                             <ShieldCheckIcon className="w-5 h-5" />
-                            Upgrade to Admin
+                            {upgradeLoading ? 'Upgrading...' : 'Upgrade to Admin'}
                           </button>
                         )}
                       </div>
