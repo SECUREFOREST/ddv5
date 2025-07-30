@@ -684,7 +684,7 @@ export default function DarePerformerDashboard() {
           {/* Quick Actions */}
           <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <button 
                 onClick={() => navigate('/dare/create')}
                 className="group bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-4 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
@@ -707,6 +707,22 @@ export default function DarePerformerDashboard() {
               >
                 <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
                 Submit Offer
+              </button>
+              
+              <button 
+                onClick={() => navigate('/switches/create')}
+                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <FireIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Create Switch Game
+              </button>
+              
+              <button 
+                onClick={() => navigate('/switches/participate')}
+                className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                Participate in Switch Game
               </button>
             </div>
           </div>
