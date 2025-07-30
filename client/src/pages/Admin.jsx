@@ -71,7 +71,7 @@ function exportToCsv(filename, rows) {
 }
 
 function Admin() {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshToken } = useAuth();
   const { showSuccess, showError } = useToast();
 
   // All useState hooks must be called at the top level, before any early returns
@@ -422,7 +422,6 @@ function Admin() {
     // If no access token but user is authenticated, try to refresh the token
     if (!accessToken && user) {
       console.log('No access token found, but user is authenticated. Attempting to refresh token...');
-      const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         api.post('/auth/refresh-token', { refreshToken })
           .then(res => {
@@ -431,7 +430,7 @@ function Admin() {
             console.log('Token refreshed successfully');
             // Continue with data loading
             setDataLoaded(true);
-            Promise.all([
+            Promise.allSettled([
               fetchUsers(),
               fetchDares(),
               fetchReports(),
@@ -439,7 +438,12 @@ function Admin() {
               fetchAuditLog(),
               fetchSwitchGames(),
               fetchSiteStats()
-            ]).finally(() => {
+            ]).then((results) => {
+              console.log('Admin data loading results:', results);
+              const successful = results.filter(r => r.status === 'fulfilled').length;
+              const failed = results.filter(r => r.status === 'rejected').length;
+              console.log(`Admin data loading: ${successful} successful, ${failed} failed`);
+            }).finally(() => {
               setIsInitializing(false);
             });
             showSuccess('Admin interface loaded successfully!');
