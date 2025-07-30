@@ -101,6 +101,11 @@ export default function Profile() {
     }
   }, [user?._id]); // Only reset when user ID changes
 
+  // Debug file input ref
+  useEffect(() => {
+    console.log('File input ref:', fileInputRef.current);
+  }, [fileInputRef.current]);
+
 
 
   // Form validation - define before handleSave
