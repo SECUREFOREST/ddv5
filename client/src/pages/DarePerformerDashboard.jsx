@@ -255,20 +255,23 @@ export default function DarePerformerDashboard() {
     if (!user || !userId) return;
     
     const fetchAdditionalData = async () => {
-      setDataLoading(prev => ({ ...prev, associates: true, stats: true }));
+              setDataLoading(prev => ({ ...prev, associates: false, stats: true }));
       
       try {
-        // Fetch associates with proper error handling
-        const { data: associatesData, error: associatesError } = await safeApiCall(
-          () => api.get('/users/associates'),
-          'fetching associates',
-          API_RESPONSE_TYPES.USER_ARRAY
-        );
+        // Fetch associates with proper error handling - temporarily disabled due to 500 error
+        // const { data: associatesData, error: associatesError } = await safeApiCall(
+        //   () => api.get('/users/associates'),
+        //   'fetching associates',
+        //   API_RESPONSE_TYPES.USER_ARRAY
+        // );
         
-        if (associatesError) {
-          console.warn('Failed to fetch associates:', associatesError);
-        }
-        setAssociates(associatesData || []);
+        // if (associatesError) {
+        //   console.warn('Failed to fetch associates:', associatesError);
+        // }
+        // setAssociates(associatesData || []);
+        
+        // Temporarily set empty array to prevent 500 error
+        setAssociates([]);
         
         // Fetch role stats with proper error handling
         const { data: statsData, error: statsError } = await safeApiCall(
@@ -875,8 +878,8 @@ export default function DarePerformerDashboard() {
             </div>
           </div>
 
-          {/* Associates */}
-          {associates.length > 0 && (
+          {/* Associates - temporarily hidden due to 500 error */}
+          {/* {associates.length > 0 && (
             <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
               <h3 className="text-lg font-semibold text-white mb-4">Associates</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -903,7 +906,7 @@ export default function DarePerformerDashboard() {
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
           {/* Stats Dashboard */}
           {roleStats && (
