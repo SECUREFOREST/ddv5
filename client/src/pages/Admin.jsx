@@ -163,18 +163,8 @@ function Admin() {
     // Check if user has roles property and includes admin
     if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
       console.log('User does not have admin role. Roles:', user.roles);
-      
-      // For development/testing purposes, allow access if user exists and has specific username
-      const isDevMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-      const isTestUser = user.username === 'Sub Username' || user.email === 'sub@sub.com';
-      
-      if (isDevMode && isTestUser) {
-        console.log('Development mode: Allowing admin access for test user');
-        return true;
-      } else {
-        showError('Admin access required. You do not have permission to perform this action.');
-        return false;
-      }
+      showError('Admin access required. You do not have permission to perform this action.');
+      return false;
     }
     
     console.log('Admin permission granted');
@@ -467,32 +457,8 @@ function Admin() {
     // Check if user has admin role
     if (!user.roles.includes('admin')) {
       console.log('User does not have admin role. Current roles:', user.roles);
-      
-      // For development/testing purposes, allow access if user exists and has specific username
-      const isDevMode = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-      const isTestUser = user.username === 'Sub Username' || user.email === 'sub@sub.com';
-      
-      if (isDevMode && isTestUser) {
-        console.log('Development mode: Allowing admin access for test user');
-        showSuccess('Development mode: Admin access granted for testing');
-        
-        // Try to add admin role to the user if they don't have it
-        if (!user.roles || !user.roles.includes('admin')) {
-          console.log('Attempting to add admin role to test user...');
-          api.patch(`/users/${user._id}`, { roles: ['admin'] })
-            .then(res => {
-              console.log('Successfully added admin role to user:', res.data);
-              showSuccess('Admin role assigned successfully!');
-            })
-            .catch(err => {
-              console.log('Failed to add admin role:', err);
-              showError('Failed to assign admin role. Please contact an administrator.');
-            });
-        }
-      } else {
-        showError('Admin access required. You do not have permission to access this area.');
-        return;
-      }
+      showError('Admin access required. You do not have permission to access this area.');
+      return;
     }
     
     // Set data loaded flag to prevent multiple calls
@@ -526,27 +492,6 @@ function Admin() {
       setDataLoaded(false);
     };
   }, []);
-
-  // Add a fallback timer to proceed if verification takes too long
-  useEffect(() => {
-    console.log('Fallback useEffect triggered');
-    console.log('User in fallback:', user);
-    console.log('User roles in fallback:', user?.roles);
-    
-    if (!user || !user.roles?.includes('admin')) {
-      console.log('User not admin in fallback, returning');
-      return;
-    }
-    
-    console.log('User is admin, setting up fallback timer');
-    
-    const fallbackTimer = setTimeout(() => {
-      console.log('Fallback timer triggered - proceeding with admin access');
-      setAuthVerified(true);
-    }, 3000); // 3 second fallback
-    
-    return () => clearTimeout(fallbackTimer);
-  }, [user]);
 
   // Keyboard shortcuts
   useEffect(() => {
