@@ -71,6 +71,7 @@ export default function Profile() {
   const [formErrors, setFormErrors] = useState({});
   const [downgradeLoading, setDowngradeLoading] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Initialize form fields when user data loads
   const formInitializedRef = useRef(false);
@@ -378,7 +379,14 @@ export default function Profile() {
   };
 
   const handleAvatarClick = () => {
-    document.getElementById('avatar-upload').click();
+    console.log('Avatar click handler triggered');
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+      console.log('File input clicked via ref');
+    } else {
+      console.error('Avatar upload input ref not found');
+      showError('Avatar upload not available. Please refresh the page.');
+    }
   };
 
   // File validation helper
@@ -401,8 +409,10 @@ export default function Profile() {
   };
 
   const handleAvatarChange = async (e) => {
+    console.log('Avatar change event triggered', e.target.files);
     const file = e.target.files[0];
     if (file) {
+      console.log('File selected:', file.name, file.size, file.type);
       if (!validateFile(file)) {
         return;
       }
@@ -534,6 +544,7 @@ export default function Profile() {
               
               {/* Avatar Upload */}
               <input
+                ref={fileInputRef}
                 type="file"
                 id="avatar-upload"
                 accept="image/*"

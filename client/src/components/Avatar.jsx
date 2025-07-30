@@ -62,8 +62,15 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
 
   const bgColor = user ? `bg-${getUserColor(user)}` : 'bg-neutral-600';
 
+  const handleClick = (e) => {
+    console.log('Avatar component clicked');
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
-    <div className={containerClasses} onClick={onClick}>
+    <div className={containerClasses} onClick={handleClick}>
       {user?.avatar && !imageError ? (
         <img
           ref={imgRef}
