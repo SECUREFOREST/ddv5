@@ -823,6 +823,145 @@ export default function DarePerformerDashboard() {
       )
     },
     {
+      key: 'public',
+      label: 'Public Dares',
+      icon: SparklesIcon,
+      content: (
+        <div className="space-y-6">
+          {/* Onboarding/Intro Banner */}
+          <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
+            <div className="flex items-center gap-4">
+              <span className="text-3xl">🌎</span>
+              <div>
+                <div className="font-bold text-xl text-white mb-2">Participate in Public Dares & Switch Games</div>
+                <div className="text-white/70">Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Filters and Search */}
+          <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'dares', label: 'Dares' },
+                  { key: 'switches', label: 'Switch Games' },
+                ].map(f => (
+                  <button
+                    key={f.key}
+                    className={`px-6 py-3 rounded-xl font-semibold text-sm border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 min-h-[44px] ${
+                      (() => {
+                        // This would need to be connected to a state variable
+                        const currentFilter = 'all'; // Replace with actual state
+                        return currentFilter === f.key 
+                          ? 'bg-purple-600 text-white border-purple-500 shadow-lg' 
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20 hover:border-white/30'
+                      })()
+                    }`}
+                    onClick={() => {
+                      // This would need to be connected to a state setter
+                      console.log(`Filter: ${f.key}`);
+                    }}
+                    aria-pressed={false}
+                    aria-label={`Filter by ${f.label.toLowerCase()}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                <input
+                  type="text"
+                  className="w-full lg:w-80 rounded-xl border border-white/20 px-4 py-3 pl-10 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-white/50"
+                  placeholder="Search by creator or tag..."
+                  aria-label="Search public dares and switch games"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Public Dares Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-6">Public Dares</h2>
+            {filterAndSortAllDares(dedupeDaresByUser(publicDares))
+              .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+              .length === 0 ? (
+              <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30 text-center">
+                <div className="text-neutral-400 text-lg">No public dares available.</div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filterAndSortAllDares(dedupeDaresByUser(publicDares))
+                  .filter(dare => dare.creator?._id !== (user?.id || user?._id))
+                  .map(dare => (
+                    <div key={dare._id} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <StatusBadge status={dare.difficulty} />
+                          <div className="flex items-center gap-3">
+                            <span className="text-neutral-400 text-sm">Created by</span>
+                            <div className="flex items-center gap-2 group-hover:underline">
+                              <Avatar user={dare.creator} size={40} />
+                              <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => navigate(`/dare/consent/${dare._id}`)}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700"
+                          aria-label="Participate in this dare"
+                        >
+                          Participate
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </section>
+
+          {/* Public Switch Games Section */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-6">Public Switch Games</h2>
+            {mySwitchGames.filter(game => game.isPublic && game.status !== 'completed').length === 0 ? (
+              <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30 text-center">
+                <div className="text-neutral-400 text-lg">No public switch games available.</div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filterAndSortSwitchGames(mySwitchGames.filter(game => game.isPublic && game.status !== 'completed'))
+                  .map(game => (
+                    <div key={game._id} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <StatusBadge status={game.difficulty || game.creatorDare?.difficulty} />
+                          <div className="flex items-center gap-3">
+                            <span className="text-neutral-400 text-sm">Created by</span>
+                            <div className="flex items-center gap-2 group-hover:underline">
+                              <Avatar user={game.creator} size={40} />
+                              <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => navigate(`/switches/consent/${game._id}`)}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700"
+                          aria-label="Participate in this switch game"
+                        >
+                          Participate
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </section>
+        </div>
+      )
+    },
+    {
       key: 'active',
       label: 'My Active Dares',
       icon: ClockIcon,
@@ -1000,145 +1139,6 @@ export default function DarePerformerDashboard() {
               )}
             </div>
           </div>
-        </div>
-      )
-    },
-    {
-      key: 'public',
-      label: 'Public Dares',
-      icon: SparklesIcon,
-      content: (
-        <div className="space-y-6">
-          {/* Onboarding/Intro Banner */}
-          <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
-            <div className="flex items-center gap-4">
-              <span className="text-3xl">🌎</span>
-              <div>
-                <div className="font-bold text-xl text-white mb-2">Participate in Public Dares & Switch Games</div>
-                <div className="text-white/70">Use the filters or search to find something that excites you. Click <b>Participate</b> to get started.</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Filters and Search */}
-          <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { key: 'all', label: 'All' },
-                  { key: 'dares', label: 'Dares' },
-                  { key: 'switches', label: 'Switch Games' },
-                ].map(f => (
-                  <button
-                    key={f.key}
-                    className={`px-6 py-3 rounded-xl font-semibold text-sm border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 min-h-[44px] ${
-                      (() => {
-                        // This would need to be connected to a state variable
-                        const currentFilter = 'all'; // Replace with actual state
-                        return currentFilter === f.key 
-                          ? 'bg-purple-600 text-white border-purple-500 shadow-lg' 
-                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20 hover:border-white/30'
-                      })()
-                    }`}
-                    onClick={() => {
-                      // This would need to be connected to a state setter
-                      console.log(`Filter: ${f.key}`);
-                    }}
-                    aria-pressed={false}
-                    aria-label={`Filter by ${f.label.toLowerCase()}`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                <input
-                  type="text"
-                  className="w-full lg:w-80 rounded-xl border border-white/20 px-4 py-3 pl-10 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-white/50"
-                  placeholder="Search by creator or tag..."
-                  aria-label="Search public dares and switch games"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Public Dares Section */}
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Public Dares</h2>
-            {filterAndSortAllDares(dedupeDaresByUser(publicDares))
-              .filter(dare => dare.creator?._id !== (user?.id || user?._id))
-              .length === 0 ? (
-              <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30 text-center">
-                <div className="text-neutral-400 text-lg">No public dares available.</div>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {filterAndSortAllDares(dedupeDaresByUser(publicDares))
-                  .filter(dare => dare.creator?._id !== (user?.id || user?._id))
-                  .map(dare => (
-                    <div key={dare._id} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <StatusBadge status={dare.difficulty} />
-                          <div className="flex items-center gap-3">
-                            <span className="text-neutral-400 text-sm">Created by</span>
-                            <div className="flex items-center gap-2 group-hover:underline">
-                              <Avatar user={dare.creator} size={40} />
-                              <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => navigate(`/dare/consent/${dare._id}`)}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700"
-                          aria-label="Participate in this dare"
-                        >
-                          Participate
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </section>
-
-          {/* Public Switch Games Section */}
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-6">Public Switch Games</h2>
-            {mySwitchGames.filter(game => game.isPublic && game.status !== 'completed').length === 0 ? (
-              <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30 text-center">
-                <div className="text-neutral-400 text-lg">No public switch games available.</div>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {filterAndSortSwitchGames(mySwitchGames.filter(game => game.isPublic && game.status !== 'completed'))
-                  .map(game => (
-                    <div key={game._id} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <StatusBadge status={game.difficulty || game.creatorDare?.difficulty} />
-                          <div className="flex items-center gap-3">
-                            <span className="text-neutral-400 text-sm">Created by</span>
-                            <div className="flex items-center gap-2 group-hover:underline">
-                              <Avatar user={game.creator} size={40} />
-                              <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => navigate(`/switches/consent/${game._id}`)}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700"
-                          aria-label="Participate in this switch game"
-                        >
-                          Participate
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </section>
         </div>
       )
     },
