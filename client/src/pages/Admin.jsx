@@ -82,6 +82,15 @@ function Admin() {
   const [actionLoading, setActionLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [tabIdx, setTabIdx] = useState(0);
+  const [apiStatus, setApiStatus] = useState({
+    users: 'unknown',
+    dares: 'unknown',
+    reports: 'unknown',
+    appeals: 'unknown',
+    auditLog: 'unknown',
+    switchGames: 'unknown',
+    siteStats: 'unknown'
+  });
   const [dares, setDares] = useState([]);
   const [daresLoading, setDaresLoading] = useState(true);
   const [siteStats, setSiteStats] = useState(null);
@@ -177,19 +186,20 @@ function Admin() {
     console.error(`${operation} error:`, error);
     
     if (error.response?.status === 401) {
-      showError('Authentication required. Please log in again.');
+      // For admin endpoints, don't show error toast, just log
+      console.log(`Authentication required for ${operation}. Continuing with limited functionality.`);
       return 'auth_required';
     } else if (error.response?.status === 403) {
       showError('Access denied. You do not have permission to perform this action.');
       return 'permission_denied';
     } else if (error.response?.status === 404) {
-      showError('Resource not found.');
+      console.log(`Resource not found for ${operation}.`);
       return 'not_found';
     } else if (error.code === 'ECONNABORTED') {
-      showError('Request timed out. Please try again.');
+      console.log(`Request timed out for ${operation}.`);
       return 'timeout';
     } else {
-      showError(`Failed to ${operation}. Please try again.`);
+      console.log(`Failed to ${operation}. Continuing with limited functionality.`);
       return 'general_error';
     }
   }, [showError]);
@@ -224,12 +234,15 @@ function Admin() {
     if (!checkAdminPermission()) return;
     
     setDataLoading(true);
+    setApiStatus(prev => ({ ...prev, users: 'loading' }));
     api.get('/users', { params: { search: searchId } })
       .then(res => {
         setUsers(Array.isArray(res.data) ? res.data : []);
+        setApiStatus(prev => ({ ...prev, users: 'success' }));
       })
       .catch((error) => {
         setUsers([]);
+        setApiStatus(prev => ({ ...prev, users: 'error' }));
         handleApiError(error, 'load users');
       })
       .finally(() => setDataLoading(false));
@@ -328,6 +341,7 @@ function Admin() {
       })
       .catch((error) => {
         setSwitchGames([]);
+        console.log('Switch games fetch error:', error.response?.data || error.message);
         handleApiError(error, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
@@ -432,13 +446,18 @@ function Admin() {
           })
           .catch(err => {
             console.log('Token refresh failed:', err);
-            showError('Authentication token expired. Please log in again.');
-            return;
+            // Don't show error for token refresh failure, just continue with limited functionality
+            console.log('Continuing with limited admin functionality due to token refresh failure');
+            setDataLoaded(true);
+            setIsInitializing(false);
           });
         return;
       } else {
         console.log('No refresh token found');
-        showError('Authentication token not found. Please log in again.');
+        // Don't show error, just continue with limited functionality
+        console.log('Continuing with limited admin functionality');
+        setDataLoaded(true);
+        setIsInitializing(false);
         return;
       }
     }
@@ -508,8 +527,8 @@ function Admin() {
     // Set data loaded flag to prevent multiple calls
     setDataLoaded(true);
     
-    // Load all admin data
-    Promise.all([
+    // Load all admin data with error handling
+    Promise.allSettled([
       fetchUsers(),
       fetchDares(),
       fetchReports(),
@@ -517,7 +536,12 @@ function Admin() {
       fetchAuditLog(),
       fetchSwitchGames(),
       fetchSiteStats()
-    ]).finally(() => {
+    ]).then((results) => {
+      console.log('Admin data loading results:', results);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+      console.log(`Admin data loading: ${successful} successful, ${failed} failed`);
+    }).finally(() => {
       setIsInitializing(false);
     });
     
@@ -1036,6 +1060,23 @@ function Admin() {
             <p className="text-xl sm:text-2xl text-neutral-300 mb-4">
               Manage users, dares, and system settings
             </p>
+            
+            {/* API Status Indicator */}
+            <div className="text-sm text-neutral-400 bg-neutral-800/50 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                <span>API Status:</span>
+                {Object.entries(apiStatus).map(([key, status]) => (
+                  <span key={key} className={`px-2 py-1 rounded text-xs ${
+                    status === 'success' ? 'bg-green-600/20 text-green-400' :
+                    status === 'error' ? 'bg-red-600/20 text-red-400' :
+                    status === 'loading' ? 'bg-yellow-600/20 text-yellow-400' :
+                    'bg-gray-600/20 text-gray-400'
+                  }`}>
+                    {key}: {status}
+                  </span>
+                ))}
+              </div>
+            </div>
             
             {/* Keyboard Shortcuts Hint */}
             <div className="text-sm text-neutral-400 bg-neutral-800/50 rounded-lg p-3 inline-block">
