@@ -532,7 +532,7 @@ export default function Profile() {
               <div className="relative group" onClick={handleAvatarClick}>
                 <Avatar 
                   user={user} 
-                  size={120} 
+                  size={80} 
                   border={true} 
                   shadow={true}
                   className="cursor-pointer hover:scale-105 transition-transform duration-200"
