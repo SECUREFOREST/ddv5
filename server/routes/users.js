@@ -93,6 +93,7 @@ router.get('/me', auth, async (req, res) => {
 router.get('/associates', auth, async (req, res) => {
   try {
     const userId = req.userId;
+    console.log('Fetching associates for user:', userId);
     
     // Find users the current user has interacted with (through dares or switch games)
     const dares = await Dare.find({
@@ -102,6 +103,8 @@ router.get('/associates', auth, async (req, res) => {
       ]
     }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar');
     
+    console.log('Found dares:', dares.length);
+    
     const switchGames = await SwitchGame.find({
       $or: [
         { creator: userId },
@@ -109,19 +112,21 @@ router.get('/associates', auth, async (req, res) => {
       ]
     }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar');
     
+    console.log('Found switch games:', switchGames.length);
+    
     // Extract unique users from interactions
     const associateIds = new Set();
     const associates = [];
     
     // Add users from dares
     dares.forEach(dare => {
-      if (dare.creator && dare.creator._id.toString() !== userId) {
+      if (dare.creator && dare.creator._id && dare.creator._id.toString() !== userId) {
         if (!associateIds.has(dare.creator._id.toString())) {
           associateIds.add(dare.creator._id.toString());
           associates.push(dare.creator);
         }
       }
-      if (dare.performer && dare.performer._id.toString() !== userId) {
+      if (dare.performer && dare.performer._id && dare.performer._id.toString() !== userId) {
         if (!associateIds.has(dare.performer._id.toString())) {
           associateIds.add(dare.performer._id.toString());
           associates.push(dare.performer);
@@ -131,13 +136,13 @@ router.get('/associates', auth, async (req, res) => {
     
     // Add users from switch games
     switchGames.forEach(game => {
-      if (game.creator && game.creator._id.toString() !== userId) {
+      if (game.creator && game.creator._id && game.creator._id.toString() !== userId) {
         if (!associateIds.has(game.creator._id.toString())) {
           associateIds.add(game.creator._id.toString());
           associates.push(game.creator);
         }
       }
-      if (game.participant && game.participant._id.toString() !== userId) {
+      if (game.participant && game.participant._id && game.participant._id.toString() !== userId) {
         if (!associateIds.has(game.participant._id.toString())) {
           associateIds.add(game.participant._id.toString());
           associates.push(game.participant);
@@ -145,9 +150,11 @@ router.get('/associates', auth, async (req, res) => {
       }
     });
     
+    console.log('Total associates found:', associates.length);
     res.json(associates);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch associates.' });
+    console.error('Error in associates endpoint:', err);
+    res.status(500).json({ error: 'Failed to fetch associates.', details: err.message });
   }
 });
 
