@@ -629,7 +629,7 @@ export default function DarePerformerDashboard() {
     }
   };
 
-  // Tab configuration with better UX
+  // Refactored tabs array to match requested structure
   const tabs = [
     {
       key: 'overview',
@@ -770,7 +770,7 @@ export default function DarePerformerDashboard() {
     },
     {
       key: 'active',
-      label: 'Active Dares',
+      label: 'My Active Dares',
       icon: ClockIcon,
       content: (
         <div className="space-y-6">
@@ -791,7 +791,6 @@ export default function DarePerformerDashboard() {
                 Filters
               </button>
             </div>
-            
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <select
@@ -803,7 +802,6 @@ export default function DarePerformerDashboard() {
                   <option value="in_progress">In Progress</option>
                   <option value="waiting_for_participant">Waiting</option>
                 </select>
-                
                 <select
                   value={filters.difficulty}
                   onChange={(e) => setFilters(prev => ({ ...prev, difficulty: e.target.value }))}
@@ -814,7 +812,6 @@ export default function DarePerformerDashboard() {
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
-                
                 <input
                   type="text"
                   placeholder="Search dares..."
@@ -822,7 +819,6 @@ export default function DarePerformerDashboard() {
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                
                 <button
                   onClick={() => setFilters({ status: '', difficulty: '', type: '', search: '' })}
                   className="flex items-center justify-center gap-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg px-3 py-2 transition-colors"
@@ -833,34 +829,6 @@ export default function DarePerformerDashboard() {
               </div>
             )}
           </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <button
-              onClick={() => navigate('/dare/select')}
-              className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Perform New Dare
-            </button>
-            
-            <button
-              onClick={() => navigate('/dare/create')}
-              className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Create Dare
-            </button>
-            
-            <button
-              onClick={() => navigate('/public-dares')}
-              className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <SparklesIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Browse Public Dares
-            </button>
-          </div>
-
           {/* Dares List */}
           {dataLoading.ongoing ? (
             <div className="space-y-4">
@@ -897,7 +865,6 @@ export default function DarePerformerDashboard() {
                   currentUserId={user?.id || user?._id}
                 />
               ))}
-              
               {filterDares(ongoing).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
@@ -914,7 +881,7 @@ export default function DarePerformerDashboard() {
     },
     {
       key: 'completed',
-      label: 'Completed',
+      label: 'Completed Dares',
       icon: TrophyIcon,
       content: (
         <div className="space-y-6">
@@ -934,290 +901,12 @@ export default function DarePerformerDashboard() {
                   currentUserId={user?.id || user?._id}
                 />
               ))}
-              
               {filterDares(completed).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
                     <TrophyIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                     <div className="text-neutral-400 text-lg mb-2">No completed dares yet</div>
                     <p className="text-neutral-500 text-sm">Complete your first dare to see it here</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      key: 'switch',
-      label: 'Switch Games',
-      icon: FireIcon,
-      content: (
-        <div className="space-y-6">
-          {/* Slot Management & Filters */}
-          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white">Switch Games</h3>
-                <div className="text-sm text-neutral-400">
-                  {mySwitchGames.filter(game => game.status === 'in_progress').length} active • {mySwitchGames.filter(game => game.status === 'waiting_for_participant').length} waiting
-                </div>
-              </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
-              >
-                <FunnelIcon className="w-4 h-4" />
-                Filters
-              </button>
-            </div>
-            
-            {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <select
-                  value={switchStatusFilter}
-                  onChange={(e) => setSwitchStatusFilter(e.target.value)}
-                  className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">All Status</option>
-                  <option value="waiting_for_participant">Waiting for Participant</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="forfeited">Forfeited</option>
-                </select>
-                
-                <select
-                  value={switchDifficultyFilter}
-                  onChange={(e) => setSwitchDifficultyFilter(e.target.value)}
-                  className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">All Difficulties</option>
-                  {DIFFICULTY_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-                
-                <input
-                  type="text"
-                  placeholder="Search switch games..."
-                  value={switchParticipantFilter}
-                  onChange={(e) => setSwitchParticipantFilter(e.target.value)}
-                  className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                
-                <button
-                  onClick={() => {
-                    setSwitchStatusFilter('');
-                    setSwitchDifficultyFilter('');
-                    setSwitchParticipantFilter('');
-                  }}
-                  className="flex items-center justify-center gap-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg px-3 py-2 transition-colors"
-                >
-                  <XMarkIcon className="w-4 h-4" />
-                  Clear
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <button
-              onClick={() => navigate('/switches')}
-              className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Browse Switch Games
-            </button>
-            
-            <button
-              onClick={() => navigate('/switches/create')}
-              className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Create Switch Game
-            </button>
-            
-            <button
-              onClick={() => navigate('/switches/participate')}
-              className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Participate in Switch Game
-            </button>
-            
-            <button
-              onClick={() => navigate('/switches/join')}
-              className="group bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl p-4 font-semibold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              Join Switch Game
-            </button>
-            
-            <button
-              onClick={() => navigate('/switches/history')}
-              className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              <TrophyIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              View History
-            </button>
-          </div>
-
-          {/* Switch Games List */}
-          {dataLoading.switchGames ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50 animate-pulse">
-                  <div className="h-4 bg-neutral-700 rounded w-3/4 mb-4"></div>
-                  <div className="h-3 bg-neutral-700 rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-neutral-700 rounded w-1/3"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filterAndSortSwitchGames(mySwitchGames).map((game, idx) => (
-                <DareCard
-                  key={game._id}
-                  description={game.creatorDare?.description || ''}
-                  difficulty={game.difficulty || game.creatorDare?.difficulty}
-                  tags={game.tags}
-                  status={game.status}
-                  creator={game.creator}
-                  performer={game.participant}
-                  currentUserId={user?.id || user?._id}
-                  timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
-                  actions={
-                    <div className="flex items-center gap-2">
-                      {game.status === 'waiting_for_participant' && game.creator?._id === user?.id && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/edit`)}
-                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      
-                      <button
-                        onClick={() => navigate(`/switches/${game._id}`)}
-                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                      >
-                        View Details
-                      </button>
-                      
-                      {game.status === 'waiting_for_participant' && game.creator?._id !== user?.id && (
-                        <button
-                          onClick={() => handleJoinSwitchGame(game._id)}
-                          className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
-                        >
-                          Participate
-                        </button>
-                      )}
-                      
-                      {game.status === 'in_progress' && game.participant?._id === user?.id && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/perform`)}
-                          className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
-                        >
-                          Perform
-                        </button>
-                      )}
-                      
-                      {game.status === 'completed' && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/results`)}
-                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                        >
-                          View Results
-                        </button>
-                      )}
-                    </div>
-                  }
-                />
-              ))}
-              
-              {filterAndSortSwitchGames(mySwitchGames).length === 0 && (
-                <div className="text-center py-12">
-                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
-                    <FireIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <div className="text-neutral-400 text-lg mb-2">No switch games</div>
-                    <p className="text-neutral-500 text-sm">Create or join a switch game to get started</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      key: 'demand',
-      label: 'Demand Dares',
-      icon: DocumentPlusIcon,
-      content: (
-        <div className="space-y-6">
-          <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Demand Dares</h3>
-            
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <button
-                onClick={() => navigate('/dare/create')}
-                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Create Demand Dare
-              </button>
-              
-              <button
-                onClick={() => navigate('/public-dares')}
-                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <SparklesIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Browse Public Demands
-              </button>
-              
-              <button
-                onClick={() => navigate('/subs/new')}
-                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Submit Offer
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {demandSlots.map((slot, idx) => (
-                <div key={slot._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="font-semibold text-white mb-2">{slot.description}</div>
-                      <div className="text-sm text-neutral-400">
-                        Creator: {slot.creator?.username || 'Unknown'}
-                      </div>
-                      <div className="text-sm text-neutral-400">
-                        Status: {slot.status}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleWithdrawDemand(idx)}
-                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
-                      >
-                        Withdraw
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {demandSlots.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
-                    <DocumentPlusIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <div className="text-neutral-400 text-lg mb-2">No demand dares</div>
-                    <p className="text-neutral-500 text-sm">Create demand dares to see them here</p>
                   </div>
                 </div>
               )}
@@ -1234,37 +923,7 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Public Dares</h3>
-            
-            {/* Advanced Filters */}
             {renderAdvancedFilters()}
-            
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <button
-                onClick={() => navigate('/dare/select')}
-                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Perform Random Dare
-              </button>
-              
-              <button
-                onClick={() => navigate('/dare/create')}
-                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Create Public Dare
-              </button>
-              
-              <button
-                onClick={() => navigate('/subs/new')}
-                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Submit Offer
-              </button>
-            </div>
-            
             <div className="space-y-4">
               {filterAndSortAllDares(dedupeDaresByUser(publicDares))
                 .filter(dare => dare.creator?._id !== (user?.id || user?._id))
@@ -1290,7 +949,6 @@ export default function DarePerformerDashboard() {
                     currentUserId={user?.id || user?._id}
                   />
                 ))}
-              
               {filterAndSortAllDares(dedupeDaresByUser(publicDares))
                 .filter(dare => dare.creator?._id !== (user?.id || user?._id))
                 .length === 0 && (
@@ -1308,198 +966,77 @@ export default function DarePerformerDashboard() {
       )
     },
     {
-      key: 'switch',
-      label: 'Switch Games',
-      icon: PlayIcon,
+      key: 'my-switch',
+      label: 'My Switch Games',
+      icon: FireIcon,
       content: (
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">My Switch Games</h3>
-              <button
-                onClick={() => navigate('/switches/create')}
-                className="bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-primary-dark hover:to-primary transition-all duration-300 flex items-center gap-2"
-              >
-                <PlusIcon className="w-4 h-4" />
-                Create Switch Game
-              </button>
-            </div>
-            
-            {/* Advanced Filters */}
+            <h3 className="text-lg font-semibold text-white mb-4">My Switch Games</h3>
             {renderSwitchGameFilters()}
-            
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-              <button
-                onClick={() => navigate('/switches')}
-                className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Browse Switch Games
-              </button>
-              
-              <button
-                onClick={() => navigate('/switches/create')}
-                className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Create Switch Game
-              </button>
-              
-              <button
-                onClick={() => navigate('/switches/participate')}
-                className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Participate in Switch Game
-              </button>
-              
-              <button
-                onClick={() => navigate('/switches/join')}
-                className="group bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl p-4 font-semibold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                Join Switch Game
-              </button>
-              
-              <button
-                onClick={() => navigate('/switches/history')}
-                className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <TrophyIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                View History
-              </button>
-            </div>
-            
             <div className="space-y-4">
-              {filterAndSortSwitchGames(mySwitchGames).map((game, idx) => (
-                <Accordion
-                  key={game._id}
-                  title={
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex-1">
-                        <div className="font-semibold text-white">{game.creatorDare?.description || 'Switch Game'}</div>
-                        <div className="text-sm text-neutral-400">Status: {game.status}</div>
-                      </div>
-                      <StatusBadge status={game.status} />
-                    </div>
-                  }
-                  defaultOpen={false}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="font-semibold text-white mb-2">{game.creatorDare?.description || 'Switch Game'}</div>
-                      <div className="text-sm text-neutral-400">
-                        Status: {game.status}
-                      </div>
-                      <div className="text-sm text-neutral-400">
-                        Creator: {game.creator?.username || 'Unknown'}
-                      </div>
-                      {game.participant && (
-                        <div className="text-sm text-neutral-400">
-                          Participant: {game.participant.username || 'Unknown'}
-                        </div>
-                      )}
-                      {game.winner && (
-                        <div className="text-sm text-neutral-400">
-                          Winner: {game.winner.username || 'Unknown'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {game.status === 'waiting_for_participant' && (
-                        <button
-                          onClick={() => handleJoinSwitchGame(game._id)}
-                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                        >
-                          Join
-                        </button>
-                      )}
-                      
-                      {game.status === 'in_progress' && game.participant?._id === (user?.id || user?._id) && (
-                        <button
-                          onClick={() => {
-                            const proofText = prompt('Enter your proof:');
-                            if (proofText) handleSubmitSwitchProof(game._id, proofText);
-                          }}
-                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                        >
-                          Submit Proof
-                        </button>
-                      )}
-                      
-                      {game.status === 'in_progress' && game.creator?._id === (user?.id || user?._id) && (
-                        <button
-                          onClick={() => {
-                            const proofText = prompt('Enter your proof:');
-                            if (proofText) handleSubmitSwitchProof(game._id, proofText);
-                          }}
-                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                        >
-                          Submit Proof
-                        </button>
-                      )}
-                      
-                      {(game.status === 'waiting_for_participant' || game.status === 'in_progress') && (
-                        <button
-                          onClick={() => handleWithdrawSwitchGame(mySwitchGames.findIndex(g => g._id === game._id))}
-                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
-                        >
-                          Withdraw
-                        </button>
-                      )}
-                      
-                      {game.status === 'completed' && (
-                        <div className="flex gap-1">
-                          <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded-lg text-xs font-semibold">
-                            Completed
-                          </span>
-                          {game.winner && (
-                            <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-lg text-xs font-semibold">
-                              Winner: {game.winner.username}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Additional switch game buttons */}
-                      {game.status === 'waiting_for_participant' && game.creator?._id === (user?.id || user?._id) && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/edit`)}
-                          className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                        >
-                          Edit
-                        </button>
-                      )}
-                      
-                      {game.status === 'in_progress' && (
+              {filterAndSortSwitchGames(mySwitchGames.filter(game => game.status !== 'completed'))
+                .map((game, idx) => (
+                  <DareCard
+                    key={game._id}
+                    description={game.creatorDare?.description || ''}
+                    difficulty={game.difficulty || game.creatorDare?.difficulty}
+                    tags={game.tags}
+                    status={game.status}
+                    creator={game.creator}
+                    performer={game.participant}
+                    currentUserId={user?.id || user?._id}
+                    timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
+                    actions={
+                      <div className="flex items-center gap-2">
+                        {game.status === 'waiting_for_participant' && game.creator?._id === user?.id && (
+                          <button
+                            onClick={() => navigate(`/switches/${game._id}/edit`)}
+                            className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                          >
+                            Edit
+                          </button>
+                        )}
                         <button
                           onClick={() => navigate(`/switches/${game._id}`)}
-                          className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
                         >
                           View Details
                         </button>
-                      )}
-                      
-                      {game.status === 'waiting_for_participant' && game.creator?._id !== (user?.id || user?._id) && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/participate`)}
-                          className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
-                        >
-                          Participate
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Accordion>
-              ))}
-              
-              {filterAndSortSwitchGames(mySwitchGames).length === 0 && (
+                        {game.status === 'waiting_for_participant' && game.creator?._id !== user?.id && (
+                          <button
+                            onClick={() => handleJoinSwitchGame(game._id)}
+                            className="px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
+                          >
+                            Participate
+                          </button>
+                        )}
+                        {game.status === 'in_progress' && game.participant?._id === user?.id && (
+                          <button
+                            onClick={() => navigate(`/switches/${game._id}/perform`)}
+                            className="px-3 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                          >
+                            Perform
+                          </button>
+                        )}
+                        {game.status === 'completed' && (
+                          <button
+                            onClick={() => navigate(`/switches/${game._id}/results`)}
+                            className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                          >
+                            View Results
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
+                ))}
+              {filterAndSortSwitchGames(mySwitchGames.filter(game => game.status !== 'completed')).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
-                    <PlayIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <FireIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                     <div className="text-neutral-400 text-lg mb-2">No switch games</div>
-                    <p className="text-neutral-500 text-sm">Create or join switch games to see them here</p>
+                    <p className="text-neutral-500 text-sm">Create or join a switch game to get started</p>
                   </div>
                 </div>
               )}
@@ -1509,79 +1046,40 @@ export default function DarePerformerDashboard() {
       )
     },
     {
-      key: 'switch-history',
-      label: 'Switch History',
+      key: 'completed-switch',
+      label: 'Completed Switch Games',
       icon: TrophyIcon,
       content: (
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Switch Game History</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Completed Switch Games</h3>
             <div className="space-y-4">
-              {switchGameHistory.map(game => (
-                <div key={game._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="font-semibold text-white mb-2">{game.creatorDare?.description || 'Switch Game'}</div>
-                      <div className="text-sm text-neutral-400">
-                        Status: {game.status}
-                      </div>
-                      <div className="text-sm text-neutral-400">
-                        Creator: {game.creator?.username || 'Unknown'}
-                      </div>
-                      {game.participant && (
-                        <div className="text-sm text-neutral-400">
-                          Participant: {game.participant.username || 'Unknown'}
-                        </div>
-                      )}
-                      {game.winner && (
-                        <div className="text-sm text-neutral-400">
-                          Winner: {game.winner.username || 'Unknown'}
-                        </div>
-                      )}
-                      {game.createdAt && (
-                        <div className="text-sm text-neutral-400">
-                          Created: {new Date(game.createdAt).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => navigate(`/switches/${game._id}`)}
-                        className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-                      >
-                        View Details
-                      </button>
-                      
-                      {game.status === 'completed' && (
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}/results`)}
-                          className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
-                        >
-                          View Results
-                        </button>
-                      )}
-                      
-                      {game.status === 'completed' && game.winner && (
-                        <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded-lg text-xs font-semibold">
-                          Winner: {game.winner.username}
-                        </span>
-                      )}
-                      
-                      {game.status === 'forfeited' && (
-                        <span className="px-2 py-1 bg-red-600/20 text-red-400 rounded-lg text-xs font-semibold">
-                          Forfeited
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              {mySwitchGames.filter(game => game.status === 'completed').map(game => (
+                <DareCard
+                  key={game._id}
+                  description={game.creatorDare?.description || ''}
+                  difficulty={game.difficulty || game.creatorDare?.difficulty}
+                  tags={game.tags}
+                  status={game.status}
+                  creator={game.creator}
+                  performer={game.participant}
+                  currentUserId={user?.id || user?._id}
+                  timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
+                  actions={
+                    <button
+                      onClick={() => navigate(`/switches/${game._id}/results`)}
+                      className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                    >
+                      View Results
+                    </button>
+                  }
+                />
               ))}
-              
-              {switchGameHistory.length === 0 && (
+              {mySwitchGames.filter(game => game.status === 'completed').length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
                     <TrophyIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <div className="text-neutral-400 text-lg mb-2">No switch game history</div>
+                    <div className="text-neutral-400 text-lg mb-2">No completed switch games</div>
                     <p className="text-neutral-500 text-sm">Complete switch games to see them here</p>
                   </div>
                 </div>
@@ -1592,32 +1090,42 @@ export default function DarePerformerDashboard() {
       )
     },
     {
-      key: 'associates',
-      label: 'Associates',
-      icon: UserIcon,
+      key: 'public-switch',
+      label: 'Public Switch Games',
+      icon: PlayIcon,
       content: (
         <div className="space-y-6">
           <div className="bg-neutral-900/60 rounded-xl p-4 border border-neutral-800/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Associates</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Public Switch Games</h3>
             <div className="space-y-4">
-              {associates.map((associate, idx) => (
-                <div key={associate._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                  <div className="flex items-center gap-4">
-                    <Avatar user={associate} size={48} />
-                    <div className="flex-1">
-                      <div className="font-semibold text-white">{associate.fullName || associate.username}</div>
-                      <div className="text-sm text-neutral-400">@{associate.username}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {associates.length === 0 && (
+              {filterAndSortSwitchGames(mySwitchGames.filter(game => game.isPublic && game.status !== 'completed'))
+                .map(game => (
+                  <DareCard
+                    key={game._id}
+                    description={game.creatorDare?.description || ''}
+                    difficulty={game.difficulty || game.creatorDare?.difficulty}
+                    tags={game.tags}
+                    status={game.status}
+                    creator={game.creator}
+                    performer={game.participant}
+                    currentUserId={user?.id || user?._id}
+                    timeInfo={game.createdAt ? timeAgoOrDuration(game.createdAt, game.completedAt, game.status) : null}
+                    actions={
+                      <button
+                        onClick={() => navigate(`/switches/${game._id}`)}
+                        className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                      >
+                        View Details
+                      </button>
+                    }
+                  />
+                ))}
+              {filterAndSortSwitchGames(mySwitchGames.filter(game => game.isPublic && game.status !== 'completed')).length === 0 && (
                 <div className="text-center py-12">
                   <div className="bg-neutral-900/40 rounded-xl p-8 border border-neutral-800/30">
-                    <UserIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <div className="text-neutral-400 text-lg mb-2">No associates found</div>
-                    <p className="text-neutral-500 text-sm">Connect with other users to see them here</p>
+                    <PlayIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <div className="text-neutral-400 text-lg mb-2">No public switch games</div>
+                    <p className="text-neutral-500 text-sm">Check back later for new public switch games</p>
                   </div>
                 </div>
               )}
