@@ -406,22 +406,26 @@ export default function DarePerformerDashboard() {
       // Handle successful responses
       if (ongoingData.status === 'fulfilled') {
         const validatedData = validateApiResponse(ongoingData.value, API_RESPONSE_TYPES.DARE_ARRAY);
-        setOngoing(validatedData || []);
+        console.log('Ongoing data:', { original: ongoingData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setOngoing(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (completedData.status === 'fulfilled') {
         const validatedData = validateApiResponse(completedData.value, API_RESPONSE_TYPES.DARE_ARRAY);
-        setCompleted(validatedData || []);
+        console.log('Completed data:', { original: completedData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setCompleted(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (switchData.status === 'fulfilled') {
         const validatedData = validateApiResponse(switchData.value, API_RESPONSE_TYPES.SWITCH_ARRAY);
-        setMySwitchGames(validatedData || []);
+        console.log('Switch data:', { original: switchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicData.status === 'fulfilled') {
         const validatedData = validateApiResponse(publicData.value, API_RESPONSE_TYPES.DARE_ARRAY);
-        setPublicDares(validatedData || []);
+        console.log('Public data:', { original: publicData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
       
       // 2025: Smart error handling
@@ -683,7 +687,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {ongoing.map((dare) => (
+                {Array.isArray(ongoing) && ongoing.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
               </div>
@@ -719,7 +723,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {completed.map((dare) => (
+                {Array.isArray(completed) && completed.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
               </div>
@@ -763,7 +767,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {mySwitchGames.map((game) => (
+                {Array.isArray(mySwitchGames) && mySwitchGames.map((game) => (
                   <SwitchGameCard key={game._id} game={game} />
                 ))}
               </div>
@@ -799,7 +803,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {publicDares.map((dare) => (
+                {Array.isArray(publicDares) && publicDares.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
               </div>
@@ -835,7 +839,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {associates.map((associate) => (
+                {Array.isArray(associates) && associates.map((associate) => (
                   <NeumorphicCard key={associate._id} variant="elevated" interactive className="p-4">
                     <div className="flex items-center gap-3">
                       <Avatar user={associate} size={40} />
