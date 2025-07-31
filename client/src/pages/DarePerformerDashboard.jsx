@@ -359,7 +359,7 @@ export default function DarePerformerDashboard() {
       .then(res => setPublicDemandDares(Array.isArray(res.data) ? res.data : []))
       .catch(() => setPublicDemandError('Failed to load public demand dares.'))
       .finally(() => setPublicDemandLoading(false));
-  }, [selectedDemandDifficulties, selectedDemandTypes, demandKeywordFilter, demandCreatorFilter]);
+  }, [demandState.selectedDifficulties, demandState.selectedTypes, demandState.keywordFilter, demandState.creatorFilter]);
 
   // Fetch user's demand slots (restored)
   useEffect(() => {
@@ -372,13 +372,13 @@ export default function DarePerformerDashboard() {
   // Fetch switch game activity feed
   useEffect(() => {
     if (activeTab !== 'switch') return;
-    setSwitchGameActivityLoading(true);
+    setSwitchState(prev => ({ ...prev, activityLoading: true }));
     api.get('/activity-feed?limit=20')
       .then(res => {
-        setSwitchGameActivityFeed(Array.isArray(res.data) ? res.data.filter(a => a.switchGame) : []);
+        setSwitchState(prev => ({ ...prev, activityFeed: Array.isArray(res.data) ? res.data.filter(a => a.switchGame) : [] }));
       })
-      .catch(() => setSwitchGameActivityFeed([]))
-      .finally(() => setSwitchGameActivityLoading(false));
+      .catch(() => setSwitchState(prev => ({ ...prev, activityFeed: [] })))
+      .finally(() => setSwitchState(prev => ({ ...prev, activityLoading: false })));
   }, [activeTab]);
 
   // Real-time updates using custom hooks
@@ -387,7 +387,7 @@ export default function DarePerformerDashboard() {
   }, { enabled: activeTab === 'public' });
 
   const activityRealtime = useActivityRealtimeUpdates((activity) => {
-    setSwitchGameActivityFeed(prev => [activity, ...prev.slice(0, 19)]); // Keep only 20 items
+    setSwitchState(prev => ({ ...prev, activityFeed: [activity, ...prev.activityFeed.slice(0, 19)] })); // Keep only 20 items
   }, { enabled: activeTab === 'overview' });
 
   // Real-time updates for switch games
@@ -423,9 +423,9 @@ export default function DarePerformerDashboard() {
     let filtered = dares;
     if (statusFilter) filtered = filtered.filter(d => d.status === statusFilter);
     if (selectedDifficulties.length > 0) filtered = filtered.filter(d => selectedDifficulties.includes(d.difficulty));
-    if (keywordFilter) filtered = filtered.filter(d => 
-      d.description?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
-      d.creator?.username?.toLowerCase().includes(keywordFilter.toLowerCase())
+        if (filters.keyword) filtered = filtered.filter(d =>
+      d.description?.toLowerCase().includes(filters.keyword.toLowerCase()) ||
+      d.creator?.username?.toLowerCase().includes(filters.keyword.toLowerCase())
     );
     if (creatorFilter) filtered = filtered.filter(d =>
       d.creator?.username?.toLowerCase().includes(creatorFilter.toLowerCase())
@@ -435,18 +435,18 @@ export default function DarePerformerDashboard() {
 
   const filterAndSortSwitchGames = (games) => {
     let filtered = games;
-    if (switchStatusFilter) filtered = filtered.filter(g => g.status === switchStatusFilter);
-    if (switchDifficultyFilter) filtered = filtered.filter(g => 
-      g.difficulty === switchDifficultyFilter || g.creatorDare?.difficulty === switchDifficultyFilter
+        if (switchState.statusFilter) filtered = filtered.filter(g => g.status === switchState.statusFilter);
+    if (switchState.difficultyFilter) filtered = filtered.filter(g =>
+      g.difficulty === switchState.difficultyFilter || g.creatorDare?.difficulty === switchState.difficultyFilter
     );
-    if (switchParticipantFilter) filtered = filtered.filter(g =>
-      (g.creator?.username && g.creator.username.toLowerCase().includes(switchParticipantFilter.toLowerCase())) ||
-      (g.participant?.username && g.participant.username.toLowerCase().includes(switchParticipantFilter.toLowerCase()))
+    if (switchState.participantFilter) filtered = filtered.filter(g =>
+      (g.creator?.username && g.creator.username.toLowerCase().includes(switchState.participantFilter.toLowerCase())) ||
+      (g.participant?.username && g.participant.username.toLowerCase().includes(switchState.participantFilter.toLowerCase()))
     );
-    if (switchSort === 'recent') filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-    if (switchSort === 'oldest') filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
-    if (switchSort === 'status') filtered = filtered.slice().sort((a, b) => (a.status || '').localeCompare(b.status || ''));
-    if (switchSort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || a.creatorDare?.difficulty || '').localeCompare(b.difficulty || b.creatorDare?.difficulty || ''));
+    if (switchState.sort === 'recent') filtered = filtered.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+    if (switchState.sort === 'oldest') filtered = filtered.slice().sort((a, b) => new Date(a.updatedAt || a.createdAt) - new Date(b.updatedAt || b.createdAt));
+    if (switchState.sort === 'status') filtered = filtered.slice().sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+    if (switchState.sort === 'difficulty') filtered = filtered.slice().sort((a, b) => (a.difficulty || a.creatorDare?.difficulty || '').localeCompare(b.difficulty || b.creatorDare?.difficulty || ''));
     return filtered;
   };
 
@@ -501,13 +501,16 @@ export default function DarePerformerDashboard() {
           key={d.value}
           type="button"
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
-            ${selectedDemandDifficulties.includes(d.value)
+            ${demandState.selectedDifficulties.includes(d.value)
               ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
-          onClick={() => setSelectedDemandDifficulties(selectedDemandDifficulties.includes(d.value)
-            ? selectedDemandDifficulties.filter(diff => diff !== d.value)
-            : [...selectedDemandDifficulties, d.value])}
-          aria-pressed={selectedDemandDifficulties.includes(d.value)}
+          onClick={() => setDemandState(prev => ({
+            ...prev,
+            selectedDifficulties: prev.selectedDifficulties.includes(d.value)
+              ? prev.selectedDifficulties.filter(diff => diff !== d.value)
+              : [...prev.selectedDifficulties, d.value]
+          }))}
+          aria-pressed={demandState.selectedDifficulties.includes(d.value)}
           aria-label={`Toggle demand difficulty: ${d.label}`}
         >
           <span>{d.label}</span>
@@ -522,11 +525,14 @@ export default function DarePerformerDashboard() {
         <button
           key={opt.value}
           type="button"
-          className={`px-3 py-1 rounded border text-sm font-medium transition ${selectedDemandTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
-          onClick={() => setSelectedDemandTypes(selectedDemandTypes.includes(opt.value)
-            ? selectedDemandTypes.filter(t => t !== opt.value)
-            : [...selectedDemandTypes, opt.value])}
-          aria-pressed={selectedDemandTypes.includes(opt.value)}
+          className={`px-3 py-1 rounded border text-sm font-medium transition ${demandState.selectedTypes.includes(opt.value) ? 'bg-blue-500 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+          onClick={() => setDemandState(prev => ({
+            ...prev,
+            selectedTypes: prev.selectedTypes.includes(opt.value)
+              ? prev.selectedTypes.filter(t => t !== opt.value)
+              : [...prev.selectedTypes, opt.value]
+          }))}
+          aria-pressed={demandState.selectedTypes.includes(opt.value)}
           aria-label={`Toggle demand type: ${opt.label}`}
         >
           {opt.label}
@@ -540,8 +546,8 @@ export default function DarePerformerDashboard() {
     <div className="space-y-4 mb-6">
       <div className="flex flex-wrap gap-4">
         <select
-          value={switchStatusFilter}
-          onChange={(e) => setSwitchStatusFilter(e.target.value)}
+          value={switchState.statusFilter}
+          onChange={(e) => setSwitchState(prev => ({ ...prev, statusFilter: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="">All Status</option>
@@ -552,8 +558,8 @@ export default function DarePerformerDashboard() {
         </select>
         
         <select
-          value={switchDifficultyFilter}
-          onChange={(e) => setSwitchDifficultyFilter(e.target.value)}
+          value={switchState.difficultyFilter}
+          onChange={(e) => setSwitchState(prev => ({ ...prev, difficultyFilter: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="">All Difficulties</option>
@@ -565,8 +571,8 @@ export default function DarePerformerDashboard() {
         </select>
         
         <select
-          value={switchSort}
-          onChange={(e) => setSwitchSort(e.target.value)}
+          value={switchState.sort}
+          onChange={(e) => setSwitchState(prev => ({ ...prev, sort: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="recent">Most Recent</option>
@@ -578,8 +584,8 @@ export default function DarePerformerDashboard() {
         <input
           type="text"
           placeholder="Search participants..."
-          value={switchParticipantFilter}
-          onChange={(e) => setSwitchParticipantFilter(e.target.value)}
+          value={switchState.participantFilter}
+          onChange={(e) => setSwitchState(prev => ({ ...prev, participantFilter: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
@@ -592,8 +598,8 @@ export default function DarePerformerDashboard() {
         <input
           type="text"
           placeholder="Search by keyword..."
-          value={keywordFilter}
-          onChange={(e) => setKeywordFilter(e.target.value)}
+          value={filters.keyword}
+          onChange={(e) => setFilters(prev => ({ ...prev, keyword: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
         />
         
@@ -983,8 +989,8 @@ export default function DarePerformerDashboard() {
           <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
             <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
             <div className="space-y-4">
-              {switchGameActivityFeed.length > 0 ? (
-                switchGameActivityFeed.slice(0, 5).map((activity, idx) => (
+              {switchState.activityFeed.length > 0 ? (
+                switchState.activityFeed.slice(0, 5).map((activity, idx) => (
                   <div key={idx} className="p-3 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
                     <div className="text-sm text-neutral-300">{activity.description}</div>
                     <div className="text-xs text-neutral-500 mt-1">
@@ -1415,8 +1421,8 @@ export default function DarePerformerDashboard() {
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <select
-                  value={switchStatusFilter}
-                  onChange={(e) => setSwitchStatusFilter(e.target.value)}
+                  value={switchState.statusFilter}
+                  onChange={(e) => setSwitchState(prev => ({ ...prev, statusFilter: e.target.value }))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">All Status</option>
@@ -1427,8 +1433,8 @@ export default function DarePerformerDashboard() {
                 </select>
                 
                 <select
-                  value={switchDifficultyFilter}
-                  onChange={(e) => setSwitchDifficultyFilter(e.target.value)}
+                  value={switchState.difficultyFilter}
+                  onChange={(e) => setSwitchState(prev => ({ ...prev, difficultyFilter: e.target.value }))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">All Difficulties</option>
@@ -1440,16 +1446,19 @@ export default function DarePerformerDashboard() {
                 <input
                   type="text"
                   placeholder="Search switch games..."
-                  value={switchParticipantFilter}
-                  onChange={(e) => setSwitchParticipantFilter(e.target.value)}
+                  value={switchState.participantFilter}
+                  onChange={(e) => setSwitchState(prev => ({ ...prev, participantFilter: e.target.value }))}
                   className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 
                 <button
                   onClick={() => {
-                    setSwitchStatusFilter('');
-                    setSwitchDifficultyFilter('');
-                    setSwitchParticipantFilter('');
+                    setSwitchState(prev => ({
+                      ...prev,
+                      statusFilter: '',
+                      difficultyFilter: '',
+                      participantFilter: ''
+                    }));
                   }}
                   className="flex items-center justify-center gap-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg px-3 py-2 transition-colors"
                 >
