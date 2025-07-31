@@ -18,37 +18,59 @@ export default function SwitchGames() {
     try {
       setLoading(true);
       setGeneralError('');
+      setGeneralInfo('');
       
-      // Get user's switch games instead of non-existent stats
+      console.log('Fetching user switch games...');
+      
+      // Get user's switch games
       const response = await api.get('/switches/performer');
       
-      if (response.data) {
+      console.log('API response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Is array:', Array.isArray(response.data));
+      
+      if (response && response.data) {
         const switchGamesData = Array.isArray(response.data) ? response.data : [];
+        console.log('Processed switch games data:', switchGamesData);
         setUserSwitchGames(switchGamesData);
         console.log('User switch games loaded:', switchGamesData.length);
         
         if (switchGamesData.length > 0) {
-          showSuccess(`Found ${switchGamesData.length} switch game(s)!`);
+          setGeneralInfo(`Found ${switchGamesData.length} switch game(s)!`);
         } else {
           setGeneralInfo('No switch games found. Create your first one!');
         }
       } else {
-        throw new Error('No data received from server');
+        console.log('No data in response, setting empty array');
+        setUserSwitchGames([]);
+        setGeneralInfo('No switch games found. Create your first one!');
       }
     } catch (error) {
       console.error('Failed to load user switch games:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load switch games data.';
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to load switch games data.';
       setGeneralError(errorMessage);
-      showError(errorMessage);
       setUserSwitchGames([]);
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
-  }, [showSuccess, showError]);
+  }, []);
 
   useEffect(() => {
     fetchUserSwitchGames();
-  }, [fetchUserSwitchGames]);
+    
+    // Add timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.log('Loading timeout reached, forcing loading to false');
+        setLoading(false);
+        setGeneralError('Request timed out. Please try again.');
+      }
+    }, 10000); // 10 second timeout
+    
+    return () => clearTimeout(timeout);
+  }, []); // Remove dependencies to prevent infinite loop
 
   // Calculate basic stats from user's switch games
   const stats = {
@@ -87,7 +109,14 @@ export default function SwitchGames() {
               <PlayIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Switch Games</h1>
             </div>
-            <p className="text-xl text-white/80">Create or participate in switch games</p>
+            <p className="text-xl text-white/80 mb-4">Create or participate in switch games</p>
+            <button
+              onClick={fetchUserSwitchGames}
+              disabled={loading}
+              className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Loading...' : 'Refresh'}
+            </button>
           </div>
 
           {/* Stats Display */}
