@@ -244,11 +244,11 @@ const SmartStatsCard = ({
             <>
               <div className="text-3xl font-bold mb-1">{value}</div>
               <div className="text-sm text-white/70 mb-2">{title}</div>
-              {trend && (
+              {trend !== null && trend !== undefined && (
                 <div className={`text-xs flex items-center gap-1 ${
-                  trend > 0 ? 'text-green-400' : 'text-red-400'
+                  trend > 0 ? 'text-green-400' : trend < 0 ? 'text-red-400' : 'text-white/60'
                 }`}>
-                  {trend > 0 ? '↗' : '↘'} {Math.abs(trend)}%
+                  {trend > 0 ? '↗' : trend < 0 ? '↘' : '→'} {Math.abs(trend)}%
                 </div>
               )}
             </>
