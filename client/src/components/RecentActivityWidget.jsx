@@ -115,7 +115,9 @@ function getActivityMessage(activity) {
       if (activity.message) {
         return activity.message;
       } else if (activity.type) {
-        return `${actorName} ${activity.type.replace(/_/g, ' ')}`;
+        // Convert snake_case to readable text
+        const readableType = activity.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        return `${actorName} ${readableType}`;
       } else {
         return `${actorName} performed an action`;
       }

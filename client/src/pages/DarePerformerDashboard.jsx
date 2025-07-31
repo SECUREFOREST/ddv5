@@ -600,6 +600,13 @@ export default function DarePerformerDashboard() {
               onClick={() => setActiveTab('public')}
             />
           </div>
+          
+          {/* Debug information */}
+          <div className="text-xs text-white/50 mt-4 p-4 bg-white/5 rounded-lg">
+            <div>Debug Info:</div>
+            <div>Ongoing: {ongoing.length} | Completed: {completed.length} | Switch Games: {mySwitchGames.length} | Public: {publicDares.length}</div>
+            <div>Current User ID: {currentUserId}</div>
+          </div>
 
           {/* Quick Actions with 2025 Design */}
           <NeumorphicCard variant="glass" className="p-8">
