@@ -392,9 +392,9 @@ export default function DarePerformerDashboard() {
       
       // Parallel data fetching for better performance
       const [ongoingData, completedData, switchData, publicData] = await Promise.allSettled([
-        api.get(`/dares?status=ongoing&userId=${userId}`),
-        api.get(`/dares?status=completed&userId=${userId}`),
-        api.get(`/switches?userId=${userId}`),
+        api.get(`/dares?status=ongoing&userId=${currentUserId}`),
+        api.get(`/dares?status=completed&userId=${currentUserId}`),
+        api.get(`/switches?userId=${currentUserId}`),
         api.get('/dares?public=true&limit=10')
       ]);
       
@@ -515,10 +515,10 @@ export default function DarePerformerDashboard() {
   
   // Effects
   useEffect(() => {
-    if (user && userId) {
+    if (user && currentUserId) {
       fetchData();
     }
-  }, [user, userId]);
+  }, [user, currentUserId]);
   
   useEffect(() => {
     // 2025: Auto-refresh on focus
@@ -646,7 +646,7 @@ export default function DarePerformerDashboard() {
               <SparklesIcon className="w-6 h-6 text-purple-400" />
               Recent Activity
             </h3>
-            <RecentActivityWidget userId={userId} />
+            <RecentActivityWidget userId={currentUserId} />
           </NeumorphicCard>
         </GestureContainer>
       )
@@ -850,7 +850,7 @@ export default function DarePerformerDashboard() {
   ];
   
   // Check if user is authenticated
-  if (!user || !userId) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="max-w-6xl mx-auto px-4 py-8">
@@ -858,7 +858,7 @@ export default function DarePerformerDashboard() {
             <NeumorphicCard variant="glass" className="p-8">
               <h2 className="text-2xl font-bold text-red-400 mb-4">Authentication Required</h2>
               <p className="text-red-300 mb-6">
-                {!user ? 'Please log in to access the performer dashboard.' : 'User data is invalid. Please log in again.'}
+                Please log in to access the performer dashboard.
               </p>
               <MicroInteractionButton
                 onClick={() => navigate('/login')}
@@ -873,6 +873,17 @@ export default function DarePerformerDashboard() {
       </div>
     );
   }
+
+  // Use the logged-in user's ID instead of URL params
+  const currentUserId = user?._id || user?.id;
+  
+  // Debug logging to help understand the authentication state
+  console.log('Dashboard Debug:', {
+    user: user ? 'present' : 'null',
+    currentUserId,
+    urlUserId: userId,
+    userKeys: user ? Object.keys(user) : []
+  });
   
   if (isLoading) {
     return (
