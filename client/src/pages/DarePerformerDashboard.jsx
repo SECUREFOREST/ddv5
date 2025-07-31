@@ -749,7 +749,31 @@ export default function DarePerformerDashboard() {
           ) : (
             <div className="space-y-4">
                 {Array.isArray(ongoing) && ongoing.map((dare) => (
-                  <DareCard key={dare._id} dare={dare} />
+                  <DareCard 
+                    key={dare._id} 
+                    dare={dare}
+                    currentUserId={currentUserId}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/dare/${dare._id}`)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                        {dare.status === 'in_progress' && (
+                          <button
+                            onClick={() => navigate(`/dare/${dare._id}/participate`)}
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          >
+                            <CheckCircleIcon className="w-4 h-4" />
+                            Submit Proof
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
                 ))}
                 </div>
               )}
@@ -785,7 +809,31 @@ export default function DarePerformerDashboard() {
             ) : (
               <div className="space-y-4">
                 {Array.isArray(completed) && completed.map((dare) => (
-                  <DareCard key={dare._id} dare={dare} />
+                  <DareCard 
+                    key={dare._id} 
+                    dare={dare}
+                    currentUserId={currentUserId}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/dare/${dare._id}`)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                        {dare.proof && !dare.proof.reviewed && dare.creator?._id === currentUserId && (
+                          <button
+                            onClick={() => navigate(`/dare/${dare._id}`)}
+                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          >
+                            <StarIcon className="w-4 h-4" />
+                            Review Proof
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
                 ))}
             </div>
             )}
@@ -829,7 +877,31 @@ export default function DarePerformerDashboard() {
             ) : (
             <div className="space-y-4">
                 {Array.isArray(mySwitchGames) && mySwitchGames.map((game) => (
-                  <SwitchGameCard key={game._id} game={game} />
+                  <SwitchGameCard 
+                    key={game._id} 
+                    game={game}
+                    currentUserId={currentUserId}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}`)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                        {game.status === 'in_progress' && (
+                          <button
+                            onClick={() => navigate(`/switches/${game._id}`)}
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          >
+                            <CheckCircleIcon className="w-4 h-4" />
+                            Submit Move
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
               ))}
             </div>
             )}
@@ -867,7 +939,29 @@ export default function DarePerformerDashboard() {
             ) : (
               <div className="space-y-4">
                 {Array.isArray(publicDares) && publicDares.map((dare) => (
-                  <DareCard key={dare._id} dare={dare} />
+                  <DareCard 
+                    key={dare._id} 
+                    dare={dare}
+                    currentUserId={currentUserId}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/dare/consent/${dare._id}`)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <PlayIcon className="w-4 h-4" />
+                          Perform Dare
+                        </button>
+                        <button
+                          onClick={() => navigate(`/dare/${dare._id}`)}
+                          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                      </div>
+                    }
+                  />
                 ))}
               </div>
             )}
@@ -897,7 +991,29 @@ export default function DarePerformerDashboard() {
             ) : (
               <div className="space-y-4">
                 {Array.isArray(publicSwitchGames) && publicSwitchGames.map((game) => (
-                  <SwitchGameCard key={game._id} game={game} />
+                  <SwitchGameCard 
+                    key={game._id} 
+                    game={game}
+                    currentUserId={currentUserId}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/switches/participate/${game._id}`)}
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <UserGroupIcon className="w-4 h-4" />
+                          Join Game
+                        </button>
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}`)}
+                          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                      </div>
+                    }
+                  />
                 ))}
               </div>
             )}
