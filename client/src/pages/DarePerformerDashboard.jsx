@@ -166,6 +166,12 @@ const MicroInteractionButton = ({
       hover:from-red-600 hover:to-pink-700
       text-white
       shadow-lg hover:shadow-xl
+    `,
+    warning: `
+      bg-gradient-to-r from-yellow-500 to-amber-600
+      hover:from-yellow-600 hover:to-amber-700
+      text-white
+      shadow-lg hover:shadow-xl
     `
   };
   
@@ -502,6 +508,9 @@ export default function DarePerformerDashboard() {
         case 'create-switch':
           navigate('/switches/create');
           break;
+        case 'join-game':
+          navigate('/switches/join');
+          break;
         case 'view-profile':
           navigate(`/profile/${userId}`);
           break;
@@ -591,14 +600,14 @@ export default function DarePerformerDashboard() {
               onClick={() => setActiveTab('public')}
             />
           </div>
-          
+
           {/* Quick Actions with 2025 Design */}
           <NeumorphicCard variant="glass" className="p-8">
             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
               <BoltIcon className="w-6 h-6 text-yellow-400" />
               Quick Actions
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <MicroInteractionButton
                 onClick={() => handleQuickAction('create-dare')}
                 variant="primary"
@@ -646,6 +655,18 @@ export default function DarePerformerDashboard() {
                   <span className="text-sm">Create Game</span>
                 </div>
               </MicroInteractionButton>
+              
+              <MicroInteractionButton
+                onClick={() => handleQuickAction('join-game')}
+                variant="warning"
+                size="lg"
+                className="h-20"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <UserGroupIcon className="w-8 h-8" />
+                  <span className="text-sm">Join Game</span>
+                </div>
+              </MicroInteractionButton>
             </div>
           </NeumorphicCard>
           
@@ -684,14 +705,14 @@ export default function DarePerformerDashboard() {
                 >
                   Find Dares to Perform
                 </MicroInteractionButton>
-              </div>
-            ) : (
-              <div className="space-y-4">
+            </div>
+          ) : (
+            <div className="space-y-4">
                 {Array.isArray(ongoing) && ongoing.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
-              </div>
-            )}
+                </div>
+              )}
           </NeumorphicCard>
         </GestureContainer>
       )
@@ -708,10 +729,10 @@ export default function DarePerformerDashboard() {
               Completed Dares ({completed.length})
             </h3>
             {completed.length === 0 ? (
-              <div className="text-center py-12">
+                <div className="text-center py-12">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrophyIcon className="w-8 h-8 text-green-400" />
-                </div>
+                  </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Completed Dares</h4>
                 <p className="text-white/70 mb-6">Complete your first dare to see it here!</p>
                 <MicroInteractionButton
@@ -720,13 +741,13 @@ export default function DarePerformerDashboard() {
                 >
                   Start Performing Dares
                 </MicroInteractionButton>
-              </div>
+                </div>
             ) : (
               <div className="space-y-4">
                 {Array.isArray(completed) && completed.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
-              </div>
+            </div>
             )}
           </NeumorphicCard>
         </GestureContainer>
@@ -763,14 +784,14 @@ export default function DarePerformerDashboard() {
                   >
                     Find Games
                   </MicroInteractionButton>
-                </div>
               </div>
+          </div>
             ) : (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {Array.isArray(mySwitchGames) && mySwitchGames.map((game) => (
                   <SwitchGameCard key={game._id} game={game} />
-                ))}
-              </div>
+              ))}
+            </div>
             )}
           </NeumorphicCard>
         </GestureContainer>
@@ -800,14 +821,14 @@ export default function DarePerformerDashboard() {
                 >
                   Create a Dare
                 </MicroInteractionButton>
-              </div>
+                      </div>
             ) : (
               <div className="space-y-4">
                 {Array.isArray(publicDares) && publicDares.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
-              </div>
-            )}
+                </div>
+              )}
           </NeumorphicCard>
         </GestureContainer>
       )
@@ -824,10 +845,10 @@ export default function DarePerformerDashboard() {
               Associates ({associates.length})
             </h3>
             {associates.length === 0 ? (
-              <div className="text-center py-12">
+                <div className="text-center py-12">
                 <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <UserGroupIcon className="w-8 h-8 text-indigo-400" />
-                </div>
+                  </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Associates</h4>
                 <p className="text-white/70 mb-6">Connect with other users to see them here.</p>
                 <MicroInteractionButton
@@ -836,7 +857,7 @@ export default function DarePerformerDashboard() {
                 >
                   Discover Users
                 </MicroInteractionButton>
-              </div>
+                </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.isArray(associates) && associates.map((associate) => (
@@ -846,18 +867,18 @@ export default function DarePerformerDashboard() {
                       <div className="flex-1">
                         <h4 className="font-semibold text-white">{associate.fullName}</h4>
                         <p className="text-sm text-white/70">@{associate.username}</p>
-                      </div>
-                    </div>
+            </div>
+          </div>
                   </NeumorphicCard>
                 ))}
-              </div>
+        </div>
             )}
           </NeumorphicCard>
         </GestureContainer>
       )
     }
   ];
-  
+
   // Check if user is authenticated
   if (!user) {
     return (
@@ -882,7 +903,7 @@ export default function DarePerformerDashboard() {
       </div>
     );
   }
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -896,7 +917,7 @@ export default function DarePerformerDashboard() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
@@ -910,21 +931,21 @@ export default function DarePerformerDashboard() {
             <div className="flex items-center justify-center mb-6">
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mr-6">
                 <UserIcon className="w-12 h-12 text-white" />
-              </div>
+            </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white">Performer Dashboard</h1>
             </div>
             <p className="text-xl text-white/80 max-w-2xl mx-auto">
               Manage your dares and track your progress with intelligent insights
             </p>
           </div>
-          
+
           {/* 2025 Error Display */}
           {error && (
             <NeumorphicCard variant="pressed" className="mb-8 p-6 border-red-500/30">
               <div className="flex items-center justify-center gap-3 text-red-300" role="alert" aria-live="assertive">
                 <ExclamationTriangleIcon className="w-6 h-6" />
                 <span className="font-semibold">{error}</span>
-              </div>
+            </div>
             </NeumorphicCard>
           )}
           
@@ -945,7 +966,7 @@ export default function DarePerformerDashboard() {
             onChange={idx => setActiveTab(tabs[idx].key)}
             className="mb-8"
           />
-          
+
           {/* 2025 Smart Notifications */}
           {notification && (
             <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl text-white backdrop-blur-xl ${
