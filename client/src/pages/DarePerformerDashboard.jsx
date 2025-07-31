@@ -403,9 +403,9 @@ export default function DarePerformerDashboard() {
       
       // Parallel data fetching for better performance
       const [ongoingData, completedData, switchData, publicData] = await Promise.allSettled([
-        api.get(`/dares?status=ongoing&userId=${currentUserId}`),
-        api.get(`/dares?status=completed&userId=${currentUserId}`),
-        api.get(`/switches?userId=${currentUserId}`),
+        api.get(`/dares?participant=${currentUserId}&status=in_progress,pending`),
+        api.get(`/dares?participant=${currentUserId}&status=completed`),
+        api.get('/switches/performer'),
         api.get('/dares?public=true&limit=10')
       ]);
       
