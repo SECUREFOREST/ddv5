@@ -8,30 +8,49 @@ function timeAgo(date) {
 }
 
 const ICONS = {
-  comment: <ChatBubbleLeftIcon className="w-4 h-4 text-blue-400 mr-2" />,
-  dare: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
-  grade: <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />,
+  dare_created: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  dare_completed: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  dare_assigned: <CheckCircleIcon className="w-4 h-4 text-blue-500 mr-2" />,
+  dare_accepted: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  dare_rejected: <CheckCircleIcon className="w-4 h-4 text-red-500 mr-2" />,
+  grade_given: <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />,
+  comment_added: <ChatBubbleLeftIcon className="w-4 h-4 text-blue-400 mr-2" />,
+  switch_game_joined: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  switch_game_created: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  switch_game_completed: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  proof_submitted: <CheckCircleIcon className="w-4 h-4 text-orange-500 mr-2" />,
   default: <EllipsisHorizontalIcon className="w-4 h-4 text-gray-400 mr-2" />,
 };
 
 // Comprehensive activity message generator
-function getActivityMessage(a) {
-  const actorName = a.actor?.fullName || a.actor?.username || 'Someone';
-  switch (a.type) {
+function getActivityMessage(activity) {
+  const actorName = activity.user?.fullName || activity.user?.username || 'Someone';
+  
+  switch (activity.type) {
     case 'dare_created':
-      return `${actorName} created a new dare.`;
-    case 'grade_given':
-      return `${actorName} graded a dare: ${a.details?.grade ?? ''}`;
-    case 'comment_added':
-      return `${actorName} commented on a dare.`;
+      return `${actorName} created a new dare`;
     case 'dare_completed':
-      return `${actorName} completed a dare.`;
+      return `${actorName} completed a dare`;
+    case 'dare_assigned':
+      return `${actorName} was assigned a dare`;
+    case 'grade_given':
+      return `${actorName} received a grade: ${activity.details?.grade || 'N/A'}`;
+    case 'comment_added':
+      return `${actorName} commented on a dare`;
     case 'switch_game_joined':
-      return `${actorName} joined a switch game.`;
+      return `${actorName} joined a switch game`;
     case 'switch_game_created':
-      return `${actorName} created a switch game.`;
+      return `${actorName} created a switch game`;
+    case 'switch_game_completed':
+      return `${actorName} completed a switch game`;
+    case 'proof_submitted':
+      return `${actorName} submitted proof for a dare`;
+    case 'dare_rejected':
+      return `${actorName} rejected a dare`;
+    case 'dare_accepted':
+      return `${actorName} accepted a dare`;
     default:
-      return a.message || a.type || 'Activity';
+      return activity.message || `${actorName} performed an action`;
   }
 }
 
@@ -48,7 +67,9 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
     try {
       setLocalLoading(true);
       setError(null);
-      const response = await api.get(`/activity-feed?userId=${userId}&limit=10`);
+      // Use the activity feed endpoint that shows user-related activities
+      const response = await api.get('/activity-feed');
+      console.log('Activity feed response:', response.data);
       setLocalActivities(response.data || []);
     } catch (err) {
       console.error('Failed to fetch activities:', err);
