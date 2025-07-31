@@ -168,6 +168,82 @@ export default function Profile() {
     }
   };
 
+  // Auto-save with debouncing
+  useEffect(() => {
+    if (!editMode || !hasUnsavedChanges) return;
+    
+    const timeoutId = setTimeout(() => {
+      const errors = validateForm();
+      if (Object.keys(errors).length === 0) {
+        handleSave(null, true); // Auto-save
+      }
+    }, 2000); // 2 second delay
+    
+    return () => clearTimeout(timeoutId);
+  }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, handleSave]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 's':
+            e.preventDefault();
+            if (editMode) {
+              handleSave(e);
+            }
+            break;
+          case 'e':
+            e.preventDefault();
+            setEditMode(!editMode);
+            break;
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [editMode, handleSave]);
+
+  // Fetch blocked users info
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return;
+    
+    // Fetch info for blocked users with loading state
+    if (user.blockedUsers && user.blockedUsers.length > 0) {
+      setUserActivitiesLoading(true);
+      Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
+        .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data)))
+        .catch((error) => {
+          console.error('Failed to load blocked users:', error);
+          setBlockedUsersInfo([]);
+          showError('Failed to load blocked users information.');
+        })
+        .finally(() => setUserActivitiesLoading(false));
+    } else {
+      setBlockedUsersInfo([]);
+    }
+  }, [user, loading]);
+
+  const handleUnblock = async (blockedUserId) => {
+    setUnblockStatus(s => ({ ...s, [blockedUserId]: 'unblocking' }));
+    try {
+      await api.post(`/users/${blockedUserId}/unblock`);
+      // Remove from local blockedUsers and blockedUsersInfo
+      if (user && user.blockedUsers) {
+        const idx = user.blockedUsers.indexOf(blockedUserId);
+        if (idx !== -1) user.blockedUsers.splice(idx, 1);
+      }
+      setBlockedUsersInfo(info => info.filter(u => u._id !== blockedUserId));
+      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'idle' }));
+      showSuccess('User unblocked successfully!');
+    } catch (err) {
+      setUnblockStatus(s => ({ ...s, [blockedUserId]: 'error' }));
+      showError(err.response?.data?.error || 'Failed to unblock user.');
+    }
+  };
+
   // Fetch content deletion setting on mount
   useEffect(() => {
     setContentDeletionLoading(true);
@@ -482,6 +558,16 @@ export default function Profile() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Keyboard Shortcuts Hint */}
+                    {editMode && (
+                      <div className="text-xs text-neutral-400 mt-4 flex items-center gap-4 justify-center lg:justify-start">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                          Keyboard shortcuts: Ctrl+S to save, Ctrl+E to toggle edit mode
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -571,103 +657,360 @@ export default function Profile() {
                           <div className="space-y-8">
                             <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent mb-8">About Me</h2>
                             
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                              <div className="space-y-4">
-                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Username</div>
-                                  <div className="text-white font-semibold text-lg">@{user.username}</div>
-                                </div>
+                            {editMode ? (
+                              <form role="form" aria-labelledby="profile-edit-title" onSubmit={handleSave} className="space-y-8">
+                                <h2 id="profile-edit-title" className="text-3xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent mb-8">Edit Profile</h2>
                                 
-                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Full Name</div>
-                                  <div className="text-white font-semibold text-lg">{user.fullName}</div>
-                                </div>
-                                
-                                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                  <div className="text-sm text-neutral-400 mb-2 font-medium">Email</div>
-                                  <div className="text-white font-semibold text-lg">{user.email}</div>
-                                </div>
-                              </div>
-                              
-                              <div className="space-y-4">
-                                {user.gender && (
-                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                    <div className="text-sm text-neutral-400 mb-2 font-medium">Gender</div>
-                                    <div className="text-white font-semibold text-lg capitalize">{user.gender}</div>
-                                  </div>
-                                )}
-                                
-                                {user.dob && (
-                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                    <div className="text-sm text-neutral-400 mb-2 font-medium">Birth Date</div>
-                                    <div className="text-white font-semibold text-lg">
-                                      <span
-                                        className="cursor-help hover:text-neutral-300 transition-colors"
-                                        title={formatRelativeTimeWithTooltip(user.dob).tooltip}
-                                      >
-                                        {formatRelativeTimeWithTooltip(user.dob).display}
-                                      </span>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                  <div className="space-y-6">
+                                    <div>
+                                      <label htmlFor="username" className="block font-semibold mb-3 text-neutral-300 text-sm">Username</label>
+                                      <input 
+                                        type="text" 
+                                        id="username" 
+                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 ${
+                                          formErrors.username ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
+                                        }`}
+                                        value={username} 
+                                        onChange={e => handleFormChange('username', e.target.value)} 
+                                        required 
+                                        aria-required="true" 
+                                        aria-label="Username"
+                                        placeholder="Enter your username"
+                                      />
+                                      {formErrors.username && (
+                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                                          <ExclamationTriangleIcon className="w-4 h-4" />
+                                          {formErrors.username}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <div>
+                                      <label htmlFor="fullName" className="block font-semibold mb-3 text-neutral-300 text-sm">Full Name</label>
+                                      <input 
+                                        type="text" 
+                                        id="fullName" 
+                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 ${
+                                          formErrors.fullName ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
+                                        }`}
+                                        value={fullName} 
+                                        onChange={e => handleFormChange('fullName', e.target.value)} 
+                                        required 
+                                        aria-required="true" 
+                                        aria-label="Full name"
+                                        placeholder="Enter your full name"
+                                      />
+                                      {formErrors.fullName && (
+                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                                          <ExclamationTriangleIcon className="w-4 h-4" />
+                                          {formErrors.fullName}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <div>
+                                      <label htmlFor="bio" className="block font-semibold mb-3 text-neutral-300 text-sm">Bio</label>
+                                      <textarea 
+                                        id="bio" 
+                                        rows="4"
+                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 resize-none ${
+                                          formErrors.bio ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
+                                        }`}
+                                        value={bio} 
+                                        onChange={e => handleFormChange('bio', e.target.value)} 
+                                        aria-label="Bio"
+                                        placeholder="Tell us about yourself..."
+                                      />
+                                      {formErrors.bio && (
+                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                                          <ExclamationTriangleIcon className="w-4 h-4" />
+                                          {formErrors.bio}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
+                                  
+                                  <div className="space-y-6">
+                                    <div>
+                                      <label htmlFor="gender" className="block font-semibold mb-3 text-neutral-300 text-sm">Gender</label>
+                                      <select 
+                                        id="gender" 
+                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 ${
+                                          formErrors.gender ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
+                                        }`}
+                                        value={gender} 
+                                        onChange={e => handleFormChange('gender', e.target.value)} 
+                                        aria-label="Gender"
+                                      >
+                                        <option value="">Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="non-binary">Non-binary</option>
+                                        <option value="other">Other</option>
+                                      </select>
+                                      {formErrors.gender && (
+                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                                          <ExclamationTriangleIcon className="w-4 h-4" />
+                                          {formErrors.gender}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <div>
+                                      <label htmlFor="dob" className="block font-semibold mb-3 text-neutral-300 text-sm">Date of Birth</label>
+                                      <input 
+                                        type="date" 
+                                        id="dob" 
+                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 ${
+                                          formErrors.dob ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
+                                        }`}
+                                        value={dob} 
+                                        onChange={e => handleFormChange('dob', e.target.value)} 
+                                        aria-label="Date of birth"
+                                      />
+                                      {formErrors.dob && (
+                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
+                                          <ExclamationTriangleIcon className="w-4 h-4" />
+                                          {formErrors.dob}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    <div>
+                                      <label className="block font-semibold mb-3 text-neutral-300 text-sm">Interested In</label>
+                                      <TagsInput 
+                                        value={interestedIn} 
+                                        onChange={setInterestedIn} 
+                                        placeholder="Add interests..."
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/50 transition-all duration-200"
+                                      />
+                                    </div>
+                                    
+                                    <div>
+                                      <label className="block font-semibold mb-3 text-neutral-300 text-sm">Limits</label>
+                                      <TagsInput 
+                                        value={limits} 
+                                        onChange={setLimits} 
+                                        placeholder="Add limits..."
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/50 transition-all duration-200"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Form Actions */}
+                                <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-6 border-t border-white/10">
+                                  <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark rounded-xl px-8 py-4 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    <span className="relative z-10 flex items-center gap-2">
+                                      {saving ? (
+                                        <>
+                                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                          Saving...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleIcon className="w-5 h-5" />
+                                          Save Changes
+                                        </>
+                                      )}
+                                    </span>
+                                    <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                                  </button>
+                                  
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditMode(false)}
+                                    className="group relative overflow-hidden bg-gradient-to-r from-neutral-600 to-neutral-700 rounded-xl px-8 py-4 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-neutral-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                                  >
+                                    <span className="relative z-10 flex items-center gap-2">
+                                      <XMarkIcon className="w-5 h-5" />
+                                      Cancel
+                                    </span>
+                                  </button>
+                                </div>
+                                
+                                {/* Save Status */}
+                                <div className="flex items-center gap-4 text-sm">
+                                  {hasUnsavedChanges && (
+                                    <div className="text-yellow-400 flex items-center gap-2">
+                                      <ExclamationTriangleIcon className="w-4 h-4" />
+                                      Unsaved changes
+                                    </div>
+                                  )}
+                                  {lastSaved && (
+                                    <div className="text-green-400 flex items-center gap-2">
+                                      <CheckCircleIcon className="w-4 h-4" />
+                                      Last saved: {lastSaved.toLocaleTimeString()}
+                                    </div>
+                                  )}
+                                </div>
+                              </form>
+                            ) : (
+                              <div className="space-y-8">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                  <div className="space-y-4">
+                                    <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                      <div className="text-sm text-neutral-400 mb-2 font-medium">Username</div>
+                                      <div className="text-white font-semibold text-lg">@{user.username}</div>
+                                    </div>
+                                    
+                                    <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                      <div className="text-sm text-neutral-400 mb-2 font-medium">Full Name</div>
+                                      <div className="text-white font-semibold text-lg">{user.fullName}</div>
+                                    </div>
+                                    
+                                    <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                      <div className="text-sm text-neutral-400 mb-2 font-medium">Email</div>
+                                      <div className="text-white font-semibold text-lg">{user.email}</div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="space-y-4">
+                                    {user.gender && (
+                                      <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                        <div className="text-sm text-neutral-400 mb-2 font-medium">Gender</div>
+                                        <div className="text-white font-semibold text-lg capitalize">{user.gender}</div>
+                                      </div>
+                                    )}
+                                    
+                                    {user.dob && (
+                                      <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                        <div className="text-sm text-neutral-400 mb-2 font-medium">Birth Date</div>
+                                        <div className="text-white font-semibold text-lg">
+                                          <span
+                                            className="cursor-help hover:text-neutral-300 transition-colors"
+                                            title={formatRelativeTimeWithTooltip(user.dob).tooltip}
+                                          >
+                                            {formatRelativeTimeWithTooltip(user.dob).display}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {user.interestedIn && user.interestedIn.length > 0 && (
+                                      <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                        <div className="text-sm text-neutral-400 mb-3 font-medium">Interested In</div>
+                                        <div className="flex flex-wrap gap-2">
+                                          {user.interestedIn.map((interest, idx) => (
+                                            <span key={idx} className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold border border-primary/30">
+                                              {interest}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {bio && (
+                                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
+                                    <div className="text-sm text-neutral-400 mb-3 font-medium">Bio</div>
+                                    <div className="text-white leading-relaxed">{bio}</div>
+                                  </div>
                                 )}
                                 
-                                {user.interestedIn && user.interestedIn.length > 0 && (
+                                {user.limits && user.limits.length > 0 && (
                                   <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                    <div className="text-sm text-neutral-400 mb-3 font-medium">Interested In</div>
+                                    <div className="text-sm text-neutral-400 mb-3 font-medium">Limits</div>
                                     <div className="flex flex-wrap gap-2">
-                                      {user.interestedIn.map((interest, idx) => (
-                                        <span key={idx} className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold border border-primary/30">
-                                          {interest}
+                                      {user.limits.map((limit, idx) => (
+                                        <span key={idx} className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm font-semibold border border-red-500/30">
+                                          {limit}
                                         </span>
                                       ))}
                                     </div>
                                   </div>
                                 )}
-                              </div>
-                            </div>
-                            
-                            {bio && (
-                              <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                <div className="text-sm text-neutral-400 mb-3 font-medium">Bio</div>
-                                <div className="text-white leading-relaxed">{bio}</div>
-                              </div>
-                            )}
-                            
-                            {user.limits && user.limits.length > 0 && (
-                              <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300">
-                                <div className="text-sm text-neutral-400 mb-3 font-medium">Limits</div>
-                                <div className="flex flex-wrap gap-2">
-                                  {user.limits.map((limit, idx) => (
-                                    <span key={idx} className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm font-semibold border border-red-500/30">
-                                      {limit}
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                                  <button 
+                                    className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
+                                    onClick={() => setEditMode(true)}
+                                  >
+                                    <span className="relative z-10 flex items-center gap-2">
+                                      <PencilIcon className="w-5 h-5" />
+                                      Edit Profile
                                     </span>
-                                  ))}
+                                    <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                                  </button>
+                                  
+                                  <button 
+                                    className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
+                                    onClick={logout}
+                                  >
+                                    <span className="relative z-10 flex items-center gap-2">
+                                      <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                                      Logout
+                                    </span>
+                                  </button>
+                                  
+                                  {/* Admin Controls */}
+                                  {user.roles?.includes('admin') ? (
+                                    <button
+                                      className="group relative overflow-hidden bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      disabled={downgradeLoading}
+                                      onClick={async () => {
+                                        if (!user || !(user.id || user._id)) return;
+                                        const userId = user.id || user._id;
+                                        setDowngradeLoading(true);
+                                        try {
+                                          await api.patch(`/users/${userId}`, { roles: ['user'] });
+                                          const updatedUser = { ...user, roles: ['user'] };
+                                          localStorage.setItem('user', JSON.stringify(updatedUser));
+                                          if (typeof setUser === 'function') setUser(updatedUser);
+                                          showSuccess('User downgraded to regular user!');
+                                        } catch (err) {
+                                          showError('Failed to downgrade user: ' + (err.response?.data?.error || err.message));
+                                        } finally {
+                                          setDowngradeLoading(false);
+                                        }
+                                      }}
+                                    >
+                                      <span className="relative z-10 flex items-center gap-2">
+                                        <ShieldCheckIcon className="w-5 h-5" />
+                                        {downgradeLoading ? 'Downgrading...' : 'Downgrade to User'}
+                                      </span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="group relative overflow-hidden bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      disabled={upgradeLoading}
+                                      onClick={async () => {
+                                        if (!user || !(user.id || user._id)) return;
+                                        const userId = user.id || user._id;
+                                        setUpgradeLoading(true);
+                                        try {
+                                          await api.patch(`/users/${userId}`, { roles: ['admin'] });
+                                          const updatedUser = { ...user, roles: ['admin'] };
+                                          localStorage.setItem('user', JSON.stringify(updatedUser));
+                                          if (typeof setUser === 'function') setUser(updatedUser);
+                                          showSuccess('User upgraded to admin!');
+                                        } catch (err) {
+                                          showError('Failed to upgrade user: ' + (err.response?.data?.error || err.message));
+                                        } finally {
+                                          setUpgradeLoading(false);
+                                        }
+                                      }}
+                                    >
+                                      <span className="relative z-10 flex items-center gap-2">
+                                        <ShieldCheckIcon className="w-5 h-5" />
+                                        {upgradeLoading ? 'Upgrading...' : 'Upgrade to Admin'}
+                                      </span>
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             )}
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                              <button 
-                                className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary-dark rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
-                                onClick={() => { setTabIdx(0); setEditMode(true); }}
-                              >
-                                <span className="relative z-10 flex items-center gap-2">
-                                  <PencilIcon className="w-5 h-5" />
-                                  Edit Profile
-                                </span>
-                                <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                              </button>
-                              
-                              <button 
-                                className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-neutral-900" 
-                                onClick={logout}
-                              >
-                                <span className="relative z-10 flex items-center gap-2">
-                                  <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                                  Logout
-                                </span>
-                              </button>
+                            {/* Recent Activity */}
+                            <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                              <RecentActivityWidget activities={userActivities} loading={userActivitiesLoading} title="Your Recent Activity" />
                             </div>
                           </div>
                         )}
