@@ -321,6 +321,9 @@ export default function DarePerformerDashboard() {
   const { userId } = useParams();
   const { showToast } = useToast();
   
+  // Use the logged-in user's ID instead of URL params
+  const currentUserId = user?._id || user?.id;
+  
   // State management with 2025 patterns
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -385,7 +388,9 @@ export default function DarePerformerDashboard() {
   };
   
   // 2025: Enhanced data fetching with smart loading
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!currentUserId) return;
+    
     try {
       setIsLoading(true);
       setError(null);
@@ -445,7 +450,7 @@ export default function DarePerformerDashboard() {
         public: false
       });
     }
-  };
+  }, [currentUserId]);
   
   // 2025: Gesture handlers
   const handleSwipe = (direction) => {
@@ -518,7 +523,7 @@ export default function DarePerformerDashboard() {
     if (user && currentUserId) {
       fetchData();
     }
-  }, [user, currentUserId]);
+  }, [user, currentUserId, fetchData]);
   
   useEffect(() => {
     // 2025: Auto-refresh on focus
@@ -530,7 +535,7 @@ export default function DarePerformerDashboard() {
     
     document.addEventListener('visibilitychange', handleFocus);
     return () => document.removeEventListener('visibilitychange', handleFocus);
-  }, []);
+  }, [fetchData]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -873,17 +878,6 @@ export default function DarePerformerDashboard() {
       </div>
     );
   }
-
-  // Use the logged-in user's ID instead of URL params
-  const currentUserId = user?._id || user?.id;
-  
-  // Debug logging to help understand the authentication state
-  console.log('Dashboard Debug:', {
-    user: user ? 'present' : 'null',
-    currentUserId,
-    urlUserId: userId,
-    userKeys: user ? Object.keys(user) : []
-  });
   
   if (isLoading) {
     return (
