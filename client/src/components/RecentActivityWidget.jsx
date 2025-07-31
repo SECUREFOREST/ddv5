@@ -8,23 +8,56 @@ function timeAgo(date) {
 }
 
 const ICONS = {
+  // Dare activities
   dare_created: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
   dare_completed: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
   dare_assigned: <CheckCircleIcon className="w-4 h-4 text-blue-500 mr-2" />,
   dare_accepted: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
   dare_rejected: <CheckCircleIcon className="w-4 h-4 text-red-500 mr-2" />,
+  dare_claimed: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  dare_performed: <CheckCircleIcon className="w-4 h-4 text-orange-500 mr-2" />,
+  
+  // Grade activities
   grade_given: <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />,
+  grade_received: <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />,
+  
+  // Comment activities
   comment_added: <ChatBubbleLeftIcon className="w-4 h-4 text-blue-400 mr-2" />,
+  comment_received: <ChatBubbleLeftIcon className="w-4 h-4 text-blue-400 mr-2" />,
+  
+  // Switch game activities
   switch_game_joined: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
   switch_game_created: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
   switch_game_completed: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  switch_game_started: <CheckCircleIcon className="w-4 h-4 text-purple-500 mr-2" />,
+  
+  // Proof activities
   proof_submitted: <CheckCircleIcon className="w-4 h-4 text-orange-500 mr-2" />,
+  proof_approved: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  proof_rejected: <CheckCircleIcon className="w-4 h-4 text-red-500 mr-2" />,
+  
+  // Offer activities
+  offer_submitted: <CheckCircleIcon className="w-4 h-4 text-indigo-500 mr-2" />,
+  offer_accepted: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  offer_rejected: <CheckCircleIcon className="w-4 h-4 text-red-500 mr-2" />,
+  
+  // Profile activities
+  profile_updated: <CheckCircleIcon className="w-4 h-4 text-blue-500 mr-2" />,
+  avatar_uploaded: <CheckCircleIcon className="w-4 h-4 text-blue-500 mr-2" />,
+  
+  // Login activities
+  login: <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />,
+  logout: <CheckCircleIcon className="w-4 h-4 text-gray-500 mr-2" />,
+  
   default: <EllipsisHorizontalIcon className="w-4 h-4 text-gray-400 mr-2" />,
 };
 
 // Comprehensive activity message generator
 function getActivityMessage(activity) {
   const actorName = activity.user?.fullName || activity.user?.username || 'Someone';
+  
+  // Debug: Log the activity type to see what we're getting
+  console.log('Activity type:', activity.type, 'Activity data:', activity);
   
   switch (activity.type) {
     case 'dare_created':
@@ -33,24 +66,59 @@ function getActivityMessage(activity) {
       return `${actorName} completed a dare`;
     case 'dare_assigned':
       return `${actorName} was assigned a dare`;
+    case 'dare_accepted':
+      return `${actorName} accepted a dare`;
+    case 'dare_rejected':
+      return `${actorName} rejected a dare`;
+    case 'dare_claimed':
+      return `${actorName} claimed a dare`;
+    case 'dare_performed':
+      return `${actorName} performed a dare`;
     case 'grade_given':
+      return `${actorName} received a grade: ${activity.details?.grade || 'N/A'}`;
+    case 'grade_received':
       return `${actorName} received a grade: ${activity.details?.grade || 'N/A'}`;
     case 'comment_added':
       return `${actorName} commented on a dare`;
+    case 'comment_received':
+      return `${actorName} received a comment`;
     case 'switch_game_joined':
       return `${actorName} joined a switch game`;
     case 'switch_game_created':
       return `${actorName} created a switch game`;
     case 'switch_game_completed':
       return `${actorName} completed a switch game`;
+    case 'switch_game_started':
+      return `${actorName} started a switch game`;
     case 'proof_submitted':
       return `${actorName} submitted proof for a dare`;
-    case 'dare_rejected':
-      return `${actorName} rejected a dare`;
-    case 'dare_accepted':
-      return `${actorName} accepted a dare`;
+    case 'proof_approved':
+      return `${actorName} had proof approved`;
+    case 'proof_rejected':
+      return `${actorName} had proof rejected`;
+    case 'offer_submitted':
+      return `${actorName} submitted an offer`;
+    case 'offer_accepted':
+      return `${actorName} had an offer accepted`;
+    case 'offer_rejected':
+      return `${actorName} had an offer rejected`;
+    case 'profile_updated':
+      return `${actorName} updated their profile`;
+    case 'avatar_uploaded':
+      return `${actorName} uploaded a new avatar`;
+    case 'login':
+      return `${actorName} logged in`;
+    case 'logout':
+      return `${actorName} logged out`;
     default:
-      return activity.message || `${actorName} performed an action`;
+      // Try to make the default message more descriptive
+      if (activity.message) {
+        return activity.message;
+      } else if (activity.type) {
+        return `${actorName} ${activity.type.replace(/_/g, ' ')}`;
+      } else {
+        return `${actorName} performed an action`;
+      }
   }
 }
 
