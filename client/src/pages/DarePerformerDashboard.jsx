@@ -14,7 +14,6 @@ import {
   PlusIcon,
   PlayIcon,
   DocumentPlusIcon,
-  GamepadIcon,
   UserGroupIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -36,7 +35,8 @@ import {
   UserIcon,
   HomeIcon,
   SwatchIcon,
-  SparklesIcon as SparklesIconSolid
+  SparklesIcon as SparklesIconSolid,
+  PuzzlePieceIcon
 } from '@heroicons/react/24/outline';
 import { 
   SparklesIcon as SparklesIconFilled,
@@ -633,7 +633,7 @@ export default function DarePerformerDashboard() {
                 className="h-20"
               >
                 <div className="flex flex-col items-center gap-2">
-                  <GamepadIcon className="w-8 h-8" />
+                  <PuzzlePieceIcon className="w-8 h-8" />
                   <span className="text-sm">Create Game</span>
                 </div>
               </MicroInteractionButton>
