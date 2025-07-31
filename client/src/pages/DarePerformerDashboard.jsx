@@ -421,21 +421,24 @@ export default function DarePerformerDashboard() {
   // Advanced filtering functions (restored)
   const filterAndSortAllDares = (dares) => {
     let filtered = dares;
-    if (statusFilter) filtered = filtered.filter(d => d.status === statusFilter);
-    if (selectedDifficulties.length > 0) filtered = filtered.filter(d => selectedDifficulties.includes(d.difficulty));
-        if (filters.keyword) filtered = filtered.filter(d =>
+    if (filters.status) filtered = filtered.filter(d => d.status === filters.status);
+    if (filters.difficulty && filters.difficulties.length > 0) filtered = filtered.filter(d => filters.difficulties.includes(d.difficulty));
+    if (filters.keyword) filtered = filtered.filter(d =>
       d.description?.toLowerCase().includes(filters.keyword.toLowerCase()) ||
       d.creator?.username?.toLowerCase().includes(filters.keyword.toLowerCase())
     );
-    if (creatorFilter) filtered = filtered.filter(d =>
-      d.creator?.username?.toLowerCase().includes(creatorFilter.toLowerCase())
+    if (filters.creator) filtered = filtered.filter(d =>
+      d.creator?.username?.toLowerCase().includes(filters.creator.toLowerCase())
+    );
+    if (filters.tag && filters.tags.length > 0) filtered = filtered.filter(d =>
+      d.tags?.some(tag => filters.tags.includes(tag))
     );
     return filtered;
   };
 
   const filterAndSortSwitchGames = (games) => {
     let filtered = games;
-        if (switchState.statusFilter) filtered = filtered.filter(g => g.status === switchState.statusFilter);
+    if (switchState.statusFilter) filtered = filtered.filter(g => g.status === switchState.statusFilter);
     if (switchState.difficultyFilter) filtered = filtered.filter(g =>
       g.difficulty === switchState.difficultyFilter || g.creatorDare?.difficulty === switchState.difficultyFilter
     );
@@ -479,13 +482,14 @@ export default function DarePerformerDashboard() {
           key={d.value}
           type="button"
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 text-base font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
-            ${selectedDifficulties.includes(d.value)
+            ${filters.difficulties.includes(d.value)
               ? 'border-primary bg-primary/10 text-primary scale-105 shadow-lg'
               : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-primary hover:bg-neutral-800/60'}`}
-          onClick={() => setSelectedDifficulties(selectedDifficulties.includes(d.value)
-            ? selectedDifficulties.filter(diff => diff !== d.value)
-            : [...selectedDifficulties, d.value])}
-          aria-pressed={selectedDifficulties.includes(d.value)}
+          onClick={() => setFilters(prev => ({ ...prev, difficulties: prev.difficulties.includes(d.value)
+            ? prev.difficulties.filter(diff => diff !== d.value)
+            : [...prev.difficulties, d.value]
+          }))}
+          aria-pressed={filters.difficulties.includes(d.value)}
           aria-label={`Toggle difficulty: ${d.label}`}
         >
           <span>{d.label}</span>
@@ -606,14 +610,14 @@ export default function DarePerformerDashboard() {
         <input
           type="text"
           placeholder="Filter by creator..."
-          value={creatorFilter}
-          onChange={(e) => setCreatorFilter(e.target.value)}
+          value={filters.creator}
+          onChange={(e) => setFilters(prev => ({ ...prev, creator: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
         />
         
         <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          value={filters.status}
+          onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="">All Status</option>
@@ -626,8 +630,8 @@ export default function DarePerformerDashboard() {
         <input
           type="text"
           placeholder="Filter by tags..."
-          value={tagFilter}
-          onChange={(e) => setTagFilter(e.target.value)}
+          value={filters.tag}
+          onChange={(e) => setFilters(prev => ({ ...prev, tag: e.target.value }))}
           className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
