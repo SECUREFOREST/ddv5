@@ -423,7 +423,7 @@ export default function DarePerformerDashboard() {
       }
       
       if (switchData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(switchData.value, API_RESPONSE_TYPES.SWITCH_ARRAY);
+        const validatedData = validateApiResponse(switchData.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         console.log('Switch data:', { original: switchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
         setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
