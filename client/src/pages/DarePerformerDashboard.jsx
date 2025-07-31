@@ -365,8 +365,8 @@ export default function DarePerformerDashboard() {
   useEffect(() => {
     if (!user) return;
     api.get('/dares', { params: { creator: user.id || user._id, dareType: 'domination' } })
-      .then(res => setDemandSlots(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setDemandSlots([]));
+      .then(res => setDemandState(prev => ({ ...prev, slots: Array.isArray(res.data) ? res.data : [] })))
+      .catch(() => setDemandState(prev => ({ ...prev, slots: [] })));
   }, [user]);
 
   // Fetch switch game activity feed
@@ -716,10 +716,10 @@ export default function DarePerformerDashboard() {
   };
 
   const handleWithdrawDemand = async (slotIdx) => {
-    const dare = demandSlots[slotIdx];
+    const dare = demandState.slots[slotIdx];
     try {
       await api.patch(`/dares/${dare._id}`, { status: 'cancelled' });
-      setDemandSlots(prev => prev.filter((_, i) => i !== slotIdx));
+      setDemandState(prev => ({ ...prev, slots: prev.slots.filter((_, i) => i !== slotIdx) }));
       showNotification('Demand dare withdrawn.', 'success');
     } catch (err) {
       showNotification('Failed to withdraw demand dare.', 'error');
