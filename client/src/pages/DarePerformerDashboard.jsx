@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
-import { validateApiResponse, API_RESPONSE_TYPES } from '../utils/apiUtils';
+import { validateApiResponse } from '../utils/apiUtils';
+import { API_RESPONSE_TYPES } from '../constants';
 import { 
   ChartBarIcon, 
   ClockIcon, 
