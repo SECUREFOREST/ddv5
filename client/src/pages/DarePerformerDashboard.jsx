@@ -339,7 +339,8 @@ export default function DarePerformerDashboard() {
     ongoing: true,
     completed: true,
     switchGames: true,
-    public: true
+    public: true,
+    associates: true
   });
   
   // 2025: Smart state consolidation
@@ -384,6 +385,7 @@ export default function DarePerformerDashboard() {
   const [completed, setCompleted] = useState([]);
   const [mySwitchGames, setMySwitchGames] = useState([]);
   const [publicDares, setPublicDares] = useState([]);
+  const [publicSwitchGames, setPublicSwitchGames] = useState([]);
   const [associates, setAssociates] = useState([]);
   const [errors, setErrors] = useState({});
   
@@ -415,11 +417,13 @@ export default function DarePerformerDashboard() {
       setError(null);
       
       // Parallel data fetching for better performance
-      const [ongoingData, completedData, switchData, publicData] = await Promise.allSettled([
+      const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
         api.get(`/dares?participant=${currentUserId}&status=in_progress,pending`),
         api.get(`/dares?participant=${currentUserId}&status=completed`),
         api.get('/switches/performer'),
-        api.get('/dares?public=true&limit=10')
+        api.get('/dares?public=true&limit=10'),
+        api.get('/switches?public=true&status=waiting_for_participant'),
+        api.get('/users/associates')
       ]);
       
       // Handle successful responses
@@ -447,12 +451,26 @@ export default function DarePerformerDashboard() {
         setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
       
+      if (publicSwitchData.status === 'fulfilled') {
+        const validatedData = validateApiResponse(publicSwitchData.value.data, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        console.log('Public switch data:', { original: publicSwitchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
+      }
+      
+      if (associatesData.status === 'fulfilled') {
+        const validatedData = validateApiResponse(associatesData.value.data, API_RESPONSE_TYPES.USER_ARRAY);
+        console.log('Associates data:', { original: associatesData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+        setAssociates(Array.isArray(validatedData) ? validatedData : []);
+      }
+      
       // 2025: Smart error handling
       const errors = [];
       if (ongoingData.status === 'rejected') errors.push('ongoing');
       if (completedData.status === 'rejected') errors.push('completed');
       if (switchData.status === 'rejected') errors.push('switchGames');
       if (publicData.status === 'rejected') errors.push('public');
+      if (publicSwitchData.status === 'rejected') errors.push('publicSwitch');
+      if (associatesData.status === 'rejected') errors.push('associates');
       
       if (errors.length > 0) {
         setErrors(prev => ({
@@ -470,7 +488,8 @@ export default function DarePerformerDashboard() {
         ongoing: false,
         completed: false,
         switchGames: false,
-        public: false
+        public: false,
+        associates: false
       });
     }
   }, [currentUserId]);
@@ -522,10 +541,10 @@ export default function DarePerformerDashboard() {
           navigate('/switches/create');
           break;
         case 'join-game':
-          navigate('/switches/join');
+          navigate('/switches');
           break;
         case 'view-profile':
-          navigate(`/profile/${userId}`);
+          navigate(`/profile/${currentUserId}`);
           break;
         default:
           console.warn('Unknown action:', action);
@@ -605,11 +624,11 @@ export default function DarePerformerDashboard() {
             
             <SmartStatsCard
               title="Available"
-              value={publicDares.length}
+              value={publicDares.length + publicSwitchGames.length}
               icon={SparklesIconFilled}
               color="orange"
               loading={dataLoading.public}
-              trend={calculateTrend(publicDares.length, 'public')}
+              trend={calculateTrend(publicDares.length + publicSwitchGames.length, 'public')}
               onClick={() => setActiveTab('public')}
             />
           </div>
@@ -617,7 +636,8 @@ export default function DarePerformerDashboard() {
           {/* Debug information */}
           <div className="text-xs text-white/50 mt-4 p-4 bg-white/5 rounded-lg">
             <div>Debug Info:</div>
-            <div>Ongoing: {ongoing.length} | Completed: {completed.length} | Switch Games: {mySwitchGames.length} | Public: {publicDares.length}</div>
+            <div>Ongoing: {ongoing.length} | Completed: {completed.length} | Switch Games: {mySwitchGames.length} | Public: {publicDares.length + publicSwitchGames.length}</div>
+            <div>Public Dares: {publicDares.length} | Public Switch Games: {publicSwitchGames.length}</div>
             <div>Current User ID: {currentUserId}</div>
           </div>
 
@@ -819,36 +839,68 @@ export default function DarePerformerDashboard() {
     },
     {
       key: 'public',
-      label: 'Public Dares',
+      label: 'Public',
       icon: SparklesIcon,
       content: (
         <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+          {/* Public Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <SparklesIcon className="w-6 h-6 text-orange-400" />
               Public Dares ({publicDares.length})
             </h3>
             {publicDares.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <SparklesIcon className="w-8 h-8 text-orange-400" />
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <SparklesIcon className="w-6 h-6 text-orange-400" />
                 </div>
-                <h4 className="text-lg font-semibold text-white mb-2">No Public Dares</h4>
-                <p className="text-white/70 mb-6">No public dares are available at the moment.</p>
+                <h4 className="text-md font-semibold text-white mb-2">No Public Dares</h4>
+                <p className="text-white/70 mb-4 text-sm">No public dares are available at the moment.</p>
                 <MicroInteractionButton
                   onClick={() => handleQuickAction('create-dare')}
                   variant="primary"
+                  size="sm"
                 >
                   Create a Dare
                 </MicroInteractionButton>
-                      </div>
+              </div>
             ) : (
               <div className="space-y-4">
                 {Array.isArray(publicDares) && publicDares.map((dare) => (
                   <DareCard key={dare._id} dare={dare} />
                 ))}
+              </div>
+            )}
+          </NeumorphicCard>
+
+          {/* Public Switch Games Section */}
+          <NeumorphicCard variant="glass" className="p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+              <FireIcon className="w-6 h-6 text-purple-400" />
+              Public Switch Games ({publicSwitchGames.length})
+            </h3>
+            {publicSwitchGames.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <FireIcon className="w-6 h-6 text-purple-400" />
                 </div>
-              )}
+                <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games</h4>
+                <p className="text-white/70 mb-4 text-sm">No public switch games are available at the moment.</p>
+                <MicroInteractionButton
+                  onClick={() => handleQuickAction('create-switch')}
+                  variant="primary"
+                  size="sm"
+                >
+                  Create a Game
+                </MicroInteractionButton>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {Array.isArray(publicSwitchGames) && publicSwitchGames.map((game) => (
+                  <SwitchGameCard key={game._id} game={game} />
+                ))}
+              </div>
+            )}
           </NeumorphicCard>
         </GestureContainer>
       )
