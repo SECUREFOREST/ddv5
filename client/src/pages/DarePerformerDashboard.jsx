@@ -387,10 +387,23 @@ export default function DarePerformerDashboard() {
   const [associates, setAssociates] = useState([]);
   const [errors, setErrors] = useState({});
   
+
+  
   // 2025: Smart notifications
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
     setTimeout(() => setNotification(null), 5000);
+  };
+  
+  // Calculate trend percentage using localStorage for historical data
+  const calculateTrend = (current, key) => {
+    const previous = parseInt(localStorage.getItem(`dashboard_${key}`) || '0');
+    const trend = previous === 0 ? (current > 0 ? 100 : 0) : ((current - previous) / previous) * 100;
+    
+    // Store current value for next calculation
+    localStorage.setItem(`dashboard_${key}`, current.toString());
+    
+    return Math.round(trend * 10) / 10; // Round to 1 decimal place
   };
   
   // 2025: Enhanced data fetching with smart loading
@@ -566,7 +579,7 @@ export default function DarePerformerDashboard() {
               icon={ClockIconFilled}
               color="blue"
               loading={dataLoading.ongoing}
-              trend={5.2}
+              trend={calculateTrend(ongoing.length, 'ongoing')}
               onClick={() => setActiveTab('ongoing')}
             />
             
@@ -576,7 +589,7 @@ export default function DarePerformerDashboard() {
               icon={TrophyIconFilled}
               color="green"
               loading={dataLoading.completed}
-              trend={12.8}
+              trend={calculateTrend(completed.length, 'completed')}
               onClick={() => setActiveTab('completed')}
             />
             
@@ -586,7 +599,7 @@ export default function DarePerformerDashboard() {
               icon={FireIconFilled}
               color="purple"
               loading={dataLoading.switchGames}
-              trend={-2.1}
+              trend={calculateTrend(mySwitchGames.length, 'switchGames')}
               onClick={() => setActiveTab('switch-games')}
             />
             
@@ -596,7 +609,7 @@ export default function DarePerformerDashboard() {
               icon={SparklesIconFilled}
               color="orange"
               loading={dataLoading.public}
-              trend={8.5}
+              trend={calculateTrend(publicDares.length, 'public')}
               onClick={() => setActiveTab('public')}
             />
           </div>
