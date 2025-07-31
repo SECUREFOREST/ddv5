@@ -95,43 +95,55 @@ export default function DarePerformerDashboard() {
     stats: true,
     activity: true
   });
+
+  // Error states for better error handling
+  const [errors, setErrors] = useState({
+    ongoing: '',
+    completed: '',
+    public: '',
+    switchGames: '',
+    associates: '',
+    stats: '',
+    activity: ''
+  });
   
-  // Filter states
+  // Consolidated filter states
   const [filters, setFilters] = useState({
     status: '',
     difficulty: '',
     type: '',
-    search: ''
+    search: '',
+    difficulties: [],
+    types: [],
+    keyword: '',
+    creator: '',
+    tag: ''
   });
   
-  // Advanced filter states (restored)
-  const [selectedDifficulties, setSelectedDifficulties] = useState([]);
-  const [selectedTypes, setSelectedTypes] = useState([]);
-  const [keywordFilter, setKeywordFilter] = useState('');
-  const [creatorFilter, setCreatorFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
+  // Demand section states - consolidated
+  const [demandState, setDemandState] = useState({
+    slots: [],
+    selectedDifficulties: [],
+    selectedTypes: [],
+    keywordFilter: '',
+    creatorFilter: '',
+    publicDares: [],
+    loading: false,
+    error: '',
+    expandedIdx: null,
+    completed: [],
+    total: 0
+  });
   
-  // Demand section states (restored)
-  const [demandSlots, setDemandSlots] = useState([]);
-  const [selectedDemandDifficulties, setSelectedDemandDifficulties] = useState([]);
-  const [selectedDemandTypes, setSelectedDemandTypes] = useState([]);
-  const [demandKeywordFilter, setDemandKeywordFilter] = useState('');
-  const [demandCreatorFilter, setDemandCreatorFilter] = useState('');
-  const [publicDemandDares, setPublicDemandDares] = useState([]);
-  const [publicDemandLoading, setPublicDemandLoading] = useState(false);
-  const [publicDemandError, setPublicDemandError] = useState('');
-  const [expandedPublicDemandIdx, setExpandedPublicDemandIdx] = useState(null);
-  const [completedDemand, setCompletedDemand] = useState([]);
-  const [publicDemandTotal, setPublicDemandTotal] = useState(0);
-  
-  // Switch Games advanced states (restored)
-  const [switchStatusFilter, setSwitchStatusFilter] = useState('');
-  const [switchDifficultyFilter, setSwitchDifficultyFilter] = useState('');
-  const [switchParticipantFilter, setSwitchParticipantFilter] = useState('');
-  const [switchSort, setSwitchSort] = useState('recent');
-  const [switchGameActivityFeed, setSwitchGameActivityFeed] = useState([]);
-  const [switchGameActivityLoading, setSwitchGameActivityLoading] = useState(false);
+  // Switch Games states - consolidated
+  const [switchState, setSwitchState] = useState({
+    statusFilter: '',
+    difficultyFilter: '',
+    participantFilter: '',
+    sort: 'recent',
+    activityFeed: [],
+    activityLoading: false
+  });
   
   // Associates and stats states (restored)
   const [associates, setAssociates] = useState([]);
@@ -207,10 +219,32 @@ export default function DarePerformerDashboard() {
           )
         ]);
         
-        // Handle individual errors
-        const errors = [ongoingError, completedError, publicError, switchError, historyError].filter(Boolean);
-        if (errors.length > 0) {
-          console.warn('Some API calls failed:', errors);
+        // Handle individual errors with better error tracking
+        const errorMap = {
+          ongoing: ongoingError,
+          completed: completedError,
+          public: publicError,
+          switchGames: switchError,
+          history: historyError
+        };
+        
+        const hasErrors = Object.values(errorMap).some(Boolean);
+        if (hasErrors) {
+          console.warn('Some API calls failed:', errorMap);
+          setErrors(prev => ({
+            ...prev,
+            ...errorMap
+          }));
+        } else {
+          setErrors({
+            ongoing: '',
+            completed: '',
+            public: '',
+            switchGames: '',
+            associates: '',
+            stats: '',
+            activity: ''
+          });
         }
         
         // Set data with validation
@@ -270,8 +304,18 @@ export default function DarePerformerDashboard() {
         // }
         // setAssociates(associatesData || []);
         
-        // Temporarily set empty array to prevent 500 error
-        setAssociates([]);
+        // Re-enable associates functionality since API is working
+        const { data: associatesData, error: associatesError } = await safeApiCall(
+          () => api.get('/users/associates'),
+          'fetching associates',
+          API_RESPONSE_TYPES.USER_ARRAY
+        );
+        
+        if (associatesError) {
+          console.warn('Failed to fetch associates:', associatesError);
+          setErrors(prev => ({ ...prev, associates: associatesError }));
+        }
+        setAssociates(associatesData || []);
         
         // Fetch role stats with proper error handling
         const { data: statsData, error: statsError } = await safeApiCall(
@@ -763,41 +807,78 @@ export default function DarePerformerDashboard() {
             <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-4 border border-blue-600/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold text-blue-400">{ongoing.length}</div>
-                  <div className="text-sm text-blue-300">Active Dares</div>
-                  <div className="text-xs text-blue-400/70">{ongoing.length}/{MAX_SLOTS} slots used</div>
+                  {dataLoading.ongoing ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-blue-400/20 rounded mb-2"></div>
+                      <div className="h-4 bg-blue-300/20 rounded mb-1"></div>
+                      <div className="h-3 bg-blue-400/20 rounded"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-blue-400">{ongoing.length}</div>
+                      <div className="text-sm text-blue-300">Active Dares</div>
+                      <div className="text-xs text-blue-400/70">{ongoing.length}/{MAX_SLOTS} slots used</div>
+                    </>
+                  )}
                 </div>
-                <ClockIcon className="w-8 h-8 text-blue-400" />
+                <ClockIcon className="w-8 h-8 text-blue-400" aria-hidden="true" />
               </div>
             </div>
             
             <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-4 border border-green-600/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold text-green-400">{completed.length}</div>
-                  <div className="text-sm text-green-300">Completed</div>
+                  {dataLoading.completed ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-green-400/20 rounded mb-2"></div>
+                      <div className="h-4 bg-green-300/20 rounded"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-green-400">{completed.length}</div>
+                      <div className="text-sm text-green-300">Completed</div>
+                    </>
+                  )}
                 </div>
-                <TrophyIcon className="w-8 h-8 text-green-400" />
+                <TrophyIcon className="w-8 h-8 text-green-400" aria-hidden="true" />
               </div>
             </div>
             
             <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 border border-purple-600/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold text-purple-400">{mySwitchGames.length}</div>
-                  <div className="text-sm text-purple-300">Switch Games</div>
+                  {dataLoading.switchGames ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-purple-400/20 rounded mb-2"></div>
+                      <div className="h-4 bg-purple-300/20 rounded"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-purple-400">{mySwitchGames.length}</div>
+                      <div className="text-sm text-purple-300">Switch Games</div>
+                    </>
+                  )}
                 </div>
-                <FireIcon className="w-8 h-8 text-purple-400" />
+                <FireIcon className="w-8 h-8 text-purple-400" aria-hidden="true" />
               </div>
             </div>
             
             <div className="bg-gradient-to-r from-orange-600/20 to-orange-700/20 rounded-xl p-4 border border-orange-600/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold text-orange-400">{publicDares.length}</div>
-                  <div className="text-sm text-orange-300">Available</div>
+                  {dataLoading.public ? (
+                    <div className="animate-pulse">
+                      <div className="h-8 bg-orange-400/20 rounded mb-2"></div>
+                      <div className="h-4 bg-orange-300/20 rounded"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-orange-400">{publicDares.length}</div>
+                      <div className="text-sm text-orange-300">Available</div>
+                    </>
+                  )}
                 </div>
-                <SparklesIcon className="w-8 h-8 text-orange-400" />
+                <SparklesIcon className="w-8 h-8 text-orange-400" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -809,48 +890,90 @@ export default function DarePerformerDashboard() {
               <button 
                 onClick={() => navigate('/dare/create')}
                 className="group bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-4 font-semibold hover:from-primary-dark hover:to-primary transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Create a new dare"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/dare/create');
+                  }
+                }}
               >
-                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <PlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Create Dare
               </button>
               
               <button 
                 onClick={() => navigate('/dare/select')}
                 className="group bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-4 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Select and perform a dare"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/dare/select');
+                  }
+                }}
               >
-                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <PlayIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Perform Dare
               </button>
               
               <button 
                 onClick={() => navigate('/subs/new')}
                 className="group bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl p-4 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Submit a new offer"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/subs/new');
+                  }
+                }}
               >
-                <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <DocumentPlusIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Submit Offer
               </button>
               
               <button 
                 onClick={() => navigate('/switches/create')}
                 className="group bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl p-4 font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Create a new switch game"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/switches/create');
+                  }
+                }}
               >
-                <FireIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <FireIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Create Switch Game
               </button>
               
               <button 
                 onClick={() => navigate('/switches/participate')}
                 className="group bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl p-4 font-semibold hover:from-orange-700 hover:to-orange-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Participate in an existing switch game"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/switches/participate');
+                  }
+                }}
               >
-                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <UserIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Participate in Switch Game
               </button>
               
               <button 
                 onClick={() => navigate('/public-dares')}
                 className="group bg-gradient-to-r from-pink-600 to-pink-700 text-white rounded-xl p-4 font-semibold hover:from-pink-700 hover:to-pink-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                aria-label="Browse available public dares"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate('/public-dares');
+                  }
+                }}
               >
-                <SparklesIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                <SparklesIcon className="w-6 h-6 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Browse Public Dares
               </button>
             </div>
@@ -878,13 +1001,13 @@ export default function DarePerformerDashboard() {
             </div>
           </div>
 
-          {/* Associates - temporarily hidden due to 500 error */}
-          {/* {associates.length > 0 && (
+          {/* Associates Section */}
+          {associates.length > 0 && (
             <div className="bg-neutral-900/60 rounded-xl p-6 border border-neutral-800/50">
-              <h3 className="text-lg font-semibold text-white mb-4">Associates</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <h3 className="text-lg font-semibold text-white mb-4" id="associates-section">Associates</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-labelledby="associates-section">
                 {associates.slice(0, 6).map((associate, idx) => (
-                  <div key={associate._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
+                  <div key={associate._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30" role="listitem">
                     <div className="flex items-center gap-3">
                       <Avatar user={associate} size={32} />
                       <div className="flex-1">
@@ -898,15 +1021,17 @@ export default function DarePerformerDashboard() {
               {associates.length > 6 && (
                 <div className="text-center mt-4">
                   <button 
-                    onClick={() => navigate('/associates')}
-                    className="text-primary hover:text-primary-light text-sm font-medium"
+                    onClick={() => setExpandedAssociateIdx(expandedAssociateIdx === null ? 0 : null)}
+                    className="text-neutral-400 hover:text-neutral-300 text-sm"
+                    aria-expanded={expandedAssociateIdx !== null}
+                    aria-controls="associates-list"
                   >
-                    View all {associates.length} associates
+                    {expandedAssociateIdx === null ? `Show ${associates.length - 6} more` : 'Show less'}
                   </button>
                 </div>
               )}
             </div>
-          )} */}
+          )}
 
           {/* Stats Dashboard */}
           {roleStats && (
@@ -1538,10 +1663,23 @@ export default function DarePerformerDashboard() {
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300 text-center mb-6">
-              {error}
+            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300 text-center mb-6" role="alert" aria-live="assertive">
+              <div className="flex items-center justify-center gap-2">
+                <ExclamationTriangleIcon className="w-5 h-5" />
+                <span>{error}</span>
+              </div>
             </div>
           )}
+
+          {/* Individual Section Errors */}
+          {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
+            <div key={section} className="bg-orange-900/20 border border-orange-800/30 rounded-xl p-3 text-orange-300 text-sm mb-4" role="alert" aria-live="polite">
+              <div className="flex items-center gap-2">
+                <ExclamationTriangleIcon className="w-4 h-4" />
+                <span className="capitalize">{section}: {errorMsg}</span>
+              </div>
+            </div>
+          ))}
 
           {/* Tabs */}
           <Tabs
