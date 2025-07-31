@@ -463,21 +463,28 @@ export default function DarePerformerDashboard() {
         setAssociates(Array.isArray(validatedData) ? validatedData : []);
       }
       
-      // 2025: Smart error handling
-      const errors = [];
-      if (ongoingData.status === 'rejected') errors.push('ongoing');
-      if (completedData.status === 'rejected') errors.push('completed');
-      if (switchData.status === 'rejected') errors.push('switchGames');
-      if (publicData.status === 'rejected') errors.push('public');
-      if (publicSwitchData.status === 'rejected') errors.push('publicSwitch');
-      if (associatesData.status === 'rejected') errors.push('associates');
-      
-      if (errors.length > 0) {
-        setErrors(prev => ({
-          ...prev,
-          general: `Failed to load: ${errors.join(', ')}`
-        }));
-      }
+        // 2025: Smart error handling with detailed error messages
+  const errors = {};
+  if (ongoingData.status === 'rejected') {
+    errors.ongoing = ongoingData.reason?.message || 'Failed to load active dares';
+  }
+  if (completedData.status === 'rejected') {
+    errors.completed = completedData.reason?.message || 'Failed to load completed dares';
+  }
+  if (switchData.status === 'rejected') {
+    errors.switchGames = switchData.reason?.message || 'Failed to load switch games';
+  }
+  if (publicData.status === 'rejected') {
+    errors.public = publicData.reason?.message || 'Failed to load public dares';
+  }
+  if (publicSwitchData.status === 'rejected') {
+    errors.publicSwitch = publicSwitchData.reason?.message || 'Failed to load public switch games';
+  }
+  if (associatesData.status === 'rejected') {
+    errors.associates = associatesData.reason?.message || 'Failed to load associates';
+  }
+  
+  setErrors(errors);
       
     } catch (err) {
       console.error('Dashboard data fetch error:', err);
@@ -1119,12 +1126,24 @@ export default function DarePerformerDashboard() {
             <div className="flex items-center justify-center mb-6">
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mr-6">
                 <UserIcon className="w-12 h-12 text-white" />
-            </div>
+              </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white">Performer Dashboard</h1>
             </div>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
+            <p className="text-xl text-white/80 max-w-2xl mx-auto mb-6">
               Manage your dares and track your progress with intelligent insights
             </p>
+            <div className="flex justify-center gap-4">
+              <MicroInteractionButton
+                onClick={fetchData}
+                variant="secondary"
+                size="sm"
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                <ArrowPathIcon className="w-4 h-4" />
+                Refresh Data
+              </MicroInteractionButton>
+            </div>
           </div>
 
           {/* 2025 Error Display */}
@@ -1140,9 +1159,19 @@ export default function DarePerformerDashboard() {
           {/* 2025 Individual Section Errors */}
           {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
             <NeumorphicCard key={section} variant="pressed" className="mb-6 p-4 border-orange-500/30" role="alert" aria-live="polite">
-              <div className="flex items-center gap-3 text-orange-300">
-                <ExclamationTriangleIcon className="w-5 h-5" />
-                <span className="capitalize font-medium">{section}: {errorMsg}</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-orange-300">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  <span className="capitalize font-medium">{section}: {errorMsg}</span>
+                </div>
+                <MicroInteractionButton
+                  onClick={fetchData}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </MicroInteractionButton>
               </div>
             </NeumorphicCard>
           ))}
@@ -1154,6 +1183,43 @@ export default function DarePerformerDashboard() {
             onChange={idx => setActiveTab(tabs[idx].key)}
             className="mb-8"
           />
+
+          {/* 2025 Empty State - Show when all sections are empty */}
+          {!isLoading && 
+           ongoing.length === 0 && 
+           completed.length === 0 && 
+           mySwitchGames.length === 0 && 
+           publicDares.length === 0 && 
+           publicSwitchGames.length === 0 && 
+           associates.length === 0 && (
+            <NeumorphicCard variant="glass" className="p-12 text-center">
+              <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <SparklesIcon className="w-12 h-12 text-purple-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Welcome to Your Dashboard!</h3>
+              <p className="text-white/70 mb-8 max-w-md mx-auto">
+                It looks like you're just getting started. Create your first dare or join a switch game to begin your journey!
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <MicroInteractionButton
+                  onClick={() => handleQuickAction('create-dare')}
+                  variant="primary"
+                  size="lg"
+                >
+                  <PlusIcon className="w-6 h-6" />
+                  Create Your First Dare
+                </MicroInteractionButton>
+                <MicroInteractionButton
+                  onClick={() => handleQuickAction('create-switch')}
+                  variant="secondary"
+                  size="lg"
+                >
+                  <PuzzlePieceIcon className="w-6 h-6" />
+                  Create a Switch Game
+                </MicroInteractionButton>
+              </div>
+            </NeumorphicCard>
+          )}
 
           {/* 2025 Smart Notifications */}
           {notification && (
