@@ -13,8 +13,9 @@ export default function SwitchGames() {
   const [userSwitchGames, setUserSwitchGames] = useState([]);
   const [generalError, setGeneralError] = useState('');
   const [generalInfo, setGeneralInfo] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const fetchUserSwitchGames = useCallback(async () => {
+  const fetchUserSwitchGames = async () => {
     try {
       setLoading(true);
       setGeneralError('');
@@ -55,9 +56,10 @@ export default function SwitchGames() {
       console.log('Setting loading to false');
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
+    console.log('SwitchGames component mounted, fetching data...');
     fetchUserSwitchGames();
     
     // Add timeout to prevent infinite loading
@@ -70,7 +72,7 @@ export default function SwitchGames() {
     }, 10000); // 10 second timeout
     
     return () => clearTimeout(timeout);
-  }, []); // Remove dependencies to prevent infinite loop
+  }, []); // Only run once on mount
 
   // Calculate basic stats from user's switch games
   const stats = {
