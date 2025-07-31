@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense, useCallback } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon } from '@heroicons/react/24/solid';
@@ -14,20 +14,35 @@ export default function Leaderboard() {
   const [search, setSearch] = useState('');
   const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
-    setLoading(true);
-    api.get('/stats/leaderboard')
-      .then(res => {
-        setUsers(Array.isArray(res.data) ? res.data : []);
+  const fetchLeaderboard = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await api.get('/stats/leaderboard');
+      
+      if (response.data) {
+        const usersData = Array.isArray(response.data) ? response.data : [];
+        setUsers(usersData);
         showSuccess('Leaderboard loaded successfully!');
-      })
-      .catch((err) => {
-        setError('Failed to load leaderboard.');
-        showError('Failed to load leaderboard. Please try again.');
-        console.error('Leaderboard loading error:', err);
-      })
-      .finally(() => setLoading(false));
-  }, []); // Remove toast functions from dependencies
+        console.log('Leaderboard loaded:', usersData.length, 'users');
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Leaderboard loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load leaderboard.';
+      setError(errorMessage);
+      showError(errorMessage);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   const filteredUsers = users.filter(u =>
     u.user?.username?.toLowerCase().includes(search.toLowerCase()) ||

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import api from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 
@@ -19,25 +19,35 @@ export default function Notifications() {
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
 
-  const fetchNotifications = () => {
-    setLoading(true);
-    setGeneralError('');
-    api.get('/notifications')
-      .then(res => {
-        setNotifications(Array.isArray(res.data) ? res.data : []);
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setGeneralError('');
+      
+      const response = await api.get('/notifications');
+      
+      if (response.data) {
+        const notificationsData = Array.isArray(response.data) ? response.data : [];
+        setNotifications(notificationsData);
         showSuccess('Notifications loaded successfully!');
-      })
-      .catch((error) => {
-        setNotifications([]);
-        showError('Failed to load notifications. Please try again.');
-        console.error('Notifications loading error:', error);
-      })
-      .finally(() => setLoading(false));
-  };
+        console.log('Notifications loaded:', notificationsData.length);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Notifications loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load notifications.';
+      setGeneralError(errorMessage);
+      showError(errorMessage);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError]);
 
   useEffect(() => {
     fetchNotifications();
-  }, []); // Remove toast functions from dependencies
+  }, [fetchNotifications]);
 
   useEffect(() => {
     let socket;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
@@ -47,16 +47,34 @@ export default function DareShare() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
-    setLoading(true);
-    api.get(`/dares/${dareId}`)
-      .then(res => setDare(res.data))
-      .catch(() => {
-        setError('Failed to load dare.');
-        showError('Failed to load dare.');
-      })
-      .finally(() => setLoading(false));
+  const fetchDare = useCallback(async () => {
+    if (!dareId) return;
+    
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await api.get(`/dares/${dareId}`);
+      
+      if (response.data) {
+        setDare(response.data);
+        console.log('Dare loaded for sharing:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Failed to load dare for sharing:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
+      setError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   }, [dareId, showError]);
+
+  useEffect(() => {
+    fetchDare();
+  }, [fetchDare]);
 
   const dareUrl = typeof window !== 'undefined' ? `${window.location.origin}/dares/${dareId}` : '';
 

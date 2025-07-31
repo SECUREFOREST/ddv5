@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRightIcon, CheckCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import api from '../api/axios';
@@ -61,21 +61,35 @@ export default function DareConsent() {
   const [loading, setLoading] = React.useState(false);
   const [fetching, setFetching] = React.useState(!dare);
 
+  const fetchDare = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+      setFetching(true);
+      
+      const response = await api.get(`/dares/${id}`);
+      
+      if (response.data) {
+        setDare(response.data);
+        showSuccess('Dare loaded successfully!');
+        console.log('Dare loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Dare loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Dare not found.';
+      showError(errorMessage);
+    } finally {
+      setFetching(false);
+    }
+  }, [id, showSuccess, showError]);
+
   React.useEffect(() => {
     if (!dare && id) {
-      setFetching(true);
-      api.get(`/dares/${id}`)
-        .then(res => {
-          setDare(res.data);
-          showSuccess('Dare loaded successfully!');
-        })
-        .catch((error) => {
-          showError('Dare not found.');
-          console.error('Dare loading error:', error);
-        })
-        .finally(() => setFetching(false));
+      fetchDare();
     }
-  }, [dare, id]); // Remove toast functions from dependencies
+  }, [dare, id, fetchDare]);
 
   const handleConsent = async () => {
     setLoading(true);

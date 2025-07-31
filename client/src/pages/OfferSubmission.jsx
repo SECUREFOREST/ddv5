@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
@@ -47,23 +47,51 @@ export default function OfferSubmission() {
   const navigate = useNavigate();
 
   // Fetch slot/cooldown state and privacy setting
-  useEffect(() => {
-    setFetching(true);
-    Promise.all([
-      api.get('/users/user/slots'),
-      api.get('/safety/content_deletion'),
-    ]).then(([slotsRes, privacyRes]) => {
-      setSlotCount(slotsRes.data?.openSlots ?? 0);
-      setMaxSlots(slotsRes.data?.maxSlots ?? 5);
-      setSlotLimit((slotsRes.data?.openSlots ?? 0) >= (slotsRes.data?.maxSlots ?? 5));
-      setCooldown(slotsRes.data?.cooldownUntil ?? null);
-      setPrivacy(privacyRes.data?.value || 'when_viewed');
+  const fetchSettings = useCallback(async () => {
+    try {
+      setFetching(true);
+      
+      const [slotsRes, privacyRes] = await Promise.allSettled([
+        api.get('/users/user/slots'),
+        api.get('/safety/content_deletion'),
+      ]);
+      
+      // Handle slots response
+      if (slotsRes.status === 'fulfilled') {
+        if (slotsRes.value.data) {
+          const slotsData = slotsRes.value.data;
+          setSlotCount(slotsData.openSlots ?? 0);
+          setMaxSlots(slotsData.maxSlots ?? 5);
+          setSlotLimit((slotsData.openSlots ?? 0) >= (slotsData.maxSlots ?? 5));
+          setCooldown(slotsData.cooldownUntil ?? null);
+          console.log('Slots data loaded:', slotsData);
+        }
+      } else {
+        console.error('Failed to fetch slots data:', slotsRes.reason);
+      }
+      
+      // Handle privacy response
+      if (privacyRes.status === 'fulfilled') {
+        if (privacyRes.value.data) {
+          setPrivacy(privacyRes.value.data.value || 'when_viewed');
+          console.log('Privacy setting loaded:', privacyRes.value.data.value);
+        }
+      } else {
+        console.error('Failed to fetch privacy setting:', privacyRes.reason);
+      }
+      
       showSuccess('Settings loaded successfully!');
-    }).catch((error) => {
-      showError('Failed to load slot or privacy info.');
+    } catch (error) {
       console.error('Settings loading error:', error);
-    }).finally(() => setFetching(false));
-  }, []); // Remove toast functions from dependencies
+      showError('Failed to load slot or privacy info.');
+    } finally {
+      setFetching(false);
+    }
+  }, [showSuccess, showError]);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   // Handle privacy change
   const handlePrivacyChange = async (val) => {

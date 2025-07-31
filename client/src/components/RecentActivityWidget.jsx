@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { formatRelativeTime } from '../utils/dateUtils';
 import { ChatBubbleLeftIcon, CheckCircleIcon, StarIcon, EllipsisHorizontalIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import api from '../api/axios';
@@ -111,44 +111,48 @@ function getActivityMessage(activity) {
     case 'logout':
       return `${actorName} logged out`;
     default:
-      // Try to make the default message more descriptive
-      if (activity.message) {
-        return activity.message;
-      } else if (activity.type) {
-        // Convert snake_case to readable text
-        const readableType = activity.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        return `${actorName} ${readableType}`;
-      } else {
-        return `${actorName} performed an action`;
-      }
+      // Convert snake_case to readable text
+      const readableType = activity.type
+        ?.split('_')
+        ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        ?.join(' ') || 'performed an action';
+      return `${actorName} ${readableType.toLowerCase()}`;
   }
 }
 
 export default function RecentActivityWidget({ userId, activities = [], loading = false, title = 'Recent Activity', onRefresh }) {
-  const [localActivities, setLocalActivities] = useState(activities);
-  const [localLoading, setLocalLoading] = useState(loading);
+  const [localActivities, setLocalActivities] = useState([]);
+  const [localLoading, setLocalLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   // Fetch activities if userId is provided
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     if (!userId) return;
     
     try {
       setLocalLoading(true);
       setError(null);
+      
       // Use the activity feed endpoint that shows user-related activities
       const response = await api.get('/activity-feed');
-      console.log('Activity feed response:', response.data);
-      setLocalActivities(response.data || []);
-    } catch (err) {
-      console.error('Failed to fetch activities:', err);
-      setError('Failed to load recent activity');
+      
+      if (response.data) {
+        const activitiesData = Array.isArray(response.data) ? response.data : [];
+        setLocalActivities(activitiesData);
+        console.log('Activity feed loaded:', activitiesData.length, 'activities');
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Failed to fetch activities:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load recent activity';
+      setError(errorMessage);
       setLocalActivities([]);
     } finally {
       setLocalLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (userId) {
@@ -156,9 +160,9 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
     } else if (activities.length > 0) {
       setLocalActivities(activities);
     }
-  }, [userId]);
+  }, [userId, fetchActivities]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     if (onRefresh) {
       await onRefresh();
@@ -166,7 +170,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
       await fetchActivities();
     }
     setRefreshing(false);
-  };
+  }, [onRefresh, userId, fetchActivities]);
 
   const displayActivities = userId ? localActivities : activities;
   const displayLoading = userId ? localLoading : loading;

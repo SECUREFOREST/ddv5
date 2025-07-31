@@ -44,14 +44,38 @@ export default function Dares() {
 
   useEffect(() => {
     if (!user) return;
+    const userId = user._id || user.id;
+    if (!userId) return;
+    
     setLoading(true);
-    // Fetch dares created by user
-    const fetchCreated = api.get('/dares', { params: { creator: user.id } });
-    const fetchParticipating = api.get('/dares', { params: { participant: user.id } });
-    const fetchSwitch = api.get('/dares', { params: { assignedSwitch: user.id } });
-    Promise.all([fetchCreated, fetchParticipating, fetchSwitch])
+    
+    Promise.allSettled([
+      api.get('/dares', { params: { creator: userId } }),
+      api.get('/dares', { params: { participant: userId } }),
+      api.get('/dares', { params: { assignedSwitch: userId } })
+    ])
       .then(([createdRes, partRes, switchRes]) => {
-        const all = [...(createdRes.data || []), ...(partRes.data || []), ...(switchRes.data || [])];
+        const all = [];
+        
+        // Handle created dares
+        if (createdRes.status === 'fulfilled') {
+          const createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+          all.push(...createdData);
+        }
+        
+        // Handle participating dares
+        if (partRes.status === 'fulfilled') {
+          const partData = Array.isArray(partRes.value.data) ? partRes.value.data : [];
+          all.push(...partData);
+        }
+        
+        // Handle switch dares
+        if (switchRes.status === 'fulfilled') {
+          const switchData = Array.isArray(switchRes.value.data) ? switchRes.value.data : [];
+          all.push(...switchData);
+        }
+        
+        // Deduplicate by _id
         const unique = Array.from(new Map(all.map(d => [d._id, d])).values());
         setDares(unique);
         setLastUpdated(new Date());
@@ -64,7 +88,7 @@ export default function Dares() {
         console.error('Dares loading error:', error);
       })
       .finally(() => setLoading(false));
-  }, [user]); // Remove toast functions from dependencies
+  }, [user, showSuccess, showError]);
 
   const handleCreate = async (e) => {
     e.preventDefault();

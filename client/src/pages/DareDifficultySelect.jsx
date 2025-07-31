@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
@@ -19,24 +19,28 @@ export default function DareDifficultySelect() {
   const [difficulty, setDifficulty] = useState('titillating');
   const [loading, setLoading] = useState(false);
 
-  const handleContinue = async (e) => {
+  const handleContinue = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
-      const res = await api.get(`/dares/random?difficulty=${difficulty}`);
-      if (res.data && res.data._id) {
+      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      
+      if (response.data && response.data._id) {
         showSuccess('Dare found! Redirecting...');
-        navigate(`/dare/consent/${res.data._id}`, { state: { dare: res.data } });
+        console.log('Random dare found:', response.data._id);
+        navigate(`/dare/consent/${response.data._id}`, { state: { dare: response.data } });
       } else {
         showError('No dare found for this difficulty level.');
       }
-    } catch (err) {
-      const apiError = err.response?.data?.error || err.message;
+    } catch (error) {
+      console.error('Failed to fetch random dare:', error);
+      const apiError = error.response?.data?.error || error.message;
       showError(apiError || 'Failed to fetch dare.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [difficulty, navigate, showSuccess, showError]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">

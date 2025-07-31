@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
@@ -59,19 +59,33 @@ export default function ClaimDare() {
   const [submitted, setSubmitted] = useState(false);
   const [claiming, setClaiming] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-    api.get(`/dares/claim/${claimToken}`)
-      .then(res => {
-        setDare(res.data);
+  const fetchClaimDare = useCallback(async () => {
+    if (!claimToken) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await api.get(`/dares/claim/${claimToken}`);
+      
+      if (response.data) {
+        setDare(response.data);
         showSuccess('Dare loaded successfully!');
-      })
-      .catch((error) => {
-        showError('Dare not found or already claimed.');
-        console.error('Dare claim loading error:', error);
-      })
-      .finally(() => setLoading(false));
-  }, [claimToken]); // Remove toast functions from dependencies
+        console.log('Claim dare loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Dare claim loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Dare not found or already claimed.';
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [claimToken, showSuccess, showError]);
+
+  useEffect(() => {
+    fetchClaimDare();
+  }, [fetchClaimDare]);
 
   const handleConsent = async (e) => {
     e.preventDefault();

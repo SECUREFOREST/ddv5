@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api from '../api/axios';
@@ -176,24 +176,34 @@ export default function SwitchGameDetails() {
     );
   };
 
-  // Enhanced fetchGame with loading/error state
-  const fetchGameWithFeedback = async (showLoading = false) => {
+  const fetchGameWithFeedback = useCallback(async (showLoading = false) => {
+    if (!id) return;
+    
     if (showLoading) setLoading(true);
     setFetchingGame(true);
     setFetchGameError('');
+    
     try {
-      const res = await api.get(`/switches/${id}`);
-      if (!isGameEqual(res.data, game)) {
-        setGame(res.data);
+      const response = await api.get(`/switches/${id}`);
+      
+      if (response.data) {
+        if (!isGameEqual(response.data, game)) {
+          setGame(response.data);
+          console.log('Switch game updated:', response.data._id);
+        }
+      } else {
+        throw new Error('No data received from server');
       }
-    } catch (err) {
-      setFetchGameError('Failed to load updated switch game details. Please refresh the page.');
-      showError('Failed to load updated switch game details. Please refresh the page.');
+    } catch (error) {
+      console.error('Failed to fetch switch game:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load switch game details.';
+      setFetchGameError(errorMessage);
+      showError(errorMessage);
     } finally {
       setFetchingGame(false);
       if (showLoading) setLoading(false);
     }
-  };
+  }, [id, game, showError]);
 
   // Replace all fetchGame(true) with fetchGameWithFeedback(true)
   useEffect(() => {

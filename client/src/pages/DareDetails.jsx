@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -60,6 +60,37 @@ export default function DareDetails() {
   const [generalSuccess, setGeneralSuccess] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
 
+  const fetchDareDetails = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+      setLoading(true);
+      setGeneralError('');
+      
+      const response = await api.get(`/dares/${id}`);
+      
+      if (response.data) {
+        setDare(response.data);
+        showSuccess('Dare details loaded successfully!');
+        console.log('Dare details loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Dare details loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load dare details.';
+      setGeneralError(errorMessage);
+      showError(errorMessage);
+      setDare(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, showSuccess, showError]);
+
+  useEffect(() => {
+    fetchDareDetails();
+  }, [fetchDareDetails, refresh]);
+
   const openReportModal = (commentId) => {
     setReportCommentId(commentId);
     setReportReason('');
@@ -88,21 +119,6 @@ export default function DareDetails() {
       setReportLoading(false);
     }
   };
-
-  useEffect(() => {
-    setLoading(true);
-    api.get(`/dares/${id}`)
-      .then(res => {
-        setDare(res.data);
-        showSuccess('Dare details loaded successfully!');
-      })
-      .catch((error) => {
-        setDare(null);
-        showError('Failed to load dare details. Please try again.');
-        console.error('Dare details loading error:', error);
-      })
-      .finally(() => setLoading(false));
-  }, [id, refresh]); // Remove toast functions from dependencies
 
   // Remove all comment-related state, handlers, and UI
 

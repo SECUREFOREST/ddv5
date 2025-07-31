@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -39,26 +39,38 @@ export default function DareParticipant() {
   };
 
   // If id param is present, fetch that dare directly
-  React.useEffect(() => {
-    if (id) {
+  const fetchDare = useCallback(async () => {
+    if (!id) return;
+    
+    try {
       setFetching(true);
-      api.get(`/dares/${id}`)
-        .then(res => {
-          setDare(res.data);
-          setConsented(true);
-          showSuccess('Dare loaded successfully!');
-        })
-        .catch((error) => {
-          setGeneralError('Dare not found.');
-          setNoDare(true);
-          showError('Dare not found.');
-          console.error('Dare loading error:', error);
-        })
-        .finally(() => setFetching(false));
+      
+      const response = await api.get(`/dares/${id}`);
+      
+      if (response.data) {
+        setDare(response.data);
+        setConsented(true);
+        showSuccess('Dare loaded successfully!');
+        console.log('Dare loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Dare loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Dare not found.';
+      setGeneralError(errorMessage);
+      setNoDare(true);
+      showError(errorMessage);
+    } finally {
+      setFetching(false);
     }
-  }, [id]); // Remove toast functions from dependencies
+  }, [id, showSuccess, showError]);
 
-  const handleConsent = async () => {
+  React.useEffect(() => {
+    fetchDare();
+  }, [fetchDare]);
+
+  const handleConsent = useCallback(async () => {
     setLoading(true);
     setNoDare(false);
     setDare(null);
@@ -66,24 +78,28 @@ export default function DareParticipant() {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    
     try {
-      const res = await api.get(`/dares/random?difficulty=${difficulty}`);
-      if (res.data && res.data._id) {
-        setDare(res.data);
+      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      
+      if (response.data && response.data._id) {
+        setDare(response.data);
         setConsented(true);
         showSuccess('Dare loaded successfully!');
+        console.log('Random dare loaded:', response.data._id);
       } else {
         setNoDare(true);
         showError('No dares available for this difficulty level.');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to fetch random dare:', error);
       setNoDare(true);
-      const errorMessage = err.response?.data?.error || 'Failed to fetch dare.';
+      const errorMessage = error.response?.data?.error || 'Failed to fetch dare.';
       showError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [difficulty, showSuccess, showError]);
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();

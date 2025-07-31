@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Dropdown from './Dropdown';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -81,20 +81,31 @@ export default function NotificationDropdown() {
   // Calculate unseenCount
   const unseenCount = notifications.filter(n => !n.read).length;
 
-  const fetchNotifications = async () => {
-    setLoading(true);
-    setError(null);
-    setMarkAllError(null);
+  const fetchNotifications = useCallback(async () => {
     try {
-      const res = await api.get('/notifications');
-      setNotifications(res.data);
-    } catch (err) {
-      setError('Failed to load notifications');
+      setLoading(true);
+      setError(null);
+      setMarkAllError(null);
+      
+      const response = await api.get('/notifications');
+      
+      if (response.data) {
+        const notificationsData = Array.isArray(response.data) ? response.data : [];
+        setNotifications(notificationsData);
+        console.log('Notifications loaded:', notificationsData.length);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load notifications';
+      setError(errorMessage);
+      setNotifications([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -115,7 +126,7 @@ export default function NotificationDropdown() {
       mounted = false;
       if (socket) socket.disconnect();
     };
-  }, [accessToken]);
+  }, [accessToken, fetchNotifications]);
 
   // Close dropdown on click outside
   useEffect(() => {

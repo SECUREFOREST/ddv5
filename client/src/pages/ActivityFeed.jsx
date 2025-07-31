@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 
 import Avatar from '../components/Avatar';
@@ -20,19 +20,33 @@ export default function ActivityFeed() {
   });
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    setLoading(true);
-    api.get('/activity-feed?limit=30')
-      .then(res => {
-        setActivities(Array.isArray(res.data) ? res.data : []);
+  const fetchActivityFeed = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      const response = await api.get('/activity-feed?limit=30');
+      
+      if (response.data) {
+        const activitiesData = Array.isArray(response.data) ? response.data : [];
+        setActivities(activitiesData);
         showSuccess('Activity feed loaded successfully!');
-      })
-      .catch((error) => {
-        showError('Failed to load activity feed. Please try again.');
-        console.error('Activity feed loading error:', error);
-      })
-      .finally(() => setLoading(false));
-  }, []); // Remove toast functions from dependencies
+        console.log('Activity feed loaded:', activitiesData.length, 'activities');
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Activity feed loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load activity feed.';
+      showError(errorMessage);
+      setActivities([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError]);
+
+  useEffect(() => {
+    fetchActivityFeed();
+  }, [fetchActivityFeed]);
 
   useEffect(() => {
     // On mount, update last seen to now

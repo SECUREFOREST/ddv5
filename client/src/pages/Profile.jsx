@@ -269,40 +269,86 @@ export default function Profile() {
     }
   };
 
-  // Fetch user stats
-  useEffect(() => {
+  // Fetch user stats and data
+  const fetchUserData = useCallback(async () => {
     if (!user) return;
-    const userId = user?.id || user?._id;
+    
+    const userId = user._id || user.id;
     if (!userId) return;
     
-    setStatsLoading(true);
-    setUserActivitiesLoading(true);
-    setStatsError('');
-    
-    Promise.all([
-      api.get('/stats/users/' + userId),
-      api.get('/dares', { params: { creator: userId } }),
-      api.get('/dares', { params: { participant: userId } }),
-      api.get('/dares', { params: { assignedSwitch: userId } }),
-      api.get('/switches', { params: { creator: userId } }),
-      api.get('/switches', { params: { participant: userId } }),
-      api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
-    ]).then(([statsRes, createdRes, participatingRes, switchRes, switchCreatedRes, switchParticipatingRes, activitiesRes]) => {
-      setStats(statsRes.data);
-      setCreated(Array.isArray(createdRes.data) ? createdRes.data : []);
-      setParticipating(Array.isArray(participatingRes.data) ? participatingRes.data : []);
-      setSwitch(Array.isArray(switchRes.data) ? switchRes.data : []);
-      setSwitchCreated(Array.isArray(switchCreatedRes.data) ? switchCreatedRes.data : []);
-      setSwitchParticipating(Array.isArray(switchParticipatingRes.data) ? switchParticipatingRes.data : []);
-      setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
-    }).catch((error) => {
-      console.error('Failed to load profile data:', error);
-      setStatsError('Failed to load profile statistics. Please refresh the page.');
-      showError('Failed to load profile data. Please try again.');
-    }).finally(() => {
+    try {
+      setStatsLoading(true);
+      setStatsError('');
+      
+      const [statsRes, createdRes, participatingRes, assignedSwitchRes, switchCreatedRes, switchParticipatingRes] = await Promise.allSettled([
+        api.get(`/stats/users/${userId}`),
+        api.get('/dares', { params: { creator: userId } }),
+        api.get('/dares', { params: { participant: userId } }),
+        api.get('/dares', { params: { assignedSwitch: userId } }),
+        api.get('/switches', { params: { creator: userId } }),
+        api.get('/switches', { params: { participant: userId } })
+      ]);
+      
+      // Handle stats response
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data);
+      } else {
+        console.error('Failed to fetch stats:', statsRes.reason);
+        setStatsError('Failed to load user statistics');
+      }
+      
+      // Handle dares responses
+      if (createdRes.status === 'fulfilled') {
+        setCreated(Array.isArray(createdRes.value.data) ? createdRes.value.data : []);
+      }
+      
+      if (participatingRes.status === 'fulfilled') {
+        setParticipating(Array.isArray(participatingRes.value.data) ? participatingRes.value.data : []);
+      }
+      
+      if (assignedSwitchRes.status === 'fulfilled') {
+        setDares(Array.isArray(assignedSwitchRes.value.data) ? assignedSwitchRes.value.data : []);
+      }
+      
+      // Handle switch games responses
+      if (switchCreatedRes.status === 'fulfilled') {
+        setSwitchCreated(Array.isArray(switchCreatedRes.value.data) ? switchCreatedRes.value.data : []);
+      }
+      
+      if (switchParticipatingRes.status === 'fulfilled') {
+        setSwitchParticipating(Array.isArray(switchParticipatingRes.value.data) ? switchParticipatingRes.value.data : []);
+      }
+      
+      // Combine switch games
+      const allSwitchGames = [
+        ...(Array.isArray(switchCreatedRes.value?.data) ? switchCreatedRes.value.data : []),
+        ...(Array.isArray(switchParticipatingRes.value?.data) ? switchParticipatingRes.value.data : [])
+      ];
+      setSwitch(allSwitchGames);
+      
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setStatsError('Failed to load user data');
+    } finally {
       setStatsLoading(false);
-      setUserActivitiesLoading(false);
-    });
+    }
+  }, [user]);
+
+  // Fetch user activities
+  useEffect(() => {
+    if (!user) return;
+    const userId = user._id || user.id;
+    if (!userId) return;
+
+    setUserActivitiesLoading(true);
+    api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
+      .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
+      .catch(error => {
+        console.error('Failed to load user activities:', error);
+        setUserActivities([]);
+        showError('Failed to load recent activity.');
+      })
+      .finally(() => setUserActivitiesLoading(false));
   }, [user]);
 
   const handleAvatarClick = () => {

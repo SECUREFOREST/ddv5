@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import Markdown from '../components/Markdown';
@@ -22,23 +22,76 @@ export default function ProfileView() {
   const [error, setError] = useState('');
   const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
+  const fetchProfileData = useCallback(async () => {
     if (!userId) return;
-    setLoading(true);
-    setError('');
-    Promise.all([
-      api.get(`/users/${userId}`),
-      api.get(`/stats/users/${userId}`),
-      api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
-    ]).then(([userRes, statsRes, activitiesRes]) => {
-      setProfile(userRes.data);
-      setStats(statsRes.data);
-      setUserActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
-    }).catch(() => {
+    
+    try {
+      setLoading(true);
+      setError('');
+      
+      const [userRes, statsRes, activitiesRes] = await Promise.allSettled([
+        api.get(`/users/${userId}`),
+        api.get(`/stats/users/${userId}`),
+        api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
+      ]);
+      
+      // Handle user profile response
+      if (userRes.status === 'fulfilled') {
+        if (userRes.value.data) {
+          setProfile(userRes.value.data);
+          console.log('Profile loaded:', userRes.value.data._id);
+        } else {
+          throw new Error('No user data received');
+        }
+      } else {
+        console.error('Failed to fetch user profile:', userRes.reason);
+        setProfile(null);
+      }
+      
+      // Handle stats response
+      if (statsRes.status === 'fulfilled') {
+        if (statsRes.value.data) {
+          setStats(statsRes.value.data);
+        } else {
+          setStats(null);
+        }
+      } else {
+        console.error('Failed to fetch user stats:', statsRes.reason);
+        setStats(null);
+      }
+      
+      // Handle activities response
+      if (activitiesRes.status === 'fulfilled') {
+        if (activitiesRes.value.data) {
+          const activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
+          setUserActivities(activitiesData);
+          console.log('User activities loaded:', activitiesData.length);
+        } else {
+          setUserActivities([]);
+        }
+      } else {
+        console.error('Failed to fetch user activities:', activitiesRes.reason);
+        setUserActivities([]);
+      }
+      
+      // Check if any critical requests failed
+      if (userRes.status === 'rejected') {
+        setError('Failed to load profile.');
+        showError('Failed to load profile.');
+      }
+      
+    } catch (error) {
+      console.error('Profile data loading error:', error);
       setError('Failed to load profile.');
       showError('Failed to load profile.');
-    }).finally(() => setLoading(false));
+    } finally {
+      setLoading(false);
+    }
   }, [userId, showError]);
+
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
 
   const handleBlock = async () => {
     setBlockStatus('blocking');

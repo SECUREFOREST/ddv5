@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -84,34 +84,43 @@ export default function DareReveal() {
   const [proofModalOpen, setProofModalOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('proof');
 
-  React.useEffect(() => {
+  const fetchDare = useCallback(async () => {
     if (authLoading) return;
     if (!dareId) {
       navigate('/dare/select');
       return;
     }
-    setLoading(true);
-    api.get(`/dares/${dareId}`)
-      .then(res => {
-        if (res.data && res.data._id) {
-          const performerId = res.data.performer?._id || res.data.performer;
-          if (!user || !performerId || String(performerId) !== String(user._id)) {
-            setDare(null);
-            showError('You are not authorized to view this dare.');
-          } else {
-            setDare(res.data);
-            showSuccess('Dare loaded successfully!');
-          }
+    
+    try {
+      setLoading(true);
+      
+      const response = await api.get(`/dares/${dareId}`);
+      
+      if (response.data && response.data._id) {
+        const performerId = response.data.performer?._id || response.data.performer;
+        if (!user || !performerId || String(performerId) !== String(user._id)) {
+          setDare(null);
+          showError('You are not authorized to view this dare.');
         } else {
-          showError('Dare not found.');
+          setDare(response.data);
+          showSuccess('Dare loaded successfully!');
+          console.log('Dare loaded:', response.data._id);
         }
-      })
-      .catch((error) => {
-        showError('Failed to fetch dare.');
-        console.error('Dare loading error:', error);
-      })
-      .finally(() => setLoading(false));
-  }, [dareId, navigate, user, authLoading]); // Remove toast functions from dependencies
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Dare loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to fetch dare.';
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [dareId, navigate, user, authLoading, showSuccess, showError]);
+
+  React.useEffect(() => {
+    fetchDare();
+  }, [fetchDare]);
 
   const handleProofFileChange = (e) => {
     const file = e.target.files[0];

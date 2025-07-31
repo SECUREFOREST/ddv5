@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -78,7 +78,7 @@ export default function SwitchGameParticipate() {
   const [loading, setLoading] = useState(false);
 
   // Handler for finding a game (for the difficulty/consent form)
-  const handleFindGame = async (e) => {
+  const handleFindGame = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     if (!difficulty) {
@@ -92,34 +92,56 @@ export default function SwitchGameParticipate() {
     setSearching(true);
     try {
       // Fetch open switch games with selected difficulty
-      const res = await api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } });
-      const games = Array.isArray(res.data) ? res.data : [];
-      if (games.length > 0 && games[0]._id) {
-        navigate(`/switches/participate/${games[0]._id}`);
+      const response = await api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } });
+      
+      if (response.data) {
+        const games = Array.isArray(response.data) ? response.data : [];
+        if (games.length > 0 && games[0]._id) {
+          navigate(`/switches/participate/${games[0]._id}`);
+          console.log('Found switch game:', games[0]._id);
+        } else {
+          showError('No open switch games available for this difficulty.');
+        }
       } else {
-        showError('No open switch games available for this difficulty.');
+        throw new Error('No data received from server');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to find switch game:', error);
       showError('Failed to find a switch game.');
     } finally {
       setSearching(false);
     }
-  };
+  }, [difficulty, consent, showError, showSuccess, navigate]);
 
   // Fetch game if gameId is present
-  useEffect(() => {
+  const fetchGame = useCallback(async () => {
     if (!gameId) return;
-    setLoading(true);
-    api.get(`/switches/${gameId}`)
-      .then(res => {
-        setGame(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Game not found.');
-        setLoading(false);
-      });
-  }, [gameId]);
+    
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await api.get(`/switches/${gameId}`);
+      
+      if (response.data) {
+        setGame(response.data);
+        console.log('Switch game loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Failed to load switch game:', error);
+      const errorMessage = error.response?.data?.error || 'Game not found.';
+      setError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [gameId, showError]);
+
+  useEffect(() => {
+    fetchGame();
+  }, [fetchGame]);
 
   // In the handleSubmit function, update the join POST request:
   const handleSubmit = async (e) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -14,23 +14,33 @@ export default function SwitchGames() {
   const [generalError, setGeneralError] = useState('');
   const [generalInfo, setGeneralInfo] = useState('');
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/switches/stats');
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setGeneralError('');
+      
+      const response = await api.get('/switches/stats');
+      
+      if (response.data) {
         setStats(response.data);
         showSuccess('Switch games loaded successfully!');
-      } catch (error) {
-        console.error('Failed to load switch games stats:', error);
-        showError('Failed to load switch games data.');
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error('No data received from server');
       }
-    };
+    } catch (error) {
+      console.error('Failed to load switch games stats:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load switch games data.';
+      setGeneralError(errorMessage);
+      showError(errorMessage);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError]);
 
+  useEffect(() => {
     fetchStats();
-  }, []); // Remove toast functions from dependencies
+  }, [fetchStats]);
 
   if (loading) {
     return (

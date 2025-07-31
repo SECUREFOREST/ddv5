@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -47,7 +47,7 @@ export default function DarePerform() {
   const [fetchDareError, setFetchDareError] = useState('');
   const [privacy, setPrivacy] = useState('when_viewed');
 
-  const handleConsent = async () => {
+  const handleConsent = useCallback(async () => {
     setLoading(true);
     setNoDare(false);
     setDare(null);
@@ -55,30 +55,34 @@ export default function DarePerform() {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    
     try {
-      const res = await api.get(`/dares/random?difficulty=${difficulty}`);
-      if (res.data && res.data._id) {
+      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      
+      if (response.data && response.data._id) {
         // Prevent creator from performing their own dare
-        const isCreator = user && ((typeof res.data.creator === 'object' ? res.data.creator._id : res.data.creator) === user.id);
+        const isCreator = user && ((typeof response.data.creator === 'object' ? response.data.creator._id : response.data.creator) === user.id);
         if (isCreator) {
           setNoDare(true);
           showError('You cannot perform your own dares. Try a different difficulty.');
         } else {
-          setDare(res.data);
+          setDare(response.data);
           setConsented(true);
           showSuccess('Dare loaded successfully!');
+          console.log('Random dare loaded:', response.data._id);
         }
       } else {
         setNoDare(true);
         showError('No dares available for this difficulty level.');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to load random dare:', error);
       setNoDare(true);
       showError('Failed to load dare. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [difficulty, user, showSuccess, showError]);
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();
@@ -128,21 +132,32 @@ export default function DarePerform() {
     setProofSuccess('');
   };
 
-  const fetchDare = async (dareId) => {
-    setFetchingDare(true);
-    setFetchDareError('');
+  const fetchDare = useCallback(async (dareId) => {
+    if (!dareId) return;
+    
     try {
-      const res = await api.get(`/dares/${dareId}`);
-      setDare(res.data);
-      setConsented(true);
-      showSuccess('Dare loaded successfully!');
-    } catch (err) {
-      setFetchDareError('Failed to load dare.');
-      showError('Failed to load dare. Please try again.');
+      setFetchingDare(true);
+      setFetchDareError('');
+      
+      const response = await api.get(`/dares/${dareId}`);
+      
+      if (response.data) {
+        setDare(response.data);
+        setConsented(true);
+        showSuccess('Dare loaded successfully!');
+        console.log('Dare loaded:', response.data._id);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      console.error('Failed to load dare:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
+      setFetchDareError(errorMessage);
+      showError(errorMessage);
     } finally {
       setFetchingDare(false);
     }
-  };
+  }, [showSuccess, showError]);
 
   const handleGrade = async (e, targetId) => {
     e.preventDefault();

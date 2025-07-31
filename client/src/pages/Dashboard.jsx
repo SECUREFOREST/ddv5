@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
@@ -26,25 +26,39 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
+  const fetchDashboardData = useCallback(async () => {
     if (!user) return;
     const userId = user.id || user._id;
     if (!userId) return;
     
     setLoading(true);
-    Promise.all([
-      api.get('/dares', { params: { status: tab, creator: userId } }),
-      api.get('/dares', { params: { status: tab, participant: userId } }),
-      api.get('/dares', { params: { status: tab, assignedSwitch: userId } }),
-      api.get(`/stats/users/${userId}`),
-      api.get('/activity-feed/activities', { params: { limit: 10, userId } })
-    ]).then(([createdRes, participatingRes, switchRes, statsRes, activitiesRes]) => {
-      // Combine all dares and deduplicate
-      const allDares = [
-        ...(Array.isArray(createdRes.data) ? createdRes.data : []),
-        ...(Array.isArray(participatingRes.data) ? participatingRes.data : []),
-        ...(Array.isArray(switchRes.data) ? switchRes.data : [])
-      ];
+    
+    try {
+      const [createdRes, participatingRes, switchRes, statsRes, activitiesRes] = await Promise.allSettled([
+        api.get('/dares', { params: { status: tab, creator: userId } }),
+        api.get('/dares', { params: { status: tab, participant: userId } }),
+        api.get('/dares', { params: { status: tab, assignedSwitch: userId } }),
+        api.get(`/stats/users/${userId}`),
+        api.get('/activity-feed/activities', { params: { limit: 10, userId } })
+      ]);
+      
+      // Handle successful responses
+      const allDares = [];
+      
+      if (createdRes.status === 'fulfilled') {
+        const createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+        allDares.push(...createdData);
+      }
+      
+      if (participatingRes.status === 'fulfilled') {
+        const participatingData = Array.isArray(participatingRes.value.data) ? participatingRes.value.data : [];
+        allDares.push(...participatingData);
+      }
+      
+      if (switchRes.status === 'fulfilled') {
+        const switchData = Array.isArray(switchRes.value.data) ? switchRes.value.data : [];
+        allDares.push(...switchData);
+      }
       
       // Deduplicate by _id
       const uniqueDares = Object.values(
@@ -55,17 +69,39 @@ export default function Dashboard() {
       );
       
       setDares(uniqueDares);
-      setStats(statsRes.data);
-      setActivities(Array.isArray(activitiesRes.data) ? activitiesRes.data : []);
+      
+      // Handle stats
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data);
+      } else {
+        console.error('Failed to fetch stats:', statsRes.reason);
+        setStats(null);
+      }
+      
+      // Handle activities
+      if (activitiesRes.status === 'fulfilled') {
+        const activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
+        setActivities(activitiesData);
+      } else {
+        console.error('Failed to fetch activities:', activitiesRes.reason);
+        setActivities([]);
+      }
+      
       showSuccess('Dashboard updated successfully!');
-    }).catch((error) => {
+    } catch (error) {
+      console.error('Dashboard loading error:', error);
       setDares([]);
       setStats(null);
       setActivities([]);
       showError('Failed to load dashboard data. Please try again.');
-      console.error('Dashboard loading error:', error);
-    }).finally(() => setLoading(false));
-  }, [user, tab]); // Remove toast functions from dependencies
+    } finally {
+      setLoading(false);
+    }
+  }, [user, tab, showSuccess, showError]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">

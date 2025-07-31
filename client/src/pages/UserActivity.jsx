@@ -36,29 +36,26 @@ export default function UserActivity() {
 
   useEffect(() => {
     if (!user) return;
+    const userId = user._id || user.id;
+    if (!userId) return;
     
     // Reset data when user changes
     if (!dataLoaded) {
       setLoading(true);
       setError('');
     }
+    
     // Fetch active dares (not completed/forfeited/expired)
     const activeStatuses = ['in_progress', 'waiting_for_participant', 'pending'];
     const historyStatuses = ['completed', 'forfeited', 'expired'];
-    // Fetch dares where user is creator or performer (active)
-    const dareCreatedActiveReq = api.get('/dares', { params: { creator: user._id || user.id, status: activeStatuses.join(',') } });
-    const darePerformedActiveReq = api.get('/dares', { params: { participant: user._id || user.id, status: activeStatuses.join(',') } });
-    // Fetch dares where user is creator or performer (history)
-    const dareCreatedHistoryReq = api.get('/dares', { params: { creator: user._id || user.id, status: historyStatuses.join(',') } });
-    const darePerformedHistoryReq = api.get('/dares', { params: { participant: user._id || user.id, status: historyStatuses.join(',') } });
-    // Fetch active switch games
-    const switchActiveReq = api.get('/switches/performer', { params: { status: activeStatuses.join(',') } });
-    // Fetch historical switch games
-    const switchHistoryReq = api.get('/switches/history');
-    Promise.all([
-      dareCreatedActiveReq, darePerformedActiveReq,
-      dareCreatedHistoryReq, darePerformedHistoryReq,
-      switchActiveReq, switchHistoryReq
+    
+    Promise.allSettled([
+      api.get('/dares', { params: { creator: userId, status: activeStatuses.join(',') } }),
+      api.get('/dares', { params: { participant: userId, status: activeStatuses.join(',') } }),
+      api.get('/dares', { params: { creator: userId, status: historyStatuses.join(',') } }),
+      api.get('/dares', { params: { participant: userId, status: historyStatuses.join(',') } }),
+      api.get('/switches/performer', { params: { status: activeStatuses.join(',') } }),
+      api.get('/switches/history')
     ])
       .then(([
         createdActiveRes, performedActiveRes,
@@ -71,18 +68,65 @@ export default function UserActivity() {
           lists.flat().forEach(d => { if (d && d._id) map.set(d._id, d); });
           return Array.from(map.values());
         };
-        setActiveDares(mergeDares(createdActiveRes.data, performedActiveRes.data));
-        setHistoryDares(mergeDares(createdHistoryRes.data, performedHistoryRes.data));
-        setActiveSwitchGames(Array.isArray(activeSwitchRes.data) ? activeSwitchRes.data : []);
-        setHistorySwitchGames(Array.isArray(historySwitchRes.data) ? historySwitchRes.data : []);
+        
+        const activeDaresData = [];
+        const historyDaresData = [];
+        
+        // Handle active dares
+        if (createdActiveRes.status === 'fulfilled') {
+          const createdData = Array.isArray(createdActiveRes.value.data) ? createdActiveRes.value.data : [];
+          activeDaresData.push(...createdData);
+        }
+        
+        if (performedActiveRes.status === 'fulfilled') {
+          const performedData = Array.isArray(performedActiveRes.value.data) ? performedActiveRes.value.data : [];
+          activeDaresData.push(...performedData);
+        }
+        
+        // Handle history dares
+        if (createdHistoryRes.status === 'fulfilled') {
+          const createdHistoryData = Array.isArray(createdHistoryRes.value.data) ? createdHistoryRes.value.data : [];
+          historyDaresData.push(...createdHistoryData);
+        }
+        
+        if (performedHistoryRes.status === 'fulfilled') {
+          const performedHistoryData = Array.isArray(performedHistoryRes.value.data) ? performedHistoryRes.value.data : [];
+          historyDaresData.push(...performedHistoryData);
+        }
+        
+        setActiveDares(mergeDares(activeDaresData));
+        setHistoryDares(mergeDares(historyDaresData));
+        
+        // Handle switch games
+        if (activeSwitchRes.status === 'fulfilled') {
+          const activeSwitchData = Array.isArray(activeSwitchRes.value.data) ? activeSwitchRes.value.data : [];
+          setActiveSwitchGames(activeSwitchData);
+        } else {
+          setActiveSwitchGames([]);
+        }
+        
+        if (historySwitchRes.status === 'fulfilled') {
+          const historySwitchData = Array.isArray(historySwitchRes.value.data) ? historySwitchRes.value.data : [];
+          setHistorySwitchGames(historySwitchData);
+        } else {
+          setHistorySwitchGames([]);
+        }
+        
         setDataLoaded(true);
+        console.log('User activity loaded:', {
+          activeDares: activeDaresData.length,
+          historyDares: historyDaresData.length,
+          activeSwitches: activeSwitchRes.status === 'fulfilled' ? activeSwitchRes.value.data?.length || 0 : 0,
+          historySwitches: historySwitchRes.status === 'fulfilled' ? historySwitchRes.value.data?.length || 0 : 0
+        });
       })
       .catch(err => {
+        console.error('Failed to load user activity:', err);
         setError('Failed to load activity.');
         showError('Failed to load activity.');
       })
       .finally(() => setLoading(false));
-  }, [user, dataLoaded]); // Added dataLoaded to prevent unnecessary re-fetches
+  }, [user, dataLoaded, showError]);
 
   // Reset dataLoaded when user changes
   useEffect(() => {

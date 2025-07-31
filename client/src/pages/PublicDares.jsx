@@ -70,13 +70,31 @@ export default function PublicDares() {
     setDaresLoading(true);
     setSwitchesLoading(true);
     setError('');
-    Promise.all([
+    
+    Promise.allSettled([
       api.get('/dares', { params: { public: true, status: 'waiting_for_participant' } }),
       api.get('/switches', { params: { public: true, status: 'waiting_for_participant' } })
     ])
       .then(([daresRes, switchesRes]) => {
-        setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
-        setSwitchGames(Array.isArray(switchesRes.data) ? switchesRes.data : []);
+        // Handle dares response
+        if (daresRes.status === 'fulfilled') {
+          const daresData = Array.isArray(daresRes.value.data) ? daresRes.value.data : [];
+          setDares(daresData);
+          console.log('Public dares loaded:', daresData.length);
+        } else {
+          console.error('Failed to load public dares:', daresRes.reason);
+          setDares([]);
+        }
+        
+        // Handle switches response
+        if (switchesRes.status === 'fulfilled') {
+          const switchesData = Array.isArray(switchesRes.value.data) ? switchesRes.value.data : [];
+          setSwitchGames(switchesData);
+          console.log('Public switches loaded:', switchesData.length);
+        } else {
+          console.error('Failed to load public switches:', switchesRes.reason);
+          setSwitchGames([]);
+        }
       })
       .catch((err) => {
         const errorMessage = 'Failed to load public dares or switch games.';
