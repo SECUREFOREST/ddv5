@@ -353,12 +353,12 @@ export default function DarePerformerDashboard() {
 
   // Fetch public demand dares
   useEffect(() => {
-    setPublicDemandLoading(true);
-    setPublicDemandError('');
+    setDemandState(prev => ({ ...prev, loading: true }));
+    setDemandState(prev => ({ ...prev, error: '' }));
     api.get('/dares', { params: { public: true, dareType: 'domination' } })
-      .then(res => setPublicDemandDares(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setPublicDemandError('Failed to load public demand dares.'))
-      .finally(() => setPublicDemandLoading(false));
+      .then(res => setDemandState(prev => ({ ...prev, publicDares: Array.isArray(res.data) ? res.data : [] })))
+      .catch(() => setDemandState(prev => ({ ...prev, error: 'Failed to load public demand dares.' })))
+      .finally(() => setDemandState(prev => ({ ...prev, loading: false })));
   }, [demandState.selectedDifficulties, demandState.selectedTypes, demandState.keywordFilter, demandState.creatorFilter]);
 
   // Fetch user's demand slots (restored)
