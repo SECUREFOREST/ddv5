@@ -20,16 +20,22 @@ router.get('/', auth, async (req, res) => {
   }
   const user = await User.findById(req.userId).select('blockedUsers roles');
   const isAdmin = user && user.roles && user.roles.includes('admin');
+  const { difficulty, public: isPublic, status } = req.query;
+  
   let games;
   if (isAdmin) {
     // Admin: return all switch games
-    games = await SwitchGame.find({})
+    const filter = {};
+    if (isPublic !== undefined) filter.public = isPublic === 'true';
+    if (status) filter.status = status;
+    games = await SwitchGame.find(filter)
       .populate('creator', 'username fullName avatar participant winner proof.user')
       .sort({ createdAt: -1 });
   } else {
     // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
     const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
-    if (req.query.difficulty) filter['creatorDare.difficulty'] = req.query.difficulty;
+    if (difficulty) filter['creatorDare.difficulty'] = difficulty;
+    if (isPublic !== undefined) filter.public = isPublic === 'true';
     games = await SwitchGame.find(filter)
       .populate('creator', 'username fullName avatar participant winner proof.user')
       .sort({ createdAt: -1 });
