@@ -411,25 +411,25 @@ export default function DarePerformerDashboard() {
       
       // Handle successful responses
       if (ongoingData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(ongoingData.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const validatedData = validateApiResponse(ongoingData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
         console.log('Ongoing data:', { original: ongoingData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
         setOngoing(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (completedData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(completedData.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const validatedData = validateApiResponse(completedData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
         console.log('Completed data:', { original: completedData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
         setCompleted(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (switchData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(switchData.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        const validatedData = validateApiResponse(switchData.value.data, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         console.log('Switch data:', { original: switchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
         setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(publicData.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const validatedData = validateApiResponse(publicData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
         console.log('Public data:', { original: publicData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
         setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
