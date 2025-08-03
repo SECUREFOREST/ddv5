@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 
@@ -23,13 +23,7 @@ function unmapPrivacyValue(val) {
   return val;
 }
 
-const DIFFICULTY_ICONS = {
-  titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-  arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-  explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-  edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-  hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-};
+
 
 export default function OfferSubmission() {
   const { showSuccess, showError } = useToast();

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import TagsInput from '../components/TagsInput';
 import { ButtonLoading } from '../components/LoadingSpinner';
@@ -25,13 +25,7 @@ export default function SwitchGameCreate() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  const DIFFICULTY_ICONS = {
-    titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-    arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-    explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-    edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-    hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-  };
+
 
   const handleCreate = async (e) => {
     e.preventDefault();

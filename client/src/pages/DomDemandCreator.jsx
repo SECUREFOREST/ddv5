@@ -5,7 +5,7 @@ import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
 import { ShieldCheckIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DomDemandCreator() {
@@ -20,13 +20,7 @@ export default function DomDemandCreator() {
   const [publicDare, setPublicDare] = useState(true);
   const navigate = useNavigate();
 
-  const DIFFICULTY_ICONS = {
-    titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-    arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-    explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-    edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-    hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-  };
+
 
   const handleCreate = async (e) => {
     e.preventDefault();

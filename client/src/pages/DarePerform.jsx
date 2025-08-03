@@ -6,16 +6,10 @@ import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
-const DIFFICULTY_ICONS = {
-  titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-  arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-  explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-  edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-  hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-};
+
 
 export default function DarePerform() {
   const { user } = useAuth();
