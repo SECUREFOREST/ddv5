@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
 
 import Card from '../components/Card';
-import { UserPlusIcon, EyeIcon, EyeSlashIcon, CheckIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, EyeIcon, EyeSlashIcon, CheckIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
 
@@ -21,6 +21,7 @@ export default function Register() {
   const [interestedIn, setInterestedIn] = useState([]);
   const [limits, setLimits] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [registerError, setRegisterError] = useState('');
   const navigate = useNavigate();
 
   const validate = () => {
@@ -47,6 +48,8 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setRegisterError('');
+    
     if (!validate()) {
       setLoading(false);
       return;
@@ -57,7 +60,9 @@ export default function Register() {
       showSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Registration failed. Please try again.';
+      console.error('Registration error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Registration failed. Please try again.';
+      setRegisterError(errorMessage);
       showError(errorMessage);
     } finally {
       setLoading(false);
@@ -97,6 +102,16 @@ export default function Register() {
           
           <main id="main-content" tabIndex="-1" role="main">
             <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-labelledby="register-title">
+              {/* Error Display */}
+              {registerError && (
+                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4" role="alert" aria-live="polite">
+                  <div className="flex items-center gap-3 text-red-300">
+                    <ExclamationTriangleIcon className="w-5 h-5" />
+                    <span className="font-medium">{registerError}</span>
+                  </div>
+                </div>
+              )}
+              
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

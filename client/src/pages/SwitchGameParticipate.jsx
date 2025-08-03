@@ -98,7 +98,7 @@ export default function SwitchGameParticipate() {
         const games = Array.isArray(response.data) ? response.data : [];
         if (games.length > 0 && games[0]._id) {
           navigate(`/switches/participate/${games[0]._id}`);
-          console.log('Found switch game:', games[0]._id);
+
         } else {
           showError('No open switch games available for this difficulty.');
         }
@@ -125,7 +125,7 @@ export default function SwitchGameParticipate() {
       
       if (response.data) {
         setGame(response.data);
-        console.log('Switch game loaded:', response.data._id);
+        
       } else {
         throw new Error('No data received from server');
       }
@@ -165,7 +165,7 @@ export default function SwitchGameParticipate() {
   };
 
   // Helper to determine if current user is the loser
-  const userId = localStorage.getItem('userId'); // Or get from context if available
+  const userId = user?.id || user?._id;
   const isLoser = game && game.loser && (game.loser._id === userId || game.loser.id === userId || game.loser === userId);
 
   const handleChickenOut = async () => {

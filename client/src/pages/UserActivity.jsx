@@ -113,12 +113,7 @@ export default function UserActivity() {
         }
         
         setDataLoaded(true);
-        console.log('User activity loaded:', {
-          activeDares: activeDaresData.length,
-          historyDares: historyDaresData.length,
-          activeSwitches: activeSwitchRes.status === 'fulfilled' ? activeSwitchRes.value.data?.length || 0 : 0,
-          historySwitches: historySwitchRes.status === 'fulfilled' ? historySwitchRes.value.data?.length || 0 : 0
-        });
+
       })
       .catch(err => {
         console.error('Failed to load user activity:', err);

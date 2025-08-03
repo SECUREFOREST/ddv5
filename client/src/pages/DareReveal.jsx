@@ -104,7 +104,7 @@ export default function DareReveal() {
         } else {
           setDare(response.data);
           showSuccess('Dare loaded successfully!');
-          console.log('Dare loaded:', response.data._id);
+
         }
       } else {
         throw new Error('No data received from server');

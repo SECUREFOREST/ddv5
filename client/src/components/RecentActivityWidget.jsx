@@ -56,8 +56,7 @@ const ICONS = {
 function getActivityMessage(activity) {
   const actorName = activity.user?.fullName || activity.user?.username || 'Someone';
   
-  // Debug: Log the activity type to see what we're getting
-  console.log('Activity type:', activity.type, 'Activity data:', activity);
+
   
   switch (activity.type) {
     case 'dare_created':

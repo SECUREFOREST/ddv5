@@ -58,7 +58,7 @@ export default function DareShare() {
       
       if (response.data) {
         setDare(response.data);
-        console.log('Dare loaded for sharing:', response.data._id);
+
       } else {
         throw new Error('No data received from server');
       }

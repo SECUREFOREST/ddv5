@@ -39,7 +39,7 @@ export default function ProfileView() {
       if (userRes.status === 'fulfilled') {
         if (userRes.value.data) {
           setProfile(userRes.value.data);
-          console.log('Profile loaded:', userRes.value.data._id);
+
         } else {
           throw new Error('No user data received');
         }
@@ -65,7 +65,7 @@ export default function ProfileView() {
         if (activitiesRes.value.data) {
           const activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
           setUserActivities(activitiesData);
-          console.log('User activities loaded:', activitiesData.length);
+
         } else {
           setUserActivities([]);
         }

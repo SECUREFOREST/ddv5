@@ -30,7 +30,7 @@ export default function Notifications() {
         const notificationsData = Array.isArray(response.data) ? response.data : [];
         setNotifications(notificationsData);
         showSuccess('Notifications loaded successfully!');
-        console.log('Notifications loaded:', notificationsData.length);
+
       } else {
         throw new Error('No data received from server');
       }

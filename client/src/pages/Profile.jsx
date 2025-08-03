@@ -214,7 +214,7 @@ export default function Profile() {
     if (user.blockedUsers && user.blockedUsers.length > 0) {
       setUserActivitiesLoading(true);
       Promise.all(user.blockedUsers.map(uid => api.get(`/users/${uid}`)))
-        .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data)))
+        .then(resArr => setBlockedUsersInfo(resArr.map(r => r.data).filter(Boolean)))
         .catch((error) => {
           console.error('Failed to load blocked users:', error);
           setBlockedUsersInfo([]);
@@ -300,29 +300,44 @@ export default function Profile() {
       // Handle dares responses
       if (createdRes.status === 'fulfilled') {
         setCreated(Array.isArray(createdRes.value.data) ? createdRes.value.data : []);
+      } else {
+        console.error('Failed to fetch created dares:', createdRes.reason);
+        setCreated([]);
       }
       
       if (participatingRes.status === 'fulfilled') {
         setParticipating(Array.isArray(participatingRes.value.data) ? participatingRes.value.data : []);
+      } else {
+        console.error('Failed to fetch participating dares:', participatingRes.reason);
+        setParticipating([]);
       }
       
       if (assignedSwitchRes.status === 'fulfilled') {
         setDares(Array.isArray(assignedSwitchRes.value.data) ? assignedSwitchRes.value.data : []);
+      } else {
+        console.error('Failed to fetch assigned switch dares:', assignedSwitchRes.reason);
+        setDares([]);
       }
       
       // Handle switch games responses
       if (switchCreatedRes.status === 'fulfilled') {
         setSwitchCreated(Array.isArray(switchCreatedRes.value.data) ? switchCreatedRes.value.data : []);
+      } else {
+        console.error('Failed to fetch created switch games:', switchCreatedRes.reason);
+        setSwitchCreated([]);
       }
       
       if (switchParticipatingRes.status === 'fulfilled') {
         setSwitchParticipating(Array.isArray(switchParticipatingRes.value.data) ? switchParticipatingRes.value.data : []);
+      } else {
+        console.error('Failed to fetch participating switch games:', switchParticipatingRes.reason);
+        setSwitchParticipating([]);
       }
       
-      // Combine switch games
+      // Combine switch games with error handling
       const allSwitchGames = [
-        ...(Array.isArray(switchCreatedRes.value?.data) ? switchCreatedRes.value.data : []),
-        ...(Array.isArray(switchParticipatingRes.value?.data) ? switchParticipatingRes.value.data : [])
+        ...(switchCreatedRes.status === 'fulfilled' && Array.isArray(switchCreatedRes.value?.data) ? switchCreatedRes.value.data : []),
+        ...(switchParticipatingRes.status === 'fulfilled' && Array.isArray(switchParticipatingRes.value?.data) ? switchParticipatingRes.value.data : [])
       ];
       setSwitch(allSwitchGames);
       

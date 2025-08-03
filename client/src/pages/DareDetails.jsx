@@ -72,7 +72,7 @@ export default function DareDetails() {
       if (response.data) {
         setDare(response.data);
         showSuccess('Dare details loaded successfully!');
-        console.log('Dare details loaded:', response.data._id);
+
       } else {
         throw new Error('No data received from server');
       }

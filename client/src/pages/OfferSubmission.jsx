@@ -64,7 +64,7 @@ export default function OfferSubmission() {
           setMaxSlots(slotsData.maxSlots ?? 5);
           setSlotLimit((slotsData.openSlots ?? 0) >= (slotsData.maxSlots ?? 5));
           setCooldown(slotsData.cooldownUntil ?? null);
-          console.log('Slots data loaded:', slotsData);
+
         }
       } else {
         console.error('Failed to fetch slots data:', slotsRes.reason);
@@ -74,7 +74,7 @@ export default function OfferSubmission() {
       if (privacyRes.status === 'fulfilled') {
         if (privacyRes.value.data) {
           setPrivacy(privacyRes.value.data.value || 'when_viewed');
-          console.log('Privacy setting loaded:', privacyRes.value.data.value);
+
         }
       } else {
         console.error('Failed to fetch privacy setting:', privacyRes.reason);
@@ -124,6 +124,14 @@ export default function OfferSubmission() {
     }
     if (!description.trim()) {
       showError('Please enter a description or requirements.');
+      return;
+    }
+    if (description.trim().length < 10) {
+      showError('Description must be at least 10 characters.');
+      return;
+    }
+    if (description.trim().length > 1000) {
+      showError('Description must be less than 1000 characters.');
       return;
     }
     if (slotLimit) {

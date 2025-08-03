@@ -15,7 +15,7 @@ export default function DareCreator() {
   const [difficulty, setDifficulty] = useState('titillating');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
-  const [createdDareId, setCreatedDareId] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
   const navigate = useNavigate();
@@ -44,6 +44,10 @@ export default function DareCreator() {
       showError('Description must be at least 10 characters.');
       return;
     }
+    if (description.trim().length > 1000) {
+      showError('Description must be less than 1000 characters.');
+      return;
+    }
     setCreating(true);
     try {
       let res;
@@ -54,9 +58,13 @@ export default function DareCreator() {
           tags,
           public: publicDare,
         });
-        setClaimLink(res.data.claimLink);
-        setShowModal(true);
-        showSuccess('Claimable dare created successfully!');
+        if (res.data && res.data.claimLink) {
+          setClaimLink(res.data.claimLink);
+          setShowModal(true);
+          showSuccess('Claimable dare created successfully!');
+        } else {
+          throw new Error('Invalid response: missing claim link');
+        }
       } else {
         res = await api.post('/dares', {
           description,
@@ -68,18 +76,20 @@ export default function DareCreator() {
         navigate(`/dare/share/${res.data._id || res.data.id}`);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to create dare.';
+      console.error('Dare creation error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to create dare.';
+      setCreateError(errorMessage);
       showError(errorMessage);
     } finally {
       setCreating(false);
     }
   };
 
-  const dareUrl = createdDareId && typeof window !== 'undefined' ? `${window.location.origin}/dares/${createdDareId}` : '';
+
 
   const handleCreateAnother = () => {
     setShowModal(false);
-    setCreatedDareId(null);
+
     setDescription('');
     setDifficulty('titillating');
     setCreateError('');
@@ -106,6 +116,16 @@ export default function DareCreator() {
 
           {/* Create Dare Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            {/* Error Display */}
+            {createError && (
+              <div className="mb-6 bg-red-500/20 border border-red-500/50 rounded-xl p-4">
+                <div className="flex items-center gap-3 text-red-300">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  <span className="font-medium">{createError}</span>
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleCreate} className="space-y-8">
               {/* Description */}
               <div>

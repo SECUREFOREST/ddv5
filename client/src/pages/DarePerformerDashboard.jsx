@@ -429,37 +429,37 @@ export default function DarePerformerDashboard() {
       // Handle successful responses
       if (ongoingData.status === 'fulfilled') {
         const validatedData = validateApiResponse(ongoingData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
-        console.log('Ongoing data:', { original: ongoingData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setOngoing(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (completedData.status === 'fulfilled') {
         const validatedData = validateApiResponse(completedData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
-        console.log('Completed data:', { original: completedData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setCompleted(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (switchData.status === 'fulfilled') {
         const validatedData = validateApiResponse(switchData.value.data, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        console.log('Switch data:', { original: switchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicData.status === 'fulfilled') {
         const validatedData = validateApiResponse(publicData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
-        console.log('Public data:', { original: publicData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicSwitchData.status === 'fulfilled') {
         const validatedData = validateApiResponse(publicSwitchData.value.data, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        console.log('Public switch data:', { original: publicSwitchData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (associatesData.status === 'fulfilled') {
         const validatedData = validateApiResponse(associatesData.value.data, API_RESPONSE_TYPES.USER_ARRAY);
-        console.log('Associates data:', { original: associatesData.value, validated: validatedData, isArray: Array.isArray(validatedData) });
+
         setAssociates(Array.isArray(validatedData) ? validatedData : []);
       }
       
@@ -640,13 +640,7 @@ export default function DarePerformerDashboard() {
             />
           </div>
           
-          {/* Debug information */}
-          <div className="text-xs text-white/50 mt-4 p-4 bg-white/5 rounded-lg">
-            <div>Debug Info:</div>
-            <div>Ongoing: {ongoing.length} | Completed: {completed.length} | Switch Games: {mySwitchGames.length} | Public: {publicDares.length + publicSwitchGames.length}</div>
-            <div>Public Dares: {publicDares.length} | Public Switch Games: {publicSwitchGames.length}</div>
-            <div>Current User ID: {currentUserId}</div>
-          </div>
+
 
           {/* Quick Actions with 2025 Design */}
           <NeumorphicCard variant="glass" className="p-8">

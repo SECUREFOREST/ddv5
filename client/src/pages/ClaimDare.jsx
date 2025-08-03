@@ -70,7 +70,7 @@ export default function ClaimDare() {
       if (response.data) {
         setDare(response.data);
         showSuccess('Dare loaded successfully!');
-        console.log('Claim dare loaded:', response.data._id);
+
       } else {
         throw new Error('No data received from server');
       }

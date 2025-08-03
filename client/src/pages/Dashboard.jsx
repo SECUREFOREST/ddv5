@@ -23,6 +23,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [daresLoading, setDaresLoading] = useState(false);
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
 
@@ -32,6 +34,8 @@ export default function Dashboard() {
     if (!userId) return;
     
     setLoading(true);
+    setStatsLoading(true);
+    setDaresLoading(true);
     
     try {
       const [createdRes, participatingRes, switchRes, statsRes, activitiesRes] = await Promise.allSettled([
@@ -69,6 +73,7 @@ export default function Dashboard() {
       );
       
       setDares(uniqueDares);
+      setDaresLoading(false);
       
       // Handle stats
       if (statsRes.status === 'fulfilled') {
@@ -77,6 +82,7 @@ export default function Dashboard() {
         console.error('Failed to fetch stats:', statsRes.reason);
         setStats(null);
       }
+      setStatsLoading(false);
       
       // Handle activities
       if (activitiesRes.status === 'fulfilled') {
@@ -96,6 +102,8 @@ export default function Dashboard() {
       showError('Failed to load dashboard data. Please try again.');
     } finally {
       setLoading(false);
+      setStatsLoading(false);
+      setDaresLoading(false);
     }
   }, [user, tab, showSuccess, showError]);
 
@@ -158,7 +166,13 @@ export default function Dashboard() {
                       <p className="text-neutral-400 text-sm">Total completed challenges</p>
                     </div>
                   </div>
-                  <div className="text-4xl font-bold text-white">{stats.daresCount}</div>
+                  <div className="text-4xl font-bold text-white">
+                    {statsLoading ? (
+                      <div className="animate-pulse bg-neutral-700 h-10 rounded"></div>
+                    ) : (
+                      stats?.daresCount || 0
+                    )}
+                  </div>
                 </Card>
                 
                 <Card className="bg-gradient-to-r from-green-600/20 to-green-700/20 border-green-600/30">
@@ -172,7 +186,11 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="text-4xl font-bold text-white">
-                    {stats.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'}
+                    {statsLoading ? (
+                      <div className="animate-pulse bg-neutral-700 h-10 rounded"></div>
+                    ) : (
+                      stats?.avgGrade !== null ? stats.avgGrade.toFixed(2) : '-'
+                    )}
                   </div>
                 </Card>
                 
@@ -186,7 +204,13 @@ export default function Dashboard() {
                       <p className="text-neutral-400 text-sm">Currently in progress</p>
                     </div>
                   </div>
-                  <div className="text-4xl font-bold text-white">{dares.length}</div>
+                  <div className="text-4xl font-bold text-white">
+                    {daresLoading ? (
+                      <div className="animate-pulse bg-neutral-700 h-10 rounded"></div>
+                    ) : (
+                      dares.length
+                    )}
+                  </div>
                 </Card>
               </div>
             </div>

@@ -189,7 +189,7 @@ export default function SwitchGameDetails() {
       if (response.data) {
         if (!isGameEqual(response.data, game)) {
           setGame(response.data);
-          console.log('Switch game updated:', response.data._id);
+
         }
       } else {
         throw new Error('No data received from server');
@@ -297,7 +297,7 @@ export default function SwitchGameDetails() {
   // Grading logic for bidirectional grading
   const hasGradedParticipant = user && game && game.grades && game.participant && game.grades.some(g => getId(g.user) === userId && getId(g.target) === getId(game.participant));
   const hasGradedCreator = user && game && game.grades && game.creator && game.grades.some(g => getId(g.user) === userId && getId(g.target) === getId(game.creator));
-  const handleBidirectionalGrade = async (e, targetId) => {
+  const handleBidirectionalGrade = async (e) => {
     e.preventDefault();
     setGradeError('');
     if (!grade) {
@@ -320,12 +320,7 @@ export default function SwitchGameDetails() {
     }
   };
 
-  // Improved debug log for updated game state
-  useEffect(() => {
-    if (game && (toast || generalSuccess)) {
-      
-    }
-  }, [game, toast, generalSuccess]);
+
 
   // Find grades given and received
   const myGivenGrade = game && game.grades && user && game.grades.find(g => getId(g.user) === userId);

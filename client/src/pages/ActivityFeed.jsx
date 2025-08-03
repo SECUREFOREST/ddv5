@@ -30,7 +30,7 @@ export default function ActivityFeed() {
         const activitiesData = Array.isArray(response.data) ? response.data : [];
         setActivities(activitiesData);
         showSuccess('Activity feed loaded successfully!');
-        console.log('Activity feed loaded:', activitiesData.length, 'activities');
+
       } else {
         throw new Error('No data received from server');
       }

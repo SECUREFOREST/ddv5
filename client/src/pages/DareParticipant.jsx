@@ -51,7 +51,7 @@ export default function DareParticipant() {
         setDare(response.data);
         setConsented(true);
         showSuccess('Dare loaded successfully!');
-        console.log('Dare loaded:', response.data._id);
+
       } else {
         throw new Error('No data received from server');
       }
@@ -86,7 +86,7 @@ export default function DareParticipant() {
         setDare(response.data);
         setConsented(true);
         showSuccess('Dare loaded successfully!');
-        console.log('Random dare loaded:', response.data._id);
+
       } else {
         setNoDare(true);
         showError('No dares available for this difficulty level.');

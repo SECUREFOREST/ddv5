@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 import Card from '../components/Card';
-import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../context/ToastContext';
 import { safeStorage } from '../utils/cleanup';
@@ -14,6 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
 
@@ -22,6 +23,7 @@ export default function Login() {
       e.preventDefault();
       e.stopPropagation();
       setLoading(true);
+      setLoginError('');
       
       try {
         await login(identifier, password);
@@ -34,7 +36,9 @@ export default function Login() {
           navigate(redirectPath);
         }, 1000);
       } catch (err) {
+        console.error('Login error:', err);
         const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
+        setLoginError(errorMessage);
         showError(errorMessage);
       } finally {
         setLoading(false);
@@ -77,6 +81,16 @@ export default function Login() {
           
           <main id="main-content" tabIndex="-1" role="main">
             <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-labelledby="login-title" noValidate>
+              {/* Error Display */}
+              {loginError && (
+                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4" role="alert" aria-live="polite">
+                  <div className="flex items-center gap-3 text-red-300">
+                    <ExclamationTriangleIcon className="w-5 h-5" />
+                    <span className="font-medium">{loginError}</span>
+                  </div>
+                </div>
+              )}
+              
               <div>
                 <label htmlFor="login-identifier" className="block font-semibold mb-3 text-primary text-sm">
                   Username or Email

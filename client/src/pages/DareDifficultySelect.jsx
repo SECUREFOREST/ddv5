@@ -28,7 +28,7 @@ export default function DareDifficultySelect() {
       
       if (response.data && response.data._id) {
         showSuccess('Dare found! Redirecting...');
-        console.log('Random dare found:', response.data._id);
+
         navigate(`/dare/consent/${response.data._id}`, { state: { dare: response.data } });
       } else {
         showError('No dare found for this difficulty level.');

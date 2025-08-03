@@ -80,7 +80,7 @@ export default function PublicDares() {
         if (daresRes.status === 'fulfilled') {
           const daresData = Array.isArray(daresRes.value.data) ? daresRes.value.data : [];
           setDares(daresData);
-          console.log('Public dares loaded:', daresData.length);
+
         } else {
           console.error('Failed to load public dares:', daresRes.reason);
           setDares([]);
@@ -90,7 +90,7 @@ export default function PublicDares() {
         if (switchesRes.status === 'fulfilled') {
           const switchesData = Array.isArray(switchesRes.value.data) ? switchesRes.value.data : [];
           setSwitchGames(switchesData);
-          console.log('Public switches loaded:', switchesData.length);
+
         } else {
           console.error('Failed to load public switches:', switchesRes.reason);
           setSwitchGames([]);
@@ -273,10 +273,10 @@ export default function PublicDares() {
                     <div className="grid gap-4">
                       {paginatedDares.map(dare => (
                         <div key={dare._id} className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group" role="article" aria-labelledby={`dare-title-${dare._id}`}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                               <DifficultyBadge level={dare.difficulty} />
-                              <div className="flex items-center gap-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                                 <span className="text-white/60 text-sm">Created by</span>
                                 <Link to={`/profile/${dare.creator?._id || dare.creator?.id}`} className="flex items-center gap-2 group-hover:underline" aria-label={`View profile of ${dare.creator?.fullName || 'User'}`}>
                                   <Avatar user={dare.creator} size={40} />
@@ -286,7 +286,7 @@ export default function PublicDares() {
                             </div>
                             <Link to={`/dare/consent/${dare._id}`}>
                               <button 
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
+                                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
                                 aria-label={`Participate in dare by ${dare.creator?.fullName || 'User'}`}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter' || e.key === ' ') {
@@ -348,10 +348,10 @@ export default function PublicDares() {
                     <div className="grid gap-4">
                       {paginatedSwitchGames.map(game => (
                         <div key={game._id} className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group" role="article" aria-labelledby={`switch-title-${game._id}`}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                               <DifficultyBadge level={game.creatorDare?.difficulty} />
-                              <div className="flex items-center gap-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                                 <span className="text-white/60 text-sm">Created by</span>
                                 <Link to={`/profile/${game.creator?._id || game.creator?.id}`} className="flex items-center gap-2 group-hover:underline" aria-label={`View profile of ${game.creator?.fullName || 'User'}`}>
                                   <Avatar user={game.creator} size={40} />
@@ -361,7 +361,7 @@ export default function PublicDares() {
                             </div>
                             <Link to={`/switches/consent/${game._id}`}>
                               <button 
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
+                                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
                                 aria-label={`Participate in switch game by ${game.creator?.fullName || 'User'}`}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter' || e.key === ' ') {

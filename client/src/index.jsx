@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
-import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 
 // Suppress deprecated window.styleMedia warning and other hydration warnings
@@ -32,12 +31,10 @@ console.error = (...args) => {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <NotificationProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </NotificationProvider>
-    </AuthProvider>
+    <NotificationProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </NotificationProvider>
   </React.StrictMode>
 ); 

@@ -30,17 +30,35 @@ export default function SwitchGameCreate() {
   const [creating, setCreating] = useState(false);
   const [publicGame, setPublicGame] = useState(true);
   const [tags, setTags] = useState([]);
+  const [createError, setCreateError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setCreateError('');
+    
+    if (description.trim().length < 10) {
+      showError('Description must be at least 10 characters.');
+      return;
+    }
+    if (description.trim().length > 1000) {
+      showError('Description must be less than 1000 characters.');
+      return;
+    }
+    
     setCreating(true);
     try {
       const res = await api.post('/switches', { description, difficulty, move, public: publicGame, tags });
-      showSuccess('Switch Game created successfully!');
-      setTimeout(() => navigate(`/switches/${res.data._id}`), 1200);
+      if (res.data && (res.data._id || res.data.id)) {
+        showSuccess('Switch Game created successfully!');
+        setTimeout(() => navigate(`/switches/${res.data._id || res.data.id}`), 1200);
+      } else {
+        throw new Error('Invalid response: missing game ID');
+      }
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to create switch game.';
+      console.error('Switch game creation error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to create switch game.';
+      setCreateError(errorMessage);
       showError(errorMessage);
     } finally {
       setCreating(false);
@@ -68,6 +86,16 @@ export default function SwitchGameCreate() {
 
           {/* Create Switch Game Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            {/* Error Display */}
+            {createError && (
+              <div className="mb-6 bg-red-500/20 border border-red-500/50 rounded-xl p-4">
+                <div className="flex items-center gap-3 text-red-300">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  <span className="font-medium">{createError}</span>
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Description */}
               <div>

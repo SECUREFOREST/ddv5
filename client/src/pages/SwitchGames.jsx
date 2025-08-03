@@ -21,21 +21,16 @@ export default function SwitchGames() {
       setGeneralError('');
       setGeneralInfo('');
       
-      console.log('Fetching user switch games...');
+  
       
       // Get user's switch games
       const response = await api.get('/switches/performer');
       
-      console.log('API response:', response);
-      console.log('Response data:', response.data);
-      console.log('Response data type:', typeof response.data);
-      console.log('Is array:', Array.isArray(response.data));
+      
       
       if (response && response.data) {
         const switchGamesData = Array.isArray(response.data) ? response.data : [];
-        console.log('Processed switch games data:', switchGamesData);
         setUserSwitchGames(switchGamesData);
-        console.log('User switch games loaded:', switchGamesData.length);
         
         if (switchGamesData.length > 0) {
           setGeneralInfo(`Found ${switchGamesData.length} switch game(s)!`);
@@ -43,7 +38,7 @@ export default function SwitchGames() {
           setGeneralInfo('No switch games found. Create your first one!');
         }
       } else {
-        console.log('No data in response, setting empty array');
+
         setUserSwitchGames([]);
         setGeneralInfo('No switch games found. Create your first one!');
       }
@@ -53,19 +48,19 @@ export default function SwitchGames() {
       setGeneralError(errorMessage);
       setUserSwitchGames([]);
     } finally {
-      console.log('Setting loading to false');
+
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log('SwitchGames component mounted, fetching data...');
+
     fetchUserSwitchGames();
     
     // Add timeout to prevent infinite loading
     const timeout = setTimeout(() => {
       if (loading) {
-        console.log('Loading timeout reached, forcing loading to false');
+
         setLoading(false);
         setGeneralError('Request timed out. Please try again.');
       }

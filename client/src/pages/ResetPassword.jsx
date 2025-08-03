@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
 import Card from '../components/Card';
-import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon, ExclamationTriangleIcon, KeyIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
 
@@ -14,17 +14,22 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
   const token = searchParams.get('token');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setResetError('');
+    
     try {
       await api.post('/auth/reset-password', { token, newPassword });
       showSuccess('Password reset successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to reset password. Please try again.';
+      console.error('Reset password error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to reset password. Please try again.';
+      setResetError(errorMessage);
       showError(errorMessage);
     } finally {
       setLoading(false);
@@ -73,6 +78,16 @@ export default function ResetPassword() {
             </div>
 
             <form role="form" aria-labelledby="reset-password-title" onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Display */}
+              {resetError && (
+                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4" role="alert" aria-live="polite">
+                  <div className="flex items-center gap-3 text-red-300">
+                    <ExclamationTriangleIcon className="w-5 h-5" />
+                    <span className="font-medium">{resetError}</span>
+                  </div>
+                </div>
+              )}
+              
               <div>
                 <label htmlFor="reset-password" className="block font-semibold mb-3 text-primary text-sm">
                   New Password

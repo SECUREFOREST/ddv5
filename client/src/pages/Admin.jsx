@@ -563,11 +563,7 @@ function Admin() {
 
   // Show loading state while verifying authentication
   if (!authVerified) {
-    console.log('=== AUTH VERIFICATION DEBUG ===');
-    console.log('User object:', user);
-    console.log('User from localStorage:', localStorage.getItem('user'));
-    console.log('Loading state:', loading);
-    console.log('Auth verified:', authVerified);
+
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -582,7 +578,7 @@ function Admin() {
               <div className="mt-4">
                 <button 
                   onClick={() => {
-                    console.log('Manual auth verification triggered');
+
                     setAuthVerified(true);
                   }}
                   className="text-sm text-neutral-400 hover:text-white underline"

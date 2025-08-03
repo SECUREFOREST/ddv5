@@ -2,24 +2,29 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
-import { ArrowLeftIcon, EnvelopeIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon, EnvelopeIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
   const { showSuccess, showError } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setForgotError('');
+    
     try {
       await api.post('/auth/request-reset', { email });
       const successMessage = 'If an account with that email exists, a reset link has been sent.';
       showSuccess(successMessage);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Request failed. Please try again.';
+      console.error('Forgot password error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Request failed. Please try again.';
+      setForgotError(errorMessage);
       showError(errorMessage);
     } finally {
       setLoading(false);
@@ -46,6 +51,16 @@ export default function ForgotPassword() {
               </div>
 
               <form role="form" aria-labelledby="forgot-password-title" onSubmit={handleSubmit} className="space-y-6">
+                {/* Error Display */}
+                {forgotError && (
+                  <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4" role="alert" aria-live="polite">
+                    <div className="flex items-center gap-3 text-red-300">
+                      <ExclamationTriangleIcon className="w-5 h-5" />
+                      <span className="font-medium">{forgotError}</span>
+                    </div>
+                  </div>
+                )}
+                
                 <div>
                   <label htmlFor="forgot-email" className="block font-semibold mb-3 text-white text-sm">
                     Email Address

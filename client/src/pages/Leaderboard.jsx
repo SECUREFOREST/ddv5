@@ -25,7 +25,7 @@ export default function Leaderboard() {
         const usersData = Array.isArray(response.data) ? response.data : [];
         setUsers(usersData);
         showSuccess('Leaderboard loaded successfully!');
-        console.log('Leaderboard loaded:', usersData.length, 'users');
+
       } else {
         throw new Error('No data received from server');
       }
