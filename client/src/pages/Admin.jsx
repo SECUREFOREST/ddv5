@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 
 import Avatar from '../components/Avatar';
-import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, FireIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, FireIcon, ExclamationTriangleIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
@@ -1314,6 +1314,40 @@ function Admin() {
                                       </span>
                                     )}
                                   </div>
+                                  
+                                  {/* OSA-Style Content Expiration Info */}
+                                  {dare.contentExpiresAt && (
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <ClockIcon className="w-4 h-4 text-yellow-400" />
+                                      <span className="text-xs text-yellow-400">
+                                        Expires: {new Date(dare.contentExpiresAt).toLocaleDateString()}
+                                      </span>
+                                      {dare.contentDeletion && (
+                                        <span className="text-xs text-neutral-500">
+                                          ({dare.contentDeletion === 'delete_after_view' ? 'delete after view' : 
+                                            dare.contentDeletion === 'delete_after_30_days' ? 'delete after 30 days' : 
+                                            'never delete'})
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Consent Status for Dom Demands */}
+                                  {dare.dareType === 'domination' && dare.requiresConsent && (
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                                      <span className={`text-xs font-semibold ${
+                                        dare.consented ? 'text-green-400' : 'text-red-400'
+                                      }`}>
+                                        {dare.consented ? 'Consented' : 'Pending consent'}
+                                      </span>
+                                      {dare.consentedAt && (
+                                        <span className="text-xs text-neutral-500">
+                                          ({new Date(dare.consentedAt).toLocaleDateString()})
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex gap-2">
                                   {mapDareStatus(dare.status) === 'pending' && (

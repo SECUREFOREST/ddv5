@@ -24,6 +24,7 @@ import DomDemandCreator from './pages/DomDemandCreator';
 import DareDifficultySelect from './pages/DareDifficultySelect';
 import DareConsent from './pages/DareConsent';
 import DareReveal from './pages/DareReveal';
+import Advertise from './pages/Advertise';
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -136,6 +137,7 @@ function AppContent() {
               <Route path="/dom-demand/create" element={<PrivateRoute><DomDemandCreator /></PrivateRoute>} />
               <Route path="/public-dares" element={<PrivateRoute><PublicDares /></PrivateRoute>} />
               <Route path="/news" element={<News />} />
+              <Route path="/advertise" element={<Advertise />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

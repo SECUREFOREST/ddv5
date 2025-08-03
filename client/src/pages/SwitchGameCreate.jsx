@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS } from '../constants';
+import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import TagsInput from '../components/TagsInput';
 import { ButtonLoading } from '../components/LoadingSpinner';
 
@@ -14,26 +15,25 @@ const MOVE_ICONS = {
   scissors: '✂️',
 };
 
-const DIFFICULTY_ICONS = {
-  titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-  arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-  explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-  edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-  hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-};
-
 export default function SwitchGameCreate() {
+  const { user } = useAuth();
   const { showSuccess, showError } = useToast();
+  const navigate = useNavigate();
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('titillating');
   const [move, setMove] = useState('rock');
   const [creating, setCreating] = useState(false);
-  const [publicGame, setPublicGame] = useState(true);
-  const [tags, setTags] = useState([]);
   const [createError, setCreateError] = useState('');
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const DIFFICULTY_ICONS = {
+    titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
+    arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
+    explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
+    edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
+    hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
+  };
+
+  const handleCreate = async (e) => {
     e.preventDefault();
     setCreateError('');
     
@@ -48,10 +48,17 @@ export default function SwitchGameCreate() {
     
     setCreating(true);
     try {
-      const res = await api.post('/switches', { description, difficulty, move, public: publicGame, tags });
-      if (res.data && (res.data._id || res.data.id)) {
-        showSuccess('Switch Game created successfully!');
-        setTimeout(() => navigate(`/switches/${res.data._id || res.data.id}`), 1200);
+      const res = await api.post('/switches', {
+        creatorDare: {
+          description,
+          difficulty,
+          move
+        },
+      });
+      
+      if (res.data && res.data._id) {
+        showSuccess('Switch game created successfully!');
+        navigate(`/switches/${res.data._id}`);
       } else {
         throw new Error('Invalid response: missing game ID');
       }
@@ -96,7 +103,7 @@ export default function SwitchGameCreate() {
               </div>
             )}
             
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleCreate} className="space-y-8">
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-lg font-semibold text-white mb-3">
@@ -179,27 +186,18 @@ export default function SwitchGameCreate() {
                   Tags
                 </label>
                 <TagsInput
-                  tags={tags}
-                  onChange={setTags}
+                  tags={[]} // Removed tags state
+                  onChange={() => {}} // Removed tags state
                   className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
               </div>
 
               {/* Options */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="public"
-                    checked={publicGame}
-                    onChange={(e) => setPublicGame(e.target.checked)}
-                    className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
-                  />
-                  <label htmlFor="public" className="text-white">
-                    Make this game public
-                  </label>
-                </div>
+                {/* Removed public game option */}
               </div>
+
+              {/* Removed OSA-Style Privacy Settings */}
 
               {/* Submit Button */}
               <div className="flex flex-col sm:flex-row gap-4">

@@ -1,18 +1,19 @@
-import React, { useCallback } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ArrowRightIcon, CheckCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon as ExclamationTriangleIconSolid, RocketLaunchIcon } from '@heroicons/react/24/solid';
 
 function DifficultyBadge({ level }) {
   const DIFFICULTY_ICONS = {
     titillating: <SparklesIcon className="w-4 h-4" />,
     arousing: <FireIcon className="w-4 h-4" />,
     explicit: <EyeDropperIcon className="w-4 h-4" />,
-    edgy: <ExclamationTriangleIcon className="w-4 h-4" />,
+    edgy: <ExclamationTriangleIconSolid className="w-4 h-4" />,
     hardcore: <RocketLaunchIcon className="w-4 h-4" />,
   };
 
@@ -53,40 +54,33 @@ function DifficultyBadge({ level }) {
 }
 
 export default function DareConsent() {
-  const location = useLocation();
-  const navigate = useNavigate();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { showSuccess, showError } = useToast();
-  const [dare, setDare] = React.useState(location.state?.dare || null);
-  const [loading, setLoading] = React.useState(false);
-  const [fetching, setFetching] = React.useState(!dare);
+  const [dare, setDare] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
 
   const fetchDare = useCallback(async () => {
     if (!id) return;
     
     try {
       setFetching(true);
-      
       const response = await api.get(`/dares/${id}`);
-      
-      if (response.data) {
-        setDare(response.data);
-        showSuccess('Dare loaded successfully!');
-
-      } else {
-        throw new Error('No data received from server');
-      }
+      setDare(response.data);
     } catch (error) {
-      console.error('Dare loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Dare not found.';
+      console.error('Dare consent loading error:', error);
+      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
       showError(errorMessage);
     } finally {
       setFetching(false);
     }
-  }, [id, showSuccess, showError]);
+  }, [id, showError]);
 
-  React.useEffect(() => {
-    if (!dare && id) {
+  useEffect(() => {
+    if (id) {
       fetchDare();
     }
   }, [dare, id, fetchDare]);
@@ -94,20 +88,37 @@ export default function DareConsent() {
   const handleConsent = async () => {
     setLoading(true);
     if (dare && dare._id) {
-      if (dare.status !== 'in_progress') {
-        try {
-          await api.patch(`/dares/${dare._id}`, { status: 'in_progress' });
-          showSuccess('Dare status updated successfully!');
-        } catch (err) {
-          const errorMessage = err.response?.data?.error || 'Failed to update dare status.';
-          showError(errorMessage);
-          setLoading(false);
-          return;
+      try {
+        // For dom demands, this consent unlocks the hidden demand
+        if (dare.dareType === 'domination' && dare.requiresConsent) {
+          await api.patch(`/dares/${dare._id}/consent`, { 
+            consented: true,
+            consentedAt: new Date().toISOString(),
+            contentDeletion // OSA-style content expiration specified by participant
+          });
+          showSuccess('Consent recorded! You can now view the full demand.');
+        } else {
+          // For regular dares, update status to in_progress
+          if (dare.status !== 'in_progress') {
+            await api.patch(`/dares/${dare._id}`, { 
+              status: 'in_progress',
+              contentDeletion // OSA-style content expiration specified by participant
+            });
+            showSuccess('Dare status updated successfully!');
+          }
         }
+        
+        // Navigate to reveal page to show the full content
+        navigate(`/dare/reveal/${dare._id}`);
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || 'Failed to record consent.';
+        showError(errorMessage);
+      } finally {
+        setLoading(false);
       }
-      navigate(`/dare/reveal/${dare._id}`);
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (fetching) {
@@ -140,6 +151,7 @@ export default function DareConsent() {
   }
 
   const diff = DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty);
+  const isDomDemand = dare.dareType === 'domination' && dare.requiresConsent;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -154,17 +166,41 @@ export default function DareConsent() {
                 <ShieldCheckIcon className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Dare Consent</h1>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              {isDomDemand ? 'Consent to View Demand' : 'Dare Consent'}
+            </h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
-              Confirm your consent to perform this dare
+              {isDomDemand 
+                ? 'Confirm your consent to view this dominant demand'
+                : 'Confirm your consent to perform this dare'
+              }
             </p>
           </div>
+
+          {/* Double-Consent Warning for Dom Demands */}
+          {isDomDemand && (
+            <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-start gap-4">
+                <LockClosedIcon className="w-8 h-8 text-red-400 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Double-Consent Protection</h3>
+                  <p className="text-neutral-300 leading-relaxed">
+                    This dominant demand is currently hidden. By consenting, you acknowledge that you are comfortable 
+                    with the difficulty level and agree to view the full demand. This ensures proper consent before 
+                    revealing the specific content.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Progress Indicator */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div className="text-sm text-neutral-400">Step 2 of 2</div>
-              <div className="text-sm text-neutral-400">Consent to Perform Dare</div>
+              <div className="text-sm text-neutral-400">
+                {isDomDemand ? 'Consent to View Demand' : 'Consent to Perform Dare'}
+              </div>
             </div>
             <div className="w-full bg-neutral-700 rounded-full h-2">
               <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '100%' }} />
@@ -174,7 +210,9 @@ export default function DareConsent() {
           {/* Dare Card */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-white mb-4">Dare Details</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                {isDomDemand ? 'Demand Preview' : 'Dare Details'}
+              </h2>
               <div className="flex items-center justify-center gap-4 mb-6">
                 {/* Creator Avatar */}
                 {dare.creator && dare.creator.avatar ? (
@@ -192,16 +230,29 @@ export default function DareConsent() {
                   <div className="font-semibold text-white">
                     {dare.creator?.fullName || dare.creator?.username || 'Anonymous'}
                   </div>
-                  <div className="text-sm text-neutral-400">Creator</div>
+                  <div className="text-sm text-neutral-400">
+                    {isDomDemand ? 'Dominant' : 'Creator'}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Dare Description */}
             <div className="mb-6">
-              <label className="block text-lg font-semibold text-white mb-3">Description</label>
+              <label className="block text-lg font-semibold text-white mb-3">
+                {isDomDemand ? 'Demand Preview' : 'Description'}
+              </label>
               <div className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                <p className="text-neutral-300">{dare.description}</p>
+                {isDomDemand ? (
+                  <div className="text-center">
+                    <LockClosedIcon className="w-8 h-8 text-neutral-500 mx-auto mb-2" />
+                    <p className="text-neutral-400 italic">
+                      The full demand is hidden until you consent to view it.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-neutral-300">{dare.description}</p>
+                )}
               </div>
             </div>
 
@@ -225,10 +276,51 @@ export default function DareConsent() {
                 <div>
                   <h3 className="font-semibold text-yellow-400 mb-2">Important Notice</h3>
                   <p className="text-yellow-300 text-sm">
-                    By consenting to this dare, you acknowledge that you are comfortable with the difficulty level and content. 
-                    You can decline any dare that makes you uncomfortable at any time.
+                    {isDomDemand 
+                      ? 'By consenting to view this demand, you acknowledge that you are comfortable with the difficulty level and agree to view the full content. You can decline at any time.'
+                      : 'By consenting to this dare, you acknowledge that you are comfortable with the difficulty level and content. You can decline any dare that makes you uncomfortable at any time.'
+                    }
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* OSA-Style Content Expiration Settings */}
+            <div className="mb-8 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                  <p className="text-neutral-300 leading-relaxed">
+                    Choose how long this dare content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {PRIVACY_OPTIONS.map((option) => (
+                  <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                    contentDeletion === option.value 
+                      ? 'border-yellow-500 bg-yellow-500/10' 
+                      : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                  }`}>
+                    <input 
+                      type="radio" 
+                      name="contentDeletion" 
+                      value={option.value} 
+                      checked={contentDeletion === option.value} 
+                      onChange={(e) => setContentDeletion(e.target.value)} 
+                      className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{option.icon}</span>
+                        <span className="font-semibold text-white">{option.label}</span>
+                      </div>
+                      <p className="text-sm text-neutral-300">{option.desc}</p>
+                    </div>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -247,7 +339,7 @@ export default function DareConsent() {
                 ) : (
                   <>
                     <CheckCircleIcon className="w-6 h-6" />
-                    I Consent to Perform This Dare
+                    {isDomDemand ? 'I Consent to View This Demand' : 'I Consent to Perform This Dare'}
                   </>
                 )}
               </button>

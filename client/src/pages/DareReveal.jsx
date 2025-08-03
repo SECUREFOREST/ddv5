@@ -281,6 +281,35 @@ export default function DareReveal() {
                     <span>Created: {formatRelativeTimeWithTooltip(dare.createdAt).display}</span>
                   )}
                 </div>
+                
+                {/* Content Expiration Info - OSA Style */}
+                {dare.contentExpiresAt && (
+                  <div className="mt-4 p-4 bg-yellow-900/20 border border-yellow-800/30 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ClockIcon className="w-4 h-4 text-yellow-400" />
+                      <span className="text-sm font-semibold text-yellow-400">Content Expiration</span>
+                    </div>
+                    <div className="text-sm text-yellow-300">
+                      This content will expire on {new Date(dare.contentExpiresAt).toLocaleDateString()}
+                      {dare.contentDeletion === 'delete_after_view' && ' (deletes after viewing)'}
+                      {dare.contentDeletion === 'delete_after_30_days' && ' (deletes after 30 days)'}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Consent Status for Dom Demands */}
+                {dare.dareType === 'domination' && dare.requiresConsent && (
+                  <div className="mt-4 p-4 bg-green-900/20 border border-green-800/30 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                      <span className="text-sm font-semibold text-green-400">Consent Recorded</span>
+                    </div>
+                    <div className="text-sm text-green-300">
+                      You have consented to view this dom demand
+                      {dare.consentedAt && ` on ${new Date(dare.consentedAt).toLocaleDateString()}`}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

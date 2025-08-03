@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants';
@@ -268,6 +268,63 @@ export default function Dashboard() {
               
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Role Balance Card - OSA Style */}
+                {(stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
+                  <Card className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 border-purple-600/30 lg:col-span-2">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 bg-purple-600/20 rounded-xl">
+                        <ShieldCheckIcon className="w-8 h-8 text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-purple-400">Role Balance</h3>
+                        <p className="text-neutral-400 text-sm">Your dominant/submissive ratio</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Dominant */}
+                      <div className="bg-purple-900/30 rounded-xl p-4 border border-purple-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-purple-300">Dominant</span>
+                          <span className="text-2xl font-bold text-purple-400">
+                            {stats.dominantPercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-purple-900/50 rounded-full h-2 mb-2">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.dominantPercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-purple-400">
+                          {stats.dominantCount || 0} acts
+                        </div>
+                      </div>
+                      
+                      {/* Submissive */}
+                      <div className="bg-pink-900/30 rounded-xl p-4 border border-pink-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-pink-300">Submissive</span>
+                          <span className="text-2xl font-bold text-pink-400">
+                            {stats.submissivePercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-pink-900/50 rounded-full h-2 mb-2">
+                          <div 
+                            className="bg-gradient-to-r from-pink-500 to-pink-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.submissivePercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-pink-400">
+                          {stats.submissiveCount || 0} acts
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-neutral-400 mt-4 text-center">
+                      Based on {stats.totalCount || 0} total acts
+                    </div>
+                  </Card>
+                )}
+                
                 <Card className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border-primary/30">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-primary/20 rounded-xl">

@@ -131,9 +131,9 @@ const Landing = () => {
                   <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
                     Perform tasks for a dominant. Create private offers that only the chosen person can see.
                   </p>
-                  <Link to="/subs/new" className="inline-block w-full">
+                  <Link to="/register" className="inline-block w-full">
                     <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-pink-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                      Submit Offer
+                      Sign Up to Start
                     </button>
                   </Link>
                 </div>
@@ -149,9 +149,9 @@ const Landing = () => {
                   <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
                     Assign tasks for a submissive. Your demand is hidden until they first consent.
                   </p>
-                  <Link to="/dom-demand/create" className="inline-block w-full">
+                  <Link to="/register" className="inline-block w-full">
                     <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                      Create Demand
+                      Sign Up to Start
                     </button>
                   </Link>
                 </div>
@@ -167,9 +167,9 @@ const Landing = () => {
                   <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
                     Rock-paper-scissors game where the loser performs the winner's demand.
                   </p>
-                  <Link to="/switches/create" className="inline-block w-full">
+                  <Link to="/register" className="inline-block w-full">
                     <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                      Start Game
+                      Sign Up to Start
                     </button>
                   </Link>
                 </div>

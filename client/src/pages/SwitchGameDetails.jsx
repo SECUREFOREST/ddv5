@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
@@ -444,6 +444,7 @@ export default function SwitchGameDetails() {
   // Add state for move selection modal
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinMove, setJoinMove] = useState('rock');
+  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
 
   // Chicken out (forfeit) handler
   const handleChickenOut = async () => {
@@ -676,6 +677,26 @@ export default function SwitchGameDetails() {
                     <div className="text-white/90 text-base font-medium px-4 py-3 bg-white/5 rounded-lg border border-white/10">
                       {game.creatorDare?.description}
                     </div>
+                    
+                    {/* Content Expiration Info - OSA Style */}
+                    {game.contentExpiresAt && (
+                      <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-800/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <ClockIcon className="w-4 h-4 text-yellow-400" />
+                          <span className="text-sm font-semibold text-yellow-400">Content expires:</span>
+                        </div>
+                        <div className="text-sm text-yellow-300">
+                          {new Date(game.contentExpiresAt).toLocaleDateString()}
+                          {game.contentDeletion && (
+                            <span className="text-neutral-500 text-xs ml-2">
+                              ({game.contentDeletion === 'delete_after_view' ? 'deletes after viewing' : 
+                                game.contentDeletion === 'delete_after_30_days' ? 'deletes after 30 days' : 
+                                'never deletes'})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -695,6 +716,26 @@ export default function SwitchGameDetails() {
                     <div className="text-white/90 text-base font-medium px-4 py-3 bg-white/5 rounded-lg border border-white/10">
                       {game.participantDare?.description}
                     </div>
+                    
+                    {/* Content Expiration Info - OSA Style */}
+                    {game.contentExpiresAt && (
+                      <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-800/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <ClockIcon className="w-4 h-4 text-yellow-400" />
+                          <span className="text-sm font-semibold text-yellow-400">Content expires:</span>
+                        </div>
+                        <div className="text-sm text-yellow-300">
+                          {new Date(game.contentExpiresAt).toLocaleDateString()}
+                          {game.contentDeletion && (
+                            <span className="text-neutral-500 text-xs ml-2">
+                              ({game.contentDeletion === 'delete_after_view' ? 'deletes after viewing' : 
+                                game.contentDeletion === 'delete_after_30_days' ? 'deletes after 30 days' : 
+                                'never deletes'})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -925,7 +966,8 @@ export default function SwitchGameDetails() {
                   await api.post(`/switches/${id}/join`, {
                     difficulty: String(game.creatorDare.difficulty),
                     move: String(joinMove),
-                    consent: true
+                    consent: true,
+                    contentDeletion: contentDeletion // Add contentDeletion to join payload
                   });
                   setGeneralSuccess('Joined the game successfully!');
                   setShowJoinModal(false);
@@ -962,6 +1004,46 @@ export default function SwitchGameDetails() {
                     ))}
                   </div>
                 </div>
+                
+                {/* OSA-Style Content Expiration Settings */}
+                <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+                  <div className="flex items-start gap-4 mb-4">
+                    <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                      <p className="text-neutral-300 leading-relaxed">
+                        Choose how long this switch game content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {PRIVACY_OPTIONS.map((option) => (
+                      <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                        contentDeletion === option.value 
+                          ? 'border-yellow-500 bg-yellow-500/10' 
+                          : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                      }`}>
+                        <input 
+                          type="radio" 
+                          name="contentDeletion" 
+                          value={option.value} 
+                          checked={contentDeletion === option.value} 
+                          onChange={(e) => setContentDeletion(e.target.value)} 
+                          className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-lg">{option.icon}</span>
+                            <span className="font-semibold text-white">{option.label}</span>
+                          </div>
+                          <p className="text-sm text-neutral-300">{option.desc}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                
                 <div className="flex justify-end gap-3 pt-4">
                   <button 
                     type="button" 

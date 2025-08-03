@@ -650,59 +650,114 @@ export default function Profile() {
 
             {/* Stats Overview */}
             {stats && (
-              <div className="mt-6 mb-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-bold text-white group-hover:scale-110 transition-transform duration-200">
-                        {stats.daresCount || 0}
+              <div className="mt-6 mb-6 space-y-6">
+                {/* Role Balance Display - OSA Style */}
+                {(stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
+                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                      <ShieldCheckIcon className="w-6 h-6 text-primary" />
+                      Role Balance
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Dominant Percentage */}
+                      <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 border border-purple-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-purple-300">Dominant</span>
+                          <span className="text-2xl font-bold text-purple-400">
+                            {stats.dominantPercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-purple-900/30 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.dominantPercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-purple-400 mt-2">
+                          {stats.dominantCount || 0} acts as dominant
+                        </div>
                       </div>
-                      <div className="text-sm text-neutral-400">Total Dares</div>
+                      
+                      {/* Submissive Percentage */}
+                      <div className="bg-gradient-to-r from-pink-600/20 to-pink-700/20 rounded-xl p-4 border border-pink-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-pink-300">Submissive</span>
+                          <span className="text-2xl font-bold text-pink-400">
+                            {stats.submissivePercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-pink-900/30 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-pink-500 to-pink-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.submissivePercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-pink-400 mt-2">
+                          {stats.submissiveCount || 0} acts as submissive
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                      <FireIcon className="w-6 h-6 text-primary" />
+                    <div className="text-sm text-neutral-400 mt-4 text-center">
+                      Based on {stats.totalCount || 0} total completed acts
                     </div>
                   </div>
-                </div>
+                )}
                 
-                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-bold text-green-400 group-hover:scale-110 transition-transform duration-200">
-                        {stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}
+                {/* Regular Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-bold text-white group-hover:scale-110 transition-transform duration-200">
+                          {stats.daresCount || 0}
+                        </div>
+                        <div className="text-sm text-neutral-400">Total Dares</div>
                       </div>
-                      <div className="text-sm text-neutral-400">Avg Grade</div>
-                    </div>
-                    <div className="w-12 h-12 bg-green-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                      <ChartBarIcon className="w-6 h-6 text-green-400" />
+                      <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <FireIcon className="w-6 h-6 text-primary" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-bold text-blue-400 group-hover:scale-110 transition-transform duration-200">
-                        {stats.completedCount || 0}
+                  
+                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-bold text-green-400 group-hover:scale-110 transition-transform duration-200">
+                          {stats.avgGrade ? stats.avgGrade.toFixed(2) : '-'}
+                        </div>
+                        <div className="text-sm text-neutral-400">Avg Grade</div>
                       </div>
-                      <div className="text-sm text-neutral-400">Completed</div>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                      <CheckCircleIcon className="w-6 h-6 text-blue-400" />
+                      <div className="w-12 h-12 bg-green-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <ChartBarIcon className="w-6 h-6 text-green-400" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-bold text-purple-400 group-hover:scale-110 transition-transform duration-200">
-                        {stats.activeCount || 0}
+                  
+                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-bold text-blue-400 group-hover:scale-110 transition-transform duration-200">
+                          {stats.completedCount || 0}
+                        </div>
+                        <div className="text-sm text-neutral-400">Completed</div>
                       </div>
-                      <div className="text-sm text-neutral-400">Active</div>
+                      <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <CheckCircleIcon className="w-6 h-6 text-blue-400" />
+                      </div>
                     </div>
-                    <div className="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                      <ClockIcon className="w-6 h-6 text-purple-400" />
+                  </div>
+                  
+                  <div className="group relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-bold text-purple-400 group-hover:scale-110 transition-transform duration-200">
+                          {stats.activeCount || 0}
+                        </div>
+                        <div className="text-sm text-neutral-400">Active</div>
+                      </div>
+                      <div className="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <ClockIcon className="w-6 h-6 text-purple-400" />
+                      </div>
                     </div>
                   </div>
                 </div>

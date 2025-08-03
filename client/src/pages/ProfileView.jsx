@@ -276,6 +276,58 @@ export default function ProfileView() {
 
               {/* Profile Details */}
               <div className="flex-1 space-y-6">
+                {/* Role Balance Display - OSA Style */}
+                {stats && (stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
+                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                      <ShieldCheckIcon className="w-6 h-6 text-primary" />
+                      Role Balance
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Dominant Percentage */}
+                      <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 border border-purple-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-purple-300">Dominant</span>
+                          <span className="text-2xl font-bold text-purple-400">
+                            {stats.dominantPercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-purple-900/30 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.dominantPercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-purple-400 mt-2">
+                          {stats.dominantCount || 0} acts as dominant
+                        </div>
+                      </div>
+                      
+                      {/* Submissive Percentage */}
+                      <div className="bg-gradient-to-r from-pink-600/20 to-pink-700/20 rounded-xl p-4 border border-pink-600/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold text-pink-300">Submissive</span>
+                          <span className="text-2xl font-bold text-pink-400">
+                            {stats.submissivePercent || 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-pink-900/30 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-pink-500 to-pink-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${stats.submissivePercent || 0}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-pink-400 mt-2">
+                          {stats.submissiveCount || 0} acts as submissive
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-neutral-400 mt-4 text-center">
+                      Based on {stats.totalCount || 0} total completed acts
+                    </div>
+                  </div>
+                )}
+                
                 {/* User Tags */}
                 {Array.isArray(profile.tags) && profile.tags.length > 0 && (
                   <div>

@@ -22,9 +22,9 @@ export default function Footer() {
             <Link to="/activity-feed" className="text-neutral-400 hover:text-neutral-200 transition-colors">
               Activity
             </Link>
-            <a href="#" className="text-neutral-400 hover:text-neutral-200 transition-colors">
+            <Link to="/advertise" className="text-neutral-400 hover:text-neutral-200 transition-colors">
               Advertise
-            </a>
+            </Link>
           </div>
           
           <div className="text-center md:text-right">

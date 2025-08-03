@@ -7,7 +7,7 @@ import { ListSkeleton } from '../components/Skeleton';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];
@@ -76,6 +76,7 @@ export default function SwitchGameParticipate() {
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
 
   // Handler for finding a game (for the difficulty/consent form)
   const handleFindGame = useCallback(async (e) => {
@@ -156,7 +157,12 @@ export default function SwitchGameParticipate() {
       return;
     }
     try {
-      await api.post(`/switches/${gameId}/join`, { move: gesture, consent: true, difficulty: game.difficulty });
+      await api.post(`/switches/${gameId}/join`, { 
+        move: gesture, 
+        consent: true, 
+        difficulty: game.difficulty,
+        contentDeletion // OSA-style content expiration specified by participant
+      });
       showSuccess('Successfully joined the game!');
       navigate(`/switches/${gameId}`);
     } catch (err) {
@@ -481,6 +487,45 @@ export default function SwitchGameParticipate() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* OSA-Style Content Expiration Settings */}
+              <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+                <div className="flex items-start gap-4 mb-4">
+                  <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                    <p className="text-neutral-300 leading-relaxed">
+                      Choose how long this switch game content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {PRIVACY_OPTIONS.map((option) => (
+                    <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                      contentDeletion === option.value 
+                        ? 'border-yellow-500 bg-yellow-500/10' 
+                        : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                    }`}>
+                      <input 
+                        type="radio" 
+                        name="contentDeletion" 
+                        value={option.value} 
+                        checked={contentDeletion === option.value} 
+                        onChange={(e) => setContentDeletion(e.target.value)} 
+                        className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">{option.icon}</span>
+                          <span className="font-semibold text-white">{option.label}</span>
+                        </div>
+                        <p className="text-sm text-neutral-300">{option.desc}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <button 

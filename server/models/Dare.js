@@ -20,6 +20,22 @@ const DareSchema = new mongoose.Schema({
     fileName: { type: String },
   },
   proofExpiresAt: { type: Date },
+  // OSA-style content expiration
+  contentExpiresAt: { 
+    type: Date, 
+    default: function() {
+      // Default to 30 days from creation (OSA standard)
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      return thirtyDaysFromNow;
+    }
+  },
+  contentDeletion: {
+    type: String,
+    enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'],
+    default: 'delete_after_30_days' // OSA default
+  },
+  contentViewedAt: { type: Date }, // Track when content was viewed for delete_after_view
   rejection: {
     reason: { type: String },
     rejectedAt: { type: Date },
@@ -36,6 +52,9 @@ const DareSchema = new mongoose.Schema({
   claimedAt: { type: Date },
   claimDemand: { type: String },
   requiresConsent: { type: Boolean, default: false }, // For double-consent dom demands
+  // Consent tracking for dom demands
+  consented: { type: Boolean, default: false },
+  consentedAt: { type: Date },
 });
 
 module.exports = mongoose.model('Dare', DareSchema); 

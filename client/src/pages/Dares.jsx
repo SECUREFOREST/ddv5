@@ -5,10 +5,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
-import { Squares2X2Icon, PlusIcon, FireIcon } from '@heroicons/react/24/solid';
+import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS } from '../constants';
+import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function Dares() {
@@ -35,10 +35,12 @@ export default function Dares() {
   const [createAllowedRoles, setCreateAllowedRoles] = useState([]);
   const [consentChecked, setConsentChecked] = useState(false);
   const [acceptDareId, setAcceptDareId] = useState(null);
-  const [acceptDifficulty, setAcceptDifficulty] = useState('');
+  const [acceptDifficulty, setAcceptDifficulty] = useState('titillating');
   const [acceptConsent, setAcceptConsent] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [acceptError, setAcceptError] = useState('');
+  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
+
   // Add meta state
   const [lastUpdated, setLastUpdated] = useState(null);
 
@@ -144,9 +146,18 @@ export default function Dares() {
 
   const openAcceptModal = (dare) => {
     setAcceptDareId(dare._id);
-    setAcceptDifficulty('');
+    setAcceptDifficulty(dare.difficulty);
     setAcceptConsent(false);
     setAcceptError('');
+    setContentDeletion('delete_after_30_days'); // Reset to default
+  };
+
+  const closeAcceptModal = () => {
+    setAcceptDareId(null);
+    setAcceptDifficulty('titillating');
+    setAcceptConsent(false);
+    setAcceptError('');
+    setContentDeletion('delete_after_30_days');
   };
 
   const handleAcceptSubmit = async (e) => {
@@ -160,6 +171,7 @@ export default function Dares() {
       await api.post(`/dares/${acceptDareId}/accept`, {
         difficulty: acceptDifficulty,
         consent: acceptConsent,
+        contentDeletion, // OSA-style content expiration specified by participant
       });
       showSuccess('Dare accepted successfully!');
       // Refresh dares
@@ -362,6 +374,46 @@ export default function Dares() {
               required
             />
           </div>
+          
+          {/* OSA-Style Content Expiration Settings */}
+          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+            <div className="flex items-start gap-4 mb-4">
+              <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                <p className="text-neutral-300 leading-relaxed">
+                  Choose how long this dare content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {PRIVACY_OPTIONS.map((option) => (
+                <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                  contentDeletion === option.value 
+                    ? 'border-yellow-500 bg-yellow-500/10' 
+                    : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="contentDeletion" 
+                    value={option.value} 
+                    checked={contentDeletion === option.value} 
+                    onChange={(e) => setContentDeletion(e.target.value)} 
+                    className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">{option.icon}</span>
+                      <span className="font-semibold text-white">{option.label}</span>
+                    </div>
+                    <p className="text-sm text-neutral-300">{option.desc}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+          
           <div className="flex gap-4">
             <button
               type="button"

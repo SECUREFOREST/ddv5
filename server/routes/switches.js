@@ -309,7 +309,10 @@ router.post('/:id/join',
   [
     require('express-validator').body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
     require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors']),
-    require('express-validator').body('consent').isBoolean()
+    require('express-validator').body('consent').isBoolean(),
+    require('express-validator').body('contentDeletion').optional()
+      .isString().withMessage('Content deletion must be a string.')
+      .isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('Content deletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
   ],
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
@@ -320,7 +323,7 @@ router.post('/:id/join',
       // Prevent joining if in cooldown or at open dare limit
       await require('./dares').checkSlotAndCooldownAtomic(req.userId);
       const userId = req.userId;
-      const { difficulty, move, consent } = req.body;
+      const { difficulty, move, consent, contentDeletion } = req.body;
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
       if (game.status !== 'waiting_for_participant' || game.participant) {
@@ -353,6 +356,11 @@ router.post('/:id/join',
         return res.status(400).json({ error: 'No available dares for this difficulty. Please try another difficulty or contact support.' });
       }
       const randomDare = darePool[0];
+      
+      // OSA-style content expiration setup based on participant's choice
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      
       game.participant = userId;
       game.participantDare = {
         description: randomDare.description,
@@ -361,6 +369,8 @@ router.post('/:id/join',
         consent
       };
       game.status = 'in_progress';
+      game.contentDeletion = contentDeletion || 'delete_after_30_days'; // Participant's choice
+      game.contentExpiresAt = thirtyDaysFromNow; // OSA automatic 30-day expiration
       await game.save();
       await game.populate('participant');
       await logActivity({ type: 'switchgame_joined', user: req.userId, switchGame: game._id });
