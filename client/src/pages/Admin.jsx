@@ -168,6 +168,157 @@ function Admin() {
   
   const ITEMS_PER_PAGE = 10;
 
+  // Define pagination hooks first, before useCallback hooks
+  const {
+    currentPage: usersCurrentPage,
+    totalPages: usersTotalPages,
+    pageSize: usersPageSize,
+    setCurrentPage: setUsersCurrentPage,
+    setPageSize: setUsersPageSize,
+    paginatedData: paginatedUsers,
+    totalItems: usersTotalItems,
+    setTotalItems: setUsersTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Users page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchUsers();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Users page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchUsers();
+      }
+    }
+  });
+
+  const {
+    currentPage: daresCurrentPage,
+    totalPages: daresTotalPages,
+    pageSize: daresPageSize,
+    setCurrentPage: setDaresCurrentPage,
+    setPageSize: setDaresPageSize,
+    paginatedData: paginatedDares,
+    totalItems: daresTotalItems,
+    setTotalItems: setDaresTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Dares page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchDares();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Dares page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchDares();
+      }
+    }
+  });
+
+  const {
+    currentPage: reportsCurrentPage,
+    totalPages: reportsTotalPages,
+    pageSize: reportsPageSize,
+    setCurrentPage: setReportsCurrentPage,
+    setPageSize: setReportsPageSize,
+    paginatedData: paginatedReports,
+    totalItems: reportsTotalItems,
+    setTotalItems: setReportsTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Reports page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchReports();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Reports page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchReports();
+      }
+    }
+  });
+
+  const {
+    currentPage: appealsCurrentPage,
+    totalPages: appealsTotalPages,
+    pageSize: appealsPageSize,
+    setCurrentPage: setAppealsCurrentPage,
+    setPageSize: setAppealsPageSize,
+    paginatedData: paginatedAppeals,
+    totalItems: appealsTotalItems,
+    setTotalItems: setAppealsTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Appeals page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchAppeals();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Appeals page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchAppeals();
+      }
+    }
+  });
+
+  const {
+    currentPage: auditLogCurrentPage,
+    totalPages: auditLogTotalPages,
+    pageSize: auditLogPageSize,
+    setCurrentPage: setAuditLogCurrentPage,
+    setPageSize: setAuditLogPageSize,
+    paginatedData: paginatedAuditLog,
+    totalItems: auditLogTotalItems,
+    setTotalItems: setAuditLogTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Audit Log page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchAuditLog();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Audit Log page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchAuditLog();
+      }
+    }
+  });
+
+  const {
+    currentPage: switchGamesCurrentPage,
+    totalPages: switchGamesTotalPages,
+    pageSize: switchGamesPageSize,
+    setCurrentPage: setSwitchGamesCurrentPage,
+    setPageSize: setSwitchGamesPageSize,
+    paginatedData: paginatedSwitchGames,
+    totalItems: switchGamesTotalItems,
+    setTotalItems: setSwitchGamesTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Switch Games page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchSwitchGames();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Switch Games page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchSwitchGames();
+      }
+    }
+  });
+
   // Permission check utility
   const checkAdminPermission = useCallback(() => {
     console.log('checkAdminPermission called with user:', user);
@@ -365,157 +516,6 @@ function Admin() {
       })
       .finally(() => setSwitchGamesLoading(false));
     }, [handleApiError, setSwitchGamesTotalItems]);
-    
-  // Pagination hooks for each tab with server-side callbacks
-  const {
-    currentPage: usersCurrentPage,
-    totalPages: usersTotalPages,
-    pageSize: usersPageSize,
-    setCurrentPage: setUsersCurrentPage,
-    setPageSize: setUsersPageSize,
-    paginatedData: paginatedUsers,
-    totalItems: usersTotalItems,
-    setTotalItems: setUsersTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Users page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchUsers();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Users page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchUsers();
-      }
-    }
-  });
-
-  const {
-    currentPage: daresCurrentPage,
-    totalPages: daresTotalPages,
-    pageSize: daresPageSize,
-    setCurrentPage: setDaresCurrentPage,
-    setPageSize: setDaresPageSize,
-    paginatedData: paginatedDares,
-    totalItems: daresTotalItems,
-    setTotalItems: setDaresTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Dares page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchDares();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Dares page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchDares();
-      }
-    }
-  });
-
-  const {
-    currentPage: reportsCurrentPage,
-    totalPages: reportsTotalPages,
-    pageSize: reportsPageSize,
-    setCurrentPage: setReportsCurrentPage,
-    setPageSize: setReportsPageSize,
-    paginatedData: paginatedReports,
-    totalItems: reportsTotalItems,
-    setTotalItems: setReportsTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Reports page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchReports();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Reports page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchReports();
-      }
-    }
-  });
-
-  const {
-    currentPage: appealsCurrentPage,
-    totalPages: appealsTotalPages,
-    pageSize: appealsPageSize,
-    setCurrentPage: setAppealsCurrentPage,
-    setPageSize: setAppealsPageSize,
-    paginatedData: paginatedAppeals,
-    totalItems: appealsTotalItems,
-    setTotalItems: setAppealsTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Appeals page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchAppeals();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Appeals page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchAppeals();
-      }
-    }
-  });
-
-  const {
-    currentPage: auditLogCurrentPage,
-    totalPages: auditLogTotalPages,
-    pageSize: auditLogPageSize,
-    setCurrentPage: setAuditLogCurrentPage,
-    setPageSize: setAuditLogPageSize,
-    paginatedData: paginatedAuditLog,
-    totalItems: auditLogTotalItems,
-    setTotalItems: setAuditLogTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Audit Log page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchAuditLog();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Audit Log page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchAuditLog();
-      }
-    }
-  });
-
-  const {
-    currentPage: switchGamesCurrentPage,
-    totalPages: switchGamesTotalPages,
-    pageSize: switchGamesPageSize,
-    setCurrentPage: setSwitchGamesCurrentPage,
-    setPageSize: setSwitchGamesPageSize,
-    paginatedData: paginatedSwitchGames,
-    totalItems: switchGamesTotalItems,
-    setTotalItems: setSwitchGamesTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Switch Games page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchSwitchGames();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Switch Games page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchSwitchGames();
-      }
-    }
-  });
     
     // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
