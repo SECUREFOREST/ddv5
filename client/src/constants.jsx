@@ -4,11 +4,11 @@ import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, Rocket
 
 // Centralized difficulty icons configuration
 export const DIFFICULTY_ICONS = {
-  titillating: <SparklesIcon className="w-12 h-12 text-pink-400 flex-shrink-0" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }} aria-hidden="true" />,
-  arousing: <FireIcon className="w-12 h-12 text-purple-500 flex-shrink-0" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }} aria-hidden="true" />,
-  explicit: <EyeDropperIcon className="w-12 h-12 text-red-500 flex-shrink-0" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }} aria-hidden="true" />,
-  edgy: <ExclamationTriangleIcon className="w-12 h-12 text-yellow-400 flex-shrink-0" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }} aria-hidden="true" />,
-  hardcore: <RocketLaunchIcon className="w-12 h-12 text-black dark:text-white flex-shrink-0" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px' }} aria-hidden="true" />,
+  titillating: <SparklesIcon className="w-10 h-10 text-pink-400 flex-shrink-0" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px' }} aria-hidden="true" />,
+  arousing: <FireIcon className="w-10 h-10 text-purple-500 flex-shrink-0" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px' }} aria-hidden="true" />,
+  explicit: <EyeDropperIcon className="w-10 h-10 text-red-500 flex-shrink-0" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px' }} aria-hidden="true" />,
+  edgy: <ExclamationTriangleIcon className="w-10 h-10 text-yellow-400 flex-shrink-0" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px' }} aria-hidden="true" />,
+  hardcore: <RocketLaunchIcon className="w-10 h-10 text-black dark:text-white flex-shrink-0" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px' }} aria-hidden="true" />,
 };
 
 

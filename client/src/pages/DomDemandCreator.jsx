@@ -153,17 +153,17 @@ export default function DomDemandCreator() {
                           : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        {DIFFICULTY_ICONS[option.value]}
-                        <div className="text-left">
-                          <div className="font-semibold">{option.label}</div>
-                          <div className="text-sm opacity-75">{option.desc}</div>
-                          {option.longDesc && (
-                            <div className="text-xs opacity-60 mt-1">
-                              {option.longDesc}
-                            </div>
-                          )}
+                      <div className="text-left">
+                        <div className="flex items-center gap-2 mb-1">
+                          {DIFFICULTY_ICONS[option.value]}
+                          <span className="font-semibold">{option.label}</span>
                         </div>
+                        <div className="text-sm opacity-75">{option.desc}</div>
+                        {option.longDesc && (
+                          <div className="text-xs opacity-60 mt-1">
+                            {option.longDesc}
+                          </div>
+                        )}
                       </div>
                     </button>
                   ))}
