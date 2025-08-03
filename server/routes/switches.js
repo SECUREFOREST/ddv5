@@ -715,6 +715,6 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// TODO: If grading/approval endpoints are added, block if proofExpiresAt < now
+
 
 module.exports = router; 

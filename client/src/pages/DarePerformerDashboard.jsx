@@ -459,7 +459,7 @@ export default function DarePerformerDashboard() {
       }
       
       if (associatesData.status === 'fulfilled') {
-        console.log('Associates data received:', associatesData.value.data);
+
         const validatedData = validateApiResponse(associatesData.value.data, API_RESPONSE_TYPES.USER_ARRAY);
 
         setAssociates(Array.isArray(validatedData) ? validatedData : []);

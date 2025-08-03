@@ -30,8 +30,7 @@ const api = axios.create({
   timeout: 10000, // 10 second timeout
 });
 
-// Debug: Log the base URL being used
-console.log('API Base URL:', getBaseURL());
+
 
 // Attach JWT if present and check online status
 api.interceptors.request.use((config) => {
@@ -103,7 +102,7 @@ api.interceptors.response.use(
     // Only retry if we haven't already retried and it's a retryable error
     if (RETRY_CONFIG.retryCondition(error) && !originalRequest._retryCount && !originalRequest._retry) {
       originalRequest._retryCount = 1;
-      console.log('Axios interceptor: Retrying request due to error:', error.message);
+      
       
       const retryRequest = async (retryCount = 1) => {
         try {
@@ -113,7 +112,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         } catch (retryError) {
           if (retryCount < RETRY_CONFIG.retries && RETRY_CONFIG.retryCondition(retryError)) {
-            console.log(`Axios interceptor: Retry ${retryCount + 1} failed, trying again...`);
+            
             return retryRequest(retryCount + 1);
           }
           return Promise.reject(retryError);

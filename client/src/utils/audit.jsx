@@ -139,10 +139,7 @@ class AuditManager {
     // Send to server
     this.sendToServer(entry);
     
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Audit:', entry);
-    }
+
     
     return entry;
   }

@@ -61,7 +61,7 @@ class RealtimeManager {
       this.socket = new WebSocket(`${wsUrl}?token=${token}`);
       
       this.socket.onopen = () => {
-        console.log('WebSocket connected');
+
         this.isConnected = true;
         this.isConnecting = false;
         this.reconnectAttempts = 0;
@@ -78,7 +78,7 @@ class RealtimeManager {
       };
       
       this.socket.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason);
+
         this.isConnected = false;
         this.isConnecting = false;
         this.emit('disconnected', event);

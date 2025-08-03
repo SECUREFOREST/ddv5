@@ -92,7 +92,7 @@ export default function NotificationDropdown() {
       if (response.data) {
         const notificationsData = Array.isArray(response.data) ? response.data : [];
         setNotifications(notificationsData);
-        console.log('Notifications loaded:', notificationsData.length);
+
       } else {
         throw new Error('No data received from server');
       }

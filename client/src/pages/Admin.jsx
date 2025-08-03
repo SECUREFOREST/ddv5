@@ -165,46 +165,34 @@ function Admin() {
 
   // Permission check utility
   const checkAdminPermission = useCallback(() => {
-    console.log('checkAdminPermission called with user:', user);
-    console.log('User roles:', user?.roles);
-    
     // Check if user exists and has admin role
     if (!user) {
-      console.log('No user found');
       showError('Authentication required. Please log in again.');
       return false;
     }
     
     // Check if user has roles property and includes admin
     if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
-      console.log('User does not have admin role. Roles:', user.roles);
       showError('Admin access required. You do not have permission to perform this action.');
       return false;
     }
     
-    console.log('Admin permission granted');
     return true;
   }, [user, showError]);
 
   // Enhanced error handling utility
   const handleApiError = useCallback((error, operation) => {
-    console.error(`${operation} error:`, error);
-    
     if (error.response?.status === 401) {
       // For admin endpoints, don't show error toast, just log
-      console.log(`Authentication required for ${operation}. Continuing with limited functionality.`);
       return 'auth_required';
     } else if (error.response?.status === 403) {
       showError('Access denied. You do not have permission to perform this action.');
       return 'permission_denied';
     } else if (error.response?.status === 404) {
-      console.log(`Resource not found for ${operation}.`);
       return 'not_found';
     } else if (error.code === 'ECONNABORTED') {
-      console.log(`Request timed out for ${operation}.`);
       return 'timeout';
     } else {
-      console.log(`Failed to ${operation}. Continuing with limited functionality.`);
       return 'general_error';
     }
   }, [showError]);
@@ -323,7 +311,6 @@ function Admin() {
   // Add immediate bypass effect for users with admin role
   useEffect(() => {
     if (!authVerified && user && user.roles && user.roles.includes('admin')) {
-      console.log('User has admin role, bypassing verification via useEffect');
       setAuthVerified(true);
     }
   }, [authVerified, user]);
@@ -361,13 +348,11 @@ function Admin() {
       if (userFromStorage) {
         try {
           const parsedUser = JSON.parse(userFromStorage);
-          console.log('Found user in localStorage:', parsedUser);
           if (parsedUser.roles && parsedUser.roles.includes('admin')) {
-            console.log('User from localStorage has admin role, bypassing verification via useEffect');
             setAuthVerified(true);
           }
         } catch (error) {
-          console.error('Error parsing user from localStorage:', error);
+          // Silent error handling
         }
       }
     }
@@ -375,25 +360,16 @@ function Admin() {
 
   // Main data loading effect
   useEffect(() => {
-    console.log('Admin useEffect triggered');
-    console.log('User:', user);
-    console.log('Loading:', loading);
-    console.log('Auth verified:', authVerified);
-    console.log('Data loaded:', dataLoaded);
-    
     // Only load data when user is authenticated and has admin role
     if (!user || !user.roles?.includes('admin')) {
-      console.log('User not found or not admin, returning early');
       return;
     }
 
     // Check if access token is available
     const accessToken = localStorage.getItem('accessToken');
-    console.log('Access token present:', !!accessToken);
     
     // If no access token but user is authenticated, try to refresh the token
     if (!accessToken && user) {
-      console.log('No access token found, but user is authenticated. Attempting to refresh token...');
       if (refreshToken) {
         api.post('/auth/refresh-token', { refreshToken })
           .then(res => {
@@ -421,17 +397,13 @@ function Admin() {
             showSuccess('Admin interface loaded successfully!');
           })
           .catch(err => {
-            console.log('Token refresh failed:', err);
             // Don't show error for token refresh failure, just continue with limited functionality
-            console.log('Continuing with limited admin functionality due to token refresh failure');
             setDataLoaded(true);
             setIsInitializing(false);
           });
         return;
       } else {
-        console.log('No refresh token found');
         // Don't show error, just continue with limited functionality
-        console.log('Continuing with limited admin functionality');
         setDataLoaded(true);
         setIsInitializing(false);
         return;
@@ -439,30 +411,23 @@ function Admin() {
     }
     
     if (!accessToken) {
-      console.log('No access token found');
       showError('Authentication token not found. Please log in again.');
       return;
     }
 
     // Only proceed with API calls if auth is verified and data hasn't been loaded yet
     if (!authVerified || dataLoaded) {
-      console.log('Auth not verified yet or data already loaded, waiting...');
       return;
     }
-
-    console.log('Auth verified, loading admin data...');
     
     // Check if user has roles, if not, fetch user data with roles
     if (!user.roles || !Array.isArray(user.roles)) {
-      console.log('User object missing roles, fetching user data...');
       api.get('/users/me')
         .then(res => {
-          console.log('Fetched user data with roles:', res.data);
           // Update the user context with the fetched data
           // This will trigger a re-render with the proper user data
         })
         .catch(err => {
-          console.log('Failed to fetch user data:', err);
           showError('Failed to verify user permissions. Please log in again.');
           return;
         });
@@ -471,7 +436,6 @@ function Admin() {
     
     // Check if user has admin role
     if (!user.roles.includes('admin')) {
-      console.log('User does not have admin role. Current roles:', user.roles);
       showError('Admin access required. You do not have permission to access this area.');
       return;
     }
@@ -489,10 +453,8 @@ function Admin() {
       fetchSwitchGames(),
       fetchSiteStats()
     ]).then((results) => {
-      console.log('Admin data loading results:', results);
       const successful = results.filter(r => r.status === 'fulfilled').length;
       const failed = results.filter(r => r.status === 'rejected').length;
-      console.log(`Admin data loading: ${successful} successful, ${failed} failed`);
     }).finally(() => {
       setIsInitializing(false);
     });

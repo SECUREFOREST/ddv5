@@ -30,7 +30,7 @@ export function useRealtimeUpdates({
       const accessToken = localStorage.getItem('accessToken');
       
       if (!accessToken) {
-        console.log('No access token found, skipping WebSocket connection');
+  
         return;
       }
 
@@ -53,12 +53,12 @@ export function useRealtimeUpdates({
 
       // Connection status handlers
       socketRef.current.on('connect', () => {
-        console.log('WebSocket connected');
+
         isConnected.current = true;
       });
 
       socketRef.current.on('disconnect', () => {
-        console.log('WebSocket disconnected');
+
         isConnected.current = false;
       });
 

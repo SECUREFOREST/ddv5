@@ -139,7 +139,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
       if (response.data) {
         const activitiesData = Array.isArray(response.data) ? response.data : [];
         setLocalActivities(activitiesData);
-        console.log('Activity feed loaded:', activitiesData.length, 'activities');
+
       } else {
         throw new Error('No data received from server');
       }
