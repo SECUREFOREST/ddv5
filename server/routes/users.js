@@ -48,47 +48,6 @@ router.get('/', auth, checkPermission('view_users'), async (req, res) => {
   res.json(users);
 });
 
-// GET /api/users/:id - get user by ID (public)
-router.get('/:id', async (req, res) => {
-  try {
-    let user;
-    if (req.params.id === 'me') {
-      // Get current user from token
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided.' });
-      }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      user = await User.findById(decoded.id).select('-password');
-      if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
-    } else {
-      // Get user by ID
-      user = await User.findById(req.params.id).select('-password -blockedUsers');
-      if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch user.' });
-  }
-});
-
-// GET /api/users/me - get current user (auth required)
-router.get('/me', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).select('-password');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch user.' });
-  }
-});
-
 // GET /api/users/associates - get user's associates (people they've interacted with)
 router.get('/associates', auth, async (req, res) => {
   try {
@@ -197,6 +156,47 @@ router.get('/associates', auth, async (req, res) => {
     console.error('Associates endpoint error:', err);
     // Return empty array instead of error to prevent client-side crashes
     res.json([]);
+  }
+});
+
+// GET /api/users/:id - get user by ID (public)
+router.get('/:id', async (req, res) => {
+  try {
+    let user;
+    if (req.params.id === 'me') {
+      // Get current user from token
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ error: 'No token provided.' });
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      user = await User.findById(decoded.id).select('-password');
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+    } else {
+      // Get user by ID
+      user = await User.findById(req.params.id).select('-password -blockedUsers');
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user.' });
+  }
+});
+
+// GET /api/users/me - get current user (auth required)
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user.' });
   }
 });
 
