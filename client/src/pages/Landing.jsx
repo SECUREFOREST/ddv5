@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, GamepadIcon, UserIcon, ShieldCheckIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, PlayIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 
 const Landing = () => {
@@ -34,7 +34,7 @@ const Landing = () => {
       hoverColor: "from-purple-700 to-indigo-700"
     },
     {
-      icon: <GamepadIcon className="w-8 h-8 text-green-500" />,
+      icon: <PlayIcon className="w-8 h-8 text-green-500" />,
       title: "Compete with a Switch",
       description: "Play rock-paper-scissors - loser performs winner's demand",
       path: "/switches/create",
