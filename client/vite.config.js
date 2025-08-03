@@ -9,8 +9,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true,
+        drop_console: false, // Remove console.log in production
+        drop_debugger: false,
       },
     },
     rollupOptions: {
