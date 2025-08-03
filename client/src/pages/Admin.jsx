@@ -479,6 +479,43 @@ function Admin() {
     return () => clearInterval(interval);
   }, [tabIdx, fetchReports, fetchAppeals, fetchAuditLog]);
   
+  // Pagination change handlers
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 0) {
+      fetchUsers();
+    }
+  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission, tabIdx, fetchUsers]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 1) {
+      fetchDares();
+    }
+  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission, tabIdx, fetchDares]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 2) {
+      fetchAuditLog();
+    }
+  }, [auditLogCurrentPage, auditLogPageSize, authVerified, checkAdminPermission, tabIdx, fetchAuditLog]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 3) {
+      fetchReports();
+    }
+  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission, tabIdx, fetchReports]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 4) {
+      fetchAppeals();
+    }
+  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission, tabIdx, fetchAppeals]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission() && tabIdx === 5) {
+      fetchSwitchGames();
+    }
+  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission, tabIdx, fetchSwitchGames]);
+  
   // Add localStorage fallback effect
   useEffect(() => {
     if (!authVerified && !user) {
