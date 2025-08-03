@@ -12,7 +12,7 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 
@@ -28,7 +28,7 @@ export default function Profile() {
   const { showSuccess, showError } = useToast();
   
   // Activate caching for profile data
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
   const [searchParams] = useSearchParams();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);

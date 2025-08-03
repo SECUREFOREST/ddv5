@@ -11,7 +11,7 @@ import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, Pl
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -66,7 +66,7 @@ export default function SwitchGameDetails() {
   const { user } = useAuth();
   
   // Activate caching for switch game details
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);

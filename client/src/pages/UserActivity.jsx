@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -37,7 +37,7 @@ export default function UserActivity() {
   const [dataLoaded, setDataLoaded] = useState(false);
   
   // Activate caching for user activity data
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
 
   useEffect(() => {
     if (!user) return;

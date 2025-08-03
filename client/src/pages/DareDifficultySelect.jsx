@@ -5,7 +5,7 @@ import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTria
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+
 
 
 

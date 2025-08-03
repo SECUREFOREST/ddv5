@@ -8,7 +8,7 @@ import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+
 
 function DifficultyBadge({ level }) {
 

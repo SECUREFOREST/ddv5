@@ -236,6 +236,31 @@ export function useCache(key, fetcher, ttl = 5 * 60 * 1000) {
 }
 
 /**
+ * Get cached data by key
+ */
+export function getCachedData(key) {
+  return cacheManager.get(key);
+}
+
+/**
+ * Set cached data with TTL
+ */
+export function setCachedData(key, data, ttl = 5 * 60 * 1000) {
+  cacheManager.set(key, data, ttl);
+}
+
+/**
+ * Simple cache utilities hook
+ */
+export function useCacheUtils() {
+  return {
+    getCachedData,
+    setCachedData,
+    invalidateCache
+  };
+}
+
+/**
  * Invalidate cache entries by pattern
  */
 export function invalidateCache(pattern) {

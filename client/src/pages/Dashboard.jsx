@@ -10,7 +10,7 @@ import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIco
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants.jsx';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 import { useRealtimeData } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
@@ -59,7 +59,7 @@ export default function Dashboard() {
   const { showSuccess, showError } = useToast();
   
   // Activate caching for dashboard data
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
   
   // Activate real-time updates for dashboard
   const { subscribeToEvents, unsubscribeFromEvents } = useRealtimeData();

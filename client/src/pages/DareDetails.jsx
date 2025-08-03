@@ -14,7 +14,7 @@ import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -23,7 +23,7 @@ export default function DareDetails() {
   const { showSuccess, showError } = useToast();
   
   // Activate caching for dare details
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
   const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(true);
   const [grading, setGrading] = useState(false);

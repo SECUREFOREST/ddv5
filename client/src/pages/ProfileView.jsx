@@ -10,7 +10,7 @@ import { UserIcon, ShieldCheckIcon, ClockIcon, ExclamationTriangleIcon, CheckCir
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
+import { useCacheUtils } from '../utils/cache';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -26,7 +26,7 @@ export default function ProfileView() {
   const { showSuccess, showError } = useToast();
   
   // Activate caching for profile view data
-  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
 
   const fetchProfileData = useCallback(async () => {
     if (!userId) return;
