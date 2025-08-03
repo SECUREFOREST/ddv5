@@ -14,6 +14,7 @@ import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/Load
 import { useBulkActions, BulkActionDialog, BULK_ACTION_TYPES } from '../utils/bulkActions.jsx';
 import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit.jsx';
 import { retryApiCall } from '../utils/retry';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
 
 // Validation utilities
 const validateEmail = (email) => {
@@ -157,11 +158,82 @@ function Admin() {
     switchGames: false
   });
   const [selectedItems, setSelectedItems] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
+  // Pagination state for each tab
+  const [usersPage, setUsersPage] = useState(1);
+  const [daresPage, setDaresPage] = useState(1);
+  const [reportsPage, setReportsPage] = useState(1);
+  const [appealsPage, setAppealsPage] = useState(1);
+  const [auditLogPage, setAuditLogPage] = useState(1);
+  const [switchGamesPage, setSwitchGamesPage] = useState(1);
   
-  const USERS_PER_PAGE = 10;
-  const DARES_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 10;
+
+  // Pagination hooks for each tab
+  const {
+    currentPage: usersCurrentPage,
+    totalPages: usersTotalPages,
+    pageSize: usersPageSize,
+    setCurrentPage: setUsersCurrentPage,
+    setPageSize: setUsersPageSize,
+    paginatedData: paginatedUsers,
+    totalItems: usersTotalItems,
+    setTotalItems: setUsersTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
+
+  const {
+    currentPage: daresCurrentPage,
+    totalPages: daresTotalPages,
+    pageSize: daresPageSize,
+    setCurrentPage: setDaresCurrentPage,
+    setPageSize: setDaresPageSize,
+    paginatedData: paginatedDares,
+    totalItems: daresTotalItems,
+    setTotalItems: setDaresTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
+
+  const {
+    currentPage: reportsCurrentPage,
+    totalPages: reportsTotalPages,
+    pageSize: reportsPageSize,
+    setCurrentPage: setReportsCurrentPage,
+    setPageSize: setReportsPageSize,
+    paginatedData: paginatedReports,
+    totalItems: reportsTotalItems,
+    setTotalItems: setReportsTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
+
+  const {
+    currentPage: appealsCurrentPage,
+    totalPages: appealsTotalPages,
+    pageSize: appealsPageSize,
+    setCurrentPage: setAppealsCurrentPage,
+    setPageSize: setAppealsPageSize,
+    paginatedData: paginatedAppeals,
+    totalItems: appealsTotalItems,
+    setTotalItems: setAppealsTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
+
+  const {
+    currentPage: auditLogCurrentPage,
+    totalPages: auditLogTotalPages,
+    pageSize: auditLogPageSize,
+    setCurrentPage: setAuditLogCurrentPage,
+    setPageSize: setAuditLogPageSize,
+    paginatedData: paginatedAuditLog,
+    totalItems: auditLogTotalItems,
+    setTotalItems: setAuditLogTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
+
+  const {
+    currentPage: switchGamesCurrentPage,
+    totalPages: switchGamesTotalPages,
+    pageSize: switchGamesPageSize,
+    setCurrentPage: setSwitchGamesCurrentPage,
+    setPageSize: setSwitchGamesPageSize,
+    paginatedData: paginatedSwitchGames,
+    totalItems: switchGamesTotalItems,
+    setTotalItems: setSwitchGamesTotalItems
+  } = usePagination(1, ITEMS_PER_PAGE);
 
   // Permission check utility
   const checkAdminPermission = useCallback(() => {
@@ -219,93 +291,122 @@ function Admin() {
     
     setDataLoading(true);
     setApiStatus(prev => ({ ...prev, users: 'loading' }));
-    retryApiCall(() => api.get('/users', { params: { search: searchId } }))
+    retryApiCall(() => api.get('/users', { params: { search: searchId, page: usersCurrentPage, limit: usersPageSize } }))
       .then(res => {
-        setUsers(Array.isArray(res.data) ? res.data : []);
+        const usersData = res.data.users || [];
+        const paginationData = res.data.pagination || {};
+        setUsers(usersData);
+        setUsersTotalItems(paginationData.total || usersData.length);
         setApiStatus(prev => ({ ...prev, users: 'success' }));
       })
       .catch((error) => {
         setUsers([]);
+        setUsersTotalItems(0);
         setApiStatus(prev => ({ ...prev, users: 'error' }));
         handleApiError(error, 'load users');
       })
       .finally(() => setDataLoading(false));
-  }, [checkAdminPermission, handleApiError]);
+  }, [checkAdminPermission, handleApiError, setUsersTotalItems, usersCurrentPage, usersPageSize]);
 
   const fetchDares = useCallback(() => {
     setApiStatus(prev => ({ ...prev, dares: 'loading' }));
     setDaresLoading(true);
-    retryApiCall(() => api.get('/dares'))
+    retryApiCall(() => api.get('/dares', { params: { page: daresCurrentPage, limit: daresPageSize } }))
       .then(res => {
-        setDares(res.data);
+        const daresData = res.data.dares || [];
+        const paginationData = res.data.pagination || {};
+        setDares(daresData);
+        setDaresTotalItems(paginationData.total || daresData.length);
         setApiStatus(prev => ({ ...prev, dares: 'success' }));
       })
       .catch(err => {
+        setDares([]);
+        setDaresTotalItems(0);
         setApiStatus(prev => ({ ...prev, dares: 'error' }));
         handleApiError(err, 'load dares');
       })
       .finally(() => setDaresLoading(false));
-  }, [handleApiError]);
+  }, [handleApiError, setDaresTotalItems, daresCurrentPage, daresPageSize]);
 
   const fetchReports = useCallback(() => {
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     setReportsLoading(true);
-    retryApiCall(() => api.get('/reports'))
+    retryApiCall(() => api.get('/reports', { params: { page: reportsCurrentPage, limit: reportsPageSize } }))
       .then(res => {
-        setReports(res.data);
+        const reportsData = res.data.reports || [];
+        const paginationData = res.data.pagination || {};
+        setReports(reportsData);
+        setReportsTotalItems(paginationData.total || reportsData.length);
         setApiStatus(prev => ({ ...prev, reports: 'success' }));
       })
       .catch(err => {
+        setReports([]);
+        setReportsTotalItems(0);
         setApiStatus(prev => ({ ...prev, reports: 'error' }));
         handleApiError(err, 'load reports');
       })
       .finally(() => setReportsLoading(false));
-  }, [handleApiError]);
+  }, [handleApiError, setReportsTotalItems, reportsCurrentPage, reportsPageSize]);
 
   const fetchAppeals = useCallback(() => {
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     setAppealsLoading(true);
-    retryApiCall(() => api.get('/appeals'))
+    retryApiCall(() => api.get('/appeals', { params: { page: appealsCurrentPage, limit: appealsPageSize } }))
       .then(res => {
-        setAppeals(res.data);
+        const appealsData = res.data.appeals || [];
+        const paginationData = res.data.pagination || {};
+        setAppeals(appealsData);
+        setAppealsTotalItems(paginationData.total || appealsData.length);
         setApiStatus(prev => ({ ...prev, appeals: 'success' }));
       })
       .catch(err => {
+        setAppeals([]);
+        setAppealsTotalItems(0);
         setApiStatus(prev => ({ ...prev, appeals: 'error' }));
         handleApiError(err, 'load appeals');
       })
       .finally(() => setAppealsLoading(false));
-  }, [handleApiError]);
+  }, [handleApiError, setAppealsTotalItems, appealsCurrentPage, appealsPageSize]);
 
   const fetchAuditLog = useCallback(() => {
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
-    retryApiCall(() => api.get('/audit-log'))
+    retryApiCall(() => api.get('/audit-log', { params: { page: auditLogCurrentPage, limit: auditLogPageSize } }))
       .then(res => {
-        setAuditLog(res.data);
+        const auditLogData = res.data.logs || [];
+        const paginationData = res.data.pagination || {};
+        setAuditLog(auditLogData);
+        setAuditLogTotalItems(paginationData.total || auditLogData.length);
         setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
       })
       .catch(err => {
+        setAuditLog([]);
+        setAuditLogTotalItems(0);
         setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
         handleApiError(err, 'load audit log');
       })
       .finally(() => setAuditLogLoading(false));
-  }, [handleApiError]);
+  }, [handleApiError, setAuditLogTotalItems, auditLogCurrentPage, auditLogPageSize]);
 
   const fetchSwitchGames = useCallback(() => {
     setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
     setSwitchGamesLoading(true);
-    retryApiCall(() => api.get('/switches'))
+    retryApiCall(() => api.get('/switches', { params: { page: switchGamesCurrentPage, limit: switchGamesPageSize } }))
       .then(res => {
-        setSwitchGames(res.data);
+        const switchGamesData = res.data.games || [];
+        const paginationData = res.data.pagination || {};
+        setSwitchGames(switchGamesData);
+        setSwitchGamesTotalItems(paginationData.total || switchGamesData.length);
         setApiStatus(prev => ({ ...prev, switchGames: 'success' }));
       })
       .catch(err => {
+        setSwitchGames([]);
+        setSwitchGamesTotalItems(0);
         setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
         handleApiError(err, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
-  }, [handleApiError]);
+  }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
   
   // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
@@ -1206,6 +1307,20 @@ function Admin() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Users Pagination */}
+                        {usersTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={usersCurrentPage}
+                              totalPages={usersTotalPages}
+                              pageSize={usersPageSize}
+                              totalItems={usersTotalItems}
+                              onPageChange={setUsersCurrentPage}
+                              onPageSizeChange={setUsersPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>
@@ -1394,6 +1509,20 @@ function Admin() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Dares Pagination */}
+                        {daresTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={daresCurrentPage}
+                              totalPages={daresTotalPages}
+                              pageSize={daresPageSize}
+                              totalItems={daresTotalItems}
+                              onPageChange={setDaresCurrentPage}
+                              onPageSizeChange={setDaresPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>
@@ -1452,6 +1581,20 @@ function Admin() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Audit Log Pagination */}
+                        {auditLogTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={auditLogCurrentPage}
+                              totalPages={auditLogTotalPages}
+                              pageSize={auditLogPageSize}
+                              totalItems={auditLogTotalItems}
+                              onPageChange={setAuditLogCurrentPage}
+                              onPageSizeChange={setAuditLogPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>
@@ -1504,6 +1647,20 @@ function Admin() {
                             </div>
                             ))}
                         </div>
+                        
+                        {/* Reports Pagination */}
+                        {reportsTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={reportsCurrentPage}
+                              totalPages={reportsTotalPages}
+                              pageSize={reportsPageSize}
+                              totalItems={reportsTotalItems}
+                              onPageChange={setReportsCurrentPage}
+                              onPageSizeChange={setReportsPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>
@@ -1571,6 +1728,20 @@ function Admin() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Appeals Pagination */}
+                        {appealsTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={appealsCurrentPage}
+                              totalPages={appealsTotalPages}
+                              pageSize={appealsPageSize}
+                              totalItems={appealsTotalItems}
+                              onPageChange={setAppealsCurrentPage}
+                              onPageSizeChange={setAppealsPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>
@@ -1648,6 +1819,20 @@ function Admin() {
                             </div>
                           ))}
                         </div>
+                        
+                        {/* Switch Games Pagination */}
+                        {switchGamesTotalItems > ITEMS_PER_PAGE && (
+                          <div className="mt-6">
+                            <Pagination
+                              currentPage={switchGamesCurrentPage}
+                              totalPages={switchGamesTotalPages}
+                              pageSize={switchGamesPageSize}
+                              totalItems={switchGamesTotalItems}
+                              onPageChange={setSwitchGamesCurrentPage}
+                              onPageSizeChange={setSwitchGamesPageSize}
+                            />
+                          </div>
+                        )}
                       </Card>
                     )}
                   </div>

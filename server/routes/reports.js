@@ -10,8 +10,30 @@ const { body, validationResult, param } = require('express-validator');
 // GET /reports - list all reports
 router.get('/', auth, checkPermission('resolve_report'), async (req, res) => {
   try {
-    const reports = await Report.find().populate('reporter', 'username email').sort({ createdAt: -1 });
-    res.json(reports);
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const total = await Report.countDocuments();
+    
+    // Get paginated reports
+    const reports = await Report.find()
+      .populate('reporter', 'username email')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      reports,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch reports.' });
   }

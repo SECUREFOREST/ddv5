@@ -44,8 +44,30 @@ router.post('/', auth,
 // GET /appeals - admin lists all appeals
 router.get('/', auth, checkPermission('resolve_appeal'), async (req, res) => {
   try {
-    const appeals = await Appeal.find().populate('user', 'username email').sort({ createdAt: -1 });
-    res.json(appeals);
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const total = await Appeal.countDocuments();
+    
+    // Get paginated appeals
+    const appeals = await Appeal.find()
+      .populate('user', 'username email')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      appeals,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch appeals.' });
   }

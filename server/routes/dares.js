@@ -100,11 +100,23 @@ router.get('/', auth, async (req, res, next) => {
     
     // Fetch blocked users for filtering
     const user = await User.findById(req.userId).select('blockedUsers');
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const total = await Dare.countDocuments(filter);
+    
+    // Get paginated dares
     const dares = await Dare.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
       .populate('assignedSwitch', 'username fullName avatar')
+      .skip(skip)
+      .limit(limit)
       .sort({ createdAt: -1 });
+    
     // Filter out dares involving blocked users
     const filteredDares = user && user.blockedUsers && user.blockedUsers.length > 0
       ? dares.filter(dare => {
@@ -112,7 +124,16 @@ router.get('/', auth, async (req, res, next) => {
           return !ids.some(id => id && user.blockedUsers.map(bu => bu.toString()).includes(id));
         })
       : dares;
-    res.json(filteredDares);
+    
+    res.json({
+      dares: filteredDares,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get dares.' });
   }

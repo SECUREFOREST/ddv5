@@ -40,12 +40,51 @@ const userBlacklist = '-passwordHash -refreshTokens -passwordResetToken -passwor
 
 // GET /api/users (admin only)
 router.get('/', auth, checkPermission('view_users'), async (req, res) => {
-  if (req.query.id) {
-    const user = await User.findById(req.query.id).select('username email avatar roles banned');
-    return res.json(user ? [user] : []);
+  try {
+    if (req.query.id) {
+      const user = await User.findById(req.query.id).select('username email avatar roles banned');
+      return res.json(user ? [user] : []);
+    }
+    
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Search parameter
+    const search = req.query.search || '';
+    
+    // Build filter
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { fullName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Get total count for pagination
+    const total = await User.countDocuments(filter);
+    
+    // Get paginated users
+    const users = await User.find(filter, 'username email avatar roles banned fullName')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch users.' });
   }
-  const users = await User.find({}, 'username email avatar roles banned');
-  res.json(users);
 });
 
 // GET /api/users/associates - get user's associates (people they've interacted with)

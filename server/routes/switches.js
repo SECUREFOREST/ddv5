@@ -13,43 +13,71 @@ const { logActivity } = require('../utils/activity');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
-  if (req.query.id) {
-    const game = await SwitchGame.findById(req.query.id)
-      .populate('creator', 'username fullName avatar participant winner proof.user');
-    return res.json(game ? [game] : []);
-  }
-  const user = await User.findById(req.userId).select('blockedUsers roles');
-  const isAdmin = user && user.roles && user.roles.includes('admin');
-  const { difficulty, public: isPublic, status } = req.query;
-  
-  let games;
-  if (isAdmin) {
-    // Admin: return all switch games
-    const filter = {};
-    if (isPublic !== undefined) filter.public = isPublic === 'true';
-    if (status) filter.status = status;
-    games = await SwitchGame.find(filter)
-      .populate('creator', 'username fullName avatar participant winner proof.user')
-      .sort({ createdAt: -1 });
-  } else {
-    // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
-    const filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
-    if (difficulty) filter['creatorDare.difficulty'] = difficulty;
-    if (isPublic !== undefined) filter.public = isPublic === 'true';
-    games = await SwitchGame.find(filter)
-      .populate('creator', 'username fullName avatar participant winner proof.user')
-      .sort({ createdAt: -1 });
-    if (user && user.blockedUsers && user.blockedUsers.length > 0) {
-      games = games.filter(g => {
-        // If creator or participant is blocked, filter out
-        const creatorId = g.creator?._id?.toString() || g.creator?.toString();
-        const participantId = g.participant?._id?.toString() || g.participant?.toString();
-        return !user.blockedUsers.map(bu => bu.toString()).includes(creatorId) &&
-               (!participantId || !user.blockedUsers.map(bu => bu.toString()).includes(participantId));
-      });
+  try {
+    if (req.query.id) {
+      const game = await SwitchGame.findById(req.query.id)
+        .populate('creator', 'username fullName avatar participant winner proof.user');
+      return res.json(game ? [game] : []);
     }
+    const user = await User.findById(req.userId).select('blockedUsers roles');
+    const isAdmin = user && user.roles && user.roles.includes('admin');
+    const { difficulty, public: isPublic, status } = req.query;
+    
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    let games;
+    let filter = {};
+    let total;
+    
+    if (isAdmin) {
+      // Admin: return all switch games
+      if (isPublic !== undefined) filter.public = isPublic === 'true';
+      if (status) filter.status = status;
+      total = await SwitchGame.countDocuments(filter);
+      games = await SwitchGame.find(filter)
+        .populate('creator', 'username fullName avatar participant winner proof.user')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+    } else {
+      // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
+      filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
+      if (difficulty) filter['creatorDare.difficulty'] = difficulty;
+      if (isPublic !== undefined) filter.public = isPublic === 'true';
+      total = await SwitchGame.countDocuments(filter);
+      games = await SwitchGame.find(filter)
+        .populate('creator', 'username fullName avatar participant winner proof.user')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+      
+      // Apply blocked user filtering to paginated results
+      if (user && user.blockedUsers && user.blockedUsers.length > 0) {
+        games = games.filter(g => {
+          // If creator or participant is blocked, filter out
+          const creatorId = g.creator?._id?.toString() || g.creator?.toString();
+          const participantId = g.participant?._id?.toString() || g.participant?.toString();
+          return !user.blockedUsers.map(bu => bu.toString()).includes(creatorId) &&
+                 (!participantId || !user.blockedUsers.map(bu => bu.toString()).includes(participantId));
+        });
+      }
+    }
+    
+    res.json({
+      games,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch switch games.' });
   }
-  res.json(games);
 });
 
 // GET /api/switches/performer - get all switch games where current user is creator or participant
