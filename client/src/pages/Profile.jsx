@@ -1142,40 +1142,7 @@ export default function Profile() {
                         )}
                       </div>
                       
-                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
-                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                          <NoSymbolIcon className="w-6 h-6 text-red-400" />
-                          Block Settings
-                        </h3>
-                        
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-700/30">
-                            <div>
-                              <div className="font-semibold text-white">Account Status</div>
-                              <div className="text-sm text-neutral-400">
-                                {isBlocked ? 'Your account is currently blocked' : 'Your account is active'}
-                              </div>
-                            </div>
-                            <button
-                              onClick={handleBlockToggle}
-                              disabled={blocking}
-                              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                                isBlocked 
-                                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                  : 'bg-red-600 hover:bg-red-700 text-white'
-                              }`}
-                            >
-                              {blocking ? 'Processing...' : (isBlocked ? 'Unblock Account' : 'Block Account')}
-                            </button>
-                          </div>
-                          
-                          {blockError && (
-                            <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300">
-                              {blockError}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+
                       
                       {/* Block Management Section - OSA-style prominent blocking */}
                       <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
