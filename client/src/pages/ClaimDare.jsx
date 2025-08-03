@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 
@@ -92,14 +92,22 @@ export default function ClaimDare() {
     setClaiming(true);
     try {
       const res = await api.post(`/dares/claim/${claimToken}`, { demand: 'I consent' });
-      // Use dare ID from response for redirect
-      const dareId = res.data?.dare?._id || (dare && dare._id);
-      if (dareId) {
-        showSuccess('Dare claimed successfully! Redirecting...');
-        navigate(`/dare/${dareId}/perform`);
-      } else {
+      
+      // Check if this is a dom demand that requires double-consent
+      if (dare.dareType === 'domination' && dare.requiresConsent) {
+        // For dom demands, show the actual demand after consent
         setSubmitted(true);
-        showSuccess('Thank you! You have consented to perform this dare.');
+        showSuccess('Consent given! Now you can see the actual demand.');
+      } else {
+        // For regular dares, redirect to perform
+        const dareId = res.data?.dare?._id || (dare && dare._id);
+        if (dareId) {
+          showSuccess('Dare claimed successfully! Redirecting...');
+          navigate(`/dare/${dareId}/perform`);
+        } else {
+          setSubmitted(true);
+          showSuccess('Thank you! You have consented to perform this dare.');
+        }
       }
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to consent to dare.';
@@ -139,6 +147,57 @@ export default function ClaimDare() {
   }
 
   if (submitted) {
+    // For dom demands, show the actual demand after consent
+    if (dare.dareType === 'domination' && dare.requiresConsent) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-2xl mx-auto space-y-8">
+              {/* Header */}
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
+                    <ShieldCheckIcon className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Dom Demand Revealed</h1>
+                <p className="text-xl sm:text-2xl text-neutral-300">
+                  You have consented. Here is the actual demand:
+                </p>
+              </div>
+
+              {/* Revealed Demand */}
+              <div className="bg-gradient-to-br from-red-900/20 to-red-800/10 rounded-2xl p-8 border border-red-800/30 shadow-xl">
+                <div className="text-center mb-6">
+                  <div className="text-red-400 text-xl mb-4">The Dom's Demand</div>
+                  <DifficultyBadge level={dare.difficulty} />
+                </div>
+                
+                <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30 mb-6">
+                  <p className="text-white text-lg leading-relaxed">
+                    {dare.description}
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-neutral-300 text-sm mb-4">
+                    You have consented to perform this demand. The dom will be notified.
+                  </p>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200"
+                  >
+                    Go to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // For regular dares, show the standard thank you message
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

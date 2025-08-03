@@ -35,6 +35,7 @@ const DareSchema = new mongoose.Schema({
   claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   claimedAt: { type: Date },
   claimDemand: { type: String },
+  requiresConsent: { type: Boolean, default: false }, // For double-consent dom demands
 });
 
 module.exports = mongoose.model('Dare', DareSchema); 

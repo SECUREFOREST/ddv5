@@ -279,11 +279,32 @@ export default function Register() {
                 </div>
               </div>
               
-              <div>
-                <label className="block font-semibold mb-3 text-primary text-sm">
-                  Limits
-                </label>
-                <TagsInput value={limits} onChange={setLimits} placeholder="Add a limit..." disabled={loading} />
+              {/* Hard Limits - Enhanced Prominence */}
+              <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Hard Limits</h3>
+                    <p className="text-neutral-300 text-sm leading-relaxed mb-4">
+                      List any acts or activities you absolutely will not do. This helps ensure your safety and comfort.
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-3 text-red-300 text-sm">
+                    Your Hard Limits (Required)
+                  </label>
+                  <TagsInput 
+                    value={limits} 
+                    onChange={setLimits} 
+                    placeholder="Add a limit (e.g., 'no photos', 'no public', 'no pain')..." 
+                    disabled={loading}
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                  />
+                  <p className="text-neutral-400 text-xs mt-2">
+                    Examples: no photos, no public, no pain, no humiliation, no specific acts
+                  </p>
+                </div>
               </div>
               
               <button

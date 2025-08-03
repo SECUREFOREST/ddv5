@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, CrownIcon, GamepadIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, CrownIcon, GamepadIcon, UserIcon, ShieldCheckIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 
 const Landing = () => {
@@ -113,6 +113,72 @@ const Landing = () => {
               A safe, private space to share your fantasies and challenges. 
               Choose your role and start your adventure.
             </p>
+          </div>
+
+          {/* OSA-Style Role-Based Entry Points */}
+          <div className="mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">
+              Choose Your Role
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Offer your Submission */}
+              <div className="bg-gradient-to-br from-pink-900/20 to-pink-800/10 border border-pink-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-4 rounded-2xl shadow-2xl shadow-pink-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                    <UserIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Offer your Submission</h3>
+                  <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                    Perform tasks for a dominant. Create private offers that only the chosen person can see.
+                  </p>
+                  <Link to="/subs/new" className="inline-block w-full">
+                    <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-pink-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                      Submit Offer
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Demand and Dominate */}
+              <div className="bg-gradient-to-br from-red-900/20 to-red-800/10 border border-red-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-2xl shadow-2xl shadow-red-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                    <ShieldCheckIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Demand and Dominate</h3>
+                  <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                    Assign tasks for a submissive. Your demand is hidden until they first consent.
+                  </p>
+                  <Link to="/dom-demand/create" className="inline-block w-full">
+                    <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                      Create Demand
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Compete with a Switch */}
+              <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                    <PlayIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">Compete with a Switch</h3>
+                  <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                    Rock-paper-scissors game where the loser performs the winner's demand.
+                  </p>
+                  <Link to="/switches/create" className="inline-block w-full">
+                    <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                      Start Game
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Traditional CTA Buttons */}
+          <div className="text-center mb-16">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/login" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25 hover:shadow-3xl">
@@ -127,30 +193,7 @@ const Landing = () => {
             </div>
           </div>
 
-          {/* Role Selection Section - OSA Style */}
-          <div className="mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">
-              Choose Your Role
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {roleOptions.map((option, index) => (
-                <Link key={index} to={option.path} className="group">
-                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-4 bg-neutral-800/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        {option.icon}
-                      </div>
-                      <h3 className="text-xl font-bold text-white">{option.title}</h3>
-                    </div>
-                    <p className="text-neutral-300 leading-relaxed mb-6">{option.description}</p>
-                    <button className={`w-full bg-gradient-to-r ${option.color} text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:${option.hoverColor} transform hover:-translate-y-1 shadow-lg`}>
-                      Get Started
-                    </button>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+
 
           {/* Features Grid */}
           <div className="mb-16">

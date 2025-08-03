@@ -252,6 +252,67 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// POST /api/dares/dom-demand - create a dom demand with double-consent protection
+router.post('/dom-demand',
+  auth,
+  [
+    body('description')
+      .isString().withMessage('Description must be a string.')
+      .isLength({ min: 10, max: 1000 }).withMessage('Description must be between 10 and 1000 characters.')
+      .trim().escape(),
+    body('difficulty')
+      .isString().withMessage('Difficulty must be a string.')
+      .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
+    body('tags').optional().isArray().withMessage('Tags must be an array.'),
+    body('public').optional().isBoolean().withMessage('Public must be true or false.'),
+    body('requiresConsent').optional().isBoolean().withMessage('RequiresConsent must be true or false.'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
+    }
+    
+    try {
+      const { description, difficulty, tags = [], public: isPublic = true, requiresConsent = true } = req.body;
+      
+      // Create dom demand with double-consent protection
+      const dare = new Dare({
+        description,
+        difficulty,
+        tags: Array.isArray(tags) ? tags : [],
+        public: isPublic,
+        dareType: 'domination',
+        requiresConsent: true, // Always true for dom demands
+        creator: req.userId,
+        status: 'waiting_for_participant',
+        claimable: true,
+        claimToken: uuidv4()
+      });
+      
+      await dare.save();
+      await dare.populate('creator', 'username fullName avatar');
+      
+      // Generate claim link
+      const claimLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/claim/${dare.claimToken}`;
+      
+      await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
+      
+      res.status(201).json({
+        message: 'Dom demand created successfully with double-consent protection',
+        dare,
+        claimLink
+      });
+    } catch (err) {
+      console.error('Dom demand creation error:', err);
+      res.status(500).json({ error: err.message || 'Failed to create dom demand.' });
+    }
+  }
+);
+
 // POST /api/dares - create dare (auth required)
 router.post('/',
   auth,
