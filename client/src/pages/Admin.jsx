@@ -406,6 +406,7 @@ function Admin() {
     console.log('fetchAuditLog called with:', { currentPage, pageSize, auditLogCurrentPage, auditLogPageSize });
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
+    console.log('Making audit log API call for page', currentPage);
     retryApiCall(() => api.get('/audit-log', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         console.log('Audit log API response received for page', currentPage, ':', res.data);
@@ -435,6 +436,7 @@ function Admin() {
         setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
       })
       .catch(err => {
+        console.error('Audit log API error for page', currentPage, ':', err);
         setAuditLog([]);
         // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
