@@ -179,19 +179,7 @@ function Admin() {
     totalItems: usersTotalItems,
     setTotalItems: setUsersTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Users page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchUsers();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Users page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchUsers();
-      }
-    }
+    serverSide: true
   });
 
   const {
@@ -204,19 +192,7 @@ function Admin() {
     totalItems: daresTotalItems,
     setTotalItems: setDaresTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Dares page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchDares();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Dares page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchDares();
-      }
-    }
+    serverSide: true
   });
 
   const {
@@ -229,19 +205,7 @@ function Admin() {
     totalItems: reportsTotalItems,
     setTotalItems: setReportsTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Reports page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchReports();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Reports page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchReports();
-      }
-    }
+    serverSide: true
   });
 
   const {
@@ -254,19 +218,7 @@ function Admin() {
     totalItems: appealsTotalItems,
     setTotalItems: setAppealsTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Appeals page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchAppeals();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Appeals page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchAppeals();
-      }
-    }
+    serverSide: true
   });
 
   const {
@@ -279,19 +231,7 @@ function Admin() {
     totalItems: auditLogTotalItems,
     setTotalItems: setAuditLogTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Audit Log page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchAuditLog();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Audit Log page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchAuditLog();
-      }
-    }
+    serverSide: true
   });
 
   const {
@@ -304,19 +244,7 @@ function Admin() {
     totalItems: switchGamesTotalItems,
     setTotalItems: setSwitchGamesTotalItems
   } = usePagination(1, ITEMS_PER_PAGE, {
-    serverSide: true,
-    onPageChange: (page) => {
-      console.log('Switch Games page changed to:', page);
-      if (authVerified && checkAdminPermission()) {
-        fetchSwitchGames();
-      }
-    },
-    onPageSizeChange: (pageSize) => {
-      console.log('Switch Games page size changed to:', pageSize);
-      if (authVerified && checkAdminPermission()) {
-        fetchSwitchGames();
-      }
-    }
+    serverSide: true
   });
 
   // Permission check utility
