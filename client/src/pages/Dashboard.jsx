@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
@@ -118,6 +119,7 @@ export default function Dashboard() {
         console.error('Failed to fetch activities:', activitiesRes.reason);
         setActivities([]);
       }
+      setActivitiesLoading(false);
       
       showSuccess('Dashboard updated successfully!');
     } catch (error) {
@@ -231,12 +233,12 @@ export default function Dashboard() {
                       <p className="text-sm text-neutral-400">{currentRoleForm.description}</p>
                     </div>
                   </div>
-                  <a
-                    href={currentRoleForm.path}
+                  <Link
+                    to={currentRoleForm.path}
                     className={`inline-block bg-gradient-to-r ${currentRoleForm.color} text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg`}
                   >
                     Get Started
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -417,13 +419,16 @@ export default function Dashboard() {
                       <div className="flex-1">
                         <div className="text-neutral-200 text-sm">
                           {activity.type === 'dare' && (
-                            <span>Created dare: <span className="font-bold text-primary">{activity.title}</span></span>
+                            <span>Created dare: <span className="font-bold text-primary">{activity.dare?.description || 'Unknown dare'}</span></span>
                           )}
                           {activity.type === 'comment' && (
-                            <span>Commented: <span className="italic text-neutral-300">{activity.text}</span></span>
+                            <span>Commented: <span className="italic text-neutral-300">{activity.details?.text || 'Unknown comment'}</span></span>
                           )}
                           {activity.type === 'grade' && (
-                            <span>Graded: <span className="font-bold text-primary">{activity.dare?.title}</span> ({activity.grade})</span>
+                            <span>Graded: <span className="font-bold text-primary">{activity.dare?.description || 'Unknown dare'}</span> ({activity.details?.grade || 'N/A'})</span>
+                          )}
+                          {!['dare', 'comment', 'grade'].includes(activity.type) && (
+                            <span>Performed action: <span className="font-bold text-primary">{activity.type}</span></span>
                           )}
                         </div>
                         {activity.createdAt && (
@@ -491,12 +496,12 @@ export default function Dashboard() {
                     {dares.map(dare => (
                       <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
                         <DareCard
-                          title={dare.title}
                           description={dare.description}
                           difficulty={dare.difficulty}
                           tags={dare.tags || []}
                           status={dare.status}
-                          user={dare.creator}
+                          creator={dare.creator}
+                          performer={dare.performer}
                           actions={[]}
                         />
                       </div>
