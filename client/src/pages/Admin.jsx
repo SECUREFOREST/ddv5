@@ -11,8 +11,8 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/LoadingSpinner';
-import { useBulkActions, BulkActionDialog, BulkActionProgress, BULK_ACTION_TYPES } from '../utils/bulkActions';
-import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit';
+import { useBulkActions, BulkActionDialog, BulkActionProgress, BULK_ACTION_TYPES } from '../utils/bulkActions.jsx';
+import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit.jsx';
 import { retryApiCall } from '../utils/retry';
 
 // Validation utilities
