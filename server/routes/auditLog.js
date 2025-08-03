@@ -22,6 +22,7 @@ router.get('/', auth, checkPermission('view_audit_log'), async (req, res) => {
     
     // Validate page number
     const totalPages = Math.ceil(total / limit);
+    console.log('Pagination calculation:', { total, limit, totalPages, page, skip });
     if (page > totalPages && totalPages > 0) {
       console.log('Page number exceeds total pages, returning empty result');
       return res.json({
