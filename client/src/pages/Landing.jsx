@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, CrownIcon, GamepadIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 
 const Landing = () => {
@@ -15,6 +15,33 @@ const Landing = () => {
   }, [user, loading, navigate]);
 
   if (loading) return null;
+
+  const roleOptions = [
+    {
+      icon: <HeartIcon className="w-8 h-8 text-pink-500" />,
+      title: "Offer your Submission",
+      description: "Act as a submissive - perform tasks for a dominant",
+      path: "/subs/new",
+      color: "from-pink-600 to-rose-600",
+      hoverColor: "from-pink-700 to-rose-700"
+    },
+    {
+      icon: <CrownIcon className="w-8 h-8 text-purple-500" />,
+      title: "Demand and Dominate", 
+      description: "Act as a dominant - assign tasks for a submissive",
+      path: "/dare/create",
+      color: "from-purple-600 to-indigo-600",
+      hoverColor: "from-purple-700 to-indigo-700"
+    },
+    {
+      icon: <GamepadIcon className="w-8 h-8 text-green-500" />,
+      title: "Compete with a Switch",
+      description: "Play rock-paper-scissors - loser performs winner's demand",
+      path: "/switches/create",
+      color: "from-green-600 to-emerald-600",
+      hoverColor: "from-green-700 to-emerald-700"
+    }
+  ];
 
   const features = [
     {
@@ -81,22 +108,47 @@ const Landing = () => {
               <span className="bg-gradient-to-r from-primary via-red-500 to-pink-500 bg-clip-text text-transparent">
                 Deviant Dare
               </span>
-        </h1>
+            </h1>
             <p className="text-xl sm:text-2xl text-neutral-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              The ultimate platform for social dares, challenges, and friendly competition. 
-              Create, accept, and share dares with friends or the community.
+              A safe, private space to share your fantasies and challenges. 
+              Choose your role and start your adventure.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/login" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25 hover:shadow-3xl">
                   Get Started
                 </button>
-            </Link>
+              </Link>
               <Link to="/register" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto border-2 border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-primary hover:text-white transform hover:-translate-y-1 shadow-lg">
                   Join Community
                 </button>
-            </Link>
+              </Link>
+            </div>
+          </div>
+
+          {/* Role Selection Section - OSA Style */}
+          <div className="mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-12">
+              Choose Your Role
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {roleOptions.map((option, index) => (
+                <Link key={index} to={option.path} className="group">
+                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-4 bg-neutral-800/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        {option.icon}
+                      </div>
+                      <h3 className="text-xl font-bold text-white">{option.title}</h3>
+                    </div>
+                    <p className="text-neutral-300 leading-relaxed mb-6">{option.description}</p>
+                    <button className={`w-full bg-gradient-to-r ${option.color} text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:${option.hoverColor} transform hover:-translate-y-1 shadow-lg`}>
+                      Get Started
+                    </button>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -151,8 +203,8 @@ const Landing = () => {
             <p className="text-neutral-500 text-sm max-w-4xl mx-auto">
               <strong>SEO Keywords:</strong> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure
             </p>
-        </div>
-      </main>
+          </div>
+        </main>
       </div>
     </div>
   );
