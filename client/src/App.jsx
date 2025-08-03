@@ -10,21 +10,22 @@ import { AccessibilityProvider } from './components/AccessibilityProvider';
 import { ToastContainer } from './components/Toast';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { safeStorage } from './utils/cleanup';
-import DareCreator from './pages/DareCreator';
-import DareParticipant from './pages/DareParticipant';
-import ProfileView from './pages/ProfileView';
-import DarePerform from './pages/DarePerform';
-import NotFound from './pages/NotFound';
-import DareShare from './pages/DareShare';
-import ClaimDare from './pages/ClaimDare';
-import UserActivity from './pages/UserActivity';
-import DarePerformerDashboard from './pages/DarePerformerDashboard';
-import OfferSubmission from './pages/OfferSubmission';
-import DomDemandCreator from './pages/DomDemandCreator';
-import DareDifficultySelect from './pages/DareDifficultySelect';
-import DareConsent from './pages/DareConsent';
-import DareReveal from './pages/DareReveal';
-import Advertise from './pages/Advertise';
+// Dynamic imports for code-splitting
+const DareCreator = React.lazy(() => import('./pages/DareCreator'));
+const DareParticipant = React.lazy(() => import('./pages/DareParticipant'));
+const ProfileView = React.lazy(() => import('./pages/ProfileView'));
+const DarePerform = React.lazy(() => import('./pages/DarePerform'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
+const DareShare = React.lazy(() => import('./pages/DareShare'));
+const ClaimDare = React.lazy(() => import('./pages/ClaimDare'));
+const UserActivity = React.lazy(() => import('./pages/UserActivity'));
+const DarePerformerDashboard = React.lazy(() => import('./pages/DarePerformerDashboard'));
+const OfferSubmission = React.lazy(() => import('./pages/OfferSubmission'));
+const DomDemandCreator = React.lazy(() => import('./pages/DomDemandCreator'));
+const DareDifficultySelect = React.lazy(() => import('./pages/DareDifficultySelect'));
+const DareConsent = React.lazy(() => import('./pages/DareConsent'));
+const DareReveal = React.lazy(() => import('./pages/DareReveal'));
+const Advertise = React.lazy(() => import('./pages/Advertise'));
 
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -98,8 +99,9 @@ function AppContent() {
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-[50vh]">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                <div className="text-white/60">Loading...</div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                <div className="text-white/80 text-lg font-medium">Loading page...</div>
+                <div className="text-white/40 text-sm mt-2">Please wait while we prepare your content</div>
               </div>
             </div>
           }>
