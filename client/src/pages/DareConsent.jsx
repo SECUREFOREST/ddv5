@@ -6,16 +6,9 @@ import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon as ExclamationTriangleIconSolid, RocketLaunchIcon } from '@heroicons/react/24/solid';
+import { DIFFICULTY_ICONS_SMALL } from '../constants';
 
 function DifficultyBadge({ level }) {
-  const DIFFICULTY_ICONS = {
-    titillating: <SparklesIcon className="w-4 h-4" />,
-    arousing: <FireIcon className="w-4 h-4" />,
-    explicit: <EyeDropperIcon className="w-4 h-4" />,
-    edgy: <ExclamationTriangleIconSolid className="w-4 h-4" />,
-    hardcore: <RocketLaunchIcon className="w-4 h-4" />,
-  };
 
   const getBadgeStyle = (level) => {
     switch (level) {
@@ -47,7 +40,7 @@ function DifficultyBadge({ level }) {
 
   return (
     <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-semibold ${getBadgeStyle(level)}`}>
-      {DIFFICULTY_ICONS[level]}
+      {DIFFICULTY_ICONS_SMALL[level]}
       {getLabel(level)}
     </span>
   );

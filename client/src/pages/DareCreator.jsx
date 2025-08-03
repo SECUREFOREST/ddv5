@@ -4,9 +4,9 @@ import { useNavigate, Link } from 'react-router-dom';
 
 import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
-import { ArrowRightIcon, CheckCircleIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants';
 import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DareCreator() {
@@ -26,13 +26,7 @@ export default function DareCreator() {
   const [tags, setTags] = useState([]);
   const [publicDare, setPublicDare] = useState(true);
 
-  const DIFFICULTY_ICONS = {
-    titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
-    arousing: <FireIcon className="w-6 h-6 text-purple-500" aria-hidden="true" />,
-    explicit: <EyeDropperIcon className="w-6 h-6 text-red-500" aria-hidden="true" />,
-    edgy: <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" aria-hidden="true" />,
-    hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
-  };
+
 
   const handleCreate = async (e) => {
     e.preventDefault();

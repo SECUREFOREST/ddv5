@@ -4,16 +4,9 @@ import api from '../api/axios';
 import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { PRIVACY_OPTIONS } from '../constants';
+import { PRIVACY_OPTIONS, DIFFICULTY_ICONS_SMALL } from '../constants';
 
 function DifficultyBadge({ level }) {
-  const DIFFICULTY_ICONS = {
-    titillating: <SparklesIcon className="w-4 h-4" />,
-    arousing: <FireIcon className="w-4 h-4" />,
-    explicit: <EyeDropperIcon className="w-4 h-4" />,
-    edgy: <ExclamationTriangleIcon className="w-4 h-4" />,
-    hardcore: <RocketLaunchIcon className="w-4 h-4" />,
-  };
 
   const getBadgeStyle = (level) => {
     switch (level) {
@@ -45,7 +38,7 @@ function DifficultyBadge({ level }) {
 
   return (
     <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-semibold ${getBadgeStyle(level)}`}>
-      {DIFFICULTY_ICONS[level]}
+      {DIFFICULTY_ICONS_SMALL[level]}
       {getLabel(level)}
     </span>
   );
