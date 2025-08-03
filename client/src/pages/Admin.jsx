@@ -224,7 +224,9 @@ function Admin() {
 
   // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
-    console.log('fetchUsers called with:', { searchId, usersCurrentPage, usersPageSize });
+    const currentPage = typeof usersCurrentPage !== 'undefined' ? usersCurrentPage : 1;
+    const pageSize = typeof usersPageSize !== 'undefined' ? usersPageSize : ITEMS_PER_PAGE;
+    console.log('fetchUsers called with:', { searchId, currentPage, pageSize });
     if (!checkAdminPermission()) {
       console.log('fetchUsers: checkAdminPermission returned false');
       return;
@@ -232,7 +234,7 @@ function Admin() {
     
     setDataLoading(true);
     setApiStatus(prev => ({ ...prev, users: 'loading' }));
-    retryApiCall(() => api.get('/users', { params: { search: searchId, page: usersCurrentPage, limit: usersPageSize } }))
+    retryApiCall(() => api.get('/users', { params: { search: searchId, page: currentPage, limit: pageSize } }))
       .then(res => {
         const usersData = res.data.users || [];
         const paginationData = res.data.pagination || {};
@@ -250,10 +252,12 @@ function Admin() {
   }, [checkAdminPermission, handleApiError, setUsersTotalItems]);
 
   const fetchDares = useCallback(() => {
-    console.log('fetchDares called with:', { daresCurrentPage, daresPageSize });
+    const currentPage = typeof daresCurrentPage !== 'undefined' ? daresCurrentPage : 1;
+    const pageSize = typeof daresPageSize !== 'undefined' ? daresPageSize : ITEMS_PER_PAGE;
+    console.log('fetchDares called with:', { currentPage, pageSize });
     setApiStatus(prev => ({ ...prev, dares: 'loading' }));
     setDaresLoading(true);
-    retryApiCall(() => api.get('/dares', { params: { page: daresCurrentPage, limit: daresPageSize } }))
+    retryApiCall(() => api.get('/dares', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const daresData = res.data.dares || [];
         const paginationData = res.data.pagination || {};
@@ -271,10 +275,12 @@ function Admin() {
   }, [handleApiError, setDaresTotalItems]);
 
   const fetchReports = useCallback(() => {
-    console.log('fetchReports called with:', { reportsCurrentPage, reportsPageSize });
+    const currentPage = typeof reportsCurrentPage !== 'undefined' ? reportsCurrentPage : 1;
+    const pageSize = typeof reportsPageSize !== 'undefined' ? reportsPageSize : ITEMS_PER_PAGE;
+    console.log('fetchReports called with:', { currentPage, pageSize });
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     setReportsLoading(true);
-    retryApiCall(() => api.get('/reports', { params: { page: reportsCurrentPage, limit: reportsPageSize } }))
+    retryApiCall(() => api.get('/reports', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const reportsData = res.data.reports || [];
         const paginationData = res.data.pagination || {};
@@ -292,10 +298,12 @@ function Admin() {
   }, [handleApiError, setReportsTotalItems]);
 
   const fetchAppeals = useCallback(() => {
-    console.log('fetchAppeals called with:', { appealsCurrentPage, appealsPageSize });
+    const currentPage = typeof appealsCurrentPage !== 'undefined' ? appealsCurrentPage : 1;
+    const pageSize = typeof appealsPageSize !== 'undefined' ? appealsPageSize : ITEMS_PER_PAGE;
+    console.log('fetchAppeals called with:', { currentPage, pageSize });
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     setAppealsLoading(true);
-    retryApiCall(() => api.get('/appeals', { params: { page: appealsCurrentPage, limit: appealsPageSize } }))
+    retryApiCall(() => api.get('/appeals', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const appealsData = res.data.appeals || [];
         const paginationData = res.data.pagination || {};
@@ -313,10 +321,12 @@ function Admin() {
   }, [handleApiError, setAppealsTotalItems]);
 
   const fetchAuditLog = useCallback(() => {
-    console.log('fetchAuditLog called with:', { auditLogCurrentPage, auditLogPageSize });
+    const currentPage = typeof auditLogCurrentPage !== 'undefined' ? auditLogCurrentPage : 1;
+    const pageSize = typeof auditLogPageSize !== 'undefined' ? auditLogPageSize : ITEMS_PER_PAGE;
+    console.log('fetchAuditLog called with:', { currentPage, pageSize });
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
-    retryApiCall(() => api.get('/audit-log', { params: { page: auditLogCurrentPage, limit: auditLogPageSize } }))
+    retryApiCall(() => api.get('/audit-log', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const auditLogData = res.data.logs || [];
         const paginationData = res.data.pagination || {};
@@ -334,10 +344,12 @@ function Admin() {
   }, [handleApiError, setAuditLogTotalItems]);
 
   const fetchSwitchGames = useCallback(() => {
-    console.log('fetchSwitchGames called with:', { switchGamesCurrentPage, switchGamesPageSize });
+    const currentPage = typeof switchGamesCurrentPage !== 'undefined' ? switchGamesCurrentPage : 1;
+    const pageSize = typeof switchGamesPageSize !== 'undefined' ? switchGamesPageSize : ITEMS_PER_PAGE;
+    console.log('fetchSwitchGames called with:', { currentPage, pageSize });
     setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
     setSwitchGamesLoading(true);
-    retryApiCall(() => api.get('/switches', { params: { page: switchGamesCurrentPage, limit: switchGamesPageSize } }))
+    retryApiCall(() => api.get('/switches', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const switchGamesData = res.data.games || [];
         const paginationData = res.data.pagination || {};
