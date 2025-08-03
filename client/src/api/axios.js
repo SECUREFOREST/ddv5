@@ -57,7 +57,13 @@ api.interceptors.request.use((config) => {
   // Rate limiting check - ensure config has method and url
   if (config.method && config.url) {
     const requestKey = `${config.method}:${config.url}`;
-    if (!rateLimiter.isAllowed(requestKey)) {
+    
+    // Skip rate limiting for certain endpoints that need to be more responsive
+    const skipRateLimit = config.url.includes('/stats/leaderboard') || 
+                         config.url.includes('/activity-feed') ||
+                         config.url.includes('/notifications');
+    
+    if (!skipRateLimit && !rateLimiter.isAllowed(requestKey)) {
       const error = new Error('Rate limit exceeded. Please try again later.');
       error.isRateLimit = true;
       return Promise.reject(error);
@@ -96,16 +102,24 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
+    // Disable axios interceptor retry logic to avoid conflicts with retryApiCall
+    // The retryApiCall function will handle retries more intelligently
+    /*
     // Implement retry logic for network errors and 5xx errors
-    if (RETRY_CONFIG.retryCondition(error) && !originalRequest._retryCount) {
+    // Only retry if we haven't already retried and it's a retryable error
+    if (RETRY_CONFIG.retryCondition(error) && !originalRequest._retryCount && !originalRequest._retry) {
       originalRequest._retryCount = 1;
+      console.log('Axios interceptor: Retrying request due to error:', error.message);
       
       const retryRequest = async (retryCount = 1) => {
         try {
-          await new Promise(resolve => setTimeout(resolve, RETRY_CONFIG.retryDelay * retryCount));
+          // Add exponential backoff
+          const delay = RETRY_CONFIG.retryDelay * Math.pow(2, retryCount - 1);
+          await new Promise(resolve => setTimeout(resolve, delay));
           return api(originalRequest);
         } catch (retryError) {
           if (retryCount < RETRY_CONFIG.retries && RETRY_CONFIG.retryCondition(retryError)) {
+            console.log(`Axios interceptor: Retry ${retryCount + 1} failed, trying again...`);
             return retryRequest(retryCount + 1);
           }
           return Promise.reject(retryError);
@@ -114,6 +128,7 @@ api.interceptors.response.use(
       
       return retryRequest();
     }
+    */
     
     if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;

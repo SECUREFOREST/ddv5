@@ -36,6 +36,12 @@ export default function Leaderboard() {
   } = usePagination(1, 20); // 20 items per page
 
   const fetchLeaderboard = useCallback(async () => {
+    // Prevent multiple simultaneous requests
+    if (loading) {
+      console.log('fetchLeaderboard: Request already in progress, skipping');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError('');
@@ -62,7 +68,7 @@ export default function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  }, [showSuccess, showError]);
+  }, [showSuccess, showError, setTotalItems, loading]);
 
   useEffect(() => {
     fetchLeaderboard();

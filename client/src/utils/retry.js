@@ -48,9 +48,17 @@ export async function retry(fn, options = {}) {
   
   for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
     try {
+      console.log(`retry: Attempt ${attempt}/${config.maxAttempts}`);
       return await fn();
     } catch (error) {
       lastError = error;
+      console.log(`retry: Attempt ${attempt} failed:`, error.message);
+      
+      // Log the error details for debugging
+      if (error.response) {
+        console.log(`retry: Response status: ${error.response.status}`);
+        console.log(`retry: Response data:`, error.response.data);
+      }
       
       // Don't retry on certain errors
       if (error.isRateLimit || error.isAuthError || error.isValidationError) {
@@ -80,16 +88,18 @@ export async function retry(fn, options = {}) {
  * Retry configuration for different types of operations
  */
 export const RETRY_STRATEGIES = {
-  // For API calls
+  // For API calls - more conservative to avoid overwhelming the server
   api: {
-    maxAttempts: 3,
-    baseDelay: 1000,
+    maxAttempts: 2, // Reduced from 3 to 2
+    baseDelay: 2000, // Increased from 1000 to 2000ms
     shouldRetry: (error) => {
-      // Retry on network errors and 5xx server errors
+      // Only retry on actual network errors or 5xx server errors
+      // Don't retry on 4xx errors (client errors)
       return !error.response || 
              (error.response.status >= 500 && error.response.status < 600) ||
              error.code === 'ECONNABORTED' ||
-             error.message.includes('timeout');
+             error.message.includes('timeout') ||
+             error.message.includes('Network Error');
     }
   },
   
@@ -197,6 +207,19 @@ export function retryApiCall(apiCall, options = RETRY_STRATEGIES.api) {
       return result;
     } catch (error) {
       console.error('retryApiCall: API call failed:', error);
+      
+      // Don't retry on client errors (4xx)
+      if (error.response && error.response.status >= 400 && error.response.status < 500) {
+        console.log('retryApiCall: Not retrying client error (4xx)');
+        throw error;
+      }
+      
+      // Don't retry on authentication errors
+      if (error.response && error.response.status === 401) {
+        console.log('retryApiCall: Not retrying authentication error (401)');
+        throw error;
+      }
+      
       throw error;
     }
   };
