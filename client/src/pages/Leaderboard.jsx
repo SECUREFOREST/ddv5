@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Suspense, useCallback } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
-import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, CrownIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 
@@ -10,7 +10,7 @@ const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidg
 const LEADERBOARD_TABS = [
   { key: 'all', label: 'All Users', icon: TrophyIcon },
   { key: 'subs', label: 'Subs Leaderboard', icon: HeartIcon },
-  { key: 'doms', label: 'Doms Leaderboard', icon: CrownIcon },
+  { key: 'doms', label: 'Doms Leaderboard', icon: SparklesIcon },
 ];
 
 export default function Leaderboard() {

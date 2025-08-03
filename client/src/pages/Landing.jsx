@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, CrownIcon, GamepadIcon, UserIcon, ShieldCheckIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, GamepadIcon, UserIcon, ShieldCheckIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 
 const Landing = () => {
@@ -26,7 +26,7 @@ const Landing = () => {
       hoverColor: "from-pink-700 to-rose-700"
     },
     {
-      icon: <CrownIcon className="w-8 h-8 text-purple-500" />,
+      icon: <SparklesIcon className="w-8 h-8 text-purple-500" />,
       title: "Demand and Dominate", 
       description: "Act as a dominant - assign tasks for a submissive",
       path: "/dare/create",

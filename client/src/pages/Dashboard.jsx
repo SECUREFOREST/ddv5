@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, CrownIcon, GamepadIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, GamepadIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants';
@@ -28,7 +28,7 @@ const ROLE_FORMS = {
   dominant: {
     title: "Demand Their Submission", 
     description: "Write a command and select difficulty level",
-    icon: CrownIcon,
+    icon: SparklesIcon,
     color: "from-purple-600 to-indigo-600",
     path: "/dare/create"
   },
