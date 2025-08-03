@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } fr
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { useCache } from '../utils/cache';
-import { usePagination, Pagination } from '../utils/pagination';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
