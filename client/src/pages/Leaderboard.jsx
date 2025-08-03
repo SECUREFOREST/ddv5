@@ -3,6 +3,7 @@ import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
@@ -22,6 +23,7 @@ export default function Leaderboard() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const { showSuccess, showError } = useToast();
+  const { user } = useAuth();
   
   // Activate pagination for leaderboard
   const {
@@ -36,6 +38,14 @@ export default function Leaderboard() {
   } = usePagination(1, 20); // 20 items per page
 
   const fetchLeaderboard = useCallback(async () => {
+    // Check if user is authenticated
+    if (!user) {
+      console.log('fetchLeaderboard: User not authenticated, skipping');
+      setError('Please log in to view the leaderboard.');
+      setLoading(false);
+      return;
+    }
+    
     // Prevent multiple simultaneous requests
     if (loading) {
       console.log('fetchLeaderboard: Request already in progress, skipping');
@@ -43,32 +53,69 @@ export default function Leaderboard() {
     }
     
     try {
+      console.log('fetchLeaderboard: Starting leaderboard fetch...');
+      console.log('fetchLeaderboard: User authenticated:', !!user);
       setLoading(true);
       setError('');
       
-      // Use retry mechanism for leaderboard fetch
-      const response = await retryApiCall(() => api.get('/stats/leaderboard'));
+      // First, test if the API is reachable and check authentication
+      console.log('fetchLeaderboard: Testing API connectivity...');
+      console.log('fetchLeaderboard: Checking authentication...');
+      const accessToken = localStorage.getItem('accessToken');
+      console.log('fetchLeaderboard: Access token present:', !!accessToken);
       
-      if (response.data) {
+      try {
+        await api.get('/stats/site', { timeout: 5000 });
+        console.log('fetchLeaderboard: API is reachable');
+      } catch (testError) {
+        console.error('fetchLeaderboard: API connectivity test failed:', testError);
+      }
+      
+      // Use retry mechanism for leaderboard fetch with timeout
+      const response = await Promise.race([
+        retryApiCall(() => api.get('/stats/leaderboard', { timeout: 15000 })),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), 20000)
+        )
+      ]);
+      
+      console.log('fetchLeaderboard: Response received:', response);
+      
+      if (response && response.data) {
         const usersData = Array.isArray(response.data) ? response.data : [];
         console.log('Leaderboard data received:', usersData);
+        console.log('Leaderboard data length:', usersData.length);
+        
+        if (usersData.length === 0) {
+          console.log('fetchLeaderboard: No users found, setting empty array');
+        }
+        
         setUsers(usersData);
         setTotalItems(usersData.length);
         showSuccess('Leaderboard loaded successfully!');
 
       } else {
-        throw new Error('No data received from server');
+        console.error('fetchLeaderboard: Invalid response format:', response);
+        throw new Error('Invalid response format from server');
       }
     } catch (error) {
       console.error('Leaderboard loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load leaderboard.';
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to load leaderboard.';
       setError(errorMessage);
       showError(errorMessage);
       setUsers([]);
     } finally {
+      console.log('fetchLeaderboard: Setting loading to false');
       setLoading(false);
     }
-  }, [showSuccess, showError, setTotalItems, loading]);
+  }, [showSuccess, showError, setTotalItems, user]);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -172,7 +219,18 @@ export default function Leaderboard() {
 
           {/* Leaderboard Content */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-            {error ? (
+            {!user ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Authentication Required</div>
+                <p className="text-neutral-500 text-sm">Please log in to view the leaderboard.</p>
+                <button 
+                  onClick={() => window.location.href = '/login'}
+                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Go to Login
+                </button>
+              </div>
+            ) : error ? (
               <div className="text-center py-12">
                 <div className="text-red-400 text-xl mb-4">Error Loading Leaderboard</div>
                 <p className="text-neutral-500 text-sm">{error}</p>

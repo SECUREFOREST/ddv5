@@ -213,7 +213,7 @@ function Admin() {
   const fetchSiteStats = useCallback(() => {
     setApiStatus(prev => ({ ...prev, siteStats: 'loading' }));
     setSiteStatsLoading(true);
-    api.get('/stats/site')
+    retryApiCall(() => api.get('/stats/site'))
       .then(res => {
         setSiteStats(res.data);
         setApiStatus(prev => ({ ...prev, siteStats: 'success' }));
@@ -231,7 +231,7 @@ function Admin() {
     
     setDataLoading(true);
     setApiStatus(prev => ({ ...prev, users: 'loading' }));
-    api.get('/users', { params: { search: searchId } })
+    retryApiCall(() => api.get('/users', { params: { search: searchId } }))
       .then(res => {
         setUsers(Array.isArray(res.data) ? res.data : []);
         setApiStatus(prev => ({ ...prev, users: 'success' }));
@@ -247,7 +247,7 @@ function Admin() {
   const fetchDares = useCallback(() => {
     setApiStatus(prev => ({ ...prev, dares: 'loading' }));
     setDaresLoading(true);
-    api.get('/dares')
+    retryApiCall(() => api.get('/dares'))
       .then(res => {
         setDares(res.data);
         setApiStatus(prev => ({ ...prev, dares: 'success' }));
@@ -262,7 +262,7 @@ function Admin() {
   const fetchReports = useCallback(() => {
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     setReportsLoading(true);
-    api.get('/reports')
+    retryApiCall(() => api.get('/reports'))
       .then(res => {
         setReports(res.data);
         setApiStatus(prev => ({ ...prev, reports: 'success' }));
@@ -277,7 +277,7 @@ function Admin() {
   const fetchAppeals = useCallback(() => {
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     setAppealsLoading(true);
-    api.get('/appeals')
+    retryApiCall(() => api.get('/appeals'))
       .then(res => {
         setAppeals(res.data);
         setApiStatus(prev => ({ ...prev, appeals: 'success' }));
@@ -292,7 +292,7 @@ function Admin() {
   const fetchAuditLog = useCallback(() => {
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
-    api.get('/audit-log')
+    retryApiCall(() => api.get('/audit-log'))
       .then(res => {
         setAuditLog(res.data);
         setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
@@ -307,7 +307,7 @@ function Admin() {
   const fetchSwitchGames = useCallback(() => {
     setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
     setSwitchGamesLoading(true);
-    api.get('/switches')
+    retryApiCall(() => api.get('/switches'))
       .then(res => {
         setSwitchGames(res.data);
         setApiStatus(prev => ({ ...prev, switchGames: 'success' }));

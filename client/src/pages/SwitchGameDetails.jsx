@@ -995,12 +995,12 @@ export default function SwitchGameDetails() {
                 setGeneralError('');
                 setGeneralSuccess('');
                 try {
-                  await api.post(`/switches/${id}/join`, {
+                  await retryApiCall(() => api.post(`/switches/${id}/join`, {
                     difficulty: String(game.creatorDare.difficulty),
                     move: String(joinMove),
                     consent: true,
                     contentDeletion: contentDeletion // Add contentDeletion to join payload
-                  });
+                  }));
                   setGeneralSuccess('Joined the game successfully!');
                   setShowJoinModal(false);
                   fetchGameWithFeedback(true);

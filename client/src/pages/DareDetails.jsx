@@ -411,7 +411,7 @@ export default function DareDetails() {
                     <button
                       onClick={() => {
                         if (confirm(`Are you sure you want to block ${dare.creator.username}? They won't be able to see your content or interact with you.`)) {
-                          api.post(`/users/${dare.creator._id}/block`)
+                          retryApiCall(() => api.post(`/users/${dare.creator._id}/block`))
                             .then(() => {
                               showSuccess(`Blocked ${dare.creator.username} successfully!`);
                             })
