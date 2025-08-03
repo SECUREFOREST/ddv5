@@ -8,6 +8,7 @@ import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { UserIcon, ShieldCheckIcon, ClockIcon, ExclamationTriangleIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import BlockButton from '../components/BlockButton';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -260,60 +261,15 @@ export default function ProfileView() {
                 
                 {/* Block/Unblock Button - Prominent OSA-style */}
                 {!isOwnProfile && (
-                  <div className="mt-4 flex flex-col gap-2">
-                    {isBlocked ? (
-                      <button
-                        className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl px-6 py-3 font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        onClick={handleUnblock}
-                        disabled={blockStatus === 'blocking'}
-                      >
-                        {blockStatus === 'blocking' ? (
-                          <>
-                            <ArrowPathIcon className="w-5 h-5 animate-spin" />
-                            Unblocking...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircleIcon className="w-5 h-5" />
-                            Unblock User
-                          </>
-                        )}
-                      </button>
-                    ) : (
-                      <button
-                        className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        onClick={handleBlock}
-                        disabled={blockStatus === 'blocking'}
-                      >
-                        {blockStatus === 'blocking' ? (
-                          <>
-                            <ArrowPathIcon className="w-5 h-5 animate-spin" />
-                            Blocking...
-                          </>
-                        ) : (
-                          <>
-                            <ExclamationTriangleIcon className="w-5 h-5" />
-                            Block User
-                          </>
-                        )}
-                      </button>
-                    )}
-                    
-                    {blockStatus === 'error' && (
-                      <div className="text-red-300 text-sm text-center mt-2" role="alert" aria-live="assertive">
-                        {blockError}
-                      </div>
-                    )}
-                    
-                    {/* Block Status Indicator */}
-                    {isBlocked && (
-                      <div className="text-center">
-                        <span className="inline-flex items-center gap-1 bg-red-600/20 border border-red-500/50 text-red-300 rounded-full px-3 py-1 text-sm font-semibold">
-                          <ExclamationTriangleIcon className="w-4 h-4" />
-                          Blocked
-                        </span>
-                      </div>
-                    )}
+                  <div className="mt-4">
+                    <BlockButton 
+                      userId={userId}
+                      username={profile.username}
+                      onBlockChange={(blocked) => {
+                        // Update local state if needed
+                      }}
+                      className="w-full px-6 py-3 text-lg font-bold"
+                    />
                   </div>
                 )}
               </div>

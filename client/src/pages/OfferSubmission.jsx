@@ -7,16 +7,19 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
-const PRIVACY_OPTIONS = [
-  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.' },
-  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.' },
-  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.' },
-];
+import { PRIVACY_OPTIONS } from '../constants';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
   if (val === '30_days') return 'delete_after_30_days';
   if (val === 'never') return 'never_delete';
+  return val;
+}
+
+function unmapPrivacyValue(val) {
+  if (val === 'delete_after_view') return 'when_viewed';
+  if (val === 'delete_after_30_days') return '30_days';
+  if (val === 'never_delete') return 'never';
   return val;
 }
 
@@ -258,7 +261,7 @@ export default function OfferSubmission() {
                         {DIFFICULTY_ICONS[option.value]}
                         <div className="text-left">
                           <div className="font-semibold">{option.label}</div>
-                          <div className="text-sm opacity-75">{option.description}</div>
+                          <div className="text-sm opacity-75">{option.desc}</div>
                         </div>
                       </div>
                     </button>
@@ -301,30 +304,27 @@ export default function OfferSubmission() {
                 <label className="block text-lg font-semibold text-white mb-4">
                   Content Deletion Policy
                 </label>
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-4">
                   {PRIVACY_OPTIONS.map((option) => (
-                    <label
+                    <button
                       key={option.value}
-                      className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      type="button"
+                      onClick={() => handlePrivacyChange(option.value)}
+                      disabled={privacyLoading}
+                      className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                         privacy === option.value
                           ? 'border-primary bg-primary/20 text-primary'
                           : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="privacy"
-                        value={option.value}
-                        checked={privacy === option.value}
-                        onChange={() => handlePrivacyChange(option.value)}
-                        className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2 mt-1"
-                        disabled={privacyLoading}
-                      />
-                      <div className="flex-1">
-                        <div className="font-semibold">{option.label}</div>
-                        <div className="text-sm opacity-75">{option.desc}</div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl">{option.icon}</span>
+                        <div className="flex-1">
+                          <div className="font-semibold">{option.label}</div>
+                          <div className="text-sm opacity-75 mt-1">{option.desc}</div>
+                        </div>
                       </div>
-                    </label>
+                    </button>
                   ))}
                 </div>
                 {privacyError && (

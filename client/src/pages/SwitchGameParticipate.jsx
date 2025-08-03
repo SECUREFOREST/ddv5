@@ -244,6 +244,16 @@ export default function SwitchGameParticipate() {
                         <div>
                           <div className="font-bold text-white text-lg">{opt.label}</div>
                           <div className="text-white/70 text-sm">{opt.desc}</div>
+                          {opt.longDesc && (
+                            <div className="text-white/50 text-xs mt-1">
+                              {opt.longDesc}
+                            </div>
+                          )}
+                          {opt.examples && (
+                            <div className="text-white/40 text-xs mt-1 italic">
+                              Examples: {opt.examples}
+                            </div>
+                          )}
                         </div>
                       </span>
                     </label>

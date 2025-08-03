@@ -85,8 +85,18 @@ export default function DareDifficultySelect() {
                         <div className="font-semibold text-lg">{option.label}</div>
                       </div>
                       <div className="text-sm opacity-75 leading-relaxed">
-                        {option.description}
+                        {option.desc}
                       </div>
+                      {option.longDesc && (
+                        <div className="text-xs opacity-60 mt-2 leading-relaxed">
+                          {option.longDesc}
+                        </div>
+                      )}
+                      {option.examples && (
+                        <div className="text-xs opacity-50 mt-1 italic">
+                          Examples: {option.examples}
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>

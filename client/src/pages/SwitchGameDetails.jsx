@@ -9,6 +9,7 @@ import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS } from '../constants';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import BlockButton from '../components/BlockButton';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -555,24 +556,13 @@ export default function SwitchGameDetails() {
                 
                 {/* Quick Block Button for Creator */}
                 {game.creator && game.creator._id !== user?.id && (
-                  <button
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to block ${game.creator.username}? They won't be able to see your content or interact with you.`)) {
-                        api.post(`/users/${game.creator._id}/block`)
-                          .then(() => {
-                            showSuccess(`Blocked ${game.creator.username} successfully!`);
-                          })
-                          .catch(err => {
-                            showError(err.response?.data?.error || 'Failed to block user.');
-                          });
-                      }
-                    }}
-                    className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-500/10 mt-2"
-                    title="Block this user"
-                  >
-                    <ExclamationTriangleIcon className="w-4 h-4" />
-                    <span className="text-xs">Block</span>
-                  </button>
+                  <div className="mt-2">
+                    <BlockButton 
+                      userId={game.creator._id}
+                      username={game.creator.username}
+                      className="text-xs px-2 py-1"
+                    />
+                  </div>
                 )}
           </div>
               
@@ -585,24 +575,13 @@ export default function SwitchGameDetails() {
                 
                 {/* Quick Block Button for Participant */}
                 {game.participant && game.participant._id !== user?.id && (
-                  <button
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to block ${game.participant.username}? They won't be able to see your content or interact with you.`)) {
-                        api.post(`/users/${game.participant._id}/block`)
-                          .then(() => {
-                            showSuccess(`Blocked ${game.participant.username} successfully!`);
-                          })
-                          .catch(err => {
-                            showError(err.response?.data?.error || 'Failed to block user.');
-                          });
-                      }
-                    }}
-                    className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-500/10 mt-2"
-                    title="Block this user"
-                  >
-                    <ExclamationTriangleIcon className="w-4 h-4" />
-                    <span className="text-xs">Block</span>
-                  </button>
+                  <div className="mt-2">
+                    <BlockButton 
+                      userId={game.participant._id}
+                      username={game.participant.username}
+                      className="text-xs px-2 py-1"
+                    />
+                  </div>
                 )}
           </div>
         </div>

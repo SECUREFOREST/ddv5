@@ -5,9 +5,10 @@ import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, CrownIcon, GamepadIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
+import { DIFFICULTY_OPTIONS } from '../constants';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
@@ -15,6 +16,30 @@ const TABS = [
   { key: 'pending', label: 'Demand', icon: ChartBarIcon },
   { key: 'completed', label: 'Completed', icon: TrophyIcon },
 ];
+
+const ROLE_FORMS = {
+  submissive: {
+    title: "Perform One Submissive Act",
+    description: "Describe what you will do and select difficulty level",
+    icon: HeartIcon,
+    color: "from-pink-600 to-rose-600",
+    path: "/subs/new"
+  },
+  dominant: {
+    title: "Demand Their Submission", 
+    description: "Write a command and select difficulty level",
+    icon: CrownIcon,
+    color: "from-purple-600 to-indigo-600",
+    path: "/dare/create"
+  },
+  switch: {
+    title: "The Loser Submits Game",
+    description: "Play rock-paper-scissors - loser performs winner's demand",
+    icon: GamepadIcon,
+    color: "from-green-600 to-emerald-600",
+    path: "/switches/create"
+  }
+};
 
 export default function Dashboard() {
   const [tab, setTab] = useState('in_progress');
@@ -25,6 +50,7 @@ export default function Dashboard() {
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(false);
   const [daresLoading, setDaresLoading] = useState(false);
+  const [userRole, setUserRole] = useState('submissive'); // Default role
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
 
@@ -111,6 +137,26 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  // Determine user's primary role based on their activity
+  useEffect(() => {
+    if (stats) {
+      const subCount = stats.daresCompletedAsPerformer || 0;
+      const domCount = stats.daresCreated || 0;
+      const switchCount = stats.switchGamesPlayed || 0;
+      
+      if (domCount > subCount && domCount > switchCount) {
+        setUserRole('dominant');
+      } else if (switchCount > subCount && switchCount > domCount) {
+        setUserRole('switch');
+      } else {
+        setUserRole('submissive');
+      }
+    }
+  }, [stats]);
+
+  const currentRoleForm = ROLE_FORMS[userRole];
+  const RoleIcon = currentRoleForm.icon;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -129,6 +175,72 @@ export default function Dashboard() {
               Ready for your next challenge, {user?.fullName || user?.username}?
             </p>
           </div>
+
+          {/* Role-Based Action Form - OSA Style */}
+          <Card className="p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <div className={`p-3 bg-gradient-to-r ${currentRoleForm.color} rounded-xl`}>
+                <RoleIcon className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">{currentRoleForm.title}</h2>
+                <p className="text-neutral-400">{currentRoleForm.description}</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Role Selection */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Choose Your Role</h3>
+                <div className="space-y-3">
+                  {Object.entries(ROLE_FORMS).map(([role, form]) => {
+                    const FormIcon = form.icon;
+                    return (
+                      <button
+                        key={role}
+                        onClick={() => setUserRole(role)}
+                        className={`w-full p-4 rounded-xl border-2 transition-all duration-200 text-left ${
+                          userRole === role
+                            ? `border-primary bg-gradient-to-r ${form.color} text-white`
+                            : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <FormIcon className="w-6 h-6" />
+                          <div>
+                            <div className="font-semibold">{form.title}</div>
+                            <div className="text-sm opacity-75">{form.description}</div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Quick Action */}
+              <div className="md:col-span-2">
+                <h3 className="text-lg font-semibold text-white mb-4">Quick Action</h3>
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-xl p-6 border border-neutral-700/50">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`p-3 bg-gradient-to-r ${currentRoleForm.color} rounded-xl`}>
+                      <RoleIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">{currentRoleForm.title}</h4>
+                      <p className="text-sm text-neutral-400">{currentRoleForm.description}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={currentRoleForm.path}
+                    className={`inline-block bg-gradient-to-r ${currentRoleForm.color} text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg`}
+                  >
+                    Get Started
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Stats Overview */}
           {stats ? (

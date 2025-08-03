@@ -11,6 +11,7 @@ import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
+import { PRIVACY_OPTIONS } from '../constants';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -1110,53 +1111,32 @@ export default function Profile() {
                         ) : (
                           <form className="space-y-4">
                             <div className="space-y-4">
-                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                                <input 
-                                  type="radio" 
-                                  name="contentDeletion" 
-                                  value="when_viewed" 
-                                  checked={contentDeletion === 'when_viewed'} 
-                                  onChange={() => handleContentDeletionChange('when_viewed')} 
-                                  disabled={contentDeletionLoading}
-                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                                />
-                                <div className="flex-1">
-                                  <div className="font-semibold text-white mb-1">Delete once viewed</div>
-                                  <div className="text-sm text-neutral-400">As soon as the other person has viewed the image, delete it completely.</div>
-                                </div>
-                              </label>
-                              
-                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                                <input 
-                                  type="radio" 
-                                  name="contentDeletion" 
-                                  value="30_days" 
-                                  checked={contentDeletion === '30_days'} 
-                                  onChange={() => handleContentDeletionChange('30_days')} 
-                                  disabled={contentDeletionLoading}
-                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                                />
-                                <div className="flex-1">
-                                  <div className="font-semibold text-white mb-1">Delete after 30 days</div>
-                                  <div className="text-sm text-neutral-400">Keep the image for 30 days, then automatically delete it.</div>
-                                </div>
-                              </label>
-                              
-                              <label className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
-                                <input 
-                                  type="radio" 
-                                  name="contentDeletion" 
-                                  value="never" 
-                                  checked={contentDeletion === 'never'} 
-                                  onChange={() => handleContentDeletionChange('never')} 
-                                  disabled={contentDeletionLoading}
-                                  className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
-                                />
-                                <div className="flex-1">
-                                  <div className="font-semibold text-white mb-1">Never delete</div>
-                                  <div className="text-sm text-neutral-400">Keep the image indefinitely (not recommended for privacy).</div>
-                                </div>
-                              </label>
+                              {PRIVACY_OPTIONS.map((option) => {
+                                const mappedValue = option.value === 'delete_after_view' ? 'when_viewed' :
+                                                  option.value === 'delete_after_30_days' ? '30_days' :
+                                                  option.value === 'never_delete' ? 'never' : option.value;
+                                
+                                return (
+                                  <label key={option.value} className="flex items-start gap-4 p-4 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/30 transition-all cursor-pointer">
+                                    <input 
+                                      type="radio" 
+                                      name="contentDeletion" 
+                                      value={mappedValue} 
+                                      checked={contentDeletion === mappedValue} 
+                                      onChange={() => handleContentDeletionChange(mappedValue)} 
+                                      disabled={contentDeletionLoading}
+                                      className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
+                                    />
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-lg">{option.icon}</span>
+                                        <div className="font-semibold text-white">{option.label}</div>
+                                      </div>
+                                      <div className="text-sm text-neutral-400">{option.desc}</div>
+                                    </div>
+                                  </label>
+                                );
+                              })}
                             </div>
                           </form>
                         )}

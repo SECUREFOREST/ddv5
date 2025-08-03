@@ -6,14 +6,8 @@ import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-
-const PRIVACY_OPTIONS = [
-  { value: 'when_viewed', label: 'Delete once viewed', desc: 'As soon as the other person has viewed the image, delete it completely.', icon: <LockClosedIcon className="w-5 h-5 text-primary" /> },
-  { value: '30_days', label: 'Delete in 30 days', desc: 'All pics are deleted thirty days after you upload them, whether they have been viewed or not.', icon: <ClockIcon className="w-5 h-5 text-yellow-400" /> },
-  { value: 'never', label: 'Never delete', desc: 'Keep your images on the site permanently. Not recommended. Images will be deleted if you fail to log in for 2 months.', icon: <TrashIcon className="w-5 h-5 text-danger" /> },
-];
 
 const DIFFICULTY_ICONS = {
   titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,
@@ -243,7 +237,7 @@ export default function DarePerform() {
                         {DIFFICULTY_ICONS[option.value]}
                         <div className="text-left">
                           <div className="font-semibold">{option.label}</div>
-                          <div className="text-sm opacity-75">{option.description}</div>
+                          <div className="text-sm opacity-75">{option.desc}</div>
                         </div>
                       </div>
                     </button>

@@ -46,6 +46,7 @@ export default function Navbar() {
     { to: '/switches', label: 'Switch Games', auth: true },
     { to: '/leaderboard', label: 'Leaderboard', auth: true },
     { to: '/user-activity', label: 'Activity', auth: true },
+    { to: '/news', label: 'News', auth: false },
       ]
     },
     {

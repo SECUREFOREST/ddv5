@@ -244,7 +244,12 @@ export default function DareParticipant() {
                         {DIFFICULTY_ICONS[option.value]}
                         <div className="text-left">
                           <div className="font-semibold">{option.label}</div>
-                          <div className="text-sm opacity-75">{option.description}</div>
+                          <div className="text-sm opacity-75">{option.desc}</div>
+                          {option.longDesc && (
+                            <div className="text-xs opacity-60 mt-1">
+                              {option.longDesc}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </button>

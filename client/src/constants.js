@@ -3,11 +3,62 @@
 import { SparklesIcon, FireIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 
 export const DIFFICULTY_OPTIONS = [
-  { value: 'titillating', label: 'Titillating', desc: 'Fun, flirty, and easy. For beginners or light play.' },
-  { value: 'arousing', label: 'Arousing', desc: 'A bit more daring, but still approachable.' },
-  { value: 'explicit', label: 'Explicit', desc: 'Sexually explicit or more intense.' },
-  { value: 'edgy', label: 'Edgy', desc: 'Pushes boundaries, not for the faint of heart.' },
-  { value: 'hardcore', label: 'Hardcore', desc: 'Extreme, risky, or very advanced.' },
+  { 
+    value: 'titillating', 
+    label: 'Titillating', 
+    desc: 'Fun, flirty, and easy. For beginners or light play.',
+    longDesc: 'Perfect for those new to the scene. Light teasing, playful challenges, and gentle exploration. Think flirty photos, mild dares, or simple tasks that build confidence.',
+    examples: 'Send a flirty selfie, wear something slightly revealing, or perform a simple dance'
+  },
+  { 
+    value: 'arousing', 
+    label: 'Arousing', 
+    desc: 'A bit more daring, but still approachable.',
+    longDesc: 'A step up from titillating. More sensual and intimate, but still within comfortable boundaries. Good for those with some experience who want to push their limits gently.',
+    examples: 'Strip tease, sensual massage, or intimate photography'
+  },
+  { 
+    value: 'explicit', 
+    label: 'Explicit', 
+    desc: 'Sexually explicit or more intense.',
+    longDesc: 'Directly sexual content and activities. Explicit language, nudity, and sexual acts. For experienced users who are comfortable with adult content.',
+    examples: 'Nude photos, sexual acts, or explicit roleplay scenarios'
+  },
+  { 
+    value: 'edgy', 
+    label: 'Edgy', 
+    desc: 'Pushes boundaries, not for the faint of heart.',
+    longDesc: 'Advanced content that may involve kink, BDSM elements, or taboo scenarios. Requires clear consent and understanding of limits. Not for everyone.',
+    examples: 'BDSM activities, taboo scenarios, or extreme roleplay'
+  },
+  { 
+    value: 'hardcore', 
+    label: 'Hardcore', 
+    desc: 'Extreme, risky, or very advanced.',
+    longDesc: 'The most intense level. May involve extreme kinks, public elements, or very taboo content. Only for experienced users with explicit consent and understanding of risks.',
+    examples: 'Extreme BDSM, public exposure, or very taboo scenarios'
+  },
+];
+
+export const PRIVACY_OPTIONS = [
+  { 
+    value: 'delete_after_view', 
+    label: 'Delete after viewing', 
+    desc: 'Content is automatically deleted as soon as the recipient views it. Maximum privacy.',
+    icon: '👁️'
+  },
+  { 
+    value: 'delete_after_30_days', 
+    label: 'Delete after 30 days', 
+    desc: 'Content expires and is deleted 30 days after creation, whether viewed or not.',
+    icon: '⏰'
+  },
+  { 
+    value: 'never_delete', 
+    label: 'Never delete (not recommended)', 
+    desc: 'Content is kept permanently. Will be deleted if you don\'t log in for 2 months.',
+    icon: '⚠️'
+  },
 ];
 
 export const DARE_TYPE_OPTIONS = [
@@ -102,7 +153,12 @@ export const STATUS_MAP = {
     label: 'Cancelled', 
     color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300',
     icon: '🚫'
-  }
+  },
+  user_deleted: { 
+    label: 'User Deleted', 
+    color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300',
+    icon: '🗑️'
+  },
 };
 
 // API Response types for better type safety
