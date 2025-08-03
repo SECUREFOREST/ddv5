@@ -160,7 +160,14 @@ export default function SwitchGameParticipate() {
       showSuccess('Successfully joined the game!');
       navigate(`/switches/${gameId}`);
     } catch (err) {
-      showError(err.response?.data?.error || 'Failed to join game.');
+      const errorMessage = err.response?.data?.error || 'Failed to join game.';
+      
+      // Handle block-related errors specifically
+      if (errorMessage.includes('user blocking') || errorMessage.includes('blocked')) {
+        showError('You cannot join this game due to user blocking. The creator has blocked you or you have blocked them.');
+      } else {
+        showError(errorMessage);
+      }
     }
   };
 

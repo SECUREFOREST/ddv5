@@ -287,8 +287,17 @@ export default function SwitchGameDetails() {
       fetchGameWithFeedback(true);
       showSuccess('Grade submitted successfully!');
     } catch (err) {
-      setGradeError(err.response?.data?.error || 'Failed to submit grade');
-      showError(err.response?.data?.error || 'Failed to submit grade');
+      const errorMessage = err.response?.data?.error || 'Failed to submit grade';
+      
+      // Handle block-related errors specifically
+      if (errorMessage.includes('user blocking') || errorMessage.includes('blocked')) {
+        const blockError = 'You cannot grade this user due to user blocking. The other player has blocked you or you have blocked them.';
+        setGradeError(blockError);
+        showError(blockError);
+      } else {
+        setGradeError(errorMessage);
+        showError(errorMessage);
+      }
     } finally {
       setGrading(false);
     }
@@ -313,8 +322,17 @@ export default function SwitchGameDetails() {
       showSuccess('Grade submitted!');
       fetchGameWithFeedback(true);
     } catch (err) {
-      setGradeError(err.response?.data?.error || 'Failed to submit grade');
-      showError(err.response?.data?.error || 'Failed to submit grade');
+      const errorMessage = err.response?.data?.error || 'Failed to submit grade';
+      
+      // Handle block-related errors specifically
+      if (errorMessage.includes('user blocking') || errorMessage.includes('blocked')) {
+        const blockError = 'You cannot grade this user due to user blocking. The other player has blocked you or you have blocked them.';
+        setGradeError(blockError);
+        showError(blockError);
+      } else {
+        setGradeError(errorMessage);
+        showError(errorMessage);
+      }
     } finally {
       setGrading(false);
     }
@@ -379,8 +397,17 @@ export default function SwitchGameDetails() {
       showSuccess('Proof submitted successfully!');
       fetchGameWithFeedback(true);
     } catch (err) {
-      setProofError(err.response?.data?.error || 'Failed to submit proof.');
-      showError(err.response?.data?.error || 'Failed to submit proof.');
+      const errorMessage = err.response?.data?.error || 'Failed to submit proof.';
+      
+      // Handle block-related errors specifically
+      if (errorMessage.includes('user blocking') || errorMessage.includes('blocked')) {
+        const blockError = 'You cannot submit proof due to user blocking. The other player has blocked you or you have blocked them.';
+        setProofError(blockError);
+        showError(blockError);
+      } else {
+        setProofError(errorMessage);
+        showError(errorMessage);
+      }
     } finally {
       setProofLoading(false);
     }
@@ -397,8 +424,17 @@ export default function SwitchGameDetails() {
       setReviewSuccess(action === 'approve' ? 'Proof approved!' : 'Proof rejected.');
       fetchGameWithFeedback(true);
     } catch (err) {
-      setReviewError(err.response?.data?.error || 'Failed to review proof.');
-      showError(err.response?.data?.error || 'Failed to review proof.');
+      const errorMessage = err.response?.data?.error || 'Failed to review proof.';
+      
+      // Handle block-related errors specifically
+      if (errorMessage.includes('user blocking') || errorMessage.includes('blocked')) {
+        const blockError = 'You cannot review proof due to user blocking. The other player has blocked you or you have blocked them.';
+        setReviewError(blockError);
+        showError(blockError);
+      } else {
+        setReviewError(errorMessage);
+        showError(errorMessage);
+      }
     } finally {
       setReviewSubmitting(false);
     }
@@ -516,6 +552,28 @@ export default function SwitchGameDetails() {
                   <span className="font-semibold text-lg text-white mt-2 group-hover:underline group-focus:underline text-center">{game.creator?.fullName || game.creator?.username || 'Not joined yet'}</span>
             </a>
                 <span className="inline-flex items-center gap-1 text-xs text-purple-300 font-bold bg-purple-500/20 px-3 py-1 rounded-full mt-2">Creator</span>
+                
+                {/* Quick Block Button for Creator */}
+                {game.creator && game.creator._id !== user?.id && (
+                  <button
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to block ${game.creator.username}? They won't be able to see your content or interact with you.`)) {
+                        api.post(`/users/${game.creator._id}/block`)
+                          .then(() => {
+                            showSuccess(`Blocked ${game.creator.username} successfully!`);
+                          })
+                          .catch(err => {
+                            showError(err.response?.data?.error || 'Failed to block user.');
+                          });
+                      }
+                    }}
+                    className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-500/10 mt-2"
+                    title="Block this user"
+                  >
+                    <ExclamationTriangleIcon className="w-4 h-4" />
+                    <span className="text-xs">Block</span>
+                  </button>
+                )}
           </div>
               
           <div className="flex flex-col items-center">
@@ -524,6 +582,28 @@ export default function SwitchGameDetails() {
                   <span className="font-semibold text-lg text-white mt-2 group-hover:underline group-focus:underline text-center">{game.participant?.fullName || game.participant?.username || 'Not joined yet'}</span>
             </a>
                 <span className="inline-flex items-center gap-1 text-xs text-blue-300 font-bold bg-blue-500/20 px-3 py-1 rounded-full mt-2">Participant</span>
+                
+                {/* Quick Block Button for Participant */}
+                {game.participant && game.participant._id !== user?.id && (
+                  <button
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to block ${game.participant.username}? They won't be able to see your content or interact with you.`)) {
+                        api.post(`/users/${game.participant._id}/block`)
+                          .then(() => {
+                            showSuccess(`Blocked ${game.participant.username} successfully!`);
+                          })
+                          .catch(err => {
+                            showError(err.response?.data?.error || 'Failed to block user.');
+                          });
+                      }
+                    }}
+                    className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-500/10 mt-2"
+                    title="Block this user"
+                  >
+                    <ExclamationTriangleIcon className="w-4 h-4" />
+                    <span className="text-xs">Block</span>
+                  </button>
+                )}
           </div>
         </div>
 
@@ -532,16 +612,33 @@ export default function SwitchGameDetails() {
               <div className="text-center text-white/80 font-semibold mb-4">Waiting for the other participant to choose...</div>
           )}
             
-          {bothMoves && rpsResult === 'draw' && (
-              <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-4 mb-4 text-center">
-                <div className="text-white font-bold mb-2">It's a draw!</div>
-                <div className="text-white/80">Both players chose {game.moves[game.participants[0]]}. Please choose again.</div>
-              </div>
-            )}
+          {/* OSA Draw Logic Display */}
+          {game.drawType && (
+            <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-4 mb-4 text-center">
+              <div className="text-white font-bold mb-2">Draw: Both chose {game.drawType.charAt(0).toUpperCase() + game.drawType.slice(1)}</div>
+              {game.drawType === 'rock' && (
+                <div className="text-white/80">Both players lose! Both must perform each other's demands.</div>
+              )}
+              {game.drawType === 'paper' && (
+                <div className="text-white/80">Both players win! No one has to do anything.</div>
+              )}
+              {game.drawType === 'scissors' && (
+                <div className="text-white/80">Coin flip determined the loser. The loser must perform the winner's demand.</div>
+              )}
+            </div>
+          )}
             
-            {game.status === 'awaiting_proof' && (
-              <div className="text-center text-white/80 font-semibold mb-4">Waiting for proof from the loser.</div>
-            )}
+          {game.status === 'awaiting_proof' && !game.bothLose && (
+            <div className="text-center text-white/80 font-semibold mb-4">Waiting for proof from the loser.</div>
+          )}
+          
+          {game.status === 'awaiting_proof' && game.bothLose && (
+            <div className="text-center text-white/80 font-semibold mb-4">Both players must submit proof of completing each other's demands.</div>
+          )}
+          
+          {game.status === 'completed' && game.bothWin && (
+            <div className="text-center text-green-300 font-semibold mb-4">Game completed! Both players won - no proof needed.</div>
+          )}
           </div>
 
           {/* Action Buttons */}
@@ -577,7 +674,119 @@ export default function SwitchGameDetails() {
           </div>
 
           {/* Proof Submission Section */}
-          {isLoser && !game.proof && (
+          {/* Handle both lose scenario (rock vs rock draw) */}
+          {game.bothLose && game.status === 'awaiting_proof' && (
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">Submit Proof (Both Players Must Submit)</h2>
+              
+              {/* Both players' dare descriptions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Creator's Dare */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <div className="text-center mb-4">
+                    <div className="text-lg font-bold text-white mb-2">Creator's Dare</div>
+                    <div className="flex flex-col items-center mb-4">
+                      <a href={game.creator?._id ? `/profile/${game.creator._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.creator?.fullName || game.creator?.username}'s profile`}>
+                        <Avatar user={game.creator} size={48} alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
+                        <span className="font-semibold text-base mt-2 group-hover:underline group-focus:underline text-center">{game.creator?.fullName || game.creator?.username || 'Creator'}</span>
+                      </a>
+                    </div>
+                    <div className="mb-4">
+                      <DifficultyBadge level={game.creatorDare?.difficulty} />
+                    </div>
+                    <div className="text-white/90 text-base font-medium px-4 py-3 bg-white/5 rounded-lg border border-white/10">
+                      {game.creatorDare?.description}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Participant's Dare */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <div className="text-center mb-4">
+                    <div className="text-lg font-bold text-white mb-2">Participant's Dare</div>
+                    <div className="flex flex-col items-center mb-4">
+                      <a href={game.participant?._id ? `/profile/${game.participant._id}` : '#'} className="group flex flex-col items-center" tabIndex={0} aria-label={`View ${game.participant?.fullName || game.participant?.username}'s profile`}>
+                        <Avatar user={game.participant} size={48} alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
+                        <span className="font-semibold text-base mt-2 group-hover:underline group-focus:underline text-center">{game.participant?.fullName || game.participant?.username || 'Participant'}</span>
+                      </a>
+                    </div>
+                    <div className="mb-4">
+                      <DifficultyBadge level={game.participantDare?.difficulty} />
+                    </div>
+                    <div className="text-white/90 text-base font-medium px-4 py-3 bg-white/5 rounded-lg border border-white/10">
+                      {game.participantDare?.description}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Proof Submission Form */}
+              <form onSubmit={handleProofSubmit} className="space-y-6">
+                {/* File Upload */}
+                <div>
+                  <label className="block font-bold text-white mb-3">Upload proof (image or video)</label>
+                  <div className="flex items-center gap-4 mb-2">
+                    <button
+                      type="button"
+                      className="bg-white/10 text-white rounded-xl px-4 py-2 font-semibold border border-white/20 hover:bg-purple-500/20 hover:border-purple-400/50 transition-all duration-200"
+                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                    >
+                      Choose File
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleProofFileChange}
+                      accept="image/*,video/mp4,video/webm,video/quicktime"
+                      required
+                    />
+                    {proofFile && (
+                      <span className="text-white/60 text-sm">{proofFile.name}</span>
+                    )}
+                  </div>
+                  <p className="text-white/60 text-sm">Accepted: images (jpg, png, gif, webp) or video (mp4). Max size: 10MB.</p>
+                </div>
+
+                {/* Text Description */}
+                <div>
+                  <label className="block font-bold text-white mb-3">Description (optional)</label>
+                  <textarea
+                    className="w-full rounded-xl border border-white/20 px-4 py-3 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                    value={proofText}
+                    onChange={e => setProofText(e.target.value)}
+                    rows={3}
+                    placeholder="Describe your proof, add context, or leave blank."
+                  />
+                </div>
+
+                {/* Error/Success Messages */}
+                {proofError && (
+                  <div className="text-red-300 text-sm font-medium text-center" role="alert" aria-live="assertive">
+                    {proofError}
+                  </div>
+                )}
+                
+                {proofSuccess && (
+                  <div className="text-green-300 text-sm font-medium text-center" role="status" aria-live="polite">
+                    {proofSuccess}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={proofLoading}
+                >
+                  {proofLoading ? 'Submitting...' : 'Submit Proof'}
+                </button>
+              </form>
+            </div>
+          )}
+          
+          {/* Normal proof submission (single loser) */}
+          {isLoser && !game.proof && !game.bothLose && (
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
               <h2 className="text-2xl font-bold text-white mb-6 text-center">Submit Proof</h2>
               

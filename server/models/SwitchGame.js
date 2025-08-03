@@ -15,6 +15,11 @@ const SwitchGameSchema = new mongoose.Schema({
     consent: { type: Boolean }
   },
   winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  loser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Explicit loser field
+  // Draw scenario fields
+  bothLose: { type: Boolean, default: false }, // Both players lose (rock vs rock)
+  bothWin: { type: Boolean, default: false }, // Both players win (paper vs paper)
+  drawType: { type: String, enum: ['rock', 'paper', 'scissors', null], default: null }, // Type of draw
   proof: {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // userId of loser
     text: String, // proof text or link

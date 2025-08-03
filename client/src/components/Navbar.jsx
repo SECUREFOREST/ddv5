@@ -52,6 +52,7 @@ export default function Navbar() {
       title: 'Special',
       links: [
     { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
+    { to: '/profile', label: 'Block Management', auth: true, blockTab: true },
     { to: '/admin', label: 'Admin', admin: true },
       ]
     }
@@ -83,7 +84,11 @@ export default function Navbar() {
             if (link.admin && !(user && user.roles?.includes('admin'))) return null;
             if (link.auth && !user) return null;
             return (
-                  <Link key={link.to} to={link.to} className={linkClass(link)}>
+                  <Link 
+                    key={link.to} 
+                    to={link.blockTab ? '/profile?tab=1' : link.to} 
+                    className={linkClass(link)}
+                  >
                     {link.label}
                   </Link>
             );

@@ -372,6 +372,10 @@ router.post('/:id/join',
 );
 
 // POST /api/switches/:id/move - submit RPS move (auth required)
+// Implements OSA-style draw logic:
+// - Rock vs Rock: Both lose, both must perform each other's demands
+// - Paper vs Paper: Both win, no one does anything
+// - Scissors vs Scissors: Coin flip determines random loser
 router.post('/:id/move',
   require('express-validator').param('id').isMongoId(),
   auth,
@@ -401,11 +405,45 @@ router.post('/:id/move',
       if (game.creatorDare.move && game.participantDare.move && !game.winner) {
         const m1 = game.creatorDare.move;
         const m2 = game.participantDare.move;
+        
         if (m1 === m2) {
-          // Draw: clear moves for replay
-          game.creatorDare.move = undefined;
-          game.participantDare.move = undefined;
+          // OSA Draw Logic: Special rules based on the gesture
+          game.drawType = m1;
+          
+          if (m1 === 'rock') {
+            // Both lose - both must perform each other's demands
+            game.bothLose = true;
+            game.status = 'awaiting_proof';
+            game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            // Both players need to submit proof
+            await logActivity({ type: 'switchgame_draw_rock', user: game.creator, switchGame: game._id });
+            await logActivity({ type: 'switchgame_draw_rock', user: game.participant, switchGame: game._id });
+          } else if (m1 === 'paper') {
+            // Both win - no one has to do anything
+            game.bothWin = true;
+            game.status = 'completed';
+            await logActivity({ type: 'switchgame_draw_paper', user: game.creator, switchGame: game._id });
+            await logActivity({ type: 'switchgame_draw_paper', user: game.participant, switchGame: game._id });
+          } else if (m1 === 'scissors') {
+            // Coin flip determines random loser
+            const coinFlip = Math.random() < 0.5;
+            if (coinFlip) {
+              game.winner = game.creator;
+              game.loser = game.participant;
+              winner = game.creator;
+              loser = game.participant;
+            } else {
+              game.winner = game.participant;
+              game.loser = game.creator;
+              winner = game.participant;
+              loser = game.creator;
+            }
+            game.status = 'awaiting_proof';
+            game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            await logActivity({ type: 'switchgame_draw_scissors', user: winner, switchGame: game._id });
+          }
         } else {
+          // Normal win/lose scenario
           function beats(a, b) {
             return (
               (a === 'rock' && b === 'scissors') ||
@@ -415,12 +453,15 @@ router.post('/:id/move',
           }
           if (beats(m1, m2)) {
             game.winner = game.creator;
-            winner = game.creator; loser = game.participant;
+            game.loser = game.participant;
+            winner = game.creator;
+            loser = game.participant;
           } else {
             game.winner = game.participant;
-            winner = game.participant; loser = game.creator;
+            game.loser = game.creator;
+            winner = game.participant;
+            loser = game.creator;
           }
-          game.loser = loser; // <-- Ensure loser is set
           game.status = 'awaiting_proof';
           game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
         }
@@ -456,8 +497,20 @@ router.post('/:id/proof',
       if (!game) throw new Error('Not found');
       // Debug logging
       // console.log('[DEBUG] userId:', userId, 'game.loser:', game.loser, 'game.creator:', game.creator, 'game.participant:', game.participant, 'game.winner:', game.winner);
-      if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
-        throw new Error('Only the loser can submit proof');
+      // Handle different proof submission scenarios
+      if (game.bothLose) {
+        // Both players must submit proof in rock vs rock draw
+        if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
+          throw new Error('Only participants can submit proof');
+        }
+      } else if (game.bothWin) {
+        // No proof needed for paper vs paper draw
+        throw new Error('No proof needed - both players won');
+      } else {
+        // Normal scenario - only loser submits proof
+        if (!game.winner || ![game.creator.toString(), game.participant?.toString()].includes(userId) || userId !== game.loser?.toString()) {
+          throw new Error('Only the loser can submit proof');
+        }
       }
       if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
       if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {

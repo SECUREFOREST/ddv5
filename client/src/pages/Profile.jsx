@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
@@ -21,6 +22,7 @@ function mapPrivacyValue(val) {
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
   const { showSuccess, showError } = useToast();
+  const [searchParams] = useSearchParams();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsError, setStatsError] = useState('');
@@ -64,6 +66,17 @@ export default function Profile() {
   const [downgradeLoading, setDowngradeLoading] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      const tabIndex = parseInt(tabParam);
+      if (!isNaN(tabIndex) && tabIndex >= 0 && tabIndex <= 2) {
+        setTabIdx(tabIndex);
+      }
+    }
+  }, [searchParams]);
 
   // Initialize form fields when user data loads
   const formInitializedRef = useRef(false);
@@ -1179,6 +1192,60 @@ export default function Profile() {
                           {blockError && (
                             <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 text-red-300">
                               {blockError}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Block Management Section - OSA-style prominent blocking */}
+                      <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                          <ExclamationTriangleIcon className="w-6 h-6 text-red-400" />
+                          Block Management
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          <div className="text-sm text-neutral-400 mb-4">
+                            Blocked users cannot see your content or interact with you. You can unblock them at any time.
+                          </div>
+                          
+                          {blockedUsersInfo.length === 0 ? (
+                            <div className="text-center py-8">
+                              <div className="text-neutral-400 text-lg mb-2">No blocked users</div>
+                              <p className="text-neutral-500 text-sm">You haven't blocked any users yet.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {blockedUsersInfo.map((blockedUser) => (
+                                <div key={blockedUser._id} className="flex items-center justify-between p-4 rounded-lg border border-neutral-700/30 bg-neutral-800/30">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar user={blockedUser} size={40} />
+                                    <div>
+                                      <div className="font-semibold text-white">{blockedUser.username}</div>
+                                      {blockedUser.fullName && blockedUser.fullName !== blockedUser.username && (
+                                        <div className="text-sm text-neutral-400">{blockedUser.fullName}</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => handleUnblock(blockedUser._id)}
+                                    disabled={unblockStatus[blockedUser._id] === 'unblocking'}
+                                    className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg px-4 py-2 font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                  >
+                                    {unblockStatus[blockedUser._id] === 'unblocking' ? (
+                                      <>
+                                        <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                                        Unblocking...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircleIcon className="w-4 h-4" />
+                                        Unblock
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
