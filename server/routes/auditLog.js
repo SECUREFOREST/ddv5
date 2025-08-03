@@ -13,8 +13,27 @@ router.get('/', auth, checkPermission('view_audit_log'), async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
+    console.log('Audit log request:', { page, limit, skip });
+    
     // Get total count for pagination
     const total = await AuditLog.countDocuments();
+    
+    console.log('Total audit logs:', total);
+    
+    // Validate page number
+    const totalPages = Math.ceil(total / limit);
+    if (page > totalPages && totalPages > 0) {
+      console.log('Page number exceeds total pages, returning empty result');
+      return res.json({
+        logs: [],
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: totalPages
+        }
+      });
+    }
     
     // Get paginated audit logs
     const logs = await AuditLog.find()
@@ -22,6 +41,8 @@ router.get('/', auth, checkPermission('view_audit_log'), async (req, res) => {
       .skip(skip)
       .limit(limit)
       .sort({ timestamp: -1 });
+    
+    console.log('Retrieved logs:', logs.length);
     
     res.json({
       logs,
@@ -33,6 +54,7 @@ router.get('/', auth, checkPermission('view_audit_log'), async (req, res) => {
       }
     });
   } catch (err) {
+    console.error('Audit log error:', err);
     res.status(500).json({ error: 'Failed to fetch audit logs.' });
   }
 });

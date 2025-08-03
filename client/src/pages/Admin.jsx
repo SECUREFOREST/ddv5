@@ -317,13 +317,14 @@ function Admin() {
       .then(res => {
         const usersData = res.data.users || [];
         const paginationData = res.data.pagination || {};
+        console.log('Users API response:', { usersData: usersData.length, paginationData, currentPage, pageSize });
         setUsers(usersData);
         setUsersTotalItems(paginationData.total || usersData.length);
         setApiStatus(prev => ({ ...prev, users: 'success' }));
       })
       .catch((error) => {
         setUsers([]);
-        setUsersTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, users: 'error' }));
         handleApiError(error, 'load users');
       })
@@ -346,7 +347,7 @@ function Admin() {
       })
       .catch(err => {
         setDares([]);
-        setDaresTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, dares: 'error' }));
         handleApiError(err, 'load dares');
       })
@@ -369,7 +370,7 @@ function Admin() {
       })
       .catch(err => {
         setReports([]);
-        setReportsTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, reports: 'error' }));
         handleApiError(err, 'load reports');
       })
@@ -392,7 +393,7 @@ function Admin() {
       })
       .catch(err => {
         setAppeals([]);
-        setAppealsTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, appeals: 'error' }));
         handleApiError(err, 'load appeals');
       })
@@ -402,20 +403,39 @@ function Admin() {
   const fetchAuditLog = useCallback(() => {
     const currentPage = typeof auditLogCurrentPage !== 'undefined' ? auditLogCurrentPage : 1;
     const pageSize = typeof auditLogPageSize !== 'undefined' ? auditLogPageSize : ITEMS_PER_PAGE;
-    console.log('fetchAuditLog called with:', { currentPage, pageSize });
+    console.log('fetchAuditLog called with:', { currentPage, pageSize, auditLogCurrentPage, auditLogPageSize });
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
     retryApiCall(() => api.get('/audit-log', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
         const auditLogData = res.data.logs || [];
         const paginationData = res.data.pagination || {};
+        console.log('Audit Log API response:', { auditLogData: auditLogData.length, paginationData, currentPage, pageSize });
+        console.log('Setting audit log data:', { auditLogData: auditLogData.length, totalItems: paginationData.total || auditLogData.length });
+        
+        // If we get empty data but we're not on the first page, there might be an issue
+        if (auditLogData.length === 0 && currentPage > 1) {
+          console.warn('Empty audit log data on page', currentPage, 'but not first page');
+        }
+        
         setAuditLog(auditLogData);
         setAuditLogTotalItems(paginationData.total || auditLogData.length);
+        
+        // If we get empty data but totalItems is still > 0, we might be on a page beyond the data
+        if (auditLogData.length === 0 && (paginationData.total || 0) > 0) {
+          console.warn('Empty data but totalItems > 0, might be on invalid page');
+          // Reset to first page if we're on an invalid page
+          if (currentPage > 1) {
+            console.log('Resetting to first page');
+            setAuditLogCurrentPage(1);
+          }
+        }
+        
         setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
       })
       .catch(err => {
         setAuditLog([]);
-        setAuditLogTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
         handleApiError(err, 'load audit log');
       })
@@ -438,7 +458,7 @@ function Admin() {
       })
       .catch(err => {
         setSwitchGames([]);
-        setSwitchGamesTotalItems(0);
+        // Don't reset totalItems to 0 on error, keep the previous value
         setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
         handleApiError(err, 'load switch games');
       })
@@ -481,18 +501,21 @@ function Admin() {
   
   // Pagination change handlers
   useEffect(() => {
+    console.log('Users pagination changed:', { usersCurrentPage, usersPageSize, tabIdx, authVerified });
     if (authVerified && checkAdminPermission() && tabIdx === 0) {
       fetchUsers();
     }
   }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission, tabIdx, fetchUsers]);
 
   useEffect(() => {
+    console.log('Dares pagination changed:', { daresCurrentPage, daresPageSize, tabIdx, authVerified });
     if (authVerified && checkAdminPermission() && tabIdx === 1) {
       fetchDares();
     }
   }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission, tabIdx, fetchDares]);
 
   useEffect(() => {
+    console.log('Audit Log pagination changed:', { auditLogCurrentPage, auditLogPageSize, tabIdx, authVerified });
     if (authVerified && checkAdminPermission() && tabIdx === 2) {
       fetchAuditLog();
     }

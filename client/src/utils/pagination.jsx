@@ -122,7 +122,7 @@ export function Pagination({
   onPageSizeChange = () => {},
   totalItems
 }) {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 0) return null;
   
   const getVisiblePages = () => {
     const maxVisible = PAGINATION_CONFIG.maxVisiblePages;
