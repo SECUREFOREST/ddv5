@@ -404,7 +404,7 @@ export function BulkActionDialog({
 /**
  * Bulk action progress component
  */
-export function BulkActionProgress({ progress }) {
+export function BulkActionProgressUI({ progress }) {
   if (!progress || !progress.isRunning) return null;
   
   return (
