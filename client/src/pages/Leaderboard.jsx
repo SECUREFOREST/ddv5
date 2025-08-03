@@ -241,6 +241,14 @@ export default function Leaderboard() {
                   Try Again
                 </button>
               </div>
+            ) : loading ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Loading leaderboard...</div>
+                <p className="text-neutral-500 text-sm">Please wait while we fetch the latest data.</p>
+                <div className="mt-4">
+                  <ListSkeleton count={5} />
+                </div>
+              </div>
             ) : (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
