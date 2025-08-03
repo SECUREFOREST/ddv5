@@ -5,7 +5,7 @@ import Card from '../components/Card';
 import DareCard from '../components/DareCard';
 import ProgressBar from '../components/ProgressBar';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, GamepadIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants';
@@ -35,7 +35,7 @@ const ROLE_FORMS = {
   switch: {
     title: "The Loser Submits Game",
     description: "Play rock-paper-scissors - loser performs winner's demand",
-    icon: GamepadIcon,
+    icon: PlayIcon,
     color: "from-green-600 to-emerald-600",
     path: "/switches/create"
   }
