@@ -92,21 +92,36 @@ router.get('/me', auth, async (req, res) => {
 // GET /api/users/associates - get user's associates (people they've interacted with)
 router.get('/associates', auth, async (req, res) => {
   try {
+    console.log('Associates endpoint called for user:', req.userId);
     const userId = req.userId;
     
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required.' });
     }
     
-    // Verify user exists
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
+    // Verify user exists with better error handling
+    let user;
+    try {
+      user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+      console.log('User found:', user.username);
+    } catch (userErr) {
+      console.error('Error finding user:', userErr);
+      return res.status(500).json({ error: 'Failed to fetch user.' });
     }
     
+    // For now, return empty array to test if the endpoint works
+    console.log('Returning empty associates array for testing');
+    return res.json([]);
+    
+    /*
     // Find users the current user has interacted with (through dares or switch games)
     let dares = [];
     let switchGames = [];
+    
+    console.log('Starting database queries for user:', userId);
     
     try {
       dares = await Dare.find({
@@ -115,6 +130,7 @@ router.get('/associates', auth, async (req, res) => {
           { performer: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar').lean();
+      console.log(`Found ${dares.length} dares for user ${userId}`);
     } catch (dareErr) {
       console.error('Error fetching dares for associates:', dareErr);
       dares = [];
@@ -127,6 +143,7 @@ router.get('/associates', auth, async (req, res) => {
           { participant: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar').lean();
+      console.log(`Found ${switchGames.length} switch games for user ${userId}`);
     } catch (switchErr) {
       console.error('Error fetching switch games for associates:', switchErr);
       switchGames = [];
@@ -172,7 +189,10 @@ router.get('/associates', auth, async (req, res) => {
       });
     }
     
+    console.log(`Found ${associates.length} associates for user ${userId}`);
+    
     res.json(associates);
+    */
   } catch (err) {
     console.error('Associates endpoint error:', err);
     // Return empty array instead of error to prevent client-side crashes
