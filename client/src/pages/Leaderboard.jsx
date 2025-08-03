@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, useCallback } from 'react';
+import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/solid';
