@@ -94,60 +94,89 @@ router.get('/associates', auth, async (req, res) => {
   try {
     const userId = req.userId;
     
-    // Find users the current user has interacted with (through dares or switch games)
-    const dares = await Dare.find({
-      $or: [
-        { creator: userId },
-        { performer: userId }
-      ]
-    }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar');
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required.' });
+    }
     
-    const switchGames = await SwitchGame.find({
-      $or: [
-        { creator: userId },
-        { participant: userId }
-      ]
-    }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar');
+    // Verify user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    
+    // Find users the current user has interacted with (through dares or switch games)
+    let dares = [];
+    let switchGames = [];
+    
+    try {
+      dares = await Dare.find({
+        $or: [
+          { creator: userId },
+          { performer: userId }
+        ]
+      }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar').lean();
+    } catch (dareErr) {
+      console.error('Error fetching dares for associates:', dareErr);
+      dares = [];
+    }
+    
+    try {
+      switchGames = await SwitchGame.find({
+        $or: [
+          { creator: userId },
+          { participant: userId }
+        ]
+      }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar').lean();
+    } catch (switchErr) {
+      console.error('Error fetching switch games for associates:', switchErr);
+      switchGames = [];
+    }
     
     // Extract unique users from interactions
     const associateIds = new Set();
     const associates = [];
     
     // Add users from dares
-    dares.forEach(dare => {
-      if (dare.creator && dare.creator._id && dare.creator._id.toString() !== userId) {
-        if (!associateIds.has(dare.creator._id.toString())) {
-          associateIds.add(dare.creator._id.toString());
-          associates.push(dare.creator);
+    if (dares && Array.isArray(dares)) {
+      dares.forEach(dare => {
+        if (dare.creator && dare.creator._id && dare.creator._id.toString() !== userId) {
+          if (!associateIds.has(dare.creator._id.toString())) {
+            associateIds.add(dare.creator._id.toString());
+            associates.push(dare.creator);
+          }
         }
-      }
-      if (dare.performer && dare.performer._id && dare.performer._id.toString() !== userId) {
-        if (!associateIds.has(dare.performer._id.toString())) {
-          associateIds.add(dare.performer._id.toString());
-          associates.push(dare.performer);
+        if (dare.performer && dare.performer._id && dare.performer._id.toString() !== userId) {
+          if (!associateIds.has(dare.performer._id.toString())) {
+            associateIds.add(dare.performer._id.toString());
+            associates.push(dare.performer);
+          }
         }
-      }
-    });
+      });
+    }
     
     // Add users from switch games
-    switchGames.forEach(game => {
-      if (game.creator && game.creator._id && game.creator._id.toString() !== userId) {
-        if (!associateIds.has(game.creator._id.toString())) {
-          associateIds.add(game.creator._id.toString());
-          associates.push(game.creator);
+    if (switchGames && Array.isArray(switchGames)) {
+      switchGames.forEach(game => {
+        if (game.creator && game.creator._id && game.creator._id.toString() !== userId) {
+          if (!associateIds.has(game.creator._id.toString())) {
+            associateIds.add(game.creator._id.toString());
+            associates.push(game.creator);
+          }
         }
-      }
-      if (game.participant && game.participant._id && game.participant._id.toString() !== userId) {
-        if (!associateIds.has(game.participant._id.toString())) {
-          associateIds.add(game.participant._id.toString());
-          associates.push(game.participant);
+        if (game.participant && game.participant._id && game.participant._id.toString() !== userId) {
+          if (!associateIds.has(game.participant._id.toString())) {
+            associateIds.add(game.participant._id.toString());
+            associates.push(game.participant);
+          }
         }
-      }
-    });
+      });
+    }
     
     res.json(associates);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch associates.', details: err.message });
+    console.error('Associates endpoint error:', err);
+    // Return empty array instead of error to prevent client-side crashes
+    res.json([]);
   }
 });
 

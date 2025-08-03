@@ -458,6 +458,7 @@ export default function DarePerformerDashboard() {
       }
       
       if (associatesData.status === 'fulfilled') {
+        console.log('Associates data received:', associatesData.value.data);
         const validatedData = validateApiResponse(associatesData.value.data, API_RESPONSE_TYPES.USER_ARRAY);
 
         setAssociates(Array.isArray(validatedData) ? validatedData : []);
@@ -481,6 +482,7 @@ export default function DarePerformerDashboard() {
     errors.publicSwitch = publicSwitchData.reason?.message || 'Failed to load public switch games';
   }
   if (associatesData.status === 'rejected') {
+    console.error('Associates data error:', associatesData.reason);
     errors.associates = associatesData.reason?.message || 'Failed to load associates';
   }
   
