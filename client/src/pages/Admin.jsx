@@ -406,9 +406,46 @@ function Admin() {
         handleApiError(err, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
-  }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
-  
-  // All useEffect hooks must be called before any early returns
+    }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
+    
+  // Trigger fetch functions when pagination changes
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchUsers();
+    }
+  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchDares();
+    }
+  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchReports();
+    }
+  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchAppeals();
+    }
+  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchAuditLog();
+    }
+  }, [auditLogCurrentPage, auditLogPageSize, authVerified, checkAdminPermission]);
+
+  useEffect(() => {
+    if (authVerified && checkAdminPermission()) {
+      fetchSwitchGames();
+    }
+  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission]);
+    
+    // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
   useEffect(() => {
     if (!authVerified && user && user.roles && user.roles.includes('admin')) {
