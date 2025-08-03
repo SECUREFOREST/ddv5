@@ -18,12 +18,18 @@ const LEADERBOARD_TABS = [
 
 export default function Leaderboard() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const { showSuccess, showError } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  
+  // Debug user state
+  console.log('Leaderboard: User state:', user ? 'authenticated' : 'not authenticated');
+  console.log('Leaderboard: Auth loading state:', authLoading);
+  console.log('Leaderboard: Component loading state:', loading);
+  console.log('Leaderboard: Error state:', error);
   
   // Activate pagination for leaderboard
   const {
@@ -118,8 +124,19 @@ export default function Leaderboard() {
   }, [showSuccess, showError, setTotalItems, user]);
 
   useEffect(() => {
-    fetchLeaderboard();
-  }, [fetchLeaderboard]);
+    // Wait for auth to finish loading before attempting to fetch data
+    if (authLoading) {
+      console.log('Leaderboard: Auth still loading, waiting...');
+      return;
+    }
+    
+    if (user) {
+      console.log('Leaderboard: User available, fetching data...');
+      fetchLeaderboard();
+    } else {
+      console.log('Leaderboard: No user available, skipping fetch');
+    }
+  }, [fetchLeaderboard, user, authLoading]);
 
   // Filter users based on active tab and search
   const filteredUsers = users.filter(u => {
@@ -219,7 +236,15 @@ export default function Leaderboard() {
 
           {/* Leaderboard Content */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-            {!user ? (
+            {authLoading ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Loading authentication...</div>
+                <p className="text-neutral-500 text-sm">Please wait while we verify your login status.</p>
+                <div className="mt-4">
+                  <ListSkeleton count={3} />
+                </div>
+              </div>
+            ) : !user ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">Authentication Required</div>
                 <p className="text-neutral-500 text-sm">Please log in to view the leaderboard.</p>
