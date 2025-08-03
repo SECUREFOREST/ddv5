@@ -54,7 +54,8 @@ api.interceptors.request.use((config) => {
     // Skip rate limiting for certain endpoints that need to be more responsive
     const skipRateLimit = config.url.includes('/stats/leaderboard') || 
                          config.url.includes('/activity-feed') ||
-                         config.url.includes('/notifications');
+                         config.url.includes('/notifications') ||
+                         window.location.pathname === '/admin';
     
     if (!skipRateLimit && !rateLimiter.isAllowed(requestKey)) {
       const error = new Error('Rate limit exceeded. Please try again later.');

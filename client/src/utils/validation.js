@@ -405,5 +405,5 @@ export class RateLimiter {
   }
 }
 
-// Export rate limiter instance
-export const rateLimiter = new RateLimiter(); 
+// Export rate limiter instance with more lenient settings for pagination
+export const rateLimiter = new RateLimiter(200, 60000); // 200 requests per minute instead of 5 
