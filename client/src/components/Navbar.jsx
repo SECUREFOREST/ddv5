@@ -37,6 +37,7 @@ export default function Navbar() {
       links: [
     { to: '/dares', label: 'Dares', auth: true },
     { to: '/dare/create', label: 'Create Dare', auth: true },
+    { to: '/dom-demand/create', label: 'Dom Demand', auth: true },
         { to: '/dare/select', label: 'Perform Dare', auth: true },
       ]
     },

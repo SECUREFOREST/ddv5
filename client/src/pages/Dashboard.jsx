@@ -30,7 +30,7 @@ const ROLE_FORMS = {
     description: "Write a command and select difficulty level",
     icon: SparklesIcon,
     color: "from-purple-600 to-indigo-600",
-    path: "/dare/create"
+    path: "/dom-demand/create"
   },
   switch: {
     title: "The Loser Submits Game",
