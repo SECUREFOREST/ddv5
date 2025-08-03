@@ -66,7 +66,7 @@ router.get('/', auth, async (req, res, next) => {
         .populate('assignedSwitch', 'username fullName avatar');
       return res.json(dare ? [dare] : []);
     }
-    const { status, difficulty, public: isPublic, dareType, role, creator, participant, assignedSwitch } = req.query;
+    const { status, difficulty, public: isPublic, dareType, role, creator, participant, assignedSwitch, search } = req.query;
     const filter = {};
     if (status) {
       if (status.includes(',')) {
@@ -81,11 +81,35 @@ router.get('/', auth, async (req, res, next) => {
     if (creator) filter.creator = creator;
     if (participant) filter.performer = participant;
     if (assignedSwitch) filter.assignedSwitch = assignedSwitch;
-    if (role) filter.$or = [
-      { allowedRoles: { $exists: false } },
-      { allowedRoles: { $size: 0 } },
-      { allowedRoles: role }
-    ];
+    // Add search functionality
+    if (search) {
+      filter.$or = [
+        { description: { $regex: search, $options: 'i' } },
+        { title: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Add role filter (after search to avoid conflicts)
+    if (role) {
+      if (filter.$or) {
+        // If we already have $or from search, we need to use $and
+        filter.$and = [
+          { $or: filter.$or },
+          { $or: [
+            { allowedRoles: { $exists: false } },
+            { allowedRoles: { $size: 0 } },
+            { allowedRoles: role }
+          ]}
+        ];
+        delete filter.$or;
+      } else {
+        filter.$or = [
+          { allowedRoles: { $exists: false } },
+          { allowedRoles: { $size: 0 } },
+          { allowedRoles: role }
+        ];
+      }
+    }
     
     // No content expiration filter - dares don't expire, only proofs do
     

@@ -13,37 +13,35 @@ router.get('/', auth, checkPermission('view_audit_log'), async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
-    console.log('Audit log request:', { page, limit, skip });
+    // Build filter for search
+    const filter = {};
+    if (req.query.search) {
+      filter.$or = [
+        { action: { $regex: req.query.search, $options: 'i' } },
+        { details: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
     
     // Get total count for pagination
-    const total = await AuditLog.countDocuments();
-    
-    console.log('Total audit logs:', total);
+    const total = await AuditLog.countDocuments(filter);
     
     // Validate page number
     const totalPages = Math.ceil(total / limit);
-    console.log('Pagination calculation:', { total, limit, totalPages, page, skip });
     if (page > totalPages && totalPages > 0) {
-      console.log('Page number exceeds total pages, returning empty result');
       return res.json({
         logs: [],
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: totalPages
-        }
+        limit,
+        total,
+        pages: totalPages
       });
     }
     
     // Get paginated audit logs
-    const logs = await AuditLog.find()
+    const logs = await AuditLog.find(filter)
       .populate('user', 'username email')
       .skip(skip)
       .limit(limit)
       .sort({ timestamp: -1 });
-    
-    console.log('Retrieved logs:', logs.length);
     
     res.json({
       logs,

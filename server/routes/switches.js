@@ -21,7 +21,7 @@ router.get('/', auth, async (req, res) => {
     }
     const user = await User.findById(req.userId).select('blockedUsers roles');
     const isAdmin = user && user.roles && user.roles.includes('admin');
-    const { difficulty, public: isPublic, status } = req.query;
+    const { difficulty, public: isPublic, status, search } = req.query;
     
     // Pagination parameters
     const page = parseInt(req.query.page) || 1;
@@ -36,6 +36,15 @@ router.get('/', auth, async (req, res) => {
       // Admin: return all switch games
       if (isPublic !== undefined) filter.public = isPublic === 'true';
       if (status) filter.status = status;
+      
+      // Add search functionality for admin
+      if (search) {
+        filter.$or = [
+          { 'creatorDare.description': { $regex: search, $options: 'i' } },
+          { 'participantDare.description': { $regex: search, $options: 'i' } }
+        ];
+      }
+      
       total = await SwitchGame.countDocuments(filter);
       games = await SwitchGame.find(filter)
         .populate('creator', 'username fullName avatar participant winner proof.user')
