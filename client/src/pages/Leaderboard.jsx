@@ -31,8 +31,9 @@ export default function Leaderboard() {
     setCurrentPage,
     setPageSize,
     paginatedData,
-    totalItems
-  } = usePagination(users, 20); // 20 items per page
+    totalItems,
+    setTotalItems
+  } = usePagination(1, 20); // 20 items per page
 
   const fetchLeaderboard = useCallback(async () => {
     try {
@@ -46,6 +47,7 @@ export default function Leaderboard() {
         const usersData = Array.isArray(response.data) ? response.data : [];
         console.log('Leaderboard data received:', usersData);
         setUsers(usersData);
+        setTotalItems(usersData.length);
         showSuccess('Leaderboard loaded successfully!');
 
       } else {
@@ -94,6 +96,11 @@ export default function Leaderboard() {
         return b.daresCount - a.daresCount;
     }
   });
+
+  // Update total items when filtered users change
+  React.useEffect(() => {
+    setTotalItems(filteredUsers.length);
+  }, [filteredUsers, setTotalItems]);
 
   // Apply pagination to filtered users
   const paginatedUsers = paginatedData(filteredUsers);
@@ -272,6 +279,9 @@ export default function Leaderboard() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
+                pageSize={pageSize}
+                onPageSizeChange={setPageSize}
+                totalItems={totalItems}
                 className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4"
               />
             </div>

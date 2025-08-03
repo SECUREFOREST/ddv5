@@ -47,6 +47,14 @@ export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONF
     setTotalItems(0);
   }, [initialPageSize]);
   
+  // Paginate data function
+  const paginatedData = React.useCallback((data) => {
+    if (!Array.isArray(data)) return [];
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return data.slice(startIndex, endIndex);
+  }, [currentPage, pageSize]);
+
   return {
     // State
     currentPage,
@@ -65,7 +73,8 @@ export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONF
     goToPage,
     nextPage,
     prevPage,
-    reset
+    reset,
+    paginatedData
   };
 }
 
@@ -79,7 +88,7 @@ export function Pagination({
   className = '',
   showPageSize = true,
   pageSize,
-  onPageSizeChange,
+  onPageSizeChange = () => {},
   totalItems
 }) {
   if (totalPages <= 1) return null;
