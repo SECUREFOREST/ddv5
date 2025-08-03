@@ -7,6 +7,8 @@ import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
 
@@ -61,7 +63,8 @@ export default function DareConsent() {
     
     try {
       setFetching(true);
-      const response = await api.get(`/dares/${id}`);
+      // Use retry mechanism for dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/${id}`));
       setDare(response.data);
     } catch (error) {
       console.error('Dare consent loading error:', error);
@@ -84,19 +87,21 @@ export default function DareConsent() {
       try {
         // For dom demands, this consent unlocks the hidden demand
         if (dare.dareType === 'domination' && dare.requiresConsent) {
-          await api.patch(`/dares/${dare._id}/consent`, { 
+          // Use retry mechanism for consent submission
+          await retryApiCall(() => api.patch(`/dares/${dare._id}/consent`, { 
             consented: true,
             consentedAt: new Date().toISOString(),
             contentDeletion // OSA-style content expiration specified by participant
-          });
+          }));
           showSuccess('Consent recorded! You can now view the full demand.');
         } else {
           // For regular dares, update status to in_progress
           if (dare.status !== 'in_progress') {
-            await api.patch(`/dares/${dare._id}`, { 
+            // Use retry mechanism for status update
+            await retryApiCall(() => api.patch(`/dares/${dare._id}`, { 
               status: 'in_progress',
               contentDeletion // OSA-style content expiration specified by participant
-            });
+            }));
             showSuccess('Dare status updated successfully!');
           }
         }

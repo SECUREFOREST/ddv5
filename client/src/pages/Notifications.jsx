@@ -8,6 +8,8 @@ import { BellIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { retryApiCall } from '../utils/retry';
+import { useRealtimeNotifications } from '../utils/realtime';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -18,13 +20,17 @@ export default function Notifications() {
   const [generalError, setGeneralError] = useState('');
   const [toast, setToast] = useState('');
   const toastTimeout = useRef(null);
+  
+  // Activate real-time notifications
+  const { subscribeToNotifications, unsubscribeFromNotifications } = useRealtimeNotifications();
 
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       setGeneralError('');
       
-      const response = await api.get('/notifications');
+      // Use retry mechanism for notifications fetch
+      const response = await retryApiCall(() => api.get('/notifications'));
       
       if (response.data) {
         const notificationsData = Array.isArray(response.data) ? response.data : [];
@@ -49,29 +55,26 @@ export default function Notifications() {
     fetchNotifications();
   }, [fetchNotifications]);
 
+  // Subscribe to real-time notifications
   useEffect(() => {
-    let socket;
-    if (accessToken) {
-      socket = io('/', {
-        auth: { token: accessToken },
-        autoConnect: true,
-        transports: ['websocket'],
-      });
-      socket.on('notification', (notif) => {
-        setNotifications((prev) => [notif, ...prev]);
-        showSuccess('New notification received!');
-      });
-    }
+    if (!accessToken) return;
+    
+    const unsubscribe = subscribeToNotifications((newNotification) => {
+      setNotifications((prev) => [newNotification, ...prev]);
+      showSuccess('New notification received!');
+    });
+
     return () => {
-      if (socket) socket.disconnect();
+      unsubscribe();
     };
-  }, [accessToken, showSuccess]);
+  }, [accessToken, subscribeToNotifications, showSuccess]);
 
   const handleMarkRead = async (id) => {
     setActionLoading(true);
     setGeneralError('');
     try {
-      await api.put(`/notifications/${id}/read`);
+      // Use retry mechanism for mark as read
+      await retryApiCall(() => api.put(`/notifications/${id}/read`));
       fetchNotifications();
       showSuccess('Notification marked as read.');
     } catch (err) {

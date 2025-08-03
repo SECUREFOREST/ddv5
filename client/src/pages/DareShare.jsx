@@ -4,6 +4,8 @@ import api from '../api/axios';
 import Button from '../components/Button';
 import { useToast } from '../components/Toast';
 import { ShareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
@@ -54,7 +56,8 @@ export default function DareShare() {
       setLoading(true);
       setError('');
       
-      const response = await api.get(`/dares/${dareId}`);
+      // Use retry mechanism for dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/${dareId}`));
       
       if (response.data) {
         setDare(response.data);
@@ -82,7 +85,8 @@ export default function DareShare() {
     if (!window.confirm('Are you sure you want to cancel this dare?')) return;
     setCanceling(true);
     try {
-      await api.delete(`/dares/${dareId}`);
+      // Use retry mechanism for dare deletion
+      await retryApiCall(() => api.delete(`/dares/${dareId}`));
       setCanceled(true);
       showSuccess('Dare canceled successfully.');
       setTimeout(() => navigate('/dares'), 1500);

@@ -92,19 +92,20 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#060606]">
-      {showNavbar && <Navbar />}
-      <main className="flex-1 pb-20 lg:pb-0">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-[50vh]">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                <div className="text-white/80 text-lg font-medium">Loading page...</div>
-                <div className="text-white/40 text-sm mt-2">Please wait while we prepare your content</div>
+    <ErrorBoundary>
+      <div className="flex flex-col min-h-screen bg-[#060606]">
+        {showNavbar && <Navbar />}
+        <main className="flex-1 pb-20 lg:pb-0">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <div className="text-white/80 text-lg font-medium">Loading page...</div>
+                  <div className="text-white/40 text-sm mt-2">Please wait while we prepare your content</div>
+                </div>
               </div>
-            </div>
-          }>
+            }>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
@@ -153,6 +154,7 @@ function AppContent() {
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
+    </ErrorBoundary>
   );
 }
 

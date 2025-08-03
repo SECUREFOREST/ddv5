@@ -10,6 +10,8 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
 
@@ -88,7 +90,8 @@ export default function DareReveal() {
     try {
       setLoading(true);
       
-      const response = await api.get(`/dares/${dareId}`);
+      // Use retry mechanism for dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/${dareId}`));
       
       if (response.data && response.data._id) {
         const performerId = response.data.performer?._id || response.data.performer;
@@ -147,11 +150,13 @@ export default function DareReveal() {
         if (proof) formData.append('text', proof);
         formData.append('file', proofFile);
         formData.append('expireAfterView', expireAfterView);
-        await api.post(`/dares/${dare._id}/proof`, formData, {
+        // Use retry mechanism for proof submission with file
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        }));
       } else {
-        await api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView });
+        // Use retry mechanism for proof submission with text
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView }));
       }
       setProof('');
       setProofFile(null);
@@ -171,7 +176,8 @@ export default function DareReveal() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      await api.post(`/dares/${dare._id}/chicken-out`);
+      // Use retry mechanism for chicken out
+      await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
       setGeneralSuccess('Successfully chickened out!');
       showSuccess('Successfully chickened out!');
       setTimeout(() => {

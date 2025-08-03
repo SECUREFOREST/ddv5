@@ -202,14 +202,68 @@ export const REALTIME_INTERVALS = {
 
 // Error messages for consistent user feedback
 export const ERROR_MESSAGES = {
-  AUTHENTICATION_FAILED: 'Authentication failed. Please log in again.',
-  PERMISSION_DENIED: 'You do not have permission to perform this action.',
-  NETWORK_ERROR: 'Network error. Please check your connection and try again.',
-  SERVER_ERROR: 'Server error. Please try again later.',
-  VALIDATION_ERROR: 'Please check your input and try again.',
-  NOT_FOUND: 'The requested resource was not found.',
-  RATE_LIMITED: 'Too many requests. Please wait a moment and try again.',
-  TIMEOUT: 'Request timed out. Please try again.'
+  // Network errors
+  NETWORK_ERROR: 'Network error. Please check your internet connection and try again.',
+  SERVER_ERROR: 'Server error. Our team has been notified. Please try again in a few minutes.',
+  AUTHENTICATION_FAILED: 'Your session has expired. Please log in again to continue.',
+  PERMISSION_DENIED: 'You do not have permission to perform this action. Please contact support if you believe this is an error.',
+  NOT_FOUND: 'The requested resource was not found. It may have been moved or deleted.',
+  RATE_LIMITED: 'Too many requests. Please wait a moment before trying again.',
+  TIMEOUT: 'Request timed out. Please check your connection and try again.',
+  VALIDATION_ERROR: 'Please check your input and try again. Make sure all required fields are filled correctly.',
+  UNKNOWN_ERROR: 'An unexpected error occurred. Please try again or contact support if the problem persists.',
+  
+  // Specific error messages
+  DARE_NOT_FOUND: 'This dare could not be found. It may have been deleted or is no longer available.',
+  USER_NOT_FOUND: 'User not found. The profile may have been deleted or is private.',
+  FILE_TOO_LARGE: 'File is too large. Please choose a smaller file (max 5MB).',
+  INVALID_FILE_TYPE: 'Invalid file type. Please upload an image (JPG, PNG, GIF).',
+  PASSWORD_TOO_WEAK: 'Password is too weak. Please choose a stronger password.',
+  EMAIL_ALREADY_EXISTS: 'An account with this email already exists. Please use a different email or try logging in.',
+  USERNAME_ALREADY_EXISTS: 'This username is already taken. Please choose a different username.',
+  INVALID_CREDENTIALS: 'Invalid username or password. Please check your credentials and try again.',
+  ACCOUNT_LOCKED: 'Your account has been temporarily locked due to multiple failed login attempts. Please try again later.',
+  EMAIL_NOT_VERIFIED: 'Please verify your email address before continuing.',
+  TOKEN_EXPIRED: 'Your session has expired. Please log in again.',
+  TOKEN_INVALID: 'Invalid session. Please log in again.',
+  
+  // Form validation errors
+  REQUIRED_FIELD: 'This field is required.',
+  INVALID_EMAIL: 'Please enter a valid email address.',
+  INVALID_USERNAME: 'Username must be 3-20 characters and contain only letters, numbers, and underscores.',
+  PASSWORD_MISMATCH: 'Passwords do not match. Please try again.',
+  PASSWORD_TOO_SHORT: 'Password must be at least 8 characters long.',
+  INVALID_DATE: 'Please enter a valid date.',
+  INVALID_AGE: 'You must be at least 18 years old to use this service.',
+  
+  // Upload errors
+  UPLOAD_FAILED: 'File upload failed. Please try again.',
+  UPLOAD_CANCELLED: 'File upload was cancelled.',
+  UPLOAD_PROGRESS: 'Uploading... Please wait.',
+  
+  // Action errors
+  ACTION_FAILED: 'Action failed. Please try again.',
+  ACTION_CANCELLED: 'Action was cancelled.',
+  ACTION_TIMEOUT: 'Action timed out. Please try again.',
+  
+  // Real-time errors
+  WEBSOCKET_CONNECTION_FAILED: 'Real-time connection failed. Some features may not work properly.',
+  WEBSOCKET_DISCONNECTED: 'Connection lost. Attempting to reconnect...',
+  
+  // Cache errors
+  CACHE_ERROR: 'Failed to load cached data. Loading fresh data...',
+  
+  // Bulk action errors
+  BULK_ACTION_FAILED: 'Some items could not be processed. Please try again.',
+  BULK_ACTION_PARTIAL: 'Some items were processed successfully, but others failed.',
+  
+  // Rate limiting
+  RATE_LIMIT_EXCEEDED: 'Rate limit exceeded. Please wait before trying again.',
+  TOO_MANY_REQUESTS: 'Too many requests. Please slow down and try again.',
+  
+  // Maintenance
+  MAINTENANCE_MODE: 'The service is currently under maintenance. Please try again later.',
+  SERVICE_UNAVAILABLE: 'Service is temporarily unavailable. Please try again later.'
 };
 
 // Success messages for consistent user feedback

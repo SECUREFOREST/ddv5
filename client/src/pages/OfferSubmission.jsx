@@ -8,6 +8,8 @@ import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 
 import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -49,8 +51,8 @@ export default function OfferSubmission() {
       setFetching(true);
       
       const [slotsRes, privacyRes] = await Promise.allSettled([
-        api.get('/users/user/slots'),
-        api.get('/safety/content_deletion'),
+        retryApiCall(() => api.get('/users/user/slots')),
+        retryApiCall(() => api.get('/safety/content_deletion')),
       ]);
       
       // Handle slots response
@@ -95,7 +97,8 @@ export default function OfferSubmission() {
     setPrivacyLoading(true);
     setPrivacyError('');
     try {
-      await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
+      // Use retry mechanism for privacy setting update
+      await retryApiCall(() => api.post('/safety/content_deletion', { value: mapPrivacyValue(val) }));
       setPrivacy(val);
       showSuccess('Privacy setting updated successfully!');
     } catch (error) {
@@ -115,22 +118,22 @@ export default function OfferSubmission() {
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!difficulty) {
-      showError('Please select a difficulty.');
+    
+    // Use comprehensive form validation
+    const formData = {
+      difficulty,
+      description: description.trim(),
+      tags,
+      privacy
+    };
+    
+    const validation = validateFormData(formData, VALIDATION_SCHEMAS.offerSubmission);
+    
+    if (!validation.isValid) {
+      showError(validation.errors[0]);
       return;
     }
-    if (!description.trim()) {
-      showError('Please enter a description or requirements.');
-      return;
-    }
-    if (description.trim().length < 10) {
-      showError('Description must be at least 10 characters.');
-      return;
-    }
-    if (description.trim().length > 1000) {
-      showError('Description must be less than 1000 characters.');
-      return;
-    }
+    
     if (slotLimit) {
       showError('You have reached the maximum number of open dares. Complete or reject a dare to free up a slot.');
       return;
@@ -145,12 +148,13 @@ export default function OfferSubmission() {
     setSuccess('');
     
     try {
-      await api.post('/users/subs', {
+      // Use retry mechanism for offer submission
+      await retryApiCall(() => api.post('/users/subs', {
         difficulty,
         description,
         tags,
         privacy: mapPrivacyValue(privacy),
-      });
+      }));
       setSuccess('Submission offer created successfully!');
       showSuccess('Submission offer created successfully!');
       setTimeout(() => navigate('/performer-dashboard'), 1200);

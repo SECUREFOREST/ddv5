@@ -9,6 +9,8 @@ import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -87,7 +89,7 @@ export default function SwitchGameParticipate() {
     setSearching(true);
     try {
       // Fetch open switch games with selected difficulty
-      const response = await api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } });
+      const response = await retryApiCall(() => api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } }));
       
       if (response.data) {
         const games = Array.isArray(response.data) ? response.data : [];
@@ -116,7 +118,8 @@ export default function SwitchGameParticipate() {
       setLoading(true);
       setError('');
       
-      const response = await api.get(`/switches/${gameId}`);
+      // Use retry mechanism for switch game fetch
+      const response = await retryApiCall(() => api.get(`/switches/${gameId}`));
       
       if (response.data) {
         setGame(response.data);
@@ -151,12 +154,13 @@ export default function SwitchGameParticipate() {
       return;
     }
     try {
-      await api.post(`/switches/${gameId}/join`, { 
+      // Use retry mechanism for switch game join
+      await retryApiCall(() => api.post(`/switches/${gameId}/join`, { 
         move: gesture, 
         consent: true, 
         difficulty: game.difficulty,
         contentDeletion // OSA-style content expiration specified by participant
-      });
+      }));
       showSuccess('Successfully joined the game!');
       navigate(`/switches/${gameId}`);
     } catch (err) {
@@ -179,7 +183,8 @@ export default function SwitchGameParticipate() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      await api.post(`/switches/${game._id}/forfeit`);
+      // Use retry mechanism for forfeit
+      await retryApiCall(() => api.post(`/switches/${game._id}/forfeit`));
       showSuccess('You have successfully chickened out.');
       // Optionally refresh or redirect
       window.location.reload();

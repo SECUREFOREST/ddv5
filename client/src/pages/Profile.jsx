@@ -12,6 +12,9 @@ import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { useCache } from '../utils/cache';
+import { retryApiCall } from '../utils/retry';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -23,6 +26,9 @@ function mapPrivacyValue(val) {
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
   const { showSuccess, showError } = useToast();
+  
+  // Activate caching for profile data
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
   const [searchParams] = useSearchParams();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -290,59 +296,86 @@ export default function Profile() {
     const userId = user._id || user.id;
     if (!userId) return;
     
+    // Check cache first
+    const cacheKey = `profile_${userId}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setStats(cachedData.stats || null);
+      setCreated(cachedData.created || []);
+      setParticipating(cachedData.participating || []);
+      setDares(cachedData.dares || []);
+      setSwitchCreated(cachedData.switchCreated || []);
+      setSwitchParticipating(cachedData.switchParticipating || []);
+      setSwitch(cachedData.allSwitchGames || []);
+      return;
+    }
+    
     try {
       setStatsLoading(true);
       setStatsError('');
       
       const [statsRes, createdRes, participatingRes, assignedSwitchRes, switchCreatedRes, switchParticipatingRes] = await Promise.allSettled([
-        api.get(`/stats/users/${userId}`),
-        api.get('/dares', { params: { creator: userId } }),
-        api.get('/dares', { params: { participant: userId } }),
-        api.get('/dares', { params: { assignedSwitch: userId } }),
-        api.get('/switches', { params: { creator: userId } }),
-        api.get('/switches', { params: { participant: userId } })
+        retryApiCall(() => api.get(`/stats/users/${userId}`)),
+        retryApiCall(() => api.get('/dares', { params: { creator: userId } })),
+        retryApiCall(() => api.get('/dares', { params: { participant: userId } })),
+        retryApiCall(() => api.get('/dares', { params: { assignedSwitch: userId } })),
+        retryApiCall(() => api.get('/switches', { params: { creator: userId } })),
+        retryApiCall(() => api.get('/switches', { params: { participant: userId } }))
       ]);
       
       // Handle stats response
+      let statsData = null;
       if (statsRes.status === 'fulfilled') {
-        setStats(statsRes.value.data);
+        statsData = statsRes.value.data;
+        setStats(statsData);
       } else {
         console.error('Failed to fetch stats:', statsRes.reason);
         setStatsError('Failed to load user statistics');
       }
       
       // Handle dares responses
+      let createdData = [];
       if (createdRes.status === 'fulfilled') {
-        setCreated(Array.isArray(createdRes.value.data) ? createdRes.value.data : []);
+        createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+        setCreated(createdData);
       } else {
         console.error('Failed to fetch created dares:', createdRes.reason);
         setCreated([]);
       }
       
+      let participatingData = [];
       if (participatingRes.status === 'fulfilled') {
-        setParticipating(Array.isArray(participatingRes.value.data) ? participatingRes.value.data : []);
+        participatingData = Array.isArray(participatingRes.value.data) ? participatingRes.value.data : [];
+        setParticipating(participatingData);
       } else {
         console.error('Failed to fetch participating dares:', participatingRes.reason);
         setParticipating([]);
       }
       
+      let daresData = [];
       if (assignedSwitchRes.status === 'fulfilled') {
-        setDares(Array.isArray(assignedSwitchRes.value.data) ? assignedSwitchRes.value.data : []);
+        daresData = Array.isArray(assignedSwitchRes.value.data) ? assignedSwitchRes.value.data : [];
+        setDares(daresData);
       } else {
         console.error('Failed to fetch assigned switch dares:', assignedSwitchRes.reason);
         setDares([]);
       }
       
       // Handle switch games responses
+      let switchCreatedData = [];
       if (switchCreatedRes.status === 'fulfilled') {
-        setSwitchCreated(Array.isArray(switchCreatedRes.value.data) ? switchCreatedRes.value.data : []);
+        switchCreatedData = Array.isArray(switchCreatedRes.value.data) ? switchCreatedRes.value.data : [];
+        setSwitchCreated(switchCreatedData);
       } else {
         console.error('Failed to fetch created switch games:', switchCreatedRes.reason);
         setSwitchCreated([]);
       }
       
+      let switchParticipatingData = [];
       if (switchParticipatingRes.status === 'fulfilled') {
-        setSwitchParticipating(Array.isArray(switchParticipatingRes.value.data) ? switchParticipatingRes.value.data : []);
+        switchParticipatingData = Array.isArray(switchParticipatingRes.value.data) ? switchParticipatingRes.value.data : [];
+        setSwitchParticipating(switchParticipatingData);
       } else {
         console.error('Failed to fetch participating switch games:', switchParticipatingRes.reason);
         setSwitchParticipating([]);
@@ -354,6 +387,17 @@ export default function Profile() {
         ...(switchParticipatingRes.status === 'fulfilled' && Array.isArray(switchParticipatingRes.value?.data) ? switchParticipatingRes.value.data : [])
       ];
       setSwitch(allSwitchGames);
+      
+      // Cache the successful data
+      setCachedData(cacheKey, {
+        stats: statsData,
+        created: createdData,
+        participating: participatingData,
+        dares: daresData,
+        switchCreated: switchCreatedData,
+        switchParticipating: switchParticipatingData,
+        allSwitchGames: allSwitchGames
+      }, 10 * 60 * 1000); // 10 minutes cache
       
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -369,16 +413,30 @@ export default function Profile() {
     const userId = user._id || user.id;
     if (!userId) return;
 
+    // Check cache first
+    const activitiesCacheKey = `profile_activities_${userId}`;
+    const cachedActivities = getCachedData(activitiesCacheKey);
+    
+    if (cachedActivities) {
+      setUserActivities(cachedActivities);
+      return;
+    }
+
     setUserActivitiesLoading(true);
-    api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
-      .then(res => setUserActivities(Array.isArray(res.data) ? res.data : []))
+    retryApiCall(() => api.get('/activity-feed/activities', { params: { userId, limit: 10 } }))
+      .then(res => {
+        const activitiesData = Array.isArray(res.data) ? res.data : [];
+        setUserActivities(activitiesData);
+        // Cache the activities data
+        setCachedData(activitiesCacheKey, activitiesData, 5 * 60 * 1000); // 5 minutes cache
+      })
       .catch(error => {
         console.error('Failed to load user activities:', error);
         setUserActivities([]);
         showError('Failed to load recent activity.');
       })
       .finally(() => setUserActivitiesLoading(false));
-  }, [user]);
+  }, [user, getCachedData, setCachedData]);
 
   const handleAvatarClick = () => {
     if (fileInputRef.current) {

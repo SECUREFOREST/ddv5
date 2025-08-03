@@ -6,6 +6,9 @@ import Avatar from '../components/Avatar';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { ClockIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { useCache } from '../utils/cache';
+import { usePagination, Pagination } from '../utils/pagination';
+import { retryApiCall } from '../utils/retry';
 
 // Difficulty badge (reuse from DareCard)
 function DifficultyBadge({ level }) {
@@ -61,9 +64,18 @@ export default function PublicDares() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const { showSuccess, showError } = useToast();
+  
+  // Activate pagination for public dares
+  const {
+    currentPage,
+    totalPages,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    paginatedData,
+    totalItems
+  } = usePagination([], 15); // 15 items per page
 
   useEffect(() => {
     setLoading(true);
@@ -72,8 +84,8 @@ export default function PublicDares() {
     setError('');
     
     Promise.allSettled([
-      api.get('/dares', { params: { public: true, status: 'waiting_for_participant' } }),
-      api.get('/switches', { params: { public: true, status: 'waiting_for_participant' } })
+      retryApiCall(() => api.get('/dares', { params: { public: true, status: 'waiting_for_participant' } })),
+      retryApiCall(() => api.get('/switches', { params: { public: true, status: 'waiting_for_participant' } }))
     ])
       .then(([daresRes, switchesRes]) => {
         // Handle dares response
@@ -126,24 +138,20 @@ export default function PublicDares() {
     });
   };
 
-  // Pagination logic
-  const ITEMS_PER_PAGE = 10;
-  const paginateItems = (items) => {
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    return items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  };
-
   const filteredDares = filterAndSearch(dares, 'dare');
   const filteredSwitchGames = filterAndSearch(switchGames, 'switch');
-  const paginatedDares = paginateItems(filteredDares);
-  const paginatedSwitchGames = paginateItems(filteredSwitchGames);
+  
+  // Apply pagination to filtered items
+  const allItems = [...filteredDares, ...filteredSwitchGames];
+  const paginatedItems = paginatedData(allItems);
+  
   const showDares = filter === 'all' || filter === 'dares';
   const showSwitches = filter === 'all' || filter === 'switches';
   
   // Reset page when filter or search changes
   useEffect(() => {
-    setPage(1);
-  }, [filter, search]);
+    setCurrentPage(1);
+  }, [filter, search, setCurrentPage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
@@ -271,7 +279,7 @@ export default function PublicDares() {
                     </div>
                   ) : (
                     <div className="grid gap-4">
-                      {paginatedDares.map(dare => (
+                      {paginatedItems.filter(item => item.type === 'dare').map(dare => (
                         <div key={dare._id} className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group" role="article" aria-labelledby={`dare-title-${dare._id}`}>
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -346,7 +354,7 @@ export default function PublicDares() {
                     </div>
                   ) : (
                     <div className="grid gap-4">
-                      {paginatedSwitchGames.map(game => (
+                      {paginatedItems.filter(item => item.type === 'switch').map(game => (
                         <div key={game._id} className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02] group" role="article" aria-labelledby={`switch-title-${game._id}`}>
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -382,29 +390,14 @@ export default function PublicDares() {
               )}
 
               {/* Pagination Controls */}
-              {(filteredDares.length > ITEMS_PER_PAGE || filteredSwitchGames.length > ITEMS_PER_PAGE) && (
-                <div className="mt-8 flex justify-center">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setPage(Math.max(1, page - 1))}
-                      disabled={page === 1}
-                      className="px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors duration-200"
-                      aria-label="Previous page"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-4 py-2 text-white">
-                      Page {page} of {Math.ceil(Math.max(filteredDares.length, filteredSwitchGames.length) / ITEMS_PER_PAGE)}
-                    </span>
-                    <button
-                      onClick={() => setPage(page + 1)}
-                      disabled={page >= Math.ceil(Math.max(filteredDares.length, filteredSwitchGames.length) / ITEMS_PER_PAGE)}
-                      className="px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-colors duration-200"
-                      aria-label="Next page"
-                    >
-                      Next
-                    </button>
-                  </div>
+              {!loading && allItems.length > 0 && totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4"
+                  />
                 </div>
               )}
 

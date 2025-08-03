@@ -11,6 +11,9 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/LoadingSpinner';
+import { useBulkActions, BulkActionDialog, BulkActionProgress, BULK_ACTION_TYPES } from '../utils/bulkActions';
+import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit';
+import { retryApiCall } from '../utils/retry';
 
 // Validation utilities
 const validateEmail = (email) => {
@@ -73,6 +76,18 @@ function exportToCsv(filename, rows) {
 function Admin() {
   const { user, loading, refreshToken } = useAuth();
   const { showSuccess, showError } = useToast();
+  const { log } = useAudit();
+  const {
+    selectedItems: bulkSelectedUsers,
+    progress: bulkProgress,
+    isExecuting: bulkExecuting,
+    selectItem: bulkSelectUser,
+    deselectItem: bulkDeselectUser,
+    selectAll: bulkSelectAllUsers,
+    deselectAll: bulkDeselectAllUsers,
+    toggleItem: bulkToggleUser,
+    executeBulkAction: executeBulkUserAction
+  } = useBulkActions();
 
   // All useState hooks must be called at the top level, before any early returns
   const [authVerified, setAuthVerified] = useState(false);
@@ -777,7 +792,14 @@ function Admin() {
       async () => {
         setActionLoading(true);
         try {
-          await api.delete(`/users/${userId}`);
+          await retryApiCall(() => api.delete(`/users/${userId}`));
+          
+          // Log audit trail
+          auditUtils.logUserAction(AUDIT_ACTIONS.USER_DELETED, userId, {
+            adminId: user.id,
+            username: userName
+          });
+          
           showSuccess('User deleted successfully!');
           fetchUsers(); // Refresh the users list
         } catch (err) {

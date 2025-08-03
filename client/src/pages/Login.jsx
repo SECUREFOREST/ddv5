@@ -7,6 +7,8 @@ import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon, Exclama
 import { Helmet } from 'react-helmet';
 import { useToast } from '../context/ToastContext';
 import { safeStorage } from '../utils/cleanup';
+import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
+import { retryApiCall } from '../utils/retry';
 
 export default function Login() {
   const { login } = useAuth();
@@ -22,11 +24,38 @@ export default function Login() {
     try {
       e.preventDefault();
       e.stopPropagation();
+      
+      // Rate limiting check
+      if (!rateLimiter.isAllowed('login')) {
+        const remaining = rateLimiter.getRemainingAttempts('login');
+        const errorMessage = `Too many login attempts. Please wait before trying again. (${remaining} attempts remaining)`;
+        setLoginError(errorMessage);
+        showError(errorMessage);
+        return;
+      }
+      
+      // Validate form data
+      const validation = validateFormData(
+        { identifier, password },
+        VALIDATION_SCHEMAS.login
+      );
+      
+      if (!validation.isValid) {
+        const errorMessage = Object.values(validation.errors)[0];
+        setLoginError(errorMessage);
+        showError(errorMessage);
+        return;
+      }
+      
       setLoading(true);
       setLoginError('');
       
       try {
-        await login(identifier, password);
+        // Use retry mechanism for login
+        await retryApiCall(async () => {
+          await login(validation.sanitizedData.identifier, validation.sanitizedData.password);
+        });
+        
         // Get last visited path or default to dashboard
         const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
         const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;

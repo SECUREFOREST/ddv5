@@ -7,6 +7,8 @@ import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { useRealtimeActivity } from '../utils/realtime';
+import { retryApiCall } from '../utils/retry';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -19,12 +21,16 @@ export default function ActivityFeed() {
     return stored ? new Date(stored) : null;
   });
   const [search, setSearch] = useState('');
+  
+  // Activate real-time activity updates
+  const { subscribeToActivity, unsubscribeFromActivity } = useRealtimeActivity();
 
   const fetchActivityFeed = useCallback(async () => {
     try {
       setLoading(true);
       
-      const response = await api.get('/activity-feed?limit=30');
+      // Use retry mechanism for activity feed fetch
+      const response = await retryApiCall(() => api.get('/activity-feed?limit=30'));
       
       if (response.data) {
         const activitiesData = Array.isArray(response.data) ? response.data : [];
@@ -47,6 +53,19 @@ export default function ActivityFeed() {
   useEffect(() => {
     fetchActivityFeed();
   }, [fetchActivityFeed]);
+
+  // Subscribe to real-time activity updates
+  useEffect(() => {
+    const unsubscribe = subscribeToActivity((newActivity) => {
+      // Add new activity to the top of the list
+      setActivities(prevActivities => [newActivity, ...prevActivities.slice(0, 29)]); // Keep max 30 items
+      showSuccess('New activity received!');
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribeToActivity, showSuccess]);
 
   useEffect(() => {
     // On mount, update last seen to now

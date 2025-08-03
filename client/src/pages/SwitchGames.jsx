@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../api/axios';
+import { retryApiCall } from '../utils/retry';
 
 export default function SwitchGames() {
   const { user } = useAuth ? useAuth() : { user: null };
@@ -23,8 +24,8 @@ export default function SwitchGames() {
       
   
       
-      // Get user's switch games
-      const response = await api.get('/switches/performer');
+      // Get user's switch games with retry mechanism
+      const response = await retryApiCall(() => api.get('/switches/performer'));
       
       
       

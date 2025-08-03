@@ -18,6 +18,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import { ChartBarIcon } from '@heroicons/react/24/solid';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -33,11 +35,28 @@ export default function UserActivity() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dataLoaded, setDataLoaded] = useState(false);
+  
+  // Activate caching for user activity data
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
 
   useEffect(() => {
     if (!user) return;
     const userId = user._id || user.id;
     if (!userId) return;
+    
+    // Check cache first
+    const cacheKey = `user_activity_${userId}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setActiveDares(cachedData.activeDares || []);
+      setActiveSwitchGames(cachedData.activeSwitchGames || []);
+      setHistoryDares(cachedData.historyDares || []);
+      setHistorySwitchGames(cachedData.historySwitchGames || []);
+      setLoading(false);
+      setDataLoaded(true);
+      return;
+    }
     
     // Reset data when user changes
     if (!dataLoaded) {
@@ -50,12 +69,12 @@ export default function UserActivity() {
     const historyStatuses = ['completed', 'forfeited', 'expired'];
     
     Promise.allSettled([
-      api.get('/dares', { params: { creator: userId, status: activeStatuses.join(',') } }),
-      api.get('/dares', { params: { participant: userId, status: activeStatuses.join(',') } }),
-      api.get('/dares', { params: { creator: userId, status: historyStatuses.join(',') } }),
-      api.get('/dares', { params: { participant: userId, status: historyStatuses.join(',') } }),
-      api.get('/switches/performer', { params: { status: activeStatuses.join(',') } }),
-      api.get('/switches/history')
+      retryApiCall(() => api.get('/dares', { params: { creator: userId, status: activeStatuses.join(',') } })),
+      retryApiCall(() => api.get('/dares', { params: { participant: userId, status: activeStatuses.join(',') } })),
+      retryApiCall(() => api.get('/dares', { params: { creator: userId, status: historyStatuses.join(',') } })),
+      retryApiCall(() => api.get('/dares', { params: { participant: userId, status: historyStatuses.join(',') } })),
+      retryApiCall(() => api.get('/switches/performer', { params: { status: activeStatuses.join(',') } })),
+      retryApiCall(() => api.get('/switches/history'))
     ])
       .then(([
         createdActiveRes, performedActiveRes,
@@ -94,23 +113,36 @@ export default function UserActivity() {
           historyDaresData.push(...performedHistoryData);
         }
         
-        setActiveDares(mergeDares(activeDaresData));
-        setHistoryDares(mergeDares(historyDaresData));
+        const mergedActiveDares = mergeDares(activeDaresData);
+        const mergedHistoryDares = mergeDares(historyDaresData);
+        
+        setActiveDares(mergedActiveDares);
+        setHistoryDares(mergedHistoryDares);
         
         // Handle switch games
+        let activeSwitchData = [];
         if (activeSwitchRes.status === 'fulfilled') {
-          const activeSwitchData = Array.isArray(activeSwitchRes.value.data) ? activeSwitchRes.value.data : [];
+          activeSwitchData = Array.isArray(activeSwitchRes.value.data) ? activeSwitchRes.value.data : [];
           setActiveSwitchGames(activeSwitchData);
         } else {
           setActiveSwitchGames([]);
         }
         
+        let historySwitchData = [];
         if (historySwitchRes.status === 'fulfilled') {
-          const historySwitchData = Array.isArray(historySwitchRes.value.data) ? historySwitchRes.value.data : [];
+          historySwitchData = Array.isArray(historySwitchRes.value.data) ? historySwitchRes.value.data : [];
           setHistorySwitchGames(historySwitchData);
         } else {
           setHistorySwitchGames([]);
         }
+        
+        // Cache the successful data
+        setCachedData(cacheKey, {
+          activeDares: mergedActiveDares,
+          historyDares: mergedHistoryDares,
+          activeSwitchGames: activeSwitchData,
+          historySwitchGames: historySwitchData
+        }, 10 * 60 * 1000); // 10 minutes cache
         
         setDataLoaded(true);
 
@@ -121,7 +153,7 @@ export default function UserActivity() {
         showError('Failed to load activity.');
       })
       .finally(() => setLoading(false));
-  }, [user, dataLoaded, showError]);
+  }, [user, dataLoaded, showError, getCachedData, setCachedData]);
 
   // Reset dataLoaded when user changes
   useEffect(() => {

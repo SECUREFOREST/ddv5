@@ -6,6 +6,8 @@ import Card from '../components/Card';
 import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon, ExclamationTriangleIcon, KeyIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
+import { retryApiCall } from '../utils/retry';
+import { validatePassword } from '../utils/validation';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -19,11 +21,21 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      setResetError(passwordValidation.feedback);
+      showError(passwordValidation.feedback);
+      return;
+    }
+    
     setLoading(true);
     setResetError('');
     
     try {
-      await api.post('/auth/reset-password', { token, newPassword });
+      // Use retry mechanism for password reset
+      await retryApiCall(() => api.post('/auth/reset-password', { token, newPassword }));
       showSuccess('Password reset successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {

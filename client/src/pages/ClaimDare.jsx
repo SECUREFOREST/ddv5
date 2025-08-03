@@ -5,6 +5,8 @@ import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriang
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
 
@@ -60,7 +62,8 @@ export default function ClaimDare() {
     try {
       setLoading(true);
       
-      const response = await api.get(`/dares/claim/${claimToken}`);
+      // Use retry mechanism for dare claim fetch
+      const response = await retryApiCall(() => api.get(`/dares/claim/${claimToken}`));
       
       if (response.data) {
         setDare(response.data);
@@ -86,10 +89,11 @@ export default function ClaimDare() {
     e.preventDefault();
     setClaiming(true);
     try {
-      const res = await api.post(`/dares/claim/${claimToken}`, { 
+      // Use retry mechanism for dare claim submission
+      const res = await retryApiCall(() => api.post(`/dares/claim/${claimToken}`, { 
         demand: 'I consent',
         contentDeletion // OSA-style content expiration specified by participant
-      });
+      }));
       
       // Check if this is a dom demand that requires double-consent
       if (dare.dareType === 'domination' && dare.requiresConsent) {

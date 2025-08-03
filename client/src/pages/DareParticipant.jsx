@@ -6,6 +6,8 @@ import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, Rocket
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 export default function DareParticipant() {
   const { id } = useParams();
@@ -39,7 +41,8 @@ export default function DareParticipant() {
     try {
       setFetching(true);
       
-      const response = await api.get(`/dares/${id}`);
+      // Use retry mechanism for dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/${id}`));
       
       if (response.data) {
         setDare(response.data);
@@ -74,7 +77,8 @@ export default function DareParticipant() {
     setProofSuccess('');
     
     try {
-      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      // Use retry mechanism for random dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/random?difficulty=${difficulty}`));
       
       if (response.data && response.data._id) {
         setDare(response.data);
@@ -114,11 +118,13 @@ export default function DareParticipant() {
         if (proof) formData.append('text', proof);
         formData.append('file', proofFile);
         formData.append('expireAfterView', expireAfterView);
-        await api.post(`/dares/${dare._id}/proof`, formData, {
+        // Use retry mechanism for proof submission with file
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        }));
       } else {
-        await api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView });
+        // Use retry mechanism for proof submission with text
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView }));
       }
       setProof('');
       setProofFile(null);
@@ -137,7 +143,8 @@ export default function DareParticipant() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      await api.post(`/dares/${dare._id}/chicken-out`);
+      // Use retry mechanism for chicken out
+      await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
       setGeneralSuccess('Successfully chickened out!');
       showSuccess('Successfully chickened out!');
       setTimeout(() => {

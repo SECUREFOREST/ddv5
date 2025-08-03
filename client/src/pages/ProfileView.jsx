@@ -9,6 +9,8 @@ import { ListSkeleton } from '../components/Skeleton';
 import { UserIcon, ShieldCheckIcon, ClockIcon, ExclamationTriangleIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -22,25 +24,41 @@ export default function ProfileView() {
   const [blockError, setBlockError] = useState('');
   const [error, setError] = useState('');
   const { showSuccess, showError } = useToast();
+  
+  // Activate caching for profile view data
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
 
   const fetchProfileData = useCallback(async () => {
     if (!userId) return;
+    
+    // Check cache first
+    const cacheKey = `profile_view_${userId}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setProfile(cachedData.profile || null);
+      setStats(cachedData.stats || null);
+      setUserActivities(cachedData.activities || []);
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
       setError('');
       
       const [userRes, statsRes, activitiesRes] = await Promise.allSettled([
-        api.get(`/users/${userId}`),
-        api.get(`/stats/users/${userId}`),
-        api.get('/activity-feed/activities', { params: { userId, limit: 10 } })
+        retryApiCall(() => api.get(`/users/${userId}`)),
+        retryApiCall(() => api.get(`/stats/users/${userId}`)),
+        retryApiCall(() => api.get('/activity-feed/activities', { params: { userId, limit: 10 } }))
       ]);
       
       // Handle user profile response
+      let profileData = null;
       if (userRes.status === 'fulfilled') {
         if (userRes.value.data) {
-          setProfile(userRes.value.data);
-
+          profileData = userRes.value.data;
+          setProfile(profileData);
         } else {
           throw new Error('No user data received');
         }
@@ -50,9 +68,11 @@ export default function ProfileView() {
       }
       
       // Handle stats response
+      let statsData = null;
       if (statsRes.status === 'fulfilled') {
         if (statsRes.value.data) {
-          setStats(statsRes.value.data);
+          statsData = statsRes.value.data;
+          setStats(statsData);
         } else {
           setStats(null);
         }
@@ -62,17 +82,26 @@ export default function ProfileView() {
       }
       
       // Handle activities response
+      let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
         if (activitiesRes.value.data) {
-          const activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
+          activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
           setUserActivities(activitiesData);
-
         } else {
           setUserActivities([]);
         }
       } else {
         console.error('Failed to fetch user activities:', activitiesRes.reason);
         setUserActivities([]);
+      }
+      
+      // Cache the successful data
+      if (profileData || statsData || activitiesData.length > 0) {
+        setCachedData(cacheKey, {
+          profile: profileData,
+          stats: statsData,
+          activities: activitiesData
+        }, 15 * 60 * 1000); // 15 minutes cache
       }
       
       // Check if any critical requests failed
@@ -98,8 +127,11 @@ export default function ProfileView() {
     setBlockStatus('blocking');
     setBlockError('');
     try {
-      await api.post(`/users/${userId}/block`);
+      // Use retry mechanism for user blocking
+      await retryApiCall(() => api.post(`/users/${userId}/block`));
       setBlockStatus('blocked');
+      // Invalidate cache when user is blocked
+      invalidateCache(`profile_view_${userId}`);
       showSuccess('User blocked successfully!');
     } catch (err) {
       setBlockStatus('error');
@@ -114,8 +146,11 @@ export default function ProfileView() {
     setBlockStatus('blocking');
     setBlockError('');
     try {
-      await api.post(`/users/${userId}/unblock`);
+      // Use retry mechanism for user unblocking
+      await retryApiCall(() => api.post(`/users/${userId}/unblock`));
       setBlockStatus('idle');
+      // Invalidate cache when user is unblocked
+      invalidateCache(`profile_view_${userId}`);
       showSuccess('User unblocked successfully!');
       // Remove userId from blockedUsers in context (optional: reload user)
       if (user && user.blockedUsers) {

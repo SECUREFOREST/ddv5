@@ -4,6 +4,8 @@ import api from '../api/axios';
 import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 
 
@@ -18,7 +20,8 @@ export default function DareDifficultySelect() {
     setLoading(true);
     
     try {
-      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      // Use retry mechanism for random dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/random?difficulty=${difficulty}`));
       
       if (response.data && response.data._id) {
         showSuccess('Dare found! Redirecting...');

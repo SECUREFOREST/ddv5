@@ -10,6 +10,9 @@ import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIco
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { useCache } from '../utils/cache';
+import { useRealtimeData } from '../utils/realtime';
+import { retryApiCall } from '../utils/retry';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [
@@ -54,23 +57,44 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState('submissive'); // Default role
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
+  
+  // Activate caching for dashboard data
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
+  
+  // Activate real-time updates for dashboard
+  const { subscribeToEvents, unsubscribeFromEvents } = useRealtimeData();
 
   const fetchDashboardData = useCallback(async () => {
     if (!user) return;
     const userId = user.id || user._id;
     if (!userId) return;
     
+    // Check cache first
+    const cacheKey = `dashboard_${userId}_${tab}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setDares(cachedData.dares || []);
+      setStats(cachedData.stats || null);
+      setActivities(cachedData.activities || []);
+      setDaresLoading(false);
+      setStatsLoading(false);
+      setActivitiesLoading(false);
+      return;
+    }
+    
     setLoading(true);
     setStatsLoading(true);
     setDaresLoading(true);
     
     try {
+      // Use retry mechanism for all API calls
       const [createdRes, participatingRes, switchRes, statsRes, activitiesRes] = await Promise.allSettled([
-        api.get('/dares', { params: { status: tab, creator: userId } }),
-        api.get('/dares', { params: { status: tab, participant: userId } }),
-        api.get('/dares', { params: { status: tab, assignedSwitch: userId } }),
-        api.get(`/stats/users/${userId}`),
-        api.get('/activity-feed/activities', { params: { limit: 10, userId } })
+        retryApiCall(() => api.get('/dares', { params: { status: tab, creator: userId } })),
+        retryApiCall(() => api.get('/dares', { params: { status: tab, participant: userId } })),
+        retryApiCall(() => api.get('/dares', { params: { status: tab, assignedSwitch: userId } })),
+        retryApiCall(() => api.get(`/stats/users/${userId}`)),
+        retryApiCall(() => api.get('/activity-feed/activities', { params: { limit: 10, userId } }))
       ]);
       
       // Handle successful responses
@@ -103,8 +127,10 @@ export default function Dashboard() {
       setDaresLoading(false);
       
       // Handle stats
+      let statsData = null;
       if (statsRes.status === 'fulfilled') {
-        setStats(statsRes.value.data);
+        statsData = statsRes.value.data;
+        setStats(statsData);
       } else {
         console.error('Failed to fetch stats:', statsRes.reason);
         setStats(null);
@@ -112,14 +138,22 @@ export default function Dashboard() {
       setStatsLoading(false);
       
       // Handle activities
+      let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
-        const activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
+        activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
         setActivities(activitiesData);
       } else {
         console.error('Failed to fetch activities:', activitiesRes.reason);
         setActivities([]);
       }
       setActivitiesLoading(false);
+      
+      // Cache the successful data
+      setCachedData(cacheKey, {
+        dares: uniqueDares,
+        stats: statsData,
+        activities: activitiesData
+      }, 5 * 60 * 1000); // 5 minutes cache
       
       showSuccess('Dashboard updated successfully!');
     } catch (error) {
@@ -138,6 +172,34 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!user) return;
+    
+    const userId = user.id || user._id;
+    if (!userId) return;
+
+    // Subscribe to relevant real-time events
+    const unsubscribe = subscribeToEvents([
+      'dare_created',
+      'dare_updated', 
+      'dare_completed',
+      'switch_game_created',
+      'switch_game_updated',
+      'activity_created'
+    ], (event) => {
+      // Refresh dashboard data when relevant events occur
+      if (event.userId === userId || event.affectsUser === userId) {
+        fetchDashboardData();
+        invalidateCache(`dashboard_${userId}_${tab}`);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user, subscribeToEvents, invalidateCache, fetchDashboardData, tab]);
 
   // Determine user's primary role based on their activity
   useEffect(() => {

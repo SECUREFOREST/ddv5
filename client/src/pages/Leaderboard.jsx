@@ -4,6 +4,9 @@ import Avatar from '../components/Avatar';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
+import { useCache } from '../utils/cache';
+import { usePagination, Pagination } from '../utils/pagination';
+import { retryApiCall } from '../utils/retry';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
 
@@ -20,13 +23,25 @@ export default function Leaderboard() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const { showSuccess, showError } = useToast();
+  
+  // Activate pagination for leaderboard
+  const {
+    currentPage,
+    totalPages,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    paginatedData,
+    totalItems
+  } = usePagination(users, 20); // 20 items per page
 
   const fetchLeaderboard = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       
-      const response = await api.get('/stats/leaderboard');
+      // Use retry mechanism for leaderboard fetch
+      const response = await retryApiCall(() => api.get('/stats/leaderboard'));
       
       if (response.data) {
         const usersData = Array.isArray(response.data) ? response.data : [];
@@ -80,6 +95,9 @@ export default function Leaderboard() {
         return b.daresCount - a.daresCount;
     }
   });
+
+  // Apply pagination to filtered users
+  const paginatedUsers = paginatedData(filteredUsers);
 
   const getTabIcon = (tab) => {
     const TabIcon = tab.icon;
@@ -185,7 +203,7 @@ export default function Leaderboard() {
                 ) : (
                   <Suspense fallback={<ListSkeleton count={5} />}>
                     <LeaderboardWidget 
-                      leaders={filteredUsers.map(u => ({
+                      leaders={paginatedUsers.map(u => ({
                         id: u.user?.id,
                         username: u.user?.username,
                         fullName: u.user?.fullName,
@@ -245,6 +263,18 @@ export default function Leaderboard() {
                 </div>
                 <div className="text-sm text-blue-300">Top Score</div>
               </div>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!loading && !error && filteredUsers.length > 0 && totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4"
+              />
             </div>
           )}
         </main>

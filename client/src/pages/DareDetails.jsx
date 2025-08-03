@@ -13,12 +13,17 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 export default function DareDetails() {
   const { id } = useParams();
   const { user } = useAuth();
   const location = useLocation();
   const { showSuccess, showError } = useToast();
+  
+  // Activate caching for dare details
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
   const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(true);
   const [grading, setGrading] = useState(false);
@@ -65,14 +70,27 @@ export default function DareDetails() {
   const fetchDareDetails = useCallback(async () => {
     if (!id) return;
     
+    // Check cache first
+    const cacheKey = `dare_details_${id}`;
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData) {
+      setDare(cachedData);
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
       setGeneralError('');
       
-      const response = await api.get(`/dares/${id}`);
+      // Use retry mechanism for dare details fetch
+      const response = await retryApiCall(() => api.get(`/dares/${id}`));
       
       if (response.data) {
         setDare(response.data);
+        // Cache the dare details
+        setCachedData(cacheKey, response.data, 10 * 60 * 1000); // 10 minutes cache
         showSuccess('Dare details loaded successfully!');
 
       } else {
@@ -87,7 +105,7 @@ export default function DareDetails() {
     } finally {
       setLoading(false);
     }
-  }, [id, showSuccess, showError]);
+  }, [id, showSuccess, showError, getCachedData, setCachedData]);
 
   useEffect(() => {
     fetchDareDetails();
@@ -107,7 +125,8 @@ export default function DareDetails() {
     setReportMessage('');
     setReportError('');
     try {
-      await api.post(`/comments/${reportCommentId}/report`, { reason: reportReason });
+      // Use retry mechanism for report submission
+      await retryApiCall(() => api.post(`/comments/${reportCommentId}/report`, { reason: reportReason }));
       const successMessage = 'Report submitted. Thank you for helping keep the community safe.';
       setReportMessage(successMessage);
       setReportReason('');
@@ -126,11 +145,14 @@ export default function DareDetails() {
 
   const handleAcceptDare = async () => {
     try {
-      await api.post(`/dares/${id}/accept`, {
+      // Use retry mechanism for dare acceptance
+      await retryApiCall(() => api.post(`/dares/${id}/accept`, {
         contentDeletion // OSA-style content expiration specified by participant
-      });
-      showSuccess('Dare accepted successfully!');
-      setRefresh(prev => prev + 1);
+      }));
+              showSuccess('Dare accepted successfully!');
+        // Invalidate cache when dare is updated
+        invalidateCache(`dare_details_${id}`);
+        setRefresh(prev => prev + 1);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to accept dare.';
       showError(errorMessage);
@@ -142,8 +164,11 @@ export default function DareDetails() {
     setRejecting(true);
     setRejectError('');
     try {
-      await api.post(`/dares/${id}/reject`, { reason: rejectReason });
+      // Use retry mechanism for dare rejection
+      await retryApiCall(() => api.post(`/dares/${id}/reject`, { reason: rejectReason }));
       showSuccess('Dare rejected successfully.');
+      // Invalidate cache when dare is updated
+      invalidateCache(`dare_details_${id}`);
       setShowRejectModal(false);
       setRejectReason('');
       setRefresh(prev => prev + 1);
@@ -161,11 +186,12 @@ export default function DareDetails() {
     setGrading(true);
     setGradeError('');
     try {
-      await api.post(`/dares/${id}/grade`, {
+      // Use retry mechanism for dare grading
+      await retryApiCall(() => api.post(`/dares/${id}/grade`, {
         targetId,
         grade: parseInt(grade),
         feedback
-      });
+      }));
       showSuccess('Grade submitted successfully!');
       setGrade('');
       setFeedback('');
@@ -198,7 +224,8 @@ export default function DareDetails() {
     setAppealMessage('');
     setAppealError('');
     try {
-      await api.post(`/dares/${id}/appeal`, { reason: appealReason });
+      // Use retry mechanism for appeal submission
+      await retryApiCall(() => api.post(`/dares/${id}/appeal`, { reason: appealReason }));
       const successMessage = 'Appeal submitted successfully. We will review your case.';
       setAppealMessage(successMessage);
       setAppealReason('');
@@ -224,7 +251,8 @@ export default function DareDetails() {
     setEditLoading(true);
     setEditError('');
     try {
-      await api.patch(`/comments/${editCommentId}`, { text: editCommentText });
+      // Use retry mechanism for comment update
+      await retryApiCall(() => api.patch(`/comments/${editCommentId}`, { text: editCommentText }));
       showSuccess('Comment updated successfully!');
       setEditCommentId(null);
       setEditCommentText('');

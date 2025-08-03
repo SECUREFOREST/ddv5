@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { rateLimiter } from '../utils/validation';
 
 // Check if we're online
 const isOnline = () => {
@@ -25,6 +26,14 @@ api.interceptors.request.use((config) => {
   // Check if we're online
   if (!isOnline()) {
     return Promise.reject(new Error('You are offline. Please check your internet connection.'));
+  }
+  
+  // Rate limiting check
+  const requestKey = `${config.method}:${config.url}`;
+  if (!rateLimiter.isAllowed(requestKey)) {
+    const error = new Error('Rate limit exceeded. Please try again later.');
+    error.isRateLimit = true;
+    return Promise.reject(error);
   }
   
   const accessToken = localStorage.getItem('accessToken');

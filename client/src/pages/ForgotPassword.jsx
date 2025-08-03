@@ -5,6 +5,8 @@ import Card from '../components/Card';
 import { ArrowLeftIcon, EnvelopeIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
+import { retryApiCall } from '../utils/retry';
+import { validateEmail } from '../utils/validation';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -14,11 +16,20 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate email
+    if (!validateEmail(email)) {
+      setForgotError('Please enter a valid email address.');
+      showError('Please enter a valid email address.');
+      return;
+    }
+    
     setLoading(true);
     setForgotError('');
     
     try {
-      await api.post('/auth/request-reset', { email });
+      // Use retry mechanism for password reset request
+      await retryApiCall(() => api.post('/auth/request-reset', { email }));
       const successMessage = 'If an account with that email exists, a reset link has been sent.';
       showSuccess(successMessage);
     } catch (err) {

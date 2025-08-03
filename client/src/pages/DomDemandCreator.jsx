@@ -7,6 +7,8 @@ import { ShieldCheckIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTri
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
+import { retryApiCall } from '../utils/retry';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 
 export default function DomDemandCreator() {
   const { showSuccess, showError } = useToast();
@@ -38,14 +40,14 @@ export default function DomDemandCreator() {
     setCreating(true);
     try {
       // Create a dom demand with double-consent protection
-      const res = await api.post('/dares/dom-demand', {
+      const res = await retryApiCall(() => api.post('/dares/dom-demand', {
         description,
         difficulty,
         tags,
         public: publicDare,
         dareType: 'domination',
         requiresConsent: true, // This ensures double-consent workflow
-      });
+      }));
       
       if (res.data && res.data.claimLink) {
         setClaimLink(res.data.claimLink);

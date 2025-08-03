@@ -10,6 +10,8 @@ import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
+import { retryApiCall } from '../utils/retry';
+import { useCache } from '../utils/cache';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -62,6 +64,9 @@ export default function SwitchGameDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  // Activate caching for switch game details
+  const { getCachedData, setCachedData, invalidateCache } = useCache();
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
@@ -180,17 +185,35 @@ export default function SwitchGameDetails() {
   const fetchGameWithFeedback = useCallback(async (showLoading = false) => {
     if (!id) return;
     
+    // Check cache first (only for initial load, not polling)
+    if (showLoading) {
+      const cacheKey = `switch_game_details_${id}`;
+      const cachedData = getCachedData(cacheKey);
+      
+      if (cachedData) {
+        setGame(cachedData);
+        setLoading(false);
+        return;
+      }
+    }
+    
     if (showLoading) setLoading(true);
     setFetchingGame(true);
     setFetchGameError('');
     
     try {
-      const response = await api.get(`/switches/${id}`);
+      // Use retry mechanism for switch game details fetch
+      const response = await retryApiCall(() => api.get(`/switches/${id}`));
       
       if (response.data) {
         if (!isGameEqual(response.data, game)) {
           setGame(response.data);
-
+          
+          // Cache the game details (only for initial load)
+          if (showLoading) {
+            const cacheKey = `switch_game_details_${id}`;
+            setCachedData(cacheKey, response.data, 5 * 60 * 1000); // 5 minutes cache
+          }
         }
       } else {
         throw new Error('No data received from server');
@@ -204,7 +227,7 @@ export default function SwitchGameDetails() {
       setFetchingGame(false);
       if (showLoading) setLoading(false);
     }
-  }, [id, game, showError]);
+  }, [id, game, showError, getCachedData, setCachedData]);
 
   // Replace all fetchGame(true) with fetchGameWithFeedback(true)
   useEffect(() => {
@@ -282,9 +305,12 @@ export default function SwitchGameDetails() {
     }
     setGrading(true);
     try {
-      await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback });
+      // Use retry mechanism for switch game grading
+      await retryApiCall(() => api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback }));
       setGrade('');
       setFeedback('');
+      // Invalidate cache when game is updated
+      invalidateCache(`switch_game_details_${id}`);
       fetchGameWithFeedback(true);
       showSuccess('Grade submitted successfully!');
     } catch (err) {
@@ -317,9 +343,12 @@ export default function SwitchGameDetails() {
     }
     setGrading(true);
     try {
-      await api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback }); // Removed target
+      // Use retry mechanism for bidirectional grading
+      await retryApiCall(() => api.post(`/switches/${id}/grade`, { grade: Number(grade), feedback })); // Removed target
       setGrade('');
       setFeedback('');
+      // Invalidate cache when game is updated
+      invalidateCache(`switch_game_details_${id}`);
       showSuccess('Grade submitted!');
       fetchGameWithFeedback(true);
     } catch (err) {
@@ -388,9 +417,10 @@ export default function SwitchGameDetails() {
     if (proofText) formData.append('text', proofText);
     formData.append('file', proofFile);
     try {
-      await api.post(`/switches/${id}/proof`, formData, {
+      // Use retry mechanism for proof submission
+      await retryApiCall(() => api.post(`/switches/${id}/proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      }));
       setProofFile(null);
       setFilePreviewUrl(null);
       setProofText('');
@@ -420,7 +450,8 @@ export default function SwitchGameDetails() {
     setReviewSuccess('');
     setReviewSubmitting(true);
     try {
-      await api.post(`/switches/${id}/proof-review`, { action, feedback: reviewFeedback });
+      // Use retry mechanism for proof review
+      await retryApiCall(() => api.post(`/switches/${id}/proof-review`, { action, feedback: reviewFeedback }));
       setReviewFeedback('');
       setReviewSuccess(action === 'approve' ? 'Proof approved!' : 'Proof rejected.');
       fetchGameWithFeedback(true);
@@ -451,7 +482,8 @@ export default function SwitchGameDetails() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      await api.post(`/switches/${id}/forfeit`);
+      // Use retry mechanism for forfeit
+      await retryApiCall(() => api.post(`/switches/${id}/forfeit`));
       setChickenOutLoading(false);
       showSuccess('You have chickened out of this switch game.');
       fetchGameWithFeedback(true);

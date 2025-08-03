@@ -8,6 +8,8 @@ import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
+import { retryApiCall } from '../utils/retry';
 
 
 
@@ -45,7 +47,8 @@ export default function DarePerform() {
     setProofSuccess('');
     
     try {
-      const response = await api.get(`/dares/random?difficulty=${difficulty}`);
+      // Use retry mechanism for dare fetch
+      const response = await retryApiCall(() => api.get(`/dares/random?difficulty=${difficulty}`));
       
       if (response.data && response.data._id) {
         // Prevent creator from performing their own dare

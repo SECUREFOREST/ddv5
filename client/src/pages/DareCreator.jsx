@@ -8,6 +8,8 @@ import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon } from '@heroicons/
 import { useToast } from '../components/Toast';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
+import { retryApiCall } from '../utils/retry';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 
 export default function DareCreator() {
   const { showSuccess, showError } = useToast();
@@ -46,12 +48,12 @@ export default function DareCreator() {
     try {
       let res;
       if (claimable) {
-        res = await api.post('/dares/claimable', {
+        res = await retryApiCall(() => api.post('/dares/claimable', {
           description,
           difficulty,
           tags,
           public: publicDare,
-        });
+        }));
         if (res.data && res.data.claimLink) {
           setClaimLink(res.data.claimLink);
           setShowModal(true);
@@ -60,12 +62,12 @@ export default function DareCreator() {
           throw new Error('Invalid response: missing claim link');
         }
       } else {
-        res = await api.post('/dares', {
+        res = await retryApiCall(() => api.post('/dares', {
           description,
           difficulty,
           tags,
           public: publicDare,
-        });
+        }));
         showSuccess('Dare created successfully!');
         navigate(`/dare/share/${res.data._id || res.data.id}`);
       }

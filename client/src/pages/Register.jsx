@@ -7,6 +7,8 @@ import Card from '../components/Card';
 import { UserPlusIcon, EyeIcon, EyeSlashIcon, CheckIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../components/Toast';
+import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
+import { retryApiCall } from '../utils/retry';
 
 export default function Register() {
   const { register } = useAuth();
@@ -25,19 +27,26 @@ export default function Register() {
   const navigate = useNavigate();
 
   const validate = () => {
-    if (!username || !fullName || !email || !password || !dob || !gender || interestedIn.length === 0) {
-      showError('All fields are required.');
+    // Rate limiting check
+    if (!rateLimiter.isAllowed('register')) {
+      const remaining = rateLimiter.getRemainingAttempts('register');
+      const errorMessage = `Too many registration attempts. Please wait before trying again. (${remaining} attempts remaining)`;
+      showError(errorMessage);
       return false;
     }
-    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!emailRegex.test(email)) {
-      showError('Invalid email format.');
+    
+    // Validate form data using the validation utility
+    const validation = validateFormData(
+      { username, fullName, email, password, dob, gender, interestedIn, limits },
+      VALIDATION_SCHEMAS.register
+    );
+    
+    if (!validation.isValid) {
+      const errorMessage = Object.values(validation.errors)[0];
+      showError(errorMessage);
       return false;
     }
-    if (password.length < 8) {
-      showError('Password must be at least 8 characters.');
-      return false;
-    }
+    
     return true;
   };
 
@@ -56,7 +65,11 @@ export default function Register() {
     }
     
     try {
-      await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
+      // Use retry mechanism for registration
+      await retryApiCall(async () => {
+        await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
+      });
+      
       showSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {

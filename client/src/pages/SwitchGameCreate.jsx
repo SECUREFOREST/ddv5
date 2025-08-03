@@ -7,6 +7,8 @@ import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import TagsInput from '../components/TagsInput';
 import { ButtonLoading } from '../components/LoadingSpinner';
+import { retryApiCall } from '../utils/retry';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -42,13 +44,13 @@ export default function SwitchGameCreate() {
     
     setCreating(true);
     try {
-      const res = await api.post('/switches', {
+      const res = await retryApiCall(() => api.post('/switches', {
         creatorDare: {
           description,
           difficulty,
           move
         },
-      });
+      }));
       
       if (res.data && res.data._id) {
         showSuccess('Switch game created successfully!');
