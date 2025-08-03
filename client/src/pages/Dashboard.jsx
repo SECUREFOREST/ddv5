@@ -20,7 +20,7 @@ const TABS = [
 
 const ROLE_FORMS = {
   submissive: {
-    title: "Perform One Submissive Act",
+    title: "Perform Deviant Dare",
     description: "Describe what you will do and select difficulty level",
     icon: HeartIcon,
     color: "from-pink-600 to-rose-600",
@@ -298,7 +298,7 @@ export default function Dashboard() {
                           />
                         </div>
                         <div className="text-xs text-purple-400">
-                          {stats.dominantCount || 0} acts
+                          {stats.dominantCount || 0} dares
                         </div>
                       </div>
                       
@@ -317,12 +317,12 @@ export default function Dashboard() {
                           />
                         </div>
                         <div className="text-xs text-pink-400">
-                          {stats.submissiveCount || 0} acts
+                          {stats.submissiveCount || 0} dares
                         </div>
                       </div>
                     </div>
                     <div className="text-xs text-neutral-400 mt-4 text-center">
-                      Based on {stats.totalCount || 0} total acts
+                      Based on {stats.totalCount || 0} total dares
                     </div>
                   </Card>
                 )}

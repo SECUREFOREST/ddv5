@@ -32,8 +32,8 @@ export const DIFFICULTY_OPTIONS = [
     value: 'explicit', 
     label: 'Explicit', 
     desc: 'Sexually explicit or more intense.',
-    longDesc: 'Directly sexual content and activities. Explicit language, nudity, and sexual acts. For experienced users who are comfortable with adult content.',
-    examples: 'Nude photos, sexual acts, or explicit roleplay scenarios'
+    longDesc: 'Directly sexual content and activities. Explicit language, nudity, and sexual dares. For experienced users who are comfortable with adult content.',
+    examples: 'Nude photos, sexual dares, or explicit roleplay scenarios'
   },
   { 
     value: 'edgy', 

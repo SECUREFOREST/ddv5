@@ -152,8 +152,8 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// GET /api/stats/public-acts - get public act counts
-router.get('/public-acts', async (req, res) => {
+// GET /api/stats/public-dares - get public dare counts
+router.get('/public-dares', async (req, res) => {
   try {
     const [totalDares, submissionDares, dominationDares, switchGames] = await Promise.all([
       Dare.countDocuments({ public: true, status: 'waiting_for_participant' }),
@@ -169,7 +169,7 @@ router.get('/public-acts', async (req, res) => {
       switch: switchGames
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch public act counts.' });
+    res.status(500).json({ error: 'Failed to fetch public dare counts.' });
   }
 });
 

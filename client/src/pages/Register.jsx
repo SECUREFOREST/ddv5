@@ -286,7 +286,7 @@ export default function Register() {
                   <div>
                     <h3 className="text-xl font-bold text-white mb-2">Hard Limits</h3>
                     <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                      List any acts or activities you absolutely will not do. This helps ensure your safety and comfort.
+                      List any dares or activities you absolutely will not do. This helps ensure your safety and comfort.
                     </p>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function Register() {
                     className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                   />
                   <p className="text-neutral-400 text-xs mt-2">
-                    Examples: no photos, no public, no pain, no humiliation, no specific acts
+                    Examples: no photos, no public, no pain, no humiliation, no specific dares
                   </p>
                 </div>
               </div>

@@ -20,7 +20,7 @@ const Landing = () => {
     {
       icon: <HeartIcon className="w-8 h-8 text-pink-500" />,
       title: "Offer your Submission",
-      description: "Act as a submissive - perform tasks for a dominant",
+      description: "Act as a submissive - perform dares for a dominant",
       path: "/subs/new",
       color: "from-pink-600 to-rose-600",
       hoverColor: "from-pink-700 to-rose-700"
@@ -28,7 +28,7 @@ const Landing = () => {
     {
       icon: <SparklesIcon className="w-8 h-8 text-purple-500" />,
       title: "Demand and Dominate", 
-      description: "Act as a dominant - assign tasks for a submissive",
+      description: "Act as a dominant - assign dares for a submissive",
       path: "/dare/create",
       color: "from-purple-600 to-indigo-600",
       hoverColor: "from-purple-700 to-indigo-700"

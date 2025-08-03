@@ -674,7 +674,7 @@ export default function Profile() {
                           />
                         </div>
                         <div className="text-xs text-purple-400 mt-2">
-                          {stats.dominantCount || 0} acts as dominant
+                          {stats.dominantCount || 0} dares as dominant
                         </div>
                       </div>
                       
@@ -693,12 +693,12 @@ export default function Profile() {
                           />
                         </div>
                         <div className="text-xs text-pink-400 mt-2">
-                          {stats.submissiveCount || 0} acts as submissive
+                          {stats.submissiveCount || 0} dares as submissive
                         </div>
                       </div>
                     </div>
                     <div className="text-sm text-neutral-400 mt-4 text-center">
-                      Based on {stats.totalCount || 0} total completed acts
+                      Based on {stats.totalCount || 0} total completed dares
                     </div>
                   </div>
                 )}
