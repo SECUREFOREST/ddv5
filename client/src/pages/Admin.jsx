@@ -329,7 +329,7 @@ function Admin() {
         handleApiError(error, 'load users');
       })
       .finally(() => setDataLoading(false));
-  }, [checkAdminPermission, handleApiError, setUsersTotalItems]);
+  }, [checkAdminPermission, handleApiError, setUsersTotalItems, usersCurrentPage, usersPageSize]);
 
   const fetchDares = useCallback(() => {
     const currentPage = typeof daresCurrentPage !== 'undefined' ? daresCurrentPage : 1;
@@ -352,7 +352,7 @@ function Admin() {
         handleApiError(err, 'load dares');
       })
       .finally(() => setDaresLoading(false));
-  }, [handleApiError, setDaresTotalItems]);
+  }, [handleApiError, setDaresTotalItems, daresCurrentPage, daresPageSize]);
 
   const fetchReports = useCallback(() => {
     const currentPage = typeof reportsCurrentPage !== 'undefined' ? reportsCurrentPage : 1;
@@ -375,7 +375,7 @@ function Admin() {
         handleApiError(err, 'load reports');
       })
       .finally(() => setReportsLoading(false));
-  }, [handleApiError, setReportsTotalItems]);
+  }, [handleApiError, setReportsTotalItems, reportsCurrentPage, reportsPageSize]);
 
   const fetchAppeals = useCallback(() => {
     const currentPage = typeof appealsCurrentPage !== 'undefined' ? appealsCurrentPage : 1;
@@ -398,7 +398,7 @@ function Admin() {
         handleApiError(err, 'load appeals');
       })
       .finally(() => setAppealsLoading(false));
-  }, [handleApiError, setAppealsTotalItems]);
+  }, [handleApiError, setAppealsTotalItems, appealsCurrentPage, appealsPageSize]);
 
   const fetchAuditLog = useCallback(() => {
     const currentPage = typeof auditLogCurrentPage !== 'undefined' ? auditLogCurrentPage : 1;
@@ -440,7 +440,7 @@ function Admin() {
         handleApiError(err, 'load audit log');
       })
       .finally(() => setAuditLogLoading(false));
-  }, [handleApiError, setAuditLogTotalItems]);
+  }, [handleApiError, setAuditLogTotalItems, auditLogCurrentPage, auditLogPageSize]);
 
   const fetchSwitchGames = useCallback(() => {
     const currentPage = typeof switchGamesCurrentPage !== 'undefined' ? switchGamesCurrentPage : 1;
@@ -463,7 +463,7 @@ function Admin() {
         handleApiError(err, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
-    }, [handleApiError, setSwitchGamesTotalItems]);
+    }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
     
     // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
