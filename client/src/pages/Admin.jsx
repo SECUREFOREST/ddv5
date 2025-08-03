@@ -141,6 +141,8 @@ function Admin() {
   const [editUserLoading, setEditUserLoading] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ show: false, message: '', onConfirm: null });
   const [auditLogSearch, setAuditLogSearch] = useState('');
+  const [reportsSearch, setReportsSearch] = useState('');
+  const [appealsSearch, setAppealsSearch] = useState('');
   const [editUserId, setEditUserId] = useState(null);
   const [editUserError, setEditUserError] = useState('');
   const [confirmAction, setConfirmAction] = useState({
@@ -346,12 +348,12 @@ function Admin() {
       .finally(() => setDaresLoading(false));
   }, [handleApiError, setDaresTotalItems, daresCurrentPage, daresPageSize]);
 
-  const fetchReports = useCallback(() => {
+  const fetchReports = useCallback((searchId = "") => {
     const currentPage = typeof reportsCurrentPage !== 'undefined' ? reportsCurrentPage : 1;
     const pageSize = typeof reportsPageSize !== 'undefined' ? reportsPageSize : ITEMS_PER_PAGE;
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     setReportsLoading(true);
-    retryApiCall(() => api.get('/reports', { params: { page: currentPage, limit: pageSize } }))
+    retryApiCall(() => api.get('/reports', { params: { search: searchId, page: currentPage, limit: pageSize } }))
       .then(res => {
         const reportsData = res.data.reports || [];
         const paginationData = res.data.pagination || {};
@@ -368,12 +370,12 @@ function Admin() {
       .finally(() => setReportsLoading(false));
   }, [handleApiError, setReportsTotalItems, reportsCurrentPage, reportsPageSize]);
 
-  const fetchAppeals = useCallback(() => {
+  const fetchAppeals = useCallback((searchId = "") => {
     const currentPage = typeof appealsCurrentPage !== 'undefined' ? appealsCurrentPage : 1;
     const pageSize = typeof appealsPageSize !== 'undefined' ? appealsPageSize : ITEMS_PER_PAGE;
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     setAppealsLoading(true);
-    retryApiCall(() => api.get('/appeals', { params: { page: currentPage, limit: pageSize } }))
+    retryApiCall(() => api.get('/appeals', { params: { search: searchId, page: currentPage, limit: pageSize } }))
       .then(res => {
         const appealsData = res.data.appeals || [];
         const paginationData = res.data.pagination || {};
@@ -451,13 +453,17 @@ function Admin() {
         fetchDares(dareSearch);
       } else if (tabIdx === 2 && auditLogSearch) {
         fetchAuditLog(auditLogSearch);
+      } else if (tabIdx === 3 && reportsSearch) {
+        fetchReports(reportsSearch);
+      } else if (tabIdx === 4 && appealsSearch) {
+        fetchAppeals(appealsSearch);
       } else if (tabIdx === 5 && switchGameSearch) {
         fetchSwitchGames(switchGameSearch);
       }
     }, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [userSearch, dareSearch, auditLogSearch, switchGameSearch, tabIdx]);
+  }, [userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, tabIdx]);
 
   // Real-time updates for critical data
   useEffect(() => {
@@ -491,15 +497,15 @@ function Admin() {
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 3) {
-      fetchReports();
+      fetchReports(reportsSearch);
     }
-  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission, tabIdx, fetchReports]);
+  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission, tabIdx, fetchReports, reportsSearch]);
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 4) {
-      fetchAppeals();
+      fetchAppeals(appealsSearch);
     }
-  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission, tabIdx, fetchAppeals]);
+  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission, tabIdx, fetchAppeals, appealsSearch]);
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 5) {
@@ -1662,6 +1668,38 @@ function Admin() {
                 label: 'Reports',
                 content: (
                   <div className="space-y-6">
+                    {/* Reports Search */}
+                    <Card header="Reports Search">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1">
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+                            </div>
+                            <input
+                              type="text"
+                              className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                              placeholder="Search reports..."
+                              value={reportsSearch}
+                              onChange={e => setReportsSearch(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <ButtonLoading
+                          loading={actionLoading}
+                          loadingText="Searching..."
+                        >
+                          <button
+                            onClick={() => fetchReports(reportsSearch)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            Search
+                          </button>
+                        </ButtonLoading>
+                      </div>
+                    </Card>
+
                     {reportsLoading ? (
                       <ListSkeleton count={10} />
                     ) : (
@@ -1728,6 +1766,38 @@ function Admin() {
                 label: 'Appeals',
                 content: (
                   <div className="space-y-6">
+                    {/* Appeals Search */}
+                    <Card header="Appeals Search">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1">
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+                            </div>
+                            <input
+                              type="text"
+                              className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                              placeholder="Search appeals..."
+                              value={appealsSearch}
+                              onChange={e => setAppealsSearch(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <ButtonLoading
+                          loading={actionLoading}
+                          loadingText="Searching..."
+                        >
+                          <button
+                            onClick={() => fetchAppeals(appealsSearch)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            Search
+                          </button>
+                        </ButtonLoading>
+                      </div>
+                    </Card>
+
                     {appealsLoading ? (
                       <ListSkeleton count={10} />
                     ) : (

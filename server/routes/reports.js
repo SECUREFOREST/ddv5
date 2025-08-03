@@ -15,11 +15,20 @@ router.get('/', auth, checkPermission('resolve_report'), async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
+    // Build filter for search
+    const filter = {};
+    if (req.query.search) {
+      filter.$or = [
+        { reason: { $regex: req.query.search, $options: 'i' } },
+        { type: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+    
     // Get total count for pagination
-    const total = await Report.countDocuments();
+    const total = await Report.countDocuments(filter);
     
     // Get paginated reports
-    const reports = await Report.find()
+    const reports = await Report.find(filter)
       .populate('reporter', 'username email')
       .skip(skip)
       .limit(limit)
