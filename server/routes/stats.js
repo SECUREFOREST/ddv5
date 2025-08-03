@@ -7,32 +7,66 @@ const SwitchGame = require('../models/SwitchGame');
 const Dare = require('../models/Dare');
 const User = require('../models/User');
 
-// GET /api/stats/leaderboard - top users by dares created
+// GET /api/stats/leaderboard - comprehensive leaderboard data
 router.get('/leaderboard', auth, async (req, res) => {
   try {
-    // Aggregate users by number of dares created
-    const topUsers = await Dare.aggregate([
-      { $group: { _id: '$creator', daresCount: { $sum: 1 } } },
-      { $sort: { daresCount: -1 } },
-      { $limit: 10 },
+    // Get all users with their dare statistics
+    const users = await User.find({}, 'username fullName avatar roles');
+    
+    // Use aggregation for better performance
+    const [daresCreatedStats, daresCompletedStats] = await Promise.all([
+      Dare.aggregate([
+        { $group: { _id: '$creator', count: { $sum: 1 } } }
+      ]),
+      Dare.aggregate([
+        { $match: { status: 'completed' } },
+        { $group: { _id: '$performer', count: { $sum: 1 } } }
+      ])
     ]);
-    // Populate user info
-    const users = await User.find({ _id: { $in: topUsers.map(u => u._id) } }, 'username fullName avatar');
-    // Fetch blocked users for filtering
-    const currentUser = await User.findById(req.userId).select('blockedUsers');
-    // Merge stats
-    let leaderboard = topUsers.map(u => {
-      const user = users.find(us => us._id.toString() === (u._id ? u._id.toString() : ''));
+    
+    // Create lookup maps for O(1) access
+    const daresCreatedMap = new Map(daresCreatedStats.map(stat => [stat._id.toString(), stat.count]));
+    const daresCompletedMap = new Map(daresCompletedStats.map(stat => [stat._id.toString(), stat.count]));
+    
+    // Get dare statistics for each user
+    const userStats = users.map(user => {
+      const daresCreated = daresCreatedMap.get(user._id.toString()) || 0;
+      const daresCompletedAsPerformer = daresCompletedMap.get(user._id.toString()) || 0;
+      
       return {
-        user: user ? { id: user._id, username: user.username, fullName: user.fullName, avatar: user.avatar } : { id: null, username: '[deleted]', fullName: null, avatar: null },
-        daresCount: u.daresCount,
+        user: {
+          id: user._id,
+          username: user.username,
+          fullName: user.fullName,
+          avatar: user.avatar,
+          roles: user.roles || []
+        },
+        daresCreated,
+        daresCompletedAsPerformer,
+        daresCount: daresCreated + daresCompletedAsPerformer // Total for overall ranking
       };
     });
+    
+    // Sort by total dares count (overall performance)
+    userStats.sort((a, b) => b.daresCount - a.daresCount);
+    
+    // Filter out blocked users
+    const currentUser = await User.findById(req.userId).select('blockedUsers');
+    let leaderboard = userStats;
+    
     if (currentUser && currentUser.blockedUsers && currentUser.blockedUsers.length > 0) {
-      leaderboard = leaderboard.filter(entry => entry.user && entry.user.id && !currentUser.blockedUsers.map(bu => bu.toString()).includes(entry.user.id.toString()));
+      leaderboard = userStats.filter(entry => 
+        entry.user && entry.user.id && 
+        !currentUser.blockedUsers.map(bu => bu.toString()).includes(entry.user.id.toString())
+      );
     }
+    
+    // Limit to top 50 users for performance
+    leaderboard = leaderboard.slice(0, 50);
+    
     res.json(leaderboard);
   } catch (err) {
+    console.error('Leaderboard error:', err);
     res.status(500).json({ error: 'Failed to get leaderboard.' });
   }
 });

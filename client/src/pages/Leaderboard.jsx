@@ -30,6 +30,7 @@ export default function Leaderboard() {
       
       if (response.data) {
         const usersData = Array.isArray(response.data) ? response.data : [];
+        console.log('Leaderboard data received:', usersData);
         setUsers(usersData);
         showSuccess('Leaderboard loaded successfully!');
 
@@ -61,12 +62,22 @@ export default function Leaderboard() {
     switch (activeTab) {
       case 'subs':
         // Filter for submissive users (completed dares as performer)
-        return u.user?.roles?.includes('submissive') || u.daresCompletedAsPerformer > 0;
+        return u.daresCompletedAsPerformer > 0;
       case 'doms':
         // Filter for dominant users (created dares)
-        return u.user?.roles?.includes('dominant') || u.daresCreated > 0;
+        return u.daresCreated > 0;
       default:
         return true; // Show all users
+    }
+  }).sort((a, b) => {
+    // Sort by the relevant metric for each tab
+    switch (activeTab) {
+      case 'subs':
+        return b.daresCompletedAsPerformer - a.daresCompletedAsPerformer;
+      case 'doms':
+        return b.daresCreated - a.daresCreated;
+      default:
+        return b.daresCount - a.daresCount;
     }
   });
 
@@ -135,6 +146,12 @@ export default function Leaderboard() {
               <div className="text-center py-12">
                 <div className="text-red-400 text-xl mb-4">Error Loading Leaderboard</div>
                 <p className="text-neutral-500 text-sm">{error}</p>
+                <button 
+                  onClick={fetchLeaderboard}
+                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Try Again
+                </button>
               </div>
             ) : (
               <div className="space-y-6">
@@ -156,24 +173,35 @@ export default function Leaderboard() {
                   </div>
                 </div>
                 
-                <Suspense fallback={<ListSkeleton count={5} />}>
-                  <LeaderboardWidget 
-                    leaders={filteredUsers.map(u => ({
-                      id: u.user?.id,
-                      username: u.user?.username,
-                      fullName: u.user?.fullName,
-                      avatar: u.user?.avatar,
-                      daresCount: activeTab === 'subs' ? u.daresCompletedAsPerformer : 
-                                  activeTab === 'doms' ? u.daresCreated : 
-                                  u.daresCount,
-                      role: u.user?.roles?.[0] || 'user'
-                    }))} 
-                    loading={loading} 
-                    title={activeTab === 'subs' ? 'Subs Leaderboard' : 
-                           activeTab === 'doms' ? 'Doms Leaderboard' : 
-                           'Overall Leaderboard'}
-                  />
-                </Suspense>
+                {!loading && filteredUsers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-neutral-400 text-xl mb-4">No Data Available</div>
+                    <p className="text-neutral-500 text-sm">
+                      {activeTab === 'subs' ? 'No submissive users found.' :
+                       activeTab === 'doms' ? 'No dominant users found.' :
+                       'No leaderboard data available.'}
+                    </p>
+                  </div>
+                ) : (
+                  <Suspense fallback={<ListSkeleton count={5} />}>
+                    <LeaderboardWidget 
+                      leaders={filteredUsers.map(u => ({
+                        id: u.user?.id,
+                        username: u.user?.username,
+                        fullName: u.user?.fullName,
+                        avatar: u.user?.avatar,
+                        daresCount: activeTab === 'subs' ? u.daresCompletedAsPerformer : 
+                                    activeTab === 'doms' ? u.daresCreated : 
+                                    u.daresCount,
+                        role: u.user?.roles?.[0] || 'user'
+                      }))} 
+                      loading={loading} 
+                      title={activeTab === 'subs' ? 'Subs Leaderboard' : 
+                             activeTab === 'doms' ? 'Doms Leaderboard' : 
+                             'Overall Leaderboard'}
+                    />
+                  </Suspense>
+                )}
               </div>
             )}
           </div>

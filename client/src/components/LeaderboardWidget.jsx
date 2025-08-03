@@ -24,7 +24,11 @@ export default function LeaderboardWidget({ leaders = [], loading = false, title
               <tr className="bg-[#282828] text-primary">
                 <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-8">#</th>
                 <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828]">User</th>
-                <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-24">Dares Completed</th>
+                <th scope="col" className="px-2 py-1 font-semibold border-b border-[#282828] text-center w-24">
+                  {title?.includes('Subs') ? 'Dares Completed' : 
+                   title?.includes('Doms') ? 'Dares Created' : 
+                   'Total Dares'}
+                </th>
               </tr>
             </thead>
             <tbody>
