@@ -56,7 +56,6 @@ import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
 
 // 2025 Design System - Neumorphism 2.0
 const NeumorphicCard = ({ children, className = '', variant = 'default', interactive = false }) => {

@@ -11,7 +11,6 @@ import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
 

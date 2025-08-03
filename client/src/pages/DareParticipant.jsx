@@ -7,7 +7,6 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
 
 export default function DareParticipant() {
   const { id } = useParams();

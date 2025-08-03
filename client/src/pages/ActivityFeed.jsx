@@ -7,7 +7,7 @@ import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { useRealtimeActivity } from '../utils/realtime';
+import { useRealtimeActivitySubscription } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
@@ -23,7 +23,7 @@ export default function ActivityFeed() {
   const [search, setSearch] = useState('');
   
   // Activate real-time activity updates
-  const { subscribeToActivity, unsubscribeFromActivity } = useRealtimeActivity();
+  const { subscribeToActivity } = useRealtimeActivitySubscription();
 
   const fetchActivityFeed = useCallback(async () => {
     try {

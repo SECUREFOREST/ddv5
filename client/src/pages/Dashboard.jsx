@@ -11,7 +11,7 @@ import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
-import { useRealtimeData } from '../utils/realtime';
+import { useRealtimeEvents } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
@@ -62,7 +62,7 @@ export default function Dashboard() {
   const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
   
   // Activate real-time updates for dashboard
-  const { subscribeToEvents, unsubscribeFromEvents } = useRealtimeData();
+  const { subscribeToEvents } = useRealtimeEvents();
 
   const fetchDashboardData = useCallback(async () => {
     if (!user) return;

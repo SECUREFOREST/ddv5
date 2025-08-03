@@ -6,7 +6,6 @@ import Avatar from '../components/Avatar';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { ClockIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
-import { useCache } from '../utils/cache';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
 

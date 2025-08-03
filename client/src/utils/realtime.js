@@ -277,6 +277,19 @@ export function useRealtimeNotifications() {
 }
 
 /**
+ * Real-time notification subscription hook
+ */
+export function useRealtimeNotificationSubscription() {
+  const subscribeToNotifications = React.useCallback((callback) => {
+    return realtimeManager.subscribe(REALTIME_EVENTS.NOTIFICATION_CREATED, callback);
+  }, []);
+  
+  return {
+    subscribeToNotifications
+  };
+}
+
+/**
  * Real-time activity hook
  */
 export function useRealtimeActivity() {
@@ -292,6 +305,19 @@ export function useRealtimeActivity() {
   }, []);
   
   return activities;
+}
+
+/**
+ * Real-time activity subscription hook
+ */
+export function useRealtimeActivitySubscription() {
+  const subscribeToActivity = React.useCallback((callback) => {
+    return realtimeManager.subscribe(REALTIME_EVENTS.ACTIVITY_CREATED, callback);
+  }, []);
+  
+  return {
+    subscribeToActivity
+  };
 }
 
 /**
@@ -323,6 +349,25 @@ export function useRealtimeUserStatus(userId) {
   }, [userId]);
   
   return status;
+}
+
+/**
+ * Real-time events hook for subscribing to multiple events
+ */
+export function useRealtimeEvents() {
+  const subscribeToEvents = React.useCallback((events, callback) => {
+    const unsubscribers = events.map(event => 
+      realtimeManager.subscribe(event, callback)
+    );
+    
+    return () => {
+      unsubscribers.forEach(unsubscribe => unsubscribe());
+    };
+  }, []);
+  
+  return {
+    subscribeToEvents
+  };
 }
 
 /**

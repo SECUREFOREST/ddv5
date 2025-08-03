@@ -8,7 +8,6 @@ import { retryApiCall } from '../utils/retry';
 
 
 
-
 export default function DareDifficultySelect() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();

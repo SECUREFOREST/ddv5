@@ -10,7 +10,6 @@ import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPath
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 

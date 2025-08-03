@@ -6,7 +6,6 @@ import { useToast } from '../components/Toast';
 import { ShareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 
-
 function DifficultyBadge({ level }) {
   let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
   let label = '';

@@ -10,7 +10,6 @@ import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 
-
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
   if (val === '30_days') return 'delete_after_30_days';

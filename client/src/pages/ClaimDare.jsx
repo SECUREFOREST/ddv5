@@ -6,7 +6,6 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
-import { useCache } from '../utils/cache';
 
 function DifficultyBadge({ level }) {
 

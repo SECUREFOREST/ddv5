@@ -9,7 +9,6 @@ import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/
 import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 
-
 function DifficultyBadge({ level }) {
 
   const getBadgeStyle = (level) => {

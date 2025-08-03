@@ -9,7 +9,7 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
-import { useRealtimeNotifications } from '../utils/realtime';
+import { useRealtimeNotificationSubscription } from '../utils/realtime';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -22,7 +22,7 @@ export default function Notifications() {
   const toastTimeout = useRef(null);
   
   // Activate real-time notifications
-  const { subscribeToNotifications, unsubscribeFromNotifications } = useRealtimeNotifications();
+  const { subscribeToNotifications } = useRealtimeNotificationSubscription();
 
   const fetchNotifications = useCallback(async () => {
     try {
