@@ -168,6 +168,192 @@ function Admin() {
   
   const ITEMS_PER_PAGE = 10;
 
+  // Permission check utility
+  const checkAdminPermission = useCallback(() => {
+    console.log('checkAdminPermission called with user:', user);
+    // Check if user exists and has admin role
+    if (!user) {
+      console.log('checkAdminPermission: No user found');
+      showError('Authentication required. Please log in again.');
+      return false;
+    }
+    
+    // Check if user has roles property and includes admin
+    if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
+      console.log('checkAdminPermission: User does not have admin role:', user.roles);
+      showError('Admin access required. You do not have permission to perform this action.');
+      return false;
+    }
+    
+    console.log('checkAdminPermission: User has admin role');
+    return true;
+  }, [user, showError]);
+
+  // Enhanced error handling utility
+  const handleApiError = useCallback((error, operation) => {
+    if (error.response?.status === 401) {
+      // For admin endpoints, don't show error toast, just log
+      return 'auth_required';
+    } else if (error.response?.status === 403) {
+      showError('Access denied. You do not have permission to perform this action.');
+      return 'permission_denied';
+    } else if (error.response?.status === 404) {
+      return 'not_found';
+    } else if (error.code === 'ECONNABORTED') {
+      return 'timeout';
+    } else {
+      return 'general_error';
+    }
+  }, [showError]);
+
+  // Fetch site statistics
+  const fetchSiteStats = useCallback(() => {
+    setApiStatus(prev => ({ ...prev, siteStats: 'loading' }));
+    setSiteStatsLoading(true);
+    retryApiCall(() => api.get('/stats/site'))
+      .then(res => {
+        setSiteStats(res.data);
+        setApiStatus(prev => ({ ...prev, siteStats: 'success' }));
+      })
+      .catch(err => {
+        setApiStatus(prev => ({ ...prev, siteStats: 'error' }));
+        handleApiError(err, 'load site stats');
+      })
+      .finally(() => setSiteStatsLoading(false));
+  }, [handleApiError]);
+
+  // All useCallback hooks must be called before any early returns
+  const fetchUsers = useCallback((searchId = "") => {
+    console.log('fetchUsers called with:', { searchId, usersCurrentPage, usersPageSize });
+    if (!checkAdminPermission()) {
+      console.log('fetchUsers: checkAdminPermission returned false');
+      return;
+    }
+    
+    setDataLoading(true);
+    setApiStatus(prev => ({ ...prev, users: 'loading' }));
+    retryApiCall(() => api.get('/users', { params: { search: searchId, page: usersCurrentPage, limit: usersPageSize } }))
+      .then(res => {
+        const usersData = res.data.users || [];
+        const paginationData = res.data.pagination || {};
+        setUsers(usersData);
+        setUsersTotalItems(paginationData.total || usersData.length);
+        setApiStatus(prev => ({ ...prev, users: 'success' }));
+      })
+      .catch((error) => {
+        setUsers([]);
+        setUsersTotalItems(0);
+        setApiStatus(prev => ({ ...prev, users: 'error' }));
+        handleApiError(error, 'load users');
+      })
+      .finally(() => setDataLoading(false));
+  }, [checkAdminPermission, handleApiError, setUsersTotalItems]);
+
+  const fetchDares = useCallback(() => {
+    console.log('fetchDares called with:', { daresCurrentPage, daresPageSize });
+    setApiStatus(prev => ({ ...prev, dares: 'loading' }));
+    setDaresLoading(true);
+    retryApiCall(() => api.get('/dares', { params: { page: daresCurrentPage, limit: daresPageSize } }))
+      .then(res => {
+        const daresData = res.data.dares || [];
+        const paginationData = res.data.pagination || {};
+        setDares(daresData);
+        setDaresTotalItems(paginationData.total || daresData.length);
+        setApiStatus(prev => ({ ...prev, dares: 'success' }));
+      })
+      .catch(err => {
+        setDares([]);
+        setDaresTotalItems(0);
+        setApiStatus(prev => ({ ...prev, dares: 'error' }));
+        handleApiError(err, 'load dares');
+      })
+      .finally(() => setDaresLoading(false));
+  }, [handleApiError, setDaresTotalItems]);
+
+  const fetchReports = useCallback(() => {
+    console.log('fetchReports called with:', { reportsCurrentPage, reportsPageSize });
+    setApiStatus(prev => ({ ...prev, reports: 'loading' }));
+    setReportsLoading(true);
+    retryApiCall(() => api.get('/reports', { params: { page: reportsCurrentPage, limit: reportsPageSize } }))
+      .then(res => {
+        const reportsData = res.data.reports || [];
+        const paginationData = res.data.pagination || {};
+        setReports(reportsData);
+        setReportsTotalItems(paginationData.total || reportsData.length);
+        setApiStatus(prev => ({ ...prev, reports: 'success' }));
+      })
+      .catch(err => {
+        setReports([]);
+        setReportsTotalItems(0);
+        setApiStatus(prev => ({ ...prev, reports: 'error' }));
+        handleApiError(err, 'load reports');
+      })
+      .finally(() => setReportsLoading(false));
+  }, [handleApiError, setReportsTotalItems]);
+
+  const fetchAppeals = useCallback(() => {
+    console.log('fetchAppeals called with:', { appealsCurrentPage, appealsPageSize });
+    setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
+    setAppealsLoading(true);
+    retryApiCall(() => api.get('/appeals', { params: { page: appealsCurrentPage, limit: appealsPageSize } }))
+      .then(res => {
+        const appealsData = res.data.appeals || [];
+        const paginationData = res.data.pagination || {};
+        setAppeals(appealsData);
+        setAppealsTotalItems(paginationData.total || appealsData.length);
+        setApiStatus(prev => ({ ...prev, appeals: 'success' }));
+      })
+      .catch(err => {
+        setAppeals([]);
+        setAppealsTotalItems(0);
+        setApiStatus(prev => ({ ...prev, appeals: 'error' }));
+        handleApiError(err, 'load appeals');
+      })
+      .finally(() => setAppealsLoading(false));
+  }, [handleApiError, setAppealsTotalItems]);
+
+  const fetchAuditLog = useCallback(() => {
+    console.log('fetchAuditLog called with:', { auditLogCurrentPage, auditLogPageSize });
+    setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
+    setAuditLogLoading(true);
+    retryApiCall(() => api.get('/audit-log', { params: { page: auditLogCurrentPage, limit: auditLogPageSize } }))
+      .then(res => {
+        const auditLogData = res.data.logs || [];
+        const paginationData = res.data.pagination || {};
+        setAuditLog(auditLogData);
+        setAuditLogTotalItems(paginationData.total || auditLogData.length);
+        setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
+      })
+      .catch(err => {
+        setAuditLog([]);
+        setAuditLogTotalItems(0);
+        setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
+        handleApiError(err, 'load audit log');
+      })
+      .finally(() => setAuditLogLoading(false));
+  }, [handleApiError, setAuditLogTotalItems]);
+
+  const fetchSwitchGames = useCallback(() => {
+    console.log('fetchSwitchGames called with:', { switchGamesCurrentPage, switchGamesPageSize });
+    setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
+    setSwitchGamesLoading(true);
+    retryApiCall(() => api.get('/switches', { params: { page: switchGamesCurrentPage, limit: switchGamesPageSize } }))
+      .then(res => {
+        const switchGamesData = res.data.games || [];
+        const paginationData = res.data.pagination || {};
+        setSwitchGames(switchGamesData);
+        setSwitchGamesTotalItems(paginationData.total || switchGamesData.length);
+        setApiStatus(prev => ({ ...prev, switchGames: 'success' }));
+      })
+      .catch(err => {
+        setSwitchGames([]);
+        setSwitchGamesTotalItems(0);
+        setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
+        handleApiError(err, 'load switch games');
+      })
+      .finally(() => setSwitchGamesLoading(false));
+    }, [handleApiError, setSwitchGamesTotalItems]);
+    
   // Pagination hooks for each tab with server-side callbacks
   const {
     currentPage: usersCurrentPage,
@@ -318,194 +504,6 @@ function Admin() {
       }
     }
   });
-
-  // Permission check utility
-  const checkAdminPermission = useCallback(() => {
-    console.log('checkAdminPermission called with user:', user);
-    // Check if user exists and has admin role
-    if (!user) {
-      console.log('checkAdminPermission: No user found');
-      showError('Authentication required. Please log in again.');
-      return false;
-    }
-    
-    // Check if user has roles property and includes admin
-    if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
-      console.log('checkAdminPermission: User does not have admin role:', user.roles);
-      showError('Admin access required. You do not have permission to perform this action.');
-      return false;
-    }
-    
-    console.log('checkAdminPermission: User has admin role');
-    return true;
-  }, [user, showError]);
-
-  // Enhanced error handling utility
-  const handleApiError = useCallback((error, operation) => {
-    if (error.response?.status === 401) {
-      // For admin endpoints, don't show error toast, just log
-      return 'auth_required';
-    } else if (error.response?.status === 403) {
-      showError('Access denied. You do not have permission to perform this action.');
-      return 'permission_denied';
-    } else if (error.response?.status === 404) {
-      return 'not_found';
-    } else if (error.code === 'ECONNABORTED') {
-      return 'timeout';
-    } else {
-      return 'general_error';
-    }
-  }, [showError]);
-
-  // Fetch site statistics
-  const fetchSiteStats = useCallback(() => {
-    setApiStatus(prev => ({ ...prev, siteStats: 'loading' }));
-    setSiteStatsLoading(true);
-    retryApiCall(() => api.get('/stats/site'))
-      .then(res => {
-        setSiteStats(res.data);
-        setApiStatus(prev => ({ ...prev, siteStats: 'success' }));
-      })
-      .catch(err => {
-        setApiStatus(prev => ({ ...prev, siteStats: 'error' }));
-        handleApiError(err, 'load site stats');
-      })
-      .finally(() => setSiteStatsLoading(false));
-  }, [handleApiError]);
-
-  // All useCallback hooks must be called before any early returns
-  const fetchUsers = useCallback((searchId = "") => {
-    console.log('fetchUsers called with:', { searchId, usersCurrentPage, usersPageSize });
-    if (!checkAdminPermission()) {
-      console.log('fetchUsers: checkAdminPermission returned false');
-      return;
-    }
-    
-    setDataLoading(true);
-    setApiStatus(prev => ({ ...prev, users: 'loading' }));
-    retryApiCall(() => api.get('/users', { params: { search: searchId, page: usersCurrentPage, limit: usersPageSize } }))
-      .then(res => {
-        const usersData = res.data.users || [];
-        const paginationData = res.data.pagination || {};
-        setUsers(usersData);
-        setUsersTotalItems(paginationData.total || usersData.length);
-        setApiStatus(prev => ({ ...prev, users: 'success' }));
-      })
-      .catch((error) => {
-        setUsers([]);
-        setUsersTotalItems(0);
-        setApiStatus(prev => ({ ...prev, users: 'error' }));
-        handleApiError(error, 'load users');
-      })
-      .finally(() => setDataLoading(false));
-  }, [checkAdminPermission, handleApiError, setUsersTotalItems, usersCurrentPage, usersPageSize]);
-
-  const fetchDares = useCallback(() => {
-    console.log('fetchDares called with:', { daresCurrentPage, daresPageSize });
-    setApiStatus(prev => ({ ...prev, dares: 'loading' }));
-    setDaresLoading(true);
-    retryApiCall(() => api.get('/dares', { params: { page: daresCurrentPage, limit: daresPageSize } }))
-      .then(res => {
-        const daresData = res.data.dares || [];
-        const paginationData = res.data.pagination || {};
-        setDares(daresData);
-        setDaresTotalItems(paginationData.total || daresData.length);
-        setApiStatus(prev => ({ ...prev, dares: 'success' }));
-      })
-      .catch(err => {
-        setDares([]);
-        setDaresTotalItems(0);
-        setApiStatus(prev => ({ ...prev, dares: 'error' }));
-        handleApiError(err, 'load dares');
-      })
-      .finally(() => setDaresLoading(false));
-  }, [handleApiError, setDaresTotalItems, daresCurrentPage, daresPageSize]);
-
-  const fetchReports = useCallback(() => {
-    console.log('fetchReports called with:', { reportsCurrentPage, reportsPageSize });
-    setApiStatus(prev => ({ ...prev, reports: 'loading' }));
-    setReportsLoading(true);
-    retryApiCall(() => api.get('/reports', { params: { page: reportsCurrentPage, limit: reportsPageSize } }))
-      .then(res => {
-        const reportsData = res.data.reports || [];
-        const paginationData = res.data.pagination || {};
-        setReports(reportsData);
-        setReportsTotalItems(paginationData.total || reportsData.length);
-        setApiStatus(prev => ({ ...prev, reports: 'success' }));
-      })
-      .catch(err => {
-        setReports([]);
-        setReportsTotalItems(0);
-        setApiStatus(prev => ({ ...prev, reports: 'error' }));
-        handleApiError(err, 'load reports');
-      })
-      .finally(() => setReportsLoading(false));
-  }, [handleApiError, setReportsTotalItems, reportsCurrentPage, reportsPageSize]);
-
-  const fetchAppeals = useCallback(() => {
-    console.log('fetchAppeals called with:', { appealsCurrentPage, appealsPageSize });
-    setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
-    setAppealsLoading(true);
-    retryApiCall(() => api.get('/appeals', { params: { page: appealsCurrentPage, limit: appealsPageSize } }))
-      .then(res => {
-        const appealsData = res.data.appeals || [];
-        const paginationData = res.data.pagination || {};
-        setAppeals(appealsData);
-        setAppealsTotalItems(paginationData.total || appealsData.length);
-        setApiStatus(prev => ({ ...prev, appeals: 'success' }));
-      })
-      .catch(err => {
-        setAppeals([]);
-        setAppealsTotalItems(0);
-        setApiStatus(prev => ({ ...prev, appeals: 'error' }));
-        handleApiError(err, 'load appeals');
-      })
-      .finally(() => setAppealsLoading(false));
-  }, [handleApiError, setAppealsTotalItems, appealsCurrentPage, appealsPageSize]);
-
-  const fetchAuditLog = useCallback(() => {
-    console.log('fetchAuditLog called with:', { auditLogCurrentPage, auditLogPageSize });
-    setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
-    setAuditLogLoading(true);
-    retryApiCall(() => api.get('/audit-log', { params: { page: auditLogCurrentPage, limit: auditLogPageSize } }))
-      .then(res => {
-        const auditLogData = res.data.logs || [];
-        const paginationData = res.data.pagination || {};
-        setAuditLog(auditLogData);
-        setAuditLogTotalItems(paginationData.total || auditLogData.length);
-        setApiStatus(prev => ({ ...prev, auditLog: 'success' }));
-      })
-      .catch(err => {
-        setAuditLog([]);
-        setAuditLogTotalItems(0);
-        setApiStatus(prev => ({ ...prev, auditLog: 'error' }));
-        handleApiError(err, 'load audit log');
-      })
-      .finally(() => setAuditLogLoading(false));
-  }, [handleApiError, setAuditLogTotalItems, auditLogCurrentPage, auditLogPageSize]);
-
-  const fetchSwitchGames = useCallback(() => {
-    console.log('fetchSwitchGames called with:', { switchGamesCurrentPage, switchGamesPageSize });
-    setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
-    setSwitchGamesLoading(true);
-    retryApiCall(() => api.get('/switches', { params: { page: switchGamesCurrentPage, limit: switchGamesPageSize } }))
-      .then(res => {
-        const switchGamesData = res.data.games || [];
-        const paginationData = res.data.pagination || {};
-        setSwitchGames(switchGamesData);
-        setSwitchGamesTotalItems(paginationData.total || switchGamesData.length);
-        setApiStatus(prev => ({ ...prev, switchGames: 'success' }));
-      })
-      .catch(err => {
-        setSwitchGames([]);
-        setSwitchGamesTotalItems(0);
-        setApiStatus(prev => ({ ...prev, switchGames: 'error' }));
-        handleApiError(err, 'load switch games');
-      })
-      .finally(() => setSwitchGamesLoading(false));
-    }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
-    
-
     
     // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
