@@ -168,7 +168,7 @@ function Admin() {
   
   const ITEMS_PER_PAGE = 10;
 
-  // Pagination hooks for each tab
+  // Pagination hooks for each tab with server-side callbacks
   const {
     currentPage: usersCurrentPage,
     totalPages: usersTotalPages,
@@ -178,7 +178,21 @@ function Admin() {
     paginatedData: paginatedUsers,
     totalItems: usersTotalItems,
     setTotalItems: setUsersTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Users page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchUsers();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Users page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchUsers();
+      }
+    }
+  });
 
   const {
     currentPage: daresCurrentPage,
@@ -189,7 +203,21 @@ function Admin() {
     paginatedData: paginatedDares,
     totalItems: daresTotalItems,
     setTotalItems: setDaresTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Dares page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchDares();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Dares page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchDares();
+      }
+    }
+  });
 
   const {
     currentPage: reportsCurrentPage,
@@ -200,7 +228,21 @@ function Admin() {
     paginatedData: paginatedReports,
     totalItems: reportsTotalItems,
     setTotalItems: setReportsTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Reports page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchReports();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Reports page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchReports();
+      }
+    }
+  });
 
   const {
     currentPage: appealsCurrentPage,
@@ -211,7 +253,21 @@ function Admin() {
     paginatedData: paginatedAppeals,
     totalItems: appealsTotalItems,
     setTotalItems: setAppealsTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Appeals page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchAppeals();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Appeals page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchAppeals();
+      }
+    }
+  });
 
   const {
     currentPage: auditLogCurrentPage,
@@ -222,7 +278,21 @@ function Admin() {
     paginatedData: paginatedAuditLog,
     totalItems: auditLogTotalItems,
     setTotalItems: setAuditLogTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Audit Log page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchAuditLog();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Audit Log page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchAuditLog();
+      }
+    }
+  });
 
   const {
     currentPage: switchGamesCurrentPage,
@@ -233,22 +303,40 @@ function Admin() {
     paginatedData: paginatedSwitchGames,
     totalItems: switchGamesTotalItems,
     setTotalItems: setSwitchGamesTotalItems
-  } = usePagination(1, ITEMS_PER_PAGE);
+  } = usePagination(1, ITEMS_PER_PAGE, {
+    serverSide: true,
+    onPageChange: (page) => {
+      console.log('Switch Games page changed to:', page);
+      if (authVerified && checkAdminPermission()) {
+        fetchSwitchGames();
+      }
+    },
+    onPageSizeChange: (pageSize) => {
+      console.log('Switch Games page size changed to:', pageSize);
+      if (authVerified && checkAdminPermission()) {
+        fetchSwitchGames();
+      }
+    }
+  });
 
   // Permission check utility
   const checkAdminPermission = useCallback(() => {
+    console.log('checkAdminPermission called with user:', user);
     // Check if user exists and has admin role
     if (!user) {
+      console.log('checkAdminPermission: No user found');
       showError('Authentication required. Please log in again.');
       return false;
     }
     
     // Check if user has roles property and includes admin
     if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
+      console.log('checkAdminPermission: User does not have admin role:', user.roles);
       showError('Admin access required. You do not have permission to perform this action.');
       return false;
     }
     
+    console.log('checkAdminPermission: User has admin role');
     return true;
   }, [user, showError]);
 
@@ -287,7 +375,11 @@ function Admin() {
 
   // All useCallback hooks must be called before any early returns
   const fetchUsers = useCallback((searchId = "") => {
-    if (!checkAdminPermission()) return;
+    console.log('fetchUsers called with:', { searchId, usersCurrentPage, usersPageSize });
+    if (!checkAdminPermission()) {
+      console.log('fetchUsers: checkAdminPermission returned false');
+      return;
+    }
     
     setDataLoading(true);
     setApiStatus(prev => ({ ...prev, users: 'loading' }));
@@ -309,6 +401,7 @@ function Admin() {
   }, [checkAdminPermission, handleApiError, setUsersTotalItems, usersCurrentPage, usersPageSize]);
 
   const fetchDares = useCallback(() => {
+    console.log('fetchDares called with:', { daresCurrentPage, daresPageSize });
     setApiStatus(prev => ({ ...prev, dares: 'loading' }));
     setDaresLoading(true);
     retryApiCall(() => api.get('/dares', { params: { page: daresCurrentPage, limit: daresPageSize } }))
@@ -329,6 +422,7 @@ function Admin() {
   }, [handleApiError, setDaresTotalItems, daresCurrentPage, daresPageSize]);
 
   const fetchReports = useCallback(() => {
+    console.log('fetchReports called with:', { reportsCurrentPage, reportsPageSize });
     setApiStatus(prev => ({ ...prev, reports: 'loading' }));
     setReportsLoading(true);
     retryApiCall(() => api.get('/reports', { params: { page: reportsCurrentPage, limit: reportsPageSize } }))
@@ -349,6 +443,7 @@ function Admin() {
   }, [handleApiError, setReportsTotalItems, reportsCurrentPage, reportsPageSize]);
 
   const fetchAppeals = useCallback(() => {
+    console.log('fetchAppeals called with:', { appealsCurrentPage, appealsPageSize });
     setApiStatus(prev => ({ ...prev, appeals: 'loading' }));
     setAppealsLoading(true);
     retryApiCall(() => api.get('/appeals', { params: { page: appealsCurrentPage, limit: appealsPageSize } }))
@@ -369,6 +464,7 @@ function Admin() {
   }, [handleApiError, setAppealsTotalItems, appealsCurrentPage, appealsPageSize]);
 
   const fetchAuditLog = useCallback(() => {
+    console.log('fetchAuditLog called with:', { auditLogCurrentPage, auditLogPageSize });
     setApiStatus(prev => ({ ...prev, auditLog: 'loading' }));
     setAuditLogLoading(true);
     retryApiCall(() => api.get('/audit-log', { params: { page: auditLogCurrentPage, limit: auditLogPageSize } }))
@@ -389,6 +485,7 @@ function Admin() {
   }, [handleApiError, setAuditLogTotalItems, auditLogCurrentPage, auditLogPageSize]);
 
   const fetchSwitchGames = useCallback(() => {
+    console.log('fetchSwitchGames called with:', { switchGamesCurrentPage, switchGamesPageSize });
     setApiStatus(prev => ({ ...prev, switchGames: 'loading' }));
     setSwitchGamesLoading(true);
     retryApiCall(() => api.get('/switches', { params: { page: switchGamesCurrentPage, limit: switchGamesPageSize } }))
@@ -408,42 +505,7 @@ function Admin() {
       .finally(() => setSwitchGamesLoading(false));
     }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
     
-  // Trigger fetch functions when pagination changes
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchUsers();
-    }
-  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission]);
 
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchDares();
-    }
-  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchReports();
-    }
-  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchAppeals();
-    }
-  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchAuditLog();
-    }
-  }, [auditLogCurrentPage, auditLogPageSize, authVerified, checkAdminPermission]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission()) {
-      fetchSwitchGames();
-    }
-  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission]);
     
     // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
@@ -1451,20 +1513,13 @@ function Admin() {
                                     )}
                                   </div>
                                   
-                                  {/* OSA-Style Content Expiration Info */}
-                                  {dare.contentExpiresAt && (
+                                  {/* Proof Expiration Info */}
+                                  {dare.proofExpiresAt && (
                                     <div className="flex items-center gap-2 mb-2">
                                       <ClockIcon className="w-4 h-4 text-yellow-400" />
                                       <span className="text-xs text-yellow-400">
-                                        Expires: {new Date(dare.contentExpiresAt).toLocaleDateString()}
+                                        Proof expires: {new Date(dare.proofExpiresAt).toLocaleDateString()}
                                       </span>
-                                      {dare.contentDeletion && (
-                                        <span className="text-xs text-neutral-500">
-                                          ({dare.contentDeletion === 'delete_after_view' ? 'delete after view' : 
-                                            dare.contentDeletion === 'delete_after_30_days' ? 'delete after 30 days' : 
-                                            'never delete'})
-                                        </span>
-                                      )}
                                     </div>
                                   )}
                                   

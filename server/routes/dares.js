@@ -87,16 +87,7 @@ router.get('/', auth, async (req, res, next) => {
       { allowedRoles: role }
     ];
     
-    // OSA-style content expiration filter - exclude expired content
-    const now = new Date();
-    filter.$and = [
-      {
-        $or: [
-          { contentExpiresAt: { $exists: false } },
-          { contentExpiresAt: { $gt: now } }
-        ]
-      }
-    ];
+    // No content expiration filter - dares don't expire, only proofs do
     
     // Fetch blocked users for filtering
     const user = await User.findById(req.userId).select('blockedUsers');
@@ -328,8 +319,7 @@ router.post('/dom-demand',
         status: 'waiting_for_participant',
         claimable: true,
         claimToken: uuidv4(),
-        contentDeletion: 'delete_after_30_days', // OSA automatic default
-        contentExpiresAt: thirtyDaysFromNow, // OSA automatic 30-day expiration
+        // No content expiration - dares don't expire, only proofs do
       });
       
       await dare.save();
@@ -397,8 +387,7 @@ router.post('/',
         creator: req.userId,
         assignedSwitch: assignedSwitch || undefined,
         status: 'waiting_for_participant', // Updated to match new status
-        contentDeletion: 'delete_after_30_days', // OSA automatic default
-        contentExpiresAt: thirtyDaysFromNow, // OSA automatic 30-day expiration
+        // No content expiration - dares don't expire, only proofs do
       });
       await dare.save();
       await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
@@ -763,8 +752,7 @@ router.post('/claimable',
         status: 'waiting_for_participant',
         claimable: true,
         claimToken,
-        contentDeletion: 'delete_after_30_days', // OSA automatic default
-        contentExpiresAt: thirtyDaysFromNow, // OSA automatic 30-day expiration
+        // No content expiration - dares don't expire, only proofs do
       });
       await dare.save();
       await logActivity({ type: 'dare_created', user: req.userId, dare: dare._id });
@@ -848,9 +836,6 @@ router.get('/claim/:token', async (req, res) => {
 // POST /api/dares/claim/:token - claim a dare by submitting a demand (public)
 router.post('/claim/:token', [
   body('demand').isString().isLength({ min: 5, max: 1000 }).trim(),
-  body('contentDeletion').optional()
-    .isString().withMessage('Content deletion must be a string.')
-    .isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('Content deletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -870,8 +855,7 @@ router.post('/claim/:token', [
     dare.claimDemand = req.body.demand;
     dare.status = 'in_progress';
     dare.claimable = false;
-    dare.contentDeletion = req.body.contentDeletion || 'delete_after_30_days'; // Participant's choice
-    dare.contentExpiresAt = thirtyDaysFromNow; // OSA automatic 30-day expiration
+    // No content expiration - dares don't expire, only proofs do
     await dare.save();
     // Optionally notify the creator
     await sendNotification(dare.creator, 'dare_claimed', 'Your claimable dare has been claimed.', req.userId);
@@ -994,18 +978,8 @@ router.get('/random', auth, async (req, res) => {
 });
 
 // POST /api/dares/:id/accept - accept a dare
-router.post('/:id/accept', auth, [
-  body('contentDeletion').optional()
-    .isString().withMessage('Content deletion must be a string.')
-    .isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('Content deletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
-  }
-  
+router.post('/:id/accept', auth, async (req, res) => {
   try {
-    const { contentDeletion } = req.body;
     const dare = await Dare.findById(req.params.id);
     if (!dare) {
       return res.status(404).json({ error: 'Dare not found.' });
@@ -1029,8 +1003,7 @@ router.post('/:id/accept', auth, [
       { 
         performer: req.userId, 
         status: 'in_progress',
-        contentDeletion: contentDeletion || 'delete_after_30_days', // Participant's choice
-        contentExpiresAt: thirtyDaysFromNow, // OSA automatic 30-day expiration
+        // No content expiration - dares don't expire, only proofs do
         updatedAt: new Date()
       },
       { new: true }
@@ -1253,7 +1226,7 @@ router.patch('/:id/consent', auth, async (req, res) => {
   }
 });
 
-// POST /api/dares/cleanup-expired - cleanup expired content (admin only)
+// POST /api/dares/cleanup-expired - cleanup expired proofs (admin only)
 router.post('/cleanup-expired', auth, async (req, res) => {
   try {
     // Check if user is admin
@@ -1264,39 +1237,32 @@ router.post('/cleanup-expired', auth, async (req, res) => {
 
     const now = new Date();
     
-    // Find and update expired content
-    const expiredDares = await Dare.find({
-      contentExpiresAt: { $lt: now },
-      contentDeletion: { $in: ['delete_after_30_days', 'delete_after_view'] }
+    // Find dares with expired proofs
+    const daresWithExpiredProofs = await Dare.find({
+      proofExpiresAt: { $lt: now },
+      proof: { $exists: true, $ne: null }
     });
 
-    let deletedCount = 0;
     let updatedCount = 0;
 
-    for (const dare of expiredDares) {
-      if (dare.contentDeletion === 'delete_after_view' && dare.contentViewedAt) {
-        // Delete content that was viewed and should be deleted
-        await Dare.findByIdAndDelete(dare._id);
-        deletedCount++;
-      } else if (dare.contentDeletion === 'delete_after_30_days') {
-        // Mark as expired for 30-day deletion
-        await Dare.findByIdAndUpdate(dare._id, { 
-          status: 'expired',
-          updatedAt: now
-        });
-        updatedCount++;
-      }
+    for (const dare of daresWithExpiredProofs) {
+      // Clear expired proof but keep the dare
+      await Dare.findByIdAndUpdate(dare._id, { 
+        proof: null,
+        proofExpiresAt: null,
+        updatedAt: now
+      });
+      updatedCount++;
     }
 
     res.json({ 
-      message: 'Cleanup completed successfully.',
-      deleted: deletedCount,
+      message: 'Proof cleanup completed successfully.',
       updated: updatedCount,
-      total: expiredDares.length
+      total: daresWithExpiredProofs.length
     });
   } catch (err) {
     console.error('Cleanup error:', err);
-    res.status(500).json({ error: 'Failed to cleanup expired content.' });
+    res.status(500).json({ error: 'Failed to cleanup expired proofs.' });
   }
 });
 

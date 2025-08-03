@@ -281,17 +281,15 @@ export default function DareReveal() {
                   )}
                 </div>
                 
-                {/* Content Expiration Info - OSA Style */}
-                {dare.contentExpiresAt && (
+                {/* Proof Expiration Info */}
+                {dare.proofExpiresAt && (
                   <div className="mt-4 p-4 bg-yellow-900/20 border border-yellow-800/30 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
                       <ClockIcon className="w-4 h-4 text-yellow-400" />
-                      <span className="text-sm font-semibold text-yellow-400">Content Expiration</span>
+                      <span className="text-sm font-semibold text-yellow-400">Proof Expiration</span>
                     </div>
                     <div className="text-sm text-yellow-300">
-                      This content will expire on {new Date(dare.contentExpiresAt).toLocaleDateString()}
-                      {dare.contentDeletion === 'delete_after_view' && ' (deletes after viewing)'}
-                      {dare.contentDeletion === 'delete_after_30_days' && ' (deletes after 30 days)'}
+                      Proof will expire on {new Date(dare.proofExpiresAt).toLocaleDateString()}
                     </div>
                   </div>
                 )}

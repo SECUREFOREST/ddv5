@@ -51,7 +51,7 @@ export default function DareDetails() {
   const [appealLoading, setAppealLoading] = useState(false);
   const [appealMessage, setAppealMessage] = useState('');
   const [appealError, setAppealError] = useState('');
-  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
+
   const [editCommentId, setEditCommentId] = useState(null);
   const [editCommentText, setEditCommentText] = useState('');
   const [editLoading, setEditLoading] = useState(false);
@@ -147,7 +147,7 @@ export default function DareDetails() {
     try {
       // Use retry mechanism for dare acceptance
       await retryApiCall(() => api.post(`/dares/${id}/accept`, {
-        contentDeletion // OSA-style content expiration specified by participant
+        // No content expiration - dares don't expire, only proofs do
       }));
               showSuccess('Dare accepted successfully!');
         // Invalidate cache when dare is updated
@@ -472,22 +472,15 @@ export default function DareDetails() {
                     </div>
                   )}
                   
-                  {/* Content Expiration Info - OSA Style */}
-                  {dare.contentExpiresAt && (
+                  {/* Proof Expiration Info */}
+                  {dare.proofExpiresAt && (
                     <div className="flex items-center gap-3">
                       <ClockIcon className="w-4 h-4 text-yellow-400" />
                       <div className="flex-1">
-                        <span className="text-neutral-400 text-sm">Content expires:</span>
+                        <span className="text-neutral-400 text-sm">Proof expires:</span>
                         <span className="text-yellow-400 text-sm font-semibold ml-2">
-                          {new Date(dare.contentExpiresAt).toLocaleDateString()}
+                          {new Date(dare.proofExpiresAt).toLocaleDateString()}
                         </span>
-                        {dare.contentDeletion && (
-                          <span className="text-neutral-500 text-xs ml-2">
-                            ({dare.contentDeletion === 'delete_after_view' ? 'deletes after viewing' : 
-                              dare.contentDeletion === 'delete_after_30_days' ? 'deletes after 30 days' : 
-                              'never deletes'})
-                          </span>
-                        )}
                       </div>
                     </div>
                   )}
@@ -518,46 +511,7 @@ export default function DareDetails() {
               <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
                 <h2 className="text-xl font-bold text-white mb-4">Actions</h2>
                 
-                {/* OSA-Style Content Expiration Settings for Pending Dares */}
-                {dare.status === 'pending' && dare.creator?._id !== user?.id && (
-                  <div className="mb-6 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
-                    <div className="flex items-start gap-4 mb-4">
-                      <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
-                        <p className="text-neutral-300 leading-relaxed">
-                          Choose how long this dare content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {PRIVACY_OPTIONS.map((option) => (
-                        <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                          contentDeletion === option.value 
-                            ? 'border-yellow-500 bg-yellow-500/10' 
-                            : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
-                        }`}>
-                          <input 
-                            type="radio" 
-                            name="contentDeletion" 
-                            value={option.value} 
-                            checked={contentDeletion === option.value} 
-                            onChange={(e) => setContentDeletion(e.target.value)} 
-                            className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-lg">{option.icon}</span>
-                              <span className="font-semibold text-white">{option.label}</span>
-                            </div>
-                            <p className="text-sm text-neutral-300">{option.desc}</p>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
                 
                 <div className="flex flex-wrap gap-4">
                   {dare.status === 'pending' && dare.creator?._id !== user?.id && (

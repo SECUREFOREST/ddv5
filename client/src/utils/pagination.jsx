@@ -15,7 +15,13 @@ export const PAGINATION_CONFIG = {
 /**
  * Pagination state management
  */
-export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONFIG.defaultPageSize) {
+export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONFIG.defaultPageSize, options = {}) {
+  const { 
+    onPageChange, 
+    onPageSizeChange, 
+    serverSide = false 
+  } = options;
+  
   const [currentPage, setCurrentPage] = React.useState(initialPage);
   const [pageSize, setPageSize] = React.useState(initialPageSize);
   const [totalItems, setTotalItems] = React.useState(0);
@@ -25,21 +31,46 @@ export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONF
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;
   
+  // Enhanced setCurrentPage that triggers onPageChange callback
+  const enhancedSetCurrentPage = React.useCallback((page) => {
+    const validPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(validPage);
+    
+    // Trigger server-side callback if provided
+    if (serverSide && onPageChange) {
+      onPageChange(validPage);
+    }
+  }, [totalPages, serverSide, onPageChange]);
+  
+  // Enhanced setPageSize that triggers onPageSizeChange callback
+  const enhancedSetPageSize = React.useCallback((newPageSize) => {
+    const validPageSize = Math.min(Math.max(1, newPageSize), PAGINATION_CONFIG.maxPageSize);
+    setPageSize(validPageSize);
+    
+    // Reset to first page when changing page size
+    setCurrentPage(1);
+    
+    // Trigger server-side callback if provided
+    if (serverSide && onPageSizeChange) {
+      onPageSizeChange(validPageSize);
+    }
+  }, [serverSide, onPageSizeChange]);
+  
   const goToPage = React.useCallback((page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  }, [totalPages]);
+    enhancedSetCurrentPage(page);
+  }, [enhancedSetCurrentPage]);
   
   const nextPage = React.useCallback(() => {
     if (hasNextPage) {
-      setCurrentPage(prev => prev + 1);
+      enhancedSetCurrentPage(currentPage + 1);
     }
-  }, [hasNextPage]);
+  }, [hasNextPage, currentPage, enhancedSetCurrentPage]);
   
   const prevPage = React.useCallback(() => {
     if (hasPrevPage) {
-      setCurrentPage(prev => prev - 1);
+      enhancedSetCurrentPage(currentPage - 1);
     }
-  }, [hasPrevPage]);
+  }, [hasPrevPage, currentPage, enhancedSetCurrentPage]);
   
   const reset = React.useCallback(() => {
     setCurrentPage(1);
@@ -47,7 +78,7 @@ export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONF
     setTotalItems(0);
   }, [initialPageSize]);
   
-  // Paginate data function
+  // Paginate data function (for client-side pagination)
   const paginatedData = React.useCallback((data) => {
     if (!Array.isArray(data)) return [];
     const startIndex = (currentPage - 1) * pageSize;
@@ -66,8 +97,8 @@ export function usePagination(initialPage = 1, initialPageSize = PAGINATION_CONF
     hasPrevPage,
     
     // Actions
-    setCurrentPage,
-    setPageSize,
+    setCurrentPage: enhancedSetCurrentPage,
+    setPageSize: enhancedSetPageSize,
     setTotalItems,
     setLoading,
     goToPage,
