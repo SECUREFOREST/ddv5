@@ -24,6 +24,7 @@ export default function Leaderboard() {
   const [activeTab, setActiveTab] = useState('all');
   const { showSuccess, showError } = useToast();
   const { user, loading: authLoading } = useAuth();
+  const hasFetchedRef = useRef(false);
   
 
   
@@ -50,6 +51,11 @@ export default function Leaderboard() {
     // Prevent multiple simultaneous requests
     if (loading) {
       return;
+    }
+    
+    // Add a ref to track if we've already fetched data
+    if (users.length > 0) {
+      return; // Don't refetch if we already have data
     }
     
     try {
@@ -80,15 +86,21 @@ export default function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  }, [showSuccess, showError, setTotalItems, user]);
+  }, [showSuccess, showError, setTotalItems, user, loading, users.length]);
 
   useEffect(() => {
     if (authLoading) return;
     
-    if (user) {
+    if (user && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       fetchLeaderboard();
     }
   }, [user, authLoading, fetchLeaderboard]);
+  
+  // Reset fetch flag when user changes
+  useEffect(() => {
+    hasFetchedRef.current = false;
+  }, [user]);
 
   // Filter users based on active tab and search
   const filteredUsers = users.filter(u => {

@@ -35,13 +35,7 @@ console.log('API Base URL:', getBaseURL());
 
 // Attach JWT if present and check online status
 api.interceptors.request.use((config) => {
-  // Debug: Log the config being processed
-  console.log('Request interceptor - config:', {
-    method: config?.method,
-    url: config?.url,
-    baseURL: config?.baseURL,
-    headers: config?.headers
-  });
+  
   
   // Ensure config exists and has required properties
   if (!config) {
