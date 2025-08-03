@@ -408,6 +408,7 @@ function Admin() {
     setAuditLogLoading(true);
     retryApiCall(() => api.get('/audit-log', { params: { page: currentPage, limit: pageSize } }))
       .then(res => {
+        console.log('Audit log API response received for page', currentPage, ':', res.data);
         const auditLogData = res.data.logs || [];
         const paginationData = res.data.pagination || {};
         console.log('Audit Log API response:', { auditLogData: auditLogData.length, paginationData, currentPage, pageSize });
