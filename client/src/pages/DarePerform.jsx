@@ -94,11 +94,11 @@ export default function DarePerform() {
         if (proof) formData.append('text', proof);
         formData.append('file', proofFile);
         formData.append('expireAfterView', expireAfterView);
-        await api.post(`/dares/${dare._id}/proof`, formData, {
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        }));
       } else {
-        await api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView });
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView }));
       }
       setProof('');
       setProofFile(null);
@@ -130,7 +130,7 @@ export default function DarePerform() {
       setFetchingDare(true);
       setFetchDareError('');
       
-      const response = await api.get(`/dares/${dareId}`);
+      const response = await retryApiCall(() => api.get(`/dares/${dareId}`));
       
       if (response.data) {
         setDare(response.data);
@@ -155,11 +155,11 @@ export default function DarePerform() {
     setGrading(true);
     setGradeError('');
     try {
-      await api.post(`/dares/${dare._id}/grade`, {
+      await retryApiCall(() => api.post(`/dares/${dare._id}/grade`, {
         targetId,
         grade,
         feedback,
-      });
+      }));
       setGrade('');
       setFeedback('');
       showSuccess('Grade submitted successfully!');

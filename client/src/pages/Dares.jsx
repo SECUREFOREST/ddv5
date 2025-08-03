@@ -52,9 +52,9 @@ export default function Dares() {
     setLoading(true);
     
     Promise.allSettled([
-      api.get('/dares', { params: { creator: userId } }),
-      api.get('/dares', { params: { participant: userId } }),
-      api.get('/dares', { params: { assignedSwitch: userId } })
+      retryApiCall(() => api.get('/dares', { params: { creator: userId } })),
+      retryApiCall(() => api.get('/dares', { params: { participant: userId } })),
+      retryApiCall(() => api.get('/dares', { params: { assignedSwitch: userId } }))
     ])
       .then(([createdRes, partRes, switchRes]) => {
         const all = [];
@@ -97,14 +97,14 @@ export default function Dares() {
     setCreating(true);
     setCreateError('');
     try {
-      const res = await api.post('/dares', {
+      const res = await retryApiCall(() => api.post('/dares', {
         description: createDescription,
         difficulty: createDifficulty,
         tags: createTags,
         dareType: createDareType,
         public: createPublic,
         allowedRoles: createAllowedRoles,
-      });
+      }));
       setShowCreate(false);
       setCreateDescription('');
       setCreateDifficulty('titillating');
@@ -115,7 +115,7 @@ export default function Dares() {
       setCreatedDareId(res.data._id || res.data.id); // Save new dare ID for sharing
       // Refresh dares
       setLoading(true);
-      const daresRes = await api.get('/dares', {
+      const daresRes = await retryApiCall(() => api.get('/dares', {
         params: {
           status: status || undefined,
           difficulty: difficulty || undefined,
@@ -124,7 +124,7 @@ export default function Dares() {
           dareType: dareType || undefined,
           role: user?.roles?.[0] || undefined,
         },
-      });
+      }));
       setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
       showSuccess('Dare created successfully!');
     } catch (err) {
@@ -168,15 +168,15 @@ export default function Dares() {
     }
     setAcceptLoading(true);
     try {
-      await api.post(`/dares/${acceptDareId}/accept`, {
+      await retryApiCall(() => api.post(`/dares/${acceptDareId}/accept`, {
         difficulty: acceptDifficulty,
         consent: acceptConsent,
         contentDeletion, // OSA-style content expiration specified by participant
-      });
+      }));
       showSuccess('Dare accepted successfully!');
       // Refresh dares
       setLoading(true);
-      const daresRes = await api.get('/dares', {
+      const daresRes = await retryApiCall(() => api.get('/dares', {
         params: {
           status: status || undefined,
           difficulty: difficulty || undefined,
@@ -185,7 +185,7 @@ export default function Dares() {
           dareType: dareType || undefined,
           role: user?.roles?.[0] || undefined,
         },
-      });
+      }));
       setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to accept dare. Please try again.';

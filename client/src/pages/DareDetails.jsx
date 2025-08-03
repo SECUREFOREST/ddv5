@@ -268,7 +268,7 @@ export default function DareDetails() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await api.delete(`/comments/${commentId}`);
+              await retryApiCall(() => api.delete(`/comments/${commentId}`));
       showSuccess('Comment deleted successfully!');
       setRefresh(prev => prev + 1);
     } catch (err) {
@@ -289,7 +289,7 @@ export default function DareDetails() {
     setModerateLoading(true);
     setModerateError('');
     try {
-      await api.post(`/comments/${moderateCommentId}/moderate`, { reason: moderationReason });
+              await retryApiCall(() => api.post(`/comments/${moderateCommentId}/moderate`, { reason: moderationReason }));
       showSuccess('Comment moderated successfully!');
       setShowModerateModal(false);
       setModerationReason('');
@@ -314,13 +314,13 @@ export default function DareDetails() {
         formData.append('proofFile', proofFile);
       }
       
-      await api.post(`/dares/${id}/proof`, formData, {
+      await retryApiCall(() => api.post(`/dares/${id}/proof`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setProofProgress(percentCompleted);
         }
-      });
+      }));
       
       showSuccess('Proof submitted successfully!');
       setProof('');

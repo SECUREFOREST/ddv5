@@ -16,28 +16,57 @@ const RETRY_CONFIG = {
   }
 };
 
+// Ensure baseURL is properly formatted
+const getBaseURL = () => {
+  const envURL = import.meta.env.VITE_API_URL;
+  if (!envURL) return '/api';
+  
+  // Remove trailing slash if present
+  return envURL.endsWith('/') ? envURL.slice(0, -1) : envURL;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseURL(),
   timeout: 10000, // 10 second timeout
 });
 
+// Debug: Log the base URL being used
+console.log('API Base URL:', getBaseURL());
+
 // Attach JWT if present and check online status
 api.interceptors.request.use((config) => {
+  // Debug: Log the config being processed
+  console.log('Request interceptor - config:', {
+    method: config?.method,
+    url: config?.url,
+    baseURL: config?.baseURL,
+    headers: config?.headers
+  });
+  
+  // Ensure config exists and has required properties
+  if (!config) {
+    console.error('Request interceptor - config is undefined');
+    return Promise.reject(new Error('Invalid request configuration'));
+  }
+  
   // Check if we're online
   if (!isOnline()) {
     return Promise.reject(new Error('You are offline. Please check your internet connection.'));
   }
   
-  // Rate limiting check
-  const requestKey = `${config.method}:${config.url}`;
-  if (!rateLimiter.isAllowed(requestKey)) {
-    const error = new Error('Rate limit exceeded. Please try again later.');
-    error.isRateLimit = true;
-    return Promise.reject(error);
+  // Rate limiting check - ensure config has method and url
+  if (config.method && config.url) {
+    const requestKey = `${config.method}:${config.url}`;
+    if (!rateLimiter.isAllowed(requestKey)) {
+      const error = new Error('Rate limit exceeded. Please try again later.');
+      error.isRateLimit = true;
+      return Promise.reject(error);
+    }
   }
   
   const accessToken = localStorage.getItem('accessToken');
   if (accessToken) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
@@ -48,6 +77,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    // Ensure originalRequest exists
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
     
     // Don't handle auth endpoints - let them fail normally
     const isAuthEndpoint = originalRequest.url?.includes('/auth/') || 

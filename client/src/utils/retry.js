@@ -37,6 +37,12 @@ function calculateDelay(attempt, config = RETRY_CONFIG) {
  * @returns {Promise} - Promise that resolves with function result
  */
 export async function retry(fn, options = {}) {
+  // Ensure fn is a function
+  if (typeof fn !== 'function') {
+    console.error('retry: fn is not a function:', fn);
+    throw new Error('Invalid function provided to retry');
+  }
+  
   const config = { ...RETRY_CONFIG, ...options };
   let lastError;
   
@@ -176,7 +182,26 @@ export function useRetry(operation, options = {}) {
  * @returns {Promise} - Promise that resolves with API result
  */
 export function retryApiCall(apiCall, options = RETRY_STRATEGIES.api) {
-  return retry(apiCall, options);
+  // Ensure apiCall is a function
+  if (typeof apiCall !== 'function') {
+    console.error('retryApiCall: apiCall is not a function:', apiCall);
+    return Promise.reject(new Error('Invalid API call function'));
+  }
+  
+  // Wrap the API call to ensure it's properly handled
+  const wrappedApiCall = async () => {
+    try {
+      console.log('retryApiCall: Executing API call');
+      const result = await apiCall();
+      console.log('retryApiCall: API call successful:', result);
+      return result;
+    } catch (error) {
+      console.error('retryApiCall: API call failed:', error);
+      throw error;
+    }
+  };
+  
+  return retry(wrappedApiCall, options);
 }
 
 /**

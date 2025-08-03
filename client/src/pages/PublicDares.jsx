@@ -73,8 +73,9 @@ export default function PublicDares() {
     setCurrentPage,
     setPageSize,
     paginatedData,
-    totalItems
-  } = usePagination([], 15); // 15 items per page
+    totalItems,
+    setTotalItems
+  } = usePagination(1, 15); // 15 items per page
 
   useEffect(() => {
     setLoading(true);
@@ -106,6 +107,11 @@ export default function PublicDares() {
           console.error('Failed to load public switches:', switchesRes.reason);
           setSwitchGames([]);
         }
+        
+        // Update total items for pagination
+        const allItems = [...(daresRes.status === 'fulfilled' ? daresRes.value.data : []), 
+                          ...(switchesRes.status === 'fulfilled' ? switchesRes.value.data : [])];
+        setTotalItems(allItems.length);
       })
       .catch((err) => {
         const errorMessage = 'Failed to load public dares or switch games.';
@@ -140,6 +146,12 @@ export default function PublicDares() {
   const filteredDares = filterAndSearch(dares, 'dare');
   const filteredSwitchGames = filterAndSearch(switchGames, 'switch');
   
+  // Update total items when filtered data changes
+  useEffect(() => {
+    const allItems = [...filteredDares, ...filteredSwitchGames];
+    setTotalItems(allItems.length);
+  }, [filteredDares, filteredSwitchGames, setTotalItems]);
+
   // Apply pagination to filtered items
   const allItems = [...filteredDares, ...filteredSwitchGames];
   const paginatedItems = paginatedData(allItems);
@@ -395,6 +407,9 @@ export default function PublicDares() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    totalItems={totalItems}
                     className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4"
                   />
                 </div>
