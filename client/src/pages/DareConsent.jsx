@@ -6,7 +6,7 @@ import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_ICONS_SMALL } from '../constants.jsx';
+import { DIFFICULTY_ICONS } from '../constants.jsx';
 
 function DifficultyBadge({ level }) {
 
@@ -40,7 +40,7 @@ function DifficultyBadge({ level }) {
 
   return (
     <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-semibold ${getBadgeStyle(level)}`}>
-      {DIFFICULTY_ICONS_SMALL[level]}
+      {DIFFICULTY_ICONS[level]}
       {getLabel(level)}
     </span>
   );

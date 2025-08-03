@@ -11,23 +11,7 @@ export const DIFFICULTY_ICONS = {
   hardcore: <RocketLaunchIcon className="w-6 h-6 text-black dark:text-white" aria-hidden="true" />,
 };
 
-// Small icons for badges
-export const DIFFICULTY_ICONS_SMALL = {
-  titillating: <SparklesIcon className="w-4 h-4" />,
-  arousing: <FireIcon className="w-4 h-4" />,
-  explicit: <EyeDropperIcon className="w-4 h-4" />,
-  edgy: <ExclamationTriangleIcon className="w-4 h-4" />,
-  hardcore: <RocketLaunchIcon className="w-4 h-4" />,
-};
 
-// Tiny icons for cards
-export const DIFFICULTY_ICONS_TINY = {
-  titillating: <SparklesIcon className="w-3 h-3" />,
-  arousing: <FireIcon className="w-3 h-3" />,
-  explicit: <EyeDropperIcon className="w-3 h-3" />,
-  edgy: <ExclamationTriangleIcon className="w-3 h-3" />,
-  hardcore: <RocketLaunchIcon className="w-3 h-3 animate-pulse" />,
-};
 
 export const DIFFICULTY_OPTIONS = [
   { 

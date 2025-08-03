@@ -3,7 +3,7 @@ import Card from './Card';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 import { FireIcon, ClockIcon, CheckCircleIcon, XMarkIcon, UserIcon, ChevronDownIcon, ChevronUpIcon, EyeIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_ICONS_TINY } from '../constants.jsx';
+import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 // Utility for fade-in animation
@@ -40,35 +40,35 @@ const DIFFICULTY_CONFIG = {
     color: 'from-pink-400 to-pink-500',
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/20',
-    icon: DIFFICULTY_ICONS_TINY.titillating
+            icon: DIFFICULTY_ICONS.titillating
   },
   arousing: {
     label: 'Arousing',
     color: 'from-purple-400 to-purple-500',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/20',
-    icon: DIFFICULTY_ICONS_TINY.arousing
+            icon: DIFFICULTY_ICONS.arousing
   },
   explicit: {
     label: 'Explicit',
     color: 'from-orange-400 to-orange-500',
     bgColor: 'bg-orange-500/10',
     borderColor: 'border-orange-500/20',
-    icon: DIFFICULTY_ICONS_TINY.explicit
+            icon: DIFFICULTY_ICONS.explicit
   },
   edgy: {
     label: 'Edgy',
     color: 'from-yellow-400 to-yellow-500',
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/20',
-    icon: DIFFICULTY_ICONS_TINY.edgy
+            icon: DIFFICULTY_ICONS.edgy
   },
   hardcore: {
     label: 'Hardcore',
     color: 'from-red-500 to-red-600',
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/20',
-    icon: DIFFICULTY_ICONS_TINY.hardcore
+            icon: DIFFICULTY_ICONS.hardcore
   }
 };
 
