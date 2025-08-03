@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import TagsInput from '../components/TagsInput';
 import { ButtonLoading } from '../components/LoadingSpinner';

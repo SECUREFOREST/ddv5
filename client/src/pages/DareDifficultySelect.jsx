@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 
 const DIFFICULTY_ICONS = {
   titillating: <SparklesIcon className="w-6 h-6 text-pink-400" aria-hidden="true" />,

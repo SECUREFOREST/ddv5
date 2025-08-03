@@ -7,7 +7,7 @@ import { ListSkeleton } from '../components/Skeleton';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const MOVES = ['rock', 'paper', 'scissors'];

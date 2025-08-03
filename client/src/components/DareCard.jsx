@@ -3,7 +3,7 @@ import Card from './Card';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 import { FireIcon, ClockIcon, CheckCircleIcon, XMarkIcon, UserIcon, ChevronDownIcon, ChevronUpIcon, EyeIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_ICONS_TINY } from '../constants';
+import { DIFFICULTY_ICONS_TINY } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 // Utility for fade-in animation

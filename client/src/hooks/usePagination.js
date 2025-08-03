@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { PAGINATION } from '../constants';
+import { PAGINATION } from '../constants.jsx';
 import { validatePaginationParams } from '../utils/apiUtils';
 
 /**

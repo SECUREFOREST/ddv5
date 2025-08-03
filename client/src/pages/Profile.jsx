@@ -11,7 +11,7 @@ import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
-import { PRIVACY_OPTIONS } from '../constants';
+import { PRIVACY_OPTIONS } from '../constants.jsx';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';

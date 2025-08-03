@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { PRIVACY_OPTIONS, DIFFICULTY_ICONS_SMALL } from '../constants';
+import { PRIVACY_OPTIONS, DIFFICULTY_ICONS_SMALL } from '../constants.jsx';
 
 function DifficultyBadge({ level }) {
 

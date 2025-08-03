@@ -8,7 +8,7 @@ import { ExclamationTriangleIcon, CheckCircleIcon, ClockIcon, XMarkIcon, PhotoIc
 import { Dialog } from '@headlessui/react';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_ICONS_SMALL } from '../constants';
+import { DIFFICULTY_ICONS_SMALL } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 function DifficultyBadge({ level }) {

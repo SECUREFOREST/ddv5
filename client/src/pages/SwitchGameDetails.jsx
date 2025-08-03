@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';

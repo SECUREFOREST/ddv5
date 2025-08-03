@@ -4,9 +4,9 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_ICONS_SMALL } from '../constants';
+import { DIFFICULTY_ICONS_SMALL } from '../constants.jsx';
 
 function DifficultyBadge({ level }) {
 

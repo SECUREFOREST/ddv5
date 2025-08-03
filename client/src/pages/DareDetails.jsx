@@ -12,7 +12,7 @@ import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, Ta
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
-import { PRIVACY_OPTIONS } from '../constants';
+import { PRIVACY_OPTIONS } from '../constants.jsx';
 
 export default function DareDetails() {
   const { id } = useParams();

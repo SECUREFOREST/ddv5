@@ -9,7 +9,7 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
 const TABS = [

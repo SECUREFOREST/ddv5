@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 
-import { PRIVACY_OPTIONS } from '../constants';
+import { PRIVACY_OPTIONS } from '../constants.jsx';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';

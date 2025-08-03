@@ -5,7 +5,7 @@ import api from '../api/axios';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 
 export default function DareParticipant() {
   const { id } = useParams();

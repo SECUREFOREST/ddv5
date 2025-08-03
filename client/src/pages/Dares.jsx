@@ -8,7 +8,7 @@ import StatusBadge from '../components/DareCard';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 export default function Dares() {

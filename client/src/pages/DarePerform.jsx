@@ -6,7 +6,7 @@ import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
 const DIFFICULTY_ICONS = {

@@ -6,7 +6,7 @@ import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../components/Toast';
-import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DareCreator() {

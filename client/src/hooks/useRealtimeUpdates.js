@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { REALTIME_INTERVALS } from '../constants';
+import { REALTIME_INTERVALS } from '../constants.jsx';
 
 /**
  * Custom hook for managing real-time updates

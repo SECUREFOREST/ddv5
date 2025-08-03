@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, SUCCESS_MESSAGES, API_RESPONSE_TYPES } from '../constants';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 
 /**
  * Validates and normalizes API responses
