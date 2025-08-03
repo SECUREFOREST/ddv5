@@ -25,13 +25,7 @@ export default function Leaderboard() {
   const { showSuccess, showError } = useToast();
   const { user, loading: authLoading } = useAuth();
   
-  // Debug user state (only log when values change to reduce console spam)
-  React.useEffect(() => {
-    console.log('Leaderboard: User state:', user ? 'authenticated' : 'not authenticated');
-    console.log('Leaderboard: Auth loading state:', authLoading);
-    console.log('Leaderboard: Component loading state:', loading);
-    console.log('Leaderboard: Error state:', error);
-  }, [user, authLoading, loading, error]);
+
   
   // Activate pagination for leaderboard
   const {
@@ -48,7 +42,6 @@ export default function Leaderboard() {
   const fetchLeaderboard = useCallback(async () => {
     // Check if user is authenticated
     if (!user) {
-      console.log('fetchLeaderboard: User not authenticated, skipping');
       setError('Please log in to view the leaderboard.');
       setLoading(false);
       return;
@@ -56,28 +49,12 @@ export default function Leaderboard() {
     
     // Prevent multiple simultaneous requests
     if (loading) {
-      console.log('fetchLeaderboard: Request already in progress, skipping');
       return;
     }
     
     try {
-      console.log('fetchLeaderboard: Starting leaderboard fetch...');
-      console.log('fetchLeaderboard: User authenticated:', !!user);
       setLoading(true);
       setError('');
-      
-      // First, test if the API is reachable and check authentication
-      console.log('fetchLeaderboard: Testing API connectivity...');
-      console.log('fetchLeaderboard: Checking authentication...');
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('fetchLeaderboard: Access token present:', !!accessToken);
-      
-      try {
-        await api.get('/stats/site', { timeout: 5000 });
-        console.log('fetchLeaderboard: API is reachable');
-      } catch (testError) {
-        console.error('fetchLeaderboard: API connectivity test failed:', testError);
-      }
       
       // Use retry mechanism for leaderboard fetch with timeout
       const response = await Promise.race([
@@ -87,90 +64,60 @@ export default function Leaderboard() {
         )
       ]);
       
-      console.log('fetchLeaderboard: Response received:', response);
-      
       if (response && response.data) {
         const usersData = Array.isArray(response.data) ? response.data : [];
-        console.log('Leaderboard data received:', usersData);
-        console.log('Leaderboard data length:', usersData.length);
-        
-        if (usersData.length === 0) {
-          console.log('fetchLeaderboard: No users found, setting empty array');
-        }
-        
         setUsers(usersData);
         setTotalItems(usersData.length);
         showSuccess('Leaderboard loaded successfully!');
-
       } else {
-        console.error('fetchLeaderboard: Invalid response format:', response);
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Leaderboard loading error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response,
-        status: error.response?.status,
-        data: error.response?.data
-      });
-      
       const errorMessage = error.response?.data?.error || error.message || 'Failed to load leaderboard.';
       setError(errorMessage);
       showError(errorMessage);
       setUsers([]);
     } finally {
-      console.log('fetchLeaderboard: Setting loading to false');
       setLoading(false);
     }
   }, [showSuccess, showError, setTotalItems, user]);
 
-  // Memoize the fetch condition to prevent unnecessary re-renders
-  const shouldFetch = React.useMemo(() => {
-    return !authLoading && !!user;
-  }, [authLoading, user]);
-
   useEffect(() => {
-    if (shouldFetch) {
-      console.log('Leaderboard: User available, fetching data...');
+    if (authLoading) return;
+    
+    if (user) {
       fetchLeaderboard();
-    } else if (authLoading) {
-      console.log('Leaderboard: Auth still loading, waiting...');
-    } else {
-      console.log('Leaderboard: No user available, skipping fetch');
     }
-  }, [shouldFetch, fetchLeaderboard, authLoading]);
+  }, [user, authLoading, fetchLeaderboard]);
 
   // Filter users based on active tab and search
-  const filteredUsers = React.useMemo(() => {
-    return users.filter(u => {
-      const matchesSearch = u.user?.username?.toLowerCase().includes(search.toLowerCase()) ||
-                           u.user?.fullName?.toLowerCase().includes(search.toLowerCase());
-      
-      if (!matchesSearch) return false;
-      
-      switch (activeTab) {
-        case 'subs':
-          // Filter for submissive users (completed dares as performer)
-          return u.daresCompletedAsPerformer > 0;
-        case 'doms':
-          // Filter for dominant users (created dares)
-          return u.daresCreated > 0;
-        default:
-          return true; // Show all users
-      }
-    }).sort((a, b) => {
-      // Sort by the relevant metric for each tab
-      switch (activeTab) {
-        case 'subs':
-          return b.daresCompletedAsPerformer - a.daresCompletedAsPerformer;
-        case 'doms':
-          return b.daresCreated - a.daresCreated;
-        default:
-          return b.daresCount - a.daresCount;
-      }
-    });
-  }, [users, search, activeTab]);
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.user?.username?.toLowerCase().includes(search.toLowerCase()) ||
+                         u.user?.fullName?.toLowerCase().includes(search.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    switch (activeTab) {
+      case 'subs':
+        // Filter for submissive users (completed dares as performer)
+        return u.daresCompletedAsPerformer > 0;
+      case 'doms':
+        // Filter for dominant users (created dares)
+        return u.daresCreated > 0;
+      default:
+        return true; // Show all users
+    }
+  }).sort((a, b) => {
+    // Sort by the relevant metric for each tab
+    switch (activeTab) {
+      case 'subs':
+        return b.daresCompletedAsPerformer - a.daresCompletedAsPerformer;
+      case 'doms':
+        return b.daresCreated - a.daresCreated;
+      default:
+        return b.daresCount - a.daresCount;
+    }
+  });
 
   // Update total items when filtered users change
   React.useEffect(() => {
@@ -180,13 +127,13 @@ export default function Leaderboard() {
   // Apply pagination to filtered users
   const paginatedUsers = paginatedData(filteredUsers);
 
-  const getTabIcon = React.useCallback((tab) => {
+  const getTabIcon = (tab) => {
     const TabIcon = tab.icon;
     return <TabIcon className="w-5 h-5" />;
-  }, []);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div key="leaderboard" className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -241,62 +188,45 @@ export default function Leaderboard() {
 
           {/* Leaderboard Content */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-            {React.useMemo(() => {
-              if (authLoading) {
-                return (
-                  <div className="text-center py-12">
-                    <div className="text-neutral-400 text-xl mb-4">Loading authentication...</div>
-                    <p className="text-neutral-500 text-sm">Please wait while we verify your login status.</p>
-                    <div className="mt-4">
-                      <ListSkeleton count={3} />
-                    </div>
-                  </div>
-                );
-              }
-              
-              if (!user) {
-                return (
-                  <div className="text-center py-12">
-                    <div className="text-neutral-400 text-xl mb-4">Authentication Required</div>
-                    <p className="text-neutral-500 text-sm">Please log in to view the leaderboard.</p>
-                    <button 
-                      onClick={() => window.location.href = '/login'}
-                      className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-                    >
-                      Go to Login
-                    </button>
-                  </div>
-                );
-              }
-              
-              if (error) {
-                return (
-                  <div className="text-center py-12">
-                    <div className="text-red-400 text-xl mb-4">Error Loading Leaderboard</div>
-                    <p className="text-neutral-500 text-sm">{error}</p>
-                    <button 
-                      onClick={fetchLeaderboard}
-                      className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                );
-              }
-              
-              if (loading) {
-                return (
-                  <div className="text-center py-12">
-                    <div className="text-neutral-400 text-xl mb-4">Loading leaderboard...</div>
-                    <p className="text-neutral-500 text-sm">Please wait while we fetch the latest data.</p>
-                    <div className="mt-4">
-                      <ListSkeleton count={5} />
-                    </div>
-                  </div>
-                );
-              }
-              
-              return (
+            {authLoading ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Loading authentication...</div>
+                <p className="text-neutral-500 text-sm">Please wait while we verify your login status.</p>
+                <div className="mt-4">
+                  <ListSkeleton count={3} />
+                </div>
+              </div>
+            ) : !user ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Authentication Required</div>
+                <p className="text-neutral-500 text-sm">Please log in to view the leaderboard.</p>
+                <button 
+                  onClick={() => window.location.href = '/login'}
+                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Go to Login
+                </button>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="text-red-400 text-xl mb-4">Error Loading Leaderboard</div>
+                <p className="text-neutral-500 text-sm">{error}</p>
+                <button 
+                  onClick={fetchLeaderboard}
+                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : loading ? (
+              <div className="text-center py-12">
+                <div className="text-neutral-400 text-xl mb-4">Loading leaderboard...</div>
+                <p className="text-neutral-500 text-sm">Please wait while we fetch the latest data.</p>
+                <div className="mt-4">
+                  <ListSkeleton count={5} />
+                </div>
+              </div>
+            ) : (
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-primary/20 rounded-lg">
@@ -346,8 +276,7 @@ export default function Leaderboard() {
                   </Suspense>
                 )}
               </div>
-            );
-          }, [authLoading, user, error, loading, fetchLeaderboard, filteredUsers, activeTab, paginatedUsers])}
+            )}
           </div>
 
           {/* Stats Summary */}
