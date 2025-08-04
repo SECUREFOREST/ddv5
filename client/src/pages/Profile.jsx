@@ -17,6 +17,7 @@ import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { RoleBadge } from '../components/Badge';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 
 
@@ -530,11 +531,11 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <div className="max-w-7xl mx-auto space-y-16">
           <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
           
-          <main id="main-content" tabIndex="-1" role="main">
+          <MainContent>
             {/* Profile Header */}
             <div className="relative overflow-hidden bg-gradient-to-br from-neutral-900/90 to-neutral-800/70 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
@@ -1281,9 +1282,9 @@ export default function Profile() {
               value={tabIdx}
               onChange={setTabIdx}
             />
-          </main>
+          </MainContent>
         </div>
-      </div>
+      </ContentContainer>
     </div>
   );
 }

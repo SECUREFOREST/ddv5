@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ExclamationTriangleIcon, HomeIcon } from '@heroicons/react/24/solid';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="min-h-screen flex items-center justify-center px-4">
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+        <MainContent className="min-h-screen flex items-center justify-center px-4">
           <div className="max-w-md w-full">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl text-center">
               {/* Header */}
@@ -35,8 +36,8 @@ export default function NotFound() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
