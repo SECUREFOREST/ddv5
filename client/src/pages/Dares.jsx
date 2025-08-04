@@ -71,19 +71,19 @@ export default function Dares() {
         
         // Handle created dares
         if (createdRes.status === 'fulfilled') {
-          const createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+          const createdData = createdRes.value.data?.dares || [];
           all.push(...createdData);
         }
         
         // Handle participating dares
         if (partRes.status === 'fulfilled') {
-          const partData = Array.isArray(partRes.value.data) ? partRes.value.data : [];
+          const partData = partRes.value.data?.dares || [];
           all.push(...partData);
         }
         
         // Handle switch dares
         if (switchRes.status === 'fulfilled') {
-          const switchData = Array.isArray(switchRes.value.data) ? switchRes.value.data : [];
+          const switchData = switchRes.value.data?.dares || [];
           all.push(...switchData);
         }
         
@@ -135,7 +135,7 @@ export default function Dares() {
           role: user?.roles?.[0] || undefined,
         },
       }));
-      setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
+      setDares(daresRes.data?.dares || []);
       showSuccess('Dare created successfully!');
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to create dare. Please try again.';
@@ -197,7 +197,7 @@ export default function Dares() {
           role: user?.roles?.[0] || undefined,
         },
       }));
-      setDares(Array.isArray(daresRes.data) ? daresRes.data : []);
+      setDares(daresRes.data?.dares || []);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to accept dare. Please try again.';
       setAcceptError(errorMessage);

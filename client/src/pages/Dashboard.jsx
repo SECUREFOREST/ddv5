@@ -102,17 +102,17 @@ export default function Dashboard() {
       const allDares = [];
       
       if (createdRes.status === 'fulfilled') {
-        const createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+        const createdData = createdRes.value.data?.dares || [];
         allDares.push(...createdData);
       }
       
       if (participatingRes.status === 'fulfilled') {
-        const participatingData = Array.isArray(participatingRes.value.data) ? participatingRes.value.data : [];
+        const participatingData = participatingRes.value.data?.dares || [];
         allDares.push(...participatingData);
       }
       
       if (switchRes.status === 'fulfilled') {
-        const switchData = Array.isArray(switchRes.value.data) ? switchRes.value.data : [];
+        const switchData = switchRes.value.data?.dares || [];
         allDares.push(...switchData);
       }
       

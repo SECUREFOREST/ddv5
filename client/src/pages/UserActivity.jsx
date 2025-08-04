@@ -100,23 +100,23 @@ export default function UserActivity() {
         
         // Handle active dares
         if (createdActiveRes.status === 'fulfilled') {
-          const createdData = Array.isArray(createdActiveRes.value.data) ? createdActiveRes.value.data : [];
+          const createdData = createdActiveRes.value.data?.dares || [];
           activeDaresData.push(...createdData);
         }
         
         if (performedActiveRes.status === 'fulfilled') {
-          const performedData = Array.isArray(performedActiveRes.value.data) ? performedActiveRes.value.data : [];
+          const performedData = performedActiveRes.value.data?.dares || [];
           activeDaresData.push(...performedData);
         }
         
         // Handle history dares
         if (createdHistoryRes.status === 'fulfilled') {
-          const createdHistoryData = Array.isArray(createdHistoryRes.value.data) ? createdHistoryRes.value.data : [];
+          const createdHistoryData = createdHistoryRes.value.data?.dares || [];
           historyDaresData.push(...createdHistoryData);
         }
         
         if (performedHistoryRes.status === 'fulfilled') {
-          const performedHistoryData = Array.isArray(performedHistoryRes.value.data) ? performedHistoryRes.value.data : [];
+          const performedHistoryData = performedHistoryRes.value.data?.dares || [];
           historyDaresData.push(...performedHistoryData);
         }
         

@@ -318,7 +318,7 @@ export default function Profile() {
       // Handle dares responses
       let createdData = [];
       if (createdRes.status === 'fulfilled') {
-        createdData = Array.isArray(createdRes.value.data) ? createdRes.value.data : [];
+        createdData = createdRes.value.data?.dares || [];
         setCreated(createdData);
       } else {
         console.error('Failed to fetch created dares:', createdRes.reason);
@@ -327,7 +327,7 @@ export default function Profile() {
       
       let participatingData = [];
       if (participatingRes.status === 'fulfilled') {
-        participatingData = Array.isArray(participatingRes.value.data) ? participatingRes.value.data : [];
+        participatingData = participatingRes.value.data?.dares || [];
         setParticipating(participatingData);
       } else {
         console.error('Failed to fetch participating dares:', participatingRes.reason);
@@ -336,7 +336,7 @@ export default function Profile() {
       
       let daresData = [];
       if (assignedSwitchRes.status === 'fulfilled') {
-        daresData = Array.isArray(assignedSwitchRes.value.data) ? assignedSwitchRes.value.data : [];
+        daresData = assignedSwitchRes.value.data?.dares || [];
         setDares(daresData);
       } else {
         console.error('Failed to fetch assigned switch dares:', assignedSwitchRes.reason);
