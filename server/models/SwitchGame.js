@@ -7,7 +7,8 @@ const SwitchGameSchema = new mongoose.Schema({
   creatorDare: {
     description: { type: String, required: true },
     difficulty: { type: String, required: true },
-    move: { type: String, enum: ['rock', 'paper', 'scissors'], required: true }
+    move: { type: String, enum: ['rock', 'paper', 'scissors'], required: true },
+    tags: [{ type: String }]
   },
   participantDare: {
     description: { type: String },

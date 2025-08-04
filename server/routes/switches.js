@@ -309,7 +309,8 @@ router.post('/',
       .isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.'),
     body('move')
       .isString().withMessage('Move must be a string.')
-      .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.')
+      .isIn(['rock', 'paper', 'scissors']).withMessage('Move must be one of: rock, paper, scissors.'),
+    body('tags').optional().isArray().withMessage('Tags must be an array.')
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -320,7 +321,7 @@ router.post('/',
       });
     }
     try {
-      const { description, difficulty, move } = req.body;
+      const { description, difficulty, move, tags } = req.body;
       const creator = req.userId; // Use authenticated user's ID
       if (!description || !difficulty || !move) {
         return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
@@ -328,7 +329,7 @@ router.post('/',
       const game = new SwitchGame({
         status: 'waiting_for_participant',
         creator,
-        creatorDare: { description, difficulty, move },
+        creatorDare: { description, difficulty, move, tags: Array.isArray(tags) ? tags : [] },
       });
       await game.save();
       await game.populate('creator');

@@ -28,6 +28,7 @@ export default function SwitchGameCreate() {
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('titillating');
   const [move, setMove] = useState('rock');
+  const [tags, setTags] = useState([]);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -49,11 +50,10 @@ export default function SwitchGameCreate() {
     setCreating(true);
     try {
       const res = await retryApiCall(() => api.post('/switches', {
-        creatorDare: {
-          description,
-          difficulty,
-          move
-        },
+        description,
+        difficulty,
+        move,
+        tags
       }));
       
       if (res.data && res.data._id) {
@@ -177,8 +177,8 @@ export default function SwitchGameCreate() {
                   Tags
                 </label>
                 <TagsInput
-                  tags={[]} // Removed tags state
-                  onChange={() => {}} // Removed tags state
+                  value={tags}
+                  onChange={setTags}
                   className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
               </div>

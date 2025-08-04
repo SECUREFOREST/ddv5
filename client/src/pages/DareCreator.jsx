@@ -176,7 +176,7 @@ export default function DareCreator() {
                   Tags
                 </label>
                 <TagsInput
-                  tags={tags}
+                  value={tags}
                   onChange={setTags}
                   className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
