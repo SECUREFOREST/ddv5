@@ -60,7 +60,7 @@ import Search from '../components/Search';
 import { retryApiCall } from '../utils/retry';
 
 // 2025 Design System - Neumorphism 2.0
-const NeumorphicCard = ({ children, className = '', variant = 'default', interactive = false }) => {
+const NeumorphicCard = ({ children, className = '', variant = 'default', interactive = false, onClick }) => {
   const baseClasses = `
     relative overflow-hidden
     bg-white/5 backdrop-blur-xl
@@ -85,7 +85,18 @@ const NeumorphicCard = ({ children, className = '', variant = 'default', interac
   ` : '';
   
   return (
-    <div className={`${baseClasses} ${variantClasses[variant]} ${interactiveClasses} ${className}`}>
+    <div 
+      className={`${baseClasses} ${variantClasses[variant]} ${interactiveClasses} ${className}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(e);
+        }
+      } : undefined}
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl" />
       <div className="relative z-10">
         {children}
@@ -1063,17 +1074,23 @@ export default function DarePerformerDashboard() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.isArray(associates) && associates.map((associate) => (
-                  <NeumorphicCard key={associate._id} variant="elevated" interactive className="p-4">
+                  <NeumorphicCard 
+                    key={associate._id} 
+                    variant="elevated" 
+                    interactive 
+                    className="p-4 cursor-pointer"
+                    onClick={() => navigate(`/profile/${associate._id}`)}
+                  >
                     <div className="flex items-center gap-3">
                       <Avatar user={associate} size={40} />
                       <div className="flex-1">
                         <h4 className="font-semibold text-white">{associate.fullName}</h4>
                         <p className="text-sm text-white/70">@{associate.username}</p>
-            </div>
-          </div>
+                      </div>
+                    </div>
                   </NeumorphicCard>
                 ))}
-        </div>
+              </div>
             )}
           </NeumorphicCard>
         </GestureContainer>
