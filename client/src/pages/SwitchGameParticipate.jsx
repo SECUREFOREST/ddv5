@@ -10,6 +10,7 @@ import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPath
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -71,7 +72,7 @@ export default function SwitchGameParticipate() {
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
+  const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   // Handler for finding a game (for the difficulty/consent form)
   const handleFindGame = useCallback(async (e) => {
@@ -511,7 +512,7 @@ export default function SwitchGameParticipate() {
                         name="contentDeletion" 
                         value={option.value} 
                         checked={contentDeletion === option.value} 
-                        onChange={(e) => setContentDeletion(e.target.value)} 
+                        onChange={(e) => updateContentDeletion(e.target.value)} 
                         className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
                       />
                       <div className="flex-1">

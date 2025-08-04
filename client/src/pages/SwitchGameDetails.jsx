@@ -475,7 +475,7 @@ export default function SwitchGameDetails() {
   // Add state for move selection modal
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinMove, setJoinMove] = useState('rock');
-  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
+  const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   // Chicken out (forfeit) handler
   const handleChickenOut = async () => {
