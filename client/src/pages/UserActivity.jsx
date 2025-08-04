@@ -100,23 +100,23 @@ export default function UserActivity() {
         
         // Handle active dares
         if (createdActiveRes.status === 'fulfilled') {
-          const createdData = createdActiveRes.value.data?.dares || [];
+          const createdData = Array.isArray(createdActiveRes.value.data?.dares) ? createdActiveRes.value.data.dares : [];
           activeDaresData.push(...createdData);
         }
         
         if (performedActiveRes.status === 'fulfilled') {
-          const performedData = performedActiveRes.value.data?.dares || [];
+          const performedData = Array.isArray(performedActiveRes.value.data?.dares) ? performedActiveRes.value.data.dares : [];
           activeDaresData.push(...performedData);
         }
         
         // Handle history dares
         if (createdHistoryRes.status === 'fulfilled') {
-          const createdHistoryData = createdHistoryRes.value.data?.dares || [];
+          const createdHistoryData = Array.isArray(createdHistoryRes.value.data?.dares) ? createdHistoryRes.value.data.dares : [];
           historyDaresData.push(...createdHistoryData);
         }
         
         if (performedHistoryRes.status === 'fulfilled') {
-          const performedHistoryData = performedHistoryRes.value.data?.dares || [];
+          const performedHistoryData = Array.isArray(performedHistoryRes.value.data?.dares) ? performedHistoryRes.value.data.dares : [];
           historyDaresData.push(...performedHistoryData);
         }
         
@@ -169,24 +169,24 @@ export default function UserActivity() {
 
   // Compute stats from loaded data with memoization
   const stats = useMemo(() => {
-    const dareTotal = activeDares.length + historyDares.length;
-    const dareCompleted = historyDares.filter(d => d.status === 'completed').length;
-    const dareForfeited = historyDares.filter(d => d.status === 'forfeited').length;
-    const dareExpired = historyDares.filter(d => d.status === 'expired').length;
+    const dareTotal = (Array.isArray(activeDares) ? activeDares.length : 0) + (Array.isArray(historyDares) ? historyDares.length : 0);
+    const dareCompleted = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'completed').length : 0;
+    const dareForfeited = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'forfeited').length : 0;
+    const dareExpired = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'expired').length : 0;
     const dareAvgGrade = (() => {
-      const grades = historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number');
+      const grades = Array.isArray(historyDares) ? historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number') : [];
       return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
     })();
     const dareCompletionRate = dareTotal ? ((dareCompleted / dareTotal) * 100).toFixed(1) + '%' : 'N/A';
 
-    const switchTotal = activeSwitchGames.length + historySwitchGames.length;
-    const switchCompleted = historySwitchGames.filter(g => g.status === 'completed').length;
-    const switchForfeited = historySwitchGames.filter(g => g.status === 'forfeited').length;
-    const switchExpired = historySwitchGames.filter(g => g.status === 'expired').length;
-    const switchWins = historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length;
-    const switchLosses = historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length;
+    const switchTotal = (Array.isArray(activeSwitchGames) ? activeSwitchGames.length : 0) + (Array.isArray(historySwitchGames) ? historySwitchGames.length : 0);
+    const switchCompleted = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'completed').length : 0;
+    const switchForfeited = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'forfeited').length : 0;
+    const switchExpired = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'expired').length : 0;
+    const switchWins = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length : 0;
+    const switchLosses = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length : 0;
     const switchAvgGrade = (() => {
-      const grades = historySwitchGames.flatMap(g => (g.grades || []).map(gr => gr.grade)).filter(g => typeof g === 'number');
+      const grades = Array.isArray(historySwitchGames) ? historySwitchGames.flatMap(g => (g.grades || []).map(gr => gr.grade)).filter(g => typeof g === 'number') : [];
       return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
     })();
     const switchCompletionRate = switchTotal ? ((switchCompleted / switchTotal) * 100).toFixed(1) + '%' : 'N/A';
@@ -241,12 +241,12 @@ export default function UserActivity() {
 
     const dareMonthlyData = last6Months.map(month => ({
       month,
-      count: historyDares.filter(d => d.status === 'completed' && getMonthKey(d.completedAt) === month).length
+      count: Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'completed' && getMonthKey(d.completedAt) === month).length : 0
     }));
 
     const switchMonthlyData = last6Months.map(month => ({
       month,
-      count: historySwitchGames.filter(g => g.status === 'completed' && getMonthKey(g.completedAt) === month).length
+      count: Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'completed' && getMonthKey(g.completedAt) === month).length : 0
     }));
 
     return {
@@ -350,7 +350,7 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Active Dares</h2>
-              {activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activePaginatedItems.map(dare => (
+              {!Array.isArray(activeDares) || activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activePaginatedItems.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -372,7 +372,7 @@ export default function UserActivity() {
               )}
         
               <h2 className="text-lg font-bold mb-2 text-white">Active Switch Games</h2>
-              {activeSwitchGames.length === 0 ? <div className="text-white/60">No active switch games.</div> : activeSwitchGames.map(game => (
+              {!Array.isArray(activeSwitchGames) || activeSwitchGames.length === 0 ? <div className="text-white/60">No active switch games.</div> : activeSwitchGames.map(game => (
                 <SwitchGameCard
                   key={game._id}
                   game={game}
@@ -397,7 +397,7 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Dare History</h2>
-              {historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyPaginatedItems.map(dare => (
+              {!Array.isArray(historyDares) || historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyPaginatedItems.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -418,7 +418,7 @@ export default function UserActivity() {
                 </div>
               )}
               <h2 className="text-lg font-bold mt-6 mb-2 text-white">Switch Game History</h2>
-              {historySwitchGames.length === 0 ? <div className="text-white/60">No historical switch games.</div> : historySwitchGames.map(game => (
+              {!Array.isArray(historySwitchGames) || historySwitchGames.length === 0 ? <div className="text-white/60">No historical switch games.</div> : historySwitchGames.map(game => (
                 <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />
               ))}
             </>

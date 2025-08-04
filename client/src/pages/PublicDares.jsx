@@ -63,7 +63,7 @@ export default function PublicDares() {
       .then(([daresRes, switchesRes]) => {
         // Handle dares response
         if (daresRes.status === 'fulfilled') {
-          const daresData = daresRes.value.data?.dares || [];
+          const daresData = Array.isArray(daresRes.value.data?.dares) ? daresRes.value.data.dares : [];
           setDares(daresData);
 
         } else {
@@ -73,7 +73,7 @@ export default function PublicDares() {
         
         // Handle switches response
         if (switchesRes.status === 'fulfilled') {
-          const switchesData = switchesRes.value.data?.switches || [];
+          const switchesData = Array.isArray(switchesRes.value.data?.switches) ? switchesRes.value.data.switches : [];
           setSwitchGames(switchesData);
 
         } else {
@@ -82,8 +82,8 @@ export default function PublicDares() {
         }
         
         // Update total items for pagination
-        const allItems = [...(daresRes.status === 'fulfilled' ? (daresRes.value.data?.dares || []) : []), 
-                          ...(switchesRes.status === 'fulfilled' ? (switchesRes.value.data?.switches || []) : [])];
+        const allItems = [...(daresRes.status === 'fulfilled' ? (Array.isArray(daresRes.value.data?.dares) ? daresRes.value.data.dares : []) : []), 
+                          ...(switchesRes.status === 'fulfilled' ? (Array.isArray(switchesRes.value.data?.switches) ? switchesRes.value.data.switches : []) : [])];
         setTotalItems(allItems.length);
       })
       .catch((err) => {
