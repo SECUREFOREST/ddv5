@@ -11,6 +11,7 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
 import { useRealtimeNotificationSubscription } from '../utils/realtime';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { ErrorAlert } from '../components/Alert';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -284,9 +285,9 @@ export default function Notifications() {
 
           {/* Error Messages */}
           {generalError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {generalError}
-            </div>
+            </ErrorAlert>
           )}
         </MainContent>
       </ContentContainer>
