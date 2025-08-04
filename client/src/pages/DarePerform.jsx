@@ -10,6 +10,7 @@ import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../consta
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
 
 
@@ -27,7 +28,7 @@ export default function DarePerform() {
   const [proofError, setProofError] = useState('');
   const [proofSuccess, setProofSuccess] = useState('');
   const [noDare, setNoDare] = useState(false);
-  const [expireAfterView, setExpireAfterView] = useState(false);
+  const { contentDeletion, updateContentDeletion } = useContentDeletion();
   const [grade, setGrade] = useState('');
   const [feedback, setFeedback] = useState('');
   const [gradeError, setGradeError] = useState('');
@@ -93,12 +94,12 @@ export default function DarePerform() {
         formData = new FormData();
         if (proof) formData.append('text', proof);
         formData.append('file', proofFile);
-        formData.append('expireAfterView', expireAfterView);
+        formData.append('contentDeletion', contentDeletion);
         await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         }));
       } else {
-        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView }));
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, contentDeletion }));
       }
       setProof('');
       setProofFile(null);
@@ -337,17 +338,43 @@ export default function DarePerform() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="expire-after-view"
-                      checked={expireAfterView}
-                      onChange={(e) => setExpireAfterView(e.target.checked)}
-                      className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
-                    />
-                    <label htmlFor="expire-after-view" className="text-white">
-                      Delete proof after viewing
-                    </label>
+                  {/* OSA-Style Content Expiration Settings */}
+                  <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+                    <div className="flex items-start gap-4 mb-4">
+                      <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                        <p className="text-neutral-300 leading-relaxed">
+                          Choose how long this proof content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {PRIVACY_OPTIONS.map((option) => (
+                        <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                          contentDeletion === option.value 
+                            ? 'border-yellow-500 bg-yellow-500/10' 
+                            : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                        }`}>
+                          <input 
+                            type="radio" 
+                            name="contentDeletion" 
+                            value={option.value} 
+                            checked={contentDeletion === option.value} 
+                            onChange={(e) => updateContentDeletion(e.target.value)} 
+                            className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-lg">{option.icon}</span>
+                              <span className="font-semibold text-white">{option.label}</span>
+                            </div>
+                            <p className="text-sm text-neutral-300">{option.desc}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <button

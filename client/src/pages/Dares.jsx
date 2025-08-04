@@ -150,7 +150,6 @@ export default function Dares() {
     setAcceptDifficulty(dare.difficulty);
     setAcceptConsent(false);
     setAcceptError('');
-    setContentDeletion('delete_after_30_days'); // Reset to default
   };
 
   const closeAcceptModal = () => {
@@ -158,7 +157,6 @@ export default function Dares() {
     setAcceptDifficulty('titillating');
     setAcceptConsent(false);
     setAcceptError('');
-    setContentDeletion('delete_after_30_days');
   };
 
   const handleAcceptSubmit = async (e) => {

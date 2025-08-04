@@ -12,6 +12,7 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -1061,7 +1062,7 @@ export default function SwitchGameDetails() {
                           name="contentDeletion" 
                           value={option.value} 
                           checked={contentDeletion === option.value} 
-                          onChange={(e) => setContentDeletion(e.target.value)} 
+                          onChange={(e) => updateContentDeletion(e.target.value)} 
                           className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
                         />
                         <div className="flex-1">

@@ -8,6 +8,7 @@ import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
 function DifficultyBadge({ level }) {
 
@@ -55,7 +56,7 @@ export default function DareConsent() {
   const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days'); // OSA default
+  const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchDare = useCallback(async () => {
     if (!id) return;
@@ -306,7 +307,7 @@ export default function DareConsent() {
                       name="contentDeletion" 
                       value={option.value} 
                       checked={contentDeletion === option.value} 
-                      onChange={(e) => setContentDeletion(e.target.value)} 
+                      onChange={(e) => updateContentDeletion(e.target.value)} 
                       className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
                     />
                     <div className="flex-1">
