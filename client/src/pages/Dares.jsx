@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
-import StatusBadge from '../components/DareCard';
 import Search from '../components/Search';
 import Modal from '../components/Modal';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
@@ -160,6 +159,7 @@ export default function Dares() {
     setAcceptDifficulty(dare.difficulty);
     setAcceptConsent(false);
     setAcceptError('');
+    setShowAccept(true);
   };
 
   const closeAcceptModal = () => {
@@ -167,6 +167,8 @@ export default function Dares() {
     setAcceptDifficulty('titillating');
     setAcceptConsent(false);
     setAcceptError('');
+    setAccepting(false);
+    setShowAccept(false);
   };
 
   const handleAcceptSubmit = async (e) => {
@@ -175,7 +177,7 @@ export default function Dares() {
       setAcceptError('You must consent to participate in this dare.');
       return;
     }
-    setAcceptLoading(true);
+    setAccepting(true);
     try {
       await retryApiCall(() => api.post(`/dares/${acceptDareId}/accept`, {
         difficulty: acceptDifficulty,
@@ -201,7 +203,7 @@ export default function Dares() {
       setAcceptError(errorMessage);
       showError(errorMessage);
     } finally {
-      setAcceptLoading(false);
+      setAccepting(false);
     }
   };
 
@@ -325,7 +327,16 @@ export default function Dares() {
         {/* Create Dare Modal */}
         <Modal
           open={showCreate}
-          onClose={() => setShowCreate(false)}
+          onClose={() => {
+            setShowCreate(false);
+            setCreateDescription('');
+            setCreateDifficulty('titillating');
+            setCreateTags([]);
+            setCreateDareType('submission');
+            setCreatePublic(false);
+            setCreateAllowedRoles([]);
+            setCreating(false);
+          }}
           title="Create New Dare"
           role="dialog"
           aria-modal="true"
@@ -336,6 +347,8 @@ export default function Dares() {
               <textarea
                 id="create-description"
                 name="description"
+                value={createDescription}
+                onChange={(e) => setCreateDescription(e.target.value)}
                 className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
                 placeholder="Describe your dare..."
                 required
@@ -346,6 +359,8 @@ export default function Dares() {
               <select
                 id="create-difficulty"
                 name="difficulty"
+                value={createDifficulty}
+                onChange={(e) => setCreateDifficulty(e.target.value)}
                 className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 required
               >
@@ -358,7 +373,16 @@ export default function Dares() {
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => setShowCreate(false)}
+                onClick={() => {
+                  setShowCreate(false);
+                  setCreateDescription('');
+                  setCreateDifficulty('titillating');
+                  setCreateTags([]);
+                  setCreateDareType('submission');
+                  setCreatePublic(false);
+                  setCreateAllowedRoles([]);
+                  setCreating(false);
+                }}
                 className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
               >
                 Cancel
@@ -377,7 +401,7 @@ export default function Dares() {
         {/* Accept Dare Modal */}
         <Modal
           open={showAccept}
-          onClose={() => setShowAccept(false)}
+          onClose={closeAcceptModal}
           title="Accept Dare"
           role="dialog"
           aria-modal="true"
@@ -388,6 +412,8 @@ export default function Dares() {
               <textarea
                 id="accept-confirmation"
                 name="confirmation"
+                value={acceptConsent ? 'I consent to participate in this dare.' : ''}
+                onChange={(e) => setAcceptConsent(e.target.value.includes('consent'))}
                 className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
                 placeholder="Confirm that you accept this dare..."
                 required
@@ -436,7 +462,7 @@ export default function Dares() {
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={() => setShowAccept(false)}
+                onClick={closeAcceptModal}
                 className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
               >
                 Cancel
