@@ -88,7 +88,15 @@ export default function ActivityFeed() {
   });
 
   // Add pagination
-  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(filteredActivities, 15);
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedData, setTotalItems } = usePagination(1, 15);
+  
+  // Get paginated items
+  const paginatedItems = paginatedData(filteredActivities || []);
+  
+  // Update total items when filtered activities change
+  React.useEffect(() => {
+    setTotalItems(Array.isArray(filteredActivities) ? filteredActivities.length : 0);
+  }, [filteredActivities, setTotalItems]);
 
   if (loading) {
     return (

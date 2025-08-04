@@ -29,7 +29,15 @@ export default function Notifications() {
   const { subscribeToNotifications } = useRealtimeNotificationSubscription();
 
   // Add pagination
-  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(notifications, 20);
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedData, setTotalItems } = usePagination(1, 20);
+  
+  // Get paginated items
+  const paginatedItems = paginatedData(notifications || []);
+  
+  // Update total items when notifications change
+  React.useEffect(() => {
+    setTotalItems(Array.isArray(notifications) ? notifications.length : 0);
+  }, [notifications, setTotalItems]);
 
   const fetchNotifications = useCallback(async () => {
     try {

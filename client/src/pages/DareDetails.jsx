@@ -62,11 +62,14 @@ export default function DareDetails() {
   const [editCommentText, setEditCommentText] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editCommentData, setEditCommentData] = useState({ content: '' });
   const [showModerateModal, setShowModerateModal] = useState(false);
   const [moderateCommentId, setModerateCommentId] = useState(null);
   const [moderationReason, setModerationReason] = useState('');
   const [moderateLoading, setModerateLoading] = useState(false);
   const [moderateError, setModerateError] = useState('');
+  const [moderateData, setModerateData] = useState({ action: '', reason: '' });
   const [proofLoading, setProofLoading] = useState(false);
   const [proofProgress, setProofProgress] = useState(0);
   const [generalError, setGeneralError] = useState('');
@@ -250,7 +253,9 @@ export default function DareDetails() {
   const openEditModal = (comment) => {
     setEditCommentId(comment._id);
     setEditCommentText(comment.text);
+    setEditCommentData({ content: comment.text });
     setEditError('');
+    setShowEditModal(true);
   };
 
   const handleEditSubmit = async (e) => {
@@ -259,10 +264,12 @@ export default function DareDetails() {
     setEditError('');
     try {
       // Use retry mechanism for comment update
-      await retryApiCall(() => api.patch(`/comments/${editCommentId}`, { text: editCommentText }));
+      await retryApiCall(() => api.patch(`/comments/${editCommentId}`, { text: editCommentData.content }));
       showSuccess('Comment updated successfully!');
       setEditCommentId(null);
       setEditCommentText('');
+      setEditCommentData({ content: '' });
+      setShowEditModal(false);
       setRefresh(prev => prev + 1);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to update comment.';
@@ -288,6 +295,7 @@ export default function DareDetails() {
     setModerateCommentId(commentId);
     setModerationReason('');
     setModerateError('');
+    setModerateData({ action: '', reason: '' });
     setShowModerateModal(true);
   };
 
@@ -296,10 +304,14 @@ export default function DareDetails() {
     setModerateLoading(true);
     setModerateError('');
     try {
-              await retryApiCall(() => api.post(`/comments/${moderateCommentId}/moderate`, { reason: moderationReason }));
+              await retryApiCall(() => api.post(`/comments/${moderateCommentId}/moderate`, { 
+        action: moderateData.action,
+        reason: moderateData.reason 
+      }));
       showSuccess('Comment moderated successfully!');
       setShowModerateModal(false);
       setModerationReason('');
+      setModerateData({ action: '', reason: '' });
       setRefresh(prev => prev + 1);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to moderate comment.';

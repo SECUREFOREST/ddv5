@@ -52,7 +52,15 @@ export default function Dares() {
   const [lastUpdated, setLastUpdated] = useState(null);
 
   // Add pagination
-  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(dares, 10);
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedData, setTotalItems } = usePagination(1, 10);
+  
+  // Get paginated items
+  const paginatedItems = paginatedData(dares || []);
+  
+  // Update total items when dares change
+  React.useEffect(() => {
+    setTotalItems(Array.isArray(dares) ? dares.length : 0);
+  }, [dares, setTotalItems]);
 
   useEffect(() => {
     if (!user) return;
