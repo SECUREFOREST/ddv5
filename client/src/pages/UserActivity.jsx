@@ -3,6 +3,7 @@ import Tabs from '../components/Tabs';
 import { useAuth } from '../context/AuthContext';
 import DareCard from '../components/DareCard';
 import SwitchGameCard from '../components/SwitchGameCard';
+import { ContentContainer, MainContent } from '../components/Layout';
 import api from '../api/axios';
 import { Bar, Pie } from 'react-chartjs-2';
 import {
