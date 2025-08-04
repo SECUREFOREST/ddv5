@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Avatar from './Avatar';
 
 function StatusBadge({ status }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -84,10 +85,10 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
           style={{ textDecoration: 'none' }}
         >
           <span className="text-neutral-400 text-xs mr-2">Creator:</span>
-          {game.creator?.avatar && (
-            <img src={game.creator.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
-          )}
-          <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{game.creator?.username}</span>
+          <Avatar user={game.creator} size={28} className="mr-2" />
+          <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">
+            {game.creator?.fullName || game.creator?.username || 'Anonymous'}
+          </span>
         </Link>
         {game.participant && (
           <Link
@@ -96,10 +97,10 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
             style={{ textDecoration: 'none' }}
           >
             <span className="text-neutral-400 text-xs mr-2">Participant:</span>
-            {game.participant.avatar && (
-              <img src={game.participant.avatar} alt="avatar" className="w-7 h-7 rounded-full object-cover mr-2 border border-neutral-700 group-hover:border-primary transition-colors" />
-            )}
-            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">{game.participant.username}</span>
+            <Avatar user={game.participant} size={28} className="mr-2" />
+            <span className="text-[#eee] text-sm font-medium group-hover:text-primary transition-colors">
+              {game.participant?.fullName || game.participant?.username || 'Anonymous'}
+            </span>
           </Link>
         )}
       </div>
@@ -111,7 +112,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {game.grades && game.grades.length > 0 && (
           <div>Grade: {game.grades.map(g => g.grade).join(', ')}{game.feedback && ` | Feedback: ${game.feedback}`}</div>
         )}
-        <div>Winner: {game.winner ? (game.winner.username || 'Unknown') : 'N/A'}{isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}</div>
+        <div>Winner: {game.winner ? (game.winner?.fullName || game.winner?.username || 'Unknown') : 'N/A'}{isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}</div>
         <div>Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : 'N/A'}</div>
       </div>
       {/* Actions Section */}

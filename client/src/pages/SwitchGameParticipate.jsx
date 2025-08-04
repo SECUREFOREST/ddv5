@@ -378,7 +378,7 @@ export default function SwitchGameParticipate() {
                   </a>
                 )}
                 <span className="inline-flex items-center gap-1 text-xs text-purple-300 font-bold bg-purple-500/20 px-3 py-1 rounded-full mt-2">Creator</span>
-                <span className="font-semibold text-white mt-1">{game.creator?.username}</span>
+                <span className="font-semibold text-white mt-1">{game.creator?.fullName || game.creator?.username}</span>
               </div>
               
               {game.participant && (
@@ -389,7 +389,7 @@ export default function SwitchGameParticipate() {
                       <Avatar user={game.participant} size="lg" alt={`Avatar for ${game.participant?.fullName || game.participant?.username || 'participant'}`} />
                     </a>
                     <span className="inline-flex items-center gap-1 text-xs text-blue-300 font-bold bg-blue-500/20 px-3 py-1 rounded-full mt-2">Participant</span>
-                    <span className="font-semibold text-white mt-1">{game.participant?.username}</span>
+                    <span className="font-semibold text-white mt-1">{game.participant?.fullName || game.participant?.username}</span>
                   </div>
                 </>
               )}

@@ -125,7 +125,7 @@ export default function DareShare() {
 
           {/* Share Card */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
-            <h2 className="text-2xl font-bold text-white text-center mb-4">Hi {dare.creator?.username || 'there'}</h2>
+            <h2 className="text-2xl font-bold text-white text-center mb-4">Hi {dare.creator?.fullName || dare.creator?.username || 'there'}</h2>
             <p className="text-white/70 text-center mb-6">Share this link very carefully</p>
             
             <div className="mb-6">

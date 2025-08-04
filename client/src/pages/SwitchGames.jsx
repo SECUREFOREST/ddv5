@@ -219,7 +219,7 @@ export default function SwitchGames() {
                       {game.creatorDare?.description || 'Switch Game'}
                     </h4>
                     <p className="text-white/70 text-sm mb-4">
-                      Created by {game.creator?.username || 'Unknown'}
+                      Created by {game.creator?.fullName || game.creator?.username || 'Unknown'}
                     </p>
                     <Link to={`/switches/${game._id}`}>
                       <Button variant="default" size="sm" className="w-full">
