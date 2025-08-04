@@ -43,8 +43,21 @@ export default function UserActivity() {
   const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
 
   // Add pagination for different sections
-  const { currentPage: activePage, setCurrentPage: setActivePage, totalPages: activeTotalPages, paginatedItems: activePaginatedItems } = usePagination(activeDares, 8);
-  const { currentPage: historyPage, setCurrentPage: setHistoryPage, totalPages: historyTotalPages, paginatedItems: historyPaginatedItems } = usePagination(historyDares, 8);
+  const { currentPage: activePage, setCurrentPage: setActivePage, totalPages: activeTotalPages, paginatedData, setTotalItems: setActiveTotalItems } = usePagination(1, 8);
+  const { currentPage: historyPage, setCurrentPage: setHistoryPage, totalPages: historyTotalPages, paginatedData: historyPaginatedData, setTotalItems: setHistoryTotalItems } = usePagination(1, 8);
+  
+  // Get paginated items
+  const activePaginatedItems = paginatedData(activeDares || []);
+  const historyPaginatedItems = historyPaginatedData(historyDares || []);
+  
+  // Update total items when data changes
+  React.useEffect(() => {
+    setActiveTotalItems(Array.isArray(activeDares) ? activeDares.length : 0);
+  }, [activeDares, setActiveTotalItems]);
+  
+  React.useEffect(() => {
+    setHistoryTotalItems(Array.isArray(historyDares) ? historyDares.length : 0);
+  }, [historyDares, setHistoryTotalItems]);
 
   useEffect(() => {
     if (!user) return;
