@@ -110,11 +110,6 @@ router.get('/associates', auth, async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch user.' });
     }
     
-    // For now, return empty array to test if the endpoint works
-    console.log('Returning empty associates array for testing');
-    return res.json([]);
-    
-    /*
     // Find users the current user has interacted with (through dares or switch games)
     let dares = [];
     let switchGames = [];
@@ -190,7 +185,6 @@ router.get('/associates', auth, async (req, res) => {
     console.log(`Found ${associates.length} associates for user ${userId}`);
     
     res.json(associates);
-    */
   } catch (err) {
     console.error('Associates endpoint error:', err);
     // Return empty array instead of error to prevent client-side crashes
