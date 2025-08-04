@@ -7,6 +7,7 @@ import { ShareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { DifficultyBadge } from '../components/Badge';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 export default function DareShare() {
   const { dareId } = useParams();
@@ -36,7 +37,7 @@ export default function DareShare() {
       }
     } catch (error) {
       console.error('Failed to load dare for sharing:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.DARE_LOAD_FAILED;
       setError(errorMessage);
       showError(errorMessage);
     } finally {

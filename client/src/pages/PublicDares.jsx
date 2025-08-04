@@ -11,6 +11,7 @@ import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
 import Search from '../components/Search';
 import { DifficultyBadge } from '../components/Badge';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 
 
@@ -86,7 +87,7 @@ export default function PublicDares() {
         setTotalItems(allItems.length);
       })
       .catch((err) => {
-        const errorMessage = 'Failed to load public dares or switch games.';
+        const errorMessage = ERROR_MESSAGES.PUBLIC_CONTENT_LOAD_FAILED;
         setError(errorMessage);
         showError(errorMessage);
         console.error('Public dares loading error:', err);

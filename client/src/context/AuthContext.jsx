@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 const AuthContext = createContext();
 
@@ -50,7 +51,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('refreshToken');
         setAccessToken('');
         setRefreshToken('');
-        throw new Error('Login succeeded but failed to load user profile. Please try again.');
+        throw new Error(ERROR_MESSAGES.USER_PROFILE_LOAD_FAILED);
       }
       localStorage.setItem('user', JSON.stringify(userRes.data));
       setUser(userRes.data);

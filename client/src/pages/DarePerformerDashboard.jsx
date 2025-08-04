@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import { validateApiResponse } from '../utils/apiUtils';
-import { API_RESPONSE_TYPES } from '../constants.jsx';
+import { API_RESPONSE_TYPES, ERROR_MESSAGES } from '../constants.jsx';
 import { 
   ChartBarIcon, 
   ClockIcon, 
@@ -471,30 +471,30 @@ export default function DarePerformerDashboard() {
         // 2025: Smart error handling with detailed error messages
   const errors = {};
   if (ongoingData.status === 'rejected') {
-    errors.ongoing = ongoingData.reason?.message || 'Failed to load active dares';
+    errors.ongoing = ongoingData.reason?.message || ERROR_MESSAGES.ONGOING_DARES_LOAD_FAILED;
   }
   if (completedData.status === 'rejected') {
-    errors.completed = completedData.reason?.message || 'Failed to load completed dares';
+    errors.completed = completedData.reason?.message || ERROR_MESSAGES.COMPLETED_DARES_LOAD_FAILED;
   }
   if (switchData.status === 'rejected') {
-    errors.switchGames = switchData.reason?.message || 'Failed to load switch games';
+    errors.switchGames = switchData.reason?.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
   }
   if (publicData.status === 'rejected') {
-    errors.public = publicData.reason?.message || 'Failed to load public dares';
+    errors.public = publicData.reason?.message || ERROR_MESSAGES.PUBLIC_DARES_LOAD_FAILED;
   }
   if (publicSwitchData.status === 'rejected') {
-    errors.publicSwitch = publicSwitchData.reason?.message || 'Failed to load public switch games';
+    errors.publicSwitch = publicSwitchData.reason?.message || ERROR_MESSAGES.PUBLIC_SWITCH_GAMES_LOAD_FAILED;
   }
   if (associatesData.status === 'rejected') {
-    console.error('Associates data error:', associatesData.reason);
-    errors.associates = associatesData.reason?.message || 'Failed to load associates';
+    console.error('Failed to load associates data from API:', associatesData.reason);
+    errors.associates = associatesData.reason?.message || ERROR_MESSAGES.ASSOCIATES_LOAD_FAILED;
   }
   
   setErrors(errors);
       
     } catch (err) {
-      console.error('Dashboard data fetch error:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      console.error('Failed to fetch dashboard data from API:', err);
+      setError(ERROR_MESSAGES.DASHBOARD_LOAD_FAILED);
     } finally {
       setIsLoading(false);
       setDataLoading({
@@ -563,7 +563,7 @@ export default function DarePerformerDashboard() {
           console.warn('Unknown action:', action);
       }
     } catch (err) {
-      console.error('Quick action error:', err);
+      console.error('Failed to execute quick action:', err);
       showNotification('Action failed. Please try again.', 'error');
     }
   };

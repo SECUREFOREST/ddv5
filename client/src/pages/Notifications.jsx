@@ -13,6 +13,7 @@ import { useRealtimeNotificationSubscription } from '../utils/realtime';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { ErrorAlert } from '../components/Alert';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -48,7 +49,7 @@ export default function Notifications() {
       }
     } catch (error) {
       console.error('Notifications loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load notifications.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.NOTIFICATIONS_LOAD_FAILED;
       setGeneralError(errorMessage);
       showError(errorMessage);
       setNotifications([]);

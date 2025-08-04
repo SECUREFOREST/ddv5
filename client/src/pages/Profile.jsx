@@ -11,7 +11,7 @@ import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
-import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
@@ -237,7 +237,7 @@ export default function Profile() {
         .catch((error) => {
           console.error('Failed to load blocked users:', error);
           setBlockedUsersInfo([]);
-          showError('Failed to load blocked users information.');
+          showError(ERROR_MESSAGES.BLOCKED_USERS_LOAD_FAILED);
         })
         .finally(() => setUserActivitiesLoading(false));
     } else {
@@ -414,7 +414,7 @@ export default function Profile() {
       .catch(error => {
         console.error('Failed to load user activities:', error);
         setUserActivities([]);
-        showError('Failed to load recent activity.');
+        showError(ERROR_MESSAGES.RECENT_ACTIVITY_LOAD_FAILED);
       })
       .finally(() => setUserActivitiesLoading(false));
   }, [user, getCachedData, setCachedData]);

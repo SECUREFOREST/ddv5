@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { DocumentPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS, ERROR_MESSAGES } from '../constants.jsx';
 
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
@@ -84,7 +84,7 @@ export default function OfferSubmission() {
       showSuccess('Settings loaded successfully!');
     } catch (error) {
       console.error('Settings loading error:', error);
-      showError('Failed to load slot or privacy info.');
+      showError(ERROR_MESSAGES.SLOT_PRIVACY_LOAD_FAILED);
     } finally {
       setFetching(false);
     }

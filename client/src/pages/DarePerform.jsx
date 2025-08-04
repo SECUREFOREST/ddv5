@@ -8,7 +8,7 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Button from '../components/Button';
 import ProgressBar from '../components/ProgressBar';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS, ERROR_MESSAGES } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
@@ -75,7 +75,7 @@ export default function DarePerform() {
     } catch (error) {
       console.error('Failed to load random dare:', error);
       setNoDare(true);
-      showError('Failed to load dare. Please try again.');
+      showError(ERROR_MESSAGES.DARE_LOAD_FAILED);
     } finally {
       setLoading(false);
     }
@@ -148,7 +148,7 @@ export default function DarePerform() {
       }
     } catch (error) {
       console.error('Failed to load dare:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.DARE_LOAD_FAILED;
       setFetchDareError(errorMessage);
       showError(errorMessage);
     } finally {

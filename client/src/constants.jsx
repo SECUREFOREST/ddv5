@@ -216,6 +216,26 @@ export const ERROR_MESSAGES = {
   // Specific error messages
   DARE_NOT_FOUND: 'This dare could not be found. It may have been deleted or is no longer available.',
   USER_NOT_FOUND: 'User not found. The profile may have been deleted or is private.',
+  ASSOCIATES_LOAD_FAILED: 'Failed to load associates. Please try again.',
+  ONGOING_DARES_LOAD_FAILED: 'Failed to load active dares. Please try again.',
+  COMPLETED_DARES_LOAD_FAILED: 'Failed to load completed dares. Please try again.',
+  SWITCH_GAMES_LOAD_FAILED: 'Failed to load switch games. Please try again.',
+  PUBLIC_DARES_LOAD_FAILED: 'Failed to load public dares. Please try again.',
+  PUBLIC_SWITCH_GAMES_LOAD_FAILED: 'Failed to load public switch games. Please try again.',
+  DASHBOARD_LOAD_FAILED: 'Failed to load dashboard data. Please try again.',
+  DARE_LOAD_FAILED: 'Failed to load dare. Please try again.',
+  DARE_DETAILS_LOAD_FAILED: 'Failed to load dare details. Please try again.',
+  SWITCH_GAME_DETAILS_LOAD_FAILED: 'Failed to load switch game details. Please try again.',
+  PROFILE_LOAD_FAILED: 'Failed to load profile. Please try again.',
+  ACTIVITY_LOAD_FAILED: 'Failed to load activity. Please try again.',
+  ACTIVITY_FEED_LOAD_FAILED: 'Failed to load activity feed. Please try again.',
+  NOTIFICATIONS_LOAD_FAILED: 'Failed to load notifications. Please try again.',
+  LEADERBOARD_LOAD_FAILED: 'Failed to load leaderboard. Please try again.',
+  BLOCKED_USERS_LOAD_FAILED: 'Failed to load blocked users information. Please try again.',
+  RECENT_ACTIVITY_LOAD_FAILED: 'Failed to load recent activity. Please try again.',
+  SLOT_PRIVACY_LOAD_FAILED: 'Failed to load slot or privacy info. Please try again.',
+  PUBLIC_CONTENT_LOAD_FAILED: 'Failed to load public dares or switch games. Please try again.',
+  USER_PROFILE_LOAD_FAILED: 'Login succeeded but failed to load user profile. Please try again.',
   FILE_TOO_LARGE: 'File is too large. Please choose a smaller file (max 5MB).',
   INVALID_FILE_TYPE: 'Invalid file type. Please upload an image (JPG, PNG, GIF).',
   PASSWORD_TOO_WEAK: 'Password is too weak. Please choose a stronger password.',
@@ -275,7 +295,8 @@ export const SUCCESS_MESSAGES = {
   SWITCH_GAME_JOINED: 'Successfully joined switch game!',
   PROOF_SUBMITTED: 'Proof submitted successfully!',
   SETTINGS_UPDATED: 'Settings updated successfully!',
-  DATA_LOADED: 'Data loaded successfully!'
+  DATA_LOADED: 'Data loaded successfully!',
+  ASSOCIATES_LOADED: 'Associates loaded successfully!'
 };
 
 // Add more as needed (e.g., DARE_TYPE_OPTIONS, ROLE_OPTIONS, etc.) 

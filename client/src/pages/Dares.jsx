@@ -9,7 +9,7 @@ import Modal from '../components/Modal';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
+import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { MainContent, ContentContainer } from '../components/Layout';
@@ -96,7 +96,7 @@ export default function Dares() {
       .catch((error) => { 
         setDares([]); 
         setLastUpdated(new Date()); 
-        showError('Failed to load dares. Please try again.');
+        showError(ERROR_MESSAGES.DARE_LOAD_FAILED);
         console.error('Dares loading error:', error);
       })
       .finally(() => setLoading(false));

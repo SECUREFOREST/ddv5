@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
@@ -196,7 +196,7 @@ export default function SwitchGameDetails() {
       }
     } catch (error) {
       console.error('Failed to fetch switch game:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load switch game details.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.SWITCH_GAME_DETAILS_LOAD_FAILED;
       setFetchGameError(errorMessage);
       showError(errorMessage);
     } finally {

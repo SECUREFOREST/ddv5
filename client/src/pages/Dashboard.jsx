@@ -9,7 +9,7 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
-import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
 import { useRealtimeEvents } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
@@ -162,7 +162,7 @@ export default function Dashboard() {
       setDares([]);
       setStats(null);
       setActivities([]);
-      showError('Failed to load dashboard data. Please try again.');
+      showError(ERROR_MESSAGES.DASHBOARD_LOAD_FAILED);
     } finally {
       setLoading(false);
       setStatsLoading(false);

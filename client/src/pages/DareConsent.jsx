@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Button from '../components/Button';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
@@ -34,7 +34,7 @@ export default function DareConsent() {
       setDare(response.data);
     } catch (error) {
       console.error('Dare consent loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load dare.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.DARE_LOAD_FAILED;
       showError(errorMessage);
     } finally {
       setFetching(false);

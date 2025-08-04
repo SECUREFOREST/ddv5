@@ -9,6 +9,7 @@ import { ListSkeleton } from '../components/Skeleton';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
 
@@ -81,7 +82,7 @@ export default function Leaderboard() {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to load leaderboard.';
+      const errorMessage = error.response?.data?.error || error.message || ERROR_MESSAGES.LEADERBOARD_LOAD_FAILED;
       setError(errorMessage);
       showError(errorMessage);
       setUsers([]);

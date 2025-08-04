@@ -9,6 +9,7 @@ import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Button from '../components/Button';
 import { InfoAlert } from '../components/Alert';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 export default function SwitchGames() {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ export default function SwitchGames() {
       }
     } catch (error) {
       console.error('Failed to load user switch games:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to load switch games data.';
+      const errorMessage = error.response?.data?.error || error.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
       setGeneralError(errorMessage);
       setUserSwitchGames([]);
     } finally {

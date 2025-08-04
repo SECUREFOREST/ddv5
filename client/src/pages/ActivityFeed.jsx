@@ -12,6 +12,7 @@ import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -45,7 +46,7 @@ export default function ActivityFeed() {
       }
     } catch (error) {
       console.error('Activity feed loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load activity feed.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.ACTIVITY_FEED_LOAD_FAILED;
       showError(errorMessage);
       setActivities([]);
     } finally {

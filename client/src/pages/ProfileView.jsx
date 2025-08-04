@@ -12,6 +12,7 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -107,14 +108,14 @@ export default function ProfileView() {
       
       // Check if any critical requests failed
       if (userRes.status === 'rejected') {
-        setError('Failed to load profile.');
-        showError('Failed to load profile.');
+        setError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
+        showError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
       }
       
     } catch (error) {
       console.error('Profile data loading error:', error);
-      setError('Failed to load profile.');
-      showError('Failed to load profile.');
+      setError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
+      showError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
     } finally {
       setLoading(false);
     }

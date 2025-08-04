@@ -6,6 +6,7 @@ const { body, param, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
 const { sendNotification } = require('../utils/notification');
 const { logAudit } = require('../utils/auditLog');
+const { ERROR_MESSAGES, STATUS_CODES, LOG_MESSAGES } = require('../utils/constants');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -90,11 +91,11 @@ router.get('/', auth, checkPermission('view_users'), async (req, res) => {
 // GET /api/users/associates - get user's associates (people they've interacted with)
 router.get('/associates', auth, async (req, res) => {
   try {
-    console.log('Associates endpoint called for user:', req.userId);
+    console.log(LOG_MESSAGES.ASSOCIATES_ENDPOINT_CALLED, req.userId);
     const userId = req.userId;
     
     if (!userId) {
-      return res.status(400).json({ error: 'User ID is required.' });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: ERROR_MESSAGES.USER_ID_REQUIRED });
     }
     
     // Verify user exists with better error handling
@@ -102,19 +103,19 @@ router.get('/associates', auth, async (req, res) => {
     try {
       user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
+        return res.status(STATUS_CODES.NOT_FOUND).json({ error: ERROR_MESSAGES.USER_NOT_FOUND });
       }
-      console.log('User found:', user.username);
+      console.log(LOG_MESSAGES.USER_FOUND, user.username);
     } catch (userErr) {
-      console.error('Error finding user:', userErr);
-      return res.status(500).json({ error: 'Failed to fetch user.' });
+      console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'user verification'), userErr);
+      return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: ERROR_MESSAGES.USER_VERIFICATION_ERROR });
     }
     
     // Find users the current user has interacted with (through dares or switch games)
     let dares = [];
     let switchGames = [];
     
-    console.log('Starting database queries for user:', userId);
+    console.log(LOG_MESSAGES.STARTING_DB_QUERIES, userId);
     
     try {
       dares = await Dare.find({
@@ -123,9 +124,9 @@ router.get('/associates', auth, async (req, res) => {
           { performer: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar').lean();
-      console.log(`Found ${dares.length} dares for user ${userId}`);
+      console.log(LOG_MESSAGES.DARES_FOUND.replace('{count}', dares.length).replace('{userId}', userId));
     } catch (dareErr) {
-      console.error('Error fetching dares for associates:', dareErr);
+      console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'dares fetch'), dareErr);
       dares = [];
     }
     
@@ -136,9 +137,9 @@ router.get('/associates', auth, async (req, res) => {
           { participant: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar').lean();
-      console.log(`Found ${switchGames.length} switch games for user ${userId}`);
+      console.log(LOG_MESSAGES.SWITCH_GAMES_FOUND.replace('{count}', switchGames.length).replace('{userId}', userId));
     } catch (switchErr) {
-      console.error('Error fetching switch games for associates:', switchErr);
+      console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'switch games fetch'), switchErr);
       switchGames = [];
     }
     
@@ -182,11 +183,11 @@ router.get('/associates', auth, async (req, res) => {
       });
     }
     
-    console.log(`Found ${associates.length} associates for user ${userId}`);
+    console.log(LOG_MESSAGES.ASSOCIATES_FOUND.replace('{count}', associates.length).replace('{userId}', userId));
     
     res.json(associates);
   } catch (err) {
-    console.error('Associates endpoint error:', err);
+    console.error(LOG_MESSAGES.ENDPOINT_ERROR.replace('{endpoint}', 'associates'), err);
     // Return empty array instead of error to prevent client-side crashes
     res.json([]);
   }

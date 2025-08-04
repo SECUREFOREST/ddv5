@@ -14,7 +14,7 @@ import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import Tooltip from '../components/Tooltip';
 import Accordion from '../components/Accordion';
-import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { useContentDeletion } from '../hooks/useContentDeletion';
@@ -105,7 +105,7 @@ export default function DareDetails() {
       }
     } catch (error) {
       console.error('Dare details loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load dare details.';
+      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.DARE_DETAILS_LOAD_FAILED;
       setGeneralError(errorMessage);
       showError(errorMessage);
       setDare(null);

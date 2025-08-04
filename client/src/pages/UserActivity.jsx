@@ -22,6 +22,7 @@ import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
+import { ERROR_MESSAGES } from '../constants.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -155,8 +156,8 @@ export default function UserActivity() {
       })
       .catch(err => {
         console.error('Failed to load user activity:', err);
-        setError('Failed to load activity.');
-        showError('Failed to load activity.');
+        setError(ERROR_MESSAGES.ACTIVITY_LOAD_FAILED);
+        showError(ERROR_MESSAGES.ACTIVITY_LOAD_FAILED);
       })
       .finally(() => setLoading(false));
   }, [user, dataLoaded, showError, getCachedData, setCachedData]);
