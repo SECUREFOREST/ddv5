@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 import Card from '../components/Card';
-import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { ArrowRightOnRectangleIcon, EyeIcon, EyeSlashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { useToast } from '../context/ToastContext';
 import { safeStorage } from '../utils/cleanup';
@@ -211,16 +211,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Demo Account Info */}
-            <div className="mt-8 p-4 bg-neutral-800/50 rounded-xl border border-neutral-700/30">
-              <div className="flex items-center gap-2 mb-2">
-                <SparklesIcon className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">Demo Account</span>
-              </div>
-              <p className="text-xs text-neutral-400">
-                Try the app with demo credentials: <code className="bg-neutral-700 px-1 rounded">demo@example.com</code> / <code className="bg-neutral-700 px-1 rounded">password</code>
-              </p>
-            </div>
+
           </main>
         </Card>
       </div>

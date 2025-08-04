@@ -15,13 +15,9 @@ import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
-function mapPrivacyValue(val) {
-  if (val === 'when_viewed') return 'delete_after_view';
-  if (val === '30_days') return 'delete_after_30_days';
-  if (val === 'never') return 'never_delete';
-  return val;
-}
+
 
 export default function Profile() {
   const { user, accessToken, logout, loading, setUser } = useAuth();
@@ -63,9 +59,7 @@ export default function Profile() {
   const [blocking, setBlocking] = useState(false);
   const [blockError, setBlockError] = useState('');
   const [isBlocked, setIsBlocked] = useState(user?.blocked || false);
-  const [contentDeletion, setContentDeletion] = useState('');
-  const [contentDeletionLoading, setContentDeletionLoading] = useState(false);
-  const [contentDeletionError, setContentDeletionError] = useState('');
+  const { contentDeletion, loading: contentDeletionLoading, error: contentDeletionError, updateContentDeletion } = useContentDeletion();
   const [editMode, setEditMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -264,28 +258,10 @@ export default function Profile() {
     }
   };
 
-  // Fetch content deletion setting on mount
-  useEffect(() => {
-    setContentDeletionLoading(true);
-    api.get('/safety/content_deletion')
-      .then(res => setContentDeletion(res.data?.value || ''))
-      .catch(() => setContentDeletionError('Failed to load content deletion setting.'))
-      .finally(() => setContentDeletionLoading(false));
-  }, []);
-
   const handleContentDeletionChange = async (val) => {
-    setContentDeletionLoading(true);
-    setContentDeletionError('');
-    try {
-      await api.post('/safety/content_deletion', { value: mapPrivacyValue(val) });
-      setContentDeletion(val);
+    const success = await updateContentDeletion(val);
+    if (success) {
       showSuccess('Content deletion setting updated successfully!');
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to update setting.';
-      setContentDeletionError(errorMessage);
-      showError(errorMessage);
-    } finally {
-      setContentDeletionLoading(false);
     }
   };
 
@@ -1235,7 +1211,7 @@ export default function Profile() {
                                       type="radio" 
                                       name="contentDeletion" 
                                       value={mappedValue} 
-                                      checked={contentDeletion === mappedValue} 
+                                      checked={contentDeletion === option.value} 
                                       onChange={() => handleContentDeletionChange(mappedValue)} 
                                       disabled={contentDeletionLoading}
                                       className="mt-1 w-4 h-4 text-primary bg-neutral-700 border-neutral-600 focus:ring-primary focus:ring-2"
