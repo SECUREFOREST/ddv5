@@ -167,7 +167,7 @@ function Admin() {
   const [appealsPage, setAppealsPage] = useState(1);
   const [auditLogPage, setAuditLogPage] = useState(1);
   const [switchGamesPage, setSwitchGamesPage] = useState(1);
-  
+
   const ITEMS_PER_PAGE = 10;
 
   // Define pagination hooks first, before useCallback hooks
@@ -256,13 +256,13 @@ function Admin() {
       showError('Authentication required. Please log in again.');
       return false;
     }
-    
+
     // Check if user has roles property and includes admin
     if (!user.roles || !Array.isArray(user.roles) || !user.roles.includes('admin')) {
       showError('Admin access required. You do not have permission to perform this action.');
       return false;
     }
-    
+
     return true;
   }, [user, showError]);
 
@@ -306,7 +306,7 @@ function Admin() {
     if (!checkAdminPermission()) {
       return;
     }
-    
+
     setDataLoading(true);
     setApiStatus(prev => ({ ...prev, users: 'loading' }));
     retryApiCall(() => api.get('/users', { params: { search: searchId, page: currentPage, limit: pageSize } }))
@@ -434,9 +434,9 @@ function Admin() {
         handleApiError(err, 'load switch games');
       })
       .finally(() => setSwitchGamesLoading(false));
-    }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
-    
-    // All useEffect hooks must be called before any early returns
+  }, [handleApiError, setSwitchGamesTotalItems, switchGamesCurrentPage, switchGamesPageSize]);
+
+  // All useEffect hooks must be called before any early returns
   // Add immediate bypass effect for users with admin role
   useEffect(() => {
     if (!authVerified && user && user.roles && user.roles.includes('admin')) {
@@ -447,47 +447,47 @@ function Admin() {
   // Real-time search with debouncing
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (tabIdx === 0 && userSearch) {
+      if (tabIdx === 0) {
         fetchUsers(userSearch);
-      } else if (tabIdx === 1 && dareSearch) {
+      } else if (tabIdx === 1) {
         fetchDares(dareSearch);
-      } else if (tabIdx === 2 && auditLogSearch) {
+      } else if (tabIdx === 2) {
         fetchAuditLog(auditLogSearch);
-      } else if (tabIdx === 3 && reportsSearch) {
+      } else if (tabIdx === 3) {
         fetchReports(reportsSearch);
-      } else if (tabIdx === 4 && appealsSearch) {
+      } else if (tabIdx === 4) {
         fetchAppeals(appealsSearch);
-      } else if (tabIdx === 5 && switchGameSearch) {
+      } else if (tabIdx === 5) {
         fetchSwitchGames(switchGameSearch);
       }
     }, 500);
-    
+
     return () => clearTimeout(timeoutId);
-  }, [userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, tabIdx]);
+  }, [userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, tabIdx, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]);
 
   // Real-time updates for critical data
   useEffect(() => {
     const interval = setInterval(() => {
-      if (tabIdx === 3) fetchReports();
-      if (tabIdx === 4) fetchAppeals();
-      if (tabIdx === 2) fetchAuditLog(); // Refresh audit log periodically
+      if (tabIdx === 3) fetchReports(reportsSearch);
+      if (tabIdx === 4) fetchAppeals(appealsSearch);
+      if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
     }, 30000); // Refresh every 30 seconds
-    
+
     return () => clearInterval(interval);
-  }, [tabIdx, fetchReports, fetchAppeals, fetchAuditLog]);
-  
+  }, [tabIdx, fetchReports, fetchAppeals, fetchAuditLog, reportsSearch, appealsSearch, auditLogSearch]);
+
   // Pagination change handlers
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 0) {
-      fetchUsers();
+      fetchUsers(userSearch);
     }
-  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission, tabIdx, fetchUsers]);
+  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission, tabIdx, fetchUsers, userSearch]);
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 1) {
-      fetchDares();
+      fetchDares(dareSearch);
     }
-  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission, tabIdx, fetchDares]);
+  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission, tabIdx, fetchDares, dareSearch]);
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 2) {
@@ -509,10 +509,10 @@ function Admin() {
 
   useEffect(() => {
     if (authVerified && checkAdminPermission() && tabIdx === 5) {
-      fetchSwitchGames();
+      fetchSwitchGames(switchGameSearch);
     }
-  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission, tabIdx, fetchSwitchGames]);
-  
+  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission, tabIdx, fetchSwitchGames, switchGameSearch]);
+
   // Add localStorage fallback effect
   useEffect(() => {
     if (!authVerified && !user) {
@@ -539,7 +539,7 @@ function Admin() {
 
     // Check if access token is available
     const accessToken = localStorage.getItem('accessToken');
-    
+
     // If no access token but user is authenticated, try to refresh the token
     if (!accessToken && user) {
       if (refreshToken) {
@@ -551,12 +551,12 @@ function Admin() {
             // Continue with data loading
             setDataLoaded(true);
             Promise.allSettled([
-              fetchUsers(),
-              fetchDares(),
-              fetchReports(),
-              fetchAppeals(),
-              fetchAuditLog(),
-              fetchSwitchGames(),
+              fetchUsers(userSearch),
+              fetchDares(dareSearch),
+              fetchReports(reportsSearch),
+              fetchAppeals(appealsSearch),
+              fetchAuditLog(auditLogSearch),
+              fetchSwitchGames(switchGameSearch),
               fetchSiteStats()
             ]).then((results) => {
               console.log('Admin data loading results:', results);
@@ -581,7 +581,7 @@ function Admin() {
         return;
       }
     }
-    
+
     if (!accessToken) {
       showError('Authentication token not found. Please log in again.');
       return;
@@ -591,7 +591,7 @@ function Admin() {
     if (!authVerified || dataLoaded) {
       return;
     }
-    
+
     // Check if user has roles, if not, fetch user data with roles
     if (!user.roles || !Array.isArray(user.roles)) {
       api.get('/users/me')
@@ -605,24 +605,24 @@ function Admin() {
         });
       return;
     }
-    
+
     // Check if user has admin role
     if (!user.roles.includes('admin')) {
       showError('Admin access required. You do not have permission to access this area.');
       return;
     }
-    
+
     // Set data loaded flag to prevent multiple calls
     setDataLoaded(true);
-    
+
     // Load all admin data with error handling
     Promise.allSettled([
-      fetchUsers(),
-      fetchDares(),
-      fetchReports(),
-      fetchAppeals(),
-      fetchAuditLog(),
-      fetchSwitchGames(),
+      fetchUsers(userSearch),
+      fetchDares(dareSearch),
+      fetchReports(reportsSearch),
+      fetchAppeals(appealsSearch),
+      fetchAuditLog(auditLogSearch),
+      fetchSwitchGames(switchGameSearch),
       fetchSiteStats()
     ]).then((results) => {
       const successful = results.filter(r => r.status === 'fulfilled').length;
@@ -630,7 +630,7 @@ function Admin() {
     }).finally(() => {
       setIsInitializing(false);
     });
-    
+
     // Show success message that admin interface is working
     showSuccess('Admin interface loaded successfully!');
   }, [user, authVerified, dataLoaded, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, fetchSiteStats, showError, showSuccess]); // Include dataLoaded in dependencies
@@ -646,7 +646,7 @@ function Admin() {
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
+        switch (e.key) {
           case 'f':
             e.preventDefault();
             // Focus search input based on current tab
@@ -665,11 +665,11 @@ function Admin() {
         }
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, []);
-  
+
   if (loading || isInitializing) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -687,7 +687,7 @@ function Admin() {
       </div>
     );
   }
-  
+
   if (!user || !user.roles?.includes('admin')) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -713,7 +713,7 @@ function Admin() {
   // Show loading state while verifying authentication
   if (!authVerified) {
 
-    
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -725,7 +725,7 @@ function Admin() {
               <h2 className="text-2xl font-bold text-white mb-4">Verifying Admin Access</h2>
               <p className="text-white/70">Please wait while we verify your administrator permissions...</p>
               <div className="mt-4">
-                <button 
+                <button
                   onClick={() => {
 
                     setAuthVerified(true);
@@ -741,7 +741,7 @@ function Admin() {
       </div>
     );
   }
-    
+
   const allFilteredUserIds = users.filter(u =>
     (u.username && u.username.toLowerCase().includes(userSearch.toLowerCase())) ||
     (u.email && u.email.toLowerCase().includes(userSearch.toLowerCase()))
@@ -757,7 +757,7 @@ function Admin() {
       : [...selectedUsers, id]);
   };
   const clearSelectedUsers = () => setSelectedUsers([]);
-  
+
   const allFilteredDareIds = dares.filter(d =>
     d && typeof d.description === 'string' && d.description.toLowerCase().includes(dareSearch.toLowerCase()) ||
     (d && d.creator?.username && d.creator.username.toLowerCase().includes(dareSearch.toLowerCase()))
@@ -773,15 +773,15 @@ function Admin() {
       : [...selectedDares, id]);
   };
   const clearSelectedDares = () => setSelectedDares([]);
-  
+
   const handleResolveReport = async (id) => {
     if (!checkAdminPermission()) return;
-    
+
     setResolvingReportId(id);
     try {
       await api.patch(`/reports/${id}`, { status: 'resolved' });
       showSuccess('Report resolved successfully!');
-      fetchReports(); // Refresh the reports list
+      fetchReports(reportsSearch); // Refresh the reports list
     } catch (err) {
       const errorType = handleApiError(err, 'resolve report');
       if (errorType === 'auth_required') {
@@ -796,18 +796,18 @@ function Admin() {
 
   const handleResolveAppeal = async (id) => {
     if (!checkAdminPermission()) return;
-    
+
     if (!appealOutcome.trim()) {
       showError('Please provide an outcome for the appeal.');
       return;
     }
-    
+
     setResolvingAppealId(id);
     try {
       await api.patch(`/appeals/${id}`, { outcome: appealOutcome.trim() });
       showSuccess('Appeal resolved successfully!');
       setAppealOutcome('');
-      fetchAppeals(); // Refresh the appeals list
+      fetchAppeals(appealsSearch); // Refresh the appeals list
     } catch (err) {
       const errorType = handleApiError(err, 'resolve appeal');
       if (errorType === 'auth_required') {
@@ -822,12 +822,12 @@ function Admin() {
 
   const handleApprove = async (dareId) => {
     if (!checkAdminPermission()) return;
-    
+
     setActionLoading(true);
     try {
       await api.post(`/dares/${dareId}/approve`);
       showSuccess('Dare approved successfully!');
-      fetchDares(); // Refresh the dares list
+      fetchDares(dareSearch); // Refresh the dares list
     } catch (err) {
       const errorType = handleApiError(err, 'approve dare');
       if (errorType === 'auth_required') {
@@ -842,12 +842,12 @@ function Admin() {
 
   const handleReject = async (dareId) => {
     if (!checkAdminPermission()) return;
-    
+
     setActionLoading(true);
     try {
       await api.post(`/dares/${dareId}/reject`);
       showSuccess('Dare rejected successfully!');
-      fetchDares(); // Refresh the dares list
+      fetchDares(dareSearch); // Refresh the dares list
     } catch (err) {
       const errorType = handleApiError(err, 'reject dare');
       if (errorType === 'auth_required') {
@@ -862,7 +862,7 @@ function Admin() {
 
   const handleDeleteDare = (dare) => {
     if (!checkAdminPermission()) return;
-    
+
     showConfirmation(
       'Delete Dare',
       `Are you sure you want to delete dare: "${dare.description}"? This action cannot be undone.`,
@@ -871,7 +871,7 @@ function Admin() {
         try {
           await api.delete(`/dares/${dare._id}`);
           showSuccess('Dare deleted successfully!');
-          fetchDares(); // Refresh the dares list
+          fetchDares(dareSearch); // Refresh the dares list
         } catch (err) {
           const errorType = handleApiError(err, 'delete dare');
           if (errorType === 'auth_required') {
@@ -889,7 +889,7 @@ function Admin() {
 
   const handleDeleteSwitchGame = (game) => {
     if (!checkAdminPermission()) return;
-    
+
     showConfirmation(
       'Delete Switch Game',
       `Are you sure you want to delete switch game: "${game.title || 'Untitled'}"? This action cannot be undone.`,
@@ -898,7 +898,7 @@ function Admin() {
         try {
           await api.delete(`/switches/${game._id}`);
           showSuccess('Switch game deleted successfully!');
-          fetchSwitchGames(); // Refresh the switch games list
+          fetchSwitchGames(switchGameSearch); // Refresh the switch games list
         } catch (err) {
           const errorType = handleApiError(err, 'delete switch game');
           if (errorType === 'auth_required') {
@@ -916,10 +916,10 @@ function Admin() {
 
   const handleDelete = (userId) => {
     if (!checkAdminPermission()) return;
-    
+
     const user = users.find(u => u._id === userId);
     const userName = user ? (user.fullName || user.username) : userId;
-    
+
     showConfirmation(
       'Delete User',
       `Are you sure you want to delete user: "${userName}"? This action cannot be undone.`,
@@ -927,15 +927,15 @@ function Admin() {
         setActionLoading(true);
         try {
           await retryApiCall(() => api.delete(`/users/${userId}`));
-          
+
           // Log audit trail
           auditUtils.logUserAction(AUDIT_ACTIONS.USER_DELETED, userId, {
             adminId: user.id,
             username: userName
           });
-          
+
           showSuccess('User deleted successfully!');
-          fetchUsers(); // Refresh the users list
+          fetchUsers(userSearch); // Refresh the users list
         } catch (err) {
           const errorType = handleApiError(err, 'delete user');
           if (errorType === 'auth_required') {
@@ -985,34 +985,34 @@ function Admin() {
 
   const handleEditUserSave = async () => {
     if (!checkAdminPermission()) return;
-    
+
     // Input validation
     const { username, email, roles } = editUserData;
-    
+
     if (!validateUsername(username)) {
       setEditUserError('Username must be 3-20 characters and contain only letters, numbers, and underscores.');
       return;
     }
-    
+
     if (!validateEmail(email)) {
       setEditUserError('Please enter a valid email address.');
       return;
     }
-    
+
     if (!validateRoles(roles)) {
       setEditUserError('Roles must be valid: admin, moderator, or user.');
       return;
     }
-    
+
     setEditUserLoading(true);
     setEditUserError('');
     try {
       const payload = { username, email };
       if (roles && Array.isArray(roles)) payload.roles = roles;
-      
+
       await api.patch(`/users/${editUserId}`, payload);
       showSuccess('User updated successfully!');
-      fetchUsers(); // Refresh the users list
+      fetchUsers(userSearch); // Refresh the users list
       closeEditUserModal();
     } catch (err) {
       const errorType = handleApiError(err, 'update user');
@@ -1048,20 +1048,20 @@ function Admin() {
   // Bulk action helpers
   const handleBulkAction = async (action, items) => {
     if (!checkAdminPermission()) return;
-    
+
     const itemType = tabIdx === 0 ? 'users' : tabIdx === 1 ? 'dares' : 'switch games';
     const actionText = action === 'delete' ? 'delete' : action === 'approve' ? 'approve' : 'reject';
-    
+
     showConfirmation(
       `Bulk ${actionText}`,
       `Are you sure you want to ${actionText} ${items.length} ${itemType}? This action cannot be undone.`,
       async () => {
         setOperationLoading(prev => ({ ...prev, [itemType]: true }));
-        
+
         try {
           let endpoint = '';
           let payload = {};
-          
+
           if (tabIdx === 0) {
             endpoint = '/bulk/users';
             payload = { action, userIds: items.map(item => item._id || item.id) };
@@ -1072,10 +1072,10 @@ function Admin() {
             endpoint = '/bulk/switch-games';
             payload = { action, gameIds: items.map(item => item._id || item.id) };
           }
-          
+
           const response = await api.post(endpoint, payload);
           const results = response.data;
-          
+
           // Show results
           if (results.success > 0) {
             showSuccess(`Successfully ${actionText} ${results.success} ${itemType}`);
@@ -1083,12 +1083,12 @@ function Admin() {
           if (results.failed > 0) {
             showError(`Failed to ${actionText} ${results.failed} ${itemType}`);
           }
-          
+
           // Refresh data
-          if (tabIdx === 0) fetchUsers();
-          else if (tabIdx === 1) fetchDares();
-          else fetchSwitchGames();
-          
+                if (tabIdx === 0) fetchUsers(userSearch);
+      else if (tabIdx === 1) fetchDares(dareSearch);
+      else fetchSwitchGames(switchGameSearch);
+
           setSelectedItems([]);
         } catch (error) {
           const errorType = handleApiError(error, `${actionText} ${itemType}`);
@@ -1109,7 +1109,7 @@ function Admin() {
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-        
+
         <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
           {/* Live Status Indicator */}
           <div aria-live="polite" aria-label="Admin operations status" className="sr-only">
@@ -1128,24 +1128,23 @@ function Admin() {
             <p className="text-xl sm:text-2xl text-neutral-300 mb-4">
               Manage users, dares, and system settings
             </p>
-            
+
             {/* API Status Indicator */}
             <div className="text-sm text-neutral-400 bg-neutral-800/50 rounded-lg p-3 mb-4">
               <div className="flex items-center gap-4 flex-wrap justify-center">
                 <span>API Status:</span>
                 {Object.entries(apiStatus).map(([key, status]) => (
-                  <span key={key} className={`px-2 py-1 rounded text-xs ${
-                    status === 'success' ? 'bg-green-600/20 text-green-400' :
+                  <span key={key} className={`px-2 py-1 rounded text-xs ${status === 'success' ? 'bg-green-600/20 text-green-400' :
                     status === 'error' ? 'bg-red-600/20 text-red-400' :
-                    status === 'loading' ? 'bg-yellow-600/20 text-yellow-400' :
-                    'bg-gray-600/20 text-gray-400'
-                  }`}>
+                      status === 'loading' ? 'bg-yellow-600/20 text-yellow-400' :
+                        'bg-gray-600/20 text-gray-400'
+                    }`}>
                     {key}: {status}
                   </span>
                 ))}
               </div>
             </div>
-            
+
             {/* Keyboard Shortcuts Hint */}
             <div className="text-sm text-neutral-400 bg-neutral-800/50 rounded-lg p-3 inline-block">
               <div className="flex items-center gap-4 flex-wrap justify-center">
@@ -1171,7 +1170,7 @@ function Admin() {
                     </div>
                   </div>
                 </Card>
-                
+
                 <Card className="bg-gradient-to-r from-green-600/20 to-green-700/20 border-green-600/30 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 group">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1183,7 +1182,7 @@ function Admin() {
                     </div>
                   </div>
                 </Card>
-                
+
                 <Card className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1195,7 +1194,7 @@ function Admin() {
                     </div>
                   </div>
                 </Card>
-                
+
                 <Card className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border-yellow-600/30 hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-300 group">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1208,10 +1207,10 @@ function Admin() {
                   </div>
                 </Card>
               </div>
-              
+
               {/* Quick Actions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button 
+                <button
                   onClick={() => setTabIdx(3)}
                   className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
                 >
@@ -1219,8 +1218,8 @@ function Admin() {
                   <div className="font-semibold">Review Reports</div>
                   <div className="text-sm opacity-80">{siteStats.pendingReports || 0} pending</div>
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => setTabIdx(4)}
                   className="bg-gradient-to-r from-orange-600 to-orange-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
                 >
@@ -1228,8 +1227,8 @@ function Admin() {
                   <div className="font-semibold">Handle Appeals</div>
                   <div className="text-sm opacity-80">{appeals.length} active</div>
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => setTabIdx(1)}
                   className="bg-gradient-to-r from-green-600 to-green-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
                 >
@@ -1237,8 +1236,8 @@ function Admin() {
                   <div className="font-semibold">Manage Dares</div>
                   <div className="text-sm opacity-80">{dares.length} total</div>
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => setTabIdx(0)}
                   className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 rounded-xl text-white hover:scale-105 transition-all group"
                 >
@@ -1318,7 +1317,7 @@ function Admin() {
                             </div>
                           </div>
                         )}
-                        
+
                         <div className="space-y-4">
                           {users.map(user => (
                             <div key={user._id} className="flex items-center gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/50 transition-all">
@@ -1378,7 +1377,7 @@ function Admin() {
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Users Pagination */}
                         {usersTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1401,7 +1400,7 @@ function Admin() {
                 label: 'Dares',
                 content: (
                   <div className="space-y-6">
-                                        {/* Dare Search */}
+                    {/* Dare Search */}
                     <Card header="Dare Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
@@ -1422,11 +1421,11 @@ function Admin() {
                           loading={actionLoading}
                           loadingText="Searching..."
                         >
-                                                      <button
-                              onClick={() => fetchDares(dareSearch)}
-                              disabled={actionLoading}
-                              className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                            >
+                          <button
+                            onClick={() => fetchDares(dareSearch)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
                             Search
                           </button>
                         </ButtonLoading>
@@ -1455,7 +1454,7 @@ function Admin() {
                             </svg>
                             Export CSV
                           </button>
-                          
+
                           <div className="text-sm text-neutral-400 flex items-center gap-2">
                             <span>Total: {dares.length} dares</span>
                             <span>•</span>
@@ -1464,7 +1463,7 @@ function Admin() {
                             <span>Approved: {dares.filter(d => mapDareStatus(d.status) === 'approved').length}</span>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-4">
                           {dares.map(dare => (
                             <div key={dare._id} className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/50 transition-all">
@@ -1484,7 +1483,7 @@ function Admin() {
                                       </span>
                                     )}
                                   </div>
-                                  
+
                                   {/* Proof Expiration Info */}
                                   {dare.proofExpiresAt && (
                                     <div className="flex items-center gap-2 mb-2">
@@ -1494,14 +1493,13 @@ function Admin() {
                                       </span>
                                     </div>
                                   )}
-                                  
+
                                   {/* Consent Status for Dom Demands */}
                                   {dare.dareType === 'domination' && dare.requiresConsent && (
                                     <div className="flex items-center gap-2 mb-2">
                                       <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                                      <span className={`text-xs font-semibold ${
-                                        dare.consented ? 'text-green-400' : 'text-red-400'
-                                      }`}>
+                                      <span className={`text-xs font-semibold ${dare.consented ? 'text-green-400' : 'text-red-400'
+                                        }`}>
                                         {dare.consented ? 'Consented' : 'Pending consent'}
                                       </span>
                                       {dare.consentedAt && (
@@ -1573,7 +1571,7 @@ function Admin() {
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Dares Pagination */}
                         {daresTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1645,7 +1643,7 @@ function Admin() {
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Audit Log Pagination */}
                         {auditLogTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1741,9 +1739,9 @@ function Admin() {
                                 </div>
                               </div>
                             </div>
-                            ))}
+                          ))}
                         </div>
-                        
+
                         {/* Reports Pagination */}
                         {reportsTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1856,7 +1854,7 @@ function Admin() {
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Appeals Pagination */}
                         {appealsTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1900,11 +1898,11 @@ function Admin() {
                           loading={actionLoading}
                           loadingText="Searching..."
                         >
-                                                      <button
-                              onClick={() => fetchSwitchGames(switchGameSearch)}
-                              disabled={actionLoading}
-                              className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                            >
+                          <button
+                            onClick={() => fetchSwitchGames(switchGameSearch)}
+                            disabled={actionLoading}
+                            className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                          >
                             Search
                           </button>
                         </ButtonLoading>
@@ -1947,7 +1945,7 @@ function Admin() {
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Switch Games Pagination */}
                         {switchGamesTotalItems > ITEMS_PER_PAGE && (
                           <div className="mt-6">
@@ -1985,7 +1983,7 @@ function Admin() {
                           </div>
                           <div className="text-sm text-primary-300">Total Users</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30">
                           <div className="flex items-center gap-3 mb-2">
                             <FireIcon className="w-6 h-6 text-green-400" />
@@ -1993,7 +1991,7 @@ function Admin() {
                           </div>
                           <div className="text-sm text-green-300">Total Dares</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30">
                           <div className="flex items-center gap-3 mb-2">
                             <ChartBarIcon className="w-6 h-6 text-blue-400" />
@@ -2001,7 +1999,7 @@ function Admin() {
                           </div>
                           <div className="text-sm text-blue-300">Total Comments</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 rounded-xl p-6 border border-yellow-600/30">
                           <div className="flex items-center gap-3 mb-2">
                             <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400" />
@@ -2025,7 +2023,7 @@ function Admin() {
             value={tabIdx}
             onChange={setTabIdx}
           />
-      </main>
+        </main>
       </div>
 
       {/* Confirmation Modal */}
@@ -2038,18 +2036,16 @@ function Admin() {
       >
         <div className="space-y-4">
           <div className="text-center">
-            <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-              confirmAction.type === 'danger' ? 'bg-red-600/20' : 
+            <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${confirmAction.type === 'danger' ? 'bg-red-600/20' :
               confirmAction.type === 'warning' ? 'bg-yellow-600/20' : 'bg-blue-600/20'
-            }`}>
-              <ExclamationTriangleIcon className={`w-8 h-8 ${
-                confirmAction.type === 'danger' ? 'text-red-400' : 
+              }`}>
+              <ExclamationTriangleIcon className={`w-8 h-8 ${confirmAction.type === 'danger' ? 'text-red-400' :
                 confirmAction.type === 'warning' ? 'text-yellow-400' : 'text-blue-400'
-              }`} />
+                }`} />
             </div>
             <p className="text-neutral-300 text-lg">{confirmAction.message}</p>
           </div>
-          
+
           <div className="flex gap-4">
             <button
               type="button"
@@ -2060,13 +2056,12 @@ function Admin() {
             </button>
             <button
               onClick={handleConfirmAction}
-              className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                confirmAction.type === 'danger' 
-                  ? 'bg-red-600 hover:bg-red-700 text-white' 
-                  : confirmAction.type === 'warning'
+              className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${confirmAction.type === 'danger'
+                ? 'bg-red-600 hover:bg-red-700 text-white'
+                : confirmAction.type === 'warning'
                   ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
+                }`}
             >
               Confirm
             </button>
@@ -2083,45 +2078,45 @@ function Admin() {
         aria-modal="true"
       >
         <div className="space-y-4">
-            <div>
+          <div>
             <label htmlFor="edit-username" className="block font-semibold mb-1 text-white">Username</label>
-              <input
-                type="text"
-                name="username"
-                id="edit-username"
+            <input
+              type="text"
+              name="username"
+              id="edit-username"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                value={editUserData.username}
-                onChange={handleEditUserChange}
-                required
-              />
-            </div>
-            <div>
+              value={editUserData.username}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
             <label htmlFor="edit-email" className="block font-semibold mb-1 text-white">Email</label>
-              <input
-                type="email"
-                name="email"
-                id="edit-email"
+            <input
+              type="email"
+              name="email"
+              id="edit-email"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                value={editUserData.email}
-                onChange={handleEditUserChange}
-                required
-              />
-            </div>
-            <div>
+              value={editUserData.email}
+              onChange={handleEditUserChange}
+              required
+            />
+          </div>
+          <div>
             <label htmlFor="edit-roles" className="block font-semibold mb-1 text-white">Roles (comma-separated)</label>
-              <input
-                type="text"
-                name="roles"
-                id="edit-roles"
+            <input
+              type="text"
+              name="roles"
+              id="edit-roles"
               className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
-                onChange={(e) => {
-                  const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
-                  setEditUserData(prev => ({ ...prev, roles }));
-                }}
-                placeholder="admin, moderator, user"
-              />
-            </div>
+              value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
+              onChange={(e) => {
+                const roles = e.target.value.split(',').map(r => r.trim()).filter(r => r);
+                setEditUserData(prev => ({ ...prev, roles }));
+              }}
+              placeholder="admin, moderator, user"
+            />
+          </div>
           {editUserError && (
             <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
               {editUserError}
