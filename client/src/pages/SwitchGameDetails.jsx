@@ -79,7 +79,6 @@ export default function SwitchGameDetails() {
   const toastTimeout = useRef(null);
   // Add error toast state
   const [errorToast, setErrorToast] = useState('');
-  const [expireAfterView, setExpireAfterView] = useState(false);
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
   const [generalError, setGeneralError] = useState('');

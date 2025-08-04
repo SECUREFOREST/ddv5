@@ -2,11 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 
-import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
+import { useContentDeletion } from '../hooks/useContentDeletion';
 
 export default function DareParticipant() {
   const { id } = useParams();
@@ -22,7 +23,7 @@ export default function DareParticipant() {
   const [proofError, setProofError] = useState('');
   const [proofSuccess, setProofSuccess] = useState('');
   const [noDare, setNoDare] = useState(false);
-  const [expireAfterView, setExpireAfterView] = useState(false);
+  const { contentDeletion, updateContentDeletion } = useContentDeletion();
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
   const [generalError, setGeneralError] = useState('');
@@ -100,13 +101,7 @@ export default function DareParticipant() {
 
   const handleProofSubmit = async (e) => {
     e.preventDefault();
-    setProofLoading(true);
-    setProofError('');
-    setProofSuccess('');
-    
-    if (!proof && !proofFile) {
-      showError('Please provide proof text or upload a file.');
-      setProofLoading(false);
+    if (!dare || (!proof && !proofFile)) {
       return;
     }
     
@@ -116,14 +111,14 @@ export default function DareParticipant() {
         formData = new FormData();
         if (proof) formData.append('text', proof);
         formData.append('file', proofFile);
-        formData.append('expireAfterView', expireAfterView);
+        formData.append('contentDeletion', contentDeletion);
         // Use retry mechanism for proof submission with file
         await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         }));
       } else {
         // Use retry mechanism for proof submission with text
-        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, expireAfterView }));
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, contentDeletion }));
       }
       setProof('');
       setProofFile(null);
@@ -363,17 +358,43 @@ export default function DareParticipant() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="expire-after-view"
-                      checked={expireAfterView}
-                      onChange={(e) => setExpireAfterView(e.target.checked)}
-                      className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
-                    />
-                    <label htmlFor="expire-after-view" className="text-white">
-                      Delete proof after viewing
-                    </label>
+                  {/* OSA-Style Content Expiration Settings */}
+                  <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+                    <div className="flex items-start gap-4 mb-4">
+                      <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                        <p className="text-neutral-300 leading-relaxed">
+                          Choose how long this proof content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {PRIVACY_OPTIONS.map((option) => (
+                        <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                          contentDeletion === option.value 
+                            ? 'border-yellow-500 bg-yellow-500/10' 
+                            : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                        }`}>
+                          <input 
+                            type="radio" 
+                            name="contentDeletion" 
+                            value={option.value} 
+                            checked={contentDeletion === option.value} 
+                            onChange={(e) => updateContentDeletion(e.target.value)} 
+                            className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-lg">{option.icon}</span>
+                              <span className="font-semibold text-white">{option.label}</span>
+                            </div>
+                            <p className="text-sm text-neutral-300">{option.desc}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <button
