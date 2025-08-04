@@ -373,7 +373,7 @@ export default function SwitchGameParticipate() {
             <div className="flex flex-col sm:flex-row justify-center items-center gap-8 mb-8">
               <div className="flex flex-col items-center">
                 {game.creator && (
-                  <a href={`/profile/${game.creator._id || game.creator.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator.username}'s profile`}>
+                  <a href={`/profile/${game.creator?._id || game.creator?.id || ''}`} className="group" tabIndex={0} aria-label={`View ${game.creator?.username || 'creator'}'s profile`}>
                     <Avatar user={game.creator} size="lg" alt={`Avatar for ${game.creator?.fullName || game.creator?.username || 'creator'}`} />
                   </a>
                 )}

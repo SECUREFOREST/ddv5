@@ -244,7 +244,7 @@ export default function DareReveal() {
                 <div className="flex items-center gap-4 text-sm text-neutral-400">
                   <span>Difficulty: {dare.difficulty}</span>
                   {dare.creator && (
-                    <span>Created by: {dare.creator.fullName || dare.creator.username}</span>
+                    <span>Created by: {dare.creator?.fullName || dare.creator?.username || 'Unknown User'}</span>
                   )}
                   {dare.createdAt && (
                     <span>Created: {formatRelativeTimeWithTooltip(dare.createdAt).display}</span>

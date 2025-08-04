@@ -419,7 +419,7 @@ export default function DareDetails() {
                 <div className="flex items-center gap-4 text-sm text-neutral-400 mb-4">
                   <span className="flex items-center gap-2">
                     <UserIcon className="w-4 h-4" />
-                    {dare.creator?.fullName || dare.creator?.username || 'Anonymous'}
+                    {dare.creator ? (dare.creator.fullName || dare.creator.username || 'Unknown User') : 'Anonymous'}
                   </span>
                   {dare.createdAt && (
                     <span className="flex items-center gap-2">
@@ -428,7 +428,7 @@ export default function DareDetails() {
                     </span>
                   )}
                   {/* Quick Block Button - OSA-style prominent blocking */}
-                  {dare.creator && dare.creator._id !== user?.id && (
+                  {dare.creator && dare.creator._id !== user?.id && dare.creator.username && (
                     <button
                       onClick={() => {
                         if (confirm(`Are you sure you want to block ${dare.creator.username}? They won't be able to see your content or interact with you.`)) {
@@ -578,7 +578,7 @@ export default function DareDetails() {
                       <Avatar user={dare.creator} size={32} />
                       <div className="flex-1">
                         <div className="text-sm font-semibold text-white">
-                          {dare.creator.fullName || dare.creator.username}
+                          {dare.creator.fullName || dare.creator.username || 'Unknown User'}
                         </div>
                         <div className="text-xs text-neutral-400">Creator</div>
                       </div>

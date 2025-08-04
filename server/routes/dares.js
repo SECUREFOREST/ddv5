@@ -56,6 +56,29 @@ async function checkSlotAndCooldownAtomic(userId) {
   }
 }
 
+// Helper: cleanup orphaned dares (admin only)
+const { cleanupOrphanedDares } = require('../utils/cleanup');
+
+// POST /api/dares/cleanup - cleanup orphaned dares (admin only)
+router.post('/cleanup', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    
+    const result = await cleanupOrphanedDares();
+    res.json({ 
+      message: 'Cleanup completed successfully',
+      result 
+    });
+  } catch (err) {
+    console.error('Cleanup error:', err);
+    res.status(500).json({ error: 'Failed to run cleanup.' });
+  }
+});
+
 // GET /api/dares - list dares (optionally filter by status, difficulty, public, dareType, allowedRoles)
 router.get('/', auth, async (req, res, next) => {
   try {
@@ -276,26 +299,60 @@ router.get('/mine', auth, async (req, res) => {
 // GET /api/dares/:id - get dare details
 router.get('/:id', async (req, res) => {
   try {
+    console.log(`Fetching dare details for ID: ${req.params.id}`);
+    
     const dare = await Dare.findById(req.params.id)
       .populate('creator', 'username fullName avatar')
       .populate('performer', 'username fullName avatar')
       .populate('assignedSwitch', 'username fullName avatar');
     if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-    // Ensure creator is always populated
-    if (!dare.creator || !dare.creator.fullName) {
+    
+    console.log(`Dare found. Creator data:`, {
+      hasCreator: !!dare.creator,
+      creatorType: typeof dare.creator,
+      creatorId: dare.creator?._id || dare.creator,
+      hasUsername: !!dare.creator?.username,
+      hasFullName: !!dare.creator?.fullName
+    });
+    
+    // Enhanced creator population logic
+    if (!dare.creator || !dare.creator.username) {
+      console.log(`Dare ${req.params.id} has missing creator data:`, dare.creator);
+      
       // Try to fetch the user if only an ID is present
       if (dare.creator && typeof dare.creator === 'object' && dare.creator._id) {
         const user = await User.findById(dare.creator._id).select('username fullName avatar');
-        dare.creator = user || null;
+        if (user) {
+          dare.creator = user;
+          console.log(`Successfully populated creator for dare ${req.params.id}:`, user.username);
+        } else {
+          console.log(`User not found for creator ID: ${dare.creator._id}`);
+          dare.creator = null;
+        }
       } else if (dare.creator && typeof dare.creator === 'string') {
         const user = await User.findById(dare.creator).select('username fullName avatar');
-        dare.creator = user || null;
+        if (user) {
+          dare.creator = user;
+          console.log(`Successfully populated creator for dare ${req.params.id}:`, user.username);
+        } else {
+          console.log(`User not found for creator ID: ${dare.creator}`);
+          dare.creator = null;
+        }
       } else {
+        console.log(`No creator data found for dare ${req.params.id}`);
         dare.creator = null;
       }
     }
+    
+    console.log(`Final creator data for dare ${req.params.id}:`, {
+      hasCreator: !!dare.creator,
+      username: dare.creator?.username,
+      fullName: dare.creator?.fullName
+    });
+    
     res.json(dare);
   } catch (err) {
+    console.error('Error fetching dare details:', err);
     res.status(500).json({ error: 'Failed to get dare.' });
   }
 });
