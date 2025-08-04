@@ -9,7 +9,6 @@ import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
 import { ButtonLoading } from '../components/LoadingSpinner';
-import Button from '../components/Button';
 import { MainContent, ContentContainer } from '../components/Layout';
 
 export default function ClaimDare() {
@@ -88,11 +87,11 @@ export default function ClaimDare() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto space-y-8">
             <ListSkeleton count={5} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -100,7 +99,7 @@ export default function ClaimDare() {
   if (!dare) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
@@ -109,7 +108,7 @@ export default function ClaimDare() {
               </p>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -119,8 +118,8 @@ export default function ClaimDare() {
     if (dare.dareType === 'domination' && dare.requiresConsent) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-2xl mx-auto space-y-8">
+          <ContentContainer>
+            <MainContent className="max-w-2xl mx-auto space-y-8">
               {/* Header */}
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center gap-3 mb-6">
@@ -159,8 +158,8 @@ export default function ClaimDare() {
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
+            </MainContent>
+          </ContentContainer>
         </div>
       );
     }
@@ -168,7 +167,7 @@ export default function ClaimDare() {
     // For regular dares, show the standard thank you message
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-green-900/20 to-green-800/10 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
               <div className="text-green-400 text-xl mb-4">Thank You!</div>
@@ -177,7 +176,7 @@ export default function ClaimDare() {
               </p>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
