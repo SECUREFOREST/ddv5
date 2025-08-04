@@ -20,6 +20,7 @@ import { useCacheUtils } from '../utils/cache';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { ErrorAlert, SuccessAlert } from '../components/Alert';
+import Button from '../components/Button';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -347,11 +348,11 @@ export default function DareDetails() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={5} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -359,7 +360,7 @@ export default function DareDetails() {
   if (!dare) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-16">
               <div className="bg-neutral-800/50 rounded-xl p-12 border border-neutral-700/30">
@@ -367,16 +368,17 @@ export default function DareDetails() {
                 <p className="text-neutral-500 text-sm mb-6">
                   The dare you're looking for doesn't exist or has been removed.
                 </p>
-                <button
+                <Button
                   onClick={() => window.history.back()}
-                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                  variant="primary"
+                  size="md"
                 >
                   Go Back
-                </button>
+                </Button>
               </div>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -621,9 +623,9 @@ export default function DareDetails() {
           )}
           
           {generalSuccess && (
-            <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+            <SuccessAlert>
               {generalSuccess}
-            </div>
+            </SuccessAlert>
           )}
         </MainContent>
       </ContentContainer>

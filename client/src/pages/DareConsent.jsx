@@ -12,6 +12,7 @@ import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { WarningAlert } from '../components/Alert';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DareConsent() {
   const { id } = useParams();
@@ -290,7 +291,7 @@ export default function DareConsent() {
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    <ButtonLoading />
                     Processing...
                   </>
                 ) : (

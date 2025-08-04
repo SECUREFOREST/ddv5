@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MegaphoneIcon, CurrencyDollarIcon, ChartBarIcon, UserGroupIcon, GlobeAltIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
+import Button from '../components/Button';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 export default function Advertise() {
   const advertisingOptions = [
@@ -139,9 +141,9 @@ export default function Advertise() {
                     ))}
                   </ul>
                   
-                  <button className="w-full bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg">
+                  <Button variant="primary" className="w-full">
                     Get Started
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -186,14 +188,14 @@ export default function Advertise() {
                 href="mailto:advertising@deviantdare.com" 
                 className="w-full sm:w-auto inline-block"
               >
-                <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25">
+                <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   Contact Us
-                </button>
+                </Button>
               </a>
               <Link to="/news" className="w-full sm:w-auto inline-block">
-                <button className="w-full sm:w-auto bg-neutral-800 hover:bg-neutral-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                   Learn More
-                </button>
+                </Button>
               </Link>
             </div>
           </div>

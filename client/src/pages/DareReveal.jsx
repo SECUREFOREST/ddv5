@@ -16,6 +16,7 @@ import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { ErrorAlert, SuccessAlert } from '../components/Alert';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 
 
@@ -163,11 +164,11 @@ export default function DareReveal() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={6} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -175,7 +176,7 @@ export default function DareReveal() {
   if (!dare) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
@@ -184,17 +185,17 @@ export default function DareReveal() {
               </p>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -428,9 +429,9 @@ export default function DareReveal() {
                 )}
 
                 {proofSuccess && (
-                  <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+                  <SuccessAlert className="mt-4">
                     {proofSuccess}
-                  </div>
+                  </SuccessAlert>
                 )}
               </Dialog.Panel>
             </div>
@@ -454,8 +455,8 @@ export default function DareReveal() {
               {chickenOutError}
             </ErrorAlert>
           )}
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 

@@ -200,7 +200,7 @@ export default function Dares() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <ContentContainer>
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
         <MainContent className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
@@ -299,8 +299,7 @@ export default function Dares() {
               Last updated: {formatRelativeTimeWithTooltip(lastUpdated).display}
             </div>
           )}
-        </main>
-      </div>
+        </MainContent>
 
       {/* Create Dare Modal */}
       <Modal
@@ -431,8 +430,7 @@ export default function Dares() {
           </div>
         </form>
       </Modal>
-        </MainContent>
       </ContentContainer>
     </div>
   );
-} 
+}

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, PlayIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
 import { MainContent, ContentContainer } from '../components/Layout';
+import Button from '../components/Button';
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -169,9 +170,9 @@ const Landing = () => {
                     Rock-paper-scissors game where the loser performs the winner's demand.
                   </p>
                   <Link to="/register" className="inline-block w-full">
-                    <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    <Button variant="gradient-purple" className="w-full">
                       Sign Up to Start
-                    </button>
+                    </Button>
                   </Link>
                 </div>
               </div>
@@ -182,14 +183,14 @@ const Landing = () => {
           <div className="text-center mb-16">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/login" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25 hover:shadow-3xl">
+                <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   Get Started
-                </button>
+                </Button>
               </Link>
               <Link to="/register" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto border-2 border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-primary hover:text-white transform hover:-translate-y-1 shadow-lg">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   Join Community
-                </button>
+                </Button>
               </Link>
             </div>
           </div>
@@ -230,14 +231,14 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-2xl shadow-primary/25">
+                <Button variant="primary" size="lg" className="w-full sm:w-auto">
                   Create Account
-                </button>
+                </Button>
               </Link>
               <Link to="/login" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto bg-neutral-800 hover:bg-neutral-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                   Sign In
-                </button>
+                </Button>
               </Link>
             </div>
           </div>

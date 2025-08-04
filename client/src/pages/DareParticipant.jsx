@@ -9,6 +9,8 @@ import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 export default function DareParticipant() {
   const { id } = useParams();
@@ -411,7 +413,7 @@ export default function DareParticipant() {
                   >
                     {proofLoading ? (
                       <>
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        <ButtonLoading />
                         Submitting...
                       </>
                     ) : (
@@ -424,21 +426,21 @@ export default function DareParticipant() {
                 </form>
 
                 {proofError && (
-                  <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                  <ErrorAlert className="mt-4">
                     {proofError}
-                  </div>
+                  </ErrorAlert>
                 )}
 
                 {proofSuccess && (
-                  <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+                  <SuccessAlert className="mt-4">
                     {proofSuccess}
-                  </div>
+                  </SuccessAlert>
                 )}
 
                 {chickenOutError && (
-                  <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                  <ErrorAlert className="mt-4">
                     {chickenOutError}
-                  </div>
+                  </ErrorAlert>
                 )}
               </div>
             </div>
@@ -461,15 +463,15 @@ export default function DareParticipant() {
 
           {/* General Error/Success Messages */}
           {generalError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {generalError}
-            </div>
+            </ErrorAlert>
           )}
           
           {generalSuccess && (
-            <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+            <SuccessAlert>
               {generalSuccess}
-            </div>
+            </SuccessAlert>
           )}
         </main>
       </div>

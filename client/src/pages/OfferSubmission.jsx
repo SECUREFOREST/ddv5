@@ -9,6 +9,9 @@ import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
+import { ButtonLoading } from '../components/LoadingSpinner';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 function mapPrivacyValue(val) {
   if (val === 'when_viewed') return 'delete_after_view';
@@ -169,21 +172,21 @@ export default function OfferSubmission() {
   if (fetching) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={8} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -338,7 +341,7 @@ export default function OfferSubmission() {
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <ButtonLoading />
                       Creating...
                     </>
                   ) : (
@@ -361,19 +364,19 @@ export default function OfferSubmission() {
 
             {/* Error/Success Messages */}
             {error && (
-              <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+              <ErrorAlert className="mt-4">
                 {error}
-              </div>
+              </ErrorAlert>
             )}
             
             {success && (
-              <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+              <SuccessAlert className="mt-4">
                 {success}
-              </div>
+              </SuccessAlert>
             )}
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 

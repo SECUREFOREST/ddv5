@@ -8,6 +8,9 @@ import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
+import { ButtonLoading } from '../components/LoadingSpinner';
+import Button from '../components/Button';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 export default function ClaimDare() {
   const { claimToken } = useParams();
@@ -183,10 +186,10 @@ export default function ClaimDare() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-2xl mx-auto space-y-8">
+        <MainContent className="max-w-2xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -304,14 +307,16 @@ export default function ClaimDare() {
 
             {/* Consent Button */}
             <div className="mt-8 text-center">
-              <button
+              <Button
                 onClick={handleConsent}
                 disabled={claiming}
-                className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                variant="primary"
+                size="lg"
+                className="mx-auto"
               >
                 {claiming ? (
                   <>
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    <ButtonLoading />
                     Claiming...
                   </>
                 ) : (
@@ -320,11 +325,11 @@ export default function ClaimDare() {
                     Accept & Perform Dare
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
