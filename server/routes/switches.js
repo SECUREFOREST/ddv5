@@ -8,6 +8,7 @@ const { body, validationResult } = require('express-validator');
 const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
 const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 const { logActivity } = require('../utils/activity');
+const { logAudit } = require('../utils/auditLog');
 
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');

@@ -239,7 +239,7 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// GET /api/user_settings - get user settings
+// GET /api/users/user_settings - get user settings
 router.get('/user_settings', auth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('settings');
@@ -249,7 +249,7 @@ router.get('/user_settings', auth, async (req, res) => {
   }
 });
 
-// POST /api/user_settings - update user settings
+// POST /api/users/user_settings - update user settings
 router.post('/user_settings', auth, async (req, res) => {
   try {
     const { dashboard_tab } = req.body;

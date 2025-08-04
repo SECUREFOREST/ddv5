@@ -10,6 +10,7 @@ const SwitchGameSchema = new mongoose.Schema({
     move: { type: String, enum: ['rock', 'paper', 'scissors'], required: true }
   },
   participantDare: {
+    description: { type: String },
     difficulty: { type: String },
     move: { type: String, enum: ['rock', 'paper', 'scissors'] },
     consent: { type: Boolean }
@@ -23,6 +24,10 @@ const SwitchGameSchema = new mongoose.Schema({
   proof: {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // userId of loser
     text: String, // proof text or link
+    review: {
+      action: { type: String, enum: ['approved', 'rejected'] },
+      feedback: String
+    }
   },
   proofExpiresAt: { type: Date }, // 48h after proof submission or view
   expireProofAfterView: { type: Boolean, default: false },
@@ -37,6 +42,9 @@ const SwitchGameSchema = new mongoose.Schema({
     }
   ],
   public: { type: Boolean, default: true },
+  // OSA-style content expiration
+  contentDeletion: { type: String, enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'], default: 'delete_after_30_days' },
+  contentExpiresAt: { type: Date },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 

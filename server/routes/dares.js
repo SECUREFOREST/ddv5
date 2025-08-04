@@ -314,6 +314,8 @@ router.post('/dom-demand',
     body('tags').optional().isArray().withMessage('Tags must be an array.'),
     body('public').optional().isBoolean().withMessage('Public must be true or false.'),
     body('requiresConsent').optional().isBoolean().withMessage('RequiresConsent must be true or false.'),
+    body('allowedRoles').optional().isArray().withMessage('AllowedRoles must be an array.'),
+    body('contentDeletion').optional().isString().isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('ContentDeletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -325,7 +327,7 @@ router.post('/dom-demand',
     }
     
     try {
-      const { description, difficulty, tags = [], public: isPublic = true, requiresConsent = true } = req.body;
+      const { description, difficulty, tags = [], public: isPublic = true, requiresConsent = true, allowedRoles = [], contentDeletion = 'delete_after_30_days' } = req.body;
       
       // OSA-style content expiration setup (automatic)
       const thirtyDaysFromNow = new Date();
@@ -339,6 +341,8 @@ router.post('/dom-demand',
         public: isPublic,
         dareType: 'domination',
         requiresConsent: true, // Always true for dom demands
+        allowedRoles: Array.isArray(allowedRoles) ? allowedRoles : [],
+        contentDeletion,
         creator: req.userId,
         status: 'waiting_for_participant',
         claimable: true,
@@ -386,6 +390,7 @@ router.post('/',
     body('claimable').optional().isBoolean().withMessage('Claimable must be true or false.'),
     body('claimToken').optional().isString().withMessage('ClaimToken must be a string.'),
     body('claimDemand').optional().isString().withMessage('ClaimDemand must be a string.'),
+    body('contentDeletion').optional().isString().isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('ContentDeletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -396,7 +401,7 @@ router.post('/',
       });
     }
     try {
-      const { description, difficulty, tags, assignedSwitch } = req.body;
+      const { description, difficulty, tags, assignedSwitch, dareType, public: isPublic, allowedRoles, contentDeletion } = req.body;
       if (!description) return res.status(400).json({ error: 'Description is required.' });
       if (!difficulty) return res.status(400).json({ error: 'Difficulty is required.' });
       
@@ -411,6 +416,10 @@ router.post('/',
         creator: req.userId,
         assignedSwitch: assignedSwitch || undefined,
         status: 'waiting_for_participant', // Updated to match new status
+        dareType: dareType || 'submission',
+        public: isPublic !== undefined ? isPublic : true,
+        allowedRoles: Array.isArray(allowedRoles) ? allowedRoles : [],
+        contentDeletion: contentDeletion || 'delete_after_30_days',
         // No content expiration - dares don't expire, only proofs do
       });
       await dare.save();
@@ -430,10 +439,14 @@ router.patch('/:id',
   [
     require('express-validator').param('id').isMongoId(),
     require('express-validator').body('description').optional().isString().isLength({ min: 5, max: 500 }).trim().escape(),
-    require('express-validator').body('difficulty').optional().isString().isIn(['titillating', 'daring', 'shocking']),
-    require('express-validator').body('status').optional().isString().isIn(['waiting_for_participant', 'in_progress', 'completed', 'forfeited', 'approved', 'rejected']),
+    require('express-validator').body('difficulty').optional().isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
+    require('express-validator').body('status').optional().isString().isIn(['waiting_for_participant', 'in_progress', 'completed', 'forfeited', 'approved', 'rejected', 'pending', 'soliciting', 'expired', 'cancelled', 'graded', 'user_deleted']),
     require('express-validator').body('tags').optional().isArray(),
-    require('express-validator').body('assignedSwitch').optional().isString().isLength({ min: 1 })
+    require('express-validator').body('assignedSwitch').optional().isString().isLength({ min: 1 }),
+    require('express-validator').body('dareType').optional().isString().isIn(['submission', 'domination', 'switch']),
+    require('express-validator').body('public').optional().isBoolean(),
+    require('express-validator').body('allowedRoles').optional().isArray(),
+    require('express-validator').body('contentDeletion').optional().isString().isIn(['delete_after_view', 'delete_after_30_days', 'never_delete'])
   ],
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
@@ -446,12 +459,16 @@ router.patch('/:id',
       if (dare.creator.toString() !== req.userId) {
         return res.status(403).json({ error: 'Unauthorized.' });
       }
-      const { description, difficulty, status, tags, assignedSwitch } = req.body;
+      const { description, difficulty, status, tags, assignedSwitch, dareType, public: isPublic, allowedRoles, contentDeletion } = req.body;
       if (description) dare.description = description;
       if (difficulty) dare.difficulty = difficulty;
       if (status) dare.status = status;
       if (tags) dare.tags = Array.isArray(tags) ? tags : [];
       if (assignedSwitch !== undefined) dare.assignedSwitch = assignedSwitch;
+      if (dareType) dare.dareType = dareType;
+      if (isPublic !== undefined) dare.public = isPublic;
+      if (allowedRoles) dare.allowedRoles = Array.isArray(allowedRoles) ? allowedRoles : [];
+      if (contentDeletion) dare.contentDeletion = contentDeletion;
       dare.updatedAt = new Date();
       await dare.save();
       res.json(dare);
@@ -558,7 +575,18 @@ router.post('/:id/proof',
       dare.status = 'completed';
       dare.completedAt = now;
       dare.updatedAt = now;
-      dare.proofExpiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48h from now, UTC
+      
+      // Set proof expiration based on content deletion preference
+      let proofExpirationHours = 48; // Default 48 hours
+      if (dare.contentDeletion === 'delete_after_view') {
+        proofExpirationHours = 1; // 1 hour for view-once content
+      } else if (dare.contentDeletion === 'delete_after_30_days') {
+        proofExpirationHours = 30 * 24; // 30 days
+      } else if (dare.contentDeletion === 'never_delete') {
+        proofExpirationHours = 60 * 24; // 60 days (2 months)
+      }
+      
+      dare.proofExpiresAt = new Date(now.getTime() + proofExpirationHours * 60 * 60 * 1000);
       await dare.save();
       await User.findByIdAndUpdate(req.userId, { $inc: { openDares: -1 } });
       // Notify creator
@@ -582,7 +610,9 @@ router.post('/:id/accept',
   auth,
   [
     require('express-validator').param('id').isMongoId(),
-    require('express-validator').body('difficulty').optional().isString().isIn(['titillating', 'daring', 'shocking'])
+    require('express-validator').body('difficulty').optional().isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
+    require('express-validator').body('consent').optional().isBoolean(),
+    require('express-validator').body('contentDeletion').optional().isString().isIn(['delete_after_view', 'delete_after_30_days', 'never_delete'])
   ],
   async (req, res) => {
     const errors = require('express-validator').validationResult(req);
@@ -590,35 +620,107 @@ router.post('/:id/accept',
       return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
     try {
-      const { difficulty } = req.body;
+      const { difficulty, consent, contentDeletion } = req.body;
+      
+      // Validate consent
+      if (!consent) {
+        return res.status(400).json({ error: 'You must consent to participate in this dare.' });
+      }
+      
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
       if (dare.performer) return res.status(400).json({ error: 'Dare already has a performer.' });
       if (dare.creator.toString() === req.userId) {
         return res.status(400).json({ error: 'You cannot perform your own dare.' });
       }
+      
       // Blocked user check
       const creator2 = await User.findById(dare.creator).select('blockedUsers');
       const performerUser2 = await User.findById(req.userId).select('blockedUsers');
+      
       // Prevent accepting if in cooldown or at open dare limit
       await checkSlotAndCooldownAtomic(req.userId);
+      
       if (
         (creator2.blockedUsers && creator2.blockedUsers.includes(req.userId)) ||
         (performerUser2.blockedUsers && performerUser2.blockedUsers.includes(dare.creator.toString()))
       ) {
         return res.status(400).json({ error: 'You cannot perform this dare due to user blocking.' });
       }
-      if (!dare.difficulty && difficulty) dare.difficulty = difficulty;
+      
+      // Update dare with performer and difficulty
+      if (difficulty) dare.difficulty = difficulty;
       dare.performer = req.userId;
-      dare.status = 'waiting_for_participant'; // Reset to available
+      dare.status = 'in_progress';
+      dare.updatedAt = new Date();
+      
+      // Store content deletion preference (for future proof submissions)
+      if (contentDeletion) {
+        dare.contentDeletion = contentDeletion;
+      }
+      
       await dare.save();
+      
       // Notify performer (the user accepting)
       await sendNotification(req.userId, 'dare_assigned', `You have been assigned as the performer for the dare: "${dare.description}"`, req.userId);
       // Optionally notify creator
       await sendNotification(dare.creator, 'dare_assigned', `Your dare has a new performer!`, req.userId);
+      
       res.json({ message: 'You are now the performer for this dare.', dare });
     } catch (err) {
+      // User-friendly error for cooldown or open dares limit
+      if (
+        err.message &&
+        (err.message.includes('cooldown') || err.message.includes('maximum of 5 open dares'))
+      ) {
+        return res.status(429).json({
+          error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or forfeit some dares, or wait for your cooldown to expire.'
+        });
+      }
       res.status(500).json({ error: 'Failed to accept dare.' });
+    }
+  }
+);
+
+// POST /api/dares/:id/chicken-out - performer chickens out of a dare (alias for forfeit)
+router.post('/:id/chicken-out',
+  auth,
+  require('express-validator').param('id').isMongoId(),
+  (req, res, next) => {
+    if (Object.keys(req.body).length > 0) {
+      return res.status(400).json({ error: 'No body expected.' });
+    }
+    next();
+  },
+  async (req, res) => {
+    const errors = require('express-validator').validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+    }
+    try {
+      const dare = await Dare.findById(req.params.id);
+      if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+      if (!dare.performer || dare.performer.toString() !== req.userId) {
+        return res.status(403).json({ error: 'Only the performer can chicken out of this dare.' });
+      }
+      if (dare.status !== 'in_progress') {
+        return res.status(400).json({ error: 'Only in-progress dares can be chickened out of.' });
+      }
+      dare.status = 'forfeited';
+      dare.updatedAt = new Date();
+      await dare.save();
+      // Notify creator
+      await sendNotification(
+        dare.creator,
+        'dare_forfeited',
+        'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.',
+        req.userId
+      );
+      // Log activity
+      await logActivity({ type: 'dare_forfeited', user: req.userId, dare: dare._id });
+      res.json({ message: 'Dare chickened out (forfeited).', dare });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to chicken out of dare.' });
     }
   }
 );
@@ -753,6 +855,10 @@ router.post('/claimable',
     body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
     body('tags').optional().isArray(),
     body('assignedSwitch').optional().isString(),
+    body('dareType').optional().isString().isIn(['submission', 'domination', 'switch']),
+    body('public').optional().isBoolean(),
+    body('allowedRoles').optional().isArray(),
+    body('contentDeletion').optional().isString().isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -760,7 +866,7 @@ router.post('/claimable',
       return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
     try {
-      const { description, difficulty, tags, assignedSwitch } = req.body;
+      const { description, difficulty, tags, assignedSwitch, dareType, public: isPublic, allowedRoles, contentDeletion } = req.body;
       const claimToken = uuidv4();
       
       // OSA-style content expiration setup (automatic)
@@ -774,6 +880,10 @@ router.post('/claimable',
         creator: req.userId,
         assignedSwitch: assignedSwitch || undefined,
         status: 'waiting_for_participant',
+        dareType: dareType || 'submission',
+        public: isPublic !== undefined ? isPublic : true,
+        allowedRoles: Array.isArray(allowedRoles) ? allowedRoles : [],
+        contentDeletion: contentDeletion || 'delete_after_30_days',
         claimable: true,
         claimToken,
         // No content expiration - dares don't expire, only proofs do
@@ -787,6 +897,29 @@ router.post('/claimable',
     }
   }
 );
+
+// GET /api/dares/share/:id - fetch dare by ID for sharing (public)
+router.get('/share/:id', async (req, res) => {
+  try {
+    const dare = await Dare.findById(req.params.id)
+      .populate('creator', 'username fullName avatar')
+      .populate('performer', 'username fullName avatar')
+      .populate('assignedSwitch', 'username fullName avatar');
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Only return public dares or dares created by the requesting user
+    if (!dare.public) {
+      return res.status(403).json({ error: 'This dare is private.' });
+    }
+    
+    res.json(dare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch dare.' });
+  }
+});
 
 // GET /api/dares/claim/:token - fetch dare by claimToken (public)
 router.get('/claim/:token', async (req, res) => {
@@ -891,7 +1024,7 @@ router.post('/claim/:token', [
 
 // PATCH /api/dares/:id/start - start a dare (accept and begin)
 router.patch('/:id/start', auth, [
-  body('difficulty').optional().isString().isIn(['titillating', 'daring', 'shocking']).withMessage('Difficulty must be one of: titillating, daring, shocking.')
+      body('difficulty').optional().isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']).withMessage('Difficulty must be one of: titillating, arousing, explicit, edgy, hardcore.')
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -1082,6 +1215,96 @@ router.post('/:id/reject', auth, [
     res.json(updatedDare);
   } catch (err) {
     res.status(500).json({ error: 'Failed to reject dare.' });
+  }
+});
+
+// POST /api/dares/:id/reject - reject a dare (admin/moderator)
+router.post('/:id/reject', auth, [
+  body('reason').optional().isString().isLength({ max: 500 }).withMessage('Reason must be less than 500 characters.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { reason } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    if (dare.performer?.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Only the performer can reject this dare.' });
+    }
+    
+    // Update dare status
+    const updatedDare = await Dare.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status: 'rejected',
+        rejectionReason: reason,
+        updatedAt: new Date()
+      },
+      { new: true }
+    ).populate('creator', 'username fullName avatar')
+     .populate('performer', 'username fullName avatar');
+    
+    // Notify creator
+    await sendNotification(dare.creator, 'dare_rejected', `Your dare has been rejected.`, req.userId);
+    
+    res.json(updatedDare);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject dare.' });
+  }
+});
+
+// POST /api/dares/:id/appeal - appeal a rejected dare
+router.post('/:id/appeal', auth, [
+  body('reason').isString().isLength({ min: 5, max: 500 }).withMessage('Reason must be between 5 and 500 characters.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    const { reason } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    if (dare.performer?.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Only the performer can appeal this dare.' });
+    }
+    
+    if (dare.status !== 'rejected') {
+      return res.status(400).json({ error: 'Only rejected dares can be appealed.' });
+    }
+    
+    // Create appeal
+    const Appeal = require('../models/Appeal');
+    const appeal = new Appeal({
+      type: 'dare',
+      targetId: dare._id,
+      user: req.userId,
+      reason
+    });
+    
+    await appeal.save();
+    await logAudit({ action: 'appeal_dare', user: req.userId, target: dare._id });
+    
+    // Update dare status to pending appeal
+    dare.status = 'pending_appeal';
+    dare.updatedAt = new Date();
+    await dare.save();
+    
+    res.json({ message: 'Appeal submitted successfully.', appeal });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit appeal.' });
   }
 });
 

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const DareSchema = new mongoose.Schema({
   description: { type: String },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['pending', 'completed', 'in_progress', 'graded', 'waiting_for_participant', 'forfeited'], default: 'waiting_for_participant' },
+  status: { type: String, enum: ['pending', 'completed', 'in_progress', 'graded', 'waiting_for_participant', 'forfeited', 'approved', 'rejected', 'soliciting', 'expired', 'cancelled', 'user_deleted'], default: 'waiting_for_participant' },
   difficulty: { type: String },
   grades: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -39,6 +39,8 @@ const DareSchema = new mongoose.Schema({
   // Consent tracking for dom demands
   consented: { type: Boolean, default: false },
   consentedAt: { type: Date },
+  // Content deletion preference for OSA-style privacy
+  contentDeletion: { type: String, enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'], default: 'delete_after_30_days' },
 });
 
 module.exports = mongoose.model('Dare', DareSchema); 
