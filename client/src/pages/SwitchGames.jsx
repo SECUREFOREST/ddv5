@@ -212,7 +212,7 @@ export default function SwitchGames() {
                         game.status === 'waiting_for_participant' ? 'bg-yellow-500/20 text-yellow-300' :
                         'bg-gray-500/20 text-gray-300'
                       }`}>
-                        {game.status.replace('_', ' ')}
+                        {game.status.replace(/_/g, ' ')}
                       </span>
                     </div>
                     <h4 className="text-white font-semibold mb-2 truncate">

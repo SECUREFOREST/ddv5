@@ -544,7 +544,7 @@ export default function SwitchGameDetails() {
             </span>
           ) : (
                 <span className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/50 text-purple-300 rounded-full px-6 py-3 font-semibold text-lg">
-              <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
+              <Squares2X2Icon className="w-6 h-6" /> {game.status ? game.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Switch Game'}
             </span>
           )
         )}
