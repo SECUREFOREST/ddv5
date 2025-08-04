@@ -9,6 +9,9 @@ import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
+import { MainContent, ContentContainer } from '../components/Layout';
+import { FormInput, FormSelect, FormTextarea } from '../components/Form';
+import { ErrorAlert } from '../components/Alert';
 
 export default function DomDemandCreator() {
   const { showSuccess, showError } = useToast();
@@ -76,10 +79,10 @@ export default function DomDemandCreator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -111,32 +114,23 @@ export default function DomDemandCreator() {
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
             {createError && (
-              <div className="mb-6 bg-red-500/20 border border-red-500/50 rounded-xl p-4">
-                <div className="flex items-center gap-3 text-red-300">
-                  <ExclamationTriangleIcon className="w-5 h-5" />
-                  <span className="font-medium">{createError}</span>
-                </div>
-              </div>
+              <ErrorAlert className="mb-6">
+                {createError}
+              </ErrorAlert>
             )}
             
             <form onSubmit={handleCreate} className="space-y-8">
               {/* Description */}
-              <div>
-                <label htmlFor="description" className="block text-lg font-semibold text-white mb-3">
-                  Your Demand (Hidden until consent)
-                </label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full h-32 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
-                  placeholder="Describe your demand in detail... (This will be hidden until the submissive consents)"
-                  required
-                />
-                <div className="text-sm text-neutral-400 mt-2">
-                  {description.length}/1000 characters
-                </div>
-              </div>
+              <FormTextarea
+                label="Your Demand (Hidden until consent)"
+                placeholder="Describe your demand in detail... (This will be hidden until the submissive consents)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="h-32 resize-none"
+                maxLength={1000}
+                showCharacterCount
+              />
 
               {/* Difficulty Selection */}
               <div>
@@ -220,8 +214,8 @@ export default function DomDemandCreator() {
               </button>
             </form>
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
 
       {/* Success Modal */}
       <Modal

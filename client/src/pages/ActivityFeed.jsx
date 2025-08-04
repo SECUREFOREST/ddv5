@@ -3,12 +3,14 @@ import api from '../api/axios';
 
 import Avatar from '../components/Avatar';
 import { Link } from 'react-router-dom';
-import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { useRealtimeActivitySubscription } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
+import { MainContent, ContentContainer } from '../components/Layout';
+import Search from '../components/Search';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -97,10 +99,10 @@ export default function ActivityFeed() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -116,19 +118,11 @@ export default function ActivityFeed() {
 
           {/* Search Bar */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
-              </div>
-              <input
-                type="text"
-                className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                placeholder="Search activity, user, or type..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                aria-label="Search activity feed"
-              />
-            </div>
+            <Search
+              placeholder="Search activity, user, or type..."
+              onSearch={setSearch}
+              className="w-full"
+            />
           </div>
 
           {/* Activity List */}
@@ -189,8 +183,8 @@ export default function ActivityFeed() {
               Last updated: {formatRelativeTimeWithTooltip(lastSeen).display}
             </div>
           )}
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 }

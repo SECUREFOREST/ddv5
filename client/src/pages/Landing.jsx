@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { SparklesIcon, FireIcon, TrophyIcon, UserGroupIcon, BellIcon, ShareIcon, HeartIcon, PlayIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 const Landing = () => {
   const { user, loading } = useAuth();
@@ -92,10 +93,10 @@ const Landing = () => {
         <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-6xl mx-auto">
+        <MainContent className="max-w-6xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-3 mb-8">
@@ -247,8 +248,8 @@ const Landing = () => {
               <strong>SEO Keywords:</strong> social dares, challenge app, leaderboard, online dares, friendly competition, community, Deviant Dare, create dares, accept dares, share dares, gamified challenges, rewards, achievements, fun, safe, adventure
             </p>
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 };

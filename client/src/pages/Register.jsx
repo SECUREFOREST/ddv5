@@ -12,6 +12,7 @@ import { retryApiCall } from '../utils/retry';
 import { FormInput, FormSelect, FormTextarea } from '../components/Form';
 import { ErrorAlert } from '../components/Alert';
 import { MainContent } from '../components/Layout';
+import Button from '../components/Button';
 
 export default function Register() {
   const { register } = useAuth();
@@ -116,103 +117,58 @@ export default function Register() {
 
           <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
           
-          <main id="main-content" tabIndex="-1" role="main">
+          <MainContent>
             <form onSubmit={handleSubmit} className="space-y-6" role="form" aria-labelledby="register-title">
               {/* Error Display */}
               {registerError && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4" role="alert" aria-live="polite">
-                  <div className="flex items-center gap-3 text-red-300">
-                    <ExclamationTriangleIcon className="w-5 h-5" />
-                    <span className="font-medium">{registerError}</span>
-                  </div>
-                </div>
+                <ErrorAlert>
+                  {registerError}
+                </ErrorAlert>
               )}
               
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="register-username" className="block font-semibold mb-3 text-primary text-sm">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    id="register-username"
-                    className="w-full rounded-xl border border-neutral-700 px-4 py-4 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-neutral-800/50 transition-all duration-200 text-base"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    required
-                    aria-label="Username"
-                    placeholder="Choose a username"
-                    disabled={loading}
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="register-fullName" className="block font-semibold mb-3 text-primary text-sm">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="register-fullName"
-                    className="w-full rounded-xl border border-neutral-700 px-4 py-4 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-neutral-800/50 transition-all duration-200 text-base"
-                    value={fullName}
-                    onChange={e => setFullName(e.target.value)}
-                    required
-                    aria-label="Full Name"
-                    placeholder="Enter your full name"
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="register-email" className="block font-semibold mb-3 text-primary text-sm">
-                  Email <span className="text-xs text-neutral-400">(we keep this private)</span>
-                </label>
-                <input
-                  type="email"
-                  id="register-email"
-                  className="w-full rounded-xl border border-neutral-700 px-4 py-4 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-neutral-800/50 transition-all duration-200 text-base"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                <FormInput
+                  type="text"
+                  label="Username"
+                  placeholder="Choose a username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
                   required
-                  aria-label="Email address"
-                  placeholder="Enter your email address"
+                  disabled={loading}
+                />
+                
+                <FormInput
+                  type="text"
+                  label="Full Name"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  required
                   disabled={loading}
                 />
               </div>
               
-              <div>
-                <label htmlFor="register-password" className="block font-semibold mb-3 text-primary text-sm">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="register-password"
-                    className="w-full rounded-xl border border-neutral-700 px-4 py-4 pr-12 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-neutral-800/50 transition-all duration-200 text-base"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    aria-label="Password"
-                    placeholder="Create a strong password"
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors p-1 rounded-lg hover:bg-neutral-700/50"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    disabled={loading}
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="w-5 h-5" />
-                    ) : (
-                      <EyeIcon className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
+              <FormInput
+                type="email"
+                label="Email"
+                labelSuffix="(we keep this private)"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+              
+              <FormInput
+                type="password"
+                label="Password"
+                placeholder="Create a strong password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
               
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -323,23 +279,15 @@ export default function Register() {
                 </div>
               </div>
               
-              <button
+              <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-primary-dark text-primary-contrast rounded-xl px-6 py-4 font-semibold text-base transition-all duration-300 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-contrast flex items-center justify-center gap-3 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:transform-none"
-                disabled={loading}
+                variant="primary"
+                fullWidth
+                loading={loading}
               >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating Account...
-                  </>
-                ) : (
-                  <>
-                    <UserPlusIcon className="w-5 h-5" />
-                    Create Account
-                  </>
-                )}
-              </button>
+                <UserPlusIcon className="w-5 h-5" />
+                Create Account
+              </Button>
             </form>
             
             <div className="mt-8 text-center">
@@ -359,7 +307,7 @@ export default function Register() {
                 Fill in your details above to create your account. All fields are required to ensure a safe and personalized experience.
               </p>
             </div>
-          </main>
+          </MainContent>
         </Card>
       </div>
     </div>

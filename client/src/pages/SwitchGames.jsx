@@ -6,6 +6,8 @@ import { Squares2X2Icon, PlayIcon } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../api/axios';
 import { retryApiCall } from '../utils/retry';
+import { MainContent, ContentContainer } from '../components/Layout';
+import Button from '../components/Button';
 
 export default function SwitchGames() {
   const { user } = useAuth();
@@ -98,9 +100,10 @@ export default function SwitchGames() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+        <MainContent>
+          <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
@@ -169,9 +172,9 @@ export default function SwitchGames() {
                 <h2 className="text-2xl font-bold text-white mb-4">Create a Switch Game</h2>
                 <p className="text-white/70 mb-6">Start a new switch game and invite others to participate</p>
                 <Link to="/switches/create">
-                  <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  <Button variant="gradient-purple" size="lg" className="w-full">
                     Create Game
-                  </button>
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -185,9 +188,9 @@ export default function SwitchGames() {
                 <h2 className="text-2xl font-bold text-white mb-4">Join a Switch Game</h2>
                 <p className="text-white/70 mb-6">Find and join available switch games</p>
                 <Link to="/switches/join">
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  <Button variant="gradient-blue" size="lg" className="w-full">
                     Join Game
-                  </button>
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -236,7 +239,8 @@ export default function SwitchGames() {
             </div>
           )}
         </div>
-      </main>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 

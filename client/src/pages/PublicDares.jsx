@@ -5,42 +5,13 @@ import Card from '../components/Card';
 import Avatar from '../components/Avatar';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { ClockIcon, GlobeAltIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { ClockIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
+import Search from '../components/Search';
+import { DifficultyBadge } from '../components/Badge';
 
-// Difficulty badge (reuse from DareCard)
-function DifficultyBadge({ level }) {
-  let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
-  let label = '';
-  switch (level) {
-    case 'titillating':
-      badgeClass = 'bg-pink-600/20 border border-pink-500/50 text-pink-300';
-      label = 'Titillating';
-      break;
-    case 'arousing':
-      badgeClass = 'bg-purple-600/20 border border-purple-500/50 text-purple-300';
-      label = 'Arousing';
-      break;
-    case 'explicit':
-      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
-      label = 'Explicit';
-      break;
-    case 'edgy':
-      badgeClass = 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300';
-      label = 'Edgy';
-      break;
-    case 'hardcore':
-      badgeClass = 'bg-black/20 border border-white/50 text-white';
-      label = 'Hardcore';
-      break;
-    default:
-      label = level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
-  }
-  return (
-    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badgeClass}`}>{label}</span>
-  );
-}
+
 
 function Tag({ tag }) {
   return (
@@ -209,19 +180,11 @@ export default function PublicDares() {
                   </button>
                 ))}
               </div>
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                <input
-                  type="text"
-                  className="w-full lg:w-80 rounded-xl border border-white/20 px-4 py-3 pl-10 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-white/50"
-                  placeholder="Search by creator or tag..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  aria-label="Search public dares and switch games"
-                  aria-describedby="search-description"
-                />
-                <div id="search-description" className="sr-only">Search through available public dares and switch games by creator name or tags</div>
-              </div>
+              <Search
+                placeholder="Search by creator or tag..."
+                onSearch={setSearch}
+                className="w-full lg:w-80"
+              />
             </div>
           </div>
 

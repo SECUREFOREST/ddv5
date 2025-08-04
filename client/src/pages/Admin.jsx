@@ -17,6 +17,7 @@ import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit.jsx';
 import { retryApiCall } from '../utils/retry';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import Search from '../components/Search';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 // Validation utilities
 const validateEmail = (email) => {

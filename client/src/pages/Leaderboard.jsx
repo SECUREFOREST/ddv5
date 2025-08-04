@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 const LeaderboardWidget = React.lazy(() => import('../components/LeaderboardWidget'));
 
@@ -147,10 +148,10 @@ export default function Leaderboard() {
 
   return (
     <div key="leaderboard" className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-7xl mx-auto space-y-8">
+        <MainContent className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -341,8 +342,8 @@ export default function Leaderboard() {
               />
             </div>
           )}
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
