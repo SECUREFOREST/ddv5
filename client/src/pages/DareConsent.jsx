@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
-import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon, LockClosedIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';

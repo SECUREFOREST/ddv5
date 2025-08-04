@@ -5,6 +5,7 @@ import { ArrowRightIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTria
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 
 
@@ -107,7 +108,7 @@ export default function DareDifficultySelect() {
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <ButtonLoading />
                       Finding Dare...
                     </>
                   ) : (

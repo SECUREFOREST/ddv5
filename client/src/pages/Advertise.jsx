@@ -69,10 +69,10 @@ export default function Advertise() {
         <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-6xl mx-auto">
+        <MainContent className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-3 mb-8">
@@ -207,8 +207,8 @@ export default function Advertise() {
               We reserve the right to reject any ad that doesn't align with our values of consent, safety, and respect.
             </p>
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
