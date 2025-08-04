@@ -195,11 +195,11 @@ export default function Notifications() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={10} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }

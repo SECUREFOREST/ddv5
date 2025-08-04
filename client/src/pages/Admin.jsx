@@ -18,6 +18,7 @@ import { retryApiCall } from '../utils/retry';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import Search from '../components/Search';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { ErrorAlert } from '../components/Alert';
 
 // Validation utilities
 const validateEmail = (email) => {
@@ -1967,9 +1968,9 @@ function Admin() {
                     {siteStatsLoading ? (
                       <ListSkeleton count={5} />
                     ) : siteStatsError ? (
-                      <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                      <ErrorAlert>
                         {siteStatsError}
-                      </div>
+                      </ErrorAlert>
                     ) : siteStats ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30">
@@ -2114,9 +2115,9 @@ function Admin() {
             />
           </div>
           {editUserError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {editUserError}
-            </div>
+            </ErrorAlert>
           )}
           <div className="flex gap-4">
             <button
