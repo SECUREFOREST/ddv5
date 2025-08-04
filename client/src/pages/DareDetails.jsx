@@ -12,6 +12,8 @@ import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, Ta
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import Tooltip from '../components/Tooltip';
+import Accordion from '../components/Accordion';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';

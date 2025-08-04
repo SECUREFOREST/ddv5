@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';

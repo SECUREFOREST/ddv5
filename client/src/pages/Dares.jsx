@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
+import Search from '../components/Search';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -240,12 +241,10 @@ export default function Dares() {
                   ))}
               </select>
                 
-                <input
-                  type="text"
+                <Search
                   placeholder="Search dares..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  onSearch={setSearch}
+                  className="px-4 py-2"
                 />
             </div>
               

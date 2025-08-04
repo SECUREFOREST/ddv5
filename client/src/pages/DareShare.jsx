@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ShareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 

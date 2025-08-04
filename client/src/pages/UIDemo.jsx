@@ -11,7 +11,7 @@ import ProgressBar from '../components/ProgressBar';
 import Markdown from '../components/Markdown';
 import Countdown from '../components/Countdown';
 import Accordion from '../components/Accordion';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { SparklesIcon } from '@heroicons/react/24/solid';
 
 export default function UIDemo() {

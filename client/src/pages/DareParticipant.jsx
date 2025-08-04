@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
+import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
@@ -270,10 +271,12 @@ export default function DareParticipant() {
 
               {/* Get Dare Button */}
               <div className="text-center">
-                <button
+                <Button
                   onClick={handleConsent}
                   disabled={!consentChecked || loading}
-                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                  variant="primary"
+                  size="lg"
+                  className="mx-auto"
                 >
                   {loading ? (
                     <>
@@ -286,7 +289,7 @@ export default function DareParticipant() {
                       Get Random Dare
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           ) : dare ? (
@@ -311,20 +314,22 @@ export default function DareParticipant() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button
+                  <Button
                     onClick={handleTryDifferent}
-                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                    variant="default"
+                    size="md"
                   >
                     Try Different Dare
-                  </button>
+                  </Button>
                   
-                  <button
+                  <Button
                     onClick={handleChickenOut}
                     disabled={chickenOutLoading}
-                    className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-red-700 hover:to-red-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+                    variant="danger"
+                    size="md"
                   >
                     {chickenOutLoading ? 'Chickening Out...' : 'Chicken Out'}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -397,10 +402,12 @@ export default function DareParticipant() {
                     </div>
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
                     disabled={proofLoading || (!proof && !proofFile)}
-                    className="w-full bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
                   >
                     {proofLoading ? (
                       <>
@@ -413,7 +420,7 @@ export default function DareParticipant() {
                         Submit Proof
                       </>
                     )}
-                  </button>
+                  </Button>
                 </form>
 
                 {proofError && (
@@ -442,12 +449,13 @@ export default function DareParticipant() {
               <p className="text-neutral-500 text-sm mb-6">
                 No dares are available for the selected difficulty level. Try a different difficulty or create your own dare.
               </p>
-              <button
+              <Button
                 onClick={handleTryDifferent}
-                className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                variant="primary"
+                size="md"
               >
                 Try Different Difficulty
-              </button>
+              </Button>
             </div>
           ) : null}
 

@@ -5,7 +5,7 @@ import api from '../api/axios';
 import Card from '../components/Card';
 import { ArrowLeftIcon, EyeIcon, EyeSlashIcon, SparklesIcon, ExclamationTriangleIcon, KeyIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { retryApiCall } from '../utils/retry';
 import { validatePassword } from '../utils/validation';
 

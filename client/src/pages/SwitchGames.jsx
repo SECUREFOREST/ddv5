@@ -8,7 +8,7 @@ import api from '../api/axios';
 import { retryApiCall } from '../utils/retry';
 
 export default function SwitchGames() {
-  const { user } = useAuth ? useAuth() : { user: null };
+  const { user } = useAuth();
   const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(true);
   const [userSwitchGames, setUserSwitchGames] = useState([]);

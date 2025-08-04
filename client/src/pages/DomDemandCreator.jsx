@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
 import { ShieldCheckIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlusIcon, LockClosedIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { retryApiCall } from '../utils/retry';

@@ -326,7 +326,7 @@ export default function DarePerformerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { showToast } = useToast();
+  const { showSuccess, showError } = useToast();
   
   // Use the logged-in user's ID instead of URL params
   const currentUserId = user?._id || user?.id;

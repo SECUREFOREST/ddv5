@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+import Button from '../components/Button';
 import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
 import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { retryApiCall } from '../utils/retry';
@@ -218,10 +219,12 @@ export default function DareCreator() {
 
               {/* Submit Button */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
+                <Button
                   type="submit"
                   disabled={creating || description.trim().length < 10}
-                  className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
                 >
                   {creating ? (
                     <>
@@ -234,15 +237,18 @@ export default function DareCreator() {
                       Create Dare
                     </>
                   )}
-                </button>
+                </Button>
                 
-                <Link
+                <Button
+                  as={Link}
                   to="/dares"
-                  className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+                  variant="default"
+                  size="lg"
+                  className="flex-1"
                 >
                   <ArrowRightIcon className="w-6 h-6" />
                   Back to Dares
-                </Link>
+                </Button>
               </div>
             </form>
           </div>
@@ -296,28 +302,35 @@ export default function DareCreator() {
                 className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 onFocus={(e) => e.target.select()}
               />
-              <button
+              <Button
                 onClick={() => navigator.clipboard.writeText(claimLink)}
-                className="w-full mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                variant="info"
+                size="md"
+                className="w-full mt-2"
               >
                 Copy Link
-              </button>
+              </Button>
             </div>
           )}
           
           <div className="flex gap-4">
-            <button
+            <Button
               onClick={handleCreateAnother}
-              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              variant="primary"
+              size="md"
+              className="flex-1"
             >
               Create Another Dare
-            </button>
-            <Link
+            </Button>
+            <Button
+              as={Link}
               to="/dares"
-              className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl text-center"
+              variant="default"
+              size="md"
+              className="flex-1"
             >
               View All Dares
-            </Link>
+            </Button>
           </div>
         </div>
       </Modal>

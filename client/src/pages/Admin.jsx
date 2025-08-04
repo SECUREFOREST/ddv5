@@ -10,11 +10,13 @@ import { ShieldCheckIcon, MagnifyingGlassIcon, ChartBarIcon, UserGroupIcon, Fire
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
+import Dropdown from '../components/Dropdown';
 import LoadingSpinner, { ButtonLoading, ActionLoading } from '../components/LoadingSpinner';
 import { useBulkActions, BulkActionDialog, BULK_ACTION_TYPES } from '../utils/bulkActions.jsx';
 import { useAudit, auditUtils, AUDIT_ACTIONS } from '../utils/audit.jsx';
 import { retryApiCall } from '../utils/retry';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
+import Search from '../components/Search';
 
 // Validation utilities
 const validateEmail = (email) => {
@@ -1260,18 +1262,11 @@ function Admin() {
                     <Card header="User Search">
                       <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                          <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
-                            </div>
-                            <input
-                              type="text"
-                              className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                              placeholder="Search users..."
-                              value={userSearch}
-                              onChange={e => setUserSearch(e.target.value)}
-                            />
-                          </div>
+                          <Search
+                            placeholder="Search users..."
+                            onSearch={setUserSearch}
+                            className="w-full"
+                          />
                         </div>
                         <ButtonLoading
                           loading={actionLoading}

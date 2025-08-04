@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
+import Search from '../components/Search';
 import { MagnifyingGlassIcon, TrophyIcon, FireIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -183,19 +184,12 @@ export default function Leaderboard() {
 
           {/* Search Bar */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
-              </div>
-              <input
-                type="text"
-                className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                placeholder="Search by username or name..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                aria-label="Search leaderboard"
-              />
-            </div>
+            <Search
+              placeholder="Search by username or name..."
+              onSearch={setSearch}
+              className="w-full"
+              aria-label="Search leaderboard"
+            />
           </div>
 
           {/* Leaderboard Content */}

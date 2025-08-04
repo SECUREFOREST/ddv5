@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AccessibilityProvider } from './components/AccessibilityProvider';
-import { ToastContainer } from './components/Toast';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { safeStorage } from './utils/cleanup';
 // Dynamic imports for code-splitting
@@ -51,7 +50,6 @@ const News = React.lazy(() => import('./pages/News'));
 function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const { toasts, removeToast } = useToast();
   const [stylesLoaded, setStylesLoaded] = useState(false);
 
   // Handle styles loading
@@ -150,9 +148,6 @@ function AppContent() {
       
       {/* Bottom Navigation for Mobile */}
       {user && <BottomNavigation />}
-      
-      {/* Toast Notifications */}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
     </ErrorBoundary>
   );

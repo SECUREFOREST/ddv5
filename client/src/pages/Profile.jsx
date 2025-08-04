@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import Tabs from '../components/Tabs';

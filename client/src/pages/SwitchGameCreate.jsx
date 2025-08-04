@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
+import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, PlayIcon } from '@heroicons/react/24/solid';
 import TagsInput from '../components/TagsInput';
@@ -197,10 +198,12 @@ export default function SwitchGameCreate() {
 
               {/* Submit Button */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
+                <Button
                   type="submit"
                   disabled={creating || !description.trim()}
-                  className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
                 >
                   {creating ? (
                     <>
@@ -213,15 +216,17 @@ export default function SwitchGameCreate() {
                       Create Switch Game
                     </>
                   )}
-                </button>
+                </Button>
                 
-                <button
+                <Button
                   type="button"
                   onClick={() => navigate('/switches')}
-                  className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                  variant="default"
+                  size="lg"
+                  className="flex-1"
                 >
                   Back to Switch Games
-                </button>
+                </Button>
               </div>
             </form>
           </div>

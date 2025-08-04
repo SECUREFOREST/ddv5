@@ -6,7 +6,7 @@ import TagsInput from '../components/TagsInput';
 import Card from '../components/Card';
 import { UserPlusIcon, EyeIcon, EyeSlashIcon, CheckIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
 

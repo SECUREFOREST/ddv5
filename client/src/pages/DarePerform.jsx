@@ -4,8 +4,10 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ArrowRightIcon, LockClosedIcon, ClockIcon, TrashIcon, PlayIcon } from '@heroicons/react/24/solid';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
+import Button from '../components/Button';
+import ProgressBar from '../components/ProgressBar';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
@@ -209,6 +211,15 @@ export default function DarePerform() {
           {!consented ? (
             /* Consent Form */
             <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              {/* Progress Indicator */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-neutral-300">Progress</span>
+                  <span className="text-sm text-neutral-400">Step 1 of 3</span>
+                </div>
+                <ProgressBar progress={33} className="h-2" />
+              </div>
+              
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-white mb-4">Choose Your Challenge</h2>
                 <p className="text-neutral-300 mb-6">
@@ -261,10 +272,12 @@ export default function DarePerform() {
 
               {/* Get Dare Button */}
               <div className="text-center">
-                <button
+                <Button
                   onClick={handleConsent}
                   disabled={!consentChecked || loading}
-                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                  variant="primary"
+                  size="lg"
+                  className="mx-auto"
                 >
                   {loading ? (
                     <>
@@ -277,12 +290,21 @@ export default function DarePerform() {
                       Get Random Dare
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           ) : dare ? (
             /* Dare Display and Proof Submission */
             <div className="space-y-8">
+              {/* Progress Indicator */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-neutral-300">Progress</span>
+                  <span className="text-sm text-neutral-400">Step 2 of 3</span>
+                </div>
+                <ProgressBar progress={66} className="h-2" />
+              </div>
+              
               {/* Dare Card */}
               <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                 <div className="flex items-start gap-4 mb-6">
@@ -302,17 +324,27 @@ export default function DarePerform() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button
+                  <Button
                     onClick={handleTryDifferent}
-                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                    variant="default"
+                    size="md"
                   >
                     Try Different Dare
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {/* Proof Submission */}
               <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                {/* Progress Indicator */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-neutral-300">Progress</span>
+                    <span className="text-sm text-neutral-400">Step 3 of 3</span>
+                  </div>
+                  <ProgressBar progress={100} className="h-2" />
+                </div>
+                
                 <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
                 
                 <form onSubmit={handleProofSubmit} className="space-y-6">
@@ -377,10 +409,12 @@ export default function DarePerform() {
                     </div>
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
                     disabled={proofLoading || (!proof && !proofFile)}
-                    className="w-full bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
                   >
                     {proofLoading ? (
                       <>
@@ -393,7 +427,7 @@ export default function DarePerform() {
                         Submit Proof
                       </>
                     )}
-                  </button>
+                  </Button>
                 </form>
 
                 {proofError && (
@@ -417,18 +451,21 @@ export default function DarePerform() {
                 No dares are available for the selected difficulty level. Try a different difficulty or create your own dare.
               </p>
               <div className="flex gap-4 justify-center">
-                <button
+                <Button
                   onClick={handleTryDifferent}
-                  className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                  variant="primary"
+                  size="md"
                 >
                   Try Different Difficulty
-                </button>
-                <Link
+                </Button>
+                <Button
+                  as={Link}
                   to="/dares/create"
-                  className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-neutral-700 hover:to-neutral-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                  variant="default"
+                  size="md"
                 >
                   Create Dare
-                </Link>
+                </Button>
               </div>
             </div>
           ) : null}

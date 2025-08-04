@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Card from '../components/Card';
 import { ArrowLeftIcon, EnvelopeIcon, SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { Helmet } from 'react-helmet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { retryApiCall } from '../utils/retry';
 import { validateEmail } from '../utils/validation';
 

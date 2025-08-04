@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
+import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { DIFFICULTY_ICONS } from '../constants.jsx';
@@ -324,10 +325,12 @@ export default function DareConsent() {
 
             {/* Consent Button */}
             <div className="text-center">
-              <button
+              <Button
                 onClick={handleConsent}
                 disabled={loading}
-                className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+                variant="primary"
+                size="lg"
+                className="mx-auto"
               >
                 {loading ? (
                   <>
@@ -340,7 +343,7 @@ export default function DareConsent() {
                     {isDomDemand ? 'I Consent to View This Demand' : 'I Consent to Perform This Dare'}
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </main>

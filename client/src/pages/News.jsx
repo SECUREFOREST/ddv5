@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Search from '../components/Search';
 import { NewspaperIcon, CalendarIcon, UserIcon, ExclamationTriangleIcon, CheckCircleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 
@@ -154,12 +155,10 @@ export default function News() {
 
               {/* Search */}
               <div className="flex-1">
-                <input
-                  type="text"
+                <Search
                   placeholder="Search news..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full px-4 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  onSearch={setSearch}
+                  className="w-full"
                 />
               </div>
             </div>

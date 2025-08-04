@@ -16,7 +16,7 @@ import {
   Legend,
 } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';

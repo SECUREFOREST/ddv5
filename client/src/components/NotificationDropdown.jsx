@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Dropdown from './Dropdown';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { io } from 'socket.io-client';
 import { formatRelativeTime } from '../utils/dateUtils';
 import { BellIcon } from '@heroicons/react/24/outline';
@@ -66,6 +67,7 @@ function getNotificationMessage(n) {
 
 export default function NotificationDropdown() {
   const { accessToken } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -165,8 +167,11 @@ export default function NotificationDropdown() {
         notifications.map(n => n._id === id ? { ...n, read: true } : n)
       );
       setMarkError(null);
+      showSuccess('Notification marked as read');
     } catch (e) {
-      setMarkError('Failed to mark notification as read.');
+      const errorMessage = 'Failed to mark notification as read.';
+      setMarkError(errorMessage);
+      showError(errorMessage);
     }
   };
 
@@ -176,8 +181,11 @@ export default function NotificationDropdown() {
     try {
       await api.post('/notifications/read', { all: true });
       setNotifications(notifications => notifications.map(n => ({ ...n, read: true })));
+      showSuccess('All notifications marked as read');
     } catch (e) {
-      setMarkAllError('Failed to mark all as read. Please try again.');
+      const errorMessage = 'Failed to mark all as read. Please try again.';
+      setMarkAllError(errorMessage);
+      showError(errorMessage);
     } finally {
       setMarkingAll(false);
     }
