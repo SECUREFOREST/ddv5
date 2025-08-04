@@ -18,6 +18,8 @@ import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { MainContent, ContentContainer } from '../components/Layout';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
 
 export default function DareDetails() {
   const { id } = useParams();
@@ -381,10 +383,10 @@ export default function DareDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="flex items-start gap-6">
@@ -613,9 +615,9 @@ export default function DareDetails() {
 
           {/* Error/Success Messages */}
           {generalError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {generalError}
-            </div>
+            </ErrorAlert>
           )}
           
           {generalSuccess && (
@@ -623,8 +625,8 @@ export default function DareDetails() {
               {generalSuccess}
             </div>
           )}
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
 
       {/* Reject Dare Modal */}
       <Modal

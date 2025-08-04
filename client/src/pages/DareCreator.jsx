@@ -13,7 +13,7 @@ import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { FormInput, FormSelect, FormTextarea } from '../components/Form';
-import { ErrorAlert } from '../components/Alert';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
 
 export default function DareCreator() {
   const { showSuccess, showError } = useToast();
@@ -261,9 +261,9 @@ export default function DareCreator() {
           )}
           
           {generalSuccess && (
-            <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+            <SuccessAlert>
               {generalSuccess}
-            </div>
+            </SuccessAlert>
           )}
         </MainContent>
       </ContentContainer>

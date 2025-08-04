@@ -10,6 +10,8 @@ import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
+import { MainContent, ContentContainer } from '../components/Layout';
+import { WarningAlert } from '../components/Alert';
 
 export default function DareConsent() {
   const { id } = useParams();
@@ -85,11 +87,11 @@ export default function DareConsent() {
   if (fetching) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto space-y-8">
             <ListSkeleton count={5} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -97,7 +99,7 @@ export default function DareConsent() {
   if (!dare) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
@@ -106,7 +108,7 @@ export default function DareConsent() {
               </p>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -116,10 +118,10 @@ export default function DareConsent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-2xl mx-auto space-y-8">
+        <MainContent className="max-w-2xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -231,20 +233,12 @@ export default function DareConsent() {
             </div>
 
             {/* Consent Warning */}
-            <div className="mb-8 p-6 bg-yellow-900/20 border border-yellow-800/30 rounded-lg">
-              <div className="flex items-start gap-3">
-                <ExclamationTriangleIcon className="w-6 h-6 text-yellow-400 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-yellow-400 mb-2">Important Notice</h3>
-                  <p className="text-yellow-300 text-sm">
-                    {isDomDemand 
-                      ? 'By consenting to view this demand, you acknowledge that you are comfortable with the difficulty level and agree to view the full content. You can decline at any time.'
-                      : 'By consenting to this dare, you acknowledge that you are comfortable with the difficulty level and content. You can decline any dare that makes you uncomfortable at any time.'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
+            <WarningAlert className="mb-8">
+              {isDomDemand 
+                ? 'By consenting to view this demand, you acknowledge that you are comfortable with the difficulty level and agree to view the full content. You can decline at any time.'
+                : 'By consenting to this dare, you acknowledge that you are comfortable with the difficulty level and content. You can decline any dare that makes you uncomfortable at any time.'
+              }
+            </WarningAlert>
 
             {/* OSA-Style Content Expiration Settings */}
             <div className="mb-8 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
@@ -308,8 +302,8 @@ export default function DareConsent() {
               </Button>
             </div>
           </div>
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 }

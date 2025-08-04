@@ -8,6 +8,7 @@ import api from '../api/axios';
 import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Button from '../components/Button';
+import { InfoAlert } from '../components/Alert';
 
 export default function SwitchGames() {
   const { user } = useAuth();
@@ -83,7 +84,7 @@ export default function SwitchGames() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-        <div className="container mx-auto px-4 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-16">
               <div className="flex items-center justify-center mb-8">
@@ -93,7 +94,7 @@ export default function SwitchGames() {
               <p className="text-white/70">Please wait while we load your games...</p>
             </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
@@ -156,9 +157,9 @@ export default function SwitchGames() {
 
           {/* Info Display */}
           {generalInfo && (
-            <div className="mb-8 bg-blue-500/20 border border-blue-500/50 rounded-xl p-4">
-              <p className="text-blue-300">{generalInfo}</p>
-            </div>
+            <InfoAlert className="mb-8">
+              {generalInfo}
+            </InfoAlert>
           )}
 
           {/* Action Cards */}
@@ -220,9 +221,9 @@ export default function SwitchGames() {
                       Created by {game.creator?.username || 'Unknown'}
                     </p>
                     <Link to={`/switches/${game._id}`}>
-                      <button className="w-full bg-white/20 text-white rounded-lg px-4 py-2 hover:bg-white/30 transition-colors">
+                      <Button variant="default" size="sm" className="w-full">
                         View Details
-                      </button>
+                      </Button>
                     </Link>
                   </div>
                 ))}
@@ -230,9 +231,9 @@ export default function SwitchGames() {
               {userSwitchGames.length > 6 && (
                 <div className="text-center mt-6">
                   <Link to="/switches">
-                    <button className="bg-white/20 text-white rounded-xl px-6 py-3 hover:bg-white/30 transition-colors">
+                    <Button variant="default" size="md">
                       View All Games ({userSwitchGames.length})
-                    </button>
+                    </Button>
                   </Link>
                 </div>
               )}

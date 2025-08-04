@@ -13,6 +13,7 @@ import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { DifficultyBadge } from '../components/Badge';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -33,33 +34,7 @@ function getRpsResult(moveA, moveB) {
   return 'lose';
 }
 
-function DifficultyBadge({ level }) {
-  let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
-  const found = DIFFICULTY_OPTIONS.find(d => d.value === level);
-  let label = found ? found.label : (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
-  switch (level) {
-    case 'titillating':
-      badgeClass = 'bg-pink-600/20 border border-pink-500/50 text-pink-300';
-      break;
-    case 'arousing':
-      badgeClass = 'bg-purple-600/20 border border-purple-500/50 text-purple-300';
-      break;
-    case 'explicit':
-      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
-      break;
-    case 'edgy':
-      badgeClass = 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300';
-      break;
-    case 'hardcore':
-      badgeClass = 'bg-black/20 border border-white/50 text-white';
-      break;
-    default:
-      break;
-  }
-  return (
-    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badgeClass}`}>{label}</span>
-  );
-}
+
 
 export default function SwitchGameDetails() {
   const { id } = useParams();

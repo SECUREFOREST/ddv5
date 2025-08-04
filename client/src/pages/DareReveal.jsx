@@ -13,44 +13,11 @@ import Countdown from '../components/Countdown';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { DifficultyBadge } from '../components/Badge';
+import { ButtonLoading } from '../components/LoadingSpinner';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
 
-function DifficultyBadge({ level }) {
 
-  const getBadgeStyle = (level) => {
-    switch (level) {
-      case 'titillating':
-        return 'bg-pink-600/20 border-pink-600/30 text-pink-400';
-      case 'arousing':
-        return 'bg-purple-600/20 border-purple-600/30 text-purple-400';
-      case 'explicit':
-        return 'bg-red-600/20 border-red-600/30 text-red-400';
-      case 'edgy':
-        return 'bg-yellow-600/20 border-yellow-600/30 text-yellow-400';
-      case 'hardcore':
-        return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
-      default:
-        return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
-    }
-  };
-
-  const getLabel = (level) => {
-    switch (level) {
-      case 'titillating': return 'Titillating';
-      case 'arousing': return 'Arousing';
-      case 'explicit': return 'Explicit';
-      case 'edgy': return 'Edgy';
-      case 'hardcore': return 'Hardcore';
-      default: return level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
-    }
-  };
-
-  return (
-    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-semibold ${getBadgeStyle(level)}`}>
-      {DIFFICULTY_ICONS[level]}
-      {getLabel(level)}
-    </span>
-  );
-}
 
 const STATUS_STEPS = [
   { key: 'in_progress', label: 'In Progress', icon: <ClockIcon className="w-5 h-5" /> },
@@ -329,7 +296,7 @@ export default function DareReveal() {
               >
                 {chickenOutLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <ButtonLoading />
                     Chickening Out...
                   </>
                 ) : (
@@ -441,7 +408,7 @@ export default function DareReveal() {
                     >
                       {proofLoading ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <ButtonLoading />
                           Submitting...
                         </>
                       ) : (
@@ -455,9 +422,9 @@ export default function DareReveal() {
                 </form>
 
                 {proofError && (
-                  <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                  <ErrorAlert className="mt-4">
                     {proofError}
-                  </div>
+                  </ErrorAlert>
                 )}
 
                 {proofSuccess && (
@@ -471,21 +438,21 @@ export default function DareReveal() {
 
           {/* Error/Success Messages */}
           {generalError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {generalError}
-            </div>
+            </ErrorAlert>
           )}
           
           {generalSuccess && (
-            <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+            <SuccessAlert>
               {generalSuccess}
-            </div>
+            </SuccessAlert>
           )}
 
           {chickenOutError && (
-            <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+            <ErrorAlert>
               {chickenOutError}
-            </div>
+            </ErrorAlert>
           )}
         </main>
       </div>

@@ -13,6 +13,9 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { MainContent, ContentContainer } from '../components/Layout';
+import { ButtonLoading } from '../components/LoadingSpinner';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
 
 
 
@@ -180,21 +183,21 @@ export default function DarePerform() {
   if (fetchingDare) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={5} />
           </div>
-        </div>
+        </ContentContainer>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <main id="main-content" tabIndex="-1" role="main" className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -281,7 +284,7 @@ export default function DarePerform() {
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <ButtonLoading />
                       Loading...
                     </>
                   ) : (
@@ -418,7 +421,7 @@ export default function DarePerform() {
                   >
                     {proofLoading ? (
                       <>
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        <ButtonLoading />
                         Submitting...
                       </>
                     ) : (
@@ -431,15 +434,15 @@ export default function DarePerform() {
                 </form>
 
                 {proofError && (
-                  <div className="mt-4 bg-red-900/20 border border-red-800/30 rounded-xl p-4 text-red-300">
+                  <ErrorAlert className="mt-4">
                     {proofError}
-                  </div>
+                  </ErrorAlert>
                 )}
 
                 {proofSuccess && (
-                  <div className="mt-4 bg-green-900/20 border border-green-800/30 rounded-xl p-4 text-green-300">
+                  <SuccessAlert className="mt-4">
                     {proofSuccess}
-                  </div>
+                  </SuccessAlert>
                 )}
               </div>
             </div>
@@ -469,8 +472,8 @@ export default function DarePerform() {
               </div>
             </div>
           ) : null}
-        </main>
-      </div>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
