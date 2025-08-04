@@ -7,47 +7,9 @@ import { ListSkeleton } from '../components/Skeleton';
 import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_ICONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
-
-function DifficultyBadge({ level }) {
-
-  const getBadgeStyle = (level) => {
-    switch (level) {
-      case 'titillating':
-        return 'bg-pink-600/20 border-pink-600/30 text-pink-400';
-      case 'arousing':
-        return 'bg-purple-600/20 border-purple-600/30 text-purple-400';
-      case 'explicit':
-        return 'bg-red-600/20 border-red-600/30 text-red-400';
-      case 'edgy':
-        return 'bg-yellow-600/20 border-yellow-600/30 text-yellow-400';
-      case 'hardcore':
-        return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
-      default:
-        return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
-    }
-  };
-
-  const getLabel = (level) => {
-    switch (level) {
-      case 'titillating': return 'Titillating';
-      case 'arousing': return 'Arousing';
-      case 'explicit': return 'Explicit';
-      case 'edgy': return 'Edgy';
-      case 'hardcore': return 'Hardcore';
-      default: return level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown';
-    }
-  };
-
-  return (
-    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-sm font-semibold ${getBadgeStyle(level)}`}>
-      {DIFFICULTY_ICONS[level]}
-      {getLabel(level)}
-    </span>
-  );
-}
+import { DifficultyBadge } from '../components/Badge';
 
 export default function DareConsent() {
   const { id } = useParams();

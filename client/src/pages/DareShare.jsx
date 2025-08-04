@@ -5,38 +5,7 @@ import Button from '../components/Button';
 import { useToast } from '../context/ToastContext';
 import { ShareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
-
-function DifficultyBadge({ level }) {
-  let badgeClass = 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300';
-  let label = '';
-  switch (level) {
-    case 'titillating':
-      badgeClass = 'bg-pink-600/20 border border-pink-500/50 text-pink-300';
-      label = 'titillating';
-      break;
-    case 'arousing':
-      badgeClass = 'bg-purple-600/20 border border-purple-500/50 text-purple-300';
-      label = 'arousing';
-      break;
-    case 'explicit':
-      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
-      label = 'explicit';
-      break;
-    case 'edgy':
-      badgeClass = 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300';
-      label = 'edgy';
-      break;
-    case 'hardcore':
-      badgeClass = 'bg-black/20 border border-white/50 text-white';
-      label = 'hardcore';
-      break;
-    default:
-      label = level ? level : 'unknown';
-  }
-  return (
-    <span className={`font-bold px-3 py-1 rounded-full text-sm ${badgeClass}`}>{label}</span>
-  );
-}
+import { DifficultyBadge } from '../components/Badge';
 
 export default function DareShare() {
   const { dareId } = useParams();

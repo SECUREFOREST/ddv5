@@ -9,6 +9,9 @@ import { Helmet } from 'react-helmet';
 import { useToast } from '../context/ToastContext';
 import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
+import { FormInput, FormSelect, FormTextarea } from '../components/Form';
+import { ErrorAlert } from '../components/Alert';
+import { MainContent } from '../components/Layout';
 
 export default function Register() {
   const { register } = useAuth();

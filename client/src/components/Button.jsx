@@ -1,46 +1,110 @@
 import React from 'react';
 
 /**
- * Button component (Tailwind refactor)
- * @param {string} variant - 'primary' | 'default' | 'danger' | etc.
+ * Enhanced Button component with all common variants
+ * @param {string} variant - 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'gradient-purple' | 'gradient-red' | 'gradient-blue'
  * @param {string} size - 'sm' | 'md' | 'lg'
- * @param {string} className
- * @param {function} onClick
- * @param {React.ReactNode} children
+ * @param {boolean} fullWidth - Whether button should take full width
+ * @param {boolean} loading - Show loading state
+ * @param {React.ReactNode} children - Button content
+ * @param {string} className - Additional CSS classes
+ * @param {object} props - Other button props
  */
-const base = 'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 rounded-lg shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
-const sizeClasses = {
-  sm: 'px-3 py-2 text-sm',
-  md: 'px-4 py-3 text-base',
-  lg: 'px-6 py-4 text-lg',
-};
-const variantClasses = {
-  primary: 'bg-gradient-to-r from-primary to-primary-dark text-primary-contrast hover:from-primary-dark hover:to-primary focus:ring-primary shadow-primary/25',
-  danger: 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-red-500 shadow-red-500/25',
-  success: 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-green-500 shadow-green-500/25',
-  info: 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500 shadow-blue-500/25',
-  warning: 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white hover:from-yellow-700 hover:to-yellow-800 focus:ring-yellow-500 shadow-yellow-500/25',
-  default: 'bg-gradient-to-r from-neutral-700 to-neutral-800 text-neutral-100 hover:from-neutral-800 hover:to-neutral-900 focus:ring-neutral-500 shadow-neutral-500/25',
-  outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-contrast focus:ring-primary',
-  ghost: 'text-neutral-300 hover:text-white hover:bg-neutral-800/50 focus:ring-neutral-500',
-};
-
 export default function Button({ 
+  variant = 'primary', 
+  size = 'md', 
+  fullWidth = false, 
+  loading = false,
   children, 
-  variant = 'default', 
-  size = 'md',
   className = '', 
   ...props 
 }) {
-  const sizeClass = sizeClasses[size] || sizeClasses.md;
-  const variantClass = variantClasses[variant] || variantClasses.default;
-  
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'primary':
+        return 'bg-gradient-to-r from-primary to-primary-dark text-primary-contrast hover:from-primary-dark hover:to-primary';
+      case 'secondary':
+        return 'bg-neutral-700 text-white hover:bg-neutral-600';
+      case 'danger':
+        return 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800';
+      case 'success':
+        return 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800';
+      case 'warning':
+        return 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white hover:from-yellow-700 hover:to-yellow-800';
+      case 'gradient-purple':
+        return 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700';
+      case 'gradient-red':
+        return 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800';
+      case 'gradient-blue':
+        return 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-700 hover:to-cyan-700';
+      default:
+        return 'bg-gradient-to-r from-primary to-primary-dark text-primary-contrast hover:from-primary-dark hover:to-primary';
+    }
+  };
+
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'sm':
+        return 'px-4 py-2 text-sm font-semibold';
+      case 'lg':
+        return 'px-8 py-4 text-lg font-bold';
+      default:
+        return 'px-6 py-4 font-semibold text-base';
+    }
+  };
+
+  const baseClasses = `
+    rounded-xl transition-all duration-300 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+    transform hover:scale-105 shadow-lg disabled:transform-none disabled:hover:scale-100
+    ${getVariantClasses()}
+    ${getSizeClasses()}
+    ${fullWidth ? 'w-full' : ''}
+    ${className}
+  `.trim();
+
   return (
-    <button
-      className={`${base} ${sizeClass} ${variantClass} ${className}`.trim()}
+    <button 
+      className={baseClasses}
+      disabled={loading || props.disabled}
       {...props}
     >
-      {children}
+      {loading ? (
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+          Loading...
+        </div>
+      ) : (
+        children
+      )}
     </button>
   );
+}
+
+// Convenience exports for specific button types
+export function PrimaryButton(props) {
+  return <Button variant="primary" {...props} />;
+}
+
+export function DangerButton(props) {
+  return <Button variant="danger" {...props} />;
+}
+
+export function SuccessButton(props) {
+  return <Button variant="success" {...props} />;
+}
+
+export function WarningButton(props) {
+  return <Button variant="warning" {...props} />;
+}
+
+export function GradientPurpleButton(props) {
+  return <Button variant="gradient-purple" {...props} />;
+}
+
+export function GradientRedButton(props) {
+  return <Button variant="gradient-red" {...props} />;
+}
+
+export function GradientBlueButton(props) {
+  return <Button variant="gradient-blue" {...props} />;
 } 

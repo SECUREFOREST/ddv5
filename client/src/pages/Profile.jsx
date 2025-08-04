@@ -16,6 +16,7 @@ import { useCacheUtils } from '../utils/cache';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { RoleBadge } from '../components/Badge';
 
 
 
@@ -526,23 +527,6 @@ export default function Profile() {
   };
 
   if (!user) return null;
-
-  // Helper for visually distinct status badge
-  function RoleBadge({ roles }) {
-    if (!roles) return null;
-    if (roles.includes('admin')) {
-      return (
-        <span className="inline-flex items-center gap-1 bg-yellow-900/90 border border-yellow-700 text-yellow-200 rounded-full px-3 py-1 font-semibold text-sm ml-2">
-          <ShieldCheckIcon className="w-4 h-4" /> Admin
-        </span>
-      );
-    }
-    return (
-      <span className="inline-flex items-center gap-1 bg-blue-900/90 border border-blue-700 text-blue-200 rounded-full px-3 py-1 font-semibold text-sm ml-2">
-        <UserIcon className="w-4 h-4" /> User
-      </span>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
