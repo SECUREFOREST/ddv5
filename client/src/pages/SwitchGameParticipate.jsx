@@ -592,10 +592,12 @@ export default function SwitchGameParticipate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        {content}
-      </main>
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+        <MainContent>
+          {content}
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 }

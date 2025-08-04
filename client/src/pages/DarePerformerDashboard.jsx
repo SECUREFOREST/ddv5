@@ -54,7 +54,8 @@ import Accordion from '../components/Accordion';
 import Modal from '../components/Modal';
 import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
-import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates';
+import { MainContent, ContentContainer } from '../components/Layout';
+
 import { retryApiCall } from '../utils/retry';
 
 // 2025 Design System - Neumorphism 2.0
@@ -1112,12 +1113,12 @@ export default function DarePerformerDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
-        Skip to main content
-      </a>
-      
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="max-w-6xl mx-auto px-4 py-8">
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
+          Skip to main content
+        </a>
+        
+        <MainContent className="max-w-6xl mx-auto px-4 py-8">
           {/* 2025 Header Design */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">
@@ -1232,8 +1233,8 @@ export default function DarePerformerDashboard() {
               </div>
             </div>
           )}
-        </div>
-      </main>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 const MOVE_ICONS = {
@@ -515,9 +516,9 @@ export default function SwitchGameDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
-      <main id="main-content" tabIndex="-1" role="main">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
+        <MainContent className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
@@ -1096,8 +1097,8 @@ export default function SwitchGameDetails() {
         </div>
             </div>
           )}
-        </div>
-      </main>
+        </MainContent>
+      </ContentContainer>
     </div>
   );
 } 
