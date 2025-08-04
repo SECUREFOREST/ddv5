@@ -21,6 +21,7 @@ import { useToast } from '../context/ToastContext';
 import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -39,6 +40,10 @@ export default function UserActivity() {
   
   // Activate caching for user activity data
   const { getCachedData, setCachedData, invalidateCache } = useCacheUtils();
+
+  // Add pagination for different sections
+  const { currentPage: activePage, setCurrentPage: setActivePage, totalPages: activeTotalPages, paginatedItems: activePaginatedItems } = usePagination(activeDares, 8);
+  const { currentPage: historyPage, setCurrentPage: setHistoryPage, totalPages: historyTotalPages, paginatedItems: historyPaginatedItems } = usePagination(historyDares, 8);
 
   useEffect(() => {
     if (!user) return;
@@ -344,7 +349,7 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Active Dares</h2>
-              {activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activeDares.map(dare => (
+              {activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activePaginatedItems.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -353,6 +358,17 @@ export default function UserActivity() {
                   onForfeit={() => navigate(`/dares/${dare._id}`)}
                 />
               ))}
+
+              {/* Active Dares Pagination */}
+              {activeTotalPages > 1 && (
+                <div className="mt-4">
+                  <Pagination
+                    currentPage={activePage}
+                    totalPages={activeTotalPages}
+                    onPageChange={setActivePage}
+                  />
+                </div>
+              )}
         
               <h2 className="text-lg font-bold mb-2 text-white">Active Switch Games</h2>
               {activeSwitchGames.length === 0 ? <div className="text-white/60">No active switch games.</div> : activeSwitchGames.map(game => (
@@ -380,7 +396,7 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Dare History</h2>
-              {historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyDares.map(dare => (
+              {historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyPaginatedItems.map(dare => (
                 <DareCard
                   key={dare._id}
                   {...dare}
@@ -389,6 +405,17 @@ export default function UserActivity() {
                   onForfeit={() => navigate(`/dares/${dare._id}`)}
                 />
               ))}
+
+              {/* History Dares Pagination */}
+              {historyTotalPages > 1 && (
+                <div className="mt-4">
+                  <Pagination
+                    currentPage={historyPage}
+                    totalPages={historyTotalPages}
+                    onPageChange={setHistoryPage}
+                  />
+                </div>
+              )}
               <h2 className="text-lg font-bold mt-6 mb-2 text-white">Switch Game History</h2>
               {historySwitchGames.length === 0 ? <div className="text-white/60">No historical switch games.</div> : historySwitchGames.map(game => (
                 <SwitchGameCard key={game._id} game={game} currentUserId={user._id || user.id} />

@@ -55,6 +55,7 @@ import Modal from '../components/Modal';
 import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { MainContent, ContentContainer } from '../components/Layout';
+import Search from '../components/Search';
 
 import { retryApiCall } from '../utils/retry';
 
@@ -336,6 +337,7 @@ export default function DarePerformerDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [dataLoading, setDataLoading] = useState({
     ongoing: true,
@@ -733,10 +735,17 @@ export default function DarePerformerDashboard() {
       content: (
         <GestureContainer onSwipe={handleSwipe} className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-              <ClockIcon className="w-6 h-6 text-blue-400" />
-              Active Dares ({ongoing.length})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <ClockIcon className="w-6 h-6 text-blue-400" />
+                Active Dares ({ongoing.length})
+              </h3>
+              <Search
+                placeholder="Search active dares..."
+                onSearch={setSearch}
+                className="w-64"
+              />
+            </div>
             {ongoing.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">

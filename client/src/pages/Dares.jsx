@@ -6,6 +6,7 @@ import DareCard from '../components/DareCard';
 import TagsInput from '../components/TagsInput';
 import StatusBadge from '../components/DareCard';
 import Search from '../components/Search';
+import Modal from '../components/Modal';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -13,6 +14,8 @@ import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PR
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
+import { retryApiCall } from '../utils/retry';
 
 export default function Dares() {
   const { user } = useAuth();
@@ -42,10 +45,15 @@ export default function Dares() {
   const [acceptConsent, setAcceptConsent] = useState(false);
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [acceptError, setAcceptError] = useState('');
+  const [showAccept, setShowAccept] = useState(false);
+  const [accepting, setAccepting] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   // Add meta state
   const [lastUpdated, setLastUpdated] = useState(null);
+
+  // Add pagination
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(dares, 10);
 
   useEffect(() => {
     if (!user) return;
@@ -208,7 +216,7 @@ export default function Dares() {
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-2xl shadow-2xl shadow-primary/25">
                 <FireIcon className="w-8 h-8 text-white" />
-            </div>
+              </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Your Dares</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
@@ -229,7 +237,7 @@ export default function Dares() {
                   {STATUS_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-              </select>
+                </select>
                 
                 <select
                   value={difficulty}
@@ -240,14 +248,14 @@ export default function Dares() {
                   {DIFFICULTY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
-              </select>
+                </select>
                 
                 <Search
                   placeholder="Search dares..."
                   onSearch={setSearch}
                   className="px-4 py-2"
                 />
-            </div>
+              </div>
               
               <button
                 onClick={() => setShowCreate(true)}
@@ -260,7 +268,7 @@ export default function Dares() {
           </div>
 
           {/* Dares Grid */}
-        {loading ? (
+          {loading ? (
             <ListSkeleton count={6} />
           ) : dares.length === 0 ? (
             <div className="text-center py-16">
@@ -274,24 +282,37 @@ export default function Dares() {
                   Create Your First Dare
                 </button>
               </div>
-          </div>
-        ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {dares.map(dare => (
-                <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
-                  <DareCard
-                    title={dare.title}
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    tags={dare.tags || []}
-                    status={dare.status}
-                    user={dare.creator}
-                    actions={[]}
+            </div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedItems.map(dare => (
+                  <div key={dare._id} className="transform hover:scale-[1.02] transition-transform duration-200">
+                    <DareCard
+                      title={dare.title}
+                      description={dare.description}
+                      difficulty={dare.difficulty}
+                      tags={dare.tags || []}
+                      status={dare.status}
+                      user={dare.creator}
+                      actions={[]}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
                   />
                 </div>
-              ))}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
           {/* Last Updated */}
           {lastUpdated && (
@@ -301,135 +322,135 @@ export default function Dares() {
           )}
         </MainContent>
 
-      {/* Create Dare Modal */}
-      <Modal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        title="Create New Dare"
-        role="dialog"
-        aria-modal="true"
-      >
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div>
-            <label htmlFor="create-description" className="block font-semibold mb-1 text-white">Dare Description</label>
-            <textarea
-              id="create-description"
-              name="description"
-              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
-              placeholder="Describe your dare..."
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="create-difficulty" className="block font-semibold mb-1 text-white">Difficulty</label>
-            <select
-              id="create-difficulty"
-              name="difficulty"
-              className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-              required
-            >
-              <option value="">Select difficulty...</option>
-              {DIFFICULTY_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setShowCreate(false)}
-              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={creating}
-              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
-            >
-              {creating ? 'Creating...' : 'Create Dare'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+        {/* Create Dare Modal */}
+        <Modal
+          open={showCreate}
+          onClose={() => setShowCreate(false)}
+          title="Create New Dare"
+          role="dialog"
+          aria-modal="true"
+        >
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label htmlFor="create-description" className="block font-semibold mb-1 text-white">Dare Description</label>
+              <textarea
+                id="create-description"
+                name="description"
+                className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+                placeholder="Describe your dare..."
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="create-difficulty" className="block font-semibold mb-1 text-white">Difficulty</label>
+              <select
+                id="create-difficulty"
+                name="difficulty"
+                className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                required
+              >
+                <option value="">Select difficulty...</option>
+                {DIFFICULTY_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowCreate(false)}
+                className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={creating}
+                className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+              >
+                {creating ? 'Creating...' : 'Create Dare'}
+              </button>
+            </div>
+          </form>
+        </Modal>
 
-      {/* Accept Dare Modal */}
-      <Modal
-        open={showAccept}
-        onClose={() => setShowAccept(false)}
-        title="Accept Dare"
-        role="dialog"
-        aria-modal="true"
-      >
-        <form onSubmit={handleAcceptSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="accept-confirmation" className="block font-semibold mb-1 text-white">Confirmation</label>
-            <textarea
-              id="accept-confirmation"
-              name="confirmation"
-              className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
-              placeholder="Confirm that you accept this dare..."
-              required
-            />
-          </div>
-          
-          {/* OSA-Style Content Expiration Settings */}
-          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
-            <div className="flex items-start gap-4 mb-4">
-              <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
-                <p className="text-neutral-300 leading-relaxed">
-                  Choose how long this dare content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
-                </p>
+        {/* Accept Dare Modal */}
+        <Modal
+          open={showAccept}
+          onClose={() => setShowAccept(false)}
+          title="Accept Dare"
+          role="dialog"
+          aria-modal="true"
+        >
+          <form onSubmit={handleAcceptSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="accept-confirmation" className="block font-semibold mb-1 text-white">Confirmation</label>
+              <textarea
+                id="accept-confirmation"
+                name="confirmation"
+                className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+                placeholder="Confirm that you accept this dare..."
+                required
+              />
+            </div>
+            
+            {/* OSA-Style Content Expiration Settings */}
+            <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                  <p className="text-neutral-300 leading-relaxed">
+                    Choose how long this dare content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {PRIVACY_OPTIONS.map((option) => (
+                  <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                    contentDeletion === option.value 
+                      ? 'border-yellow-500 bg-yellow-500/10' 
+                      : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                  }`}>
+                    <input 
+                      type="radio" 
+                      name="contentDeletion" 
+                      value={option.value} 
+                      checked={contentDeletion === option.value} 
+                      onChange={(e) => updateContentDeletion(e.target.value)} 
+                      className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{option.icon}</span>
+                        <span className="font-semibold text-white">{option.label}</span>
+                      </div>
+                      <p className="text-sm text-neutral-300">{option.desc}</p>
+                    </div>
+                  </label>
+                ))}
               </div>
             </div>
             
-            <div className="space-y-3">
-              {PRIVACY_OPTIONS.map((option) => (
-                <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                  contentDeletion === option.value 
-                    ? 'border-yellow-500 bg-yellow-500/10' 
-                    : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
-                }`}>
-                  <input 
-                    type="radio" 
-                    name="contentDeletion" 
-                    value={option.value} 
-                    checked={contentDeletion === option.value} 
-                    onChange={(e) => updateContentDeletion(e.target.value)} 
-                    className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{option.icon}</span>
-                      <span className="font-semibold text-white">{option.label}</span>
-                    </div>
-                    <p className="text-sm text-neutral-300">{option.desc}</p>
-                  </div>
-                </label>
-              ))}
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setShowAccept(false)}
+                className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={accepting}
+                className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
+              >
+                {accepting ? 'Accepting...' : 'Accept Dare'}
+              </button>
             </div>
-          </div>
-          
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setShowAccept(false)}
-              className="flex-1 bg-neutral-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-neutral-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={accepting}
-              className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50"
-            >
-              {accepting ? 'Accepting...' : 'Accept Dare'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+          </form>
+        </Modal>
       </ContentContainer>
     </div>
   );

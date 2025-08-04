@@ -11,6 +11,7 @@ import { useRealtimeActivitySubscription } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -85,6 +86,9 @@ export default function ActivityFeed() {
     return user.includes(search.toLowerCase()) || desc.includes(search.toLowerCase()) || type.includes(search.toLowerCase());
   });
 
+  // Add pagination
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(filteredActivities, 15);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
@@ -136,7 +140,7 @@ export default function ActivityFeed() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredActivities.map((activity, index) => (
+                {paginatedItems.map((activity, index) => (
                   <div key={activity._id || index} className="flex items-start gap-4 p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30 hover:bg-neutral-800/50 transition-colors">
                     <Avatar user={activity.user} size={40} />
                     
@@ -173,6 +177,17 @@ export default function ActivityFeed() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
               </div>
             )}
           </div>

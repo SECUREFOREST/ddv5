@@ -12,6 +12,7 @@ import { retryApiCall } from '../utils/retry';
 import { useRealtimeNotificationSubscription } from '../utils/realtime';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { ErrorAlert } from '../components/Alert';
+import { usePagination, Pagination } from '../utils/pagination.jsx';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -25,6 +26,9 @@ export default function Notifications() {
   
   // Activate real-time notifications
   const { subscribeToNotifications } = useRealtimeNotificationSubscription();
+
+  // Add pagination
+  const { currentPage, setCurrentPage, itemsPerPage, totalPages, paginatedItems } = usePagination(notifications, 20);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -234,7 +238,7 @@ export default function Notifications() {
               </div>
             ) : (
               <div className="space-y-4">
-                {batchNotifications(notifications).map((notification, index) => (
+                {batchNotifications(paginatedItems).map((notification, index) => (
                   <div
                     key={notification._id || index}
                     className={`p-4 rounded-xl border transition-all duration-200 ${
@@ -279,6 +283,17 @@ export default function Notifications() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
               </div>
             )}
           </div>

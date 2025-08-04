@@ -18,6 +18,9 @@ import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { RoleBadge } from '../components/Badge';
 import { MainContent, ContentContainer } from '../components/Layout';
+import { FormTextarea } from '../components/Form';
+import { ErrorAlert, SuccessAlert } from '../components/Alert';
+import { ButtonLoading } from '../components/LoadingSpinner';
 
 
 
@@ -859,24 +862,16 @@ export default function Profile() {
                                     </div>
                                     
                                     <div>
-                                      <label htmlFor="bio" className="block font-semibold mb-3 text-neutral-300 text-sm">Bio</label>
-                                      <textarea 
-                                        id="bio" 
-                                        rows="4"
-                                        className={`w-full rounded-xl border px-4 py-4 bg-white/5 backdrop-blur-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200 resize-none ${
-                                          formErrors.bio ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-primary/50'
-                                        }`}
-                                        value={bio} 
-                                        onChange={e => handleFormChange('bio', e.target.value)} 
-                                        aria-label="Bio"
+                                      <FormTextarea
+                                        id="bio"
+                                        label="Bio"
+                                        value={bio}
+                                        onChange={(value) => handleFormChange('bio', value)}
                                         placeholder="Tell us about yourself..."
+                                        rows={4}
+                                        error={formErrors.bio}
+                                        className="w-full"
                                       />
-                                      {formErrors.bio && (
-                                        <div className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                                          <ExclamationTriangleIcon className="w-4 h-4" />
-                                          {formErrors.bio}
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
                                   
@@ -957,10 +952,7 @@ export default function Profile() {
                                   >
                                     <span className="relative z-10 flex items-center gap-2">
                                       {saving ? (
-                                        <>
-                                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                          Saving...
-                                        </>
+                                        <ButtonLoading />
                                       ) : (
                                         <>
                                           <CheckCircleIcon className="w-5 h-5" />
