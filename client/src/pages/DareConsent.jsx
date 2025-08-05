@@ -176,17 +176,13 @@ export default function DareConsent() {
               </h2>
               <div className="flex items-center justify-center gap-4 mb-6">
                 {/* Creator Avatar */}
-                {dare.creator && dare.creator.avatar ? (
-                  <img 
-                    src={dare.creator.avatar} 
-                    alt={`${dare.creator.fullName || dare.creator.username || 'Anonymous'} avatar`} 
-                    className="w-12 h-12 rounded-full border-2 border-primary" 
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center text-neutral-400 border-2 border-neutral-600">
-                    ?
-                  </div>
-                )}
+                <Avatar 
+                  user={dare.creator}
+                  size={48}
+                  border={true}
+                  shadow={false}
+                  className="border-2 border-primary"
+                />
                 <div className="text-left">
                   <div className="font-semibold text-white">
                     {dare.creator?.fullName || dare.creator?.username || 'Anonymous'}
