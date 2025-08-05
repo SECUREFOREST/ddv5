@@ -295,30 +295,7 @@ export default function ProfileView() {
                   )}
                 </div>
                 
-                {/* Block/Unblock Button - Prominent OSA-style */}
-                {!isOwnProfile && (
-                  <div className="mt-4 space-y-3">
-                    <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-xl p-4">
-                      <div className="flex items-start gap-3 mb-3">
-                        <ExclamationTriangleIcon className="w-6 h-6 text-red-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-white font-semibold mb-1">Block User</h4>
-                          <p className="text-neutral-300 text-sm">
-                            Block this user to hide their content and profile from you. This action can be undone.
-                          </p>
-                        </div>
-                      </div>
-                      <BlockButton 
-                        userId={userId}
-                        username={profile.username}
-                        onBlockChange={(blocked) => {
-                          // Update local state if needed
-                        }}
-                        className="w-full px-6 py-3 text-lg font-bold bg-red-600 hover:bg-red-700 border-red-500"
-                      />
-                    </div>
-                  </div>
-                )}
+
               </div>
 
               {/* Profile Details */}
@@ -454,11 +431,29 @@ export default function ProfileView() {
             </div>
           )}
 
-          {/* Recent Activity */}
-          {userActivities.length > 0 && (
+          {/* Block User Section */}
+          {!isOwnProfile && (
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
-              <h2 className="text-2xl font-bold text-white mb-6 text-center">Recent Activity</h2>
-              <RecentActivityWidget activities={userActivities} />
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">User Management</h2>
+              <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-xl p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold text-lg mb-2">Block User</h4>
+                    <p className="text-neutral-300">
+                      Block this user to hide their content and profile from you. This action can be undone at any time.
+                    </p>
+                  </div>
+                </div>
+                <BlockButton 
+                  userId={userId}
+                  username={profile.username}
+                  onBlockChange={(blocked) => {
+                    // Update local state if needed
+                  }}
+                  className="w-full px-6 py-3 text-lg font-bold bg-red-600 hover:bg-red-700 border-red-500"
+                />
+              </div>
             </div>
           )}
         </MainContent>
