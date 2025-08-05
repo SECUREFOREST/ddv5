@@ -662,12 +662,10 @@ function Admin() {
       }
     };
 
-    // Memory-safe event listener for keyboard handling
-    const { addEventListener, removeEventListener } = useEventListener();
-    
-    addEventListener(document, 'keydown', handleKeyPress);
-    return () => removeEventListener(document, 'keydown', handleKeyPress);
-  }, [addEventListener, removeEventListener]);
+    // Event listener for keyboard handling
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   if (loading || isInitializing) {
     return (

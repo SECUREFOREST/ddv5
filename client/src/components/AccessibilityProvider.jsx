@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useEffect } from 'react';
-// Removed: import { useEventListener } from '../utils/memoryLeakPrevention';
+
 
 const AccessibilityContext = createContext();
 

@@ -10,7 +10,7 @@ export default function MemoryLeakDemo() {
   const [componentMounted, setComponentMounted] = useState(true);
   
   // Use memory-safe hooks
-  // Removed: const { addEventListener, removeEventListener } = useEventListener();
+  
   // Removed: const { addCleanup, isMounted } = useComponentLifecycle('MemoryLeakDemo');
   
   // Memory-safe interval
@@ -129,7 +129,7 @@ export default function MemoryLeakDemo() {
         <h3 className="font-semibold text-yellow-200 mb-2">Memory Leak Prevention Features</h3>
         <ul className="text-sm text-yellow-100 space-y-1">
           <li>• Automatic timer cleanup with useInterval and useTimeout</li>
-          <li>• Automatic event listener cleanup with useEventListener</li>
+          <li>• Automatic event listener cleanup with proper useEffect cleanup</li>
           <li>• Component lifecycle tracking with useComponentLifecycle</li>
           <li>• Global cleanup registry for debugging</li>
           <li>• Memory-safe state updates</li>

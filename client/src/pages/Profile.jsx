@@ -221,12 +221,10 @@ export default function Profile() {
       }
     };
     
-    // Memory-safe event listener for keyboard handling
-    const { addEventListener, removeEventListener } = useEventListener();
-    
-    addEventListener(document, 'keydown', handleKeyPress);
-    return () => removeEventListener(document, 'keydown', handleKeyPress);
-  }, [editMode, handleSave, addEventListener, removeEventListener]);
+    // Event listener for keyboard handling
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [editMode, handleSave]);
 
   // Fetch blocked users info
   useEffect(() => {
