@@ -9,6 +9,7 @@ import { DIFFICULTY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
 import { ShieldCheckIcon, LockClosedIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { DifficultyBadge } from '../components/Badge';
+import Avatar from '../components/Avatar';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { WarningAlert } from '../components/Alert';
 import { ButtonLoading } from '../components/LoadingSpinner';
@@ -176,13 +177,19 @@ export default function DareConsent() {
               </h2>
               <div className="flex items-center justify-center gap-4 mb-6">
                 {/* Creator Avatar */}
-                <Avatar 
-                  user={dare.creator}
-                  size={48}
-                  border={true}
-                  shadow={false}
-                  className="border-2 border-primary"
-                />
+                <div 
+                  onClick={() => dare.creator?._id && navigate(`/profile/${dare.creator._id}`)}
+                  className={`cursor-pointer transition-transform duration-200 hover:scale-110 ${dare.creator?._id ? 'hover:shadow-lg' : ''}`}
+                  title={dare.creator?._id ? 'View Profile' : ''}
+                >
+                  <Avatar 
+                    user={dare.creator}
+                    size={48}
+                    border={true}
+                    shadow={false}
+                    className="border-2 border-primary"
+                  />
+                </div>
                 <div className="text-left">
                   <div className="font-semibold text-white">
                     {dare.creator?.fullName || dare.creator?.username || 'Anonymous'}
