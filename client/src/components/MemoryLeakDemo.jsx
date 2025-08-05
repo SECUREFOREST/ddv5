@@ -1,11 +1,4 @@
 import React, { useState } from 'react';
-import { 
-  useInterval, 
-  useTimeout, 
-  useEventListener, 
-  useComponentLifecycle,
-  memoryLeakUtils 
-} from '../utils/memoryLeakPrevention';
 
 /**
  * Demo component showing memory leak prevention utilities
@@ -17,18 +10,24 @@ export default function MemoryLeakDemo() {
   const [componentMounted, setComponentMounted] = useState(true);
   
   // Use memory-safe hooks
-  const { addEventListener, removeEventListener } = useEventListener();
-  const { addCleanup, isMounted } = useComponentLifecycle('MemoryLeakDemo');
+  // Removed: const { addEventListener, removeEventListener } = useEventListener();
+  // Removed: const { addCleanup, isMounted } = useComponentLifecycle('MemoryLeakDemo');
   
   // Memory-safe interval
-  useInterval(() => {
-    setCount(c => c + 1);
-  }, 1000);
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCount(c => c + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Memory-safe timeout
-  useTimeout(() => {
-    setShowMessage(true);
-  }, 3000);
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowMessage(true);
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, []);
   
   // Memory-safe event listener
   React.useEffect(() => {
@@ -36,26 +35,27 @@ export default function MemoryLeakDemo() {
       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
     };
     
-    addEventListener(window, 'resize', handleResize);
-    return () => removeEventListener(window, 'resize', handleResize);
-  }, [addEventListener, removeEventListener]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Component lifecycle tracking
   React.useEffect(() => {
     setComponentMounted(true);
-    addCleanup(() => {
+    return () => {
       setComponentMounted(false);
       console.log('MemoryLeakDemo unmounted');
-    });
-  }, [addCleanup]);
+    };
+  }, []);
   
   const handleCheckMemory = () => {
-    console.log('Cleanup registry size:', memoryLeakUtils.getCleanupCount());
-    memoryLeakUtils.logCleanupRegistry();
+    console.log('Cleanup registry size:', cleanupRegistry.length);
+    console.log('Current cleanup registry:', cleanupRegistry);
   };
   
   const handleForceCleanup = () => {
-    memoryLeakUtils.forceCleanup();
+    // This functionality is no longer available with the native React hooks
+    console.warn('Force cleanup functionality is not available with native React hooks.');
   };
   
   return (

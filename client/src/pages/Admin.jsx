@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useTimeout, useInterval, useEventListener } from '../utils/memoryLeakPrevention';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import Tabs from '../components/Tabs';
 import Card from '../components/Card';
