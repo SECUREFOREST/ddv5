@@ -160,7 +160,16 @@ export default function OfferSubmission() {
       setSuccess('Submission offer created successfully!');
       showSuccess('Submission offer created successfully!');
       // Memory-safe timeout for navigation
-      const { clearTimeout } = useTimeout(() => navigate('/performer-dashboard'), 1200);
+      const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => navigate('/performer-dashboard'), 1200);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [navigate]);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to create submission offer.';
       setError(errorMessage);

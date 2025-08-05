@@ -118,6 +118,7 @@ const MicroInteractionButton = ({
 }) => {
   const [isPressed, setIsPressed] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const timeoutRef = useRef(null);
   
   const handlePress = async (e) => {
     if (disabled || loading) return;
@@ -137,7 +138,10 @@ const MicroInteractionButton = ({
     }
     
     // Memory-safe timeout for button reset
-    const { clearTimeout } = useTimeout(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
       setIsPressed(false);
       setFeedback(null);
     }, 300);
@@ -408,10 +412,16 @@ export default function DarePerformerDashboard() {
 
   
   // 2025: Smart notifications
+  const notificationTimeoutRef = useRef(null);
+  
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
-    // Memory-safe timeout for notification auto-dismiss
-    const { clearTimeout } = useTimeout(() => setNotification(null), 5000);
+    // Clear existing timeout
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+    // Set new timeout for auto-dismiss
+    notificationTimeoutRef.current = setTimeout(() => setNotification(null), 5000);
   };
   
   // Calculate trend percentage using localStorage for historical data

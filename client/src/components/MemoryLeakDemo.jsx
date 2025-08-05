@@ -128,7 +128,7 @@ export default function MemoryLeakDemo() {
       <div className="mt-6 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
         <h3 className="font-semibold text-yellow-200 mb-2">Memory Leak Prevention Features</h3>
         <ul className="text-sm text-yellow-100 space-y-1">
-          <li>• Automatic timer cleanup with useInterval and useTimeout</li>
+          <li>• Automatic timer cleanup with proper useEffect cleanup</li>
           <li>• Automatic event listener cleanup with proper useEffect cleanup</li>
           <li>• Component lifecycle tracking with useComponentLifecycle</li>
           <li>• Global cleanup registry for debugging</li>

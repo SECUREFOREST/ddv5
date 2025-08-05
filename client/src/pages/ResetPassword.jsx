@@ -42,7 +42,16 @@ export default function ResetPassword() {
       await retryApiCall(() => api.post('/auth/reset-password', { token, newPassword }));
       showSuccess('Password reset successful! Redirecting to login...');
       // Memory-safe timeout for navigation
-      const { clearTimeout } = useTimeout(() => navigate('/login'), 2000);
+      const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => navigate('/login'), 2000);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [navigate]);
     } catch (err) {
       console.error('Reset password error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Failed to reset password. Please try again.';

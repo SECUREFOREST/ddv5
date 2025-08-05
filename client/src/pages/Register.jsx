@@ -77,7 +77,16 @@ export default function Register() {
       
       showSuccess('Registration successful! Redirecting...');
       // Memory-safe timeout for navigation
-      const { clearTimeout } = useTimeout(() => navigate('/dashboard'), 2000);
+      const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => navigate('/dashboard'), 2000);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [navigate]);
     } catch (err) {
       console.error('Registration error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Registration failed. Please try again.';

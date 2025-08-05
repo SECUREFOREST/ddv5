@@ -148,18 +148,18 @@ export default function DareReveal() {
       // Use retry mechanism for chicken out
       await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
       setGeneralSuccess('Successfully chickened out!');
-      showSuccess('Successfully chickened out!');
-      // Memory-safe timeout for navigation
-      const { clearTimeout } = useTimeout(() => {
-        navigate('/dare/select');
-      }, 2000);
-    } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to chicken out.';
-      setChickenOutError(errorMessage);
-      showError(errorMessage);
-    } finally {
-      setChickenOutLoading(false);
-    }
+              showSuccess('Successfully chickened out!');
+        // Memory-safe timeout for navigation
+        setTimeout(() => {
+          navigate('/dare/select');
+        }, 2000);
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || 'Failed to chicken out.';
+        setChickenOutError(errorMessage);
+        showError(errorMessage);
+      } finally {
+        setChickenOutLoading(false);
+      }
   };
 
   if (authLoading || loading) {

@@ -194,12 +194,20 @@ export default function Profile() {
     if (!editMode || !hasUnsavedChanges) return;
     
     // Memory-safe timeout for auto-save
-    const { clearTimeout } = useTimeout(() => {
+    const timeoutRef = useRef(null);
+    
+    timeoutRef.current = setTimeout(() => {
       const errors = validateForm();
       if (Object.keys(errors).length === 0) {
         handleSave(null, true); // Auto-save
       }
     }, 2000); // 2 second delay
+    
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, handleSave]);
 
   // Keyboard shortcuts
@@ -490,7 +498,7 @@ export default function Profile() {
           setUploadProgress(100);
           
           // Memory-safe timeout for success message
-          const { clearTimeout } = useTimeout(() => {
+          setTimeout(() => {
             setAvatarSaved(false);
             setUploadProgress(0);
           }, 2000);

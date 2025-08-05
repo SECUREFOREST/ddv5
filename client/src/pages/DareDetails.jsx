@@ -141,7 +141,16 @@ export default function DareDetails() {
       setReportMessage(successMessage);
       setReportReason('');
       // Memory-safe timeout for modal close
-      const { clearTimeout } = useTimeout(() => setShowReportModal(false), 1500);
+      const reportTimeoutRef = useRef(null);
+  
+  useEffect(() => {
+    reportTimeoutRef.current = setTimeout(() => setShowReportModal(false), 1500);
+    return () => {
+      if (reportTimeoutRef.current) {
+        clearTimeout(reportTimeoutRef.current);
+      }
+    };
+  }, []);
       showSuccess(successMessage);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit report.';
@@ -241,7 +250,16 @@ export default function DareDetails() {
       setAppealMessage(successMessage);
       setAppealReason('');
       // Memory-safe timeout for modal close
-      const { clearTimeout } = useTimeout(() => setShowAppealModal(false), 2000);
+      const appealTimeoutRef = useRef(null);
+  
+  useEffect(() => {
+    appealTimeoutRef.current = setTimeout(() => setShowAppealModal(false), 2000);
+    return () => {
+      if (appealTimeoutRef.current) {
+        clearTimeout(appealTimeoutRef.current);
+      }
+    };
+  }, []);
       showSuccess(successMessage);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit appeal.';

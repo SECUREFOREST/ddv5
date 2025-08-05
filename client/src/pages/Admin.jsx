@@ -449,21 +449,31 @@ function Admin() {
   }, [authVerified, user]);
 
   // Real-time search with debouncing using memory-safe timeout
-  const { clearTimeout } = useTimeout(() => {
-    if (tabIdx === 0) {
-      fetchUsers(userSearch);
-    } else if (tabIdx === 1) {
-      fetchDares(dareSearch);
-    } else if (tabIdx === 2) {
-      fetchAuditLog(auditLogSearch);
-    } else if (tabIdx === 3) {
-      fetchReports(reportsSearch);
-    } else if (tabIdx === 4) {
-      fetchAppeals(appealsSearch);
-    } else if (tabIdx === 5) {
-      fetchSwitchGames(switchGameSearch);
-    }
-  }, 500);
+  const timeoutRef = useRef(null);
+  
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      if (tabIdx === 0) {
+        fetchUsers(userSearch);
+      } else if (tabIdx === 1) {
+        fetchDares(dareSearch);
+      } else if (tabIdx === 2) {
+        fetchAuditLog(auditLogSearch);
+      } else if (tabIdx === 3) {
+        fetchReports(reportsSearch);
+      } else if (tabIdx === 4) {
+        fetchAppeals(appealsSearch);
+      } else if (tabIdx === 5) {
+        fetchSwitchGames(switchGameSearch);
+      }
+    }, 500);
+    
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [tabIdx, userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]);
 
   // Real-time updates for critical data using memory-safe interval
   useInterval(() => {

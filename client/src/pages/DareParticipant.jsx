@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -67,7 +67,7 @@ export default function DareParticipant() {
     }
   }, [id, showSuccess, showError]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchDare();
   }, [fetchDare]);
 
@@ -146,7 +146,7 @@ export default function DareParticipant() {
       setGeneralSuccess('Successfully chickened out!');
       showSuccess('Successfully chickened out!');
       // Memory-safe timeout for state reset
-      const { clearTimeout } = useTimeout(() => {
+      setTimeout(() => {
         setConsented(false);
         setDare(null);
         setGeneralSuccess('');
