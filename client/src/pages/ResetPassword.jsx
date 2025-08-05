@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 

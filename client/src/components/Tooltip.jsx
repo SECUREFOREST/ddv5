@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useEventListener, useComponentLifecycle } from '../utils/memoryLeakPrevention';
 
 /**
  * Tooltip component (Tailwind refactor)
@@ -22,9 +21,7 @@ export default function Tooltip({
   const tooltipRef = useRef(null);
   const tooltipId = React.useId ? React.useId() : 'tooltip';
   
-  // Use memory-safe event listener hook
-  const { addEventListener, removeEventListener } = useEventListener();
-  const { addCleanup } = useComponentLifecycle('Tooltip');
+
 
   // Position tooltip
   useEffect(() => {
@@ -57,17 +54,17 @@ export default function Tooltip({
     }
   }, [visible, position]);
 
-  // Hide on scroll with memory-safe event listener
+  // Hide on scroll
   useEffect(() => {
     if (!visible) return;
     
     const hide = () => setVisible(false);
-    addEventListener(window, 'scroll', hide, true);
+    window.addEventListener('scroll', hide, true);
     
     return () => {
-      removeEventListener(window, 'scroll', hide, true);
+      window.removeEventListener('scroll', hide, true);
     };
-  }, [visible, addEventListener, removeEventListener]);
+  }, [visible]);
 
   // Accessibility: show on focus/hover/click, hide on Escape
   const show = () => setVisible(true);
@@ -80,12 +77,12 @@ export default function Tooltip({
       if (e.key === 'Escape') hide();
     };
     
-    addEventListener(document, 'keydown', handleKey);
+    document.addEventListener('keydown', handleKey);
     
     return () => {
-      removeEventListener(document, 'keydown', handleKey);
+      document.removeEventListener('keydown', handleKey);
     };
-  }, [visible, addEventListener, removeEventListener]);
+  }, [visible]);
 
   return (
     <>

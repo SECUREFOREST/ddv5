@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';

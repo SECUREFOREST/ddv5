@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
@@ -61,7 +60,7 @@ export default function DareShare() {
       setCanceled(true);
       showSuccess('Dare canceled successfully.');
       // Memory-safe timeout for navigation
-      const { clearTimeout } = useTimeout(() => navigate('/dares'), 1500);
+      setTimeout(() => navigate('/dares'), 1500);
     } catch {
       setError('Failed to cancel dare.');
       showError('Failed to cancel dare.');

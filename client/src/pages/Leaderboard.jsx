@@ -1,5 +1,4 @@
 import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react';
-import { useTimeout } from '../utils/memoryLeakPrevention';
 import api from '../api/axios';
 import Avatar from '../components/Avatar';
 import Search from '../components/Search';
@@ -73,7 +72,8 @@ export default function Leaderboard() {
         retryApiCall(() => api.get('/stats/leaderboard', { timeout: 15000 })),
         new Promise((_, reject) => {
           // Memory-safe timeout for request timeout
-          const { clearTimeout } = useTimeout(() => reject(new Error('Request timeout')), 20000);
+          const timeout = setTimeout(() => reject(new Error('Request timeout')), 20000);
+          return () => clearTimeout(timeout);
         })
       ]);
       

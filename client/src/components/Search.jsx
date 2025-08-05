@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useTimeout, useEventListener, useComponentLifecycle } from '../utils/memoryLeakPrevention';
 
 /**
  * Enhanced Search component with autocomplete
@@ -21,13 +20,15 @@ export default function Search({
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
   
-  // Use memory-safe hooks
-  const { addEventListener, removeEventListener } = useEventListener();
-  const { addCleanup } = useComponentLifecycle('Search');
-
   // Debounce search with memory-safe timeout
-  const { clearTimeout } = useTimeout(() => {
-    if (query.trim()) {
+  useEffect(() => {
+    if (!query.trim()) {
+      setIsOpen(false);
+      setFilteredSuggestions([]);
+      return;
+    }
+    
+    const timeout = setTimeout(() => {
       onSearch?.(query);
       const filtered = suggestions.filter(suggestion =>
         suggestion.toLowerCase().includes(query.toLowerCase())
@@ -35,11 +36,10 @@ export default function Search({
       setFilteredSuggestions(filtered);
       setIsOpen(filtered.length > 0);
       setSelectedIndex(-1);
-    } else {
-      setIsOpen(false);
-      setFilteredSuggestions([]);
-    }
-  }, query.trim() ? debounceMs : null);
+    }, debounceMs);
+    
+    return () => clearTimeout(timeout);
+  }, [query, suggestions, debounceMs, onSearch]);
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
@@ -83,7 +83,7 @@ export default function Search({
     onSearch?.('');
   };
 
-  // Close suggestions when clicking outside with memory-safe event listener
+  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (inputRef.current && !inputRef.current.contains(event.target) &&
@@ -93,9 +93,9 @@ export default function Search({
       }
     };
 
-    addEventListener(document, 'mousedown', handleClickOutside);
-    return () => removeEventListener(document, 'mousedown', handleClickOutside);
-  }, [addEventListener, removeEventListener]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className={`relative ${className}`}>
