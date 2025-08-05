@@ -1,6 +1,7 @@
-// Real-time updates utility using WebSocket
+// Real-time updates utility using Socket.IO
 
 import React from 'react';
+import { io } from 'socket.io-client';
 
 /**
  * Real-time event types
@@ -65,46 +66,39 @@ class RealtimeManager {
     try {
       // Use secure WebSocket in production, fallback to localhost for development
       const isProduction = window.location.protocol === 'https:';
-      const wsUrl = import.meta.env.VITE_WS_URL || 
-                   (isProduction ? 'wss://www.deviantdare.com' : 'ws://localhost:5000');
-      this.socket = new WebSocket(`${wsUrl}?token=${token}`);
       
-      this.socket.onopen = () => {
-
+      // Get Socket.IO URL
+      let wsUrl = import.meta.env.VITE_WS_URL;
+      if (!wsUrl) {
+        wsUrl = isProduction ? 'https://www.deviantdare.com' : 'http://localhost:5000';
+      }
+      
+      this.socket = io(wsUrl, {
+        auth: { token },
+        transports: ['websocket', 'polling'],
+        timeout: 5000,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000
+      });
+      
+      this.socket.on('connect', () => {
         this.isConnected = true;
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.emit('connected');
-      };
+      });
       
-      this.socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          this.handleMessage(data);
-        } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
-        }
-      };
-      
-      this.socket.onclose = (event) => {
-
+      this.socket.on('disconnect', (event) => {
         this.isConnected = false;
         this.isConnecting = false;
         this.emit('disconnected', event);
-        
-        // Attempt to reconnect
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          setTimeout(() => {
-            this.reconnectAttempts++;
-            this.connect(token);
-          }, this.reconnectDelay * this.reconnectAttempts);
-        }
-      };
+      });
       
-      this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+      this.socket.on('connect_error', (error) => {
+        console.error('Socket.IO connection error:', error);
         this.isConnecting = false;
-      };
+      });
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);
       this.isConnecting = false;
@@ -112,11 +106,11 @@ class RealtimeManager {
   }
   
   /**
-   * Disconnect from WebSocket server
+   * Disconnect from Socket.IO server
    */
   disconnect() {
     if (this.socket) {
-      this.socket.close();
+      this.socket.disconnect();
       this.socket = null;
     }
     this.isConnected = false;
@@ -124,24 +118,22 @@ class RealtimeManager {
   }
   
   /**
-   * Send message to WebSocket server
+   * Send message to Socket.IO server
    */
   send(event, data = {}) {
     if (this.socket && this.isConnected) {
-      this.socket.send(JSON.stringify({ event, data }));
+      this.socket.emit(event, data);
     }
   }
   
   /**
-   * Handle incoming WebSocket messages
+   * Handle incoming Socket.IO messages
    */
-  handleMessage(data) {
-    const { event, payload } = data;
-    
+  handleMessage(event, data) {
     if (this.eventListeners.has(event)) {
       this.eventListeners.get(event).forEach(callback => {
         try {
-          callback(payload);
+          callback(data);
         } catch (error) {
           console.error(`Error in event listener for ${event}:`, error);
         }
@@ -158,6 +150,13 @@ class RealtimeManager {
     }
     this.eventListeners.get(event).add(callback);
     
+    // Listen to Socket.IO events
+    if (this.socket) {
+      this.socket.on(event, (data) => {
+        this.handleMessage(event, data);
+      });
+    }
+    
     // Return unsubscribe function
     return () => {
       const listeners = this.eventListeners.get(event);
@@ -166,6 +165,11 @@ class RealtimeManager {
         if (listeners.size === 0) {
           this.eventListeners.delete(event);
         }
+      }
+      
+      // Remove Socket.IO listener
+      if (this.socket) {
+        this.socket.off(event);
       }
     };
   }
