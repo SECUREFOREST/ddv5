@@ -62,6 +62,19 @@ export default function Button({
     ${className}
   `.trim();
 
+  // Helper function to check if children contain icons
+  const hasIcons = React.Children.toArray(children).some(child => {
+    if (React.isValidElement(child)) {
+      // Check if it's a Heroicon or any element with icon-related classes
+      return child.type && (
+        child.type.name?.includes('Icon') || 
+        child.props?.className?.includes('w-') ||
+        child.props?.className?.includes('h-')
+      );
+    }
+    return false;
+  });
+
   return (
     <button 
       className={baseClasses}
@@ -72,6 +85,10 @@ export default function Button({
         <div className="flex items-center justify-center gap-2">
           <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           Loading...
+        </div>
+      ) : hasIcons ? (
+        <div className="flex items-center justify-center gap-2">
+          {children}
         </div>
       ) : (
         children
