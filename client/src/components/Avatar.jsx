@@ -17,12 +17,14 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
       : `${baseUrl.replace(/\/$/, '')}${user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar}`;
     
     if (imgRef.current) {
-      // Memory-safe timeout for image loading
-      const { clearTimeout } = useTimeout(() => {
+      // Use a simple timeout for image loading
+      const timeout = setTimeout(() => {
         if (imgRef.current) {
           imgRef.current.src = avatarUrl;
         }
       }, 50);
+      
+      return () => clearTimeout(timeout);
     }
   }, [user?.avatar, imageError]);
 

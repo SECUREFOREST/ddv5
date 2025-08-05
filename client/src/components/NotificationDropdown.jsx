@@ -134,6 +134,9 @@ export default function NotificationDropdown() {
     };
   }, [accessToken, fetchNotifications]);
 
+  // Memory-safe event listener for click outside
+  const { addEventListener, removeEventListener } = useEventListener();
+  
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -141,8 +144,6 @@ export default function NotificationDropdown() {
         setOpen(false);
       }
     }
-    // Memory-safe event listener for click outside
-    const { addEventListener, removeEventListener } = useEventListener();
     
     if (open) {
       addEventListener(document, 'mousedown', handleClickOutside);

@@ -15,12 +15,12 @@ function useFadeIn(ref, deps = []) {
     const addClass = () => {
       if (ref.current && ref.current.classList) {
         ref.current.classList.add('animate-fade-in');
-              // Memory-safe timeout for animation cleanup
-      const { clearTimeout } = useTimeout(() => {
-        if (ref.current && ref.current.classList) {
-          ref.current.classList.remove('animate-fade-in');
-        }
-      }, 600);
+        // Memory-safe timeout for animation cleanup
+        timeoutId = setTimeout(() => {
+          if (ref.current && ref.current.classList) {
+            ref.current.classList.remove('animate-fade-in');
+          }
+        }, 600);
       }
     };
     
@@ -28,6 +28,9 @@ function useFadeIn(ref, deps = []) {
     
     return () => {
       cancelAnimationFrame(rafId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, deps);
 }

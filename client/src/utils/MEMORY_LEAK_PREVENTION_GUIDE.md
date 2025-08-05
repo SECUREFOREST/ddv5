@@ -1,376 +1,276 @@
 # Memory Leak Prevention Guide
 
-This guide outlines the memory leak prevention strategies implemented in this React application and provides best practices for developers.
+This guide explains how to properly use the memory leak prevention utilities to avoid React errors and memory leaks.
 
-## Common Memory Leak Sources
+## Common React Errors and Solutions
 
-### 1. Timers and Intervals
-**Problem**: `setTimeout` and `setInterval` not being cleared
-**Solution**: Use the `useInterval` and `useTimeout` hooks
+### React Error #321
+This error typically occurs when:
+1. Hooks are called conditionally
+2. Hooks are called inside loops or nested functions
+3. Hooks are called inside useEffect
 
-```javascript
-// ❌ Bad - potential memory leak
-useEffect(() => {
-  const interval = setInterval(() => {
-    // do something
+**Solution**: Always call hooks at the top level of your component.
+
+## Proper Usage Examples
+
+### ✅ Correct Usage
+
+```jsx
+import React from 'react';
+import { useTimeout, useEventListener, useComponentLifecycle } from '../utils/memoryLeakPrevention';
+
+function MyComponent() {
+  // ✅ Hooks called at top level
+  const { clearTimeout } = useTimeout(() => {
+    console.log('Timeout executed');
   }, 1000);
-  // Missing cleanup
-}, []);
+  
+  const { addEventListener } = useEventListener();
+  const { addCleanup } = useComponentLifecycle('MyComponent');
+  
+  useEffect(() => {
+    // ✅ Proper cleanup registration
+    const cleanup = () => {
+      console.log('Component cleanup');
+    };
+    
+    addCleanup(cleanup);
+    
+    return () => {
+      cleanup();
+    };
+  }, [addCleanup]);
+  
+  return <div>My Component</div>;
+}
+```
 
-// ✅ Good - memory safe
-useInterval(() => {
-  // do something
+### ❌ Incorrect Usage
+
+```jsx
+function MyComponent() {
+  useEffect(() => {
+    // ❌ DON'T call hooks inside useEffect
+    const { clearTimeout } = useTimeout(() => {
+      console.log('This will cause React Error #321');
+    }, 1000);
+  }, []);
+  
+  if (someCondition) {
+    // ❌ DON'T call hooks conditionally
+    const { addEventListener } = useEventListener();
+  }
+  
+  return <div>My Component</div>;
+}
+```
+
+## Available Hooks
+
+### useTimeout
+Manages timeouts with automatic cleanup.
+
+```jsx
+const { clearTimeout } = useTimeout(() => {
+  // Your timeout logic
 }, 1000);
 ```
 
-### 2. Event Listeners
-**Problem**: Event listeners not being removed
-**Solution**: Use the `useEventListener` hook
-
-```javascript
-// ❌ Bad - potential memory leak
-useEffect(() => {
-  const handleClick = () => {};
-  document.addEventListener('click', handleClick);
-  // Missing cleanup
-}, []);
-
-// ✅ Good - memory safe
-const { addEventListener, removeEventListener } = useEventListener();
-useEffect(() => {
-  const handleClick = () => {};
-  addEventListener(document, 'click', handleClick);
-  return () => removeEventListener(document, 'click', handleClick);
-}, [addEventListener, removeEventListener]);
-```
-
-### 3. WebSocket Connections
-**Problem**: WebSocket connections not being closed
-**Solution**: Use the `useWebSocket` hook
-
-```javascript
-// ❌ Bad - potential memory leak
-useEffect(() => {
-  const socket = new WebSocket(url);
-  // Missing cleanup
-}, []);
-
-// ✅ Good - memory safe
-const { connect, disconnect } = useWebSocket();
-useEffect(() => {
-  connect(url, {
-    onMessage: handleMessage,
-    onError: handleError
-  });
-  return () => disconnect();
-}, [connect, disconnect]);
-```
-
-### 4. Subscriptions
-**Problem**: Subscriptions not being unsubscribed
-**Solution**: Use the `useSubscription` hook
-
-```javascript
-// ❌ Bad - potential memory leak
-useEffect(() => {
-  const subscription = someService.subscribe(callback);
-  // Missing cleanup
-}, []);
-
-// ✅ Good - memory safe
-const { subscribe } = useSubscription();
-useEffect(() => {
-  const unsubscribe = subscribe(someService.subscribe(callback));
-  return unsubscribe;
-}, [subscribe]);
-```
-
-## Memory-Safe Hooks
-
 ### useInterval
-Automatically cleans up intervals when component unmounts or dependencies change.
+Manages intervals with automatic cleanup.
 
-```javascript
-import { useInterval } from '../utils/memoryLeakPrevention';
-
-function MyComponent() {
-  const [count, setCount] = useState(0);
-  
-  useInterval(() => {
-    setCount(c => c + 1);
-  }, 1000); // Runs every second, automatically cleaned up
-  
-  return <div>{count}</div>;
-}
-```
-
-### useTimeout
-Automatically cleans up timeouts when component unmounts or dependencies change.
-
-```javascript
-import { useTimeout } from '../utils/memoryLeakPrevention';
-
-function MyComponent() {
-  const [showMessage, setShowMessage] = useState(false);
-  
-  useTimeout(() => {
-    setShowMessage(true);
-  }, 2000); // Shows message after 2 seconds, automatically cleaned up
-  
-  return showMessage ? <div>Hello!</div> : null;
-}
+```jsx
+const { clearInterval } = useInterval(() => {
+  // Your interval logic
+}, 1000);
 ```
 
 ### useEventListener
 Manages event listeners with automatic cleanup.
 
-```javascript
-import { useEventListener } from '../utils/memoryLeakPrevention';
+```jsx
+const { addEventListener, removeEventListener } = useEventListener();
 
-function MyComponent() {
-  const { addEventListener, removeEventListener } = useEventListener();
+useEffect(() => {
+  const handleClick = () => console.log('Clicked');
+  addEventListener(document, 'click', handleClick);
   
-  useEffect(() => {
-    const handleResize = () => {
-      // Handle resize
-    };
-    
-    addEventListener(window, 'resize', handleResize);
-    return () => removeEventListener(window, 'resize', handleResize);
-  }, [addEventListener, removeEventListener]);
-  
-  return <div>Resize me</div>;
-}
-```
-
-### useWebSocket
-Manages WebSocket connections with automatic cleanup.
-
-```javascript
-import { useWebSocket } from '../utils/memoryLeakPrevention';
-
-function MyComponent() {
-  const { connect, disconnect, send } = useWebSocket();
-  
-  useEffect(() => {
-    connect('ws://localhost:8080', {
-      onMessage: (data) => console.log(data),
-      onError: (error) => console.error(error)
-    });
-    
-    return () => disconnect();
-  }, [connect, disconnect]);
-  
-  return <div>WebSocket connected</div>;
-}
+  return () => {
+    removeEventListener(document, 'click', handleClick);
+  };
+}, [addEventListener, removeEventListener]);
 ```
 
 ### useComponentLifecycle
-Manages component lifecycle with cleanup tracking.
+Manages component lifecycle with cleanup.
 
-```javascript
-import { useComponentLifecycle } from '../utils/memoryLeakPrevention';
-
-function MyComponent() {
-  const { addCleanup, isMounted } = useComponentLifecycle('MyComponent');
-  
-  const handleAsyncOperation = async () => {
-    const result = await someAsyncOperation();
-    if (isMounted()) {
-      // Only update state if component is still mounted
-      setState(result);
-    }
-  };
-  
-  useEffect(() => {
-    const cleanup = () => {
-      // Custom cleanup logic
-    };
-    
-    addCleanup(cleanup);
-  }, [addCleanup]);
-  
-  return <div>Component with lifecycle management</div>;
-}
-```
-
-## Best Practices
-
-### 1. Always Clean Up Resources
-```javascript
-// ✅ Always return cleanup function from useEffect
-useEffect(() => {
-  const subscription = service.subscribe(callback);
-  return () => subscription.unsubscribe();
-}, []);
-```
-
-### 2. Check if Component is Mounted
-```javascript
-// ✅ Check if component is still mounted before updating state
-const { isMounted } = useComponentLifecycle('MyComponent');
-
-const handleAsyncOperation = async () => {
-  const result = await apiCall();
-  if (isMounted()) {
-    setState(result);
-  }
-};
-```
-
-### 3. Use Memory-Safe Hooks
-```javascript
-// ✅ Use memory-safe hooks instead of manual cleanup
-useInterval(() => {
-  // This will be automatically cleaned up
-}, 1000);
-```
-
-### 4. Register Cleanup Functions
-```javascript
-// ✅ Register cleanup functions for debugging
-import { registerCleanup } from '../utils/memoryLeakPrevention';
+```jsx
+const { addCleanup, isMounted } = useComponentLifecycle('MyComponent');
 
 useEffect(() => {
   const cleanup = () => {
     // Cleanup logic
   };
   
-  registerCleanup(cleanup, 'MyComponent');
-  return cleanup;
-}, []);
+  addCleanup(cleanup);
+}, [addCleanup]);
 ```
 
-## Debugging Memory Leaks
+### useSafeState
+Safe state updates that check if component is mounted.
 
-### 1. Check Cleanup Registry
-```javascript
+```jsx
+const [state, setState] = useSafeState(initialState);
+```
+
+## Debugging Utilities
+
+### memoryLeakUtils
+```jsx
 import { memoryLeakUtils } from '../utils/memoryLeakPrevention';
 
-// Log current cleanup registry
+// Check for potential leaks
+memoryLeakUtils.checkForLeaks();
+
+// Get cleanup count
+console.log('Active cleanups:', memoryLeakUtils.getCleanupCount());
+
+// Log registry details
 memoryLeakUtils.logCleanupRegistry();
-
-// Get number of registered cleanups
-console.log(memoryLeakUtils.getCleanupCount());
 ```
 
-### 2. Force Cleanup
-```javascript
-// Force cleanup of all registered cleanups
-memoryLeakUtils.forceCleanup();
+### useDebugLifecycle
+```jsx
+import { useDebugLifecycle } from '../utils/memoryLeakPrevention';
+
+function MyComponent() {
+  useDebugLifecycle('MyComponent');
+  // Component logic
+}
 ```
 
-### 3. Browser DevTools
-- Use Chrome DevTools Memory tab
-- Take heap snapshots before and after component unmounts
-- Look for detached DOM trees and event listeners
+## Best Practices
 
-## Common Patterns to Avoid
+1. **Always call hooks at the top level**
+2. **Never call hooks inside loops, conditions, or nested functions**
+3. **Use the provided hooks instead of native setTimeout/setInterval**
+4. **Always provide cleanup functions**
+5. **Use useSafeState for state updates in async operations**
+6. **Register cleanups with useComponentLifecycle**
 
-### ❌ Don't Create Timers Without Cleanup
-```javascript
+## Common Patterns
+
+### Async Operations
+```jsx
+const [data, setData] = useSafeState(null);
+const { isMounted } = useComponentLifecycle('DataComponent');
+
 useEffect(() => {
-  setInterval(() => {
-    // This will leak memory
-  }, 1000);
-}, []);
+  const fetchData = async () => {
+    const result = await api.getData();
+    if (isMounted()) {
+      setData(result);
+    }
+  };
+  
+  fetchData();
+}, [isMounted]);
 ```
 
-### ❌ Don't Add Event Listeners Without Cleanup
-```javascript
+### Event Listeners
+```jsx
+const { addEventListener, removeEventListener } = useEventListener();
+
 useEffect(() => {
-  window.addEventListener('resize', handleResize);
-  // Missing removeEventListener
-}, []);
+  const handleResize = () => {
+    // Handle resize
+  };
+  
+  addEventListener(window, 'resize', handleResize);
+  
+  return () => {
+    removeEventListener(window, 'resize', handleResize);
+  };
+}, [addEventListener, removeEventListener]);
 ```
 
-### ❌ Don't Create Subscriptions Without Cleanup
-```javascript
-useEffect(() => {
-  const subscription = service.subscribe(callback);
-  // Missing subscription.unsubscribe()
-}, []);
-```
+### Timers
+```jsx
+const { clearTimeout } = useTimeout(() => {
+  // Timer logic
+}, 5000);
 
-### ❌ Don't Update State After Component Unmount
-```javascript
-const handleAsyncOperation = async () => {
-  const result = await apiCall();
-  setState(result); // This might cause memory leaks
+// Clear manually if needed
+const handleCancel = () => {
+  clearTimeout();
 };
+```
+
+## Error Handling
+
+The utilities include comprehensive error handling:
+
+- Invalid function parameters are logged as warnings
+- Cleanup errors are caught and logged
+- WebSocket errors are handled gracefully
+- Event listener errors are caught
+
+## Performance Monitoring
+
+Use the debugging utilities to monitor memory usage:
+
+```jsx
+// In development
+if (process.env.NODE_ENV === 'development') {
+  setInterval(() => {
+    memoryLeakUtils.checkForLeaks();
+  }, 30000); // Check every 30 seconds
+}
 ```
 
 ## Migration Guide
 
-### From Manual Timers to useInterval
-```javascript
+### From Native setTimeout
+```jsx
 // Before
 useEffect(() => {
-  const interval = setInterval(callback, 1000);
-  return () => clearInterval(interval);
-}, [callback]);
+  const timer = setTimeout(() => {
+    // Logic
+  }, 1000);
+  
+  return () => clearTimeout(timer);
+}, []);
 
 // After
-useInterval(callback, 1000);
+const { clearTimeout } = useTimeout(() => {
+  // Logic
+}, 1000);
 ```
 
-### From Manual Event Listeners to useEventListener
-```javascript
+### From Native addEventListener
+```jsx
 // Before
 useEffect(() => {
   const handleClick = () => {};
   document.addEventListener('click', handleClick);
-  return () => document.removeEventListener('click', handleClick);
+  
+  return () => {
+    document.removeEventListener('click', handleClick);
+  };
 }, []);
 
 // After
 const { addEventListener, removeEventListener } = useEventListener();
+
 useEffect(() => {
   const handleClick = () => {};
   addEventListener(document, 'click', handleClick);
-  return () => removeEventListener(document, 'click', handleClick);
+  
+  return () => {
+    removeEventListener(document, 'click', handleClick);
+  };
 }, [addEventListener, removeEventListener]);
 ```
 
-## Performance Monitoring
-
-### 1. Monitor Memory Usage
-```javascript
-// Log memory usage periodically
-setInterval(() => {
-  if (performance.memory) {
-    console.log('Memory usage:', performance.memory);
-  }
-}, 10000);
-```
-
-### 2. Monitor Cleanup Registry
-```javascript
-// Log cleanup registry size
-setInterval(() => {
-  console.log('Cleanup registry size:', memoryLeakUtils.getCleanupCount());
-}, 5000);
-```
-
-### 3. Monitor Component Lifecycle
-```javascript
-// Log component mount/unmount
-const { addCleanup } = useComponentLifecycle('MyComponent');
-
-useEffect(() => {
-  console.log('Component mounted');
-  addCleanup(() => console.log('Component unmounted'));
-}, [addCleanup]);
-```
-
-## Conclusion
-
-By following these patterns and using the provided memory-safe hooks, you can significantly reduce the risk of memory leaks in your React application. Always remember to:
-
-1. Use memory-safe hooks instead of manual cleanup
-2. Check if components are mounted before updating state
-3. Register cleanup functions for debugging
-4. Monitor memory usage and cleanup registry
-5. Follow the best practices outlined in this guide
-
-The memory leak prevention utilities provide a robust foundation for building memory-efficient React applications. 
+This guide ensures proper usage of memory leak prevention utilities and helps avoid React errors like #321. 
