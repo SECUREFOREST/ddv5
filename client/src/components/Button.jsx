@@ -75,6 +75,34 @@ export default function Button({
     return false;
   });
 
+  // Ensure children are properly structured for horizontal layout
+  const renderChildren = () => {
+    if (!hasIcons) return children;
+    
+    const childrenArray = React.Children.toArray(children);
+    const iconElements = [];
+    const textElements = [];
+    
+    childrenArray.forEach(child => {
+      if (React.isValidElement(child) && (
+        child.type.name?.includes('Icon') || 
+        child.props?.className?.includes('w-') ||
+        child.props?.className?.includes('h-')
+      )) {
+        iconElements.push(child);
+      } else {
+        textElements.push(child);
+      }
+    });
+    
+    return (
+      <>
+        {iconElements}
+        {textElements}
+      </>
+    );
+  };
+
   return (
     <button 
       className={baseClasses}
@@ -87,8 +115,8 @@ export default function Button({
           Loading...
         </div>
       ) : hasIcons ? (
-        <div className="flex items-center justify-center gap-2">
-          {children}
+        <div className="flex items-center justify-center gap-2 flex-row">
+          {renderChildren()}
         </div>
       ) : (
         children
