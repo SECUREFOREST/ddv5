@@ -9,10 +9,12 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { ChartBarIcon, TrophyIcon, ClockIcon, CheckCircleIcon, FireIcon, UserIcon, HeartIcon, SparklesIcon, PlayIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { StatsSkeleton, ListSkeleton } from '../components/Skeleton';
 import { useToast } from '../context/ToastContext';
-import { DIFFICULTY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
 import { useRealtimeEvents } from '../utils/realtime';
 import { retryApiCall } from '../utils/retry';
+import { validateApiResponse, safeExtract } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 import { MainContent, ContentContainer } from '../components/Layout';
 const DashboardChart = React.lazy(() => import('../components/DashboardChart'));
 
@@ -98,28 +100,30 @@ export default function Dashboard() {
         retryApiCall(() => api.get('/activity-feed/activities', { params: { limit: 10, userId } }))
       ]);
       
-      // Handle successful responses
+      // Handle successful responses with proper validation
       const allDares = [];
       
       if (createdRes.status === 'fulfilled') {
-        const createdData = Array.isArray(createdRes.value.data?.dares) ? createdRes.value.data.dares : [];
+        const createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...createdData);
       }
       
       if (participatingRes.status === 'fulfilled') {
-        const participatingData = Array.isArray(participatingRes.value.data?.dares) ? participatingRes.value.data.dares : [];
+        const participatingData = validateApiResponse(participatingRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...participatingData);
       }
       
       if (switchRes.status === 'fulfilled') {
-        const switchData = Array.isArray(switchRes.value.data?.dares) ? switchRes.value.data.dares : [];
+        const switchData = validateApiResponse(switchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...switchData);
       }
       
       // Deduplicate by _id
       const uniqueDares = Object.values(
         allDares.reduce((acc, dare) => {
-          acc[dare._id] = dare;
+          if (dare && dare._id) {
+            acc[dare._id] = dare;
+          }
           return acc;
         }, {})
       );
@@ -130,7 +134,7 @@ export default function Dashboard() {
       // Handle stats
       let statsData = null;
       if (statsRes.status === 'fulfilled') {
-        statsData = statsRes.value.data;
+        statsData = validateApiResponse(statsRes.value, API_RESPONSE_TYPES.STATS);
         setStats(statsData);
       } else {
         console.error('Failed to fetch stats:', statsRes.reason);
@@ -141,7 +145,7 @@ export default function Dashboard() {
       // Handle activities
       let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
-        activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
+        activitiesData = validateApiResponse(activitiesRes.value, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setActivities(activitiesData);
       } else {
         console.error('Failed to fetch activities:', activitiesRes.reason);
@@ -159,10 +163,11 @@ export default function Dashboard() {
       showSuccess('Dashboard updated successfully!');
     } catch (error) {
       console.error('Dashboard loading error:', error);
+      const errorMessage = handleApiError(error, 'dashboard');
       setDares([]);
       setStats(null);
       setActivities([]);
-      showError(ERROR_MESSAGES.DASHBOARD_LOAD_FAILED);
+      showError(errorMessage);
     } finally {
       setLoading(false);
       setStatsLoading(false);

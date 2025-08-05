@@ -13,7 +13,9 @@ import { useRealtimeNotificationSubscription } from '../utils/realtime';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { ErrorAlert } from '../components/Alert';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 export default function Notifications() {
   const { user, accessToken } = useContext(AuthContext);
@@ -48,7 +50,7 @@ export default function Notifications() {
       const response = await retryApiCall(() => api.get('/notifications'));
       
       if (response.data) {
-        const notificationsData = Array.isArray(response.data) ? response.data : [];
+        const notificationsData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setNotifications(notificationsData);
         showSuccess('Notifications loaded successfully!');
 
@@ -57,7 +59,7 @@ export default function Notifications() {
       }
     } catch (error) {
       console.error('Notifications loading error:', error);
-      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.NOTIFICATIONS_LOAD_FAILED;
+      const errorMessage = handleApiError(error, 'notifications');
       setGeneralError(errorMessage);
       showError(errorMessage);
       setNotifications([]);

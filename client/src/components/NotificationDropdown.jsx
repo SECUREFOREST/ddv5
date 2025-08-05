@@ -6,6 +6,9 @@ import { useToast } from '../context/ToastContext';
 import { io } from 'socket.io-client';
 import { formatRelativeTime } from '../utils/dateUtils';
 import { BellIcon } from '@heroicons/react/24/outline';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 function timeAgo(date) {
   return formatRelativeTime(date);
@@ -92,7 +95,7 @@ export default function NotificationDropdown() {
       const response = await api.get('/notifications');
       
       if (response.data) {
-        const notificationsData = Array.isArray(response.data) ? response.data : [];
+        const notificationsData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setNotifications(notificationsData);
 
       } else {
@@ -100,7 +103,7 @@ export default function NotificationDropdown() {
       }
     } catch (error) {
       console.error('Failed to load notifications:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load notifications';
+      const errorMessage = handleApiError(error, 'notifications');
       setError(errorMessage);
       setNotifications([]);
     } finally {

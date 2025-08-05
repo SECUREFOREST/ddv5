@@ -12,7 +12,9 @@ import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 export default function ProfileView() {
   const { user } = useAuth();
@@ -86,12 +88,8 @@ export default function ProfileView() {
       // Handle activities response
       let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
-        if (activitiesRes.value.data) {
-          activitiesData = Array.isArray(activitiesRes.value.data) ? activitiesRes.value.data : [];
-          setUserActivities(activitiesData);
-        } else {
-          setUserActivities([]);
-        }
+        activitiesData = validateApiResponse(activitiesRes.value, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        setUserActivities(activitiesData);
       } else {
         console.error('Failed to fetch user activities:', activitiesRes.reason);
         setUserActivities([]);
@@ -114,8 +112,9 @@ export default function ProfileView() {
       
     } catch (error) {
       console.error('Profile data loading error:', error);
-      setError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
-      showError(ERROR_MESSAGES.PROFILE_LOAD_FAILED);
+      const errorMessage = handleApiError(error, 'profile view');
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }

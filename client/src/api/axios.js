@@ -73,6 +73,20 @@ api.interceptors.request.use((config) => {
 });
 
 // Handle 401 errors by attempting to refresh the token and retry the request
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -96,36 +110,22 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
-    // Disable axios interceptor retry logic to avoid conflicts with retryApiCall
-    // The retryApiCall function will handle retries more intelligently
-    /*
-    // Implement retry logic for network errors and 5xx errors
-    // Only retry if we haven't already retried and it's a retryable error
-    if (RETRY_CONFIG.retryCondition(error) && !originalRequest._retryCount && !originalRequest._retry) {
-      originalRequest._retryCount = 1;
-      
-      
-      const retryRequest = async (retryCount = 1) => {
-        try {
-          // Add exponential backoff
-          const delay = RETRY_CONFIG.retryDelay * Math.pow(2, retryCount - 1);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return api(originalRequest);
-        } catch (retryError) {
-          if (retryCount < RETRY_CONFIG.retries && RETRY_CONFIG.retryCondition(retryError)) {
-            
-            return retryRequest(retryCount + 1);
-          }
-          return Promise.reject(retryError);
-        }
-      };
-      
-      return retryRequest();
-    }
-    */
-    
     if (error.response && error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
+
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
@@ -134,16 +134,25 @@ api.interceptors.response.use(
         await new Promise(resolve => setTimeout(resolve, 100));
         
         const res = await api.post('/auth/refresh-token', { refreshToken });
-        localStorage.setItem('accessToken', res.data.accessToken);
-        localStorage.setItem('refreshToken', res.data.refreshToken);
-        originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+        const { accessToken, refreshToken: newRefreshToken } = res.data;
+        
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
+        
+        // Update the original request with new token
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        
+        // Process queued requests
+        processQueue(null, accessToken);
+        
         return api(originalRequest);
       } catch (refreshErr) {
-        // If refresh fails, clear tokens but don't redirect immediately
-        // Let the component handle the error gracefully
+        // If refresh fails, clear tokens and process queue with error
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+        
+        processQueue(refreshErr, null);
         
         // Only redirect if we're not already on auth pages and not on admin page
         const isAuthPage = window.location.pathname === '/login' || 
@@ -161,6 +170,8 @@ api.interceptors.response.use(
         }
         
         return Promise.reject(refreshErr);
+      } finally {
+        isRefreshing = false;
       }
     }
     return Promise.reject(error);

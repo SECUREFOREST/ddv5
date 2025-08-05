@@ -11,11 +11,13 @@ import { FireIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import TagsInput from '../components/TagsInput';
 import { ClockIcon } from '@heroicons/react/24/solid';
-import { PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
+import { PRIVACY_OPTIONS, ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 import { useCacheUtils } from '../utils/cache';
 import { retryApiCall } from '../utils/retry';
 import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 import { RoleBadge } from '../components/Badge';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { FormTextarea } from '../components/Form';
@@ -308,7 +310,7 @@ export default function Profile() {
       // Handle stats response
       let statsData = null;
       if (statsRes.status === 'fulfilled') {
-        statsData = statsRes.value.data;
+        statsData = validateApiResponse(statsRes.value, API_RESPONSE_TYPES.STATS);
         setStats(statsData);
       } else {
         console.error('Failed to fetch stats:', statsRes.reason);
@@ -318,7 +320,7 @@ export default function Profile() {
       // Handle dares responses
       let createdData = [];
       if (createdRes.status === 'fulfilled') {
-        createdData = Array.isArray(createdRes.value.data?.dares) ? createdRes.value.data.dares : [];
+        createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         setCreated(createdData);
       } else {
         console.error('Failed to fetch created dares:', createdRes.reason);
@@ -327,7 +329,7 @@ export default function Profile() {
       
       let participatingData = [];
       if (participatingRes.status === 'fulfilled') {
-        participatingData = Array.isArray(participatingRes.value.data?.dares) ? participatingRes.value.data.dares : [];
+        participatingData = validateApiResponse(participatingRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         setParticipating(participatingData);
       } else {
         console.error('Failed to fetch participating dares:', participatingRes.reason);
@@ -336,7 +338,7 @@ export default function Profile() {
       
       let daresData = [];
       if (assignedSwitchRes.status === 'fulfilled') {
-        daresData = Array.isArray(assignedSwitchRes.value.data?.dares) ? assignedSwitchRes.value.data.dares : [];
+        daresData = validateApiResponse(assignedSwitchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
         setDares(daresData);
       } else {
         console.error('Failed to fetch assigned switch dares:', assignedSwitchRes.reason);
@@ -346,7 +348,7 @@ export default function Profile() {
       // Handle switch games responses
       let switchCreatedData = [];
       if (switchCreatedRes.status === 'fulfilled') {
-        switchCreatedData = Array.isArray(switchCreatedRes.value.data) ? switchCreatedRes.value.data : [];
+        switchCreatedData = validateApiResponse(switchCreatedRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setSwitchCreated(switchCreatedData);
       } else {
         console.error('Failed to fetch created switch games:', switchCreatedRes.reason);
@@ -355,7 +357,7 @@ export default function Profile() {
       
       let switchParticipatingData = [];
       if (switchParticipatingRes.status === 'fulfilled') {
-        switchParticipatingData = Array.isArray(switchParticipatingRes.value.data) ? switchParticipatingRes.value.data : [];
+        switchParticipatingData = validateApiResponse(switchParticipatingRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setSwitchParticipating(switchParticipatingData);
       } else {
         console.error('Failed to fetch participating switch games:', switchParticipatingRes.reason);
@@ -364,8 +366,8 @@ export default function Profile() {
       
       // Combine switch games with error handling
       const allSwitchGames = [
-        ...(switchCreatedRes.status === 'fulfilled' && Array.isArray(switchCreatedRes.value?.data) ? switchCreatedRes.value.data : []),
-        ...(switchParticipatingRes.status === 'fulfilled' && Array.isArray(switchParticipatingRes.value?.data) ? switchParticipatingRes.value.data : [])
+        ...switchCreatedData,
+        ...switchParticipatingData
       ];
       setSwitch(allSwitchGames);
       
@@ -382,7 +384,8 @@ export default function Profile() {
       
     } catch (error) {
       console.error('Error fetching user data:', error);
-      setStatsError('Failed to load user data');
+      const errorMessage = handleApiError(error, 'profile');
+      setStatsError(errorMessage);
     } finally {
       setStatsLoading(false);
     }
@@ -406,15 +409,16 @@ export default function Profile() {
     setUserActivitiesLoading(true);
     retryApiCall(() => api.get('/activity-feed/activities', { params: { userId, limit: 10 } }))
       .then(res => {
-        const activitiesData = Array.isArray(res.data) ? res.data : [];
+        const activitiesData = validateApiResponse(res, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setUserActivities(activitiesData);
         // Cache the activities data
         setCachedData(activitiesCacheKey, activitiesData, 5 * 60 * 1000); // 5 minutes cache
       })
       .catch(error => {
         console.error('Failed to load user activities:', error);
+        const errorMessage = handleApiError(error, 'user activities');
         setUserActivities([]);
-        showError(ERROR_MESSAGES.RECENT_ACTIVITY_LOAD_FAILED);
+        showError(errorMessage);
       })
       .finally(() => setUserActivitiesLoading(false));
   }, [user, getCachedData, setCachedData]);

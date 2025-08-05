@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
 import { ERROR_MESSAGES } from '../constants.jsx';
+import { realtimeUtils } from '../utils/realtime';
 
 const AuthContext = createContext();
 
@@ -23,11 +24,17 @@ export function AuthProvider({ children }) {
           const res = await api.get('/users/me', { headers: { Authorization: `Bearer ${accessToken}` } });
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
+          
+          // Initialize real-time connection after successful authentication
+          realtimeUtils.init(accessToken);
         } catch {
           setUser(null);
+          realtimeUtils.disconnect();
         }
       } else if (userData) {
         setUser(JSON.parse(userData));
+      } else {
+        realtimeUtils.disconnect();
       }
       setLoading(false);
     }
@@ -96,6 +103,9 @@ export function AuthProvider({ children }) {
     setAccessToken('');
     setRefreshToken('');
     setUser(null);
+    
+    // Disconnect real-time connection on logout
+    realtimeUtils.disconnect();
   };
 
   return (

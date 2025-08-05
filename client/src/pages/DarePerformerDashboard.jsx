@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
-import { validateApiResponse } from '../utils/apiUtils';
+import { validateApiResponse } from '../utils/apiValidation';
 import { API_RESPONSE_TYPES, ERROR_MESSAGES } from '../constants.jsx';
+import { handleApiError } from '../utils/errorHandler';
 import { 
   ChartBarIcon, 
   ClockIcon, 
@@ -498,14 +499,15 @@ export default function DarePerformerDashboard() {
   }
   if (associatesData.status === 'rejected') {
     console.error('Failed to load associates data from API:', associatesData.reason);
-    errors.associates = associatesData.reason?.message || ERROR_MESSAGES.ASSOCIATES_LOAD_FAILED;
+    errors.associates = handleApiError(associatesData.reason, 'associates');
   }
   
   setErrors(errors);
       
     } catch (err) {
       console.error('Failed to fetch dashboard data from API:', err);
-      setError(ERROR_MESSAGES.DASHBOARD_LOAD_FAILED);
+      const errorMessage = handleApiError(err, 'dashboard');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
       setDataLoading({

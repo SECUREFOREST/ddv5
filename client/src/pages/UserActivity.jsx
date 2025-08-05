@@ -22,7 +22,9 @@ import { ChartBarIcon } from '@heroicons/react/24/solid';
 import { retryApiCall } from '../utils/retry';
 import { useCacheUtils } from '../utils/cache';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -113,23 +115,23 @@ export default function UserActivity() {
         
         // Handle active dares
         if (createdActiveRes.status === 'fulfilled') {
-          const createdData = Array.isArray(createdActiveRes.value.data?.dares) ? createdActiveRes.value.data.dares : [];
+          const createdData = validateApiResponse(createdActiveRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           activeDaresData.push(...createdData);
         }
         
         if (performedActiveRes.status === 'fulfilled') {
-          const performedData = Array.isArray(performedActiveRes.value.data?.dares) ? performedActiveRes.value.data.dares : [];
+          const performedData = validateApiResponse(performedActiveRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           activeDaresData.push(...performedData);
         }
         
         // Handle history dares
         if (createdHistoryRes.status === 'fulfilled') {
-          const createdHistoryData = Array.isArray(createdHistoryRes.value.data?.dares) ? createdHistoryRes.value.data.dares : [];
+          const createdHistoryData = validateApiResponse(createdHistoryRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           historyDaresData.push(...createdHistoryData);
         }
         
         if (performedHistoryRes.status === 'fulfilled') {
-          const performedHistoryData = Array.isArray(performedHistoryRes.value.data?.dares) ? performedHistoryRes.value.data.dares : [];
+          const performedHistoryData = validateApiResponse(performedHistoryRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           historyDaresData.push(...performedHistoryData);
         }
         
@@ -142,7 +144,7 @@ export default function UserActivity() {
         // Handle switch games
         let activeSwitchData = [];
         if (activeSwitchRes.status === 'fulfilled') {
-          activeSwitchData = Array.isArray(activeSwitchRes.value.data) ? activeSwitchRes.value.data : [];
+          activeSwitchData = validateApiResponse(activeSwitchRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setActiveSwitchGames(activeSwitchData);
         } else {
           setActiveSwitchGames([]);
@@ -150,7 +152,7 @@ export default function UserActivity() {
         
         let historySwitchData = [];
         if (historySwitchRes.status === 'fulfilled') {
-          historySwitchData = Array.isArray(historySwitchRes.value.data) ? historySwitchRes.value.data : [];
+          historySwitchData = validateApiResponse(historySwitchRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setHistorySwitchGames(historySwitchData);
         } else {
           setHistorySwitchGames([]);
@@ -169,8 +171,9 @@ export default function UserActivity() {
       })
       .catch(err => {
         console.error('Failed to load user activity:', err);
-        setError(ERROR_MESSAGES.ACTIVITY_LOAD_FAILED);
-        showError(ERROR_MESSAGES.ACTIVITY_LOAD_FAILED);
+        const errorMessage = handleApiError(err, 'user activity');
+        setError(errorMessage);
+        showError(errorMessage);
       })
       .finally(() => setLoading(false));
   }, [user, dataLoaded, showError, getCachedData, setCachedData]);

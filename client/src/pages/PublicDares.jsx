@@ -11,7 +11,9 @@ import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
 import Search from '../components/Search';
 import { DifficultyBadge } from '../components/Badge';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 
 
@@ -63,7 +65,7 @@ export default function PublicDares() {
       .then(([daresRes, switchesRes]) => {
         // Handle dares response
         if (daresRes.status === 'fulfilled') {
-          const daresData = Array.isArray(daresRes.value.data?.dares) ? daresRes.value.data.dares : [];
+          const daresData = validateApiResponse(daresRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           setDares(daresData);
 
         } else {
@@ -73,7 +75,7 @@ export default function PublicDares() {
         
         // Handle switches response
         if (switchesRes.status === 'fulfilled') {
-          const switchesData = Array.isArray(switchesRes.value.data?.switches) ? switchesRes.value.data.switches : [];
+          const switchesData = validateApiResponse(switchesRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setSwitchGames(switchesData);
 
         } else {
@@ -82,12 +84,12 @@ export default function PublicDares() {
         }
         
         // Update total items for pagination
-        const allItems = [...(daresRes.status === 'fulfilled' ? (Array.isArray(daresRes.value.data?.dares) ? daresRes.value.data.dares : []) : []), 
-                          ...(switchesRes.status === 'fulfilled' ? (Array.isArray(switchesRes.value.data?.switches) ? switchesRes.value.data.switches : []) : [])];
+        const allItems = [...(daresRes.status === 'fulfilled' ? validateApiResponse(daresRes.value, API_RESPONSE_TYPES.DARE_ARRAY) : []), 
+                          ...(switchesRes.status === 'fulfilled' ? validateApiResponse(switchesRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY) : [])];
         setTotalItems(allItems.length);
       })
       .catch((err) => {
-        const errorMessage = ERROR_MESSAGES.PUBLIC_CONTENT_LOAD_FAILED;
+        const errorMessage = handleApiError(err, 'public content');
         setError(errorMessage);
         showError(errorMessage);
         console.error('Public dares loading error:', err);

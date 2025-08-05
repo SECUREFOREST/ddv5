@@ -7,10 +7,12 @@ import { ListSkeleton } from '../components/Skeleton';
 // 1. Import Avatar and Heroicons
 import Avatar from '../components/Avatar';
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, TagIcon, ArrowPathIcon, SparklesIcon, FireIcon, EyeDropperIcon, RocketLaunchIcon, Squares2X2Icon, UserGroupIcon } from '@heroicons/react/24/solid';
-import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
+import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, DIFFICULTY_ICONS, ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 
@@ -92,7 +94,7 @@ export default function SwitchGameParticipate() {
       const response = await retryApiCall(() => api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } }));
       
       if (response.data) {
-        const games = Array.isArray(response.data) ? response.data : [];
+        const games = validateApiResponse(response, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         if (games.length > 0 && games[0]._id) {
           navigate(`/switches/participate/${games[0]._id}`);
 
@@ -104,7 +106,8 @@ export default function SwitchGameParticipate() {
       }
     } catch (error) {
       console.error('Failed to find switch game:', error);
-      showError('Failed to find a switch game.');
+      const errorMessage = handleApiError(error, 'switch game search');
+      showError(errorMessage);
     } finally {
       setSearching(false);
     }

@@ -9,7 +9,9 @@ import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Button from '../components/Button';
 import { InfoAlert } from '../components/Alert';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 export default function SwitchGames() {
   const { user } = useAuth();
@@ -34,7 +36,7 @@ export default function SwitchGames() {
       
       
       if (response && response.data) {
-        const switchGamesData = Array.isArray(response.data) ? response.data : [];
+        const switchGamesData = validateApiResponse(response, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setUserSwitchGames(switchGamesData);
         
         if (switchGamesData.length > 0) {
@@ -49,7 +51,7 @@ export default function SwitchGames() {
       }
     } catch (error) {
       console.error('Failed to load user switch games:', error);
-      const errorMessage = error.response?.data?.error || error.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
+      const errorMessage = handleApiError(error, 'switch games');
       setGeneralError(errorMessage);
       setUserSwitchGames([]);
     } finally {

@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { formatRelativeTime } from '../utils/dateUtils';
 import { ChatBubbleLeftIcon, CheckCircleIcon, StarIcon, EllipsisHorizontalIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import api from '../api/axios';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 function timeAgo(date) {
   return formatRelativeTime(date);
@@ -137,7 +140,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
       const response = await api.get('/activity-feed');
       
       if (response.data) {
-        const activitiesData = Array.isArray(response.data) ? response.data : [];
+        const activitiesData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setLocalActivities(activitiesData);
 
       } else {
@@ -145,7 +148,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
       }
     } catch (error) {
       console.error('Failed to fetch activities:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to load recent activity';
+      const errorMessage = handleApiError(error, 'recent activities');
       setError(errorMessage);
       setLocalActivities([]);
     } finally {

@@ -12,7 +12,9 @@ import { retryApiCall } from '../utils/retry';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
-import { ERROR_MESSAGES } from '../constants.jsx';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 const LAST_SEEN_KEY = 'activityFeedLastSeen';
 
@@ -37,7 +39,7 @@ export default function ActivityFeed() {
       const response = await retryApiCall(() => api.get('/activity-feed?limit=30'));
       
       if (response.data) {
-        const activitiesData = Array.isArray(response.data) ? response.data : [];
+        const activitiesData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setActivities(activitiesData);
         showSuccess('Activity feed loaded successfully!');
 
@@ -46,7 +48,7 @@ export default function ActivityFeed() {
       }
     } catch (error) {
       console.error('Activity feed loading error:', error);
-      const errorMessage = error.response?.data?.error || ERROR_MESSAGES.ACTIVITY_FEED_LOAD_FAILED;
+      const errorMessage = handleApiError(error, 'activity feed');
       showError(errorMessage);
       setActivities([]);
     } finally {

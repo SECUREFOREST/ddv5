@@ -9,12 +9,14 @@ import Modal from '../components/Modal';
 import { Squares2X2Icon, PlusIcon, FireIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
+import { STATUS_OPTIONS, DARE_TYPE_OPTIONS, ROLE_OPTIONS, DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { MainContent, ContentContainer } from '../components/Layout';
 import { usePagination, Pagination } from '../utils/pagination.jsx';
 import { retryApiCall } from '../utils/retry';
+import { validateApiResponse } from '../utils/apiValidation';
+import { handleApiError } from '../utils/errorHandler';
 
 export default function Dares() {
   const { user } = useAuth();
@@ -79,19 +81,19 @@ export default function Dares() {
         
         // Handle created dares
         if (createdRes.status === 'fulfilled') {
-          const createdData = Array.isArray(createdRes.value.data?.dares) ? createdRes.value.data.dares : [];
+          const createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...createdData);
         }
         
         // Handle participating dares
         if (partRes.status === 'fulfilled') {
-          const partData = Array.isArray(partRes.value.data?.dares) ? partRes.value.data.dares : [];
+          const partData = validateApiResponse(partRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...partData);
         }
         
         // Handle switch dares
         if (switchRes.status === 'fulfilled') {
-          const switchData = Array.isArray(switchRes.value.data?.dares) ? switchRes.value.data.dares : [];
+          const switchData = validateApiResponse(switchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...switchData);
         }
         
@@ -104,7 +106,8 @@ export default function Dares() {
       .catch((error) => { 
         setDares([]); 
         setLastUpdated(new Date()); 
-        showError(ERROR_MESSAGES.DARE_LOAD_FAILED);
+        const errorMessage = handleApiError(error, 'dares');
+        showError(errorMessage);
         console.error('Dares loading error:', error);
       })
       .finally(() => setLoading(false));
@@ -143,10 +146,11 @@ export default function Dares() {
           role: user?.roles?.[0] || undefined,
         },
       }));
-      setDares(Array.isArray(daresRes.data?.dares) ? daresRes.data.dares : []);
+      const daresData = validateApiResponse(daresRes, API_RESPONSE_TYPES.DARE_ARRAY);
+      setDares(daresData);
       showSuccess('Dare created successfully!');
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to create dare. Please try again.';
+      const errorMessage = handleApiError(err, 'dare creation');
       setCreateError(errorMessage);
       showError(errorMessage);
     } finally {
@@ -205,9 +209,10 @@ export default function Dares() {
           role: user?.roles?.[0] || undefined,
         },
       }));
-      setDares(Array.isArray(daresRes.data?.dares) ? daresRes.data.dares : []);
+      const daresData = validateApiResponse(daresRes, API_RESPONSE_TYPES.DARE_ARRAY);
+      setDares(daresData);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Failed to accept dare. Please try again.';
+      const errorMessage = handleApiError(err, 'dare acceptance');
       setAcceptError(errorMessage);
       showError(errorMessage);
     } finally {
