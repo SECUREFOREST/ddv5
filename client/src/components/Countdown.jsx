@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useInterval } from '../utils/memoryLeakPrevention';
 
 function formatDuration(ms) {
   if (ms <= 0) return '0s';
@@ -18,18 +19,14 @@ export default function Countdown({ target, onComplete, className = '', ...props
   const targetTime = typeof target === 'string' ? new Date(target).getTime() : target instanceof Date ? target.getTime() : 0;
   const [remaining, setRemaining] = useState(Math.max(0, targetTime - Date.now()));
 
-  useEffect(() => {
-    if (remaining <= 0) return;
-    const interval = setInterval(() => {
-      setRemaining(prev => {
-        const next = Math.max(0, targetTime - Date.now());
-        if (next === 0 && prev !== 0 && onComplete) onComplete();
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line
-  }, [targetTime, onComplete]);
+  // Use memory-safe interval hook
+  useInterval(() => {
+    setRemaining(prev => {
+      const next = Math.max(0, targetTime - Date.now());
+      if (next === 0 && prev !== 0 && onComplete) onComplete();
+      return next;
+    });
+  }, remaining > 0 ? 1000 : null);
 
   return (
     <span className={`inline-block font-mono text-sm ${className}`} aria-live="polite" {...props}>

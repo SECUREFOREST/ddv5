@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 
 const ToastContext = createContext();
 
@@ -40,15 +41,11 @@ function Toast({
   const toastConfig = TOAST_TYPES[type] || TOAST_TYPES.info;
   const Icon = toastConfig.icon;
 
-  useEffect(() => {
-    if (duration > 0) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => onClose?.(), 300);
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [duration, onClose]);
+  // Use memory-safe timeout
+  useTimeout(() => {
+    setIsVisible(false);
+    setTimeout(() => onClose?.(), 300);
+  }, duration > 0 ? duration : null);
 
   const handleClose = () => {
     setIsVisible(false);

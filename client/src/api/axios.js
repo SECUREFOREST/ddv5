@@ -55,6 +55,11 @@ api.interceptors.request.use((config) => {
     const skipRateLimit = config.url.includes('/stats/leaderboard') || 
                          config.url.includes('/activity-feed') ||
                          config.url.includes('/notifications') ||
+                         config.url.includes('/users/user/slots') ||
+                         config.url.includes('/safety/content_deletion') ||
+                         config.url.includes('/stats/users/') ||
+                         config.url.includes('/users/associates') ||
+                         config.url.includes('/switches/performer') ||
                          window.location.pathname === '/admin';
     
     if (!skipRateLimit && !rateLimiter.isAllowed(requestKey)) {

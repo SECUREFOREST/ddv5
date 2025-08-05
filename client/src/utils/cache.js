@@ -127,10 +127,21 @@ class CacheManager {
 // Global cache instance
 export const cacheManager = new CacheManager();
 
-// Clean up expired entries every minute
-setInterval(() => {
-  cacheManager.cleanup();
-}, 60 * 1000);
+// Clean up expired entries every minute with proper cleanup
+let cleanupInterval = null;
+
+if (typeof window !== 'undefined') {
+  cleanupInterval = setInterval(() => {
+    cacheManager.cleanup();
+  }, 60 * 1000);
+  
+  // Clean up interval on page unload
+  window.addEventListener('beforeunload', () => {
+    if (cleanupInterval) {
+      clearInterval(cleanupInterval);
+    }
+  });
+}
 
 /**
  * Cache configuration for different types of data

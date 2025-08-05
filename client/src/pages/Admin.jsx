@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTimeout, useInterval, useEventListener } from '../utils/memoryLeakPrevention';
 import api from '../api/axios';
 import Tabs from '../components/Tabs';
 import Card from '../components/Card';
@@ -448,37 +449,29 @@ function Admin() {
     }
   }, [authVerified, user]);
 
-  // Real-time search with debouncing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (tabIdx === 0) {
-        fetchUsers(userSearch);
-      } else if (tabIdx === 1) {
-        fetchDares(dareSearch);
-      } else if (tabIdx === 2) {
-        fetchAuditLog(auditLogSearch);
-      } else if (tabIdx === 3) {
-        fetchReports(reportsSearch);
-      } else if (tabIdx === 4) {
-        fetchAppeals(appealsSearch);
-      } else if (tabIdx === 5) {
-        fetchSwitchGames(switchGameSearch);
-      }
-    }, 500);
+  // Real-time search with debouncing using memory-safe timeout
+  const { clearTimeout } = useTimeout(() => {
+    if (tabIdx === 0) {
+      fetchUsers(userSearch);
+    } else if (tabIdx === 1) {
+      fetchDares(dareSearch);
+    } else if (tabIdx === 2) {
+      fetchAuditLog(auditLogSearch);
+    } else if (tabIdx === 3) {
+      fetchReports(reportsSearch);
+    } else if (tabIdx === 4) {
+      fetchAppeals(appealsSearch);
+    } else if (tabIdx === 5) {
+      fetchSwitchGames(switchGameSearch);
+    }
+  }, 500);
 
-    return () => clearTimeout(timeoutId);
-  }, [userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, tabIdx, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]);
-
-  // Real-time updates for critical data
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (tabIdx === 3) fetchReports(reportsSearch);
-      if (tabIdx === 4) fetchAppeals(appealsSearch);
-      if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [tabIdx, fetchReports, fetchAppeals, fetchAuditLog, reportsSearch, appealsSearch, auditLogSearch]);
+  // Real-time updates for critical data using memory-safe interval
+  useInterval(() => {
+    if (tabIdx === 3) fetchReports(reportsSearch);
+    if (tabIdx === 4) fetchAppeals(appealsSearch);
+    if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
+  }, 30000); // Refresh every 30 seconds
 
   // Pagination change handlers
   useEffect(() => {
@@ -670,9 +663,12 @@ function Admin() {
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, []);
+    // Memory-safe event listener for keyboard handling
+    const { addEventListener, removeEventListener } = useEventListener();
+    
+    addEventListener(document, 'keydown', handleKeyPress);
+    return () => removeEventListener(document, 'keydown', handleKeyPress);
+  }, [addEventListener, removeEventListener]);
 
   if (loading || isInitializing) {
     return (

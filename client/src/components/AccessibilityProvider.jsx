@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useRef, useEffect } from 'react';
+import { useEventListener } from '../utils/memoryLeakPrevention';
 
 const AccessibilityContext = createContext();
 
@@ -75,8 +76,11 @@ export function AccessibilityProvider({ children }) {
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
-    return () => container.removeEventListener('keydown', handleKeyDown);
+    // Memory-safe event listener for focus trap
+    const { addEventListener, removeEventListener } = useEventListener();
+    
+    addEventListener(container, 'keydown', handleKeyDown);
+    return () => removeEventListener(container, 'keydown', handleKeyDown);
   };
 
   // Skip to main content functionality

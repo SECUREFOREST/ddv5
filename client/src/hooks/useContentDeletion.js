@@ -69,7 +69,7 @@ export function useContentDeletion() {
     if (user) {
       loadContentDeletion();
     }
-  }, [user]);
+  }, [user?.id]); // Only depend on user ID, not the entire user object
 
   return {
     contentDeletion,

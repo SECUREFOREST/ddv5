@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useEventListener } from '../utils/memoryLeakPrevention';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -222,9 +223,12 @@ export default function Profile() {
       }
     };
     
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [editMode, handleSave]);
+    // Memory-safe event listener for keyboard handling
+    const { addEventListener, removeEventListener } = useEventListener();
+    
+    addEventListener(document, 'keydown', handleKeyPress);
+    return () => removeEventListener(document, 'keydown', handleKeyPress);
+  }, [editMode, handleSave, addEventListener, removeEventListener]);
 
   // Fetch blocked users info
   useEffect(() => {

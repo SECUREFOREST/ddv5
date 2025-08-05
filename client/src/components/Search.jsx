@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useTimeout, useEventListener, useComponentLifecycle } from '../utils/memoryLeakPrevention';
 
 /**
  * Enhanced Search component with autocomplete
@@ -19,26 +20,26 @@ export default function Search({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
   const suggestionsRef = useRef(null);
+  
+  // Use memory-safe hooks
+  const { addEventListener, removeEventListener } = useEventListener();
+  const { addCleanup } = useComponentLifecycle('Search');
 
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (query.trim()) {
-        onSearch?.(query);
-        const filtered = suggestions.filter(suggestion =>
-          suggestion.toLowerCase().includes(query.toLowerCase())
-        );
-        setFilteredSuggestions(filtered);
-        setIsOpen(filtered.length > 0);
-        setSelectedIndex(-1);
-      } else {
-        setIsOpen(false);
-        setFilteredSuggestions([]);
-      }
-    }, debounceMs);
-
-    return () => clearTimeout(timer);
-  }, [query, suggestions, onSearch, debounceMs]);
+  // Debounce search with memory-safe timeout
+  const { clearTimeout } = useTimeout(() => {
+    if (query.trim()) {
+      onSearch?.(query);
+      const filtered = suggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+      setIsOpen(filtered.length > 0);
+      setSelectedIndex(-1);
+    } else {
+      setIsOpen(false);
+      setFilteredSuggestions([]);
+    }
+  }, query.trim() ? debounceMs : null);
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
@@ -82,7 +83,7 @@ export default function Search({
     onSearch?.('');
   };
 
-  // Close suggestions when clicking outside
+  // Close suggestions when clicking outside with memory-safe event listener
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (inputRef.current && !inputRef.current.contains(event.target) &&
@@ -92,9 +93,9 @@ export default function Search({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    addEventListener(document, 'mousedown', handleClickOutside);
+    return () => removeEventListener(document, 'mousedown', handleClickOutside);
+  }, [addEventListener, removeEventListener]);
 
   return (
     <div className={`relative ${className}`}>

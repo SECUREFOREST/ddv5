@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useInterval } from '../utils/memoryLeakPrevention';
 import { useParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import api from '../api/axios';
@@ -212,11 +213,10 @@ export default function SwitchGameDetails() {
   }, [id]);
 
   // Poll for updates every 2s if game is waiting for participant and not completed
-  useEffect(() => {
-    if (!game || game.status !== 'waiting_for_participant' || game.winner) return;
-    const interval = setInterval(() => fetchGameWithFeedback(false), 2000); // no loading spinner for polling
-    return () => clearInterval(interval);
-  }, [game && game.status, game && game.winner]);
+  const shouldPoll = game && game.status === 'waiting_for_participant' && !game.winner;
+  useInterval(() => {
+    fetchGameWithFeedback(false);
+  }, shouldPoll ? 2000 : null);
 
   // Show toast on status change
   useEffect(() => {
@@ -233,30 +233,25 @@ export default function SwitchGameDetails() {
 
   // Live countdown for proof submission
   const [countdown, setCountdown] = useState('');
-  useEffect(() => {
-    let interval = null;
-    if (proofExpiresAt && isLoser && game && game.status === 'completed' && !game.proof) {
-      const updateCountdown = () => {
-        const now = new Date();
-        const diff = proofExpiresAt - now;
-        if (diff <= 0) {
-          setCountdown('Expired');
-          clearInterval(interval);
-        } else {
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-          setCountdown(`${hours}h ${minutes}m ${seconds}s`);
-        }
-      };
-      updateCountdown();
-      interval = setInterval(updateCountdown, 1000);
-    } else {
+  const shouldShowCountdown = proofExpiresAt && isLoser && game && game.status === 'completed' && !game.proof;
+  
+  useInterval(() => {
+    if (!shouldShowCountdown) {
       setCountdown('');
+      return;
     }
-    return () => interval && clearInterval(interval);
-    // eslint-disable-next-line
-  }, [proofExpiresAt, isLoser, game && game.status, game && game.proof]);
+    
+    const now = new Date();
+    const diff = proofExpiresAt - now;
+    if (diff <= 0) {
+      setCountdown('Expired');
+    } else {
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+    }
+  }, shouldShowCountdown ? 1000 : null);
 
   // Grading/Feedback state
   const [grading, setGrading] = useState(false);

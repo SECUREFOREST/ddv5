@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useId } from 'react';
+import { useEventListener } from '../utils/memoryLeakPrevention';
 import Button from './Button';
 
 /**
@@ -25,14 +26,17 @@ export default function Modal({ open, onClose, title, children, actions, classNa
     }
   }, [open]);
 
+  // Memory-safe event listener for keyboard handling
+  const { addEventListener, removeEventListener } = useEventListener();
+  
   useEffect(() => {
     if (!open) return;
     const handleKey = (e) => {
       if (e.key === 'Escape') onClose();
     };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+    addEventListener(document, 'keydown', handleKey);
+    return () => removeEventListener(document, 'keydown', handleKey);
+  }, [open, onClose, addEventListener, removeEventListener]);
 
   if (!show) return null;
 

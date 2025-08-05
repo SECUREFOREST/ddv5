@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useEventListener } from '../utils/memoryLeakPrevention';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -604,9 +605,12 @@ export default function DarePerformerDashboard() {
       }
     };
     
-    document.addEventListener('visibilitychange', handleFocus);
-    return () => document.removeEventListener('visibilitychange', handleFocus);
-  }, [fetchData]);
+    // Memory-safe event listener for visibility change
+    const { addEventListener, removeEventListener } = useEventListener();
+    
+    addEventListener(document, 'visibilitychange', handleFocus);
+    return () => removeEventListener(document, 'visibilitychange', handleFocus);
+  }, [fetchData, addEventListener, removeEventListener]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [

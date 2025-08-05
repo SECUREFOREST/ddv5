@@ -206,7 +206,11 @@ export const realtimeManager = new RealtimeManager();
 export function useRealtime(event, callback, dependencies = []) {
   React.useEffect(() => {
     const unsubscribe = realtimeManager.subscribe(event, callback);
-    return unsubscribe;
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [event, ...dependencies]);
 }
 
@@ -226,8 +230,8 @@ export function useRealtimeStatus() {
     const unsubscribeDisconnected = realtimeManager.subscribe('disconnected', updateStatus);
     
     return () => {
-      unsubscribeConnected();
-      unsubscribeDisconnected();
+      if (unsubscribeConnected) unsubscribeConnected();
+      if (unsubscribeDisconnected) unsubscribeDisconnected();
     };
   }, []);
   

@@ -88,7 +88,7 @@ export default function OfferSubmission() {
     } finally {
       setFetching(false);
     }
-  }, [showSuccess, showError]);
+  }, []);
 
   useEffect(() => {
     fetchSettings();
