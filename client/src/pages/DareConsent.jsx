@@ -45,7 +45,7 @@ export default function DareConsent() {
     if (id) {
       fetchDare();
     }
-  }, [dare, id, fetchDare]);
+  }, [id, fetchDare]);
 
   const handleConsent = async () => {
     setLoading(true);
