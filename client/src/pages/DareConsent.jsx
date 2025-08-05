@@ -191,7 +191,11 @@ export default function DareConsent() {
                   />
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold text-white">
+                  <div 
+                    onClick={() => dare.creator?._id && navigate(`/profile/${dare.creator._id}`)}
+                    className={`font-semibold text-white ${dare.creator?._id ? 'cursor-pointer hover:text-primary transition-colors duration-200' : ''}`}
+                    title={dare.creator?._id ? 'View Profile' : ''}
+                  >
                     {dare.creator?.fullName || dare.creator?.username || 'Anonymous'}
                   </div>
                   <div className="text-sm text-neutral-400">
