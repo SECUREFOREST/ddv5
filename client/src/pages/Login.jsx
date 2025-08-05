@@ -22,8 +22,17 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('/dashboard');
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
+
+  // Call useTimeout at the top level, trigger when shouldRedirect is true
+  useTimeout(() => {
+    if (shouldRedirect) {
+      navigate(redirectPath);
+    }
+  }, shouldRedirect ? 1000 : null, shouldRedirect);
 
   const handleSubmit = async (e) => {
     try {
@@ -63,13 +72,10 @@ export default function Login() {
         
         // Get last visited path or default to dashboard
         const lastPath = safeStorage.get('lastVisitedPath', '/dashboard');
-        const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;
-        
+        const path = lastPath === '/login' ? '/dashboard' : lastPath;
+        setRedirectPath(path);
+        setShouldRedirect(true);
         showSuccess('Login successful! Redirecting...');
-        // Memory-safe timeout for navigation
-        const { clearTimeout } = useTimeout(() => {
-          navigate(redirectPath);
-        }, 1000);
       } catch (err) {
         console.error('Login error:', err);
         const errorMessage = err.response?.data?.error || err.message || 'Login failed. Please try again.';
