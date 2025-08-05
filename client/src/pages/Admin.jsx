@@ -448,23 +448,43 @@ function Admin() {
     }
   }, [authVerified, user]);
 
-  // Real-time search with debouncing using memory-safe timeout
+  // Consolidated data fetching with debouncing
   const timeoutRef = useRef(null);
   
   useEffect(() => {
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Only fetch if authenticated and has admin permissions
+    if (!authVerified || !checkAdminPermission()) {
+      return;
+    }
+    
+    // Debounce the fetch calls
     timeoutRef.current = setTimeout(() => {
-      if (tabIdx === 0) {
-        fetchUsers(userSearch);
-      } else if (tabIdx === 1) {
-        fetchDares(dareSearch);
-      } else if (tabIdx === 2) {
-        fetchAuditLog(auditLogSearch);
-      } else if (tabIdx === 3) {
-        fetchReports(reportsSearch);
-      } else if (tabIdx === 4) {
-        fetchAppeals(appealsSearch);
-      } else if (tabIdx === 5) {
-        fetchSwitchGames(switchGameSearch);
+      switch (tabIdx) {
+        case 0:
+          fetchUsers(userSearch);
+          break;
+        case 1:
+          fetchDares(dareSearch);
+          break;
+        case 2:
+          fetchAuditLog(auditLogSearch);
+          break;
+        case 3:
+          fetchReports(reportsSearch);
+          break;
+        case 4:
+          fetchAppeals(appealsSearch);
+          break;
+        case 5:
+          fetchSwitchGames(switchGameSearch);
+          break;
+        default:
+          break;
       }
     }, 500);
     
@@ -473,55 +493,57 @@ function Admin() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [tabIdx, userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]);
+  }, [
+    tabIdx, 
+    userSearch, 
+    dareSearch, 
+    auditLogSearch, 
+    reportsSearch, 
+    appealsSearch, 
+    switchGameSearch,
+    usersCurrentPage,
+    usersPageSize,
+    daresCurrentPage,
+    daresPageSize,
+    auditLogCurrentPage,
+    auditLogPageSize,
+    reportsCurrentPage,
+    reportsPageSize,
+    appealsCurrentPage,
+    appealsPageSize,
+    switchGamesCurrentPage,
+    switchGamesPageSize,
+    authVerified,
+    fetchUsers, 
+    fetchDares, 
+    fetchAuditLog, 
+    fetchReports, 
+    fetchAppeals, 
+    fetchSwitchGames
+  ]);
 
   // Real-time updates for critical data using standard interval
   useEffect(() => {
     const interval = setInterval(() => {
-      if (tabIdx === 3) fetchReports(reportsSearch);
-      if (tabIdx === 4) fetchAppeals(appealsSearch);
-      if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
+      if (!authVerified || !checkAdminPermission()) return;
+      
+      switch (tabIdx) {
+        case 2:
+          fetchAuditLog(auditLogSearch);
+          break;
+        case 3:
+          fetchReports(reportsSearch);
+          break;
+        case 4:
+          fetchAppeals(appealsSearch);
+          break;
+        default:
+          break;
+      }
     }, 30000); // Refresh every 30 seconds
     
     return () => clearInterval(interval);
-  }, [tabIdx, reportsSearch, appealsSearch, auditLogSearch, fetchReports, fetchAppeals, fetchAuditLog]);
-
-  // Pagination change handlers
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 0) {
-      fetchUsers(userSearch);
-    }
-  }, [usersCurrentPage, usersPageSize, authVerified, checkAdminPermission, tabIdx, fetchUsers, userSearch]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 1) {
-      fetchDares(dareSearch);
-    }
-  }, [daresCurrentPage, daresPageSize, authVerified, checkAdminPermission, tabIdx, fetchDares, dareSearch]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 2) {
-      fetchAuditLog(auditLogSearch);
-    }
-  }, [auditLogCurrentPage, auditLogPageSize, authVerified, checkAdminPermission, tabIdx, fetchAuditLog, auditLogSearch]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 3) {
-      fetchReports(reportsSearch);
-    }
-  }, [reportsCurrentPage, reportsPageSize, authVerified, checkAdminPermission, tabIdx, fetchReports, reportsSearch]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 4) {
-      fetchAppeals(appealsSearch);
-    }
-  }, [appealsCurrentPage, appealsPageSize, authVerified, checkAdminPermission, tabIdx, fetchAppeals, appealsSearch]);
-
-  useEffect(() => {
-    if (authVerified && checkAdminPermission() && tabIdx === 5) {
-      fetchSwitchGames(switchGameSearch);
-    }
-  }, [switchGamesCurrentPage, switchGamesPageSize, authVerified, checkAdminPermission, tabIdx, fetchSwitchGames, switchGameSearch]);
+  }, [tabIdx, reportsSearch, appealsSearch, auditLogSearch, fetchReports, fetchAppeals, fetchAuditLog, authVerified]);
 
   // Add localStorage fallback effect
   useEffect(() => {
