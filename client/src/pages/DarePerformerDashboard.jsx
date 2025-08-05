@@ -605,12 +605,10 @@ export default function DarePerformerDashboard() {
       }
     };
     
-    // Memory-safe event listener for visibility change
-    const { addEventListener, removeEventListener } = useEventListener();
-    
-    addEventListener(document, 'visibilitychange', handleFocus);
-    return () => removeEventListener(document, 'visibilitychange', handleFocus);
-  }, [fetchData, addEventListener, removeEventListener]);
+    // Event listener for visibility change
+    document.addEventListener('visibilitychange', handleFocus);
+    return () => document.removeEventListener('visibilitychange', handleFocus);
+  }, [fetchData]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
