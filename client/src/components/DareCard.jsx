@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, memo } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import Card from './Card';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
@@ -14,11 +15,12 @@ function useFadeIn(ref, deps = []) {
     const addClass = () => {
       if (ref.current && ref.current.classList) {
         ref.current.classList.add('animate-fade-in');
-        timeoutId = setTimeout(() => {
-          if (ref.current && ref.current.classList) {
-            ref.current.classList.remove('animate-fade-in');
-          }
-        }, 600);
+              // Memory-safe timeout for animation cleanup
+      const { clearTimeout } = useTimeout(() => {
+        if (ref.current && ref.current.classList) {
+          ref.current.classList.remove('animate-fade-in');
+        }
+      }, 600);
       }
     };
     
@@ -26,9 +28,6 @@ function useFadeIn(ref, deps = []) {
     
     return () => {
       cancelAnimationFrame(rafId);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
     };
   }, deps);
 }

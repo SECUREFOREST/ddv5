@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -41,7 +42,8 @@ export default function ResetPassword() {
       // Use retry mechanism for password reset
       await retryApiCall(() => api.post('/auth/reset-password', { token, newPassword }));
       showSuccess('Password reset successful! Redirecting to login...');
-      setTimeout(() => navigate('/login'), 2000);
+      // Memory-safe timeout for navigation
+      const { clearTimeout } = useTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error('Reset password error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Failed to reset password. Please try again.';

@@ -194,14 +194,13 @@ export default function Profile() {
   useEffect(() => {
     if (!editMode || !hasUnsavedChanges) return;
     
-    const timeoutId = setTimeout(() => {
+    // Memory-safe timeout for auto-save
+    const { clearTimeout } = useTimeout(() => {
       const errors = validateForm();
       if (Object.keys(errors).length === 0) {
         handleSave(null, true); // Auto-save
       }
     }, 2000); // 2 second delay
-    
-    return () => clearTimeout(timeoutId);
   }, [username, fullName, bio, gender, dob, interestedIn, limits, editMode, hasUnsavedChanges, handleSave]);
 
   // Keyboard shortcuts
@@ -493,8 +492,8 @@ export default function Profile() {
           setAvatarSaved(true);
           setUploadProgress(100);
           
-          // Clear success message after delay
-          const successTimer = setTimeout(() => {
+          // Memory-safe timeout for success message
+          const { clearTimeout } = useTimeout(() => {
             setAvatarSaved(false);
             setUploadProgress(0);
           }, 2000);
@@ -505,9 +504,6 @@ export default function Profile() {
           const updatedUser = { ...user, avatar: newAvatarUrl };
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          
-          // Cleanup timer on component unmount
-          return () => clearTimeout(successTimer);
         } catch (uploadErr) {
           console.error('Avatar upload failed:', uploadErr);
           setUploadError('Failed to upload avatar. Please try again.');

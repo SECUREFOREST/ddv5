@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 
 export default function Avatar({ user, size = 32, border = false, shadow = false, alt = '', className = '', onClick }) {
   const [imageError, setImageError] = useState(false);
@@ -16,14 +17,12 @@ export default function Avatar({ user, size = 32, border = false, shadow = false
       : `${baseUrl.replace(/\/$/, '')}${user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar}`;
     
     if (imgRef.current) {
-      // Add a small delay to prevent layout issues
-      const timer = setTimeout(() => {
+      // Memory-safe timeout for image loading
+      const { clearTimeout } = useTimeout(() => {
         if (imgRef.current) {
           imgRef.current.src = avatarUrl;
         }
       }, 50);
-      
-      return () => clearTimeout(timer);
     }
   }, [user?.avatar, imageError]);
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -64,16 +65,13 @@ export default function SwitchGames() {
 
     fetchUserSwitchGames();
     
-    // Add timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
+    // Memory-safe timeout to prevent infinite loading
+    const { clearTimeout } = useTimeout(() => {
       if (loading) {
-
         setLoading(false);
         setGeneralError('Request timed out. Please try again.');
       }
     }, 10000); // 10 second timeout
-    
-    return () => clearTimeout(timeout);
   }, []); // Only run once on mount
 
   // Calculate basic stats from user's switch games

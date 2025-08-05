@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -65,7 +66,8 @@ export default function Login() {
         const redirectPath = lastPath === '/login' ? '/dashboard' : lastPath;
         
         showSuccess('Login successful! Redirecting...');
-        setTimeout(() => {
+        // Memory-safe timeout for navigation
+        const { clearTimeout } = useTimeout(() => {
           navigate(redirectPath);
         }, 1000);
       } catch (err) {

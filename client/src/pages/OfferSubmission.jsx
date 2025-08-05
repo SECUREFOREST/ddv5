@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import api from '../api/axios';
 import TagsInput from '../components/TagsInput';
 import { useNavigate } from 'react-router-dom';
@@ -159,7 +160,8 @@ export default function OfferSubmission() {
       }));
       setSuccess('Submission offer created successfully!');
       showSuccess('Submission offer created successfully!');
-      setTimeout(() => navigate('/performer-dashboard'), 1200);
+      // Memory-safe timeout for navigation
+      const { clearTimeout } = useTimeout(() => navigate('/performer-dashboard'), 1200);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to create submission offer.';
       setError(errorMessage);

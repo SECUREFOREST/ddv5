@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
@@ -76,7 +77,8 @@ export default function Register() {
       });
       
       showSuccess('Registration successful! Redirecting...');
-      setTimeout(() => navigate('/dashboard'), 2000);
+      // Memory-safe timeout for navigation
+      const { clearTimeout } = useTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       console.error('Registration error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Registration failed. Please try again.';

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useParams, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -140,7 +141,8 @@ export default function DareDetails() {
       const successMessage = 'Report submitted. Thank you for helping keep the community safe.';
       setReportMessage(successMessage);
       setReportReason('');
-      setTimeout(() => setShowReportModal(false), 1500);
+      // Memory-safe timeout for modal close
+      const { clearTimeout } = useTimeout(() => setShowReportModal(false), 1500);
       showSuccess(successMessage);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit report.';
@@ -239,7 +241,8 @@ export default function DareDetails() {
       const successMessage = 'Appeal submitted successfully. We will review your case.';
       setAppealMessage(successMessage);
       setAppealReason('');
-      setTimeout(() => setShowAppealModal(false), 2000);
+      // Memory-safe timeout for modal close
+      const { clearTimeout } = useTimeout(() => setShowAppealModal(false), 2000);
       showSuccess(successMessage);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit appeal.';

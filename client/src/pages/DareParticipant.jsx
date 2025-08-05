@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useTimeout } from '../utils/memoryLeakPrevention';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -145,7 +146,8 @@ export default function DareParticipant() {
       await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
       setGeneralSuccess('Successfully chickened out!');
       showSuccess('Successfully chickened out!');
-      setTimeout(() => {
+      // Memory-safe timeout for state reset
+      const { clearTimeout } = useTimeout(() => {
         setConsented(false);
         setDare(null);
         setGeneralSuccess('');
