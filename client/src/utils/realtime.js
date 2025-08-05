@@ -54,10 +54,19 @@ class RealtimeManager {
   connect(token) {
     if (this.isConnecting || this.isConnected) return;
     
+    // Check if WebSocket is enabled via environment variable
+    if (window.location.protocol === 'https:' && !import.meta.env.VITE_WS_URL) {
+      console.log('WebSocket disabled - set VITE_WS_URL to enable real-time features');
+      return;
+    }
+    
     this.isConnecting = true;
     
     try {
-      const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:5000';
+      // Use secure WebSocket in production, fallback to localhost for development
+      const isProduction = window.location.protocol === 'https:';
+      const wsUrl = import.meta.env.VITE_WS_URL || 
+                   (isProduction ? 'wss://www.deviantdare.com' : 'ws://localhost:5000');
       this.socket = new WebSocket(`${wsUrl}?token=${token}`);
       
       this.socket.onopen = () => {
