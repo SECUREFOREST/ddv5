@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useEffect } from 'react';
-import { useEventListener } from '../utils/memoryLeakPrevention';
+// Removed: import { useEventListener } from '../utils/memoryLeakPrevention';
 
 const AccessibilityContext = createContext();
 
@@ -20,7 +20,6 @@ export function AccessibilityProvider({ children }) {
     if (liveRegionRef.current) {
       liveRegionRef.current.setAttribute('aria-live', priority);
       liveRegionRef.current.textContent = message;
-      
       // Clear the message after a short delay
       setTimeout(() => {
         if (liveRegionRef.current) {
@@ -54,12 +53,9 @@ export function AccessibilityProvider({ children }) {
     const focusableElements = container?.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
     if (focusableElements.length === 0) return;
-
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-
     const handleKeyDown = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey) {
@@ -75,12 +71,8 @@ export function AccessibilityProvider({ children }) {
         }
       }
     };
-
-    // Memory-safe event listener for focus trap
-    const { addEventListener, removeEventListener } = useEventListener();
-    
-    addEventListener(container, 'keydown', handleKeyDown);
-    return () => removeEventListener(container, 'keydown', handleKeyDown);
+    container.addEventListener('keydown', handleKeyDown);
+    return () => container.removeEventListener('keydown', handleKeyDown);
   };
 
   // Skip to main content functionality
