@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useInterval } from '../utils/memoryLeakPrevention';
 
 function formatDuration(ms) {
   if (ms <= 0) return '0s';

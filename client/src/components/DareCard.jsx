@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, memo } from 'react';
-import { useTimeout } from '../utils/memoryLeakPrevention';
 import Card from './Card';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';

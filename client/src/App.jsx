@@ -1,5 +1,4 @@
 import React, { Suspense, useEffect, useState } from 'react';
-import { useTimeout } from './utils/memoryLeakPrevention';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import BottomNavigation from './components/BottomNavigation';
@@ -55,20 +54,25 @@ function AppContent() {
   const location = useLocation();
   const [stylesLoaded, setStylesLoaded] = useState(false);
 
-  // Handle styles loading with memory-safe timeout
-  const { clearTimeout } = useTimeout(() => {
-    setStylesLoaded(true);
-    // Remove the loading div from DOM
-    const loadingDiv = document.querySelector('.app-loading');
-    if (loadingDiv) {
-      loadingDiv.remove();
-    }
-    // Add loaded class to root
-    const root = document.getElementById('root');
-    if (root) {
-      root.classList.add('app-content', 'loaded');
-    }
-  }, 100); // Small delay to ensure styles are loaded
+  // Handle styles loading
+  useEffect(() => {
+    // Memory-safe timeout for styles loading
+    const timeout = setTimeout(() => {
+      setStylesLoaded(true);
+      // Remove the loading div from DOM
+      const loadingDiv = document.querySelector('.app-loading');
+      if (loadingDiv) {
+        loadingDiv.remove();
+      }
+      // Add loaded class to root
+      const root = document.getElementById('root');
+      if (root) {
+        root.classList.add('app-content', 'loaded');
+      }
+    }, 100); // Small delay to ensure styles are loaded
+    
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Save current path to localStorage (excluding auth pages)
   useEffect(() => {

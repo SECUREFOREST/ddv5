@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useEventListener } from '../utils/memoryLeakPrevention';
 import Dropdown from './Dropdown';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -134,9 +133,6 @@ export default function NotificationDropdown() {
     };
   }, [accessToken, fetchNotifications]);
 
-  // Memory-safe event listener for click outside
-  const { addEventListener, removeEventListener } = useEventListener();
-  
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -146,14 +142,14 @@ export default function NotificationDropdown() {
     }
     
     if (open) {
-      addEventListener(document, 'mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     } else {
-      removeEventListener(document, 'mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     }
     return () => {
-      removeEventListener(document, 'mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [open, addEventListener, removeEventListener]);
+  }, [open]);
 
   // Mark all as read when dropdown is opened
   useEffect(() => {
