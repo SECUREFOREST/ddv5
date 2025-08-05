@@ -115,21 +115,8 @@ export default function Button({
           Loading...
         </div>
       ) : hasIcons ? (
-        <div className="inline-flex items-center justify-center gap-2">
-          {React.Children.map(children, (child, index) => {
-            if (React.isValidElement(child) && (
-              child.type.name?.includes('Icon') || 
-              child.props?.className?.includes('w-') ||
-              child.props?.className?.includes('h-')
-            )) {
-              // Apply specific alignment for icons
-              return React.cloneElement(child, {
-                ...child.props,
-                className: `${child.props.className || ''} flex-shrink-0`
-              });
-            }
-            return child;
-          })}
+        <div className="flex items-center justify-center gap-2">
+          {children}
         </div>
       ) : (
         children
