@@ -255,10 +255,10 @@ export default function DareConsent() {
                     Processing...
                   </>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2">
                     <CheckCircleIcon className="w-6 h-6" />
-                    {isDomDemand ? 'I Consent to View This Demand' : 'I Consent to Perform This Dare'}
-                  </>
+                    <span>{isDomDemand ? 'I Consent to View This Demand' : 'I Consent to Perform This Dare'}</span>
+                  </div>
                 )}
               </Button>
             </div>
