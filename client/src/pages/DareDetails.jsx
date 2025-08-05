@@ -429,24 +429,26 @@ export default function DareDetails() {
                   )}
                   {/* Quick Block Button - OSA-style prominent blocking */}
                   {dare.creator && dare.creator._id !== user?.id && dare.creator.username && (
-                    <button
-                      onClick={() => {
-                        if (confirm(`Are you sure you want to block ${dare.creator.username}? They won't be able to see your content or interact with you.`)) {
-                          retryApiCall(() => api.post(`/users/${dare.creator._id}/block`))
-                            .then(() => {
-                              showSuccess(`Blocked ${dare.creator.username} successfully!`);
-                            })
-                            .catch(err => {
-                              showError(err.response?.data?.error || 'Failed to block user.');
-                            });
-                        }
-                      }}
-                      className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded hover:bg-red-500/10"
-                      title="Block this user"
-                    >
-                      <ExclamationTriangleIcon className="w-4 h-4" />
-                      <span className="text-xs">Block</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to block ${dare.creator.username}? They won't be able to see your content or interact with you.`)) {
+                            retryApiCall(() => api.post(`/users/${dare.creator._id}/block`))
+                              .then(() => {
+                                showSuccess(`Blocked ${dare.creator.username} successfully!`);
+                              })
+                              .catch(err => {
+                                showError(err.response?.data?.error || 'Failed to block user.');
+                              });
+                          }
+                        }}
+                        className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors px-3 py-2 rounded-lg hover:bg-red-500/20 border border-red-500/30"
+                        title="Block this user"
+                      >
+                        <ExclamationTriangleIcon className="w-4 h-4" />
+                        <span className="text-sm font-semibold">Block Creator</span>
+                      </button>
+                    </div>
                   )}
                 </div>
                 

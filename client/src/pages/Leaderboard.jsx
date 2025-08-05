@@ -244,8 +244,8 @@ export default function Leaderboard() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">
-                      {activeTab === 'subs' ? 'Top Submissives' : 
-                       activeTab === 'doms' ? 'Top Dominants' : 
+                      {activeTab === 'subs' ? 'Subs Leaderboard' : 
+                       activeTab === 'doms' ? 'Doms Leaderboard' : 
                        'Top Performers'}
                     </h2>
                     <p className="text-neutral-400">

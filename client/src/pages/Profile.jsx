@@ -679,11 +679,16 @@ export default function Profile() {
               <div className="mt-6 mb-6 space-y-6">
                 {/* Role Balance Display - OSA Style */}
                 {(stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
-                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                      <ShieldCheckIcon className="w-6 h-6 text-primary" />
-                      Role Balance
-                    </h3>
+                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+                        <ShieldCheckIcon className="w-8 h-8 text-primary" />
+                        Your Role Balance
+                      </h3>
+                      <p className="text-neutral-400 text-sm">
+                        Your dominant/submissive ratio based on completed dares
+                      </p>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Dominant Percentage */}
                       <div className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-xl p-4 border border-purple-600/30">

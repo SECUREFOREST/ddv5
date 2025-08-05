@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 import TagsInput from '../components/TagsInput';
 import Modal from '../components/Modal';
-import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { ArrowRightIcon, CheckCircleIcon, FireIcon, PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS } from '../constants.jsx';
 import { ButtonLoading } from '../components/LoadingSpinner';

@@ -26,6 +26,7 @@ export default function Register() {
   const [gender, setGender] = useState('');
   const [interestedIn, setInterestedIn] = useState([]);
   const [limits, setLimits] = useState([]);
+  const [newsletter, setNewsletter] = useState(false);
   const [loading, setLoading] = useState(false);
   const [registerError, setRegisterError] = useState('');
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export default function Register() {
     
     // Validate form data using the validation utility
     const validation = validateFormData(
-      { username, fullName, email, password, dob, gender, interestedIn, limits },
+      { username, fullName, email, password, dob, gender, interestedIn, limits, newsletter },
       VALIDATION_SCHEMAS.register
     );
     
@@ -71,7 +72,7 @@ export default function Register() {
     try {
       // Use retry mechanism for registration
       await retryApiCall(async () => {
-        await register({ username, fullName, email, password, dob, gender, interestedIn, limits });
+        await register({ username, fullName, email, password, dob, gender, interestedIn, limits, newsletter });
       });
       
       showSuccess('Registration successful! Redirecting...');
@@ -273,10 +274,37 @@ export default function Register() {
                     disabled={loading}
                     className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                   />
-                  <p className="text-neutral-400 text-xs mt-2">
-                    Examples: no photos, no public, no pain, no humiliation, no specific dares
-                  </p>
+                                <p className="text-neutral-400 text-xs mt-2">
+                Examples: no photos, no public, no pain, no humiliation, no specific dares
+              </p>
+              <p className="text-neutral-400 text-xs mt-2 italic">
+                Note: This isn't a social network. Your account isn't publicly listed in any directory.
+              </p>
                 </div>
+              </div>
+              
+              {/* Newsletter Opt-in */}
+              <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4 mb-4">
+                  <SparklesIcon className="w-8 h-8 text-blue-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Stay Updated</h3>
+                    <p className="text-neutral-300 text-sm leading-relaxed mb-4">
+                      Get notified about new features, community updates, and exciting challenges.
+                    </p>
+                  </div>
+                </div>
+                <label className="flex items-center gap-3 p-4 rounded-xl border border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50 transition-all cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={newsletter} 
+                    onChange={(e) => setNewsletter(e.target.checked)} 
+                    className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2" 
+                    disabled={loading}
+                  />
+                  <span className="text-neutral-100 font-medium">Subscribe to newsletter for updates</span>
+                  {newsletter && <CheckIcon className="w-5 h-5 text-primary ml-auto" />}
+                </label>
               </div>
               
               <Button

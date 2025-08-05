@@ -81,16 +81,16 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <Helmet>
-        <title>Deviant Dare | Social Dares, Challenges & Leaderboards</title>
-        <meta name="description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
-        <meta property="og:title" content="Deviant Dare | Social Dares, Challenges & Leaderboards" />
-        <meta property="og:description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
+        <title>Deviant Dare | Explore Your Fantasies Online</title>
+        <meta name="description" content="A safe, private space to share your sexual fantasies with strangers or lovers. Choose your role and start your adventure." />
+        <meta property="og:title" content="Deviant Dare | Explore Your Fantasies Online" />
+        <meta property="og:description" content="A safe, private space to share your sexual fantasies with strangers or lovers. Choose your role and start your adventure." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://deviantdare.com/" />
         <meta property="og:image" content="/logo.svg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Deviant Dare | Social Dares, Challenges & Leaderboards" />
-        <meta name="twitter:description" content="Deviant Dare is the ultimate social dare and challenge platform. Create, accept, and share dares, climb the leaderboard, and join a vibrant community. Fun, safe, and always exciting!" />
+        <meta name="twitter:title" content="Deviant Dare | Explore Your Fantasies Online" />
+        <meta name="twitter:description" content="A safe, private space to share your sexual fantasies with strangers or lovers. Choose your role and start your adventure." />
         <meta name="twitter:image" content="/logo.svg" />
       </Helmet>
 
@@ -112,7 +112,7 @@ const Landing = () => {
               </span>
             </h1>
             <p className="text-xl sm:text-2xl text-neutral-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              A safe, private space to share your fantasies and challenges. 
+              A safe, private space to share your sexual fantasies with strangers or lovers. 
               Choose your role and start your adventure.
             </p>
           </div>
@@ -131,7 +131,7 @@ const Landing = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">Offer your Submission</h3>
                   <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
-                    Perform tasks for a dominant. Create private offers that only the chosen person can see.
+                    Perform tasks for a dominant. Create private offers that only the chosen person can see. Your picture is seen only by them.
                   </p>
                   <Link to="/register" className="inline-block w-full">
                     <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-pink-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
@@ -149,7 +149,7 @@ const Landing = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">Demand and Dominate</h3>
                   <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
-                    Assign tasks for a submissive. Your demand is hidden until they first consent.
+                    Assign tasks for a submissive. Your demand is hidden until they first consent to perform a deviant dare of your choice.
                   </p>
                   <Link to="/register" className="inline-block w-full">
                     <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">

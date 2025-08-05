@@ -46,6 +46,8 @@ const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 const Landing = React.lazy(() => import('./pages/Landing'));
 const PublicDares = React.lazy(() => import('./pages/PublicDares'));
 const News = React.lazy(() => import('./pages/News'));
+const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
+const SafetyReport = React.lazy(() => import('./pages/SafetyReport'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -139,6 +141,8 @@ function AppContent() {
               <Route path="/public-dares" element={<PrivateRoute><PublicDares /></PrivateRoute>} />
               <Route path="/news" element={<News />} />
               <Route path="/advertise" element={<Advertise />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/safety/report" element={<PrivateRoute><SafetyReport /></PrivateRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -16,14 +16,20 @@ export default function Footer() {
             <Link to="/news" className="text-neutral-400 hover:text-neutral-200 transition-colors">
               News
             </Link>
-            <Link to="/leaderboard" className="text-neutral-400 hover:text-neutral-200 transition-colors">
-              Leaderboard
+            <Link to="/leaderboard?tab=subs" className="text-neutral-400 hover:text-neutral-200 transition-colors">
+              Subs Leaderboard
             </Link>
-            <Link to="/activity-feed" className="text-neutral-400 hover:text-neutral-200 transition-colors">
-              Activity
+            <Link to="/leaderboard?tab=doms" className="text-neutral-400 hover:text-neutral-200 transition-colors">
+              Doms Leaderboard
             </Link>
             <Link to="/advertise" className="text-neutral-400 hover:text-neutral-200 transition-colors">
               Advertise
+            </Link>
+            <Link to="/terms" className="text-neutral-400 hover:text-neutral-200 transition-colors">
+              Terms
+            </Link>
+            <Link to="/safety/report" className="text-neutral-400 hover:text-neutral-200 transition-colors">
+              Safety
             </Link>
           </div>
           

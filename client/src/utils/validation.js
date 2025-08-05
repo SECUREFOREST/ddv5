@@ -362,6 +362,47 @@ export const VALIDATION_SCHEMAS = {
         return validPrivacy.includes(value) ? true : 'Please select a valid privacy setting';
       }
     }
+  },
+  
+  safetyReport: {
+    reportType: {
+      required: true,
+      custom: (value) => {
+        const validTypes = ['harassment', 'non_consensual', 'underage', 'hate_speech', 'impersonation', 'spam', 'technical', 'other'];
+        return validTypes.includes(value) ? true : 'Please select a valid report type';
+      }
+    },
+    urgency: {
+      required: true,
+      custom: (value) => {
+        const validUrgency = ['low', 'medium', 'high', 'critical'];
+        return validUrgency.includes(value) ? true : 'Please select a valid urgency level';
+      }
+    },
+    subject: {
+      required: true,
+      minLength: 5,
+      maxLength: 100,
+      sanitize: true
+    },
+    description: {
+      required: true,
+      minLength: 20,
+      maxLength: 2000,
+      sanitize: true
+    },
+    contactEmail: {
+      type: 'email',
+      custom: (value, formData) => {
+        if (formData.allowContact && !value) {
+          return 'Email is required when allowing contact';
+        }
+        if (value && !validateEmail(value)) {
+          return 'Please enter a valid email address';
+        }
+        return true;
+      }
+    }
   }
 };
 

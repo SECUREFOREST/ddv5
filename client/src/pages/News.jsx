@@ -50,6 +50,24 @@ const NEWS_ITEMS = [
     date: "2024-01-01",
     type: "guidelines",
     priority: "high"
+  },
+  {
+    id: 7,
+    title: "Hard Limits Feature Enhanced",
+    content: "The hard limits feature during registration has been enhanced to better protect user safety. Users can now specify any acts they absolutely won't do, ensuring better consent and safety.",
+    author: "Safety Team",
+    date: "2023-12-15",
+    type: "feature",
+    priority: "medium"
+  },
+  {
+    id: 8,
+    title: "Newsletter Subscription Available",
+    content: "Stay updated with new features and community announcements by subscribing to our newsletter during registration. We'll keep you informed about exciting updates and safety features.",
+    author: "Community Team",
+    date: "2023-12-10",
+    type: "feature",
+    priority: "low"
   }
 ];
 

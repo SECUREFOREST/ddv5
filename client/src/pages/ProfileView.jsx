@@ -297,15 +297,26 @@ export default function ProfileView() {
                 
                 {/* Block/Unblock Button - Prominent OSA-style */}
                 {!isOwnProfile && (
-                  <div className="mt-4">
-                    <BlockButton 
-                      userId={userId}
-                      username={profile.username}
-                      onBlockChange={(blocked) => {
-                        // Update local state if needed
-                      }}
-                      className="w-full px-6 py-3 text-lg font-bold"
-                    />
+                  <div className="mt-4 space-y-3">
+                    <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-xl p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <ExclamationTriangleIcon className="w-6 h-6 text-red-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-white font-semibold mb-1">Block User</h4>
+                          <p className="text-neutral-300 text-sm">
+                            Block this user to hide their content and profile from you. This action can be undone.
+                          </p>
+                        </div>
+                      </div>
+                      <BlockButton 
+                        userId={userId}
+                        username={profile.username}
+                        onBlockChange={(blocked) => {
+                          // Update local state if needed
+                        }}
+                        className="w-full px-6 py-3 text-lg font-bold bg-red-600 hover:bg-red-700 border-red-500"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
