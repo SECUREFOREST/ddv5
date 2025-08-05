@@ -15,6 +15,11 @@ let cleanupId = 0;
  * @returns {Function} - Function to unregister the cleanup
  */
 export function registerCleanup(cleanupFn, componentName = 'Unknown') {
+  if (typeof cleanupFn !== 'function') {
+    console.warn('registerCleanup: cleanupFn must be a function');
+    return () => {};
+  }
+  
   const id = ++cleanupId;
   cleanupRegistry.set(id, { fn: cleanupFn, component: componentName });
   
@@ -49,12 +54,22 @@ export function useTimer() {
   const timersRef = useRef(new Set());
   
   const setTimeout = useCallback((callback, delay, ...args) => {
+    if (typeof callback !== 'function') {
+      console.warn('useTimer.setTimeout: callback must be a function');
+      return null;
+    }
+    
     const timerId = window.setTimeout(callback, delay, ...args);
     timersRef.current.add(timerId);
     return timerId;
   }, []);
   
   const setInterval = useCallback((callback, delay, ...args) => {
+    if (typeof callback !== 'function') {
+      console.warn('useTimer.setInterval: callback must be a function');
+      return null;
+    }
+    
     const timerId = window.setInterval(callback, delay, ...args);
     timersRef.current.add(timerId);
     return timerId;
@@ -98,6 +113,16 @@ export function useEventListener() {
   const listenersRef = useRef(new Map());
   
   const addEventListener = useCallback((element, event, handler, options) => {
+    if (!element || typeof element.addEventListener !== 'function') {
+      console.warn('useEventListener.addEventListener: element must be a valid DOM element');
+      return;
+    }
+    
+    if (typeof handler !== 'function') {
+      console.warn('useEventListener.addEventListener: handler must be a function');
+      return;
+    }
+    
     const key = `${element}-${event}`;
     
     // Remove existing listener if any
@@ -112,6 +137,10 @@ export function useEventListener() {
   }, []);
   
   const removeEventListener = useCallback((element, event, handler, options) => {
+    if (!element || typeof element.removeEventListener !== 'function') {
+      return;
+    }
+    
     const key = `${element}-${event}`;
     if (listenersRef.current.has(key)) {
       const { element: existingElement, event: existingEvent, handler: existingHandler, options: existingOptions } = listenersRef.current.get(key);
@@ -122,7 +151,11 @@ export function useEventListener() {
   
   const clearAllListeners = useCallback(() => {
     listenersRef.current.forEach(({ element, event, handler, options }) => {
-      element.removeEventListener(event, handler, options);
+      try {
+        element.removeEventListener(event, handler, options);
+      } catch (error) {
+        console.error('Error removing event listener:', error);
+      }
     });
     listenersRef.current.clear();
   }, []);
@@ -153,21 +186,30 @@ export function useWebSocket() {
       socketRef.current.close();
     }
     
-    const socket = new WebSocket(url);
-    socketRef.current = socket;
-    
-    // Set up event handlers
-    if (options.onOpen) socket.onopen = options.onOpen;
-    if (options.onMessage) socket.onmessage = options.onMessage;
-    if (options.onClose) socket.onclose = options.onClose;
-    if (options.onError) socket.onerror = options.onError;
-    
-    return socket;
+    try {
+      const socket = new WebSocket(url);
+      socketRef.current = socket;
+      
+      // Set up event handlers
+      if (options.onOpen) socket.onopen = options.onOpen;
+      if (options.onMessage) socket.onmessage = options.onMessage;
+      if (options.onClose) socket.onclose = options.onClose;
+      if (options.onError) socket.onerror = options.onError;
+      
+      return socket;
+    } catch (error) {
+      console.error('Error creating WebSocket:', error);
+      return null;
+    }
   }, []);
   
   const disconnect = useCallback(() => {
     if (socketRef.current) {
-      socketRef.current.close();
+      try {
+        socketRef.current.close();
+      } catch (error) {
+        console.error('Error closing WebSocket:', error);
+      }
       socketRef.current = null;
     }
     
@@ -179,7 +221,11 @@ export function useWebSocket() {
   
   const send = useCallback((data) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(data);
+      try {
+        socketRef.current.send(data);
+      } catch (error) {
+        console.error('Error sending WebSocket data:', error);
+      }
     }
   }, []);
   
@@ -205,7 +251,12 @@ export function useInterval(callback, delay, enabled = true) {
   const intervalRef = useRef(null);
   
   useEffect(() => {
-    if (!enabled || delay === null) {
+    if (!enabled || delay === null || delay === undefined) {
+      return;
+    }
+    
+    if (typeof callback !== 'function') {
+      console.warn('useInterval: callback must be a function');
       return;
     }
     
@@ -236,7 +287,12 @@ export function useTimeout(callback, delay, enabled = true) {
   const timeoutRef = useRef(null);
   
   useEffect(() => {
-    if (!enabled || delay === null) {
+    if (!enabled || delay === null || delay === undefined) {
+      return;
+    }
+    
+    if (typeof callback !== 'function') {
+      console.warn('useTimeout: callback must be a function');
       return;
     }
     
@@ -286,11 +342,20 @@ export function useSubscription() {
   const subscriptionsRef = useRef(new Set());
   
   const subscribe = useCallback((subscription) => {
+    if (!subscription) {
+      console.warn('useSubscription.subscribe: subscription is required');
+      return () => {};
+    }
+    
     subscriptionsRef.current.add(subscription);
     return () => {
       subscriptionsRef.current.delete(subscription);
       if (typeof subscription.unsubscribe === 'function') {
-        subscription.unsubscribe();
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing:', error);
+        }
       }
     };
   }, []);
@@ -298,7 +363,11 @@ export function useSubscription() {
   const unsubscribeAll = useCallback(() => {
     subscriptionsRef.current.forEach(subscription => {
       if (typeof subscription.unsubscribe === 'function') {
-        subscription.unsubscribe();
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing:', error);
+        }
       }
     });
     subscriptionsRef.current.clear();
@@ -322,13 +391,17 @@ export function useSubscription() {
  */
 export function useSafeEffect(effect, dependencies = [], componentName = 'Unknown') {
   useEffect(() => {
-    const cleanup = effect();
-    
-    if (cleanup) {
-      registerCleanup(cleanup, componentName);
-      return () => {
-        cleanup();
-      };
+    try {
+      const cleanup = effect();
+      
+      if (cleanup && typeof cleanup === 'function') {
+        registerCleanup(cleanup, componentName);
+        return () => {
+          cleanup();
+        };
+      }
+    } catch (error) {
+      console.error(`Error in useSafeEffect for ${componentName}:`, error);
     }
   }, dependencies);
 }
@@ -349,7 +422,9 @@ export function useComponentLifecycle(componentName = 'Unknown') {
       // Execute all cleanup functions
       cleanupFunctionsRef.current.forEach(cleanup => {
         try {
-          cleanup();
+          if (typeof cleanup === 'function') {
+            cleanup();
+          }
         } catch (error) {
           console.error(`Error during cleanup for ${componentName}:`, error);
         }
@@ -359,6 +434,11 @@ export function useComponentLifecycle(componentName = 'Unknown') {
   }, [componentName]);
   
   const addCleanup = useCallback((cleanup) => {
+    if (typeof cleanup !== 'function') {
+      console.warn('useComponentLifecycle.addCleanup: cleanup must be a function');
+      return () => {};
+    }
+    
     cleanupFunctionsRef.current.add(cleanup);
     return () => {
       cleanupFunctionsRef.current.delete(cleanup);
@@ -414,11 +494,81 @@ export const memoryLeakUtils = {
    */
   forceCleanup() {
     executeAllCleanups();
+  },
+  
+  /**
+   * Get detailed cleanup registry information
+   */
+  getCleanupDetails() {
+    return Array.from(cleanupRegistry.entries()).map(([id, { component }]) => ({
+      id,
+      component
+    }));
+  },
+  
+  /**
+   * Check if there are any potential memory leaks
+   */
+  checkForLeaks() {
+    const count = cleanupRegistry.size;
+    if (count > 10) {
+      console.warn(`Potential memory leak detected: ${count} cleanup functions registered`);
+      this.logCleanupRegistry();
+    }
+    return count;
   }
 };
+
+/**
+ * Debug hook for tracking component lifecycle
+ */
+export function useDebugLifecycle(componentName) {
+  useEffect(() => {
+    console.log(`[DEBUG] ${componentName} mounted`);
+    
+    return () => {
+      console.log(`[DEBUG] ${componentName} unmounted`);
+    };
+  }, [componentName]);
+}
+
+/**
+ * Enhanced ErrorBoundary with memory leak detection
+ */
+export function useErrorBoundary() {
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleError = useCallback((error, errorInfo) => {
+    console.error('Error caught by useErrorBoundary:', error, errorInfo);
+    setError(error);
+    setHasError(true);
+    
+    // Log memory leak information when errors occur
+    memoryLeakUtils.checkForLeaks();
+  }, []);
+  
+  return {
+    hasError,
+    error,
+    handleError
+  };
+}
 
 // Register global cleanup on page unload
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', executeAllCleanups);
   window.addEventListener('unload', executeAllCleanups);
+  
+  // Add global error handler for memory leak detection
+  window.addEventListener('error', (event) => {
+    console.error('Global error detected:', event.error);
+    memoryLeakUtils.checkForLeaks();
+  });
+  
+  // Add unhandled promise rejection handler
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    memoryLeakUtils.checkForLeaks();
+  });
 } 

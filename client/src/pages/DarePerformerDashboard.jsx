@@ -137,8 +137,8 @@ const MicroInteractionButton = ({
       await onClick(e);
     }
     
-    // Reset
-    setTimeout(() => {
+    // Memory-safe timeout for button reset
+    const { clearTimeout } = useTimeout(() => {
       setIsPressed(false);
       setFeedback(null);
     }, 300);
@@ -411,7 +411,8 @@ export default function DarePerformerDashboard() {
   // 2025: Smart notifications
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
-    setTimeout(() => setNotification(null), 5000);
+    // Memory-safe timeout for notification auto-dismiss
+    const { clearTimeout } = useTimeout(() => setNotification(null), 5000);
   };
   
   // Calculate trend percentage using localStorage for historical data
