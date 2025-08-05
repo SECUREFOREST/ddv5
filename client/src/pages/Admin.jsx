@@ -475,12 +475,16 @@ function Admin() {
     };
   }, [tabIdx, userSearch, dareSearch, auditLogSearch, reportsSearch, appealsSearch, switchGameSearch, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames]);
 
-  // Real-time updates for critical data using memory-safe interval
-  useInterval(() => {
-    if (tabIdx === 3) fetchReports(reportsSearch);
-    if (tabIdx === 4) fetchAppeals(appealsSearch);
-    if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
-  }, 30000); // Refresh every 30 seconds
+  // Real-time updates for critical data using standard interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (tabIdx === 3) fetchReports(reportsSearch);
+      if (tabIdx === 4) fetchAppeals(appealsSearch);
+      if (tabIdx === 2) fetchAuditLog(auditLogSearch); // Refresh audit log periodically
+    }, 30000); // Refresh every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [tabIdx, reportsSearch, appealsSearch, auditLogSearch, fetchReports, fetchAppeals, fetchAuditLog]);
 
   // Pagination change handlers
   useEffect(() => {
