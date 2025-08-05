@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../api/axios';
 import Markdown from '../components/Markdown';
 import RecentActivityWidget from '../components/RecentActivityWidget';
+import Avatar from '../components/Avatar';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { MainContent, ContentContainer } from '../components/Layout';
@@ -212,14 +213,12 @@ export default function ProfileView() {
             </div>
 
             <div className="flex flex-col items-center mb-6">
-              {profile.avatar ? (
-                <img src={profile.avatar} alt="avatar" className="w-24 h-24 rounded-full mb-4 object-cover border-2 border-red-400" />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-neutral-700 text-neutral-100 flex items-center justify-center text-4xl font-bold mb-4 border-2 border-red-400">
-                  {profile.username[0].toUpperCase()}
-                </div>
-              )}
-              <div className="font-medium text-white text-xl">{profile.username}</div>
+              <Avatar 
+                user={profile} 
+                size={96} 
+                className="mb-4 border-2 border-red-400"
+              />
+              <div className="font-medium text-white text-xl">{profile.fullName || profile.username}</div>
             </div>
 
             <div className="text-white/80 text-lg mb-6">You have blocked this user.</div>
@@ -281,18 +280,13 @@ export default function ProfileView() {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Avatar Section */}
               <div className="flex flex-col items-center lg:items-start">
-                {profile.avatar ? (
-                  <img src={profile.avatar} alt="avatar" className="w-32 h-32 rounded-full mb-4 object-cover border-4 border-white/20" />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-white/10 text-white flex items-center justify-center text-5xl font-bold mb-4 border-4 border-white/20">
-                    {profile.username[0].toUpperCase()}
-                  </div>
-                )}
+                <Avatar 
+                  user={profile} 
+                  size={128} 
+                  className="mb-4 border-4 border-white/20"
+                />
                 <div className="text-center lg:text-left">
-                  <h2 className="font-bold text-2xl text-white mb-2">{profile.username}</h2>
-                  {profile.fullName && profile.fullName !== profile.username && (
-                    <p className="text-white/70 text-lg">{profile.fullName}</p>
-                  )}
+                  <h2 className="font-bold text-2xl text-white mb-2">{profile.fullName || profile.username}</h2>
                 </div>
                 
 
