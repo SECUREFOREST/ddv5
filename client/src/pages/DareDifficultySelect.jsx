@@ -8,8 +8,6 @@ import { retryApiCall } from '../utils/retry';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { MainContent, ContentContainer } from '../components/Layout';
 
-
-
 export default function DareDifficultySelect() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
@@ -53,40 +51,65 @@ export default function DareDifficultySelect() {
                 <FireIcon className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Choose Difficulty</h1>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Perform One Submissive Act</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
-              Select the difficulty level for your dare
+              It's up to you how much you offer, and who you share it with.
             </p>
           </div>
 
           {/* Difficulty Selection Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <form onSubmit={handleContinue} className="space-y-8">
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {DIFFICULTY_OPTIONS.map((option) => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => setDifficulty(option.value)}
-                    className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${difficulty === option.value
+                    className={`relative p-6 rounded-xl border-2 transition-all duration-300 text-left h-full ${
+                      difficulty === option.value
                         ? 'border-primary bg-primary/20 text-primary shadow-lg scale-105'
-                        : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                      }`}
+                        : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50 hover:scale-102'
+                    }`}
                   >
-                    <div className="flex items-center gap-3 mb-3">
-                      {DIFFICULTY_ICONS[option.value]}
-                      <div className="font-semibold text-lg">{option.label}</div>
+                    {/* Difficulty Level Badge */}
+                    <div className="absolute top-3 right-3">
+                      <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        difficulty === option.value
+                          ? 'bg-primary text-white'
+                          : 'bg-neutral-700 text-neutral-300'
+                      }`}>
+                        {option.value.toUpperCase()}
+                      </div>
                     </div>
-                    <div className="text-sm opacity-75 leading-relaxed">
+
+                    {/* Icon and Title */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`p-3 rounded-lg ${
+                        difficulty === option.value
+                          ? 'bg-primary/20 text-primary'
+                          : 'bg-neutral-700/50 text-neutral-400'
+                      }`}>
+                        {DIFFICULTY_ICONS[option.value]}
+                      </div>
+                      <div className="font-bold text-lg">{option.label}</div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="text-sm leading-relaxed mb-3">
                       {option.desc}
                     </div>
+
+                    {/* Long Description */}
                     {option.longDesc && (
-                      <div className="text-xs opacity-60 mt-2 leading-relaxed">
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-3">
                         {option.longDesc}
                       </div>
                     )}
+
+                    {/* Examples */}
                     {option.examples && (
-                      <div className="text-xs opacity-50 mt-1 italic">
+                      <div className="text-xs text-neutral-500 italic">
                         Examples: {option.examples}
                       </div>
                     )}
@@ -94,9 +117,8 @@ export default function DareDifficultySelect() {
                 ))}
               </div>
 
-
               {/* Continue Button */}
-              <div className="text-center">
+              <div className="text-center pt-6">
                 <button
                   type="submit"
                   disabled={loading}
