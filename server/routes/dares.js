@@ -1385,7 +1385,7 @@ router.post('/:id/appeal', auth, [
 
 // POST /api/dares/:id/grade - grade a dare
 router.post('/:id/grade', auth, [
-  body('grade').isInt({ min: 1, max: 5 }).withMessage('Grade must be between 1 and 5.'),
+  body('grade').isFloat({ min: 1, max: 5 }).withMessage('Grade must be between 1 and 5.'),
   body('feedback').optional().isString().isLength({ max: 1000 }).withMessage('Feedback must be less than 1000 characters.'),
   body('target').optional().isMongoId().withMessage('Target must be a valid MongoDB ObjectId.')
 ], async (req, res) => {
@@ -1413,7 +1413,7 @@ router.post('/:id/grade', auth, [
     // Add grade to dare
     const gradeData = {
       user: req.userId,
-      grade: parseInt(grade),
+      grade: Math.round(parseFloat(grade)),
       feedback: feedback || '',
       createdAt: new Date()
     };
