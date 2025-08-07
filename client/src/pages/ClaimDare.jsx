@@ -57,7 +57,17 @@ export default function ClaimDare() {
   const [fullscreenLoading, setFullscreenLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [optimizationLoading, setOptimizationLoading] = useState(false);
+  const [viewingProof, setViewingProof] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
+
+  // Handle click-to-view proof content
+  const handleViewProof = () => {
+    setViewingProof(true);
+    // Auto-hide after 10 seconds for security
+    setTimeout(() => {
+      setViewingProof(false);
+    }, 10000);
+  };
 
   // Prevent right-click and basic keyboard shortcuts
   useEffect(() => {
@@ -822,12 +832,15 @@ export default function ClaimDare() {
                   
                   {/* Enhanced Proof File Preview */}
                   {dare.proof.fileUrl && (
-                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden proof-content">
+                    <div 
+                      className={`bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden proof-content ${viewingProof ? 'viewing' : ''}`}
+                      onClick={handleViewProof}
+                    >
                       {/* Screenshot Warning */}
                       <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
                         <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
                           <ShieldCheckIcon className="w-4 h-4" />
-                          <span>Hover over content to view - Screenshot protected</span>
+                          <span>Click to view proof - Screenshot protected</span>
                         </div>
                       </div>
                       {/* File Header */}
@@ -1250,12 +1263,15 @@ export default function ClaimDare() {
                       
                               {/* Advanced File Preview */}
         {proofFile && (
-          <div className="mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden proof-content">
+          <div 
+            className={`mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden proof-content ${viewingProof ? 'viewing' : ''}`}
+            onClick={handleViewProof}
+          >
             {/* Screenshot Warning */}
             <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
               <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
                 <ShieldCheckIcon className="w-4 h-4" />
-                <span>Hover over content to view - Screenshot protected</span>
+                <span>Click to view proof - Screenshot protected</span>
               </div>
             </div>
             {/* File Header */}
@@ -1629,80 +1645,51 @@ export default function ClaimDare() {
             transition: all 0.3s ease;
           }
           
-          /* Always-on screenshot protection */
+          /* Complete screenshot protection */
           .proof-content {
             position: relative !important;
             overflow: hidden !important;
+            background: #000 !important;
+            color: #000 !important;
+          }
+          
+          .proof-content * {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
           }
           
           .proof-content::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.95) !important;
-            z-index: 9999 !important;
-            pointer-events: none !important;
-            opacity: 0 !important;
-            transition: opacity 0.3s ease !important;
-          }
-          
-          .proof-content:hover::before {
-            opacity: 0 !important;
-          }
-          
-          .proof-content:not(:hover)::before {
-            opacity: 0.95 !important;
-          }
-          
-          /* Make content semi-transparent by default */
-          .proof-content img,
-          .proof-content video {
-            opacity: 0.3 !important;
-            filter: brightness(0.3) !important;
-            transition: all 0.3s ease !important;
-          }
-          
-          .proof-content:hover img,
-          .proof-content:hover video {
-            opacity: 1 !important;
-            filter: brightness(1) !important;
-          }
-          
-          /* Text content protection */
-          .proof-content .text-content {
-            opacity: 0.3 !important;
-            transition: opacity 0.3s ease !important;
-          }
-          
-          .proof-content:hover .text-content {
-            opacity: 1 !important;
-          }
-          
-          /* Warning overlay */
-          .proof-content::after {
-            content: 'HOVER TO VIEW - SCREENSHOT PROTECTED' !important;
+            content: 'CLICK TO VIEW PROOF - SCREENSHOT PROTECTED' !important;
             position: absolute !important;
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            background: rgba(0, 0, 0, 0.9) !important;
+            background: #000 !important;
             color: #fff !important;
-            padding: 15px 20px !important;
-            font-size: 16px !important;
+            padding: 20px !important;
+            font-size: 18px !important;
             font-weight: bold !important;
             z-index: 10000 !important;
             border: 2px solid #fff !important;
             text-align: center !important;
             white-space: nowrap !important;
-            opacity: 1 !important;
-            transition: opacity 0.3s ease !important;
+            cursor: pointer !important;
           }
           
-          .proof-content:hover::after {
-            opacity: 0 !important;
+          .proof-content.viewing {
+            background: transparent !important;
+            color: inherit !important;
+          }
+          
+          .proof-content.viewing * {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+          
+          .proof-content.viewing::before {
+            display: none !important;
           }
         `}
       </style>
