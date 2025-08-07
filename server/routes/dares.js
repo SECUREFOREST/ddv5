@@ -536,8 +536,78 @@ router.patch('/:id',
   }
 );
 
-// POST /api/dares/:id/grade - grade a dare (auth required)
-router.post('/:id/grade',
+// POST /api/dares/:id/grade - grade a dare
+router.post('/:id/grade', auth, [
+  body('grade').isNumeric().custom((value) => {
+    console.log('Validating grade value:', value, 'type:', typeof value);
+    const num = parseFloat(value);
+    console.log('Parsed number:', num);
+    if (num < 1 || num > 5 || !Number.isInteger(num)) {
+      console.log('Validation failed: num < 1:', num < 1, 'num > 5:', num > 5, '!Number.isInteger(num):', !Number.isInteger(num));
+      throw new Error('Grade must be an integer between 1 and 5.');
+    }
+    return true;
+  })
+], async (req, res) => {
+  console.log('Received request body:', req.body);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
+  }
+  
+  try {
+    console.log('Received grade request:', req.body);
+    const { grade, feedback, target } = req.body;
+    const dare = await Dare.findById(req.params.id);
+    
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Check if user can grade this dare
+    const canGrade = dare.creator.toString() === req.userId || 
+                    (dare.performer && dare.performer.toString() === req.userId);
+    
+    if (!canGrade) {
+      return res.status(403).json({ error: 'You cannot grade this dare.' });
+    }
+    
+    // Add grade to dare
+    const gradeData = {
+      user: req.userId,
+      grade: parseInt(grade),
+      feedback: feedback || '',
+      createdAt: new Date()
+    };
+    
+    if (target) {
+      gradeData.target = target;
+    }
+    
+    if (!dare.grades) dare.grades = [];
+    dare.grades.push(gradeData);
+    await dare.save();
+    
+    // Notify the other party
+    const targetUser = dare.creator.toString() === req.userId ? dare.performer : dare.creator;
+    if (targetUser) {
+      await sendNotification(
+        targetUser,
+        'dare_graded',
+        `You received a grade of ${grade} for dare: "${dare.description}".`,
+        req.userId
+      );
+    }
+    
+    res.json({ message: 'Grade submitted successfully.', dare });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit grade.' });
+  }
+});
+
+// POST /api/dares/:id/grade-user - grade a user within a dare (auth required)
+router.post('/:id/grade-user',
   auth,
   [
     body('grade').isInt({ min: 1, max: 5 }),
@@ -545,8 +615,10 @@ router.post('/:id/grade',
     body('target').isString().isLength({ min: 1 })
   ],
   async (req, res) => {
+    console.log('Grade-user route hit - Received request body:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Grade-user route - Validation errors:', errors.array());
       return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
     }
     try {
@@ -1380,76 +1452,6 @@ router.post('/:id/appeal', auth, [
     res.json({ message: 'Appeal submitted successfully.', appeal });
   } catch (err) {
     res.status(500).json({ error: 'Failed to submit appeal.' });
-  }
-});
-
-// POST /api/dares/:id/grade - grade a dare
-router.post('/:id/grade', auth, [
-  body('grade').isNumeric().custom((value) => {
-    console.log('Validating grade value:', value, 'type:', typeof value);
-    const num = parseFloat(value);
-    console.log('Parsed number:', num);
-    if (num < 1 || num > 5 || !Number.isInteger(num)) {
-      console.log('Validation failed: num < 1:', num < 1, 'num > 5:', num > 5, '!Number.isInteger(num):', !Number.isInteger(num));
-      throw new Error('Grade must be an integer between 1 and 5.');
-    }
-    return true;
-  })
-], async (req, res) => {
-  console.log('Received request body:', req.body);
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log('Validation errors:', errors.array());
-    return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
-  }
-  
-  try {
-    console.log('Received grade request:', req.body);
-    const { grade, feedback, target } = req.body;
-    const dare = await Dare.findById(req.params.id);
-    
-    if (!dare) {
-      return res.status(404).json({ error: 'Dare not found.' });
-    }
-    
-    // Check if user can grade this dare
-    const canGrade = dare.creator.toString() === req.userId || 
-                    (dare.performer && dare.performer.toString() === req.userId);
-    
-    if (!canGrade) {
-      return res.status(403).json({ error: 'You cannot grade this dare.' });
-    }
-    
-    // Add grade to dare
-    const gradeData = {
-      user: req.userId,
-      grade: parseInt(grade),
-      feedback: feedback || '',
-      createdAt: new Date()
-    };
-    
-    if (target) {
-      gradeData.target = target;
-    }
-    
-    if (!dare.grades) dare.grades = [];
-    dare.grades.push(gradeData);
-    await dare.save();
-    
-    // Notify the other party
-    const targetUser = dare.creator.toString() === req.userId ? dare.performer : dare.creator;
-    if (targetUser) {
-      await sendNotification(
-        targetUser,
-        'dare_graded',
-        `You received a grade of ${grade} for dare: "${dare.description}".`,
-        req.userId
-      );
-    }
-    
-    res.json({ message: 'Grade submitted successfully.', dare });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to submit grade.' });
   }
 });
 
