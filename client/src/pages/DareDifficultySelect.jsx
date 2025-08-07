@@ -81,18 +81,26 @@ export default function DareDifficultySelect() {
                       {option.desc}
                     </div>
                   </div>
-
-                  {/* Selection Indicator */}
-                  {difficulty === option.value && (
-                    <div className="flex-shrink-0">
-                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <div className="w-3 h-3 rounded-full bg-white"></div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </button>
             ))}
+          </div>
+
+          {/* How it Works Section */}
+          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-2xl p-6 border border-blue-800/30">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-white text-xs font-bold">i</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-400 mb-2">How it works</h3>
+                <p className="text-blue-300 text-sm leading-relaxed">
+                  After selecting a difficulty level, you'll be shown a random dare that matches your choice.
+                  You can then review the dare details and decide whether to accept or decline it.
+                  Remember, you can always decline any dare that makes you uncomfortable.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Continue Button */}
@@ -116,30 +124,10 @@ export default function DareDifficultySelect() {
             </button>
           </div>
 
-          {/* How it Works Section */}
-          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-2xl p-6 border border-blue-800/30">
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-xs font-bold">i</span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-blue-400 mb-2">How it works</h3>
-                <p className="text-blue-300 text-sm leading-relaxed">
-                  After selecting a difficulty level, you'll be shown a random dare that matches your choice.
-                  You can then review the dare details and decide whether to accept or decline it.
-                  Remember, you can always decline any dare that makes you uncomfortable.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Footer - Matching OSA Style */}
           <div className="text-center pt-8">
             <p className="text-neutral-400 text-sm">
               Not feeling subby? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
-            </p>
-            <p className="text-neutral-500 text-xs mt-4">
-              Built by kinky folks, for kinky folks.
             </p>
           </div>
         </MainContent>
