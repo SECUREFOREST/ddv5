@@ -697,7 +697,7 @@ router.post('/:id/forfeit',
 // POST /api/switches/:id/grade - grade a switch game (auth required)
 router.post('/:id/grade',
   [
-    body('grade').isInt({ min: 1, max: 10 }),
+    body('grade').isInt({ min: 1, max: 5 }),
     body('feedback').optional().isString().isLength({ max: 500 }).trim().escape()
   ],
   async (req, res) => {

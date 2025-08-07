@@ -539,7 +539,7 @@ router.patch('/:id',
 router.post('/:id/grade',
   auth,
   [
-    body('grade').isInt({ min: 1, max: 10 }),
+    body('grade').isInt({ min: 1, max: 5 }),
     body('feedback').optional().isString().isLength({ max: 500 }).trim().escape(),
     body('target').isString().isLength({ min: 1 })
   ],
@@ -1367,7 +1367,7 @@ router.post('/:id/appeal', auth, [
 
 // POST /api/dares/:id/grade - grade a dare
 router.post('/:id/grade', auth, [
-  body('grade').isInt({ min: 1, max: 10 }).withMessage('Grade must be between 1 and 10.'),
+  body('grade').isInt({ min: 1, max: 5 }).withMessage('Grade must be between 1 and 5.'),
   body('feedback').optional().isString().isLength({ max: 1000 }).withMessage('Feedback must be less than 1000 characters.'),
   body('target').optional().isMongoId().withMessage('Target must be a valid MongoDB ObjectId.')
 ], async (req, res) => {

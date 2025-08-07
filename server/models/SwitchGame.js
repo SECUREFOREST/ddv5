@@ -37,7 +37,7 @@ const SwitchGameSchema = new mongoose.Schema({
   grades: [
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      grade: { type: Number, min: 1, max: 10 },
+      grade: { type: Number, min: 1, max: 5 },
       feedback: String,
       createdAt: { type: Date, default: Date.now }
     }
