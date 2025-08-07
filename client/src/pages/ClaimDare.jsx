@@ -1575,6 +1575,150 @@ export default function ClaimDare() {
             </div>
           </div>
 
+          {/* Enhanced Reputation System */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-white mb-2">Dom Reputation</h3>
+              <p className="text-neutral-300 text-sm">Community feedback and performance metrics</p>
+            </div>
+            
+            {/* Overall Rating */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              {/* Average Rating */}
+              <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-xl p-4 text-center">
+                <div className="text-yellow-400 text-sm font-semibold mb-2">Average Rating</div>
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <StarIcon 
+                      key={star} 
+                      className={`w-5 h-5 ${
+                        creator?.avgGrade >= star ? 'text-yellow-400' : 'text-neutral-400'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <div className="text-white font-bold text-xl">
+                  {creator?.avgGrade ? creator.avgGrade.toFixed(1) : 'N/A'}
+                </div>
+                <div className="text-neutral-400 text-xs">
+                  {creator?.totalRatings || 0} ratings
+                </div>
+              </div>
+
+              {/* Completion Rate */}
+              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 border border-green-500/30 rounded-xl p-4 text-center">
+                <div className="text-green-400 text-sm font-semibold mb-2">Completion Rate</div>
+                <div className="text-white font-bold text-xl mb-2">
+                  {creator?.completionRate ? `${Math.round(creator.completionRate * 100)}%` : 'N/A'}
+                </div>
+                <div className="text-neutral-400 text-xs">
+                  {creator?.daresCreated || 0} dares created
+                </div>
+              </div>
+
+              {/* Response Time */}
+              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 rounded-xl p-4 text-center">
+                <div className="text-blue-400 text-sm font-semibold mb-2">Avg Response Time</div>
+                <div className="text-white font-bold text-xl mb-2">
+                  {creator?.avgResponseTime ? `${creator.avgResponseTime}h` : 'N/A'}
+                </div>
+                <div className="text-neutral-400 text-xs">
+                  to rate submissions
+                </div>
+              </div>
+            </div>
+
+            {/* Detailed Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{creator?.daresCreated || 0}</div>
+                <div className="text-neutral-400 text-xs">Dares Created</div>
+              </div>
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{creator?.completedDares || 0}</div>
+                <div className="text-neutral-400 text-xs">Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{creator?.activeDares || 0}</div>
+                <div className="text-neutral-400 text-xs">Active</div>
+              </div>
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{creator?.daysActive || 0}</div>
+                <div className="text-neutral-400 text-xs">Days Active</div>
+              </div>
+            </div>
+
+            {/* Recent Reviews */}
+            {creator?.recentReviews && creator.recentReviews.length > 0 && (
+              <div className="border-t border-neutral-700/30 pt-6">
+                <h4 className="text-lg font-semibold text-white mb-4">Recent Reviews</h4>
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  {creator.recentReviews.slice(0, 3).map((review, index) => (
+                    <div key={index} className="bg-neutral-800/50 rounded-lg p-3 border border-neutral-700/30">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <StarIcon 
+                              key={star} 
+                              className={`w-3 h-3 ${
+                                review.rating >= star ? 'text-yellow-400' : 'text-neutral-400'
+                              }`} 
+                            />
+                          ))}
+                        </div>
+                        <div className="text-neutral-400 text-xs">
+                          {new Date(review.date).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="text-neutral-300 text-sm">
+                        "{review.comment}"
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reputation Badges */}
+            {creator?.badges && creator.badges.length > 0 && (
+              <div className="border-t border-neutral-700/30 pt-6">
+                <h4 className="text-lg font-semibold text-white mb-4">Badges & Achievements</h4>
+                <div className="flex flex-wrap gap-2">
+                  {creator.badges.map((badge, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-neutral-800/50 rounded-lg px-3 py-2 border border-neutral-700/30">
+                      <div className={`w-3 h-3 rounded-full ${
+                        badge.type === 'safety' ? 'bg-green-400' :
+                        badge.type === 'quality' ? 'bg-blue-400' :
+                        badge.type === 'activity' ? 'bg-purple-400' :
+                        'bg-yellow-400'
+                      }`}></div>
+                      <span className="text-white text-sm">{badge.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Safety Score */}
+            <div className="border-t border-neutral-700/30 pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-lg font-semibold text-white">Safety Score</h4>
+                <div className="text-green-400 font-bold">
+                  {creator?.safetyScore ? `${Math.round(creator.safetyScore * 100)}%` : 'N/A'}
+                </div>
+              </div>
+              <div className="w-full bg-neutral-700 rounded-full h-2">
+                <div 
+                  className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${creator?.safetyScore ? Math.round(creator.safetyScore * 100) : 0}%` }}
+                ></div>
+              </div>
+              <div className="text-neutral-400 text-xs mt-1">
+                Based on community reports and safety practices
+              </div>
+            </div>
+          </div>
+
           {/* Consent Question */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
             <h3 className="text-2xl font-bold text-white mb-6">
