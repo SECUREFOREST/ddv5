@@ -199,6 +199,7 @@ export default function ClaimDare() {
     setGradeError('');
     
     try {
+      console.log('Sending grade:', starRating, 'to dare:', targetId);
       await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
       setGrade(starRating);
       showSuccess(`Rated ${starRating} stars!`);

@@ -1385,16 +1385,22 @@ router.post('/:id/appeal', auth, [
 
 // POST /api/dares/:id/grade - grade a dare
 router.post('/:id/grade', auth, [
-  body('grade').isFloat({ min: 1, max: 5 }).withMessage('Grade must be between 1 and 5.'),
-  body('feedback').optional().isString().isLength({ max: 1000 }).withMessage('Feedback must be less than 1000 characters.'),
-  body('target').optional().isMongoId().withMessage('Target must be a valid MongoDB ObjectId.')
+  body('grade').isNumeric().custom((value) => {
+    const num = parseFloat(value);
+    if (num < 1 || num > 5 || !Number.isInteger(num)) {
+      throw new Error('Grade must be an integer between 1 and 5.');
+    }
+    return true;
+  })
 ], async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
     return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
   }
   
   try {
+    console.log('Received grade request:', req.body);
     const { grade, feedback, target } = req.body;
     const dare = await Dare.findById(req.params.id);
     
@@ -1413,7 +1419,7 @@ router.post('/:id/grade', auth, [
     // Add grade to dare
     const gradeData = {
       user: req.userId,
-      grade: Math.round(parseFloat(grade)),
+      grade: parseInt(grade),
       feedback: feedback || '',
       createdAt: new Date()
     };
