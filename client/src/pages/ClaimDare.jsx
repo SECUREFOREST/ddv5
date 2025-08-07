@@ -1660,7 +1660,6 @@ export default function ClaimDare() {
             <div className="text-center text-neutral-400 text-sm">
               <p>Built by kinky folks, for kinky folks.</p>
             </div>
-          </div>
         </MainContent>
       </ContentContainer>
     </div>
