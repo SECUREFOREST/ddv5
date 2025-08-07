@@ -368,9 +368,54 @@ export default function ClaimDare() {
                     <div className="text-center">
                       <div className="text-green-300 text-sm mb-2">Proof File</div>
                       <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
-                        <div className="text-white text-sm">
-                          {dare.proof.fileName || 'Proof file uploaded'}
-                        </div>
+                        {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                          // Image preview
+                          <div className="space-y-2">
+                            <img 
+                              src={dare.proof.fileUrl} 
+                              alt="Proof submission"
+                              className="max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain"
+                            />
+                            <div className="text-white text-sm opacity-75">
+                              {dare.proof.fileName || 'Proof image'}
+                            </div>
+                          </div>
+                        ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
+                          // Video preview
+                          <div className="space-y-2">
+                            <video 
+                              controls
+                              className="max-w-full h-auto rounded-lg mx-auto max-h-96"
+                              preload="metadata"
+                            >
+                              <source src={dare.proof.fileUrl} type="video/mp4" />
+                              <source src={dare.proof.fileUrl} type="video/webm" />
+                              <source src={dare.proof.fileUrl} type="video/mov" />
+                              Your browser does not support the video tag.
+                            </video>
+                            <div className="text-white text-sm opacity-75">
+                              {dare.proof.fileName || 'Proof video'}
+                            </div>
+                          </div>
+                        ) : (
+                          // Generic file info
+                          <div className="text-white text-sm">
+                            <div className="flex items-center justify-center gap-2">
+                              <FireIcon className="w-4 h-4 text-green-400" />
+                              <span>{dare.proof.fileName || 'Proof file uploaded'}</span>
+                            </div>
+                            <div className="text-xs opacity-75 mt-1">
+                              <a 
+                                href={dare.proof.fileUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-green-400 hover:text-green-300 underline"
+                              >
+                                View file
+                              </a>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
