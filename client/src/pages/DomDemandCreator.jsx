@@ -96,20 +96,6 @@ export default function DomDemandCreator() {
             </p>
           </div>
 
-          {/* Double-Consent Warning */}
-          <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6 shadow-xl">
-            <div className="flex items-start gap-4">
-              <LockClosedIcon className="w-8 h-8 text-red-400 mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">Double-Consent Protection</h3>
-                <p className="text-neutral-300 leading-relaxed">
-                  Your demand will be hidden until the submissive first consents to perform a dare of your choice. 
-                  This ensures proper consent before revealing your specific demand.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Create Dom Demand Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
