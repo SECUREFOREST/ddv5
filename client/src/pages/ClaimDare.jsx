@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, DownloadIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, ArrowDownTrayIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -715,7 +715,7 @@ export default function ClaimDare() {
                           className="p-2 text-green-400 hover:text-green-300 hover:bg-green-600/20 rounded-lg transition-colors"
                           title="Download proof file"
                         >
-                          <DownloadIcon className="w-4 h-4" />
+                                                           <ArrowDownTrayIcon className="w-4 h-4" />
                         </button>
                       )}
                     </div>
@@ -876,7 +876,7 @@ export default function ClaimDare() {
                                   onClick={() => downloadProof(dare.proof.fileUrl, dare.proof.fileName)}
                                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 mx-auto"
                                 >
-                                  <DownloadIcon className="w-4 h-4" />
+                                  <ArrowDownTrayIcon className="w-4 h-4" />
                                   Download File
                                 </button>
                               </div>
