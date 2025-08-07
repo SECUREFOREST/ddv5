@@ -84,7 +84,12 @@ router.get('/users/:id',
     }
     try {
       const userId = req.params.id;
-      const daresCount = await Dare.countDocuments({ creator: userId });
+      // Count only completed dares where user was performer and proof was submitted
+      const daresCount = await Dare.countDocuments({ 
+        performer: userId, 
+        status: 'completed',
+        'proof.fileUrl': { $exists: true, $ne: null }
+      });
       // Grades: average grade given to user's dares
       const dares = await Dare.find({ creator: userId });
       let grades = [];
