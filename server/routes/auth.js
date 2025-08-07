@@ -18,6 +18,12 @@ function generateRefreshToken() {
   return crypto.randomBytes(64).toString('hex');
 }
 
+// Validate JWT secret is properly set
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  WARNING: JWT_SECRET not set in environment variables. Using default secret.');
+  console.warn('⚠️  This may cause authentication issues in production.');
+}
+
 // POST /api/auth/register
 router.post('/register',
   [
@@ -300,6 +306,54 @@ router.post('/logout', async (req, res) => {
     res.json({ message: 'Logged out.' });
   } catch (err) {
     res.status(500).json({ error: 'Logout failed.' });
+  }
+});
+
+// GET /api/auth/health - check authentication health
+router.get('/health', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.json({ 
+        status: 'no_token',
+        message: 'No authentication token provided',
+        jwt_secret_configured: !!process.env.JWT_SECRET
+      });
+    }
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.json({ 
+          status: 'invalid_user',
+          message: 'Token valid but user not found',
+          jwt_secret_configured: !!process.env.JWT_SECRET
+        });
+      }
+      
+      return res.json({ 
+        status: 'valid',
+        message: 'Authentication working correctly',
+        user_id: user._id,
+        username: user.username,
+        jwt_secret_configured: !!process.env.JWT_SECRET
+      });
+    } catch (jwtErr) {
+      return res.json({ 
+        status: 'invalid_token',
+        message: 'Invalid or expired token',
+        error: jwtErr.message,
+        jwt_secret_configured: !!process.env.JWT_SECRET
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Authentication health check failed',
+      error: err.message,
+      jwt_secret_configured: !!process.env.JWT_SECRET
+    });
   }
 });
 

@@ -152,6 +152,8 @@ api.interceptors.response.use(
         
         return api(originalRequest);
       } catch (refreshErr) {
+        console.log('Token refresh failed:', refreshErr.message);
+        
         // If refresh fails, clear tokens and process queue with error
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
@@ -166,9 +168,13 @@ api.interceptors.response.use(
         
         if (!isAuthPage && !isAdminPage) {
           // Use a more graceful redirect that doesn't break the current flow
+          // Add a longer delay to allow the current operation to complete
           setTimeout(() => {
-            window.location.href = '/login';
-          }, 100);
+            // Only redirect if we're still on the same page (user hasn't navigated away)
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
+          }, 500);
         } else if (isAdminPage) {
           // For admin pages, show a more specific error message
           console.error('Admin authentication failed:', refreshErr);

@@ -27,12 +27,55 @@ export function AuthProvider({ children }) {
           
           // Initialize real-time connection after successful authentication
           realtimeUtils.init(accessToken);
-        } catch {
-          setUser(null);
-          realtimeUtils.disconnect();
+        } catch (err) {
+          console.log('Token validation failed, attempting refresh...');
+          // Try to refresh the token if validation fails
+          try {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              // Retry with new token
+              const res = await api.get('/users/me', { headers: { Authorization: `Bearer ${newToken}` } });
+              setUser(res.data);
+              localStorage.setItem('user', JSON.stringify(res.data));
+              realtimeUtils.init(newToken);
+            } else {
+              // Clear invalid tokens
+              setUser(null);
+              realtimeUtils.disconnect();
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+            }
+          } catch (refreshErr) {
+            console.log('Token refresh failed, clearing authentication...');
+            setUser(null);
+            realtimeUtils.disconnect();
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+          }
         }
       } else if (userData) {
-        setUser(JSON.parse(userData));
+        // If no access token but user data exists, try to refresh
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          try {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              const res = await api.get('/users/me', { headers: { Authorization: `Bearer ${newToken}` } });
+              setUser(res.data);
+              localStorage.setItem('user', JSON.stringify(res.data));
+              realtimeUtils.init(newToken);
+            } else {
+              setUser(JSON.parse(userData));
+            }
+          } catch (refreshErr) {
+            console.log('Token refresh failed, using cached user data...');
+            setUser(JSON.parse(userData));
+          }
+        } else {
+          setUser(JSON.parse(userData));
+        }
       } else {
         realtimeUtils.disconnect();
       }
