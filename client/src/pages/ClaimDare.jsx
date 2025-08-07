@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, ArrowDownTrayIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, ArrowDownTrayIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -1503,74 +1503,96 @@ export default function ClaimDare() {
                 <UserPlusIcon className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Claim Dare</h1>
-            <p className="text-xl sm:text-2xl text-neutral-300">
-              Someone wants you to perform a dare
-            </p>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              {creator?.fullName || creator?.username || 'Someone'} wants you to perform
+            </h1>
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4">
+              One Submissive Act
+            </h2>
           </div>
 
-          {/* Dare Card */}
+          {/* Dom Information Table - OSA Style */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-            <div className="text-center mb-8">
-              <p className="text-lg text-primary mb-2">
-                {creator?.fullName || creator?.username} wants you to perform
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <tbody className="space-y-4">
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Name</td>
+                    <td className="py-2 text-white font-semibold">
+                      {creator?.fullName || creator?.username || 'Anonymous'}
+                    </td>
+                  </tr>
+                  {creator?.gender && (
+                    <tr className="border-b border-neutral-700/30 pb-4">
+                      <td className="py-2 text-neutral-400 font-semibold w-1/3">Gender</td>
+                      <td className="py-2 text-white capitalize">{creator.gender}</td>
+                    </tr>
+                  )}
+                  {creator?.age && (
+                    <tr className="border-b border-neutral-700/30 pb-4">
+                      <td className="py-2 text-neutral-400 font-semibold w-1/3">Age</td>
+                      <td className="py-2 text-white">{creator.age} years old</td>
+                    </tr>
+                  )}
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Submissive Acts</td>
+                    <td className="py-2 text-white">
+                      {creator?.daresPerformed || 0} of {creator?.daresPerformed || 0} completed 
+                      {creator?.avgGrade ? ` ${Math.round(creator.avgGrade * 20)}% ${creator.avgGrade >= 4.5 ? 'A' : creator.avgGrade >= 3.5 ? 'B' : creator.avgGrade >= 2.5 ? 'C' : 'D'}` : ''}
+                    </td>
+                  </tr>
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Dominant Acts</td>
+                    <td className="py-2 text-white">{creator?.daresCreated || 0}</td>
+                  </tr>
+                  {creator?.hardLimits && creator.hardLimits.length > 0 && (
+                    <tr className="border-b border-neutral-700/30 pb-4">
+                      <td className="py-2 text-neutral-400 font-semibold w-1/3">Hard Limits</td>
+                      <td className="py-2 text-white">{creator.hardLimits.join(' ')}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Consent Question */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <h3 className="text-2xl font-bold text-white mb-6">
+              Will you agree to perform their demand?
+            </h3>
+          </div>
+
+          {/* Catch Warning */}
+          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-yellow-400 mb-2">Of course, there's a catch.</h3>
+              <p className="text-yellow-300 text-lg">
+                We'll only tell you what you have to do once you consent. :)
               </p>
-              <h2 className="text-2xl font-bold text-white mb-4">A Deviant Dare</h2>
             </div>
+          </div>
 
-            {/* Dare Details */}
-            <div className="space-y-6">
-              <div>
-                <label className="block text-lg font-semibold text-white mb-3">Dare Description</label>
-                <div className="p-4 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-                  <p className="text-neutral-300">{dare.description}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
+          {/* Difficulty Information */}
+          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="text-center mb-6">
+              <p className="text-neutral-300 text-lg mb-4">
+                This dare might describe any act up to or including the following difficulty level:
+              </p>
+              <div className="flex items-center justify-center gap-4 mb-4">
                 <DifficultyBadge level={dare.difficulty} />
-                <div className="text-sm text-neutral-400">
-                  Created {dare.createdAt && new Date(dare.createdAt).toLocaleDateString()}
-                </div>
+                <span className="text-neutral-400">difficulty: {dare.difficulty.charAt(0).toUpperCase() + dare.difficulty.slice(1)}</span>
               </div>
             </div>
-
-            {/* Creator Info */}
-            <div className="mt-8 p-6 bg-neutral-800/30 rounded-lg border border-neutral-700/30">
-              <h3 className="text-lg font-semibold text-white mb-4">About the Creator</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-neutral-400">Name:</span>
-                  <span className="ml-2 text-white">{creator?.fullName || creator?.username}</span>
-                </div>
-                {creator?.gender && (
-                  <div>
-                    <span className="text-neutral-400">Gender:</span>
-                    <span className="ml-2 text-white">{creator.gender}</span>
-                  </div>
-                )}
-                {creator?.age && (
-                  <div>
-                    <span className="text-neutral-400">Age:</span>
-                    <span className="ml-2 text-white">{creator.age}</span>
-                  </div>
-                )}
-                <div>
-                  <span className="text-neutral-400">Dares performed:</span>
-                  <span className="ml-2 text-white">{creator?.daresPerformed || 0} completed</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400">Average grade:</span>
-                  <span className="ml-2 text-white">
-                    {creator?.avgGrade ? `${creator.avgGrade.toFixed(1)}` : 'No grades yet'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-neutral-400">Dares created:</span>
-                  <span className="ml-2 text-white">{creator?.daresCreated || 0}</span>
-                </div>
+            
+            {DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty) && (
+              <div className="text-center">
+                <p className="text-neutral-300 leading-relaxed">
+                  {DIFFICULTY_OPTIONS.find(d => d.value === dare.difficulty).desc}
+                </p>
               </div>
-            </div>
+            )}
+          </div>
 
             {/* OSA-Style Content Expiration Settings */}
             <div className="mt-8 bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
@@ -1623,15 +1645,20 @@ export default function ClaimDare() {
                 {claiming ? (
                   <>
                     <ButtonLoading />
-                    Claiming...
+                    Processing...
                   </>
                 ) : (
                   <>
-                    <FireIcon className="w-6 h-6" />
-                    Accept & Perform Dare
+                    <CheckCircleIcon className="w-6 h-6" />
+                    I Consent
                   </>
                 )}
               </Button>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center text-neutral-400 text-sm">
+              <p>Built by kinky folks, for kinky folks.</p>
             </div>
           </div>
         </MainContent>
