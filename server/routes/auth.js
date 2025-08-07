@@ -153,6 +153,11 @@ router.post('/login',
       const refreshToken = generateRefreshToken();
       user.refreshTokens = [...(user.refreshTokens || []), refreshToken];
       
+      // Clean up old tokens (keep only last 5 tokens)
+      if (user.refreshTokens.length > 5) {
+        user.refreshTokens = user.refreshTokens.slice(-5);
+      }
+      
       // Fix contentDeletion if it's invalid before saving
       const validContentDeletionValues = ['delete_after_view', 'delete_after_30_days', 'never_delete', '', 'when_viewed', '30_days', 'never'];
       if (user.contentDeletion && !validContentDeletionValues.includes(user.contentDeletion)) {
