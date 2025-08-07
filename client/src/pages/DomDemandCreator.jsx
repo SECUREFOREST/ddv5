@@ -123,29 +123,45 @@ export default function DomDemandCreator() {
                 <label className="block text-lg font-semibold text-white mb-3">
                   Difficulty Level
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-4">
                   {DIFFICULTY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       type="button"
                       onClick={() => setDifficulty(option.value)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
                         difficulty === option.value
-                          ? 'border-red-500 bg-red-500/20 text-red-300'
+                          ? 'border-red-500 bg-red-500/20 text-red-300 shadow-lg'
                           : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
                       }`}
                     >
-                      <div className="text-left">
-                        <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-start gap-4">
+                        {/* Icon */}
+                        <div className={`p-3 rounded-lg flex-shrink-0 ${
+                          difficulty === option.value
+                            ? 'bg-red-500/20 text-red-300'
+                            : 'bg-neutral-700/50 text-neutral-400'
+                        }`}>
                           {DIFFICULTY_ICONS[option.value]}
-                          <span className="font-semibold">{option.label}</span>
                         </div>
-                        <div className="text-sm opacity-75">{option.desc}</div>
-                        {option.longDesc && (
-                          <div className="text-xs opacity-60 mt-1">
-                            {option.longDesc}
+
+                        {/* Content */}
+                        <div className="flex-1">
+                          <div className="font-bold text-lg mb-2">{option.label}</div>
+                          <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                            {option.desc}
                           </div>
-                        )}
+                          {option.longDesc && (
+                            <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                              {option.longDesc}
+                            </div>
+                          )}
+                          {option.examples && (
+                            <div className="text-xs text-neutral-500 italic">
+                              Examples: {option.examples}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </button>
                   ))}
