@@ -57,58 +57,7 @@ export default function ClaimDare() {
   const [fullscreenLoading, setFullscreenLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [optimizationLoading, setOptimizationLoading] = useState(false);
-  const [viewingProof, setViewingProof] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
-
-  // Handle click-to-view proof content
-  const handleViewProof = () => {
-    setViewingProof(true);
-    // Auto-hide after 10 seconds for security
-    setTimeout(() => {
-      setViewingProof(false);
-    }, 10000);
-  };
-
-  // Prevent right-click and basic keyboard shortcuts
-  useEffect(() => {
-    const preventRightClick = (e) => {
-      if (e.type === 'contextmenu') {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    const preventKeyboardShortcuts = (e) => {
-      // Prevent common screenshot shortcuts
-      if (
-        e.key === 'PrintScreen' ||
-        (e.ctrlKey && e.key === 'p') ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        e.key === 'F12'
-      ) {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    // Add event listeners
-    document.addEventListener('contextmenu', preventRightClick);
-    document.addEventListener('keydown', preventKeyboardShortcuts);
-    
-    // Disable text selection on proof content
-    const proofElements = document.querySelectorAll('.proof-content');
-    proofElements.forEach(element => {
-      element.style.userSelect = 'none';
-      element.style.webkitUserSelect = 'none';
-      element.style.mozUserSelect = 'none';
-      element.style.msUserSelect = 'none';
-    });
-
-    return () => {
-      document.removeEventListener('contextmenu', preventRightClick);
-      document.removeEventListener('keydown', preventKeyboardShortcuts);
-    };
-  }, []);
 
   const fetchClaimDare = useCallback(async () => {
     if (!claimToken) return;
@@ -816,7 +765,7 @@ export default function ClaimDare() {
                   
                   {/* Proof Text */}
                   {dare.proof.text && (
-                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl p-4 mb-4 proof-content">
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl p-4 mb-4">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
                           <FireIcon className="w-4 h-4 text-green-400" />
@@ -832,17 +781,7 @@ export default function ClaimDare() {
                   
                   {/* Enhanced Proof File Preview */}
                   {dare.proof.fileUrl && (
-                    <div 
-                      className={`bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden proof-content ${viewingProof ? 'viewing' : ''}`}
-                      onClick={handleViewProof}
-                    >
-                      {/* Screenshot Warning */}
-                      <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
-                        <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
-                          <ShieldCheckIcon className="w-4 h-4" />
-                          <span>Click to view proof - Screenshot protected</span>
-                        </div>
-                      </div>
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden">
                       {/* File Header */}
                       <div className="p-4 border-b border-neutral-700/30">
                         <div className="flex items-center justify-between">
@@ -909,8 +848,6 @@ export default function ClaimDare() {
                                      // Use the same behavior as the debug toggle button
                                      setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                    }}
-                                   onDragStart={(e) => e.preventDefault()}
-                                   onContextMenu={(e) => e.preventDefault()}
                                    style={{ cursor: 'pointer' }}
                                  />
                                  {!proofPreview.isFullscreen && (
@@ -943,8 +880,6 @@ export default function ClaimDare() {
                                   preload="metadata"
                                   onPlay={() => setProofPreview(prev => ({ ...prev, isPlaying: true }))}
                                   onPause={() => setProofPreview(prev => ({ ...prev, isPlaying: false }))}
-                                  onDragStart={(e) => e.preventDefault()}
-                                  onContextMenu={(e) => e.preventDefault()}
                                 >
                                   <source src={secureFileUrls[dare.proof.fileUrl]} type="video/mp4" />
                                   <source src={secureFileUrls[dare.proof.fileUrl]} type="video/webm" />
@@ -1263,17 +1198,7 @@ export default function ClaimDare() {
                       
                               {/* Advanced File Preview */}
         {proofFile && (
-          <div 
-            className={`mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden proof-content ${viewingProof ? 'viewing' : ''}`}
-            onClick={handleViewProof}
-          >
-            {/* Screenshot Warning */}
-            <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
-              <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
-                <ShieldCheckIcon className="w-4 h-4" />
-                <span>Click to view proof - Screenshot protected</span>
-              </div>
-            </div>
+          <div className="mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden">
             {/* File Header */}
             <div className="p-4 border-b border-neutral-700/30">
               <div className="flex items-center justify-between">
@@ -1331,8 +1256,6 @@ export default function ClaimDare() {
                       src={filePreview.url} 
                       alt="File preview"
                       className="max-w-full h-auto rounded-lg mx-auto max-h-48 object-contain"
-                      onDragStart={(e) => e.preventDefault()}
-                      onContextMenu={(e) => e.preventDefault()}
                     />
                     <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
                       {fileValidation.dimensions?.width}×{fileValidation.dimensions?.height}
@@ -1604,95 +1527,6 @@ export default function ClaimDare() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
-      <style>
-        {`
-          .proof-content {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-            pointer-events: auto;
-            position: relative;
-            transition: all 0.3s ease;
-          }
-          
-          .proof-content img,
-          .proof-content video {
-            -webkit-user-drag: none;
-            -khtml-user-drag: none;
-            -moz-user-drag: none;
-            -o-user-drag: none;
-            user-drag: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            transition: all 0.3s ease;
-          }
-          
-          .proof-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: transparent;
-            z-index: 1;
-            pointer-events: none;
-            transition: all 0.3s ease;
-          }
-          
-          /* Complete screenshot protection */
-          .proof-content {
-            position: relative !important;
-            overflow: hidden !important;
-            background: #000 !important;
-            color: #000 !important;
-          }
-          
-          .proof-content * {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-          }
-          
-          .proof-content::before {
-            content: 'CLICK TO VIEW PROOF - SCREENSHOT PROTECTED' !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            background: #000 !important;
-            color: #fff !important;
-            padding: 20px !important;
-            font-size: 18px !important;
-            font-weight: bold !important;
-            z-index: 10000 !important;
-            border: 2px solid #fff !important;
-            text-align: center !important;
-            white-space: nowrap !important;
-            cursor: pointer !important;
-          }
-          
-          .proof-content.viewing {
-            background: transparent !important;
-            color: inherit !important;
-          }
-          
-          .proof-content.viewing * {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-          }
-          
-          .proof-content.viewing::before {
-            display: none !important;
-          }
-        `}
-      </style>
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
