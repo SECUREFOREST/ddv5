@@ -144,8 +144,8 @@ export default function ClaimDare() {
     setProofError('');
     setProofSuccess('');
     
-    if (!proof && !proofFile) {
-      showError('Please provide proof text or upload a file.');
+    if (!proofFile) {
+      showError('Please upload a proof file.');
       setProofLoading(false);
       return;
     }
@@ -399,30 +399,70 @@ export default function ClaimDare() {
                   </p>
                 </div>
 
+                {/* Grading Section */}
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block font-semibold mb-4 text-white">Click to Rate (1-5 Stars)</label>
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => handleGrade(star, dare._id)}
+                            disabled={grading}
+                            className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
+                              star <= grade 
+                                ? 'text-yellow-400 bg-yellow-400/10' 
+                                : 'text-neutral-400 hover:text-yellow-400'
+                            }`}
+                          >
+                            <StarIcon className="w-8 h-8" />
+                          </button>
+                        ))}
+                      </div>
+                      {grade > 0 && (
+                        <div className="mt-2 text-sm text-neutral-300">
+                          You rated this dare {grade} star{grade > 1 ? 's' : ''} (Debug: grade={grade})
+                        </div>
+                      )}
+                    </div>
+
+                    {gradeError && (
+                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
+                        {gradeError}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Proof Submission */}
                 <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                   <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
                   
                   <form onSubmit={handleProofSubmit} className="space-y-6">
                     <div>
-                      <label htmlFor="proof-text" className="block font-semibold mb-2 text-white">Proof Description</label>
+                      <label htmlFor="proof-text" className="block font-semibold mb-2 text-white">Proof Description (Optional)</label>
                       <textarea
                         id="proof-text"
                         value={proof}
                         onChange={(e) => setProof(e.target.value)}
                         className="w-full h-32 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
-                        placeholder="Describe how you completed the dare..."
+                        placeholder="Describe how you completed the dare... (optional)"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="proof-file" className="block font-semibold mb-2 text-white">Proof File (Optional)</label>
+                      <label htmlFor="proof-file" className="block font-semibold mb-2 text-white">Proof File (Required)</label>
                       <input
                         type="file"
                         id="proof-file"
                         onChange={(e) => setProofFile(e.target.files[0])}
                         className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                         accept="image/*,video/*"
+                        required
                       />
                     </div>
 
@@ -469,7 +509,7 @@ export default function ClaimDare() {
                     <div className="flex flex-col sm:flex-row gap-4">
                       <button
                         type="submit"
-                        disabled={proofLoading || (!proof && !proofFile)}
+                        disabled={proofLoading || !proofFile}
                         className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {proofLoading ? (
@@ -520,41 +560,6 @@ export default function ClaimDare() {
                         {chickenOutError}
                       </div>
                     )}
-                                     <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block font-semibold mb-4 text-white">Click to Rate (1-5 Stars)</label>
-                      <div className="flex items-center gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => handleGrade(star, dare._id)}
-                            disabled={grading}
-                            className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
-                              star <= grade 
-                                ? 'text-yellow-400 bg-yellow-400/10' 
-                                : 'text-neutral-400 hover:text-yellow-400'
-                            }`}
-                          >
-                            <StarIcon className="w-8 h-8" />
-                          </button>
-                        ))}
-                      </div>
-                      {grade > 0 && (
-                        <div className="mt-2 text-sm text-neutral-300">
-                          You rated this dare {grade} star{grade > 1 ? 's' : ''}
-                        </div>
-                      )}
-                    </div>
-
-                    {gradeError && (
-                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
-                        {gradeError}
-                      </div>
-                    )}
-                  </div>
                   </form>
                 </div>
               </div>
