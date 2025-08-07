@@ -19,17 +19,22 @@ const User = require('../models/User');
 const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
 const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 
-// Multer setup for file uploads
-const storage = multer.diskStorage({
+// Multer setup for proof file uploads
+const proofStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads'));
+    // Create proofs directory if it doesn't exist
+    const proofsDir = path.join(__dirname, '../uploads/proofs');
+    if (!fs.existsSync(proofsDir)) {
+      fs.mkdirSync(proofsDir, { recursive: true });
+    }
+    cb(null, proofsDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const proofUpload = multer({ storage: proofStorage, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB for proofs
 
 // Helper: check if user is admin (reuse from users.js)
 function isAdmin(req, res, next) {
@@ -698,7 +703,7 @@ router.post('/:id/grade-user',
 
 // POST /api/dares/:id/proof - submit proof (auth required, performer only, slot/cooldown enforced)
 router.post('/:id/proof', auth,
-  upload.single('file'),
+  proofUpload.single('file'),
   [
     body('text').optional().isString().isLength({ max: 1000 }).trim().escape(),
     body('expireAfterView').optional().isBoolean()
@@ -739,7 +744,7 @@ router.post('/:id/proof', auth,
       let fileUrl = null, fileName = null;
       if (req.file) {
         fileName = req.file.originalname;
-        fileUrl = `/uploads/${req.file.filename}`;
+        fileUrl = `/uploads/proofs/${req.file.filename}`;
       }
       dare.proof = { text, fileUrl, fileName };
       dare.status = 'completed';

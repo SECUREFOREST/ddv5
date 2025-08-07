@@ -21,9 +21,24 @@ const { checkPermission } = require('../utils/permissions');
 const allowedAvatarTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
 
-// Configure multer for file uploads
-const upload = multer({
-  dest: 'uploads/',
+// Configure multer for avatar uploads
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Create avatars directory if it doesn't exist
+    const avatarsDir = path.join(__dirname, '../uploads/avatars');
+    if (!fs.existsSync(avatarsDir)) {
+      fs.mkdirSync(avatarsDir, { recursive: true });
+    }
+    cb(null, avatarsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
   limits: {
     fileSize: MAX_AVATAR_SIZE
   },
@@ -384,7 +399,7 @@ router.post('/:id/unblock', auth, async (req, res) => {
 });
 
 // POST /api/users/:id/avatar - upload avatar
-router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
+router.post('/:id/avatar', auth, avatarUpload.single('avatar'), async (req, res) => {
   try {
     const userId = req.params.id;
     
@@ -409,7 +424,7 @@ router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
       return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
     }
     
-    const avatarUrl = `/uploads/${req.file.filename}`;
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
     
     // Update user's avatar
     await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true });

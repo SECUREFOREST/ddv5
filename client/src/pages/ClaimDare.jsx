@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, DownloadIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, PhotoIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -36,6 +36,22 @@ export default function ClaimDare() {
   const [grades, setGrades] = useState([]);
   const [chickenOutLoading, setChickenOutLoading] = useState(false);
   const [chickenOutError, setChickenOutError] = useState('');
+  const [secureFileUrls, setSecureFileUrls] = useState({});
+  const [proofPreview, setProofPreview] = useState({
+    isFullscreen: false,
+    isMuted: false,
+    isPlaying: false,
+    showControls: true
+  });
+  const [fileValidation, setFileValidation] = useState({
+    isValid: true,
+    error: '',
+    size: 0,
+    type: '',
+    dimensions: null
+  });
+  const [filePreview, setFilePreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchClaimDare = useCallback(async () => {
@@ -64,6 +80,17 @@ export default function ClaimDare() {
           const currentUserGrade = response.data.grades.find(g => g.user === user._id);
           if (currentUserGrade) {
             setGrade(currentUserGrade.grade);
+          }
+        }
+        
+        // Load secure proof files if completed
+        if (response.data.proof && response.data.proof.fileUrl) {
+          const secureUrl = await loadSecureFile(response.data.proof.fileUrl);
+          if (secureUrl) {
+            setSecureFileUrls(prev => ({
+              ...prev,
+              [response.data.proof.fileUrl]: secureUrl
+            }));
           }
         }
       } else {
@@ -164,18 +191,41 @@ export default function ClaimDare() {
     try {
       let formData;
       if (proofFile) {
+        // Optimize file before upload
+        const optimizedFile = await optimizeFile(proofFile);
+        
         formData = new FormData();
         if (proof) formData.append('text', proof);
-        formData.append('file', proofFile);
+        formData.append('file', optimizedFile);
         formData.append('contentDeletion', contentDeletion);
+        
+        // Simulate upload progress for better UX
+        setUploadProgress(10);
+        setTimeout(() => setUploadProgress(30), 200);
+        setTimeout(() => setUploadProgress(60), 500);
+        setTimeout(() => setUploadProgress(90), 1000);
+        
         await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          },
         }));
       } else {
         await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, contentDeletion }));
       }
       setProof('');
       setProofFile(null);
+      setFilePreview(null);
+      setFileValidation({
+        isValid: true,
+        error: '',
+        size: 0,
+        type: '',
+        dimensions: null
+      });
+      setUploadProgress(0);
       setProofSuccess('Proof submitted successfully!');
       showSuccess('Proof submitted successfully!');
     } catch (err) {
@@ -211,7 +261,13 @@ export default function ClaimDare() {
     input.capture = 'environment'; // Use back camera by default
     input.onchange = (e) => {
       if (e.target.files && e.target.files[0]) {
-        setProofFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (validateFile(file)) {
+          setProofFile(file);
+          createFilePreview(file);
+        } else {
+          showError(fileValidation.error);
+        }
       }
     };
     input.click();
@@ -224,7 +280,13 @@ export default function ClaimDare() {
     input.multiple = false;
     input.onchange = (e) => {
       if (e.target.files && e.target.files[0]) {
-        setProofFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (validateFile(file)) {
+          setProofFile(file);
+          createFilePreview(file);
+        } else {
+          showError(fileValidation.error);
+        }
       }
     };
     input.click();
@@ -233,6 +295,250 @@ export default function ClaimDare() {
   // Check if device supports camera
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const supportsCamera = isMobile && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+
+  // Secure file loading function
+  const loadSecureFile = async (fileUrl) => {
+    try {
+      const filename = fileUrl.split('/').pop();
+      const response = await api.get(`/uploads/secure/${filename}`);
+      const { data, contentType } = response.data;
+      
+      // Convert base64 to blob
+      const byteCharacters = atob(data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: contentType });
+      
+      return URL.createObjectURL(blob);
+    } catch (err) {
+      console.error('Failed to load secure file:', err);
+      return null;
+    }
+  };
+
+  // Enhanced proof preview functions
+  const toggleFullscreen = () => {
+    setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
+  };
+
+  const toggleMute = () => {
+    setProofPreview(prev => ({ ...prev, isMuted: !prev.isMuted }));
+  };
+
+  const togglePlayPause = () => {
+    setProofPreview(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+  };
+
+  const downloadProof = async (fileUrl, fileName) => {
+    try {
+      const filename = fileUrl.split('/').pop();
+      const response = await api.get(`/uploads/secure/${filename}`);
+      const { data, contentType } = response.data;
+      
+      // Convert base64 to blob
+      const byteCharacters = atob(data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: contentType });
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName || filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showSuccess('Proof file downloaded successfully!');
+    } catch (err) {
+      console.error('Failed to download proof file:', err);
+      showError('Failed to download proof file.');
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileType = (fileName) => {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    const videoTypes = ['mp4', 'webm', 'mov', 'avi'];
+    
+    if (imageTypes.includes(ext)) return 'image';
+    if (videoTypes.includes(ext)) return 'video';
+    return 'file';
+  };
+
+  // Advanced file handling functions
+  const validateFile = (file) => {
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/webm', 'video/mov', 'video/avi'
+    ];
+    
+    // Reset validation state
+    setFileValidation({
+      isValid: true,
+      error: '',
+      size: file.size,
+      type: file.type,
+      dimensions: null
+    });
+
+    // Check file size
+    if (file.size > maxSize) {
+      setFileValidation(prev => ({
+        ...prev,
+        isValid: false,
+        error: `File size (${formatFileSize(file.size)}) exceeds maximum allowed size of 50MB`
+      }));
+      return false;
+    }
+
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      setFileValidation(prev => ({
+        ...prev,
+        isValid: false,
+        error: `File type "${file.type}" is not supported. Please upload an image (JPG, PNG, GIF, WebP) or video (MP4, WebM, MOV, AVI)`
+      }));
+      return false;
+    }
+
+    return true;
+  };
+
+  const createFilePreview = (file) => {
+    if (!file) {
+      setFilePreview(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (file.type.startsWith('image/')) {
+        // Create image preview with dimensions
+        const img = new Image();
+        img.onload = () => {
+          setFilePreview({
+            url: e.target.result,
+            type: 'image',
+            dimensions: { width: img.width, height: img.height }
+          });
+          setFileValidation(prev => ({
+            ...prev,
+            dimensions: { width: img.width, height: img.height }
+          }));
+        };
+        img.src = e.target.result;
+      } else if (file.type.startsWith('video/')) {
+        // Create video preview
+        setFilePreview({
+          url: e.target.result,
+          type: 'video'
+        });
+      } else {
+        // Generic file preview
+        setFilePreview({
+          url: null,
+          type: 'file',
+          name: file.name
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      setProofFile(null);
+      setFilePreview(null);
+      setFileValidation({
+        isValid: true,
+        error: '',
+        size: 0,
+        type: '',
+        dimensions: null
+      });
+      return;
+    }
+
+    if (validateFile(file)) {
+      setProofFile(file);
+      createFilePreview(file);
+    } else {
+      setProofFile(null);
+      setFilePreview(null);
+      showError(fileValidation.error);
+    }
+  };
+
+  const compressImage = async (file, maxWidth = 1920, maxHeight = 1080, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        let { width, height } = img;
+        
+        // Calculate new dimensions
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = (width * maxHeight) / height;
+          height = maxHeight;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(resolve, file.type, quality);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const optimizeFile = async (file) => {
+    if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) { // 5MB
+      // Compress large images
+      const compressedBlob = await compressImage(file);
+      return new File([compressedBlob], file.name, { type: file.type });
+    }
+    return file;
+  };
+
+  const getFileIcon = (fileType) => {
+    if (fileType.startsWith('image/')) return PhotoIcon;
+    if (fileType.startsWith('video/')) return VideoCameraIcon;
+    return DocumentIcon;
+  };
+
+  const getFileColor = (fileType) => {
+    if (fileType.startsWith('image/')) return 'text-blue-400';
+    if (fileType.startsWith('video/')) return 'text-purple-400';
+    return 'text-neutral-400';
+  };
 
   const handleGrade = async (starRating, targetId) => {
     if (starRating === grade) return; // Don't submit if same rating
@@ -377,79 +683,214 @@ export default function ClaimDare() {
                 </p>
               </div>
 
-              {/* Proof Preview */}
+              {/* Enhanced Proof Preview */}
               {dare.proof && (
-                <div className="bg-green-900/20 rounded-xl p-6 border border-green-500/30 mb-6">
-                  <div className="text-center mb-4">
-                    <div className="text-green-400 text-lg font-semibold mb-2">Proof Submitted</div>
-                    <div className="text-green-300 text-sm">
-                      {dare.completedAt ? (
-                        `Completed on ${new Date(dare.completedAt).toLocaleDateString()} at ${new Date(dare.completedAt).toLocaleTimeString()}`
-                      ) : dare.updatedAt ? (
-                        `Completed on ${new Date(dare.updatedAt).toLocaleDateString()} at ${new Date(dare.updatedAt).toLocaleTimeString()}`
-                      ) : (
-                        'Completion date not available'
+                <div className="bg-gradient-to-r from-green-900/20 to-green-800/10 rounded-xl p-6 border border-green-500/30 mb-6">
+                  {/* Header with completion info */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-600/20 rounded-full flex items-center justify-center">
+                        <FireIcon className="w-5 h-5 text-green-400" />
+                      </div>
+                      <div>
+                        <div className="text-green-400 text-lg font-semibold">Proof Submitted</div>
+                        <div className="text-green-300 text-sm flex items-center gap-1">
+                          <CalendarIcon className="w-4 h-4" />
+                          {dare.completedAt ? (
+                            `${new Date(dare.completedAt).toLocaleDateString()} at ${new Date(dare.completedAt).toLocaleTimeString()}`
+                          ) : dare.updatedAt ? (
+                            `${new Date(dare.updatedAt).toLocaleDateString()} at ${new Date(dare.updatedAt).toLocaleTimeString()}`
+                          ) : (
+                            'Completion date not available'
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2">
+                      {dare.proof.fileUrl && (
+                        <button
+                          onClick={() => downloadProof(dare.proof.fileUrl, dare.proof.fileName)}
+                          className="p-2 text-green-400 hover:text-green-300 hover:bg-green-600/20 rounded-lg transition-colors"
+                          title="Download proof file"
+                        >
+                          <DownloadIcon className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>
                   
+                  {/* Proof Text */}
                   {dare.proof.text && (
-                    <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30 mb-4">
-                      <p className="text-white text-sm leading-relaxed">
-                        {dare.proof.text}
-                      </p>
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl p-4 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FireIcon className="w-4 h-4 text-green-400" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-white text-sm leading-relaxed">
+                            {dare.proof.text}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
+                  {/* Enhanced Proof File Preview */}
                   {dare.proof.fileUrl && (
-                    <div className="text-center">
-                      <div className="text-green-300 text-sm mb-2">Proof File</div>
-                      <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
-                        {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                          // Image preview
-                          <div className="space-y-2">
-                            <img 
-                              src={`https://api.deviantdare.com${dare.proof.fileUrl}`} 
-                              alt="Proof submission"
-                              className="max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain"
-                            />
-                            <div className="text-white text-sm opacity-75">
-                              {dare.proof.fileName || 'Proof image'}
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden">
+                      {/* File Header */}
+                      <div className="p-4 border-b border-neutral-700/30">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
+                              <FireIcon className="w-5 h-5 text-green-400" />
+                            </div>
+                            <div>
+                              <div className="text-white font-semibold">
+                                {dare.proof.fileName || 'Proof File'}
+                              </div>
+                              <div className="text-neutral-400 text-sm">
+                                {getFileType(dare.proof.fileName || '') === 'image' ? 'Image' : 
+                                 getFileType(dare.proof.fileName || '') === 'video' ? 'Video' : 'File'}
+                              </div>
                             </div>
                           </div>
-                        ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
-                          // Video preview
-                          <div className="space-y-2">
-                            <video 
-                              controls
-                              className="max-w-full h-auto rounded-lg mx-auto max-h-96"
-                              preload="metadata"
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={toggleFullscreen}
+                              className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
+                              title="Toggle fullscreen"
                             >
-                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/mp4" />
-                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/webm" />
-                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/mov" />
-                              Your browser does not support the video tag.
-                            </video>
-                            <div className="text-white text-sm opacity-75">
-                              {dare.proof.fileName || 'Proof video'}
-                            </div>
+                              <ArrowsPointingOutIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* File Content */}
+                      <div className="p-4">
+                        {secureFileUrls[dare.proof.fileUrl] ? (
+                          <div className={`${proofPreview.isFullscreen ? 'fixed inset-0 z-50 bg-black/95 flex items-center justify-center' : ''}`}>
+                            {proofPreview.isFullscreen && (
+                              <button
+                                onClick={toggleFullscreen}
+                                className="absolute top-4 right-4 p-2 bg-neutral-800/80 text-white rounded-lg hover:bg-neutral-700/80 transition-colors"
+                              >
+                                <EyeSlashIcon className="w-5 h-5" />
+                              </button>
+                            )}
+                            
+                            {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                              // Enhanced Image Preview
+                              <div className="relative">
+                                <img 
+                                  src={secureFileUrls[dare.proof.fileUrl]} 
+                                  alt="Proof submission"
+                                  className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
+                                  onClick={toggleFullscreen}
+                                  style={{ cursor: proofPreview.isFullscreen ? 'default' : 'pointer' }}
+                                />
+                                {!proofPreview.isFullscreen && (
+                                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
+                                    <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
+                                      Click to expand
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
+                              // Enhanced Video Preview
+                              <div className="relative">
+                                <video 
+                                  ref={(el) => {
+                                    if (el) {
+                                      el.muted = proofPreview.isMuted;
+                                      if (proofPreview.isPlaying) {
+                                        el.play();
+                                      } else {
+                                        el.pause();
+                                      }
+                                    }
+                                  }}
+                                  className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen' : 'max-w-full h-auto rounded-lg mx-auto max-h-96'} transition-all duration-300`}
+                                  preload="metadata"
+                                  onPlay={() => setProofPreview(prev => ({ ...prev, isPlaying: true }))}
+                                  onPause={() => setProofPreview(prev => ({ ...prev, isPlaying: false }))}
+                                >
+                                  <source src={secureFileUrls[dare.proof.fileUrl]} type="video/mp4" />
+                                  <source src={secureFileUrls[dare.proof.fileUrl]} type="video/webm" />
+                                  <source src={secureFileUrls[dare.proof.fileUrl]} type="video/mov" />
+                                  Your browser does not support the video tag.
+                                </video>
+                                
+                                {/* Custom Video Controls */}
+                                {!proofPreview.isFullscreen && (
+                                  <div className="absolute bottom-2 left-2 right-2 bg-black/50 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2">
+                                    <button
+                                      onClick={togglePlayPause}
+                                      className="p-1 text-white hover:text-green-400 transition-colors"
+                                      title={proofPreview.isPlaying ? 'Pause' : 'Play'}
+                                    >
+                                      {proofPreview.isPlaying ? (
+                                        <PauseIcon className="w-4 h-4" />
+                                      ) : (
+                                        <PlayIcon className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={toggleMute}
+                                      className="p-1 text-white hover:text-green-400 transition-colors"
+                                      title={proofPreview.isMuted ? 'Unmute' : 'Mute'}
+                                    >
+                                      {proofPreview.isMuted ? (
+                                        <SpeakerXMarkIcon className="w-4 h-4" />
+                                      ) : (
+                                        <SpeakerWaveIcon className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={toggleFullscreen}
+                                      className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
+                                      title="Fullscreen"
+                                    >
+                                      <ArrowsPointingOutIcon className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              // Generic file info with enhanced styling
+                              <div className="text-center p-6">
+                                <div className="w-16 h-16 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                  <FireIcon className="w-8 h-8 text-green-400" />
+                                </div>
+                                <div className="text-white font-semibold mb-1">
+                                  {dare.proof.fileName || 'Proof file uploaded'}
+                                </div>
+                                <div className="text-neutral-400 text-sm mb-3">
+                                  File uploaded successfully
+                                </div>
+                                <button
+                                  onClick={() => downloadProof(dare.proof.fileUrl, dare.proof.fileName)}
+                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 mx-auto"
+                                >
+                                  <DownloadIcon className="w-4 h-4" />
+                                  Download File
+                                </button>
+                              </div>
+                            )}
                           </div>
                         ) : (
-                          // Generic file info
-                          <div className="text-white text-sm">
-                            <div className="flex items-center justify-center gap-2">
-                              <FireIcon className="w-4 h-4 text-green-400" />
-                              <span>{dare.proof.fileName || 'Proof file uploaded'}</span>
+                          // Loading state with enhanced styling
+                          <div className="text-center p-8">
+                            <div className="w-16 h-16 bg-neutral-700/50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                              <FireIcon className="w-8 h-8 text-neutral-400" />
                             </div>
-                            <div className="text-xs opacity-75 mt-1">
-                              <a 
-                                href={`https://api.deviantdare.com${dare.proof.fileUrl}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-green-400 hover:text-green-300 underline"
-                              >
-                                View file
-                              </a>
+                            <div className="text-neutral-400 text-sm font-semibold mb-2">Securely Loading Proof</div>
+                            <div className="text-neutral-500 text-xs">
+                              Verifying access permissions...
                             </div>
                           </div>
                         )}
@@ -666,41 +1107,153 @@ export default function ClaimDare() {
                         </div>
                       )}
                       
-                      {/* File Preview */}
-                      {proofFile && (
-                        <div className="mb-4 p-4 bg-neutral-800/30 rounded-xl border border-neutral-700/30">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                                <FireIcon className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <div className="text-white font-semibold">{proofFile.name}</div>
-                                <div className="text-neutral-400 text-sm">
-                                  {(proofFile.size / 1024 / 1024).toFixed(2)} MB
-                                </div>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => setProofFile(null)}
-                              className="text-red-400 hover:text-red-300 p-1"
-                            >
-                              <ExclamationTriangleIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
+                              {/* Advanced File Preview */}
+        {proofFile && (
+          <div className="mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden">
+            {/* File Header */}
+            <div className="p-4 border-b border-neutral-700/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getFileColor(proofFile.type)}`}>
+                    {React.createElement(getFileIcon(proofFile.type), { className: "w-5 h-5" })}
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold">{proofFile.name}</div>
+                    <div className="text-neutral-400 text-sm">
+                      {formatFileSize(proofFile.size)}
+                      {fileValidation.dimensions && (
+                        <span className="ml-2">
+                          • {fileValidation.dimensions.width}×{fileValidation.dimensions.height}
+                        </span>
                       )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {fileValidation.isValid && (
+                    <div className="flex items-center gap-1 text-green-400 text-sm">
+                      <CheckIcon className="w-4 h-4" />
+                      <span>Valid</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProofFile(null);
+                      setFilePreview(null);
+                      setFileValidation({
+                        isValid: true,
+                        error: '',
+                        size: 0,
+                        type: '',
+                        dimensions: null
+                      });
+                    }}
+                    className="text-red-400 hover:text-red-300 p-1 hover:bg-red-400/10 rounded-lg transition-colors"
+                    title="Remove file"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* File Preview Content */}
+            {filePreview && (
+              <div className="p-4">
+                {filePreview.type === 'image' && filePreview.url && (
+                  <div className="relative">
+                    <img 
+                      src={filePreview.url} 
+                      alt="File preview"
+                      className="max-w-full h-auto rounded-lg mx-auto max-h-48 object-contain"
+                    />
+                    <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                      {fileValidation.dimensions?.width}×{fileValidation.dimensions?.height}
+                    </div>
+                  </div>
+                )}
+                {filePreview.type === 'video' && filePreview.url && (
+                  <div className="relative">
+                    <video 
+                      src={filePreview.url}
+                      className="max-w-full h-auto rounded-lg mx-auto max-h-48"
+                      preload="metadata"
+                      muted
+                    />
+                    <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center">
+                      <PlayIcon className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                )}
+                {filePreview.type === 'file' && (
+                  <div className="text-center p-4">
+                    <DocumentIcon className="w-12 h-12 text-neutral-400 mx-auto mb-2" />
+                    <div className="text-white font-semibold">{filePreview.name}</div>
+                    <div className="text-neutral-400 text-sm">File ready for upload</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* File Validation Error */}
+        {!fileValidation.isValid && fileValidation.error && (
+          <div className="mb-4 p-4 bg-red-900/20 border border-red-500/30 rounded-xl">
+            <div className="flex items-start gap-3">
+              <ExclamationCircleIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="text-red-300 text-sm">
+                {fileValidation.error}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Progress */}
+        {proofLoading && uploadProgress > 0 && (
+          <div className="mb-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+              <div className="text-blue-300 text-sm font-semibold">Uploading proof...</div>
+            </div>
+            <div className="w-full bg-neutral-700 rounded-full h-2">
+              <div 
+                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+            <div className="text-blue-300 text-xs mt-1">{uploadProgress}% complete</div>
+          </div>
+        )}
+
+        {/* File Upload Guidelines */}
+        <div className="mb-4 p-4 bg-neutral-800/30 border border-neutral-700/30 rounded-xl">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <DocumentIcon className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <div className="text-white font-semibold mb-2">Upload Guidelines</div>
+              <div className="text-neutral-300 text-sm space-y-1">
+                <div>• <strong>Supported formats:</strong> JPG, PNG, GIF, WebP, MP4, WebM, MOV, AVI</div>
+                <div>• <strong>Maximum size:</strong> 50MB per file</div>
+                <div>• <strong>Image dimensions:</strong> Will be automatically optimized if larger than 1920×1080</div>
+                <div>• <strong>Video length:</strong> No specific limit, but larger files take longer to upload</div>
+              </div>
+            </div>
+          </div>
+        </div>
                       
                       {/* Standard File Input */}
-                      <input
-                        type="file"
-                        id="proof-file"
-                        onChange={(e) => setProofFile(e.target.files[0])}
-                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-                        accept="image/*,video/*"
-                        required
-                      />
+                              <input
+          type="file"
+          id="proof-file"
+          onChange={handleFileChange}
+          className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+          accept="image/*,video/*"
+          required
+        />
                       <div className="text-xs text-neutral-400 mt-2">
                         Supported: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)
                       </div>

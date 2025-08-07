@@ -62,7 +62,11 @@ app.use(cors({
 app.options('*', cors());
 
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Protected uploads route for proof files
+app.use('/uploads', require('./routes/uploads'));
+
+// Public uploads for avatars
+app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars')));
 
 // Placeholder routes
 app.use('/users', require('./routes/users'));
