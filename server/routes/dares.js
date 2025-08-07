@@ -697,7 +697,7 @@ router.post('/:id/grade-user',
 );
 
 // POST /api/dares/:id/proof - submit proof (auth required, performer only, slot/cooldown enforced)
-router.post('/:id/proof',
+router.post('/:id/proof', auth,
   upload.single('file'),
   [
     body('text').optional().isString().isLength({ max: 1000 }).trim().escape(),
@@ -725,7 +725,14 @@ router.post('/:id/proof',
       // await checkSlotAndCooldownAtomic(req.userId); // Removed: do not enforce cooldown/open dare limit on completion
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+      
+      console.log('Proof submission - Dare ID:', req.params.id);
+      console.log('Proof submission - User ID:', req.userId);
+      console.log('Proof submission - Dare claimedBy:', dare.claimedBy);
+      console.log('Proof submission - Dare performer:', dare.performer);
+      
       if (!dare.claimedBy || dare.claimedBy.toString() !== req.userId) {
+        console.log('Proof submission - Authorization failed');
         return res.status(403).json({ error: 'Unauthorized.' });
       }
       const text = req.body.text || '';
