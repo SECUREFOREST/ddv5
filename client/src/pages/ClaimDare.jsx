@@ -1581,7 +1581,6 @@ export default function ClaimDare() {
               </p>
               <div className="flex items-center justify-center gap-4 mb-4">
                 <DifficultyBadge level={dare.difficulty} />
-                <span className="text-neutral-400">difficulty: {dare.difficulty.charAt(0).toUpperCase() + dare.difficulty.slice(1)}</span>
               </div>
             </div>
             
@@ -1617,11 +1616,6 @@ export default function ClaimDare() {
                   </>
                 )}
               </Button>
-            </div>
-
-            {/* Footer */}
-            <div className="text-center text-neutral-400 text-sm">
-              <p>Built by kinky folks, for kinky folks.</p>
             </div>
         </MainContent>
       </ContentContainer>
