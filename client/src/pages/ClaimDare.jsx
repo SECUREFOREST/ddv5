@@ -378,7 +378,7 @@ export default function ClaimDare() {
                           // Image preview
                           <div className="space-y-2">
                             <img 
-                              src={dare.proof.fileUrl} 
+                              src={`https://api.deviantdare.com${dare.proof.fileUrl}`} 
                               alt="Proof submission"
                               className="max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain"
                             />
@@ -394,9 +394,9 @@ export default function ClaimDare() {
                               className="max-w-full h-auto rounded-lg mx-auto max-h-96"
                               preload="metadata"
                             >
-                              <source src={dare.proof.fileUrl} type="video/mp4" />
-                              <source src={dare.proof.fileUrl} type="video/webm" />
-                              <source src={dare.proof.fileUrl} type="video/mov" />
+                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/mp4" />
+                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/webm" />
+                              <source src={`https://api.deviantdare.com${dare.proof.fileUrl}`} type="video/mov" />
                               Your browser does not support the video tag.
                             </video>
                             <div className="text-white text-sm opacity-75">
@@ -412,7 +412,7 @@ export default function ClaimDare() {
                             </div>
                             <div className="text-xs opacity-75 mt-1">
                               <a 
-                                href={dare.proof.fileUrl} 
+                                href={`https://api.deviantdare.com${dare.proof.fileUrl}`} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="text-green-400 hover:text-green-300 underline"
