@@ -352,7 +352,13 @@ export default function ClaimDare() {
                   <div className="text-center mb-4">
                     <div className="text-green-400 text-lg font-semibold mb-2">Proof Submitted</div>
                     <div className="text-green-300 text-sm">
-                      Completed on {new Date(dare.completedAt).toLocaleDateString()}
+                      {dare.completedAt ? (
+                        `Completed on ${new Date(dare.completedAt).toLocaleDateString()} at ${new Date(dare.completedAt).toLocaleTimeString()}`
+                      ) : dare.updatedAt ? (
+                        `Completed on ${new Date(dare.updatedAt).toLocaleDateString()} at ${new Date(dare.updatedAt).toLocaleTimeString()}`
+                      ) : (
+                        'Completion date not available'
+                      )}
                     </div>
                   </div>
                   
