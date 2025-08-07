@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, param, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const { checkPermission } = require('../utils/permissions');
 const { sendNotification } = require('../utils/notification');
@@ -978,12 +979,29 @@ router.get('/share/:id', async (req, res) => {
   }
 });
 
-// GET /api/dares/claim/:token - fetch dare by claimToken (public)
+// GET /api/dares/claim/:token - fetch dare by claimToken (public for unclaimed, auth required for claimed)
 router.get('/claim/:token', async (req, res) => {
   try {
-    const dare = await Dare.findOne({ claimToken: req.params.token, claimable: true })
+    const dare = await Dare.findOne({ claimToken: req.params.token })
       .populate('creator', 'username avatar age gender limits dob completedDares consentedDares');
-    if (!dare) return res.status(404).json({ error: 'Claimable dare not found.' });
+    if (!dare) return res.status(404).json({ error: 'Dare not found.' });
+    
+    // If dare is claimed, require authentication and verify performer
+    if (!dare.claimable && dare.claimedBy) {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ error: 'Authentication required to access claimed dare.' });
+      }
+      
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey');
+        if (dare.claimedBy && dare.claimedBy.toString() !== decoded.id) {
+          return res.status(403).json({ error: 'You can only access dares you have claimed.' });
+        }
+      } catch (jwtErr) {
+        return res.status(401).json({ error: 'Invalid or expired token.' });
+      }
+    }
     // Compute performer stats
     const creator = dare.creator;
     let age = null;
@@ -1043,7 +1061,7 @@ router.get('/claim/:token', async (req, res) => {
       difficultyDescription
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch claimable dare.' });
+    res.status(500).json({ error: 'Failed to fetch dare.' });
   }
 });
 

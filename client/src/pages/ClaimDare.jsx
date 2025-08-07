@@ -43,7 +43,10 @@ export default function ClaimDare() {
       setLoading(true);
       
       // Use retry mechanism for dare claim fetch
-      const response = await retryApiCall(() => api.get(`/dares/claim/${claimToken}`));
+      // Include auth token in case the dare is already claimed
+      const token = localStorage.getItem('accessToken');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await retryApiCall(() => api.get(`/dares/claim/${claimToken}`, { headers }));
       
       if (response.data) {
         setDare(response.data);
@@ -61,6 +64,10 @@ export default function ClaimDare() {
         
         if (error.response?.status === 404) {
           errorMessage = 'This dare link is invalid or has expired. The dare may have already been claimed or removed.';
+        } else if (error.response?.status === 401) {
+          errorMessage = 'Please log in to access this dare.';
+        } else if (error.response?.status === 403) {
+          errorMessage = 'You can only access dares you have claimed.';
         } else if (error.response?.data?.error) {
           errorMessage = error.response.data.error;
         }
