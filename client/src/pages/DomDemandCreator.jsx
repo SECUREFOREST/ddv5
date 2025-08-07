@@ -21,6 +21,8 @@ export default function DomDemandCreator() {
   const [createError, setCreateError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [claimLink, setClaimLink] = useState('');
+  const [createdDare, setCreatedDare] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
   const [tags, setTags] = useState([]);
   const [publicDare, setPublicDare] = useState(true);
   const navigate = useNavigate();
@@ -54,14 +56,15 @@ export default function DomDemandCreator() {
       
       if (res.data && res.data.claimLink) {
         setClaimLink(res.data.claimLink);
+        setCreatedDare(res.data.dare || res.data);
         setShowModal(true);
-        showSuccess('Dom demand created successfully! The submissive must consent before seeing your demand.');
+        showSuccess('Dominant dare created successfully! The submissive must consent before seeing your demand.');
       } else {
         throw new Error('Invalid response: missing claim link');
       }
     } catch (err) {
-      console.error('Dom demand creation error:', err);
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to create dom demand.';
+      console.error('Dominant dare creation error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to create dominant dare.';
       setCreateError(errorMessage);
       showError(errorMessage);
     } finally {
@@ -75,6 +78,51 @@ export default function DomDemandCreator() {
     setDifficulty('titillating');
     setCreateError('');
     setTags([]);
+    setCreatedDare(null);
+  };
+
+  const handleCancelDare = async () => {
+    if (!createdDare || !createdDare._id) {
+      showError('No dare to cancel.');
+      return;
+    }
+
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      '🚨 Are you absolutely sure you want to cancel this dare?\n\n' +
+      'This action cannot be undone and will:\n' +
+      '• Permanently delete the dare\n' +
+      '• Remove any associated content\n' +
+      '• Notify any participants\n\n' +
+      'Click OK to proceed with cancellation.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      await retryApiCall(() => api.delete(`/dares/${createdDare._id}`));
+      
+      showSuccess('Dare cancelled successfully!');
+      setShowModal(false);
+      setCreatedDare(null);
+      setClaimLink('');
+      
+      // Reset form
+      setDescription('');
+      setDifficulty('titillating');
+      setTags([]);
+      setCreateError('');
+      
+    } catch (err) {
+      console.error('Dare cancellation error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to cancel dare.';
+      showError(errorMessage);
+    } finally {
+      setCancelling(false);
+    }
   };
 
   return (
@@ -92,11 +140,11 @@ export default function DomDemandCreator() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Demand & Dominate</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
-              Create a demand that requires submissive consent before revealing
+              Create a dare that requires submissive consent before revealing
             </p>
           </div>
 
-          {/* Create Dom Demand Form */}
+          {/* Create Dominant Dare Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
             {createError && (
@@ -156,11 +204,11 @@ export default function DomDemandCreator() {
                   ))}
                 </div>
               </div>
-              
+
              {/* Description */}
               <FormTextarea
-                label="Your Demand (Hidden until consent)"
-                placeholder="Describe your demand in detail... (This will be hidden until the submissive consents)"
+                label="Your Dare (Hidden until consent)"
+                placeholder="Describe your dare in detail... (This will be hidden until the submissive consents)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
@@ -192,7 +240,7 @@ export default function DomDemandCreator() {
                     className="w-5 h-5 text-red-600 bg-neutral-800 border-neutral-700 rounded focus:ring-red-500 focus:ring-2"
                   />
                   <label htmlFor="publicDare" className="text-white">
-                    Make this demand public
+                    Make this dare public
                   </label>
                 </div>
               </div>
@@ -206,12 +254,12 @@ export default function DomDemandCreator() {
                 {creating ? (
                   <>
                     <ButtonLoading />
-                    Creating Demand...
+                    Creating Dare...
                   </>
                 ) : (
                   <>
                     <PlusIcon className="w-6 h-6" />
-                    Create Dom Demand
+                    Create Dominant Dare
                   </>
                 )}
               </button>
@@ -224,17 +272,17 @@ export default function DomDemandCreator() {
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title="Dom Demand Created Successfully!"
+        title="Dominant Dare Created Successfully!"
         role="dialog"
         aria-modal="true"
       >
         <div className="space-y-4">
           <div className="text-center">
             <ShieldCheckIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Demand Created!</h3>
+            <h3 className="text-xl font-bold text-white mb-2">Dare Created!</h3>
             <p className="text-neutral-300 mb-4">
-              Your dom demand has been created with double-consent protection. 
-              The submissive must first consent before seeing your specific demand.
+              Your dominant dare has been created with double-consent protection. 
+              The submissive must first consent before seeing your specific dare.
             </p>
           </div>
           
@@ -271,6 +319,29 @@ export default function DomDemandCreator() {
             >
               Go to Dashboard
             </button>
+          </div>
+          
+          {/* OMG Cancel Button */}
+          <div className="pt-4 border-t border-neutral-700">
+            <button
+              onClick={handleCancelDare}
+              disabled={cancelling}
+              className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-yellow-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {cancelling ? (
+                <>
+                  <ButtonLoading />
+                  Cancelling Dare...
+                </>
+              ) : (
+                <>
+                  🚨 OMG, Cancel This! 🚨
+                </>
+              )}
+            </button>
+            <p className="text-xs text-neutral-400 text-center mt-2">
+              Emergency cancel button - use if you need to immediately retract this dare
+            </p>
           </div>
         </div>
       </Modal>
