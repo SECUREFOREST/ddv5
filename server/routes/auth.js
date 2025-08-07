@@ -153,9 +153,9 @@ router.post('/login',
       const refreshToken = generateRefreshToken();
       user.refreshTokens = [...(user.refreshTokens || []), refreshToken];
       
-      // Clean up old tokens (keep only last 5 tokens)
-      if (user.refreshTokens.length > 5) {
-        user.refreshTokens = user.refreshTokens.slice(-5);
+      // Clean up old tokens (keep last 10 tokens to allow multiple devices)
+      if (user.refreshTokens.length > 10) {
+        user.refreshTokens = user.refreshTokens.slice(-10);
       }
       
       // Fix contentDeletion if it's invalid before saving
@@ -240,9 +240,9 @@ router.post('/refresh-token', [
       token === refreshToken ? newRefreshToken : token
     );
     
-    // Clean up old tokens (keep only last 5 tokens)
-    if (user.refreshTokens.length > 5) {
-      user.refreshTokens = user.refreshTokens.slice(-5);
+    // Clean up old tokens (keep last 10 tokens to allow multiple devices)
+    if (user.refreshTokens.length > 10) {
+      user.refreshTokens = user.refreshTokens.slice(-10);
     }
     
     await user.save();
