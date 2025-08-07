@@ -45,7 +45,7 @@ export default function DareDifficultySelect() {
         <MainContent className="max-w-3xl mx-auto space-y-8">
           {/* Header - Matching OSA Design */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Perform One Submissive Act</h1>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Perform a Deviant Dare</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
               It's up to you how much you offer, and who you share it with.
             </p>
@@ -114,6 +114,23 @@ export default function DareDifficultySelect() {
                 </>
               )}
             </button>
+          </div>
+
+          {/* How it Works Section */}
+          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-2xl p-6 border border-blue-800/30">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-white text-xs font-bold">i</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-400 mb-2">How it works</h3>
+                <p className="text-blue-300 text-sm leading-relaxed">
+                  After selecting a difficulty level, you'll be shown a random dare that matches your choice.
+                  You can then review the dare details and decide whether to accept or decline it.
+                  Remember, you can always decline any dare that makes you uncomfortable.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Footer - Matching OSA Style */}
