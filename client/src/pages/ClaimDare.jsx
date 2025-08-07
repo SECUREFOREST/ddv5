@@ -10,6 +10,7 @@ import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { MainContent, ContentContainer } from '../components/Layout';
+import Button from '../components/Button';
 
 export default function ClaimDare() {
   const { claimToken } = useParams();
