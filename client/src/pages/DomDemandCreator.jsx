@@ -32,7 +32,7 @@ export default function DomDemandCreator() {
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreateError('');
-    
+
     if (description.trim().length < 10) {
       showError('Description must be at least 10 characters.');
       return;
@@ -41,7 +41,7 @@ export default function DomDemandCreator() {
       showError('Description must be less than 1000 characters.');
       return;
     }
-    
+
     setCreating(true);
     try {
       // Create a dom demand with double-consent protection
@@ -53,7 +53,7 @@ export default function DomDemandCreator() {
         dareType: 'domination',
         requiresConsent: true, // This ensures double-consent workflow
       }));
-      
+
       if (res.data && res.data.claimLink) {
         setClaimLink(res.data.claimLink);
         setCreatedDare(res.data.dare || res.data);
@@ -104,18 +104,18 @@ export default function DomDemandCreator() {
     setCancelling(true);
     try {
       await retryApiCall(() => api.delete(`/dares/${createdDare._id}`));
-      
+
       showSuccess('Dare cancelled successfully!');
       setShowModal(false);
       setCreatedDare(null);
       setClaimLink('');
-      
+
       // Reset form
       setDescription('');
       setDifficulty('titillating');
       setTags([]);
       setCreateError('');
-      
+
     } catch (err) {
       console.error('Dare cancellation error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Failed to cancel dare.';
@@ -129,7 +129,7 @@ export default function DomDemandCreator() {
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-        
+
         <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
@@ -152,7 +152,7 @@ export default function DomDemandCreator() {
                 {createError}
               </ErrorAlert>
             )}
-            
+
             <form onSubmit={handleCreate} className="space-y-8">
 
               {/* Difficulty Selection */}
@@ -166,19 +166,17 @@ export default function DomDemandCreator() {
                       key={option.value}
                       type="button"
                       onClick={() => setDifficulty(option.value)}
-                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
-                        difficulty === option.value
+                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
                           ? 'border-red-500 bg-red-500/20 text-red-300 shadow-lg'
                           : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-4">
                         {/* Icon */}
-                        <div className={`p-3 rounded-lg flex-shrink-0 ${
-                          difficulty === option.value
+                        <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
                             ? 'bg-red-500/20 text-red-300'
                             : 'bg-neutral-700/50 text-neutral-400'
-                        }`}>
+                          }`}>
                           {DIFFICULTY_ICONS[option.value]}
                         </div>
 
@@ -205,7 +203,7 @@ export default function DomDemandCreator() {
                 </div>
               </div>
 
-             {/* Description */}
+              {/* Description */}
               <FormTextarea
                 label="Your Dare (Hidden until consent)"
                 placeholder="Describe your dare in detail... (This will be hidden until the submissive consents)"
@@ -281,11 +279,11 @@ export default function DomDemandCreator() {
             <ShieldCheckIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">Dare Created!</h3>
             <p className="text-neutral-300 mb-4">
-              Your dominant dare has been created with double-consent protection. 
+              Your dominant dare has been created with double-consent protection.
               The submissive must first consent before seeing your specific dare.
             </p>
           </div>
-          
+
           {claimLink && (
             <div>
               <label htmlFor="claim-link" className="block font-semibold mb-1 text-white">Shareable Link</label>
@@ -305,22 +303,6 @@ export default function DomDemandCreator() {
               </button>
             </div>
           )}
-          
-          <div className="flex gap-4">
-            <button
-              onClick={handleCreateAnother}
-              className="flex-1 bg-neutral-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-neutral-600 transition-colors"
-            >
-              Create Another
-            </button>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-          
           {/* OMG Cancel Button */}
           <div className="pt-4 border-t border-neutral-700">
             <button
@@ -339,10 +321,22 @@ export default function DomDemandCreator() {
                 </>
               )}
             </button>
-            <p className="text-xs text-neutral-400 text-center mt-2">
-              Emergency cancel button - use if you need to immediately retract this dare
-            </p>
           </div>
+          <div className="flex gap-4">
+            <button
+              onClick={handleCreateAnother}
+              className="flex-1 bg-neutral-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-neutral-600 transition-colors"
+            >
+              Create Another
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+
         </div>
       </Modal>
     </div>
