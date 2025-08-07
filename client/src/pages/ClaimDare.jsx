@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -202,6 +202,37 @@ export default function ClaimDare() {
       setChickenOutLoading(false);
     }
   };
+
+  // Mobile upload functions
+  const handleCameraUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.capture = 'environment'; // Use back camera by default
+    input.onchange = (e) => {
+      if (e.target.files && e.target.files[0]) {
+        setProofFile(e.target.files[0]);
+      }
+    };
+    input.click();
+  };
+
+  const handleGalleryUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.multiple = false;
+    input.onchange = (e) => {
+      if (e.target.files && e.target.files[0]) {
+        setProofFile(e.target.files[0]);
+      }
+    };
+    input.click();
+  };
+
+  // Check if device supports camera
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const supportsCamera = isMobile && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
 
   const handleGrade = async (starRating, targetId) => {
     if (starRating === grade) return; // Don't submit if same rating
@@ -607,6 +638,61 @@ export default function ClaimDare() {
 
                     <div>
                       <label htmlFor="proof-file" className="block font-semibold mb-2 text-white">Proof File (Required)</label>
+                      
+                      {/* Mobile Upload Options */}
+                      {isMobile && (
+                        <div className="mb-4">
+                          <div className="text-sm text-neutral-400 mb-3">Quick Upload Options:</div>
+                          <div className="flex gap-3">
+                            {supportsCamera && (
+                              <button
+                                type="button"
+                                onClick={handleCameraUpload}
+                                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2"
+                              >
+                                <CameraIcon className="w-5 h-5" />
+                                Camera
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={handleGalleryUpload}
+                              className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-purple-700 hover:from-purple-800 transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                              <PhotoIcon className="w-5 h-5" />
+                              Gallery
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* File Preview */}
+                      {proofFile && (
+                        <div className="mb-4 p-4 bg-neutral-800/30 rounded-xl border border-neutral-700/30">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                                <FireIcon className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <div className="text-white font-semibold">{proofFile.name}</div>
+                                <div className="text-neutral-400 text-sm">
+                                  {(proofFile.size / 1024 / 1024).toFixed(2)} MB
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setProofFile(null)}
+                              className="text-red-400 hover:text-red-300 p-1"
+                            >
+                              <ExclamationTriangleIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Standard File Input */}
                       <input
                         type="file"
                         id="proof-file"
@@ -615,6 +701,9 @@ export default function ClaimDare() {
                         accept="image/*,video/*"
                         required
                       />
+                      <div className="text-xs text-neutral-400 mt-2">
+                        Supported: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)
+                      </div>
                     </div>
 
                     {/* OSA-Style Content Expiration Settings */}
