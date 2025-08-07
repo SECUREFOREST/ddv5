@@ -22,6 +22,18 @@ export default function ClaimDare() {
   const [claiming, setClaiming] = useState(false);
   const [errorShown, setErrorShown] = useState(false);
   const [blocking, setBlocking] = useState(false);
+  const [proof, setProof] = useState('');
+  const [proofFile, setProofFile] = useState(null);
+  const [proofLoading, setProofLoading] = useState(false);
+  const [proofError, setProofError] = useState('');
+  const [proofSuccess, setProofSuccess] = useState('');
+  const [grade, setGrade] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [gradeError, setGradeError] = useState('');
+  const [grading, setGrading] = useState(false);
+  const [grades, setGrades] = useState([]);
+  const [chickenOutLoading, setChickenOutLoading] = useState(false);
+  const [chickenOutError, setChickenOutError] = useState('');
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchClaimDare = useCallback(async () => {
@@ -113,6 +125,87 @@ export default function ClaimDare() {
       showError(errorMessage);
     } finally {
       setBlocking(false);
+    }
+  };
+
+  const handleProofSubmit = async (e) => {
+    e.preventDefault();
+    setProofLoading(true);
+    setProofError('');
+    setProofSuccess('');
+    
+    if (!proof && !proofFile) {
+      showError('Please provide proof text or upload a file.');
+      setProofLoading(false);
+      return;
+    }
+    
+    try {
+      let formData;
+      if (proofFile) {
+        formData = new FormData();
+        if (proof) formData.append('text', proof);
+        formData.append('file', proofFile);
+        formData.append('contentDeletion', contentDeletion);
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }));
+      } else {
+        await retryApiCall(() => api.post(`/dares/${dare._id}/proof`, { text: proof, contentDeletion }));
+      }
+      setProof('');
+      setProofFile(null);
+      setProofSuccess('Proof submitted successfully!');
+      showSuccess('Proof submitted successfully!');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to submit proof.';
+      setProofError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setProofLoading(false);
+    }
+  };
+
+  const handleChickenOut = async () => {
+    setChickenOutLoading(true);
+    setChickenOutError('');
+    try {
+      await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
+      showSuccess('Dare declined successfully.');
+      navigate('/dashboard');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to decline dare.';
+      setChickenOutError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setChickenOutLoading(false);
+    }
+  };
+
+  const handleGrade = async (e, targetId) => {
+    e.preventDefault();
+    if (!grade || !feedback) {
+      setGradeError('Please provide both a grade and feedback.');
+      return;
+    }
+    
+    setGrading(true);
+    setGradeError('');
+    
+    try {
+      await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade, feedback }));
+      setGrade('');
+      setFeedback('');
+      showSuccess('Grade submitted successfully!');
+      // Refresh grades
+      const response = await retryApiCall(() => api.get(`/dares/${targetId}/grades`));
+      setGrades(response.data || []);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to submit grade.';
+      setGradeError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setGrading(false);
     }
   };
 
@@ -300,21 +393,184 @@ export default function ClaimDare() {
                   </p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={() => navigate(`/dare/${dare._id}/perform`)}
-                    className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center gap-2"
-                  >
-                    <FireIcon className="w-5 h-5" />
-                    Perform Dare
-                  </button>
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white rounded-xl px-6 py-3 font-bold hover:from-neutral-700 hover:to-neutral-800 transition-all duration-200"
-                  >
-                    Go to Dashboard
-                  </button>
+                {/* Proof Submission */}
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
+                  
+                  <form onSubmit={handleProofSubmit} className="space-y-6">
+                    <div>
+                      <label htmlFor="proof-text" className="block font-semibold mb-2 text-white">Proof Description</label>
+                      <textarea
+                        id="proof-text"
+                        value={proof}
+                        onChange={(e) => setProof(e.target.value)}
+                        className="w-full h-32 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
+                        placeholder="Describe how you completed the dare..."
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="proof-file" className="block font-semibold mb-2 text-white">Proof File (Optional)</label>
+                      <input
+                        type="file"
+                        id="proof-file"
+                        onChange={(e) => setProofFile(e.target.files[0])}
+                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                        accept="image/*,video/*"
+                      />
+                    </div>
+
+                    {/* OSA-Style Content Expiration Settings */}
+                    <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+                      <div className="flex items-start gap-4 mb-4">
+                        <ClockIcon className="w-8 h-8 text-yellow-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <h3 className="text-xl font-bold text-white mb-2">Content Privacy</h3>
+                          <p className="text-neutral-300 leading-relaxed">
+                            Choose how long this proof content should be available. This helps protect your privacy and ensures content doesn't persist indefinitely.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {PRIVACY_OPTIONS.map((option) => (
+                          <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                            contentDeletion === option.value 
+                              ? 'border-yellow-500 bg-yellow-500/10' 
+                              : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
+                          }`}>
+                            <input 
+                              type="radio" 
+                              name="contentDeletion" 
+                              value={option.value} 
+                              checked={contentDeletion === option.value} 
+                              onChange={(e) => updateContentDeletion(e.target.value)} 
+                              className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-lg">{option.icon}</span>
+                                <span className="font-semibold text-white">{option.label}</span>
+                              </div>
+                              <p className="text-sm text-neutral-300">{option.desc}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <button
+                        type="submit"
+                        disabled={proofLoading || (!proof && !proofFile)}
+                        className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {proofLoading ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <FireIcon className="w-5 h-5" />
+                            Submit Proof
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleChickenOut}
+                        disabled={chickenOutLoading}
+                        className="flex-1 bg-gradient-to-r from-neutral-600 to-neutral-700 text-white rounded-xl px-6 py-3 font-bold hover:from-neutral-700 hover:to-neutral-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {chickenOutLoading ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Declining...
+                          </>
+                        ) : (
+                          <>
+                            <ExclamationTriangleIcon className="w-5 h-5" />
+                            Chicken Out
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Error/Success Messages */}
+                    {proofError && (
+                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
+                        {proofError}
+                      </div>
+                    )}
+                    {proofSuccess && (
+                      <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4 text-green-300">
+                        {proofSuccess}
+                      </div>
+                    )}
+                    {chickenOutError && (
+                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
+                        {chickenOutError}
+                      </div>
+                    )}
+                  </form>
+                </div>
+
+                {/* Grading Section */}
+                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
+                  
+                  <form onSubmit={(e) => handleGrade(e, dare._id)} className="space-y-6">
+                    <div>
+                      <label htmlFor="grade" className="block font-semibold mb-2 text-white">Grade (1-10)</label>
+                      <input
+                        type="number"
+                        id="grade"
+                        min="1"
+                        max="10"
+                        value={grade}
+                        onChange={(e) => setGrade(e.target.value)}
+                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                        placeholder="Rate from 1-10"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="feedback" className="block font-semibold mb-2 text-white">Feedback</label>
+                      <textarea
+                        id="feedback"
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
+                        placeholder="Share your thoughts about this dare..."
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={grading || !grade || !feedback}
+                      className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-bold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {grading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Submitting Grade...
+                        </>
+                      ) : (
+                        <>
+                          <SparklesIcon className="w-5 h-5" />
+                          Submit Grade
+                        </>
+                      )}
+                    </button>
+
+                    {gradeError && (
+                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
+                        {gradeError}
+                      </div>
+                    )}
+                  </form>
                 </div>
               </div>
             </MainContent>
