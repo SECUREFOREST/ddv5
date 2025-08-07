@@ -40,7 +40,14 @@ export default function ClaimDare() {
       }
     } catch (error) {
       console.error('Dare claim loading error:', error);
-      const errorMessage = error.response?.data?.error || 'Dare not found or already claimed.';
+      let errorMessage = 'Dare not found or already claimed.';
+      
+      if (error.response?.status === 404) {
+        errorMessage = 'This dare link is invalid or has expired. The dare may have already been claimed or removed.';
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
       showError(errorMessage);
     } finally {
       setLoading(false);
@@ -101,14 +108,52 @@ export default function ClaimDare() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
         <ContentContainer>
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
-              <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
-              <p className="text-neutral-500 text-sm">
-                This dare may have been claimed already or the link is invalid.
+          <MainContent className="max-w-2xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="bg-gradient-to-r from-neutral-600 to-neutral-700 p-4 rounded-2xl shadow-2xl shadow-neutral-500/25">
+                  <ExclamationTriangleIcon className="w-10 h-10 text-white" />
+                </div>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Dare Not Found</h1>
+              <p className="text-xl sm:text-2xl text-neutral-300">
+                This dare link is invalid or has expired
               </p>
             </div>
-          </div>
+
+            {/* Error Details */}
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="text-center space-y-6">
+                <div className="text-neutral-400 text-lg">
+                  This dare may have been:
+                </div>
+                <div className="space-y-3 text-left max-w-md mx-auto">
+                  <div className="flex items-center gap-3 text-neutral-300">
+                    <div className="w-2 h-2 bg-neutral-500 rounded-full"></div>
+                    <span>Already claimed by someone else</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-neutral-300">
+                    <div className="w-2 h-2 bg-neutral-500 rounded-full"></div>
+                    <span>Removed by the creator</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-neutral-300">
+                    <div className="w-2 h-2 bg-neutral-500 rounded-full"></div>
+                    <span>Expired or invalid</span>
+                  </div>
+                </div>
+                
+                <div className="pt-6">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white rounded-xl px-6 py-3 font-bold hover:from-neutral-700 hover:to-neutral-800 transition-all duration-200"
+                  >
+                    Go to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </MainContent>
         </ContentContainer>
       </div>
     );
