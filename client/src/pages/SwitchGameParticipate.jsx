@@ -60,6 +60,7 @@ function StatusBadge({ status }) {
 export default function SwitchGameParticipate() {
   const { gameId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [game, setGame] = useState(null);
   const [demand, setDemand] = useState('');
   const [gesture, setGesture] = useState('');

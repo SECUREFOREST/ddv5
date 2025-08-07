@@ -159,8 +159,6 @@ export default function Dashboard() {
         stats: statsData,
         activities: activitiesData
       }, 5 * 60 * 1000); // 5 minutes cache
-      
-      showSuccess('Dashboard updated successfully!');
     } catch (error) {
       console.error('Dashboard loading error:', error);
       const errorMessage = handleApiError(error, 'dashboard');
