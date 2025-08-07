@@ -264,7 +264,7 @@ export default function DomDemandCreator() {
             <ShieldCheckIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">Dare Created!</h3>
             <p className="text-neutral-300 mb-4">
-              Your dominant dare has been created with double-consent protection.
+              Your dominant dare has been created with consent protection.
               The submissive must first consent before seeing your specific dare.
             </p>
           </div>
