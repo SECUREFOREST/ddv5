@@ -256,7 +256,6 @@ export default function DomDemandCreator() {
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
-        title="Dominant Dare Created Successfully!"
         role="dialog"
         aria-modal="true"
       >
