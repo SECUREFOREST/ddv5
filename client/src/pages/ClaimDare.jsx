@@ -1532,36 +1532,15 @@ export default function ClaimDare() {
 
           {/* Dom Information Table - OSA Style */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-            {/* Avatar and Name Header */}
-            <div className="text-center mb-6">
-              <div className="flex items-center justify-center gap-4 mb-4">
-                {creator?.avatar ? (
-                  <img 
-                    src={creator.avatar} 
-                    alt={`${creator.fullName || creator.username} avatar`}
-                    className="w-16 h-16 rounded-full border-2 border-primary/30 shadow-lg"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center border-2 border-primary/30 shadow-lg">
-                    <span className="text-white font-bold text-xl">
-                      {(creator?.fullName || creator?.username || 'D').charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <div className="text-white font-bold text-xl">
-                    {creator?.fullName || creator?.username || 'Anonymous'}
-                  </div>
-                  <div className="text-neutral-400 text-sm">
-                    Dom • {creator?.daresCreated || 0} dares created
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Name</td>
+                    <td className="py-2 text-white font-semibold">
+                      {creator?.fullName || creator?.username || 'Anonymous'}
+                    </td>
+                  </tr>
                   {creator?.gender && (
                     <tr className="border-b border-neutral-700/30 pb-4">
                       <td className="py-2 text-neutral-400 font-semibold w-1/3">Gender</td>
