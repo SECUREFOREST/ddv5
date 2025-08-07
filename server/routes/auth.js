@@ -152,6 +152,14 @@ router.post('/login',
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken();
       user.refreshTokens = [...(user.refreshTokens || []), refreshToken];
+      
+      // Fix contentDeletion if it's invalid before saving
+      const validContentDeletionValues = ['delete_after_view', 'delete_after_30_days', 'never_delete', '', 'when_viewed', '30_days', 'never'];
+      if (user.contentDeletion && !validContentDeletionValues.includes(user.contentDeletion)) {
+        console.warn(`Fixing invalid contentDeletion value "${user.contentDeletion}" for user ${user.username}`);
+        user.contentDeletion = '';
+      }
+      
       await user.save();
       res.json({ accessToken, refreshToken, user: { id: user._id, username: user.username, email: user.email } });
     } catch (err) {

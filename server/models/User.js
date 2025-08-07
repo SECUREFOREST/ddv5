@@ -33,6 +33,17 @@ const UserSchema = new mongoose.Schema({
       'when_viewed', '30_days', 'never'
     ],
     default: '',
+    set: function(value) {
+      const validValues = ['delete_after_view', 'delete_after_30_days', 'never_delete', '', 'when_viewed', '30_days', 'never'];
+      
+      // If the value is invalid, log a warning and return the default
+      if (value && !validValues.includes(value)) {
+        console.warn(`Invalid contentDeletion value "${value}" being set, using default empty string`);
+        return '';
+      }
+      
+      return value;
+    }
   },
 });
 
