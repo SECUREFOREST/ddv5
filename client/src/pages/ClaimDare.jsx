@@ -220,7 +220,14 @@ export default function ClaimDare() {
       
       const response = await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
       setGrade(starRating);
-      showSuccess(`Rated ${starRating} stars!`);
+      
+      // Check if this was an update or new rating
+      const existingGrade = grades.find(g => g.user === user._id);
+      if (existingGrade) {
+        showSuccess(`Updated rating to ${starRating} stars!`);
+      } else {
+        showSuccess(`Rated ${starRating} stars!`);
+      }
       
       // Update grades from the response
       if (response.data && response.data.dare && response.data.dare.grades) {
@@ -230,6 +237,11 @@ export default function ClaimDare() {
       const errorMessage = err.response?.data?.error || 'Failed to submit grade.';
       setGradeError(errorMessage);
       showError(errorMessage);
+      
+      // If user has already graded, show a more specific message
+      if (err.response?.status === 400 && errorMessage.includes('already graded')) {
+        showError('You have already rated this dare. You can only rate once.');
+      }
     } finally {
       setGrading(false);
     }

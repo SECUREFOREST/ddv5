@@ -573,20 +573,31 @@ router.post('/:id/grade', auth, [
       return res.status(403).json({ error: 'You cannot grade this dare.' });
     }
     
-    // Add grade to dare
-    const gradeData = {
-      user: req.userId,
-      grade: parseInt(grade),
-      feedback: feedback || '',
-      createdAt: new Date()
-    };
+    // Check if user has already graded this dare and update existing grade
+    const existingGradeIndex = dare.grades ? dare.grades.findIndex(g => g.user.toString() === req.userId && !g.target) : -1;
     
-    if (target) {
-      gradeData.target = target;
+    if (existingGradeIndex !== -1) {
+      // Update existing grade
+      dare.grades[existingGradeIndex].grade = parseInt(grade);
+      dare.grades[existingGradeIndex].feedback = feedback || '';
+      dare.grades[existingGradeIndex].updatedAt = new Date();
+    } else {
+      // Add new grade
+      const gradeData = {
+        user: req.userId,
+        grade: parseInt(grade),
+        feedback: feedback || '',
+        createdAt: new Date()
+      };
+      
+      if (target) {
+        gradeData.target = target;
+      }
+      
+      if (!dare.grades) dare.grades = [];
+      dare.grades.push(gradeData);
     }
     
-    if (!dare.grades) dare.grades = [];
-    dare.grades.push(gradeData);
     await dare.save();
     
     // Notify the other party
