@@ -218,12 +218,14 @@ export default function ClaimDare() {
         throw new Error('No dare ID provided for grading');
       }
       
+      // Check if user already has a grade before submitting
+      const hadExistingGrade = grades.find(g => g.user === user._id);
+      
       const response = await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
       setGrade(starRating);
       
-      // Check if this was an update or new rating
-      const existingGrade = grades.find(g => g.user === user._id);
-      if (existingGrade) {
+      // Show appropriate message based on whether it was an update or new rating
+      if (hadExistingGrade) {
         showSuccess(`Updated rating to ${starRating} stars!`);
       } else {
         showSuccess(`Rated ${starRating} stars!`);
@@ -237,11 +239,6 @@ export default function ClaimDare() {
       const errorMessage = err.response?.data?.error || 'Failed to submit grade.';
       setGradeError(errorMessage);
       showError(errorMessage);
-      
-      // If user has already graded, show a more specific message
-      if (err.response?.status === 400 && errorMessage.includes('already graded')) {
-        showError('You have already rated this dare. You can only rate once.');
-      }
     } finally {
       setGrading(false);
     }
@@ -528,7 +525,10 @@ export default function ClaimDare() {
                           </div>
                           {grade > 0 && (
                             <div className="mt-2 text-sm text-neutral-300">
-                              You rated this dare {grade} star{grade > 1 ? 's' : ''} (Debug: grade={grade})
+                              {grades.find(g => g.user === user?._id) ? 
+                                `Your rating: ${grade} star${grade > 1 ? 's' : ''}` :
+                                `You rated this dare ${grade} star${grade > 1 ? 's' : ''}`
+                              } (Debug: grade={grade})
                             </div>
                           )}
                         </div>
