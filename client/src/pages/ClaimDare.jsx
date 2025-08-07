@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
@@ -16,6 +17,7 @@ export default function ClaimDare() {
   const { claimToken } = useParams();
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
+  const { user } = useAuth();
   const [dare, setDare] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
@@ -54,6 +56,15 @@ export default function ClaimDare() {
         // If dare is already claimed, show the perform section directly
         if (response.data.claimedBy || !response.data.claimable) {
           setSubmitted(true);
+        }
+        
+        // Set grades from dare object and find current user's grade
+        setGrades(response.data.grades || []);
+        if (user && response.data.grades) {
+          const currentUserGrade = response.data.grades.find(g => g.user === user._id);
+          if (currentUserGrade) {
+            setGrade(currentUserGrade.grade);
+          }
         }
       } else {
         throw new Error('No data received from server');
@@ -207,12 +218,14 @@ export default function ClaimDare() {
         throw new Error('No dare ID provided for grading');
       }
       
-      await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
+      const response = await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
       setGrade(starRating);
       showSuccess(`Rated ${starRating} stars!`);
-      // Refresh grades
-      const response = await retryApiCall(() => api.get(`/dares/${targetId}/grades`));
-      setGrades(response.data || []);
+      
+      // Update grades from the response
+      if (response.data && response.data.dare && response.data.dare.grades) {
+        setGrades(response.data.dare.grades);
+      }
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit grade.';
       setGradeError(errorMessage);
