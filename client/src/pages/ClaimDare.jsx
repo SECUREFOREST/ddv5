@@ -52,6 +52,11 @@ export default function ClaimDare() {
   });
   const [filePreview, setFilePreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [fileLoading, setFileLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [fullscreenLoading, setFullscreenLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [optimizationLoading, setOptimizationLoading] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchClaimDare = useCallback(async () => {
@@ -312,6 +317,7 @@ export default function ClaimDare() {
 
   // Secure file loading function
   const loadSecureFile = async (fileUrl) => {
+    setFileLoading(true);
     try {
       const filename = fileUrl.split('/').pop();
       const response = await api.get(`/uploads/secure/${filename}`);
@@ -330,6 +336,8 @@ export default function ClaimDare() {
     } catch (err) {
       console.error('Failed to load secure file:', err);
       return null;
+    } finally {
+      setFileLoading(false);
     }
   };
 
