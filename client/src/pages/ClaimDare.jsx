@@ -20,6 +20,7 @@ export default function ClaimDare() {
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [errorShown, setErrorShown] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchClaimDare = useCallback(async () => {
@@ -40,21 +41,27 @@ export default function ClaimDare() {
       }
     } catch (error) {
       console.error('Dare claim loading error:', error);
-      let errorMessage = 'Dare not found or already claimed.';
       
-      if (error.response?.status === 404) {
-        errorMessage = 'This dare link is invalid or has expired. The dare may have already been claimed or removed.';
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
+      // Only show error once
+      if (!errorShown) {
+        let errorMessage = 'Dare not found or already claimed.';
+        
+        if (error.response?.status === 404) {
+          errorMessage = 'This dare link is invalid or has expired. The dare may have already been claimed or removed.';
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+        
+        showError(errorMessage);
+        setErrorShown(true);
       }
-      
-      showError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [claimToken, showSuccess, showError]);
+  }, [claimToken]);
 
   useEffect(() => {
+    setErrorShown(false);
     fetchClaimDare();
   }, [fetchClaimDare]);
 
