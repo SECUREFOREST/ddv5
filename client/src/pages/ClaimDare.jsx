@@ -952,7 +952,10 @@ export default function ClaimDare() {
                                     </button>
                                                                          <button
                                        onClick={(e) => {
+                                         e.preventDefault();
+                                         e.stopPropagation();
                                          console.log('Video fullscreen button clicked');
+                                         
                                          // Find the video element more reliably
                                          const container = e.target.closest('.relative');
                                          console.log('Video container found:', container);
