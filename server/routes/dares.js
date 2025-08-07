@@ -725,7 +725,7 @@ router.post('/:id/proof',
       // await checkSlotAndCooldownAtomic(req.userId); // Removed: do not enforce cooldown/open dare limit on completion
       const dare = await Dare.findById(req.params.id);
       if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-      if (!dare.performer || dare.performer.toString() !== req.userId) {
+      if (!dare.claimedBy || dare.claimedBy.toString() !== req.userId) {
         return res.status(403).json({ error: 'Unauthorized.' });
       }
       const text = req.body.text || '';
@@ -1187,7 +1187,7 @@ router.post('/claim/:token', auth, [
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     
-    dare.claimedBy = req.userId; // Set to the user who claimed it
+    dare.claimedBy = req.userId; // Set to the user who claimed it (the performer)
     dare.claimedAt = new Date();
     dare.claimDemand = req.body.demand;
     dare.status = 'in_progress';
