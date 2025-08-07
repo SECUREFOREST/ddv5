@@ -805,39 +805,10 @@ export default function ClaimDare() {
                                onClick={(e) => {
                                  e.preventDefault();
                                  e.stopPropagation();
-                                 console.log('Fullscreen button clicked');
+                                 console.log('Fullscreen button clicked - using CSS toggle like debug button');
                                  
-                                 // Find the image element more reliably
-                                 const container = e.target.closest('.relative');
-                                 console.log('Container found:', container);
-                                 
-                                 if (!container) {
-                                   console.log('No container found, trying alternative approach');
-                                   // Try to find the image in the same section
-                                   const imgElement = e.target.closest('.bg-gradient-to-r').querySelector('img');
-                                   if (imgElement) {
-                                     console.log('Found image via alternative method');
-                                     if (!proofPreview.isFullscreen) {
-                                       openFullscreen(imgElement);
-                                     } else {
-                                       closeFullscreen();
-                                     }
-                                   }
-                                   return;
-                                 }
-                                 
-                                 const imgElement = container.querySelector('img');
-                                 console.log('Image element found:', imgElement);
-                                 
-                                 if (imgElement) {
-                                   if (!proofPreview.isFullscreen) {
-                                     openFullscreen(imgElement);
-                                   } else {
-                                     closeFullscreen();
-                                   }
-                                 } else {
-                                   console.log('No image element found in container');
-                                 }
+                                 // Use the same behavior as the debug toggle button
+                                 setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                }}
                                className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
                                title="Toggle fullscreen"
@@ -870,11 +841,8 @@ export default function ClaimDare() {
                                    className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
                                    onClick={async (e) => {
                                      console.log('Image clicked, current fullscreen state:', proofPreview.isFullscreen);
-                                     if (!proofPreview.isFullscreen) {
-                                       await openFullscreen(e.target);
-                                     } else {
-                                       await closeFullscreen();
-                                     }
+                                     // Use the same behavior as the debug toggle button
+                                     setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                    }}
                                    style={{ cursor: 'pointer' }}
                                  />
@@ -954,39 +922,10 @@ export default function ClaimDare() {
                                        onClick={(e) => {
                                          e.preventDefault();
                                          e.stopPropagation();
-                                         console.log('Video fullscreen button clicked');
+                                         console.log('Video fullscreen button clicked - using CSS toggle like debug button');
                                          
-                                         // Find the video element more reliably
-                                         const container = e.target.closest('.relative');
-                                         console.log('Video container found:', container);
-                                         
-                                         if (!container) {
-                                           console.log('No video container found, trying alternative approach');
-                                           // Try to find the video in the same section
-                                           const videoElement = e.target.closest('.bg-gradient-to-r').querySelector('video');
-                                           if (videoElement) {
-                                             console.log('Found video via alternative method');
-                                             if (!proofPreview.isFullscreen) {
-                                               openFullscreen(videoElement);
-                                             } else {
-                                               closeFullscreen();
-                                             }
-                                           }
-                                           return;
-                                         }
-                                         
-                                         const videoElement = container.querySelector('video');
-                                         console.log('Video element found:', videoElement);
-                                         
-                                         if (videoElement) {
-                                           if (!proofPreview.isFullscreen) {
-                                             openFullscreen(videoElement);
-                                           } else {
-                                             closeFullscreen();
-                                           }
-                                         } else {
-                                           console.log('No video element found in container');
-                                         }
+                                         // Use the same behavior as the debug toggle button
+                                         setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                        }}
                                        className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
                                        title="Fullscreen"
