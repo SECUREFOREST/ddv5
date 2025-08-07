@@ -200,6 +200,13 @@ export default function ClaimDare() {
     
     try {
       console.log('Sending grade:', starRating, 'to dare:', targetId);
+      console.log('Dare object:', dare);
+      console.log('Dare ID:', dare?._id);
+      
+      if (!targetId) {
+        throw new Error('No dare ID provided for grading');
+      }
+      
       await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
       setGrade(starRating);
       showSuccess(`Rated ${starRating} stars!`);
@@ -399,44 +406,7 @@ export default function ClaimDare() {
                   </p>
                 </div>
 
-                {/* Grading Section */}
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-                  <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block font-semibold mb-4 text-white">Click to Rate (1-5 Stars)</label>
-                      <div className="flex items-center gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => handleGrade(star, dare._id)}
-                            disabled={grading}
-                            className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
-                              star <= grade 
-                                ? 'text-yellow-400 bg-yellow-400/10' 
-                                : 'text-neutral-400 hover:text-yellow-400'
-                            }`}
-                          >
-                            <StarIcon className="w-8 h-8" />
-                          </button>
-                        ))}
-                      </div>
-                      {grade > 0 && (
-                        <div className="mt-2 text-sm text-neutral-300">
-                          You rated this dare {grade} star{grade > 1 ? 's' : ''} (Debug: grade={grade})
-                        </div>
-                      )}
-                    </div>
 
-                    {gradeError && (
-                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
-                        {gradeError}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
                 {/* Proof Submission */}
                 <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
@@ -504,6 +474,47 @@ export default function ClaimDare() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Grading Section */}
+                    {dare && dare._id && (
+                      <div className="space-y-6">
+                        <div>
+                          <label className="block font-semibold mb-4 text-white">Rate This Dare (1-5 Stars)</label>
+                          <div className="flex items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => {
+                                  console.log('Star clicked:', star);
+                                  console.log('Dare ID being passed:', dare._id);
+                                  handleGrade(star, dare._id);
+                                }}
+                                disabled={grading}
+                                className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                  star <= grade 
+                                    ? 'text-yellow-400 bg-yellow-400/10' 
+                                    : 'text-neutral-400 hover:text-yellow-400'
+                                }`}
+                              >
+                                <StarIcon className="w-8 h-8" />
+                              </button>
+                            ))}
+                          </div>
+                          {grade > 0 && (
+                            <div className="mt-2 text-sm text-neutral-300">
+                              You rated this dare {grade} star{grade > 1 ? 's' : ''} (Debug: grade={grade})
+                            </div>
+                          )}
+                        </div>
+
+                        {gradeError && (
+                          <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
+                            {gradeError}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4">

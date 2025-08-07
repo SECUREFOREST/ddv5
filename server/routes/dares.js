@@ -1386,13 +1386,17 @@ router.post('/:id/appeal', auth, [
 // POST /api/dares/:id/grade - grade a dare
 router.post('/:id/grade', auth, [
   body('grade').isNumeric().custom((value) => {
+    console.log('Validating grade value:', value, 'type:', typeof value);
     const num = parseFloat(value);
+    console.log('Parsed number:', num);
     if (num < 1 || num > 5 || !Number.isInteger(num)) {
+      console.log('Validation failed: num < 1:', num < 1, 'num > 5:', num > 5, '!Number.isInteger(num):', !Number.isInteger(num));
       throw new Error('Grade must be an integer between 1 and 5.');
     }
     return true;
   })
 ], async (req, res) => {
+  console.log('Received request body:', req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation errors:', errors.array());
