@@ -66,7 +66,7 @@ export default function DareDifficultySelect() {
                 <label className="block text-lg font-semibold text-white mb-6">
                   Select Difficulty Level
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-4">
                   {DIFFICULTY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
