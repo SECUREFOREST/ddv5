@@ -5,7 +5,7 @@ import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriang
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
-import { PRIVACY_OPTIONS } from '../constants.jsx';
+import { PRIVACY_OPTIONS, DIFFICULTY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { DifficultyBadge } from '../components/Badge';
