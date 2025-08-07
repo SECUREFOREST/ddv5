@@ -519,12 +519,7 @@ export default function ClaimDare() {
                         {chickenOutError}
                       </div>
                     )}
-                  </form>
-                </div>
-
-                {/* Grading Section */}
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-                  <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
+                                     <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
                   
                   <div className="space-y-6">
                     <div>
@@ -559,6 +554,7 @@ export default function ClaimDare() {
                       </div>
                     )}
                   </div>
+                  </form>
                 </div>
               </div>
             </MainContent>
