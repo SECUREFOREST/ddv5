@@ -50,8 +50,11 @@ export default function ClaimDare() {
       
       if (response.data) {
         setDare(response.data);
-
-
+        
+        // If dare is already claimed, show the perform section directly
+        if (response.data.claimedBy || !response.data.claimable) {
+          setSubmitted(true);
+        }
       } else {
         throw new Error('No data received from server');
       }
