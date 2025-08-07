@@ -327,15 +327,21 @@ export default function ClaimDare() {
   const openFullscreen = async (element) => {
     try {
       console.log('Attempting to open fullscreen for:', element);
-      if (element.requestFullscreen) {
-        await element.requestFullscreen();
-      } else if (element.webkitRequestFullscreen) {
-        await element.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) {
-        await element.msRequestFullscreen();
+      
+      // Prevent opening in new window by ensuring we're working with the DOM element
+      if (element && element.tagName) {
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+          await element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+          await element.msRequestFullscreen();
+        } else {
+          console.log('Fullscreen API not supported, using CSS fallback');
+          setProofPreview(prev => ({ ...prev, isFullscreen: true }));
+        }
       } else {
-        console.log('Fullscreen API not supported');
-        // Fallback to CSS fullscreen
+        console.log('Invalid element for fullscreen, using CSS fallback');
         setProofPreview(prev => ({ ...prev, isFullscreen: true }));
       }
     } catch (error) {
@@ -797,7 +803,10 @@ export default function ClaimDare() {
                           <div className="flex items-center gap-2">
                                                          <button
                                onClick={(e) => {
+                                 e.preventDefault();
+                                 e.stopPropagation();
                                  console.log('Fullscreen button clicked');
+                                 
                                  // Find the image element more reliably
                                  const container = e.target.closest('.relative');
                                  console.log('Container found:', container);
@@ -870,7 +879,9 @@ export default function ClaimDare() {
                                    style={{ cursor: 'pointer' }}
                                  />
                                  {!proofPreview.isFullscreen && (
-                                   <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
+                                   <div 
+                                     className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 pointer-events-none"
+                                   >
                                      <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
                                        Click to expand
                                      </div>
