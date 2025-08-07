@@ -9,6 +9,7 @@ import { DIFFICULTY_OPTIONS, DIFFICULTY_ICONS, ERROR_MESSAGES } from '../constan
 
 import { PRIVACY_OPTIONS } from '../constants.jsx';
 import { retryApiCall } from '../utils/retry';
+import { validateFormData, VALIDATION_SCHEMAS } from '../utils/validation';
 import { ErrorAlert, SuccessAlert } from '../components/Alert';
 import { ButtonLoading } from '../components/LoadingSpinner';
 import { MainContent, ContentContainer } from '../components/Layout';
@@ -160,16 +161,7 @@ export default function OfferSubmission() {
       setSuccess('Submission offer created successfully!');
       showSuccess('Submission offer created successfully!');
       // Memory-safe timeout for navigation
-      const timeoutRef = useRef(null);
-  
-  useEffect(() => {
-    timeoutRef.current = setTimeout(() => navigate('/performer-dashboard'), 1200);
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [navigate]);
+      setTimeout(() => navigate('/performer-dashboard'), 1200);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to create submission offer.';
       setError(errorMessage);

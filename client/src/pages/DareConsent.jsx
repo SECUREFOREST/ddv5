@@ -241,11 +241,6 @@ export default function DareConsent() {
               )}
             </Button>
           </div>
-
-          {/* Footer */}
-          <div className="text-center text-neutral-400 text-sm">
-            <p>Built by kinky folks, for kinky folks.</p>
-          </div>
         </MainContent>
       </ContentContainer>
     </div>
