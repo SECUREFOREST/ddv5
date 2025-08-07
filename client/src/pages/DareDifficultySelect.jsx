@@ -19,11 +19,11 @@ export default function DareDifficultySelect() {
   const handleContinue = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       // Use retry mechanism for random dare fetch
       const response = await retryApiCall(() => api.get(`/dares/random?difficulty=${difficulty}`));
-      
+
       if (response.data && response.data._id) {
         showSuccess('Dare found! Redirecting...');
 
@@ -44,7 +44,7 @@ export default function DareDifficultySelect() {
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-        
+
         <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
@@ -62,43 +62,38 @@ export default function DareDifficultySelect() {
           {/* Difficulty Selection Form */}
           <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <form onSubmit={handleContinue} className="space-y-8">
-              <div>
-                <label className="block text-lg font-semibold text-white mb-6">
-                  Select Difficulty Level
-                </label>
-                <div className="space-y-4">
-                  {DIFFICULTY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDifficulty(option.value)}
-                      className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${
-                        difficulty === option.value
-                          ? 'border-primary bg-primary/20 text-primary shadow-lg scale-105'
-                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+              <div className="space-y-4">
+                {DIFFICULTY_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setDifficulty(option.value)}
+                    className={`p-6 rounded-xl border-2 transition-all duration-200 text-left ${difficulty === option.value
+                        ? 'border-primary bg-primary/20 text-primary shadow-lg scale-105'
+                        : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
                       }`}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        {DIFFICULTY_ICONS[option.value]}
-                        <div className="font-semibold text-lg">{option.label}</div>
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      {DIFFICULTY_ICONS[option.value]}
+                      <div className="font-semibold text-lg">{option.label}</div>
+                    </div>
+                    <div className="text-sm opacity-75 leading-relaxed">
+                      {option.desc}
+                    </div>
+                    {option.longDesc && (
+                      <div className="text-xs opacity-60 mt-2 leading-relaxed">
+                        {option.longDesc}
                       </div>
-                      <div className="text-sm opacity-75 leading-relaxed">
-                        {option.desc}
+                    )}
+                    {option.examples && (
+                      <div className="text-xs opacity-50 mt-1 italic">
+                        Examples: {option.examples}
                       </div>
-                      {option.longDesc && (
-                        <div className="text-xs opacity-60 mt-2 leading-relaxed">
-                          {option.longDesc}
-                        </div>
-                      )}
-                      {option.examples && (
-                        <div className="text-xs opacity-50 mt-1 italic">
-                          Examples: {option.examples}
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                    )}
+                  </button>
+                ))}
               </div>
+
 
               {/* Continue Button */}
               <div className="text-center">
@@ -132,8 +127,8 @@ export default function DareDifficultySelect() {
               <div>
                 <h3 className="font-semibold text-blue-400 mb-2">How it works</h3>
                 <p className="text-blue-300 text-sm leading-relaxed">
-                  After selecting a difficulty level, you'll be shown a random dare that matches your choice. 
-                  You can then review the dare details and decide whether to accept or decline it. 
+                  After selecting a difficulty level, you'll be shown a random dare that matches your choice.
+                  You can then review the dare details and decide whether to accept or decline it.
                   Remember, you can always decline any dare that makes you uncomfortable.
                 </p>
               </div>
