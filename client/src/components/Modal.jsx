@@ -57,7 +57,9 @@ export default function Modal({ open, onClose, title, children, actions, classNa
         >
           &times;
         </button>
-        <h2 id={titleId} className="text-xl font-bold mb-4">{title}</h2>
+        {title && (
+          <h2 id={titleId} className="text-xl font-bold mb-4">{title}</h2>
+        )}
         {children}
       </div>
     </div>
