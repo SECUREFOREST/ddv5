@@ -52,7 +52,7 @@ export default function Notifications() {
       if (response.data) {
         const notificationsData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setNotifications(notificationsData);
-        showSuccess('Notifications loaded successfully!');
+
 
       } else {
         throw new Error('No data received from server');

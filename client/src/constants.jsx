@@ -295,8 +295,7 @@ export const SUCCESS_MESSAGES = {
   SWITCH_GAME_JOINED: 'Successfully joined switch game!',
   PROOF_SUBMITTED: 'Proof submitted successfully!',
   SETTINGS_UPDATED: 'Settings updated successfully!',
-  DATA_LOADED: 'Data loaded successfully!',
-  ASSOCIATES_LOADED: 'Associates loaded successfully!'
+
 };
 
 // Add more as needed (e.g., DARE_TYPE_OPTIONS, ROLE_OPTIONS, etc.) 

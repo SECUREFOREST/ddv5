@@ -101,7 +101,7 @@ export default function DareDetails() {
         setDare(response.data);
         // Cache the dare details
         setCachedData(cacheKey, response.data, 10 * 60 * 1000); // 10 minutes cache
-        showSuccess('Dare details loaded successfully!');
+
 
       } else {
         throw new Error('No data received from server');

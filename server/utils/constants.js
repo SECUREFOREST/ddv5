@@ -32,7 +32,7 @@ exports.ERROR_MESSAGES = {
   USER_VERIFICATION_ERROR: 'Failed to verify user existence.',
   
   // Success messages
-  ASSOCIATES_LOADED: 'Associates loaded successfully.',
+
   USER_VERIFIED: 'User verified successfully.',
   DATA_PROCESSED: 'Data processed successfully.'
 };

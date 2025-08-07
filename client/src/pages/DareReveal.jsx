@@ -69,7 +69,7 @@ export default function DareReveal() {
           showError('You are not authorized to view this dare.');
         } else {
           setDare(response.data);
-          showSuccess('Dare loaded successfully!');
+  
 
         }
       } else {

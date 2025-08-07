@@ -32,7 +32,7 @@ export default function ClaimDare() {
       
       if (response.data) {
         setDare(response.data);
-        showSuccess('Dare loaded successfully!');
+
 
       } else {
         throw new Error('No data received from server');

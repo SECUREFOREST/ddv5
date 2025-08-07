@@ -81,7 +81,7 @@ export default function Leaderboard() {
         const usersData = validateApiResponse(response, API_RESPONSE_TYPES.USER_ARRAY);
         setUsers(usersData);
         setTotalItems(usersData.length);
-        showSuccess('Leaderboard loaded successfully!');
+
       } else {
         throw new Error('Invalid response format from server');
       }

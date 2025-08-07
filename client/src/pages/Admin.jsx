@@ -598,7 +598,7 @@ function Admin() {
             }).finally(() => {
               setIsInitializing(false);
             });
-            showSuccess('Admin interface loaded successfully!');
+    
           })
           .catch(err => {
             // Don't show error for token refresh failure, just continue with limited functionality
@@ -664,7 +664,7 @@ function Admin() {
     });
 
     // Show success message that admin interface is working
-    showSuccess('Admin interface loaded successfully!');
+    
   }, [user, authVerified, dataLoaded, fetchUsers, fetchDares, fetchAuditLog, fetchReports, fetchAppeals, fetchSwitchGames, fetchSiteStats, showError, showSuccess]); // Include dataLoaded in dependencies
 
   // Cleanup effect to reset data loaded flag when component unmounts

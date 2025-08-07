@@ -65,8 +65,6 @@ export default function DarePerform() {
         } else {
           setDare(response.data);
           setConsented(true);
-          showSuccess('Dare loaded successfully!');
-
         }
       } else {
         setNoDare(true);
@@ -141,8 +139,6 @@ export default function DarePerform() {
       if (response.data) {
         setDare(response.data);
         setConsented(true);
-        showSuccess('Dare loaded successfully!');
-        
       } else {
         throw new Error('No data received from server');
       }

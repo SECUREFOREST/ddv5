@@ -81,7 +81,7 @@ export default function OfferSubmission() {
         console.error('Failed to fetch privacy setting:', privacyRes.reason);
       }
       
-      showSuccess('Settings loaded successfully!');
+      
     } catch (error) {
       console.error('Settings loading error:', error);
       showError(ERROR_MESSAGES.SLOT_PRIVACY_LOAD_FAILED);

@@ -101,7 +101,7 @@ export default function Dares() {
         const unique = Array.from(new Map(all.map(d => [d._id, d])).values());
         setDares(unique);
         setLastUpdated(new Date());
-        showSuccess('Dares loaded successfully!');
+
       })
       .catch((error) => { 
         setDares([]); 

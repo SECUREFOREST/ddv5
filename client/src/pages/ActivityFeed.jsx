@@ -41,7 +41,7 @@ export default function ActivityFeed() {
       if (response.data) {
         const activitiesData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setActivities(activitiesData);
-        showSuccess('Activity feed loaded successfully!');
+
 
       } else {
         throw new Error('No data received from server');
