@@ -1562,12 +1562,6 @@ export default function ClaimDare() {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
-                  <tr className="border-b border-neutral-700/30 pb-4">
-                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Name</td>
-                    <td className="py-2 text-white font-semibold">
-                      {creator?.fullName || creator?.username || 'Anonymous'}
-                    </td>
-                  </tr>
                   {creator?.gender && (
                     <tr className="border-b border-neutral-700/30 pb-4">
                       <td className="py-2 text-neutral-400 font-semibold w-1/3">Gender</td>
