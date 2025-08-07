@@ -83,54 +83,149 @@ export default function ClaimDare() {
       }
     };
 
-    // Netflix-style screenshot detection
-    const handleVisibilityChange = () => {
-      const proofElements = document.querySelectorAll('.proof-content');
-      if (document.hidden) {
-        // Page is hidden (screenshot attempt), hide proof content
-        proofElements.forEach(element => {
-          element.classList.add('screenshot-protection');
-        });
-      } else {
-        // Page is visible again, show proof content after delay
-        setTimeout(() => {
-          proofElements.forEach(element => {
-            element.classList.remove('screenshot-protection');
-          });
-        }, 1000); // 1 second delay to ensure screenshot is complete
-      }
-    };
-
-    // Additional screenshot detection methods
-    const handleWindowBlur = () => {
+    // Enhanced screenshot detection with multiple methods
+    const activateScreenshotProtection = () => {
       const proofElements = document.querySelectorAll('.proof-content');
       proofElements.forEach(element => {
         element.classList.add('screenshot-protection');
       });
-      
-      // Remove protection after a short delay
+    };
+
+    const deactivateScreenshotProtection = () => {
       setTimeout(() => {
+        const proofElements = document.querySelectorAll('.proof-content');
         proofElements.forEach(element => {
           element.classList.remove('screenshot-protection');
         });
       }, 2000);
     };
 
+    // Method 1: Visibility change detection
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        activateScreenshotProtection();
+      } else {
+        deactivateScreenshotProtection();
+      }
+    };
+
+    // Method 2: Window focus detection
+    const handleWindowBlur = () => {
+      activateScreenshotProtection();
+    };
+
     const handleWindowFocus = () => {
-      const proofElements = document.querySelectorAll('.proof-content');
-      setTimeout(() => {
-        proofElements.forEach(element => {
-          element.classList.remove('screenshot-protection');
-        });
+      deactivateScreenshotProtection();
+    };
+
+    // Method 3: Mouse position detection (screenshot tools often move mouse)
+    let mouseTimeout;
+    const handleMouseMove = () => {
+      clearTimeout(mouseTimeout);
+      mouseTimeout = setTimeout(() => {
+        // If mouse stops moving for 500ms, might be screenshot
+        activateScreenshotProtection();
+        setTimeout(() => {
+          const proofElements = document.querySelectorAll('.proof-content');
+          proofElements.forEach(element => {
+            element.classList.remove('screenshot-protection');
+          });
+        }, 1000);
       }, 500);
+    };
+
+    // Method 4: Continuous protection with intervals
+    let protectionInterval;
+    const startContinuousProtection = () => {
+      protectionInterval = setInterval(() => {
+        // More aggressive: 30% chance every 2 seconds
+        if (Math.random() < 0.3) {
+          activateScreenshotProtection();
+          setTimeout(() => {
+            const proofElements = document.querySelectorAll('.proof-content');
+            proofElements.forEach(element => {
+              element.classList.remove('screenshot-protection');
+            });
+          }, 300);
+        }
+      }, 2000); // Check every 2 seconds
+    };
+
+    // Method 5: Detect when user is likely taking a screenshot
+    const detectScreenshotAttempt = () => {
+      // If user hasn't moved mouse for a while, might be setting up screenshot
+      let lastMouseMove = Date.now();
+      const checkMouseActivity = () => {
+        if (Date.now() - lastMouseMove > 3000) { // 3 seconds of no mouse movement
+          activateScreenshotProtection();
+          setTimeout(() => {
+            const proofElements = document.querySelectorAll('.proof-content');
+            proofElements.forEach(element => {
+              element.classList.remove('screenshot-protection');
+            });
+          }, 1000);
+        }
+      };
+      
+      document.addEventListener('mousemove', () => {
+        lastMouseMove = Date.now();
+      });
+      
+      setInterval(checkMouseActivity, 1000);
+    };
+
+    // Method 5: Detect screenshot-related keyboard combinations
+    const handleKeyDown = (e) => {
+      // Common screenshot shortcuts
+      const screenshotKeys = [
+        'PrintScreen',
+        'F12',
+        'F11',
+        'F10'
+      ];
+      
+      const screenshotCombos = [
+        { ctrl: true, key: 'p' },
+        { ctrl: true, shift: true, key: 'I' },
+        { ctrl: true, shift: true, key: 'i' },
+        { ctrl: true, key: 's' },
+        { alt: true, key: 'PrintScreen' },
+        { shift: true, key: 'PrintScreen' }
+      ];
+
+      // Check for screenshot keys
+      if (screenshotKeys.includes(e.key)) {
+        e.preventDefault();
+        activateScreenshotProtection();
+        return false;
+      }
+
+      // Check for screenshot combinations
+      for (const combo of screenshotCombos) {
+        if (
+          (combo.ctrl === undefined || combo.ctrl === e.ctrlKey) &&
+          (combo.shift === undefined || combo.shift === e.shiftKey) &&
+          (combo.alt === undefined || combo.alt === e.altKey) &&
+          combo.key.toLowerCase() === e.key.toLowerCase()
+        ) {
+          e.preventDefault();
+          activateScreenshotProtection();
+          return false;
+        }
+      }
     };
 
     // Add event listeners to prevent screenshots
     document.addEventListener('contextmenu', preventScreenshot);
-    document.addEventListener('keydown', preventScreenshot);
+    document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleWindowBlur);
     window.addEventListener('focus', handleWindowFocus);
+    document.addEventListener('mousemove', handleMouseMove);
+    
+    // Start continuous protection
+    startContinuousProtection();
+    detectScreenshotAttempt();
     
     // Disable text selection on proof content
     const proofElements = document.querySelectorAll('.proof-content');
@@ -143,10 +238,16 @@ export default function ClaimDare() {
 
     return () => {
       document.removeEventListener('contextmenu', preventScreenshot);
-      document.removeEventListener('keydown', preventScreenshot);
+      document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleWindowBlur);
       window.removeEventListener('focus', handleWindowFocus);
+      document.removeEventListener('mousemove', handleMouseMove);
+      
+      // Clear continuous protection interval
+      if (protectionInterval) {
+        clearInterval(protectionInterval);
+      }
     };
   }, []);
 
@@ -1679,33 +1780,67 @@ export default function ClaimDare() {
             transition: all 0.3s ease;
           }
           
-          /* Netflix-style screenshot protection */
+          /* Enhanced screenshot protection */
           .proof-content.screenshot-protection {
             background: #000 !important;
             color: #000 !important;
+            position: relative !important;
+          }
+          
+          .proof-content.screenshot-protection::after {
+            content: 'SCREENSHOT BLOCKED' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: #000 !important;
+            color: #fff !important;
+            padding: 20px !important;
+            font-size: 24px !important;
+            font-weight: bold !important;
+            z-index: 10000 !important;
+            border: 2px solid #fff !important;
+            text-align: center !important;
+            white-space: nowrap !important;
           }
           
           .proof-content.screenshot-protection img,
           .proof-content.screenshot-protection video {
             opacity: 0 !important;
             filter: brightness(0) !important;
+            visibility: hidden !important;
+            display: none !important;
           }
           
           .proof-content.screenshot-protection::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
             background: #000 !important;
             z-index: 9999 !important;
+            pointer-events: none !important;
           }
           
           .proof-content.screenshot-protection * {
             color: #000 !important;
             background: #000 !important;
             border-color: #000 !important;
+            visibility: hidden !important;
           }
           
           /* Additional protection for text content */
           .proof-content.screenshot-protection .text-content {
             color: #000 !important;
             background: #000 !important;
+            visibility: hidden !important;
+          }
+          
+          /* Prevent any content from showing during protection */
+          .proof-content.screenshot-protection *:not(::after) {
+            display: none !important;
           }
         `}
       </style>
