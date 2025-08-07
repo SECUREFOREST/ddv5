@@ -311,6 +311,114 @@ export default function ClaimDare() {
     );
   }
 
+  // Check if dare is completed (has proof submitted)
+  const isCompleted = dare.status === 'completed' && dare.proof;
+  
+  if (isCompleted) {
+    // Show completed dare preview
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <ContentContainer>
+          <MainContent className="max-w-2xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="bg-gradient-to-r from-green-600 to-green-700 p-4 rounded-2xl shadow-2xl shadow-green-500/25">
+                  <FireIcon className="w-10 h-10 text-white" />
+                </div>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Dare Completed</h1>
+              <p className="text-xl sm:text-2xl text-neutral-300">
+                This dare has been completed successfully
+              </p>
+            </div>
+
+            {/* Dare Details */}
+            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="text-center mb-6">
+                <div className="text-green-400 text-xl mb-4">The Dare</div>
+                <DifficultyBadge level={dare.difficulty} />
+              </div>
+              
+              <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30 mb-6">
+                <p className="text-white text-lg leading-relaxed">
+                  {dare.description}
+                </p>
+              </div>
+
+              {/* Proof Preview */}
+              {dare.proof && (
+                <div className="bg-green-900/20 rounded-xl p-6 border border-green-500/30 mb-6">
+                  <div className="text-center mb-4">
+                    <div className="text-green-400 text-lg font-semibold mb-2">Proof Submitted</div>
+                    <div className="text-green-300 text-sm">
+                      Completed on {new Date(dare.completedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  
+                  {dare.proof.text && (
+                    <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30 mb-4">
+                      <p className="text-white text-sm leading-relaxed">
+                        {dare.proof.text}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {dare.proof.fileUrl && (
+                    <div className="text-center">
+                      <div className="text-green-300 text-sm mb-2">Proof File</div>
+                      <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
+                        <div className="text-white text-sm">
+                          {dare.proof.fileName || 'Proof file uploaded'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Grades */}
+              {dare.grades && dare.grades.length > 0 && (
+                <div className="bg-yellow-900/20 rounded-xl p-6 border border-yellow-500/30">
+                  <div className="text-center mb-4">
+                    <div className="text-yellow-400 text-lg font-semibold mb-2">Rating</div>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <div
+                        key={star}
+                        className={`p-2 rounded-lg ${
+                          dare.grades.some(g => g.grade >= star) 
+                            ? 'text-yellow-400' 
+                            : 'text-neutral-400'
+                        }`}
+                      >
+                        <StarIcon className="w-6 h-6" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center mt-2 text-sm text-neutral-300">
+                    Average rating: {dare.grades.reduce((sum, g) => sum + g.grade, 0) / dare.grades.length} stars
+                  </div>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <div className="text-center pt-6">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl px-6 py-3 font-bold hover:from-green-700 hover:to-green-800 transition-all duration-200"
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
+          </MainContent>
+        </ContentContainer>
+      </div>
+    );
+  }
+
   if (submitted) {
     // For dom demands, show the actual demand after consent
     if (dare.dareType === 'domination' && dare.requiresConsent) {
