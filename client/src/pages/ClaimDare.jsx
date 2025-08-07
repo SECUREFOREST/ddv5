@@ -161,14 +161,28 @@ export default function ClaimDare() {
   };
 
   const handleBlockDom = async () => {
-    if (!dare?.creator?._id) return;
+    console.log('Block button clicked!');
+    console.log('Dare object:', dare);
+    console.log('Creator:', dare?.creator);
+    console.log('Creator ID:', dare?.creator?._id);
     
+    if (!dare?.creator?._id) {
+      console.log('No creator ID found, returning early');
+      showError('Cannot block: No creator information available.');
+      return;
+    }
+    
+    console.log('Proceeding with block request for user ID:', dare.creator._id);
     setBlocking(true);
+    
     try {
+      console.log('Making API call to block user...');
       await retryApiCall(() => api.post('/users/block', { userId: dare.creator._id }));
+      console.log('Block API call successful');
       showSuccess('Dom blocked successfully. You will no longer see their content.');
       navigate('/dashboard');
     } catch (err) {
+      console.error('Block API call failed:', err);
       const errorMessage = err.response?.data?.error || 'Failed to block dom.';
       showError(errorMessage);
     } finally {
@@ -1072,7 +1086,12 @@ export default function ClaimDare() {
                       {/* Block Button */}
                       <div className="mt-4">
                         <button
-                          onClick={handleBlockDom}
+                          onClick={(e) => {
+                            console.log('Button clicked! Event:', e);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleBlockDom();
+                          }}
                           disabled={blocking}
                           className="bg-gradient-to-r from-red-800 to-red-900 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:from-red-900 hover:to-red-950 transition-all duration-200 flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -1498,17 +1517,42 @@ export default function ClaimDare() {
         <MainContent className="max-w-2xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="flex items-center justify-center gap-6 mb-8">
+              {/* Creator Avatar */}
+              <div className="flex flex-col items-center gap-4">
+                {creator?.avatar ? (
+                  <div className="w-20 h-20 rounded-full border-4 border-primary/30 overflow-hidden shadow-2xl shadow-primary/25">
+                    <img 
+                      src={creator.avatar} 
+                      alt={`${creator.fullName || creator.username} avatar`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-primary-dark border-4 border-primary/30 flex items-center justify-center shadow-2xl shadow-primary/25">
+                    <span className="text-white font-bold text-2xl">
+                      {(creator?.fullName || creator?.username || 'S').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <div className="text-center">
+                  <div className="text-primary text-lg font-semibold">
+                    {creator?.fullName || creator?.username || 'Someone'}
+                  </div>
+                  <div className="text-neutral-400 text-sm">
+                    wants you to perform
+                  </div>
+                </div>
+              </div>
+              
+              {/* Arrow Icon */}
               <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
                 <UserPlusIcon className="w-10 h-10 text-white" />
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              {creator?.fullName || creator?.username || 'Someone'} wants you to perform
-            </h1>
-            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4">
               One Submissive Act
-            </h2>
+            </h1>
           </div>
 
           {/* Dom Information Table - OSA Style */}
@@ -1592,35 +1636,6 @@ export default function ClaimDare() {
               </div>
             )}
           </div>
-
-          {/* Block Dom Button */}
-          {creator && (
-            <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6 shadow-xl">
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-red-400 mb-2">Not comfortable with this dom?</h3>
-                <p className="text-red-300 text-sm mb-4">
-                  You can block this dom to avoid seeing their content in the future.
-                </p>
-                <button
-                  onClick={handleBlockDom}
-                  disabled={blocking}
-                  className="bg-gradient-to-r from-red-800 to-red-900 text-white rounded-lg px-6 py-3 text-sm font-semibold hover:from-red-900 hover:to-red-950 transition-all duration-200 flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {blocking ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Blocking...
-                    </>
-                  ) : (
-                    <>
-                      <NoSymbolIcon className="w-4 h-4" />
-                      Block Dom
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
 
 
 
