@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, ArrowDownTrayIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon, CameraIcon, PhotoIcon, EyeIcon, EyeSlashIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowsPointingOutIcon, CalendarIcon, DocumentIcon, VideoCameraIcon, XMarkIcon, CheckIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { ListSkeleton } from '../components/Skeleton';
@@ -53,11 +53,102 @@ export default function ClaimDare() {
   const [filePreview, setFilePreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [fileLoading, setFileLoading] = useState(false);
-  const [downloadLoading, setDownloadLoading] = useState(false);
+
   const [fullscreenLoading, setFullscreenLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [optimizationLoading, setOptimizationLoading] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
+
+  // Prevent screenshots and right-click on proof content
+  useEffect(() => {
+    const preventScreenshot = (e) => {
+      // Prevent right-click context menu
+      if (e.type === 'contextmenu') {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Prevent keyboard shortcuts for screenshots
+      if (e.type === 'keydown') {
+        // Prevent Print Screen, Ctrl+P, Ctrl+Shift+I, F12
+        if (
+          e.key === 'PrintScreen' ||
+          (e.ctrlKey && e.key === 'p') ||
+          (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+          e.key === 'F12'
+        ) {
+          e.preventDefault();
+          return false;
+        }
+      }
+    };
+
+    // Netflix-style screenshot detection
+    const handleVisibilityChange = () => {
+      const proofElements = document.querySelectorAll('.proof-content');
+      if (document.hidden) {
+        // Page is hidden (screenshot attempt), hide proof content
+        proofElements.forEach(element => {
+          element.classList.add('screenshot-protection');
+        });
+      } else {
+        // Page is visible again, show proof content after delay
+        setTimeout(() => {
+          proofElements.forEach(element => {
+            element.classList.remove('screenshot-protection');
+          });
+        }, 1000); // 1 second delay to ensure screenshot is complete
+      }
+    };
+
+    // Additional screenshot detection methods
+    const handleWindowBlur = () => {
+      const proofElements = document.querySelectorAll('.proof-content');
+      proofElements.forEach(element => {
+        element.classList.add('screenshot-protection');
+      });
+      
+      // Remove protection after a short delay
+      setTimeout(() => {
+        proofElements.forEach(element => {
+          element.classList.remove('screenshot-protection');
+        });
+      }, 2000);
+    };
+
+    const handleWindowFocus = () => {
+      const proofElements = document.querySelectorAll('.proof-content');
+      setTimeout(() => {
+        proofElements.forEach(element => {
+          element.classList.remove('screenshot-protection');
+        });
+      }, 500);
+    };
+
+    // Add event listeners to prevent screenshots
+    document.addEventListener('contextmenu', preventScreenshot);
+    document.addEventListener('keydown', preventScreenshot);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+    
+    // Disable text selection on proof content
+    const proofElements = document.querySelectorAll('.proof-content');
+    proofElements.forEach(element => {
+      element.style.userSelect = 'none';
+      element.style.webkitUserSelect = 'none';
+      element.style.mozUserSelect = 'none';
+      element.style.msUserSelect = 'none';
+    });
+
+    return () => {
+      document.removeEventListener('contextmenu', preventScreenshot);
+      document.removeEventListener('keydown', preventScreenshot);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, []);
 
   const fetchClaimDare = useCallback(async () => {
     if (!claimToken) return;
@@ -347,6 +438,7 @@ export default function ClaimDare() {
   };
 
   const openFullscreen = async (element) => {
+    setFullscreenLoading(true);
     try {
       console.log('Attempting to open fullscreen for:', element);
       
@@ -370,6 +462,8 @@ export default function ClaimDare() {
       console.error('Fullscreen error:', error);
       // Fallback to CSS fullscreen
       setProofPreview(prev => ({ ...prev, isFullscreen: true }));
+    } finally {
+      setFullscreenLoading(false);
     }
   };
 
@@ -397,37 +491,7 @@ export default function ClaimDare() {
     setProofPreview(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
   };
 
-  const downloadProof = async (fileUrl, fileName) => {
-    try {
-      const filename = fileUrl.split('/').pop();
-      const response = await api.get(`/uploads/secure/${filename}`);
-      const { data, contentType } = response.data;
-      
-      // Convert base64 to blob
-      const byteCharacters = atob(data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: contentType });
-      
-      // Create download link
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName || filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      showSuccess('Proof file downloaded successfully!');
-    } catch (err) {
-      console.error('Failed to download proof file:', err);
-      showError('Failed to download proof file.');
-    }
-  };
+
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
@@ -493,6 +557,7 @@ export default function ClaimDare() {
       return;
     }
 
+    setPreviewLoading(true);
     const reader = new FileReader();
     reader.onload = (e) => {
       if (file.type.startsWith('image/')) {
@@ -508,6 +573,10 @@ export default function ClaimDare() {
             ...prev,
             dimensions: { width: img.width, height: img.height }
           }));
+          setPreviewLoading(false);
+        };
+        img.onerror = () => {
+          setPreviewLoading(false);
         };
         img.src = e.target.result;
       } else if (file.type.startsWith('video/')) {
@@ -516,6 +585,7 @@ export default function ClaimDare() {
           url: e.target.result,
           type: 'video'
         });
+        setPreviewLoading(false);
       } else {
         // Generic file preview
         setFilePreview({
@@ -523,7 +593,11 @@ export default function ClaimDare() {
           type: 'file',
           name: file.name
         });
+        setPreviewLoading(false);
       }
+    };
+    reader.onerror = () => {
+      setPreviewLoading(false);
     };
     reader.readAsDataURL(file);
   };
@@ -587,8 +661,13 @@ export default function ClaimDare() {
   const optimizeFile = async (file) => {
     if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) { // 5MB
       // Compress large images
-      const compressedBlob = await compressImage(file);
-      return new File([compressedBlob], file.name, { type: file.type });
+      setOptimizationLoading(true);
+      try {
+        const compressedBlob = await compressImage(file);
+        return new File([compressedBlob], file.name, { type: file.type });
+      } finally {
+        setOptimizationLoading(false);
+      }
     }
     return file;
   };
@@ -772,23 +851,12 @@ export default function ClaimDare() {
                       </div>
                     </div>
                     
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2">
-                      {dare.proof.fileUrl && (
-                        <button
-                          onClick={() => downloadProof(dare.proof.fileUrl, dare.proof.fileName)}
-                          className="p-2 text-green-400 hover:text-green-300 hover:bg-green-600/20 rounded-lg transition-colors"
-                          title="Download proof file"
-                        >
-                                                           <ArrowDownTrayIcon className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+
                   </div>
                   
                   {/* Proof Text */}
                   {dare.proof.text && (
-                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl p-4 mb-4">
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl p-4 mb-4 proof-content">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
                           <FireIcon className="w-4 h-4 text-green-400" />
@@ -804,7 +872,14 @@ export default function ClaimDare() {
                   
                   {/* Enhanced Proof File Preview */}
                   {dare.proof.fileUrl && (
-                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-600/30 rounded-xl overflow-hidden proof-content">
+                      {/* Screenshot Warning */}
+                      <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
+                        <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
+                          <ShieldCheckIcon className="w-4 h-4" />
+                          <span>Content will turn black during screenshot attempts for privacy protection</span>
+                        </div>
+                      </div>
                       {/* File Header */}
                       <div className="p-4 border-b border-neutral-700/30">
                         <div className="flex items-center justify-between">
@@ -832,10 +907,15 @@ export default function ClaimDare() {
                                  // Use the same behavior as the debug toggle button
                                  setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                }}
-                               className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
+                               disabled={fullscreenLoading}
+                               className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                title="Toggle fullscreen"
                              >
-                               <ArrowsPointingOutIcon className="w-4 h-4" />
+                               {fullscreenLoading ? (
+                                 <div className="w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+                               ) : (
+                                 <ArrowsPointingOutIcon className="w-4 h-4" />
+                               )}
                              </button>
                           </div>
                         </div>
@@ -866,6 +946,8 @@ export default function ClaimDare() {
                                      // Use the same behavior as the debug toggle button
                                      setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                    }}
+                                   onDragStart={(e) => e.preventDefault()}
+                                   onContextMenu={(e) => e.preventDefault()}
                                    style={{ cursor: 'pointer' }}
                                  />
                                  {!proofPreview.isFullscreen && (
@@ -898,6 +980,8 @@ export default function ClaimDare() {
                                   preload="metadata"
                                   onPlay={() => setProofPreview(prev => ({ ...prev, isPlaying: true }))}
                                   onPause={() => setProofPreview(prev => ({ ...prev, isPlaying: false }))}
+                                  onDragStart={(e) => e.preventDefault()}
+                                  onContextMenu={(e) => e.preventDefault()}
                                 >
                                   <source src={secureFileUrls[dare.proof.fileUrl]} type="video/mp4" />
                                   <source src={secureFileUrls[dare.proof.fileUrl]} type="video/webm" />
@@ -939,10 +1023,15 @@ export default function ClaimDare() {
                                          // Use the same behavior as the debug toggle button
                                          setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                        }}
-                                       className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
+                                       disabled={fullscreenLoading}
+                                       className="p-1 text-white hover:text-green-400 transition-colors ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                                        title="Fullscreen"
                                      >
-                                       <ArrowsPointingOutIcon className="w-4 h-4" />
+                                       {fullscreenLoading ? (
+                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                       ) : (
+                                         <ArrowsPointingOutIcon className="w-4 h-4" />
+                                       )}
                                      </button>
                                   </div>
                                 )}
@@ -959,25 +1048,25 @@ export default function ClaimDare() {
                                 <div className="text-neutral-400 text-sm mb-3">
                                   File uploaded successfully
                                 </div>
-                                <button
-                                  onClick={() => downloadProof(dare.proof.fileUrl, dare.proof.fileName)}
-                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 mx-auto"
-                                >
-                                  <ArrowDownTrayIcon className="w-4 h-4" />
-                                  Download File
-                                </button>
+
                               </div>
                             )}
                           </div>
                         ) : (
                           // Loading state with enhanced styling
                           <div className="text-center p-8">
-                            <div className="w-16 h-16 bg-neutral-700/50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                              <FireIcon className="w-8 h-8 text-neutral-400" />
+                            <div className="w-16 h-16 bg-neutral-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                              {fileLoading ? (
+                                <div className="w-8 h-8 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <FireIcon className="w-8 h-8 text-neutral-400" />
+                              )}
                             </div>
-                            <div className="text-neutral-400 text-sm font-semibold mb-2">Securely Loading Proof</div>
+                            <div className="text-neutral-400 text-sm font-semibold mb-2">
+                              {fileLoading ? 'Securely Loading Proof' : 'Securely Loading Proof'}
+                            </div>
                             <div className="text-neutral-500 text-xs">
-                              Verifying access permissions...
+                              {fileLoading ? 'Verifying access permissions...' : 'Verifying access permissions...'}
                             </div>
                           </div>
                         )}
@@ -1181,19 +1270,29 @@ export default function ClaimDare() {
                               <button
                                 type="button"
                                 onClick={handleCameraUpload}
-                                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2"
+                                disabled={previewLoading || optimizationLoading}
+                                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <CameraIcon className="w-5 h-5" />
-                                Camera
+                                {previewLoading || optimizationLoading ? (
+                                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <CameraIcon className="w-5 h-5" />
+                                )}
+                                {previewLoading || optimizationLoading ? 'Processing...' : 'Camera'}
                               </button>
                             )}
                             <button
                               type="button"
                               onClick={handleGalleryUpload}
-                              className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-purple-700 hover:from-purple-800 transition-all duration-200 flex items-center justify-center gap-2"
+                              disabled={previewLoading || optimizationLoading}
+                              className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-purple-700 hover:from-purple-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <PhotoIcon className="w-5 h-5" />
-                              Gallery
+                              {previewLoading || optimizationLoading ? (
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <PhotoIcon className="w-5 h-5" />
+                              )}
+                              {previewLoading || optimizationLoading ? 'Processing...' : 'Gallery'}
                             </button>
                           </div>
                         </div>
@@ -1201,7 +1300,14 @@ export default function ClaimDare() {
                       
                               {/* Advanced File Preview */}
         {proofFile && (
-          <div className="mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden">
+          <div className="mb-4 bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 rounded-xl border border-neutral-600/30 overflow-hidden proof-content">
+            {/* Screenshot Warning */}
+            <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
+              <div className="flex items-center justify-center gap-2 text-yellow-300 text-sm">
+                <ShieldCheckIcon className="w-4 h-4" />
+                <span>Content will turn black during screenshot attempts for privacy protection</span>
+              </div>
+            </div>
             {/* File Header */}
             <div className="p-4 border-b border-neutral-700/30">
               <div className="flex items-center justify-between">
@@ -1259,6 +1365,8 @@ export default function ClaimDare() {
                       src={filePreview.url} 
                       alt="File preview"
                       className="max-w-full h-auto rounded-lg mx-auto max-h-48 object-contain"
+                      onDragStart={(e) => e.preventDefault()}
+                      onContextMenu={(e) => e.preventDefault()}
                     />
                     <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
                       {fileValidation.dimensions?.width}×{fileValidation.dimensions?.height}
@@ -1338,14 +1446,25 @@ export default function ClaimDare() {
         </div>
                       
                       {/* Standard File Input */}
-                              <input
-          type="file"
-          id="proof-file"
-          onChange={handleFileChange}
-          className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-          accept="image/*,video/*"
-          required
-        />
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="proof-file"
+                          onChange={handleFileChange}
+                          disabled={previewLoading || optimizationLoading}
+                          className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          accept="image/*,video/*"
+                          required
+                        />
+                        {(previewLoading || optimizationLoading) && (
+                          <div className="absolute inset-0 bg-neutral-800/80 rounded-xl flex items-center justify-center">
+                            <div className="flex items-center gap-2 text-neutral-300">
+                              <div className="w-4 h-4 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+                              {previewLoading ? 'Processing file...' : 'Optimizing file...'}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       <div className="text-xs text-neutral-400 mt-2">
                         Supported: Images (JPG, PNG, GIF) and Videos (MP4, WebM, MOV)
                       </div>
@@ -1519,6 +1638,77 @@ export default function ClaimDare() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <style>
+        {`
+          .proof-content {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
+            position: relative;
+            transition: all 0.3s ease;
+          }
+          
+          .proof-content img,
+          .proof-content video {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            transition: all 0.3s ease;
+          }
+          
+          .proof-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+          }
+          
+          /* Netflix-style screenshot protection */
+          .proof-content.screenshot-protection {
+            background: #000 !important;
+            color: #000 !important;
+          }
+          
+          .proof-content.screenshot-protection img,
+          .proof-content.screenshot-protection video {
+            opacity: 0 !important;
+            filter: brightness(0) !important;
+          }
+          
+          .proof-content.screenshot-protection::before {
+            background: #000 !important;
+            z-index: 9999 !important;
+          }
+          
+          .proof-content.screenshot-protection * {
+            color: #000 !important;
+            background: #000 !important;
+            border-color: #000 !important;
+          }
+          
+          /* Additional protection for text content */
+          .proof-content.screenshot-protection .text-content {
+            color: #000 !important;
+            background: #000 !important;
+          }
+        `}
+      </style>
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
