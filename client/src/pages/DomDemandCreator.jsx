@@ -106,17 +106,6 @@ export default function DomDemandCreator() {
             )}
             
             <form onSubmit={handleCreate} className="space-y-8">
-              {/* Description */}
-              <FormTextarea
-                label="Your Demand (Hidden until consent)"
-                placeholder="Describe your demand in detail... (This will be hidden until the submissive consents)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                className="h-32 resize-none"
-                maxLength={1000}
-                showCharacterCount
-              />
 
               {/* Difficulty Selection */}
               <div>
@@ -167,6 +156,18 @@ export default function DomDemandCreator() {
                   ))}
                 </div>
               </div>
+              
+             {/* Description */}
+              <FormTextarea
+                label="Your Demand (Hidden until consent)"
+                placeholder="Describe your demand in detail... (This will be hidden until the submissive consents)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="h-32 resize-none"
+                maxLength={1000}
+                showCharacterCount
+              />
 
               {/* Tags */}
               <div>
