@@ -606,6 +606,28 @@ router.post('/:id/grade', auth, [
   }
 });
 
+// GET /api/dares/:id/grades - get grades for a dare
+router.get('/:id/grades', auth, async (req, res) => {
+  try {
+    const dare = await Dare.findById(req.params.id);
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+    
+    // Check if user can view grades for this dare
+    const canView = dare.creator.toString() === req.userId || 
+                    (dare.performer && dare.performer.toString() === req.userId);
+    
+    if (!canView) {
+      return res.status(403).json({ error: 'You cannot view grades for this dare.' });
+    }
+    
+    res.json(dare.grades || []);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch grades.' });
+  }
+});
+
 // POST /api/dares/:id/grade-user - grade a user within a dare (auth required)
 router.post('/:id/grade-user',
   auth,
