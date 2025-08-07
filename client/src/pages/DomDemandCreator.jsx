@@ -81,41 +81,27 @@ export default function DomDemandCreator() {
     setCreatedDare(null);
   };
 
-  const handleCancelDare = async () => {
+    const handleCancelDare = async () => {
     if (!createdDare || !createdDare._id) {
       showError('No dare to cancel.');
-      return;
-    }
-
-    // Confirmation dialog
-    const confirmed = window.confirm(
-      '🚨 Are you absolutely sure you want to cancel this dare?\n\n' +
-      'This action cannot be undone and will:\n' +
-      '• Permanently delete the dare\n' +
-      '• Remove any associated content\n' +
-      '• Notify any participants\n\n' +
-      'Click OK to proceed with cancellation.'
-    );
-
-    if (!confirmed) {
       return;
     }
 
     setCancelling(true);
     try {
       await retryApiCall(() => api.delete(`/dares/${createdDare._id}`));
-
+      
       showSuccess('Dare cancelled successfully!');
       setShowModal(false);
       setCreatedDare(null);
       setClaimLink('');
-
+      
       // Reset form
       setDescription('');
       setDifficulty('titillating');
       setTags([]);
       setCreateError('');
-
+      
     } catch (err) {
       console.error('Dare cancellation error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Failed to cancel dare.';
