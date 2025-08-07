@@ -36,4 +36,16 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
+// Pre-save hook to fix invalid contentDeletion values
+UserSchema.pre('save', function(next) {
+  const validValues = ['delete_after_view', 'delete_after_30_days', 'never_delete', '', 'when_viewed', '30_days', 'never'];
+  
+  if (this.contentDeletion && !validValues.includes(this.contentDeletion)) {
+    console.warn(`Invalid contentDeletion value "${this.contentDeletion}" for user ${this.username}, setting to default`);
+    this.contentDeletion = '';
+  }
+  
+  next();
+});
+
 module.exports = mongoose.model('User', UserSchema); 
