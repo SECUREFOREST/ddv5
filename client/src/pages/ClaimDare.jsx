@@ -324,6 +324,26 @@ export default function ClaimDare() {
     setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
   };
 
+  const openFullscreen = (element) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen();
+    }
+  };
+
+  const closeFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  };
+
   const toggleMute = () => {
     setProofPreview(prev => ({ ...prev, isMuted: !prev.isMuted }));
   };
@@ -758,13 +778,23 @@ export default function ClaimDare() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={toggleFullscreen}
-                              className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
-                              title="Toggle fullscreen"
-                            >
-                              <ArrowsPointingOutIcon className="w-4 h-4" />
-                            </button>
+                                                         <button
+                               onClick={(e) => {
+                                 const imgElement = e.target.closest('.relative').querySelector('img');
+                                 if (imgElement) {
+                                   if (!proofPreview.isFullscreen) {
+                                     openFullscreen(imgElement);
+                                   } else {
+                                     closeFullscreen();
+                                   }
+                                   toggleFullscreen();
+                                 }
+                               }}
+                               className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
+                               title="Toggle fullscreen"
+                             >
+                               <ArrowsPointingOutIcon className="w-4 h-4" />
+                             </button>
                           </div>
                         </div>
                       </div>
@@ -782,24 +812,31 @@ export default function ClaimDare() {
                               </button>
                             )}
                             
-                            {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                              // Enhanced Image Preview
-                              <div className="relative">
-                                <img 
-                                  src={secureFileUrls[dare.proof.fileUrl]} 
-                                  alt="Proof submission"
-                                  className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
-                                  onClick={toggleFullscreen}
-                                  style={{ cursor: proofPreview.isFullscreen ? 'default' : 'pointer' }}
-                                />
-                                {!proofPreview.isFullscreen && (
-                                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
-                                    <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
-                                      Click to expand
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                                                         {dare.proof.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                               // Enhanced Image Preview
+                               <div className="relative">
+                                 <img 
+                                   src={secureFileUrls[dare.proof.fileUrl]} 
+                                   alt="Proof submission"
+                                   className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
+                                   onClick={(e) => {
+                                     if (!proofPreview.isFullscreen) {
+                                       openFullscreen(e.target);
+                                     } else {
+                                       closeFullscreen();
+                                     }
+                                     toggleFullscreen();
+                                   }}
+                                   style={{ cursor: 'pointer' }}
+                                 />
+                                 {!proofPreview.isFullscreen && (
+                                   <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
+                                     <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
+                                       Click to expand
+                                     </div>
+                                   </div>
+                                 )}
+                               </div>
                             ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
                               // Enhanced Video Preview
                               <div className="relative">
@@ -850,13 +887,23 @@ export default function ClaimDare() {
                                         <SpeakerWaveIcon className="w-4 h-4" />
                                       )}
                                     </button>
-                                    <button
-                                      onClick={toggleFullscreen}
-                                      className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
-                                      title="Fullscreen"
-                                    >
-                                      <ArrowsPointingOutIcon className="w-4 h-4" />
-                                    </button>
+                                                                         <button
+                                       onClick={(e) => {
+                                         const videoElement = e.target.closest('.relative').querySelector('video');
+                                         if (videoElement) {
+                                           if (!proofPreview.isFullscreen) {
+                                             openFullscreen(videoElement);
+                                           } else {
+                                             closeFullscreen();
+                                           }
+                                           toggleFullscreen();
+                                         }
+                                       }}
+                                       className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
+                                       title="Fullscreen"
+                                     >
+                                       <ArrowsPointingOutIcon className="w-4 h-4" />
+                                     </button>
                                   </div>
                                 )}
                               </div>
