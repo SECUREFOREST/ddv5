@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
@@ -21,6 +21,7 @@ export default function ClaimDare() {
   const [submitted, setSubmitted] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [errorShown, setErrorShown] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
   const fetchClaimDare = useCallback(async () => {
@@ -96,6 +97,22 @@ export default function ClaimDare() {
       showError(errorMessage);
     } finally {
       setClaiming(false);
+    }
+  };
+
+  const handleBlockDom = async () => {
+    if (!dare?.creator?._id) return;
+    
+    setBlocking(true);
+    try {
+      await retryApiCall(() => api.post('/users/block', { userId: dare.creator._id }));
+      showSuccess('Dom blocked successfully. You will no longer see their content.');
+      navigate('/dashboard');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to block dom.';
+      showError(errorMessage);
+    } finally {
+      setBlocking(false);
     }
   };
 
@@ -199,13 +216,102 @@ export default function ClaimDare() {
                   </p>
                 </div>
 
-                <div className="text-center">
-                  <p className="text-neutral-300 text-sm mb-4">
+                {/* Dom Information */}
+                {dare.creator && (
+                  <div className="bg-neutral-800/30 rounded-xl p-6 border border-neutral-700/30 mb-6">
+                    <div className="text-center mb-4">
+                      <div className="text-red-400 text-lg font-semibold mb-2">Demand Created By</div>
+                      <div className="flex items-center justify-center gap-3 mb-4">
+                        {dare.creator.avatar ? (
+                          <img 
+                            src={dare.creator.avatar} 
+                            alt={`${dare.creator.fullName || dare.creator.username} avatar`}
+                            className="w-12 h-12 rounded-full border-2 border-red-500/30"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center border-2 border-red-500/30">
+                            <span className="text-white font-bold text-lg">
+                              {(dare.creator.fullName || dare.creator.username || 'D').charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-white font-semibold text-lg">
+                            {dare.creator.fullName || dare.creator.username}
+                          </div>
+                          <div className="text-neutral-400 text-sm">
+                            Dom • {dare.creator.daresCreated || 0} dares created
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Block Button */}
+                      <div className="mt-4">
+                        <button
+                          onClick={handleBlockDom}
+                          disabled={blocking}
+                          className="bg-gradient-to-r from-red-800 to-red-900 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:from-red-900 hover:to-red-950 transition-all duration-200 flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {blocking ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Blocking...
+                            </>
+                          ) : (
+                            <>
+                              <NoSymbolIcon className="w-4 h-4" />
+                              Block Dom
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {dare.creator.gender && (
+                        <div>
+                          <span className="text-neutral-400">Gender:</span>
+                          <span className="ml-2 text-white capitalize">{dare.creator.gender}</span>
+                        </div>
+                      )}
+                      {dare.creator.age && (
+                        <div>
+                          <span className="text-neutral-400">Age:</span>
+                          <span className="ml-2 text-white">{dare.creator.age}</span>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-neutral-400">Dares performed:</span>
+                        <span className="ml-2 text-white">{dare.creator.daresPerformed || 0} completed</span>
+                      </div>
+                      <div>
+                        <span className="text-neutral-400">Average grade:</span>
+                        <span className="ml-2 text-white">
+                          {dare.creator.avgGrade ? `${dare.creator.avgGrade.toFixed(1)}` : 'No grades yet'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-center mb-6">
+                  <p className="text-neutral-300 text-sm">
                     You have consented to perform this demand. The dom will be notified.
                   </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => navigate(`/dare/${dare._id}/perform`)}
+                    className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <FireIcon className="w-5 h-5" />
+                    Perform Dare
+                  </button>
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 font-bold hover:from-red-700 hover:to-red-800 transition-all duration-200"
+                    className="bg-gradient-to-r from-neutral-600 to-neutral-700 text-white rounded-xl px-6 py-3 font-bold hover:from-neutral-700 hover:to-neutral-800 transition-all duration-200"
                   >
                     Go to Dashboard
                   </button>
