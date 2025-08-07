@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon } from '@heroicons/react/24/solid';
+import { UserPlusIcon, FireIcon, SparklesIcon, EyeDropperIcon, ExclamationTriangleIcon, RocketLaunchIcon, ShieldCheckIcon, ClockIcon, NoSymbolIcon, StarIcon } from '@heroicons/react/24/solid';
 import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import { PRIVACY_OPTIONS } from '../constants.jsx';
@@ -27,7 +27,7 @@ export default function ClaimDare() {
   const [proofLoading, setProofLoading] = useState(false);
   const [proofError, setProofError] = useState('');
   const [proofSuccess, setProofSuccess] = useState('');
-  const [grade, setGrade] = useState('');
+  const [grade, setGrade] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [gradeError, setGradeError] = useState('');
   const [grading, setGrading] = useState(false);
@@ -182,21 +182,16 @@ export default function ClaimDare() {
     }
   };
 
-  const handleGrade = async (e, targetId) => {
-    e.preventDefault();
-    if (!grade || !feedback) {
-      setGradeError('Please provide both a grade and feedback.');
-      return;
-    }
+  const handleGrade = async (starRating, targetId) => {
+    if (starRating === grade) return; // Don't submit if same rating
     
     setGrading(true);
     setGradeError('');
     
     try {
-      await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade, feedback }));
-      setGrade('');
-      setFeedback('');
-      showSuccess('Grade submitted successfully!');
+      await retryApiCall(() => api.post(`/dares/${targetId}/grade`, { grade: starRating }));
+      setGrade(starRating);
+      showSuccess(`Rated ${starRating} stars!`);
       // Refresh grades
       const response = await retryApiCall(() => api.get(`/dares/${targetId}/grades`));
       setGrades(response.data || []);
@@ -521,56 +516,39 @@ export default function ClaimDare() {
                 <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                   <h3 className="text-xl font-bold text-white mb-6">Rate This Dare</h3>
                   
-                  <form onSubmit={(e) => handleGrade(e, dare._id)} className="space-y-6">
+                  <div className="space-y-6">
                     <div>
-                      <label htmlFor="grade" className="block font-semibold mb-2 text-white">Grade (1-10)</label>
-                      <input
-                        type="number"
-                        id="grade"
-                        min="1"
-                        max="10"
-                        value={grade}
-                        onChange={(e) => setGrade(e.target.value)}
-                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
-                        placeholder="Rate from 1-10"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="feedback" className="block font-semibold mb-2 text-white">Feedback</label>
-                      <textarea
-                        id="feedback"
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                        className="w-full h-24 px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
-                        placeholder="Share your thoughts about this dare..."
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={grading || !grade || !feedback}
-                      className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 text-white rounded-xl px-6 py-3 font-bold hover:from-yellow-700 hover:to-yellow-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {grading ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Submitting Grade...
-                        </>
-                      ) : (
-                        <>
-                          <SparklesIcon className="w-5 h-5" />
-                          Submit Grade
-                        </>
+                      <label className="block font-semibold mb-4 text-white">Click to Rate (1-5 Stars)</label>
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => handleGrade(star, dare._id)}
+                            disabled={grading}
+                            className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
+                              star <= grade 
+                                ? 'text-yellow-400 bg-yellow-400/10' 
+                                : 'text-neutral-400 hover:text-yellow-400'
+                            }`}
+                          >
+                            <StarIcon className="w-8 h-8" />
+                          </button>
+                        ))}
+                      </div>
+                      {grade > 0 && (
+                        <div className="mt-2 text-sm text-neutral-300">
+                          You rated this dare {grade} star{grade > 1 ? 's' : ''}
+                        </div>
                       )}
-                    </button>
+                    </div>
 
                     {gradeError && (
                       <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 text-red-300">
                         {gradeError}
                       </div>
                     )}
-                  </form>
+                  </div>
                 </div>
               </div>
             </MainContent>
