@@ -1593,6 +1593,35 @@ export default function ClaimDare() {
             )}
           </div>
 
+          {/* Block Dom Button */}
+          {creator && (
+            <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6 shadow-xl">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-red-400 mb-2">Not comfortable with this dom?</h3>
+                <p className="text-red-300 text-sm mb-4">
+                  You can block this dom to avoid seeing their content in the future.
+                </p>
+                <button
+                  onClick={handleBlockDom}
+                  disabled={blocking}
+                  className="bg-gradient-to-r from-red-800 to-red-900 text-white rounded-lg px-6 py-3 text-sm font-semibold hover:from-red-900 hover:to-red-950 transition-all duration-200 flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {blocking ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Blocking...
+                    </>
+                  ) : (
+                    <>
+                      <NoSymbolIcon className="w-4 h-4" />
+                      Block Dom
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
 
 
             {/* Consent Button */}
