@@ -77,9 +77,19 @@ export default function DareDifficultySelect() {
                   {/* Content */}
                   <div className="flex-1">
                     <div className="font-bold text-lg mb-2">{option.label}</div>
-                    <div className="text-sm leading-relaxed text-neutral-300">
+                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
                       {option.desc}
                     </div>
+                    {option.longDesc && (
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                        {option.longDesc}
+                      </div>
+                    )}
+                    {option.examples && (
+                      <div className="text-xs text-neutral-500 italic">
+                        Examples: {option.examples}
+                      </div>
+                    )}
                   </div>
                 </div>
               </button>
