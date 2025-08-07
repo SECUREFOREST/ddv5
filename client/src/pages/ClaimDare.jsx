@@ -856,17 +856,7 @@ export default function ClaimDare() {
                                    </div>
                                  )}
                                  
-                                 {/* Debug button for testing */}
-                                 <button
-                                   onClick={() => {
-                                     console.log('Debug: Toggle fullscreen state');
-                                     setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
-                                   }}
-                                   className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs"
-                                   style={{ zIndex: 10 }}
-                                 >
-                                   Debug: Toggle
-                                 </button>
+
                                </div>
                             ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
                               // Enhanced Video Preview
