@@ -1170,8 +1170,8 @@ router.get('/claim/:token', async (req, res) => {
   }
 });
 
-// POST /api/dares/claim/:token - claim a dare by submitting a demand (public)
-router.post('/claim/:token', [
+// POST /api/dares/claim/:token - claim a dare by submitting a demand (auth required)
+router.post('/claim/:token', auth, [
   body('demand').isString().isLength({ min: 5, max: 1000 }).trim(),
 ], async (req, res) => {
   const errors = validationResult(req);
@@ -1187,7 +1187,7 @@ router.post('/claim/:token', [
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     
-    dare.claimedBy = null; // Optionally, set to req.userId if you want to require login
+    dare.claimedBy = req.userId; // Set to the user who claimed it
     dare.claimedAt = new Date();
     dare.claimDemand = req.body.demand;
     dare.status = 'in_progress';

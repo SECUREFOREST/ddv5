@@ -53,8 +53,8 @@ export default function ClaimDare() {
       if (response.data) {
         setDare(response.data);
         
-        // If dare is already claimed, show the perform section directly
-        if (response.data.claimedBy || !response.data.claimable) {
+        // If dare is already claimed by the current user, show the perform section directly
+        if ((response.data.claimedBy && response.data.claimedBy === user?._id) || !response.data.claimable) {
           setSubmitted(true);
         }
         
