@@ -324,24 +324,41 @@ export default function ClaimDare() {
     setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
   };
 
-  const openFullscreen = (element) => {
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen();
+  const openFullscreen = async (element) => {
+    try {
+      console.log('Attempting to open fullscreen for:', element);
+      if (element.requestFullscreen) {
+        await element.requestFullscreen();
+      } else if (element.webkitRequestFullscreen) {
+        await element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        await element.msRequestFullscreen();
+      } else {
+        console.log('Fullscreen API not supported');
+        // Fallback to CSS fullscreen
+        setProofPreview(prev => ({ ...prev, isFullscreen: true }));
+      }
+    } catch (error) {
+      console.error('Fullscreen error:', error);
+      // Fallback to CSS fullscreen
+      setProofPreview(prev => ({ ...prev, isFullscreen: true }));
     }
   };
 
-  const closeFullscreen = () => {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
+  const closeFullscreen = async () => {
+    try {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        await document.msExitFullscreen();
+      }
+    } catch (error) {
+      console.error('Exit fullscreen error:', error);
     }
+    // Always update state
+    setProofPreview(prev => ({ ...prev, isFullscreen: false }));
   };
 
   const toggleMute = () => {
@@ -780,14 +797,37 @@ export default function ClaimDare() {
                           <div className="flex items-center gap-2">
                                                          <button
                                onClick={(e) => {
-                                 const imgElement = e.target.closest('.relative').querySelector('img');
+                                 console.log('Fullscreen button clicked');
+                                 // Find the image element more reliably
+                                 const container = e.target.closest('.relative');
+                                 console.log('Container found:', container);
+                                 
+                                 if (!container) {
+                                   console.log('No container found, trying alternative approach');
+                                   // Try to find the image in the same section
+                                   const imgElement = e.target.closest('.bg-gradient-to-r').querySelector('img');
+                                   if (imgElement) {
+                                     console.log('Found image via alternative method');
+                                     if (!proofPreview.isFullscreen) {
+                                       openFullscreen(imgElement);
+                                     } else {
+                                       closeFullscreen();
+                                     }
+                                   }
+                                   return;
+                                 }
+                                 
+                                 const imgElement = container.querySelector('img');
+                                 console.log('Image element found:', imgElement);
+                                 
                                  if (imgElement) {
                                    if (!proofPreview.isFullscreen) {
                                      openFullscreen(imgElement);
                                    } else {
                                      closeFullscreen();
                                    }
-                                   toggleFullscreen();
+                                 } else {
+                                   console.log('No image element found in container');
                                  }
                                }}
                                className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded-lg transition-colors"
@@ -819,13 +859,13 @@ export default function ClaimDare() {
                                    src={secureFileUrls[dare.proof.fileUrl]} 
                                    alt="Proof submission"
                                    className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
-                                   onClick={(e) => {
+                                   onClick={async (e) => {
+                                     console.log('Image clicked, current fullscreen state:', proofPreview.isFullscreen);
                                      if (!proofPreview.isFullscreen) {
-                                       openFullscreen(e.target);
+                                       await openFullscreen(e.target);
                                      } else {
-                                       closeFullscreen();
+                                       await closeFullscreen();
                                      }
-                                     toggleFullscreen();
                                    }}
                                    style={{ cursor: 'pointer' }}
                                  />
@@ -836,6 +876,18 @@ export default function ClaimDare() {
                                      </div>
                                    </div>
                                  )}
+                                 
+                                 {/* Debug button for testing */}
+                                 <button
+                                   onClick={() => {
+                                     console.log('Debug: Toggle fullscreen state');
+                                     setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
+                                   }}
+                                   className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs"
+                                   style={{ zIndex: 10 }}
+                                 >
+                                   Debug: Toggle
+                                 </button>
                                </div>
                             ) : dare.proof.fileUrl.match(/\.(mp4|webm|mov|avi)$/i) ? (
                               // Enhanced Video Preview
@@ -889,14 +941,37 @@ export default function ClaimDare() {
                                     </button>
                                                                          <button
                                        onClick={(e) => {
-                                         const videoElement = e.target.closest('.relative').querySelector('video');
+                                         console.log('Video fullscreen button clicked');
+                                         // Find the video element more reliably
+                                         const container = e.target.closest('.relative');
+                                         console.log('Video container found:', container);
+                                         
+                                         if (!container) {
+                                           console.log('No video container found, trying alternative approach');
+                                           // Try to find the video in the same section
+                                           const videoElement = e.target.closest('.bg-gradient-to-r').querySelector('video');
+                                           if (videoElement) {
+                                             console.log('Found video via alternative method');
+                                             if (!proofPreview.isFullscreen) {
+                                               openFullscreen(videoElement);
+                                             } else {
+                                               closeFullscreen();
+                                             }
+                                           }
+                                           return;
+                                         }
+                                         
+                                         const videoElement = container.querySelector('video');
+                                         console.log('Video element found:', videoElement);
+                                         
                                          if (videoElement) {
                                            if (!proofPreview.isFullscreen) {
                                              openFullscreen(videoElement);
                                            } else {
                                              closeFullscreen();
                                            }
-                                           toggleFullscreen();
+                                         } else {
+                                           console.log('No video element found in container');
                                          }
                                        }}
                                        className="p-1 text-white hover:text-green-400 transition-colors ml-auto"
