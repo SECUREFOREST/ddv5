@@ -451,13 +451,6 @@ export default function DarePerformerDashboard() {
   
 
   
-  // Refetch data when pagination changes
-  useEffect(() => {
-    if (activePage > 1 || completedPage > 1) {
-      fetchData();
-    }
-  }, [activePage, completedPage, fetchData]);
-  
   // 2025: Enhanced data fetching with smart loading
   const fetchData = useCallback(async () => {
     if (!currentUserId) return;
@@ -655,7 +648,7 @@ export default function DarePerformerDashboard() {
         associates: false
       });
     }
-  }, [currentUserId]);
+  }, [currentUserId, activePage, completedPage]);
   
   // 2025: Gesture handlers
   const handleSwipe = (direction) => {
