@@ -382,15 +382,19 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Active Dares</h2>
-              {!Array.isArray(activeDares) || activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : activePaginatedItems.map(dare => (
-                <DareCard
-                  key={dare._id}
-                  {...dare}
-                  currentUserId={user._id || user.id}
-                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
-                  onForfeit={() => navigate(`/dares/${dare._id}`)}
-                />
-              ))}
+              {!Array.isArray(activeDares) || activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : (
+                <div className="space-y-4">
+                  {activePaginatedItems.map(dare => (
+                    <DareCard
+                      key={dare._id}
+                      {...dare}
+                      currentUserId={user._id || user.id}
+                      onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                      onForfeit={() => navigate(`/dares/${dare._id}`)}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* Active Dares Pagination */}
               {activeTotalPages > 1 && (
@@ -430,15 +434,19 @@ export default function UserActivity() {
           ) : (
             <>
               <h2 className="text-lg font-bold mb-2 text-white">Dare History</h2>
-              {!Array.isArray(historyDares) || historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : historyPaginatedItems.map(dare => (
-                <DareCard
-                  key={dare._id}
-                  {...dare}
-                  currentUserId={user._id || user.id}
-                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
-                  onForfeit={() => navigate(`/dares/${dare._id}`)}
-                />
-              ))}
+              {!Array.isArray(historyDares) || historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : (
+                <div className="space-y-4">
+                  {historyPaginatedItems.map(dare => (
+                    <DareCard
+                      key={dare._id}
+                      {...dare}
+                      currentUserId={user._id || user.id}
+                      onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                      onForfeit={() => navigate(`/dares/${dare._id}`)}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* History Dares Pagination */}
               {historyTotalPages > 1 && (
