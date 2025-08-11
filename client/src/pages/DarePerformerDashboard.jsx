@@ -413,6 +413,10 @@ export default function DarePerformerDashboard() {
   const [associates, setAssociates] = useState([]);
   const [errors, setErrors] = useState({});
   
+  // Pagination state for active and completed dares
+  const { currentPage: activePage, setCurrentPage: setActivePage, totalPages: activeTotalPages, paginatedData: activePaginatedData, setTotalItems: setActiveTotalItems } = usePagination(1, 8);
+  const { currentPage: completedPage, setCurrentPage: setCompletedPage, totalPages: completedTotalPages, paginatedData: completedPaginatedData, setTotalItems: setCompletedTotalItems } = usePagination(1, 8);
+  
 
   
   // 2025: Smart notifications
@@ -439,6 +443,15 @@ export default function DarePerformerDashboard() {
     return Math.round(trend * 10) / 10; // Round to 1 decimal place
   };
   
+  // Update total items for pagination when data changes
+  useEffect(() => {
+    setActiveTotalItems(ongoing.length);
+  }, [ongoing, setActiveTotalItems]);
+  
+  useEffect(() => {
+    setCompletedTotalItems(completed.length);
+  }, [completed, setCompletedTotalItems]);
+  
   // 2025: Enhanced data fetching with smart loading
   const fetchData = useCallback(async () => {
     if (!currentUserId) return;
@@ -450,8 +463,10 @@ export default function DarePerformerDashboard() {
       // Debug: Log the current user ID and API calls
       console.log('Fetching data for user:', currentUserId);
       console.log('API calls:', [
-        `/dares?participant=${currentUserId}&status=in_progress,pending`,
-        `/dares?participant=${currentUserId}&status=completed`,
+        `Active dares - Creator: /dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`,
+        `Active dares - Participant: /dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`,
+        `Completed dares - Creator: /dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`,
+        `Completed dares - Participant: /dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`,
         '/switches/performer',
         '/dares?public=true&limit=10',
         '/switches?public=true&status=waiting_for_participant',
@@ -460,8 +475,16 @@ export default function DarePerformerDashboard() {
       
       // Parallel data fetching for better performance
       const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
-        api.get(`/dares?participant=${currentUserId}&status=in_progress,pending`),
-        api.get(`/dares?participant=${currentUserId}&status=completed`),
+        // Active dares: both as creator and participant
+        Promise.all([
+          api.get(`/dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`),
+          api.get(`/dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`)
+        ]),
+        // Completed dares: both as creator and participant
+        Promise.all([
+          api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`),
+          api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`)
+        ]),
         api.get('/switches/performer'),
         api.get('/dares?public=true&limit=10'),
         api.get('/switches?public=true&status=waiting_for_participant'),
@@ -470,42 +493,65 @@ export default function DarePerformerDashboard() {
       
       // Handle successful responses
       if (ongoingData.status === 'fulfilled') {
-        // Extract dares from the response structure
-        const responseData = ongoingData.value.data;
-        const dares = responseData.dares || responseData;
+        // Merge dares from both creator and participant responses
+        const allActiveDares = [];
         
-        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        ongoingData.value.forEach(response => {
+          if (response.status === 200) {
+            const responseData = response.data;
+            const dares = responseData.dares || responseData;
+            const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+            if (Array.isArray(validatedData)) {
+              allActiveDares.push(...validatedData);
+            }
+          }
+        });
+        
+        // Remove duplicates by _id
+        const uniqueActiveDares = allActiveDares.filter((dare, index, self) => 
+          index === self.findIndex(d => d._id === dare._id)
+        );
         
         // Debug: Log the data structure
         console.log('Ongoing dares data:', {
-          raw: ongoingData.value.data,
-          responseData,
-          dares,
-          validated: validatedData,
-          firstDare: validatedData?.[0],
-          creator: validatedData?.[0]?.creator
+          allActiveDares,
+          uniqueActiveDares,
+          count: uniqueActiveDares.length,
+          firstDare: uniqueActiveDares?.[0],
+          creator: uniqueActiveDares?.[0]?.creator
         });
 
-        setOngoing(Array.isArray(validatedData) ? validatedData : []);
+        setOngoing(uniqueActiveDares);
       }
       
       if (completedData.status === 'fulfilled') {
-        // Extract dares from the response structure
-        const responseData = completedData.value.data;
-        const dares = responseData.dares || responseData;
+        // Merge dares from both creator and participant responses
+        const allCompletedDares = [];
         
-        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        completedData.value.forEach(response => {
+          if (response.status === 200) {
+            const responseData = response.data;
+            const dares = responseData.dares || responseData;
+            const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+            if (Array.isArray(validatedData)) {
+              allCompletedDares.push(...validatedData);
+            }
+          }
+        });
+        
+        // Remove duplicates by _id
+        const uniqueCompletedDares = allCompletedDares.filter((dare, index, self) => 
+          index === self.findIndex(d => d._id === dare._id)
+        );
 
         // Debug: Log the completed dares data structure
         console.log('Completed dares data:', {
-          raw: completedData.value.data,
-          responseData,
-          dares,
-          validated: validatedData,
-          count: validatedData?.length || 0
+          allCompletedDares,
+          uniqueCompletedDares,
+          count: uniqueCompletedDares.length
         });
 
-        setCompleted(Array.isArray(validatedData) ? validatedData : []);
+        setCompleted(uniqueCompletedDares);
       }
       
       if (switchData.status === 'fulfilled') {
@@ -665,6 +711,10 @@ export default function DarePerformerDashboard() {
     document.addEventListener('visibilitychange', handleFocus);
     return () => document.removeEventListener('visibilitychange', handleFocus);
   }, [fetchData]);
+  
+  // Get paginated data for active and completed dares
+  const activePaginatedItems = activePaginatedData(ongoing);
+  const completedPaginatedItems = completedPaginatedData(completed);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -833,7 +883,7 @@ export default function DarePerformerDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-                {Array.isArray(ongoing) && ongoing.map((dare) => (
+                {Array.isArray(activePaginatedItems) && activePaginatedItems.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -868,7 +918,19 @@ export default function DarePerformerDashboard() {
                     }
                   />
                 ))}
-                </div>
+                
+                {/* Active Dares Pagination */}
+                {activeTotalPages > 1 && (
+                  <div className="mt-6">
+                    <Pagination
+                      currentPage={activePage}
+                      totalPages={activeTotalPages}
+                      onPageChange={setActivePage}
+                      totalItems={ongoing.length}
+                    />
+                  </div>
+                )}
+              </div>
               )}
           </NeumorphicCard>
         </GestureContainer>
@@ -901,7 +963,7 @@ export default function DarePerformerDashboard() {
                 </div>
             ) : (
               <div className="space-y-4">
-                {Array.isArray(completed) && completed.map((dare) => (
+                {Array.isArray(completedPaginatedItems) && completedPaginatedItems.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -936,7 +998,19 @@ export default function DarePerformerDashboard() {
                     }
                   />
                 ))}
-            </div>
+                
+                {/* Completed Dares Pagination */}
+                {completedTotalPages > 1 && (
+                  <div className="mt-6">
+                    <Pagination
+                      currentPage={completedPage}
+                      totalPages={completedTotalPages}
+                      onPageChange={setCompletedPage}
+                      totalItems={completed.length}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </NeumorphicCard>
         </GestureContainer>

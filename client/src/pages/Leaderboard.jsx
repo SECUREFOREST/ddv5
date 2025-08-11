@@ -196,6 +196,48 @@ export default function Leaderboard() {
               </button>
             ))}
           </div>
+          
+          {/* Stats Summary */}
+          {!loading && !error && filteredUsers.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30 text-center">
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {filteredUsers.length}
+                </div>
+                <div className="text-sm text-primary-300">
+                  {activeTab === 'subs' ? 'Top Submissives' : 
+                   activeTab === 'doms' ? 'Top Dominants' : 
+                   'Total Participants'}
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30 text-center">
+                <div className="text-3xl font-bold text-green-400 mb-2">
+                  {filteredUsers.reduce((sum, u) => {
+                    const count = activeTab === 'subs' ? u.daresCompletedAsPerformer : 
+                                 activeTab === 'doms' ? u.daresCreated : 
+                                 u.daresCount || 0;
+                    return sum + count;
+                  }, 0)}
+                </div>
+                <div className="text-sm text-green-300">
+                  {activeTab === 'subs' ? 'Total Dares Completed' : 
+                   activeTab === 'doms' ? 'Total Dares Created' : 
+                   'Total Dares'}
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30 text-center">
+                <div className="text-3xl font-bold text-blue-400 mb-2">
+                  {filteredUsers[0] ? 
+                    (activeTab === 'subs' ? filteredUsers[0].daresCompletedAsPerformer : 
+                     activeTab === 'doms' ? filteredUsers[0].daresCreated : 
+                     filteredUsers[0].daresCount) || 0 : 0}
+                </div>
+                <div className="text-sm text-blue-300">Top Score</div>
+              </div>
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
@@ -308,48 +350,6 @@ export default function Leaderboard() {
               </div>
             )}
           </div>
-
-          {/* Stats Summary */}
-          {!loading && !error && filteredUsers.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-xl p-6 border border-primary/30 text-center">
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {filteredUsers.length}
-                </div>
-                <div className="text-sm text-primary-300">
-                  {activeTab === 'subs' ? 'Top Submissives' : 
-                   activeTab === 'doms' ? 'Top Dominants' : 
-                   'Total Participants'}
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-green-600/20 to-green-700/20 rounded-xl p-6 border border-green-600/30 text-center">
-                <div className="text-3xl font-bold text-green-400 mb-2">
-                  {filteredUsers.reduce((sum, u) => {
-                    const count = activeTab === 'subs' ? u.daresCompletedAsPerformer : 
-                                 activeTab === 'doms' ? u.daresCreated : 
-                                 u.daresCount || 0;
-                    return sum + count;
-                  }, 0)}
-                </div>
-                <div className="text-sm text-green-300">
-                  {activeTab === 'subs' ? 'Total Dares Completed' : 
-                   activeTab === 'doms' ? 'Total Dares Created' : 
-                   'Total Dares'}
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-blue-600/20 to-blue-700/20 rounded-xl p-6 border border-blue-600/30 text-center">
-                <div className="text-3xl font-bold text-blue-400 mb-2">
-                  {filteredUsers[0] ? 
-                    (activeTab === 'subs' ? filteredUsers[0].daresCompletedAsPerformer : 
-                     activeTab === 'doms' ? filteredUsers[0].daresCreated : 
-                     filteredUsers[0].daresCount) || 0 : 0}
-                </div>
-                <div className="text-sm text-blue-300">Top Score</div>
-              </div>
-            </div>
-          )}
 
           {/* Pagination Controls */}
           {!loading && !error && filteredUsers.length > 0 && totalPages > 1 && (
