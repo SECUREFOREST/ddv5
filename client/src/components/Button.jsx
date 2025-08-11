@@ -76,15 +76,17 @@ export default function Button({
     return false;
   });
 
-  // Always wrap children in flex container when there are multiple children
-  const shouldWrapInFlex = React.Children.count(children) > 1;
+  // Check if we have multiple children, including inside React fragments
+  const flattenedChildren = React.Children.toArray(children);
+  const shouldWrapInFlex = flattenedChildren.length > 1;
   
   // Debug logging
   console.log('Button debug:', {
     childrenCount: React.Children.count(children),
+    flattenedChildrenCount: flattenedChildren.length,
     shouldWrapInFlex,
     hasIcons,
-    children: React.Children.toArray(children).map(child => ({
+    children: flattenedChildren.map(child => ({
       type: child.type?.name || child.type?.displayName || 'unknown',
       className: child.props?.className || 'none'
     }))
