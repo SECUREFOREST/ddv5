@@ -166,7 +166,7 @@ export default function ProfileView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <MainContent className="max-w-2xl mx-auto px-4 py-8">
             <div className="text-center">
@@ -180,7 +180,7 @@ export default function ProfileView() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <div className="min-h-screen bg-black">
         <div className="max-w-2xl mx-auto px-4 py-8">
           <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-8 text-center">
             <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
@@ -195,7 +195,7 @@ export default function ProfileView() {
   // If blocked, show message and block all interactions
   if (isBlocked) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <div className="min-h-screen bg-black">
         <div className="max-w-2xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-6">
@@ -260,7 +260,7 @@ export default function ProfileView() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-gray-800 text-white px-4 py-2 rounded z-50">Skip to main content</a>
         <MainContent className="max-w-2xl mx-auto px-4 py-8">
