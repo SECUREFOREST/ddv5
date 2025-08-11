@@ -1401,9 +1401,9 @@ export default function ClaimDare() {
                     {/* Grading Section */}
                     {dare && dare._id && (
                       <div className="space-y-6">
-                        <div>
+                        <div className="text-center">
                           <label className="block font-semibold mb-4 text-white">Rate This Dare (1-5 Stars)</label>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <button
                                 key={star}
