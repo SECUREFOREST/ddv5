@@ -116,7 +116,7 @@ export default function Button({
         </div>
       ) : hasIcons ? (
         <div className="flex items-center justify-center gap-2">
-          {children}
+          {renderChildren()}
         </div>
       ) : (
         children
