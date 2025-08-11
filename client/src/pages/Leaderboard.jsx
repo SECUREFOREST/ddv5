@@ -28,6 +28,7 @@ export default function Leaderboard() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [hasFetched, setHasFetched] = useState(false); // Add flag to prevent refetching
+  const [renderKey, setRenderKey] = useState(0); // Force re-render when data loads
   const { showSuccess, showError } = useToast();
   const { user, loading: authLoading } = useAuth();
   
@@ -82,6 +83,8 @@ export default function Leaderboard() {
         console.log('Validated leaderboard data:', usersData);
         setUsers(usersData);
         setTotalItems(usersData.length);
+        // Force a re-render to ensure the UI updates
+        setRenderKey(prev => prev + 1);
       } else {
         throw new Error('Invalid response format from server');
       }
@@ -115,6 +118,10 @@ export default function Leaderboard() {
       setUsers([]);
     } finally {
       setLoading(false);
+      // Force a re-render after loading completes
+      setTimeout(() => {
+        setRenderKey(prev => prev + 1);
+      }, 100);
     }
   }, [user, loading]); // Simplified dependencies
 
@@ -204,7 +211,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <div key="leaderboard" className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div key={`leaderboard-${renderKey}`} className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
