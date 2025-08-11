@@ -116,18 +116,56 @@ export default function DomDemandCreator() {
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
 
-        <MainContent className="max-w-4xl mx-auto space-y-8">
-          {/* Header */}
+        <MainContent className="max-w-3xl mx-auto space-y-8">
+          {/* Header - Matching Dare Difficulty Select Design */}
           <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 rounded-2xl shadow-2xl shadow-red-500/25">
-                <ShieldCheckIcon className="w-10 h-10 text-white" />
-              </div>
-            </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Demand & Dominate</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
               Create a dare that requires submissive consent before revealing
             </p>
+          </div>
+
+          {/* Difficulty Selection - Vertical Layout like Dare Difficulty Select */}
+          <div className="space-y-4">
+            {DIFFICULTY_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setDifficulty(option.value)}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
+                    ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                    : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                  }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-neutral-700/50 text-neutral-400'
+                    }`}>
+                    {DIFFICULTY_ICONS[option.value]}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-2">{option.label}</div>
+                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                      {option.desc}
+                    </div>
+                    {option.longDesc && (
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                        {option.longDesc}
+                      </div>
+                    )}
+                    {option.examples && (
+                      <div className="text-xs text-neutral-500 italic">
+                        Examples: {option.examples}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {/* Create Dominant Dare Form */}
@@ -139,55 +177,7 @@ export default function DomDemandCreator() {
               </ErrorAlert>
             )}
 
-            <form onSubmit={handleCreate} className="space-y-8">
-
-              {/* Difficulty Selection */}
-              <div>
-                <label className="block text-lg font-semibold text-white mb-3">
-                  Difficulty Level
-                </label>
-                <div className="space-y-4">
-                  {DIFFICULTY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDifficulty(option.value)}
-                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
-                          ? 'border-red-500 bg-red-500/20 text-red-300 shadow-lg'
-                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                        }`}
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Icon */}
-                        <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
-                            ? 'bg-red-500/20 text-red-300'
-                            : 'bg-neutral-700/50 text-neutral-400'
-                          }`}>
-                          {DIFFICULTY_ICONS[option.value]}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="font-bold text-lg mb-2">{option.label}</div>
-                          <div className="text-sm leading-relaxed text-neutral-300 mb-2">
-                            {option.desc}
-                          </div>
-                          {option.longDesc && (
-                            <div className="text-xs text-neutral-400 leading-relaxed mb-2">
-                              {option.longDesc}
-                            </div>
-                          )}
-                          {option.examples && (
-                            <div className="text-xs text-neutral-500 italic">
-                              Examples: {option.examples}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <form onSubmit={handleCreate} className="space-y-6">
 
               {/* Description */}
               <FormTextarea
@@ -209,7 +199,7 @@ export default function DomDemandCreator() {
                 <TagsInput
                   value={tags}
                   onChange={setTags}
-                  className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                  className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 />
               </div>
 
@@ -221,33 +211,42 @@ export default function DomDemandCreator() {
                     id="publicDare"
                     checked={publicDare}
                     onChange={(e) => setPublicDare(e.target.checked)}
-                    className="w-5 h-5 text-red-600 bg-neutral-800 border-neutral-700 rounded focus:ring-red-500 focus:ring-2"
+                    className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
                   />
                   <label htmlFor="publicDare" className="text-white">
                     Make this dare public
                   </label>
                 </div>
               </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={creating}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                {creating ? (
-                  <>
-                    <ButtonLoading />
-                    Creating Dare...
-                  </>
-                ) : (
-                  <>
-                    <PlusIcon className="w-6 h-6" />
-                    Create Dominant Dare
-                  </>
-                )}
-              </button>
             </form>
+          </div>
+
+          {/* Submit Button - Centered like Dare Difficulty Select */}
+          <div className="text-center pt-8">
+            <button
+              onClick={handleCreate}
+              disabled={creating}
+              className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+            >
+              {creating ? (
+                <>
+                  <ButtonLoading />
+                  Creating Dare...
+                </>
+              ) : (
+                <>
+                  <PlusIcon className="w-6 h-6" />
+                  Create Dominant Dare
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Footer - Matching Dare Difficulty Select Style */}
+          <div className="text-center pt-8">
+            <p className="text-neutral-400 text-sm">
+              Not feeling dominant? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
+            </p>
           </div>
         </MainContent>
       </ContentContainer>

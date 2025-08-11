@@ -565,7 +565,7 @@ export default function Profile() {
                           className="cursor-pointer"
                         />
                       </div>
-                      <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full bg-neutral-800/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                         <PencilIcon className="w-6 h-6 text-white" />
                       </div>
                     </div>
