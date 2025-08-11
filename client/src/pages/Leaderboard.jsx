@@ -27,6 +27,7 @@ export default function Leaderboard() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [hasFetched, setHasFetched] = useState(false); // Add flag to prevent refetching
   const { showSuccess, showError } = useToast();
   const { user, loading: authLoading } = useAuth();
   const hasFetchedRef = useRef(false);
@@ -55,6 +56,7 @@ export default function Leaderboard() {
     
     // Prevent multiple simultaneous requests
     if (loading) {
+      console.log('Already loading, skipping duplicate request');
       return;
     }
     
@@ -115,18 +117,24 @@ export default function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  }, [showSuccess, showError, setTotalItems, user, loading]); // Removed users.length dependency
+  }, [user, loading]); // Simplified dependencies
 
   useEffect(() => {
     if (authLoading) return;
     
-    if (user) {
-      console.log('User authenticated, fetching leaderboard...');
+    if (user && !hasFetched) {
+      console.log('User authenticated, fetching leaderboard for the first time...');
+      setHasFetched(true);
       fetchLeaderboard();
     }
-  }, [user, authLoading, fetchLeaderboard]);
+  }, [user, authLoading, hasFetched, fetchLeaderboard]);
   
-  // Remove the complex ref logic that might be causing issues
+  // Reset fetch flag when user changes
+  useEffect(() => {
+    if (user) {
+      setHasFetched(false);
+    }
+  }, [user]);
 
   // Filter users based on active tab and search
   const filteredUsers = users.filter(u => {
@@ -203,6 +211,7 @@ export default function Leaderboard() {
                 setLoading(true);
                 setError('');
                 setUsers([]);
+                setHasFetched(false); // Reset the flag to allow refetching
                 fetchLeaderboard();
               }}
               className="mt-4 px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
