@@ -349,6 +349,55 @@ body {
   }
 }
 
+/* Prevent background flashing and ensure consistent dark theme */
+* {
+  background-color: transparent;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
+
+/* Override any white backgrounds that might cause flashing */
+.bg-white\/5,
+.bg-white\/10,
+.bg-white\/20 {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* Ensure backdrop blur doesn't cause background shifts */
+.backdrop-blur-xl,
+.backdrop-blur-2xl {
+  backdrop-filter: blur(24px);
+  background-color: rgba(15, 23, 42, 0.8) !important;
+}
+
+/* Prevent background transitions that cause flashing */
+* {
+  transition: none !important;
+}
+
+/* Allow only specific transitions for interactive elements */
+button, a, input, textarea, select {
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Ensure smooth dark theme rendering */
+html {
+  background-color: #0a0a0a !important;
+}
+
+/* Override any light backgrounds in components */
+[class*="bg-white"],
+[class*="bg-gray-50"],
+[class*="bg-gray-100"] {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
 /* 2025 High Contrast Mode Support */
 @media (prefers-contrast: high) {
   :root {
