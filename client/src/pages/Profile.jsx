@@ -812,7 +812,9 @@ export default function Profile() {
               </div>
             )}
 
-            <Tabs
+            {/* Add spacing between profile header and tabs */}
+            <div className="mt-8">
+              <Tabs
               tabs={[
                 {
                   label: 'About',
@@ -1300,6 +1302,7 @@ export default function Profile() {
               value={tabIdx}
               onChange={setTabIdx}
             />
+            </div>
           </MainContent>
         </div>
       </ContentContainer>
