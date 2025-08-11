@@ -800,6 +800,26 @@ export default function DarePerformerDashboard() {
     }
   }, [user, currentUserId, fetchData]);
   
+  // Refetch data when pagination changes
+  useEffect(() => {
+    if (activePage > 1 || completedPage > 1) {
+      fetchData();
+    }
+  }, [activePage, completedPage, fetchData]);
+  
+  // Debug: Log pagination state changes
+  useEffect(() => {
+    console.log('Pagination State Changed:', {
+      activePage,
+      activeTotalPages,
+      activeTotalItems,
+      completedPage,
+      completedTotalPages,
+      completedTotalItems,
+      ITEMS_PER_PAGE
+    });
+  }, [activePage, activeTotalPages, activeTotalItems, completedPage, completedTotalPages, completedTotalItems]);
+  
   useEffect(() => {
     // 2025: Auto-refresh on focus
     const handleFocus = () => {
@@ -843,7 +863,7 @@ export default function DarePerformerDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <SmartStatsCard
               title="Active Dares"
-              value={ongoing.length}
+              value={activeTotalItems}
               icon={ClockIconFilled}
               color="blue"
               loading={dataLoading.ongoing}
@@ -853,7 +873,7 @@ export default function DarePerformerDashboard() {
             
             <SmartStatsCard
               title="Completed"
-              value={completed.length}
+              value={completedTotalItems}
               icon={TrophyIconFilled}
               color="green"
               loading={dataLoading.completed}
