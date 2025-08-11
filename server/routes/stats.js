@@ -37,39 +37,16 @@ router.get('/health', async (req, res) => {
 // GET /api/stats/leaderboard - comprehensive leaderboard data
 router.get('/leaderboard', auth, async (req, res) => {
   try {
-    console.log('Leaderboard request received for user:', req.userId);
-    
     // Get all users with their dare statistics - add error handling
     let users;
     try {
       users = await User.find({}, 'username fullName avatar roles').lean();
-      console.log(`Found ${users.length} users`);
-      
-      // Validate user data
-      const validUsers = users.filter(user => {
-        if (!user || !user._id) {
-          console.warn('User missing _id:', user);
-          return false;
-        }
-        if (!user.username) {
-          console.warn('User missing username:', user._id);
-          return false;
-        }
-        return true;
-      });
-      
-      if (validUsers.length !== users.length) {
-        console.warn(`Filtered out ${users.length - validUsers.length} invalid users`);
-        users = validUsers;
-      }
-      
     } catch (userError) {
       console.error('Error fetching users:', userError);
       return res.status(500).json({ error: 'Failed to fetch users for leaderboard.' });
     }
     
     if (!users || users.length === 0) {
-      console.log('No users found, returning empty leaderboard');
       return res.json([]);
     }
     
@@ -108,11 +85,9 @@ router.get('/leaderboard', auth, async (req, res) => {
       
       // Additional validation of aggregation results
       if (!Array.isArray(daresCreatedStats)) {
-        console.warn('daresCreatedStats is not an array:', typeof daresCreatedStats);
         daresCreatedStats = [];
       }
       if (!Array.isArray(daresCompletedStats)) {
-        console.warn('daresCompletedStats is not an array:', typeof daresCompletedStats);
         daresCompletedStats = [];
       }
       
@@ -124,10 +99,8 @@ router.get('/leaderboard', auth, async (req, res) => {
         stat && stat._id && stat._id !== null && stat._id !== undefined
       );
       
-      console.log(`Found ${daresCreatedStats.length} valid creators and ${daresCompletedStats.length} valid performers`);
     } catch (aggregateError) {
       console.error('Error in aggregation:', aggregateError);
-      console.error('Aggregation error stack:', aggregateError.stack);
       return res.status(500).json({ error: 'Failed to aggregate dare statistics.' });
     }
     
@@ -138,7 +111,6 @@ router.get('/leaderboard', auth, async (req, res) => {
     // Fallback: if aggregation fails or returns no results, try alternative approach
     if ((!daresCreatedStats || daresCreatedStats.length === 0) && 
         (!daresCompletedStats || daresCompletedStats.length === 0)) {
-      console.log('Aggregation returned no results, trying fallback method...');
       
       try {
         // Fallback: use simple count queries
@@ -157,7 +129,6 @@ router.get('/leaderboard', auth, async (req, res) => {
           }
         });
         
-        console.log(`Fallback method: Found ${daresCreatedMap.size} creators and ${daresCompletedMap.size} performers`);
       } catch (fallbackError) {
         console.error('Fallback method also failed:', fallbackError);
         // Continue with empty maps rather than failing completely
@@ -197,8 +168,6 @@ router.get('/leaderboard', auth, async (req, res) => {
       }
     }
     
-    console.log(`Created maps - daresCreated: ${daresCreatedMap.size}, daresCompleted: ${daresCompletedMap.size}`);
-    
     // Get dare statistics for each user with safe property access
     const userStats = users.map(user => {
       if (!user || !user._id) {
@@ -234,8 +203,6 @@ router.get('/leaderboard', auth, async (req, res) => {
       }
     }).filter(Boolean); // Remove any null entries
     
-    console.log(`Processed ${userStats.length} user stats out of ${users.length} users`);
-    
     // Sort by total dares count (overall performance)
     userStats.sort((a, b) => (b.daresCount || 0) - (a.daresCount || 0));
     
@@ -250,7 +217,6 @@ router.get('/leaderboard', auth, async (req, res) => {
           entry && entry.user && entry.user.id && 
           !blockedUserIds.includes(entry.user.id.toString())
         );
-        console.log(`Filtered out ${userStats.length - leaderboard.length} blocked users`);
       }
     } catch (blockError) {
       console.error('Error filtering blocked users:', blockError);
@@ -261,25 +227,10 @@ router.get('/leaderboard', auth, async (req, res) => {
     // Limit to top 50 users for performance
     leaderboard = leaderboard.slice(0, 50);
     
-    console.log(`Returning leaderboard with ${leaderboard.length} users`);
-    console.log('Leaderboard request completed successfully');
-    
-    // Log summary for monitoring
-    const summary = {
-      totalUsers: users.length,
-      validUserStats: userStats.length,
-      finalLeaderboardSize: leaderboard.length,
-      daresCreatedMapSize: daresCreatedMap.size,
-      daresCompletedMapSize: daresCompletedMap.size,
-      timestamp: new Date().toISOString()
-    };
-    console.log('Leaderboard summary:', summary);
-    
     res.json(leaderboard);
     
   } catch (err) {
     console.error('Leaderboard error:', err);
-    console.error('Error stack:', err.stack);
     res.status(500).json({ 
       error: 'Failed to get leaderboard.',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined

@@ -56,15 +56,12 @@ export default function Leaderboard() {
     
     // Prevent multiple simultaneous requests
     if (loading) {
-      console.log('Already loading, skipping duplicate request');
       return;
     }
     
     try {
       setLoading(true);
       setError('');
-      
-      console.log('Fetching leaderboard data...');
       
       // Use retry mechanism for leaderboard fetch with timeout
       const response = await Promise.race([
@@ -76,11 +73,8 @@ export default function Leaderboard() {
         })
       ]);
       
-      console.log('Leaderboard response received:', response);
-      
       if (response && response.data) {
         const usersData = validateApiResponse(response, API_RESPONSE_TYPES.USER_ARRAY);
-        console.log('Validated leaderboard data:', usersData);
         setUsers(usersData);
         setTotalItems(usersData.length);
         // Force a re-render to ensure the UI updates
@@ -89,32 +83,9 @@ export default function Leaderboard() {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Leaderboard fetch error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: error.config
-      });
-      
-      let errorMessage = 'Failed to load leaderboard.';
-      
-      if (error.response?.status === 500) {
-        errorMessage = 'Server error occurred while loading leaderboard. Please try again later.';
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Please log in to view the leaderboard.';
-      } else if (error.response?.status === 403) {
-        errorMessage = 'Access denied to leaderboard.';
-      } else if (error.message === 'Request timeout') {
-        errorMessage = 'Request timed out. Please check your connection and try again.';
-      } else if (error.message.includes('Network Error')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      }
-      
-      const finalErrorMessage = handleApiError(error, 'leaderboard') || errorMessage;
-      setError(finalErrorMessage);
-      showError(finalErrorMessage);
+      const errorMessage = handleApiError(error, 'leaderboard');
+      setError(errorMessage);
+      showError(errorMessage);
       setUsers([]);
     } finally {
       setLoading(false);
@@ -123,13 +94,12 @@ export default function Leaderboard() {
         setRenderKey(prev => prev + 1);
       }, 100);
     }
-  }, [user, loading]); // Simplified dependencies
+  }, [user, loading]);
 
   useEffect(() => {
     if (authLoading) return;
     
     if (user && !hasFetched) {
-      console.log('User authenticated, fetching leaderboard for the first time...');
       setHasFetched(true);
       // Add a small delay to ensure proper state initialization
       setTimeout(() => {
@@ -177,26 +147,6 @@ export default function Leaderboard() {
   // Determine if we should show loading
   const shouldShowLoading = loading && users.length === 0;
 
-  // Debug logging for state
-  console.log('Leaderboard state:', {
-    loading,
-    error,
-    usersCount: users.length,
-    filteredUsersCount: filteredUsers.length,
-    activeTab,
-    search,
-    hasFetched
-  });
-
-  // Debug render decision
-  console.log('Render decision:', {
-    shouldShowLoading,
-    hasData: users.length > 0,
-    hasError: !!error,
-    willShowSkeleton: shouldShowLoading,
-    willShowData: !shouldShowLoading && users.length > 0
-  });
-
   // Update total items when filtered users change
   useEffect(() => {
     setTotalItems(filteredUsers.length);
@@ -229,7 +179,6 @@ export default function Leaderboard() {
             </p>
             <button 
               onClick={() => {
-                console.log('Manual refresh clicked');
                 setLoading(true);
                 setError('');
                 setUsers([]);
@@ -302,25 +251,7 @@ export default function Leaderboard() {
                   >
                     Try Again
                   </button>
-                  <button 
-                    onClick={() => {
-                      console.log('Current error state:', error);
-                      console.log('Current users state:', users);
-                      console.log('Current loading state:', loading);
-                    }}
-                    className="px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
-                  >
-                    Debug Info
-                  </button>
                 </div>
-                {process.env.NODE_ENV === 'development' && (
-                  <div className="mt-4 p-3 bg-neutral-800 rounded-lg text-left">
-                    <p className="text-xs text-neutral-400 mb-2">Debug Info (Development Only):</p>
-                    <pre className="text-xs text-neutral-300 overflow-auto">
-                      {JSON.stringify({ error, users: users.length, loading }, null, 2)}
-                    </pre>
-                  </div>
-                )}
               </div>
             ) : shouldShowLoading ? (
               <div className="text-center py-12">
@@ -329,36 +260,9 @@ export default function Leaderboard() {
                 <div className="mt-4">
                   <ListSkeleton count={5} />
                 </div>
-                {/* Debug info for loading state */}
-                <div className="mt-4 p-3 bg-red-800 rounded-lg text-left">
-                  <p className="text-xs text-white mb-2">DEBUG: Showing Loading State</p>
-                  <pre className="text-xs text-white overflow-auto">
-                    {JSON.stringify({ 
-                      shouldShowLoading, 
-                      loading, 
-                      usersLength: users.length,
-                      hasFetched,
-                      error 
-                    }, null, 2)}
-                  </pre>
-                </div>
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Debug info for data state */}
-                <div className="mb-4 p-3 bg-green-800 rounded-lg text-left">
-                  <p className="text-xs text-white mb-2">DEBUG: Showing Data State</p>
-                  <pre className="text-xs text-white overflow-auto">
-                    {JSON.stringify({ 
-                      shouldShowLoading, 
-                      loading, 
-                      usersLength: users.length,
-                      hasFetched,
-                      error,
-                      filteredUsersLength: filteredUsers.length
-                    }, null, 2)}
-                  </pre>
-                </div>
                 
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-primary/20 rounded-lg">
@@ -389,27 +293,6 @@ export default function Leaderboard() {
                   </div>
                 ) : (
                   <div>
-                    {/* Debug display */}
-                    <div className="mb-4 p-4 bg-neutral-800 rounded-lg">
-                      <h3 className="text-white font-bold mb-2">Debug Info:</h3>
-                      <p className="text-neutral-300">Users count: {users.length}</p>
-                      <p className="text-neutral-300">Filtered count: {filteredUsers.length}</p>
-                      <p className="text-neutral-300">Paginated count: {paginatedUsers.length}</p>
-                      <p className="text-neutral-300">Loading: {loading.toString()}</p>
-                      <p className="text-neutral-300">Error: {error || 'none'}</p>
-                    </div>
-                    
-                    {/* Simple data display for testing */}
-                    <div className="mb-4">
-                      <h3 className="text-white font-bold mb-2">Raw Data (First 3 users):</h3>
-                      {users.slice(0, 3).map((user, index) => (
-                        <div key={index} className="p-2 bg-neutral-700 rounded mb-2">
-                          <p className="text-white">Username: {user.user?.username}</p>
-                          <p className="text-neutral-300">Dares Created: {user.daresCreated}</p>
-                          <p className="text-neutral-300">Dares Completed: {user.daresCompletedAsPerformer}</p>
-                        </div>
-                      ))}
-                    </div>
                     
                     <Suspense fallback={<ListSkeleton count={5} />}>
                       <LeaderboardWidget 
@@ -424,7 +307,6 @@ export default function Leaderboard() {
                                         u.daresCount,
                             role: u.user?.roles?.[0] || 'user'
                           };
-                          console.log('Mapped user for LeaderboardWidget:', mappedUser);
                           return mappedUser;
                         })} 
                         loading={loading} 
