@@ -350,9 +350,6 @@ body {
 }
 
 /* Prevent background flashing and ensure consistent dark theme */
-* {
-  background-color: transparent;
-}
 
 body {
   background: #000000 !important;
@@ -371,7 +368,6 @@ body {
 .backdrop-blur-xl,
 .backdrop-blur-2xl {
   backdrop-filter: blur(24px);
-  background-color: rgba(0, 0, 0, 0.9) !important;
 }
 
 /* Prevent background transitions that cause flashing */
