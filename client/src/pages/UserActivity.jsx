@@ -54,11 +54,15 @@ export default function UserActivity() {
   
   // Update total items when data changes
   React.useEffect(() => {
-    setActiveTotalItems(Array.isArray(activeDares) ? activeDares.length : 0);
+    const total = Array.isArray(activeDares) ? activeDares.length : 0;
+    console.log('Setting active total items:', { activeDares, total });
+    setActiveTotalItems(total);
   }, [activeDares, setActiveTotalItems]);
   
   React.useEffect(() => {
-    setHistoryTotalItems(Array.isArray(historyDares) ? historyDares.length : 0);
+    const total = Array.isArray(historyDares) ? historyDares.length : 0;
+    console.log('Setting history total items:', { historyDares, total });
+    setHistoryTotalItems(total);
   }, [historyDares, setHistoryTotalItems]);
 
   useEffect(() => {
@@ -395,6 +399,7 @@ export default function UserActivity() {
                     currentPage={activePage}
                     totalPages={activeTotalPages}
                     onPageChange={setActivePage}
+                    totalItems={activeDares?.length || 0}
                   />
                 </div>
               )}
@@ -442,6 +447,7 @@ export default function UserActivity() {
                     currentPage={historyPage}
                     totalPages={historyTotalPages}
                     onPageChange={setHistoryPage}
+                    totalItems={historyDares?.length || 0}
                   />
                 </div>
               )}

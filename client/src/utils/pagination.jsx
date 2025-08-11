@@ -122,7 +122,7 @@ export function Pagination({
   onPageSizeChange = () => {},
   totalItems
 }) {
-  if (totalPages <= 0) return null;
+  if (totalPages <= 0 || totalItems <= 0) return null;
   
   const getVisiblePages = () => {
     const maxVisible = PAGINATION_CONFIG.maxVisiblePages;
@@ -185,7 +185,11 @@ export function Pagination({
       
       {/* Page info */}
       <div className="text-sm text-neutral-400">
-        Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+        {totalItems > 0 ? (
+          <>Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items</>
+        ) : (
+          <>No items to display</>
+        )}
       </div>
       
       {/* Page navigation */}
