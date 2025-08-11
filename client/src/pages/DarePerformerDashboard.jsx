@@ -812,7 +812,15 @@ export default function DarePerformerDashboard() {
                 {Array.isArray(ongoing) && ongoing.map((dare) => (
                   <DareCard 
                     key={dare._id} 
-                    dare={dare}
+                    creator={dare.creator}
+                    performer={dare.performer}
+                    assignedSwitch={dare.assignedSwitch}
+                    description={dare.description}
+                    difficulty={dare.difficulty}
+                    status={dare.status}
+                    tags={dare.tags}
+                    proof={dare.proof}
+                    grades={dare.grades}
                     currentUserId={currentUserId}
                     actions={
                       <div className="flex gap-2">
@@ -872,7 +880,15 @@ export default function DarePerformerDashboard() {
                 {Array.isArray(completed) && completed.map((dare) => (
                   <DareCard 
                     key={dare._id} 
-                    dare={dare}
+                    creator={dare.creator}
+                    performer={dare.performer}
+                    assignedSwitch={dare.assignedSwitch}
+                    description={dare.description}
+                    difficulty={dare.difficulty}
+                    status={dare.status}
+                    tags={dare.tags}
+                    proof={dare.proof}
+                    grades={dare.grades}
                     currentUserId={currentUserId}
                     actions={
                       <div className="flex gap-2">
@@ -1002,7 +1018,15 @@ export default function DarePerformerDashboard() {
                 {Array.isArray(publicDares) && publicDares.map((dare) => (
                   <DareCard 
                     key={dare._id} 
-                    dare={dare}
+                    creator={dare.creator}
+                    performer={dare.performer}
+                    assignedSwitch={dare.assignedSwitch}
+                    description={dare.description}
+                    difficulty={dare.difficulty}
+                    status={dare.status}
+                    tags={dare.tags}
+                    proof={dare.proof}
+                    grades={dare.grades}
                     currentUserId={currentUserId}
                     actions={
                       <div className="flex gap-2">
