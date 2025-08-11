@@ -13,6 +13,7 @@ import { retryApiCall } from '../utils/retry';
 import { useContentDeletion } from '../hooks/useContentDeletion';
 import { validateApiResponse } from '../utils/apiValidation';
 import { handleApiError } from '../utils/errorHandler';
+import { MainContent, ContentContainer } from '../components/Layout';
 
 const MOVES = ['rock', 'paper', 'scissors'];
 

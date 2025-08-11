@@ -159,7 +159,7 @@ export default function SwitchGameCreate() {
               />
 
               {/* Move Selection */}
-              <div>
+              <div className="pt-4">
                 <label className="block text-lg font-semibold text-white mb-3">
                   Your Move
                 </label>
