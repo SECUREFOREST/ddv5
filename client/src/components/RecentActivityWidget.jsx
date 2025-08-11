@@ -5,6 +5,7 @@ import api from '../api/axios';
 import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../constants.jsx';
 import { validateApiResponse } from '../utils/apiValidation';
 import { handleApiError } from '../utils/errorHandler';
+import { usePagination, Pagination } from '../utils/pagination';
 
 function timeAgo(date) {
   return formatRelativeTime(date);
@@ -56,8 +57,9 @@ const ICONS = {
 };
 
 // Comprehensive activity message generator
-function getActivityMessage(activity) {
-  const actorName = activity.user?.fullName || activity.user?.username || 'Someone';
+function getActivityMessage(activity, currentUserId) {
+  const isCurrentUser = activity.user?._id === currentUserId;
+  const actorName = isCurrentUser ? 'You' : (activity.user?.fullName || activity.user?.username || 'Someone');
   
 
   
@@ -113,12 +115,7 @@ function getActivityMessage(activity) {
     case 'logout':
       return `${actorName} logged out`;
     default:
-      // Convert snake_case to readable text
-      const readableType = activity.type
-        ?.split('_')
-        ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        ?.join(' ') || 'performed an action';
-      return `${actorName} ${readableType.toLowerCase()}`;
+      return `${actorName} performed an action`;
   }
 }
 
@@ -127,22 +124,74 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
   const [localLoading, setLocalLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [totalActivities, setTotalActivities] = useState(0);
+
+  // Initialize pagination
+  const {
+    currentPage,
+    pageSize,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+    setCurrentPage,
+    setPageSize,
+    setTotalItems,
+    goToPage,
+    nextPage,
+    prevPage
+  } = usePagination(1, 10, {
+    serverSide: true,
+    onPageChange: (page) => {
+      if (userId) {
+        fetchActivities(page, pageSize);
+      }
+    },
+    onPageSizeChange: (newPageSize) => {
+      if (userId) {
+        fetchActivities(1, newPageSize);
+      }
+    }
+  });
+
+  // Update pagination total when activities change
+  useEffect(() => {
+    if (totalActivities > 0) {
+      setTotalItems(totalActivities);
+    }
+  }, [totalActivities, setTotalItems]);
 
   // Fetch activities if userId is provided
-  const fetchActivities = useCallback(async () => {
+  const fetchActivities = useCallback(async (page = 1, limit = 10) => {
     if (!userId) return;
     
     try {
       setLocalLoading(true);
       setError(null);
       
-      // Use the activity feed endpoint that shows user-related activities
-      const response = await api.get('/activity-feed');
+      // Use the activity feed endpoint with pagination
+      const response = await api.get('/activity-feed', {
+        params: {
+          page,
+          limit
+        }
+      });
       
       if (response.data) {
-        const activitiesData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        // Handle new response format with pagination data
+        let activitiesData, totalCount;
+        
+        if (response.data.activities && response.data.pagination) {
+          // New format with pagination
+          activitiesData = response.data.activities;
+          totalCount = response.data.pagination.total;
+        } else {
+          // Fallback to old format
+          activitiesData = response.data;
+          totalCount = response.headers['x-total-count'] || activitiesData.length;
+        }
+        
         setLocalActivities(activitiesData);
-
+        setTotalActivities(totalCount);
       } else {
         throw new Error('No data received from server');
       }
@@ -158,24 +207,26 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
 
   useEffect(() => {
     if (userId) {
-      fetchActivities();
+      fetchActivities(currentPage, pageSize);
     } else if (activities.length > 0) {
       setLocalActivities(activities);
+      setTotalActivities(activities.length);
     }
-  }, [userId, fetchActivities]);
+  }, [userId, currentPage, pageSize, fetchActivities]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     if (onRefresh) {
       await onRefresh();
     } else if (userId) {
-      await fetchActivities();
+      await fetchActivities(currentPage, pageSize);
     }
     setRefreshing(false);
-  }, [onRefresh, userId, fetchActivities]);
+  }, [onRefresh, userId, currentPage, pageSize, fetchActivities]);
 
   const displayActivities = userId ? localActivities : activities;
   const displayLoading = userId ? localLoading : loading;
+  const showPagination = userId && totalActivities > pageSize;
 
   return (
     <div className="space-y-4">
@@ -190,10 +241,10 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
           {[...Array(3)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-white/20 rounded mr-2"></div>
+                <div className="w-4 h-4 bg-black/60 rounded mr-2"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-white/20 rounded mb-1"></div>
-                  <div className="h-3 bg-white/10 rounded w-1/2"></div>
+                  <div className="h-4 bg-black/60 rounded mb-1"></div>
+                  <div className="h-3 bg-black/40 rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -201,26 +252,43 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         </div>
       ) : displayActivities.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-black/80 rounded-full flex items-center justify-center mx-auto mb-4">
             <EllipsisHorizontalIcon className="w-6 h-6 text-white/50" />
           </div>
           <p className="text-white/70 text-sm">No recent activity</p>
           <p className="text-white/50 text-xs mt-1">Your activity will appear here</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {displayActivities.map((activity, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-              {ICONS[activity.type] || ICONS.default}
-              <div className="flex-1">
-                <div className="text-sm text-white">{getActivityMessage(activity)}</div>
-                <div className="text-xs text-white/60">
-                  <time dateTime={activity.createdAt}>{timeAgo(activity.createdAt)}</time>
+        <>
+          <div className="space-y-3">
+            {displayActivities.map((activity, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-black/80 hover:bg-black/90 transition-colors">
+                {ICONS[activity.type] || ICONS.default}
+                <div className="flex-1">
+                  <div className="text-sm text-white">{getActivityMessage(activity, userId)}</div>
+                  <div className="text-xs text-white/60">
+                    <time dateTime={activity.createdAt}>{timeAgo(activity.createdAt)}</time>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+          
+          {/* Pagination */}
+          {showPagination && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                pageSize={pageSize}
+                onPageSizeChange={setPageSize}
+                totalItems={totalActivities}
+                className="text-white"
+              />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
       
       {(userId || onRefresh) && (

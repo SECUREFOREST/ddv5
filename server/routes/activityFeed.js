@@ -9,6 +9,10 @@ const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
   try {
     const userId = req.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
     // Find all dares and switch games where the user is creator, performer, or assignedSwitch
     const dares = await Dare.find({
       $or: [
@@ -26,21 +30,42 @@ router.get('/', auth, async (req, res) => {
     const relevantDareIds = dares.map(d => d._id);
     const relevantSwitchGameIds = switchGames.map(g => g._id);
 
-    // Find activities related to these dares or switch games, or created by the user
-    const activities = await Activity.find({
+    // Build the filter for activities
+    const filter = {
       $or: [
         { user: userId },
         { dare: { $in: relevantDareIds } },
         { switchGame: { $in: relevantSwitchGameIds } }
       ]
-    })
+    };
+
+    // Get total count for pagination
+    const totalActivities = await Activity.countDocuments(filter);
+
+    // Find activities with pagination
+    const activities = await Activity.find(filter)
       .populate('user', 'username avatar')
       .populate('switchGame', 'description difficulty creator participant status')
       .sort({ createdAt: -1 })
-      .limit(Number(req.query.limit) || 30);
+      .skip(skip)
+      .limit(limit);
 
-    res.json(activities);
+    // Set total count header for client-side pagination
+    res.set('X-Total-Count', totalActivities.toString());
+    
+    res.json({
+      activities,
+      pagination: {
+        page,
+        limit,
+        total: totalActivities,
+        totalPages: Math.ceil(totalActivities / limit),
+        hasNextPage: page * limit < totalActivities,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (err) {
+    console.error('Activity feed error:', err);
     res.status(500).json({ error: 'Failed to load activity feed.' });
   }
 });
@@ -48,21 +73,37 @@ router.get('/', auth, async (req, res) => {
 // GET /activities - get activities for dashboard
 router.get('/activities', auth, async (req, res) => {
   try {
-    const { limit = 20, userId } = req.query;
+    const { limit = 20, userId, page = 1 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
     let filter = {};
     
     if (userId) {
       filter.user = userId;
     }
     
+    // Get total count
+    const totalActivities = await Activity.countDocuments(filter);
+    
     const activities = await Activity.find(filter)
       .populate('user', 'username fullName avatar')
       .populate('dare', 'description difficulty')
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(parseInt(limit));
     
-    res.json(activities);
+    res.json({
+      activities,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: totalActivities,
+        totalPages: Math.ceil(totalActivities / parseInt(limit)),
+        hasNextPage: parseInt(page) * parseInt(limit) < totalActivities,
+        hasPrevPage: parseInt(page) > 1
+      }
+    });
   } catch (err) {
+    console.error('Activities error:', err);
     res.status(500).json({ error: 'Failed to fetch activities.' });
   }
 });
