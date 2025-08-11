@@ -79,28 +79,8 @@ export default function Button({
   const renderChildren = () => {
     if (!hasIcons) return children;
     
-    const childrenArray = React.Children.toArray(children);
-    const iconElements = [];
-    const textElements = [];
-    
-    childrenArray.forEach(child => {
-      if (React.isValidElement(child) && (
-        child.type.name?.includes('Icon') || 
-        child.props?.className?.includes('w-') ||
-        child.props?.className?.includes('h-')
-      )) {
-        iconElements.push(child);
-      } else {
-        textElements.push(child);
-      }
-    });
-    
-    return (
-      <>
-        {iconElements}
-        {textElements}
-      </>
-    );
+    // Simply return children as-is, the flex container will handle the layout
+    return children;
   };
 
   return (
