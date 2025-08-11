@@ -179,7 +179,7 @@ export default function DareReveal() {
       <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
               <p className="text-neutral-500 text-sm">
                 The dare you're looking for could not be found or you don't have permission to view it.
@@ -211,7 +211,7 @@ export default function DareReveal() {
           </div>
 
           {/* Status Progress */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               {STATUS_STEPS.map((step, index) => (
                 <div key={step.key} className="flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function DareReveal() {
           </div>
 
           {/* Dare Card */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-xl">
                 <DifficultyBadge level={dare.difficulty} />
@@ -317,10 +317,10 @@ export default function DareReveal() {
             onClose={() => setProofModalOpen(false)}
             className="relative z-50"
           >
-            <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+            <div className="fixed inset-0 bg-neutral-800/50" aria-hidden="true" />
             
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="bg-black/95 rounded-2xl p-8 border border-neutral-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <Dialog.Panel className="bg-neutral-800/95 rounded-2xl p-8 border border-neutral-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <Dialog.Title className="text-2xl font-bold text-white mb-6">
                   Submit Proof
                 </Dialog.Title>

@@ -289,7 +289,7 @@ export default function Dashboard() {
               {/* Quick Action */}
               <div className="md:col-span-2">
                 <h3 className="text-lg font-semibold text-white mb-4">Quick Action</h3>
-                <div className="bg-black/80 rounded-xl p-6 border border-neutral-700/50">
+                <div className="bg-neutral-800/80 rounded-xl p-6 border border-neutral-700/50">
                   <div className="flex items-center gap-4 mb-4">
                     <div className={`p-3 bg-gradient-to-r ${currentRoleForm.color} rounded-xl`}>
                       <RoleIcon className="w-6 h-6 text-white" />

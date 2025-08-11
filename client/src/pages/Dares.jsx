@@ -240,7 +240,7 @@ export default function Dares() {
             </div>
 
           {/* Filters and Actions */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
               <div className="flex flex-wrap gap-4">
                 <select

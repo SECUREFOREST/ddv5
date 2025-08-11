@@ -120,7 +120,7 @@ export default function SafetyReport() {
           </div>
 
           {submitSuccess ? (
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <SuccessAlert className="mb-6">
                 <div className="text-center">
                   <h2 className="text-2xl font-bold text-green-400 mb-4">Report Submitted Successfully</h2>
@@ -142,7 +142,7 @@ export default function SafetyReport() {
               </SuccessAlert>
             </div>
           ) : (
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               {/* Important Notice */}
               <div className="bg-yellow-600/20 border border-yellow-500/30 rounded-xl p-4 mb-6">
                 <div className="flex items-start gap-3">

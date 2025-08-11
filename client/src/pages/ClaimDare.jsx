@@ -665,7 +665,7 @@ export default function ClaimDare() {
             </div>
 
             {/* Error Details */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <div className="text-center space-y-6">
                 <div className="text-neutral-400 text-lg">
                   This dare may have been:
@@ -724,7 +724,7 @@ export default function ClaimDare() {
             </div>
 
             {/* Dare Details */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <div className="text-center mb-6">
                 <div className="text-green-400 text-xl mb-4">The Dare</div>
                 <DifficultyBadge level={dare.difficulty} />
@@ -826,7 +826,7 @@ export default function ClaimDare() {
                       {/* File Content */}
                       <div className="p-4">
                         {secureFileUrls[dare.proof.fileUrl] ? (
-                          <div className={`${proofPreview.isFullscreen ? 'fixed inset-0 z-50 bg-black/95 flex items-center justify-center' : ''}`}>
+                          <div className={`${proofPreview.isFullscreen ? 'fixed inset-0 z-50 bg-neutral-800/95 flex items-center justify-center' : ''}`}>
                             {proofPreview.isFullscreen && (
                               <button
                                 onClick={toggleFullscreen}
@@ -852,9 +852,9 @@ export default function ClaimDare() {
                                  />
                                  {!proofPreview.isFullscreen && (
                                    <div 
-                                     className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 pointer-events-none"
+                                     className="absolute inset-0 bg-neutral-800/0 hover:bg-neutral-800/20 transition-colors rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 pointer-events-none"
                                    >
-                                     <div className="bg-black/50 text-white px-3 py-1 rounded-lg text-sm">
+                                     <div className="bg-neutral-800/50 text-white px-3 py-1 rounded-lg text-sm">
                                        Click to expand
                                      </div>
                                    </div>
@@ -889,7 +889,7 @@ export default function ClaimDare() {
                                 
                                 {/* Custom Video Controls */}
                                 {!proofPreview.isFullscreen && (
-                                  <div className="absolute bottom-2 left-2 right-2 bg-black/50 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2">
+                                  <div className="absolute bottom-2 left-2 right-2 bg-neutral-800/50 backdrop-blur-sm rounded-lg p-2 flex items-center gap-2">
                                     <button
                                       onClick={togglePlayPause}
                                       className="p-1 text-white hover:text-green-400 transition-colors"
@@ -1037,7 +1037,7 @@ export default function ClaimDare() {
               </div>
 
               {/* Revealed Demand */}
-              <div className="bg-black/80 rounded-2xl p-8 border border-red-800/30 shadow-xl">
+              <div className="bg-neutral-800/80 rounded-2xl p-8 border border-red-800/30 shadow-xl">
                 <div className="text-center mb-6">
                   <div className="text-red-400 text-xl mb-4">The Dom's Demand</div>
                   <DifficultyBadge level={dare.difficulty} />
@@ -1141,7 +1141,7 @@ export default function ClaimDare() {
 
 
                 {/* Proof Submission */}
-                <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                   <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
                   
                   <form onSubmit={handleProofSubmit} className="space-y-6">
@@ -1257,7 +1257,7 @@ export default function ClaimDare() {
                       alt="File preview"
                       className="max-w-full h-auto rounded-lg mx-auto max-h-48 object-contain"
                     />
-                    <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                    <div className="absolute top-2 right-2 bg-neutral-800/50 text-white px-2 py-1 rounded text-xs">
                       {fileValidation.dimensions?.width}×{fileValidation.dimensions?.height}
                     </div>
                   </div>
@@ -1270,7 +1270,7 @@ export default function ClaimDare() {
                       preload="metadata"
                       muted
                     />
-                    <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center">
+                    <div className="absolute inset-0 bg-neutral-800/20 rounded-lg flex items-center justify-center">
                       <PlayIcon className="w-8 h-8 text-white" />
                     </div>
                   </div>
@@ -1511,7 +1511,7 @@ export default function ClaimDare() {
       <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-black/80 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
               <div className="text-green-400 text-xl mb-4">Thank You!</div>
               <p className="text-green-300 text-sm">
                 You have consented to perform this dare.
@@ -1547,7 +1547,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Dom Information Table - OSA Style */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
@@ -1592,7 +1592,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Consent Question */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
             <h3 className="text-2xl font-bold text-white mb-6">
               Will you agree to perform their demand?
             </h3>
@@ -1609,7 +1609,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Difficulty Information */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="text-center mb-6">
               <p className="text-neutral-300 text-lg mb-4">
                 This dare might describe any act up to or including the following difficulty level:

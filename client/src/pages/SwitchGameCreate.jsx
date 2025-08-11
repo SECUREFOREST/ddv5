@@ -92,7 +92,7 @@ export default function SwitchGameCreate() {
           </div>
 
           {/* Create Switch Game Form */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
             {createError && (
               <ErrorAlert className="mb-6">

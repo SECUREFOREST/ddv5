@@ -126,7 +126,7 @@ export default function News() {
           </div>
 
           {/* Filter and Search */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Filter Buttons */}
               <div className="flex flex-wrap gap-2">
@@ -196,7 +196,7 @@ export default function News() {
               filteredNews.map((item) => (
                 <article
                   key={item.id}
-                  className={`bg-black/80 rounded-2xl p-6 border ${getPriorityColor(item.priority)} shadow-xl hover:shadow-2xl transition-all duration-300`}
+                  className={`bg-neutral-800/80 rounded-2xl p-6 border ${getPriorityColor(item.priority)} shadow-xl hover:shadow-2xl transition-all duration-300`}
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">

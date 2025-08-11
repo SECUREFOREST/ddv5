@@ -205,7 +205,7 @@ export default function OfferSubmission() {
           {/* Status Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Slot Status */}
-            <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
                   <span className="text-white text-sm font-bold">{slotCount}</span>
@@ -223,7 +223,7 @@ export default function OfferSubmission() {
             </div>
 
             {/* Cooldown Status */}
-            <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
               <div className="flex items-center gap-3 mb-4">
                 <ClockIcon className="w-8 h-8 text-yellow-400" />
                 <div>
@@ -240,7 +240,7 @@ export default function OfferSubmission() {
           </div>
 
           {/* Submission Form */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Difficulty Selection */}
               <div>

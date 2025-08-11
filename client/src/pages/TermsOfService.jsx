@@ -25,7 +25,7 @@ export default function TermsOfService() {
 
           <div className="space-y-8">
             {/* Core Principles */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <HeartIcon className="w-8 h-8 text-red-500" />
                 Core Principles
@@ -44,7 +44,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Safety & Privacy */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <LockClosedIcon className="w-8 h-8 text-blue-500" />
                 Safety & Privacy
@@ -72,7 +72,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Community Guidelines */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <UserGroupIcon className="w-8 h-8 text-green-500" />
                 Community Guidelines
@@ -103,7 +103,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Enforcement */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                 Enforcement & Reporting
@@ -125,7 +125,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Account Management */}
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <EyeIcon className="w-8 h-8 text-purple-500" />
                 Account Management

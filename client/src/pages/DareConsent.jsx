@@ -99,7 +99,7 @@ export default function DareConsent() {
       <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
               <p className="text-neutral-500 text-sm">
                 The dare you're looking for could not be found.
@@ -137,7 +137,7 @@ export default function DareConsent() {
           </div>
 
           {/* Dom Information Table - OSA Style */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
@@ -182,7 +182,7 @@ export default function DareConsent() {
           </div>
 
           {/* Consent Question */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
             <h3 className="text-2xl font-bold text-white mb-6">
               Will you agree to perform their demand?
             </h3>
@@ -199,7 +199,7 @@ export default function DareConsent() {
           </div>
 
           {/* Difficulty Information */}
-          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="text-center mb-6">
               <p className="text-neutral-300 text-lg mb-4">
                 This dare might describe any act up to or including the following difficulty level:

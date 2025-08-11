@@ -239,7 +239,7 @@ export default function Notifications() {
           </div>
 
           {/* Notifications List */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             {notifications.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">No notifications yet</div>

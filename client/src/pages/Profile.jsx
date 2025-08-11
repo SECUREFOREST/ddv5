@@ -549,7 +549,7 @@ export default function Profile() {
           
           <MainContent>
             {/* Profile Header */}
-            <div className="relative overflow-hidden bg-black/90 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
+            <div className="relative overflow-hidden bg-neutral-800/90 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
               <div className="relative p-8">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
@@ -684,7 +684,7 @@ export default function Profile() {
               <div className="mt-6 mb-6 space-y-6">
                 {/* Role Balance Display - OSA Style */}
                 {(stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
-                  <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                     <div className="text-center mb-6">
                       <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-3">
                         <ShieldCheckIcon className="w-8 h-8 text-primary" />
@@ -1176,7 +1176,7 @@ export default function Profile() {
                 {
                   label: 'Privacy & Safety',
                   content: (
-                    <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
+                    <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
                       <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
                         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                           <ShieldCheckIcon className="w-6 h-6 text-primary" />
@@ -1320,7 +1320,7 @@ function ChangePasswordForm() {
   };
 
   return (
-    <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+    <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
       <div className="max-w-md mx-auto">
         <form onSubmit={handleChangePassword} className="space-y-6">
           <div className="text-center mb-8">

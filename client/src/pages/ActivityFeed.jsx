@@ -132,7 +132,7 @@ export default function ActivityFeed() {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <Search
               placeholder="Search activity, user, or type..."
               onSearch={setSearch}
@@ -141,7 +141,7 @@ export default function ActivityFeed() {
           </div>
 
           {/* Activity List */}
-          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             {filteredActivities.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">No activities found</div>
