@@ -349,6 +349,10 @@ export default function DarePerformerDashboard() {
   // Use the logged-in user's ID instead of URL params
   const currentUserId = user?._id || user?.id;
   
+  // Debug: Log user and currentUserId
+  console.log('User object:', user);
+  console.log('Current user ID:', currentUserId);
+  
   // State management with 2025 patterns
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -443,6 +447,17 @@ export default function DarePerformerDashboard() {
       setIsLoading(true);
       setError(null);
       
+      // Debug: Log the current user ID and API calls
+      console.log('Fetching data for user:', currentUserId);
+      console.log('API calls:', [
+        `/dares?participant=${currentUserId}&status=in_progress,pending`,
+        `/dares?participant=${currentUserId}&status=completed`,
+        '/switches/performer',
+        '/dares?public=true&limit=10',
+        '/switches?public=true&status=waiting_for_participant',
+        '/users/associates'
+      ]);
+      
       // Parallel data fetching for better performance
       const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
         api.get(`/dares?participant=${currentUserId}&status=in_progress,pending`),
@@ -480,6 +495,15 @@ export default function DarePerformerDashboard() {
         const dares = responseData.dares || responseData;
         
         const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+
+        // Debug: Log the completed dares data structure
+        console.log('Completed dares data:', {
+          raw: completedData.value.data,
+          responseData,
+          dares,
+          validated: validatedData,
+          count: validatedData?.length || 0
+        });
 
         setCompleted(Array.isArray(validatedData) ? validatedData : []);
       }
