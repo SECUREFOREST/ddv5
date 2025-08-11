@@ -262,7 +262,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         <>
           <div className="space-y-3">
             {displayActivities.map((activity, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-700/90 hover:bg-neutral-600/90 transition-colors border border-neutral-600/30">
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-700/90 hover:bg-neutral-600/90 transition-colors border border-neutral-600/30" style={{backgroundColor: 'rgb(64 64 64 / 0.9)'}}>
                 {ICONS[activity.type] || ICONS.default}
                 <div className="flex-1">
                   <div className="text-sm text-white">{getActivityMessage(activity, userId)}</div>
