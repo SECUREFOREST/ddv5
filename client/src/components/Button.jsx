@@ -80,15 +80,26 @@ export default function Button({
   const flattenedChildren = React.Children.toArray(children);
   const shouldWrapInFlex = flattenedChildren.length > 1;
   
+  // Also check if any child contains multiple elements (like React fragments)
+  const hasComplexChildren = flattenedChildren.some(child => 
+    React.isValidElement(child) && 
+    React.Children.count(child.props.children) > 1
+  );
+  
+  const finalShouldWrapInFlex = shouldWrapInFlex || hasComplexChildren;
+  
   // Debug logging
   console.log('Button debug:', {
     childrenCount: React.Children.count(children),
     flattenedChildrenCount: flattenedChildren.length,
     shouldWrapInFlex,
+    hasComplexChildren,
+    finalShouldWrapInFlex,
     hasIcons,
     children: flattenedChildren.map(child => ({
       type: child.type?.name || child.type?.displayName || 'unknown',
-      className: child.props?.className || 'none'
+      className: child.props?.className || 'none',
+      childCount: React.isValidElement(child) ? React.Children.count(child.props.children) : 0
     }))
   });
 
@@ -103,7 +114,7 @@ export default function Button({
           <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           Loading...
         </div>
-      ) : shouldWrapInFlex ? (
+      ) : finalShouldWrapInFlex ? (
         <div className="flex items-center justify-center gap-2">
           {children}
         </div>
