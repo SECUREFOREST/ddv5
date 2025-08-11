@@ -252,7 +252,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         </div>
       ) : displayActivities.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-neutral-700/90 rounded-full flex items-center justify-center mx-auto mb-4 border border-neutral-600/30">
+          <div className="w-12 h-12 bg-neutral-700/90 rounded-full flex items-center justify-center mx-auto mb-4 border border-neutral-600/30" style={{backgroundColor: 'rgb(64 64 64 / 0.9)'}}>
             <EllipsisHorizontalIcon className="w-6 h-6 text-white/50" />
           </div>
           <p className="text-white/70 text-sm">No recent activity</p>
