@@ -64,7 +64,7 @@ import { retryApiCall } from '../utils/retry';
 const NeumorphicCard = ({ children, className = '', variant = 'default', interactive = false, onClick }) => {
   const baseClasses = `
     relative overflow-hidden
-    bg-black/80 backdrop-blur-xl
+    bg-neutral-900/80 backdrop-blur-xl
     border border-white/10
     rounded-2xl
     transition-all duration-300 ease-out
@@ -74,7 +74,7 @@ const NeumorphicCard = ({ children, className = '', variant = 'default', interac
     default: 'shadow-[0_8px_32px_rgba(0,0,0,0.12)]',
     elevated: 'shadow-[0_12px_40px_rgba(0,0,0,0.15)]',
     pressed: 'shadow-[inset_0_4px_16px_rgba(0,0,0,0.2)]',
-    glass: 'bg-black/90 backdrop-blur-2xl border-white/20'
+    glass: 'bg-neutral-800/90 backdrop-blur-2xl border-white/20'
   };
   
   const interactiveClasses = interactive ? `
@@ -169,10 +169,10 @@ const MicroInteractionButton = ({
       shadow-lg hover:shadow-xl
     `,
     secondary: `
-      bg-black/80 backdrop-blur-xl
+      bg-neutral-800/80 backdrop-blur-xl
       border border-white/20
       text-white
-      hover:bg-black/90
+      hover:bg-neutral-700/90
     `,
     success: `
       bg-gradient-to-r from-green-500 to-emerald-600
@@ -256,8 +256,8 @@ const SmartStatsCard = ({
         <div className="flex-1">
           {loading ? (
             <div className="animate-pulse space-y-2">
-              <div className="h-8 bg-black/60 rounded" />
-              <div className="h-4 bg-black/60 rounded w-3/4" />
+              <div className="h-8 bg-neutral-700/60 rounded" />
+              <div className="h-4 bg-neutral-700/60 rounded w-3/4" />
             </div>
           ) : (
             <>
@@ -1162,7 +1162,7 @@ export default function DarePerformerDashboard() {
           {/* 2025 Header Design */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">
-              <div className="p-4 rounded-2xl bg-black/80 backdrop-blur-xl border border-white/20 mr-6">
+              <div className="p-4 rounded-2xl bg-neutral-800/80 backdrop-blur-xl border border-white/20 mr-6">
                 <UserIcon className="w-12 h-12 text-white" />
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-white">Performer Dashboard</h1>
