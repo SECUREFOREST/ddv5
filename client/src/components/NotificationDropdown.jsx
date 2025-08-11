@@ -98,13 +98,7 @@ export default function NotificationDropdown() {
         // Notifications API returns data directly, not wrapped in a notifications property
         const notificationsData = validateApiResponse(response.data, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         
-        // Debug: Log the notification data structure
-        console.log('Notifications data:', {
-          raw: response.data,
-          validated: notificationsData,
-          firstNotification: notificationsData?.[0],
-          sender: notificationsData?.[0]?.sender
-        });
+
         
         setNotifications(notificationsData);
 

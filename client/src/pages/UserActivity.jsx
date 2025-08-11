@@ -55,13 +55,13 @@ export default function UserActivity() {
   // Update total items when data changes
   React.useEffect(() => {
     const total = Array.isArray(activeDares) ? activeDares.length : 0;
-    console.log('Setting active total items:', { activeDares, total });
+    
     setActiveTotalItems(total);
   }, [activeDares, setActiveTotalItems]);
   
   React.useEffect(() => {
     const total = Array.isArray(historyDares) ? historyDares.length : 0;
-    console.log('Setting history total items:', { historyDares, total });
+    
     setHistoryTotalItems(total);
   }, [historyDares, setHistoryTotalItems]);
 

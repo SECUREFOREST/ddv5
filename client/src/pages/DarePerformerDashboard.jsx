@@ -350,9 +350,7 @@ export default function DarePerformerDashboard() {
   // Use the logged-in user's ID instead of URL params
   const currentUserId = user?._id || user?.id;
   
-  // Debug: Log user and currentUserId
-  console.log('User object:', user);
-  console.log('Current user ID:', currentUserId);
+
   
   // State management with 2025 patterns
   const [isLoading, setIsLoading] = useState(true);
@@ -465,18 +463,7 @@ export default function DarePerformerDashboard() {
       setIsLoading(true);
       setError(null);
       
-      // Debug: Log the current user ID and API calls
-      console.log('Fetching data for user:', currentUserId);
-      console.log('API calls:', [
-        `Active dares - Creator: /dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`,
-        `Active dares - Participant: /dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting`,
-        `Completed dares - Creator: /dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`,
-        `Completed dares - Participant: /dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled`,
-        '/switches/performer',
-        '/dares?public=true&limit=10',
-        '/switches?public=true&status=waiting_for_participant',
-        '/users/associates'
-      ]);
+
       
                               // Get total counts first for proper pagination
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
@@ -575,17 +562,7 @@ export default function DarePerformerDashboard() {
               setActiveTotalItems(totalActiveItems);
               setActiveTotalPages(totalActivePages);
               
-              // Debug: Log the data structure
-              console.log('Ongoing dares data:', {
-                allActiveDares,
-                uniqueActiveDares,
-                count: uniqueActiveDares.length,
-                activeCounts: activeCounts.status === 'fulfilled' ? activeCounts.value.map(r => r.data.pagination) : 'failed',
-                totalItems: totalActiveItems,
-                totalPages: totalActivePages,
-                firstDare: uniqueActiveDares?.[0],
-                creator: uniqueActiveDares?.[0]?.creator
-              });
+
               
               setOngoing(uniqueActiveDares);
             }
@@ -651,15 +628,7 @@ export default function DarePerformerDashboard() {
         setCompletedTotalItems(totalCompletedItems);
         setCompletedTotalPages(totalCompletedPages);
 
-        // Debug: Log the completed dares data structure
-        console.log('Completed dares data:', {
-          allCompletedDares,
-          uniqueCompletedDares,
-          count: uniqueCompletedDares.length,
-          completedCounts: completedCounts.status === 'fulfilled' ? completedCounts.value.map(r => r.data.pagination) : 'failed',
-          totalItems: totalCompletedItems,
-          totalPages: totalCompletedPages
-        });
+
 
         setCompleted(uniqueCompletedDares);
       }
@@ -688,14 +657,7 @@ export default function DarePerformerDashboard() {
         setSwitchTotalItems(totalSwitchItems);
         setSwitchTotalPages(totalSwitchPages);
         
-        // Debug: Log the switch games data structure
-        console.log('Switch games data:', {
-          games: validatedData,
-          count: Array.isArray(validatedData) ? validatedData.length : 0,
-          switchCounts: switchCounts.status === 'fulfilled' ? switchCounts.value.data.pagination : 'failed',
-          totalItems: totalSwitchItems,
-          totalPages: totalSwitchPages
-        });
+
 
         setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
@@ -846,21 +808,7 @@ export default function DarePerformerDashboard() {
     }
   }, [activePage, completedPage, switchPage, fetchData]);
   
-  // Debug: Log pagination state changes
-  useEffect(() => {
-    console.log('Pagination State Changed:', {
-      activePage,
-      activeTotalPages,
-      activeTotalItems,
-      completedPage,
-      completedTotalPages,
-      completedTotalItems,
-      switchPage,
-      switchTotalPages,
-      switchTotalItems,
-      ITEMS_PER_PAGE
-    });
-  }, [activePage, activeTotalPages, activeTotalItems, completedPage, completedTotalPages, completedTotalItems, switchPage, switchTotalPages, switchTotalItems]);
+
   
   useEffect(() => {
     // 2025: Auto-refresh on focus
@@ -1105,13 +1053,7 @@ export default function DarePerformerDashboard() {
                 {activeTotalPages > 1 && activeTotalItems > 0 && 
                  Number.isInteger(activePage) && Number.isInteger(activeTotalPages) && Number.isInteger(activeTotalItems) && (
                   <div className="mt-6">
-                    {/* Debug: Log pagination values */}
-                    {console.log('Active Dares Pagination Props:', {
-                      currentPage: activePage,
-                      totalPages: activeTotalPages,
-                      totalItems: activeTotalItems,
-                      pageSize: ITEMS_PER_PAGE
-                    })}
+
                     <Pagination
                       currentPage={activePage}
                       totalPages={activeTotalPages}
@@ -1194,13 +1136,7 @@ export default function DarePerformerDashboard() {
                 {completedTotalPages > 1 && completedTotalItems > 0 && 
                  Number.isInteger(completedPage) && Number.isInteger(completedTotalPages) && Number.isInteger(completedTotalItems) && (
                   <div className="mt-6">
-                    {/* Debug: Log pagination values */}
-                    {console.log('Completed Dares Pagination Props:', {
-                      currentPage: completedPage,
-                      totalPages: completedTotalPages,
-                      totalItems: completedTotalItems,
-                      pageSize: ITEMS_PER_PAGE
-                    })}
+
                     <Pagination
                       currentPage={completedPage}
                       totalPages={completedTotalPages}
@@ -1283,13 +1219,7 @@ export default function DarePerformerDashboard() {
               {switchTotalPages > 1 && switchTotalItems > 0 && 
                Number.isInteger(switchPage) && Number.isInteger(switchTotalPages) && Number.isInteger(switchTotalItems) && (
                 <div className="mt-6">
-                  {/* Debug: Log pagination values */}
-                  {console.log('Switch Games Pagination Props:', {
-                    currentPage: switchPage,
-                    totalPages: switchTotalPages,
-                    totalItems: switchTotalItems,
-                    pageSize: ITEMS_PER_PAGE
-                  })}
+
                   <Pagination
                     currentPage={switchPage}
                     totalPages={switchTotalPages}

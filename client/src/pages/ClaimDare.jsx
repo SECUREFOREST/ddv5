@@ -166,24 +166,21 @@ export default function ClaimDare() {
   };
 
   const handleBlockDom = async () => {
-    console.log('Block button clicked!');
-    console.log('Dare object:', dare);
-    console.log('Creator:', dare?.creator);
-    console.log('Creator ID:', dare?.creator?._id);
+    
     
     if (!dare?.creator?._id) {
-      console.log('No creator ID found, returning early');
+      
       showError('Cannot block: No creator information available.');
       return;
     }
     
-    console.log('Proceeding with block request for user ID:', dare.creator._id);
+    
     setBlocking(true);
     
     try {
-      console.log('Making API call to block user...');
+      
       await retryApiCall(() => api.post('/users/block', { userId: dare.creator._id }));
-      console.log('Block API call successful');
+      
       showSuccess('Dom blocked successfully. You will no longer see their content.');
       navigate('/dashboard');
     } catch (err) {
@@ -349,7 +346,7 @@ export default function ClaimDare() {
   const openFullscreen = async (element) => {
     setFullscreenLoading(true);
     try {
-      console.log('Attempting to open fullscreen for:', element);
+      
       
       // Prevent opening in new window by ensuring we're working with the DOM element
       if (element && element.tagName) {
@@ -360,11 +357,11 @@ export default function ClaimDare() {
         } else if (element.msRequestFullscreen) {
           await element.msRequestFullscreen();
         } else {
-          console.log('Fullscreen API not supported, using CSS fallback');
+  
           setProofPreview(prev => ({ ...prev, isFullscreen: true }));
         }
       } else {
-        console.log('Invalid element for fullscreen, using CSS fallback');
+
         setProofPreview(prev => ({ ...prev, isFullscreen: true }));
       }
     } catch (error) {
@@ -600,9 +597,7 @@ export default function ClaimDare() {
     setGradeError('');
     
     try {
-      console.log('Sending grade:', starRating, 'to dare:', targetId);
-      console.log('Dare object:', dare);
-      console.log('Dare ID:', dare?._id);
+      
       
       if (!targetId) {
         throw new Error('No dare ID provided for grading');
@@ -804,7 +799,7 @@ export default function ClaimDare() {
                                onClick={(e) => {
                                  e.preventDefault();
                                  e.stopPropagation();
-                                 console.log('Fullscreen button clicked - using CSS toggle like debug button');
+                         
                                  
                                  // Use the same behavior as the debug toggle button
                                  setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
@@ -844,7 +839,7 @@ export default function ClaimDare() {
                                    alt="Proof submission"
                                    className={`${proofPreview.isFullscreen ? 'max-h-screen max-w-screen object-contain' : 'max-w-full h-auto rounded-lg mx-auto max-h-96 object-contain'} transition-all duration-300`}
                                    onClick={async (e) => {
-                                     console.log('Image clicked, current fullscreen state:', proofPreview.isFullscreen);
+                             
                                      // Use the same behavior as the debug toggle button
                                      setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
                                    }}
@@ -916,7 +911,7 @@ export default function ClaimDare() {
                                        onClick={(e) => {
                                          e.preventDefault();
                                          e.stopPropagation();
-                                         console.log('Video fullscreen button clicked - using CSS toggle like debug button');
+                                 
                                          
                                          // Use the same behavior as the debug toggle button
                                          setProofPreview(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
@@ -1082,7 +1077,7 @@ export default function ClaimDare() {
                       <div className="mt-4">
                         <button
                           onClick={(e) => {
-                            console.log('Button clicked! Event:', e);
+                    
                             e.preventDefault();
                             e.stopPropagation();
                             handleBlockDom();
@@ -1409,8 +1404,7 @@ export default function ClaimDare() {
                                 key={star}
                                 type="button"
                                 onClick={() => {
-                                  console.log('Star clicked:', star);
-                                  console.log('Dare ID being passed:', dare._id);
+                                  
                                   handleGrade(star, dare._id);
                                 }}
                                 disabled={grading}

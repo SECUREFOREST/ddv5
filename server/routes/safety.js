@@ -56,7 +56,7 @@ router.post('/report', auth, async (req, res) => {
     await report.save();
 
     // Log the report for admin review
-    console.log(`Safety report submitted: ${type} - ${urgency} - ${subject}`);
+
 
     res.status(201).json({
       message: 'Safety report submitted successfully',

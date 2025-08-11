@@ -88,20 +88,7 @@ export default function Button({
   
   const finalShouldWrapInFlex = shouldWrapInFlex || hasComplexChildren;
   
-  // Debug logging
-  console.log('Button debug:', {
-    childrenCount: React.Children.count(children),
-    flattenedChildrenCount: flattenedChildren.length,
-    shouldWrapInFlex,
-    hasComplexChildren,
-    finalShouldWrapInFlex,
-    hasIcons,
-    children: flattenedChildren.map(child => ({
-      type: child.type?.name || child.type?.displayName || 'unknown',
-      className: child.props?.className || 'none',
-      childCount: React.isValidElement(child) ? React.Children.count(child.props.children) : 0
-    }))
-  });
+
 
   return (
     <button 

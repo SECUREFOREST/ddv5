@@ -579,7 +579,7 @@ function Admin() {
           .then(res => {
             localStorage.setItem('accessToken', res.data.accessToken);
             localStorage.setItem('refreshToken', res.data.refreshToken);
-            console.log('Token refreshed successfully');
+    
             // Continue with data loading
             setDataLoaded(true);
             Promise.allSettled([
@@ -591,10 +591,8 @@ function Admin() {
               fetchSwitchGames(switchGameSearch),
               fetchSiteStats()
             ]).then((results) => {
-              console.log('Admin data loading results:', results);
               const successful = results.filter(r => r.status === 'fulfilled').length;
               const failed = results.filter(r => r.status === 'rejected').length;
-              console.log(`Admin data loading: ${successful} successful, ${failed} failed`);
             }).finally(() => {
               setIsInitializing(false);
             });

@@ -1,4 +1,4 @@
-console.log('Server code reloaded at', new Date().toISOString());
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -34,12 +34,12 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   if (socket.userId) {
     userSockets.set(socket.userId, socket);
-    console.log(`User ${socket.userId} connected via websocket.`);
+  
   }
   socket.on('disconnect', () => {
     if (socket.userId) {
       userSockets.delete(socket.userId);
-      console.log(`User ${socket.userId} disconnected from websocket.`);
+  
     }
   });
 });
@@ -49,7 +49,7 @@ module.exports.io = io;
 module.exports.userSockets = userSockets;
 
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+
   next();
 });
 
@@ -72,7 +72,7 @@ app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars
 app.use('/users', require('./routes/users'));
 app.use('/auth', require('./routes/auth'));
 app.use('/dares', require('./routes/dares'));
-console.log('Dares routes mounted at /dares');
+
 app.use('/notifications', require('./routes/notifications'));
 app.use('/stats', require('./routes/stats'));
 app.use('/switches', require('./routes/switches'));
@@ -108,7 +108,7 @@ app.get('/status', (req, res) => {
 
 // Add before the error handler
 app.all('*', (req, res) => {
-  console.log('server.js catch-all:', req.method, req.originalUrl);
+
   res.status(404).json({ error: 'Not found in server.js' });
 });
 

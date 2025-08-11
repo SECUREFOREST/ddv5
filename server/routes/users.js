@@ -106,7 +106,7 @@ router.get('/', auth, checkPermission('view_users'), async (req, res) => {
 // GET /api/users/associates - get user's associates (people they've interacted with)
 router.get('/associates', auth, async (req, res) => {
   try {
-    console.log(LOG_MESSAGES.ASSOCIATES_ENDPOINT_CALLED, req.userId);
+
     const userId = req.userId;
     
     if (!userId) {
@@ -120,7 +120,7 @@ router.get('/associates', auth, async (req, res) => {
       if (!user) {
         return res.status(STATUS_CODES.NOT_FOUND).json({ error: ERROR_MESSAGES.USER_NOT_FOUND });
       }
-      console.log(LOG_MESSAGES.USER_FOUND, user.username);
+
     } catch (userErr) {
       console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'user verification'), userErr);
       return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: ERROR_MESSAGES.USER_VERIFICATION_ERROR });
@@ -130,7 +130,7 @@ router.get('/associates', auth, async (req, res) => {
     let dares = [];
     let switchGames = [];
     
-    console.log(LOG_MESSAGES.STARTING_DB_QUERIES, userId);
+    
     
     try {
       dares = await Dare.find({
@@ -139,7 +139,7 @@ router.get('/associates', auth, async (req, res) => {
           { performer: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('performer', 'username fullName avatar').lean();
-      console.log(LOG_MESSAGES.DARES_FOUND.replace('{count}', dares.length).replace('{userId}', userId));
+      
     } catch (dareErr) {
       console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'dares fetch'), dareErr);
       dares = [];
@@ -152,7 +152,7 @@ router.get('/associates', auth, async (req, res) => {
           { participant: userId }
         ]
       }).populate('creator', 'username fullName avatar').populate('participant', 'username fullName avatar').lean();
-      console.log(LOG_MESSAGES.SWITCH_GAMES_FOUND.replace('{count}', switchGames.length).replace('{userId}', userId));
+      
     } catch (switchErr) {
       console.error(LOG_MESSAGES.DB_QUERY_ERROR.replace('{operation}', 'switch games fetch'), switchErr);
       switchGames = [];
@@ -198,7 +198,7 @@ router.get('/associates', auth, async (req, res) => {
       });
     }
     
-    console.log(LOG_MESSAGES.ASSOCIATES_FOUND.replace('{count}', associates.length).replace('{userId}', userId));
+    
     
     res.json(associates);
   } catch (err) {

@@ -566,7 +566,7 @@ router.post('/:id/proof',
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
       // Debug logging
-      // console.log('[DEBUG] userId:', userId, 'game.loser:', game.loser, 'game.creator:', game.creator, 'game.participant:', game.participant, 'game.winner:', game.winner);
+
       // Handle different proof submission scenarios
       if (game.bothLose) {
         // Both players must submit proof in rock vs rock draw

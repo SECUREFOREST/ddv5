@@ -276,7 +276,7 @@ export default function SwitchGameParticipate() {
                   placeholder="Describe the dare you want the other to perform if they lose..."
                   aria-label="Description or requirements"
                 />
-                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game</p>
+                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game.</p>
               </div>
 
               <div className="flex items-center gap-3">
@@ -436,7 +436,7 @@ export default function SwitchGameParticipate() {
                   onChange={e => setDemand(e.target.value)}
                   placeholder="Describe the dare you want the other to perform if they lose..."
                 />
-                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game</p>
+                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game.</p>
               </div>
 
               <div className="pt-4">
