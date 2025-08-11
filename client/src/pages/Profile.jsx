@@ -328,7 +328,9 @@ export default function Profile() {
       // Handle dares responses
       let createdData = [];
       if (createdRes.status === 'fulfilled') {
-        createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = createdRes.value.data;
+        const dares = responseData.dares || responseData;
+        createdData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         setCreated(createdData);
       } else {
         console.error('Failed to fetch created dares:', createdRes.reason);
@@ -337,7 +339,9 @@ export default function Profile() {
       
       let participatingData = [];
       if (participatingRes.status === 'fulfilled') {
-        participatingData = validateApiResponse(participatingRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = participatingRes.value.data;
+        const dares = responseData.dares || responseData;
+        participatingData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         setParticipating(participatingData);
       } else {
         console.error('Failed to fetch participating dares:', participatingRes.reason);
@@ -346,7 +350,9 @@ export default function Profile() {
       
       let daresData = [];
       if (assignedSwitchRes.status === 'fulfilled') {
-        daresData = validateApiResponse(assignedSwitchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = assignedSwitchRes.value.data;
+        const dares = responseData.dares || responseData;
+        daresData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         setDares(daresData);
       } else {
         console.error('Failed to fetch assigned switch dares:', assignedSwitchRes.reason);
@@ -356,7 +362,9 @@ export default function Profile() {
       // Handle switch games responses
       let switchCreatedData = [];
       if (switchCreatedRes.status === 'fulfilled') {
-        switchCreatedData = validateApiResponse(switchCreatedRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        const responseData = switchCreatedRes.value.data;
+        const games = responseData.games || responseData;
+        switchCreatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setSwitchCreated(switchCreatedData);
       } else {
         console.error('Failed to fetch created switch games:', switchCreatedRes.reason);
@@ -365,7 +373,9 @@ export default function Profile() {
       
       let switchParticipatingData = [];
       if (switchParticipatingRes.status === 'fulfilled') {
-        switchParticipatingData = validateApiResponse(switchParticipatingRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        const responseData = switchParticipatingRes.value.data;
+        const games = responseData.games || responseData;
+        switchParticipatingData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setSwitchParticipating(switchParticipatingData);
       } else {
         console.error('Failed to fetch participating switch games:', switchParticipatingRes.reason);
@@ -417,7 +427,9 @@ export default function Profile() {
     setUserActivitiesLoading(true);
     retryApiCall(() => api.get('/activity-feed/activities', { params: { userId, limit: 10 } }))
       .then(res => {
-        const activitiesData = validateApiResponse(res, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        const responseData = res.data;
+        const activities = responseData.activities || responseData;
+        const activitiesData = validateApiResponse(activities, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setUserActivities(activitiesData);
         // Cache the activities data
         setCachedData(activitiesCacheKey, activitiesData, 5 * 60 * 1000); // 5 minutes cache

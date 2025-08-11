@@ -50,7 +50,9 @@ export default function Notifications() {
       const response = await retryApiCall(() => api.get('/notifications'));
       
       if (response.data) {
-        const notificationsData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        const responseData = response.data;
+        const notifications = responseData.notifications || responseData;
+        const notificationsData = validateApiResponse(notifications, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setNotifications(notificationsData);
 
 

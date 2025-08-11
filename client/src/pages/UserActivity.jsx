@@ -115,23 +115,31 @@ export default function UserActivity() {
         
         // Handle active dares
         if (createdActiveRes.status === 'fulfilled') {
-          const createdData = validateApiResponse(createdActiveRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = createdActiveRes.value.data;
+          const dares = responseData.dares || responseData;
+          const createdData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           activeDaresData.push(...createdData);
         }
         
         if (performedActiveRes.status === 'fulfilled') {
-          const performedData = validateApiResponse(performedActiveRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = performedActiveRes.value.data;
+          const dares = responseData.dares || responseData;
+          const performedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           activeDaresData.push(...performedData);
         }
         
         // Handle history dares
         if (createdHistoryRes.status === 'fulfilled') {
-          const createdHistoryData = validateApiResponse(createdHistoryRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = createdHistoryRes.value.data;
+          const dares = responseData.dares || responseData;
+          const createdHistoryData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           historyDaresData.push(...createdHistoryData);
         }
         
         if (performedHistoryRes.status === 'fulfilled') {
-          const performedHistoryData = validateApiResponse(performedHistoryRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = performedHistoryRes.value.data;
+          const dares = responseData.dares || responseData;
+          const performedHistoryData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           historyDaresData.push(...performedHistoryData);
         }
         
@@ -144,7 +152,9 @@ export default function UserActivity() {
         // Handle switch games
         let activeSwitchData = [];
         if (activeSwitchRes.status === 'fulfilled') {
-          activeSwitchData = validateApiResponse(activeSwitchRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+          const responseData = activeSwitchRes.value.data;
+          const games = responseData.games || responseData;
+          activeSwitchData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setActiveSwitchGames(activeSwitchData);
         } else {
           setActiveSwitchGames([]);
@@ -152,7 +162,9 @@ export default function UserActivity() {
         
         let historySwitchData = [];
         if (historySwitchRes.status === 'fulfilled') {
-          historySwitchData = validateApiResponse(historySwitchRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+          const responseData = historySwitchRes.value.data;
+          const games = responseData.games || responseData;
+          historySwitchData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setHistorySwitchGames(historySwitchData);
         } else {
           setHistorySwitchGames([]);

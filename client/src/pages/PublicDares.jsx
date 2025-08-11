@@ -65,7 +65,9 @@ export default function PublicDares() {
       .then(([daresRes, switchesRes]) => {
         // Handle dares response
         if (daresRes.status === 'fulfilled') {
-          const daresData = validateApiResponse(daresRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = daresRes.value.data;
+          const dares = responseData.dares || responseData;
+          const daresData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           setDares(daresData);
 
         } else {
@@ -75,7 +77,9 @@ export default function PublicDares() {
         
         // Handle switches response
         if (switchesRes.status === 'fulfilled') {
-          const switchesData = validateApiResponse(switchesRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+          const responseData = switchesRes.value.data;
+          const games = responseData.games || responseData;
+          const switchesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           setSwitchGames(switchesData);
 
         } else {
@@ -84,8 +88,16 @@ export default function PublicDares() {
         }
         
         // Update total items for pagination
-        const allItems = [...(daresRes.status === 'fulfilled' ? validateApiResponse(daresRes.value, API_RESPONSE_TYPES.DARE_ARRAY) : []), 
-                          ...(switchesRes.status === 'fulfilled' ? validateApiResponse(switchesRes.value, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY) : [])];
+        const allItems = [...(daresRes.status === 'fulfilled' ? (() => {
+          const responseData = daresRes.value.data;
+          const dares = responseData.dares || responseData;
+          return validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        })() : []), 
+                          ...(switchesRes.status === 'fulfilled' ? (() => {
+          const responseData = switchesRes.value.data;
+          const games = responseData.games || responseData;
+          return validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        })() : [])];
         setTotalItems(allItems.length);
       })
       .catch((err) => {

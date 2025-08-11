@@ -95,9 +95,11 @@ export default function SwitchGameParticipate() {
       const response = await retryApiCall(() => api.get('/switches', { params: { status: 'waiting_for_participant', difficulty } }));
       
       if (response.data) {
-        const games = validateApiResponse(response, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        if (games.length > 0 && games[0]._id) {
-          navigate(`/switches/participate/${games[0]._id}`);
+        const responseData = response.data;
+        const games = responseData.games || responseData;
+        const gamesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        if (gamesData.length > 0 && gamesData[0]._id) {
+          navigate(`/switches/participate/${gamesData[0]._id}`);
 
         } else {
           showError('No open switch games available for this difficulty.');

@@ -39,7 +39,9 @@ export default function ActivityFeed() {
       const response = await retryApiCall(() => api.get('/activity-feed?limit=30'));
       
       if (response.data) {
-        const activitiesData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        const responseData = response.data;
+        const activities = responseData.activities || responseData;
+        const activitiesData = validateApiResponse(activities, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setActivities(activitiesData);
 
 

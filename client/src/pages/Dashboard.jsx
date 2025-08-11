@@ -104,17 +104,23 @@ export default function Dashboard() {
       const allDares = [];
       
       if (createdRes.status === 'fulfilled') {
-        const createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = createdRes.value.data;
+        const dares = responseData.dares || responseData;
+        const createdData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...createdData);
       }
       
       if (participatingRes.status === 'fulfilled') {
-        const participatingData = validateApiResponse(participatingRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = participatingRes.value.data;
+        const dares = responseData.dares || responseData;
+        const participatingData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...participatingData);
       }
       
       if (switchRes.status === 'fulfilled') {
-        const switchData = validateApiResponse(switchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = switchRes.value.data;
+        const dares = responseData.dares || responseData;
+        const switchData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         allDares.push(...switchData);
       }
       
@@ -145,7 +151,9 @@ export default function Dashboard() {
       // Handle activities
       let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
-        activitiesData = validateApiResponse(activitiesRes.value, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        const responseData = activitiesRes.value.data;
+        const activities = responseData.activities || responseData;
+        activitiesData = validateApiResponse(activities, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setActivities(activitiesData);
       } else {
         console.error('Failed to fetch activities:', activitiesRes.reason);

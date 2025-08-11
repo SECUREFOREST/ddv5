@@ -36,7 +36,9 @@ export default function SwitchGames() {
       
       
       if (response && response.data) {
-        const switchGamesData = validateApiResponse(response, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        const responseData = response.data;
+        const games = responseData.games || responseData;
+        const switchGamesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setUserSwitchGames(switchGamesData);
         
         if (switchGamesData.length > 0) {

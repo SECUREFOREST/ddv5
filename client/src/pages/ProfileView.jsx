@@ -89,7 +89,9 @@ export default function ProfileView() {
       // Handle activities response
       let activitiesData = [];
       if (activitiesRes.status === 'fulfilled') {
-        activitiesData = validateApiResponse(activitiesRes.value, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        const responseData = activitiesRes.value.data;
+        const activities = responseData.activities || responseData;
+        activitiesData = validateApiResponse(activities, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
         setUserActivities(activitiesData);
       } else {
         console.error('Failed to fetch user activities:', activitiesRes.reason);

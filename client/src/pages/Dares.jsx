@@ -81,19 +81,25 @@ export default function Dares() {
         
         // Handle created dares
         if (createdRes.status === 'fulfilled') {
-          const createdData = validateApiResponse(createdRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = createdRes.value.data;
+          const dares = responseData.dares || responseData;
+          const createdData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...createdData);
         }
         
         // Handle participating dares
         if (partRes.status === 'fulfilled') {
-          const partData = validateApiResponse(partRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = partRes.value.data;
+          const dares = responseData.dares || responseData;
+          const partData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...partData);
         }
         
         // Handle switch dares
         if (switchRes.status === 'fulfilled') {
-          const switchData = validateApiResponse(switchRes.value, API_RESPONSE_TYPES.DARE_ARRAY);
+          const responseData = switchRes.value.data;
+          const dares = responseData.dares || responseData;
+          const switchData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
           all.push(...switchData);
         }
         
