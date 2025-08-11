@@ -44,6 +44,25 @@ router.get('/leaderboard', auth, async (req, res) => {
     try {
       users = await User.find({}, 'username fullName avatar roles').lean();
       console.log(`Found ${users.length} users`);
+      
+      // Validate user data
+      const validUsers = users.filter(user => {
+        if (!user || !user._id) {
+          console.warn('User missing _id:', user);
+          return false;
+        }
+        if (!user.username) {
+          console.warn('User missing username:', user._id);
+          return false;
+        }
+        return true;
+      });
+      
+      if (validUsers.length !== users.length) {
+        console.warn(`Filtered out ${users.length - validUsers.length} invalid users`);
+        users = validUsers;
+      }
+      
     } catch (userError) {
       console.error('Error fetching users:', userError);
       return res.status(500).json({ error: 'Failed to fetch users for leaderboard.' });
@@ -59,20 +78,56 @@ router.get('/leaderboard', auth, async (req, res) => {
     try {
       [daresCreatedStats, daresCompletedStats] = await Promise.all([
         Dare.aggregate([
-          { $match: { creator: { $exists: true, $ne: null } } },
-          { $group: { _id: '$creator', count: { $sum: 1 } } }
+          { 
+            $match: { 
+              creator: { 
+                $exists: true, 
+                $ne: null,
+                $type: "objectId"  // Ensure it's a valid ObjectId
+              } 
+            } 
+          },
+          { $group: { _id: '$creator', count: { $sum: 1 } } },
+          { $sort: { count: -1 } }  // Sort by count for better performance
         ]),
         Dare.aggregate([
-          { $match: { 
-            status: 'completed', 
-            performer: { $exists: true, $ne: null } 
-          }},
-          { $group: { _id: '$performer', count: { $sum: 1 } } }
+          { 
+            $match: { 
+              status: 'completed', 
+              performer: { 
+                $exists: true, 
+                $ne: null,
+                $type: "objectId"  // Ensure it's a valid ObjectId
+              } 
+            } 
+          },
+          { $group: { _id: '$performer', count: { $sum: 1 } } },
+          { $sort: { count: -1 } }  // Sort by count for better performance
         ])
       ]);
-      console.log(`Found ${daresCreatedStats.length} creators and ${daresCompletedStats.length} performers`);
+      
+      // Additional validation of aggregation results
+      if (!Array.isArray(daresCreatedStats)) {
+        console.warn('daresCreatedStats is not an array:', typeof daresCreatedStats);
+        daresCreatedStats = [];
+      }
+      if (!Array.isArray(daresCompletedStats)) {
+        console.warn('daresCompletedStats is not an array:', typeof daresCompletedStats);
+        daresCompletedStats = [];
+      }
+      
+      // Filter out any invalid results
+      daresCreatedStats = daresCreatedStats.filter(stat => 
+        stat && stat._id && stat._id !== null && stat._id !== undefined
+      );
+      daresCompletedStats = daresCompletedStats.filter(stat => 
+        stat && stat._id && stat._id !== null && stat._id !== undefined
+      );
+      
+      console.log(`Found ${daresCreatedStats.length} valid creators and ${daresCompletedStats.length} valid performers`);
     } catch (aggregateError) {
       console.error('Error in aggregation:', aggregateError);
+      console.error('Aggregation error stack:', aggregateError.stack);
       return res.status(500).json({ error: 'Failed to aggregate dare statistics.' });
     }
     
@@ -80,21 +135,69 @@ router.get('/leaderboard', auth, async (req, res) => {
     const daresCreatedMap = new Map();
     const daresCompletedMap = new Map();
     
-    if (daresCreatedStats && Array.isArray(daresCreatedStats)) {
-      daresCreatedStats.forEach(stat => {
-        if (stat._id) {
-          daresCreatedMap.set(stat._id.toString(), stat.count || 0);
-        }
-      });
+    // Fallback: if aggregation fails or returns no results, try alternative approach
+    if ((!daresCreatedStats || daresCreatedStats.length === 0) && 
+        (!daresCompletedStats || daresCompletedStats.length === 0)) {
+      console.log('Aggregation returned no results, trying fallback method...');
+      
+      try {
+        // Fallback: use simple count queries
+        const allDares = await Dare.find({}).select('creator performer status').lean();
+        
+        allDares.forEach(dare => {
+          if (dare.creator && dare.creator.toString && dare.creator.toString() !== 'null') {
+            const creatorId = dare.creator.toString();
+            daresCreatedMap.set(creatorId, (daresCreatedMap.get(creatorId) || 0) + 1);
+          }
+          
+          if (dare.performer && dare.performer.toString && dare.performer.toString() !== 'null' && 
+              dare.status === 'completed') {
+            const performerId = dare.performer.toString();
+            daresCompletedMap.set(performerId, (daresCompletedMap.get(performerId) || 0) + 1);
+          }
+        });
+        
+        console.log(`Fallback method: Found ${daresCreatedMap.size} creators and ${daresCompletedMap.size} performers`);
+      } catch (fallbackError) {
+        console.error('Fallback method also failed:', fallbackError);
+        // Continue with empty maps rather than failing completely
+      }
+    } else {
+      // Process aggregation results with comprehensive null checking
+      if (daresCreatedStats && Array.isArray(daresCreatedStats)) {
+        daresCreatedStats.forEach(stat => {
+          // Add comprehensive null checking for aggregation results
+          if (stat && stat._id && stat._id !== null && stat._id !== undefined) {
+            try {
+              const idString = stat._id.toString();
+              if (idString && idString !== 'null' && idString !== 'undefined') {
+                daresCreatedMap.set(idString, parseInt(stat.count) || 0);
+              }
+            } catch (idError) {
+              console.warn('Invalid _id in daresCreatedStats:', stat._id, 'Error:', idError.message);
+            }
+          }
+        });
+      }
+      
+      if (daresCompletedStats && Array.isArray(daresCompletedStats)) {
+        daresCompletedStats.forEach(stat => {
+          // Add comprehensive null checking for aggregation results
+          if (stat && stat._id && stat._id !== null && stat._id !== undefined) {
+            try {
+              const idString = stat._id.toString();
+              if (idString && idString !== 'null' && idString !== 'undefined') {
+                daresCompletedMap.set(idString, parseInt(stat.count) || 0);
+              }
+            } catch (idError) {
+              console.warn('Invalid _id in daresCompletedStats:', stat._id, 'Error:', idError.message);
+            }
+          }
+        });
+      }
     }
     
-    if (daresCompletedStats && Array.isArray(daresCompletedStats)) {
-      daresCompletedStats.forEach(stat => {
-        if (stat._id) {
-          daresCompletedMap.set(stat._id.toString(), stat.count || 0);
-        }
-      });
-    }
+    console.log(`Created maps - daresCreated: ${daresCreatedMap.size}, daresCompleted: ${daresCompletedMap.size}`);
     
     // Get dare statistics for each user with safe property access
     const userStats = users.map(user => {
@@ -103,25 +206,35 @@ router.get('/leaderboard', auth, async (req, res) => {
         return null;
       }
       
-      const userId = user._id.toString();
-      const daresCreated = daresCreatedMap.get(userId) || 0;
-      const daresCompletedAsPerformer = daresCompletedMap.get(userId) || 0;
-      
-      return {
-        user: {
-          id: user._id,
-          username: user.username || 'Unknown',
-          fullName: user.fullName || user.username || 'Unknown',
-          avatar: user.avatar || null,
-          roles: Array.isArray(user.roles) ? user.roles : []
-        },
-        daresCreated: parseInt(daresCreated) || 0,
-        daresCompletedAsPerformer: parseInt(daresCompletedAsPerformer) || 0,
-        daresCount: (parseInt(daresCreated) || 0) + (parseInt(daresCompletedAsPerformer) || 0)
-      };
+      try {
+        const userId = user._id.toString();
+        if (!userId || userId === 'null' || userId === 'undefined') {
+          console.warn('Invalid user ID:', user._id);
+          return null;
+        }
+        
+        const daresCreated = daresCreatedMap.get(userId) || 0;
+        const daresCompletedAsPerformer = daresCompletedMap.get(userId) || 0;
+        
+        return {
+          user: {
+            id: user._id,
+            username: user.username || 'Unknown',
+            fullName: user.fullName || user.username || 'Unknown',
+            avatar: user.avatar || null,
+            roles: Array.isArray(user.roles) ? user.roles : []
+          },
+          daresCreated: parseInt(daresCreated) || 0,
+          daresCompletedAsPerformer: parseInt(daresCompletedAsPerformer) || 0,
+          daresCount: (parseInt(daresCreated) || 0) + (parseInt(daresCompletedAsPerformer) || 0)
+        };
+      } catch (userError) {
+        console.error('Error processing user:', user, 'Error:', userError);
+        return null;
+      }
     }).filter(Boolean); // Remove any null entries
     
-    console.log(`Processed ${userStats.length} user stats`);
+    console.log(`Processed ${userStats.length} user stats out of ${users.length} users`);
     
     // Sort by total dares count (overall performance)
     userStats.sort((a, b) => (b.daresCount || 0) - (a.daresCount || 0));
@@ -149,6 +262,19 @@ router.get('/leaderboard', auth, async (req, res) => {
     leaderboard = leaderboard.slice(0, 50);
     
     console.log(`Returning leaderboard with ${leaderboard.length} users`);
+    console.log('Leaderboard request completed successfully');
+    
+    // Log summary for monitoring
+    const summary = {
+      totalUsers: users.length,
+      validUserStats: userStats.length,
+      finalLeaderboardSize: leaderboard.length,
+      daresCreatedMapSize: daresCreatedMap.size,
+      daresCompletedMapSize: daresCompletedMap.size,
+      timestamp: new Date().toISOString()
+    };
+    console.log('Leaderboard summary:', summary);
+    
     res.json(leaderboard);
     
   } catch (err) {
