@@ -208,75 +208,66 @@ export default function SwitchGameParticipate() {
   if (!gameId) {
     content = (
       <div className="min-h-screen bg-black">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
-              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
-            </div>
-            <p className="text-xl text-white/80">Join an existing game or find a new one</p>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Participate in Switch Game</h1>
+            <p className="text-xl sm:text-2xl text-neutral-300">
+              Join an existing game or find a new one
+            </p>
+          </div>
+
+          {/* Difficulty Selection - Vertical Layout like Dom Demand Create */}
+          <div className="space-y-4 mb-8">
+            {DIFFICULTY_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setDifficulty(opt.value)}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === opt.value
+                    ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                    : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                  }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === opt.value
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-neutral-700/50 text-neutral-400'
+                    }`}>
+                    {DIFFICULTY_ICONS[opt.value]}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-2">{opt.label}</div>
+                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                      {opt.desc}
+                    </div>
+                    {opt.longDesc && (
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                        {opt.longDesc}
+                      </div>
+                    )}
+                    {opt.examples && (
+                      <div className="text-xs text-neutral-500 italic">
+                        Examples: {opt.examples}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {/* Form Card */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
-            <form onSubmit={handleFindGame} className="space-y-8">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-6 text-center">Choose Difficulty</h2>
-                <div className="grid gap-4">
-                  {DIFFICULTY_OPTIONS.map(opt => (
-                    <label
-                      key={opt.value}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-105
-                        ${difficulty === opt.value
-                          ? 'border-purple-400 bg-purple-500/20 shadow-lg'
-                          : 'border-white/20 hover:border-purple-400/50 bg-white/5'}
-                      `}
-                      tabIndex={0}
-                      aria-label={`Select ${opt.label} difficulty`}
-                      role="radio"
-                      aria-checked={difficulty === opt.value}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ') setDifficulty(opt.value);
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="difficulty"
-                        value={opt.value}
-                        checked={difficulty === opt.value}
-                        onChange={() => setDifficulty(opt.value)}
-                        className="sr-only"
-                        aria-checked={difficulty === opt.value}
-                        aria-label={opt.label}
-                        tabIndex={-1}
-                      />
-                      <span className="flex items-center gap-3">
-                        {DIFFICULTY_ICONS[opt.value]}
-                        <div>
-                          <div className="font-bold text-white text-lg">{opt.label}</div>
-                          <div className="text-white/70 text-sm">{opt.desc}</div>
-                          {opt.longDesc && (
-                            <div className="text-white/50 text-xs mt-1">
-                              {opt.longDesc}
-                            </div>
-                          )}
-                          {opt.examples && (
-                            <div className="text-white/40 text-xs mt-1 italic">
-                              Examples: {opt.examples}
-                            </div>
-                          )}
-                        </div>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                        <form onSubmit={handleFindGame} className="space-y-6">
 
-              <div>
-                <label className="block font-bold text-white mb-3">Your Demand (if they lose)</label>
+              <div className="pt-4">
+                <label className="block text-lg font-semibold text-white mb-3">Your Demand (if they lose)</label>
                 <textarea
-                  className="w-full rounded-xl border border-white/20 px-4 py-3 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                  className="w-full rounded-xl border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                   value={demand}
                   onChange={e => setDemand(e.target.value)}
                   rows={4}
@@ -285,38 +276,51 @@ export default function SwitchGameParticipate() {
                   placeholder="Describe the dare you want the other to perform if they lose..."
                   aria-label="Description or requirements"
                 />
-                <p className="text-white/60 text-sm mt-2">They will only see this if they lose the game</p>
+                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game</p>
               </div>
 
-              <div className="flex items-center justify-center">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={consent}
-                    onChange={e => setConsent(e.target.checked)}
-                    className="w-5 h-5 text-purple-600 bg-white/10 border-white/20 rounded focus:ring-purple-400"
-                    required
-                  />
-                  <span className="text-white">I consent to participate in a switch game at this difficulty</span>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="consent"
+                  checked={consent}
+                  onChange={e => setConsent(e.target.checked)}
+                  className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
+                  required
+                />
+                <label htmlFor="consent" className="text-white">
+                  I consent to participate in a switch game at this difficulty
                 </label>
               </div>
-
-              <button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" 
-                disabled={searching}
-                aria-label="Find Game"
-              >
-                {searching ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
-                    Finding Game...
-                  </div>
-                ) : (
-                  'Find Game'
-                )}
-              </button>
             </form>
+          </div>
+
+          {/* Submit Button - Centered like Dom Demand Create */}
+          <div className="text-center pt-8">
+            <button
+              onClick={handleFindGame}
+              disabled={searching || !difficulty || !consent}
+              className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+            >
+              {searching ? (
+                <>
+                  <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                  Finding Game...
+                </>
+              ) : (
+                <>
+                  <UserGroupIcon className="w-6 h-6" />
+                  Find Game
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Footer - Matching Dom Demand Create Style */}
+          <div className="text-center pt-8">
+            <p className="text-neutral-400 text-sm">
+              Want to play something else? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
+            </p>
           </div>
         </div>
       </div>
@@ -324,13 +328,10 @@ export default function SwitchGameParticipate() {
   } else if (error) {
     content = (
       <div className="min-h-screen bg-black">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
-              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
-            </div>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Participate in Switch Game</h1>
           </div>
 
           {/* Error Card */}
@@ -351,7 +352,7 @@ export default function SwitchGameParticipate() {
   } else if (!game || loading) {
     content = (
       <div className="min-h-screen bg-black">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           <ListSkeleton />
         </div>
       </div>
@@ -360,20 +361,17 @@ export default function SwitchGameParticipate() {
     const u = game.creator;
     content = (
       <div className="min-h-screen bg-black">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <UserGroupIcon className="w-12 h-12 text-white mr-4" />
-              <h1 className="text-4xl md:text-5xl font-bold text-white">Participate in Switch Game</h1>
-            </div>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Participate in Switch Game</h1>
           </div>
 
           {/* Status Badge */}
           {game && <StatusBadge status={game.status} />}
 
           {/* Game Info Card */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl mb-8">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl mb-8">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Game Details</h2>
             
             {/* Participants */}
@@ -421,15 +419,15 @@ export default function SwitchGameParticipate() {
           </div>
 
           {/* Join Form Card */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Join Game</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block font-bold text-white mb-3">Your demand, if they lose</label>
+              <div className="pt-4">
+                <label className="block text-lg font-semibold text-white mb-3">Your demand, if they lose</label>
                 <textarea
                   rows={4}
-                  className="w-full rounded-xl border border-white/20 px-4 py-3 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                  className="w-full rounded-xl border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                   required
                   aria-required="true"
                   name="switch[demand]"
@@ -438,19 +436,19 @@ export default function SwitchGameParticipate() {
                   onChange={e => setDemand(e.target.value)}
                   placeholder="Describe the dare you want the other to perform if they lose..."
                 />
-                <p className="text-white/60 text-sm mt-2">They will only see this if they lose the game</p>
+                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game</p>
               </div>
 
-              <div>
-                <label className="block font-bold text-white mb-3">Your gesture</label>
+              <div className="pt-4">
+                <label className="block text-lg font-semibold text-white mb-3">Your gesture</label>
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   {MOVES.map(opt => (
                     <label 
                       key={opt} 
                       className={`cursor-pointer p-4 rounded-xl border transition-all duration-200 flex flex-col items-center hover:scale-105
                         ${gesture === opt 
-                          ? 'bg-purple-500/20 text-purple-300 border-purple-400 shadow-lg' 
-                          : 'bg-white/10 text-white border-white/20 hover:border-purple-400/50'
+                          ? 'bg-primary/20 text-primary border-primary shadow-lg' 
+                          : 'bg-neutral-800/50 text-neutral-300 border-neutral-700 hover:border-primary/50'
                         }`}
                       tabIndex={0} 
                       aria-label={`Select gesture ${opt}`}
@@ -470,22 +468,22 @@ export default function SwitchGameParticipate() {
                     </label>
                   ))}
                 </div>
-                <p className="text-white/60 text-sm">
+                <p className="text-neutral-400 text-sm">
                   The winner is determined by this game of rock-paper-scissors. Wondering what happens on a draw?{' '}
                   <button 
                     type="button"
                     onClick={() => setShowRules(!showRules)} 
-                    className="text-purple-300 underline hover:text-purple-200"
+                    className="text-primary underline hover:text-primary-light"
                   >
                     See more details
                   </button>
                 </p>
                 
                 {showRules && (
-                  <div className="mt-4 bg-white/10 p-4 rounded-xl border border-white/20">
+                  <div className="mt-4 bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
                     <h4 className="font-bold text-white mb-3">Game rules</h4>
-                    <div className="text-sm text-white/80 space-y-2">
-                      <p>If you don't know what rock-paper-scissors is, check out <a href="https://en.wikipedia.org/wiki/Rock-paper-scissors" className="text-purple-300 underline hover:text-purple-200" target="_blank" rel="noopener noreferrer">the wikipedia article</a>.</p>
+                    <div className="text-sm text-neutral-300 space-y-2">
+                      <p>If you don't know what rock-paper-scissors is, check out <a href="https://en.wikipedia.org/wiki/Rock-paper-scissors" className="text-primary underline hover:text-primary-light" target="_blank" rel="noopener noreferrer">the wikipedia article</a>.</p>
                       <p>In the case of a draw, what happens depend on which gesture you both picked:</p>
                       <p><strong>Rock:</strong> You both lose and both have to perform the other person's demand.</p>
                       <p><strong>Paper:</strong> You both win, and no one has to do anything. You might want to start another game.</p>
@@ -534,13 +532,26 @@ export default function SwitchGameParticipate() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-4 font-bold text-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-              >
-                Join Game
-              </button>
             </form>
+          </div>
+
+          {/* Submit Button - Centered like Dom Demand Create */}
+          <div className="text-center pt-8">
+            <button
+              onClick={handleSubmit}
+              disabled={!demand || demand.length < 10 || !gesture}
+              className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+            >
+              <UserGroupIcon className="w-6 h-6" />
+              Join Game
+            </button>
+          </div>
+
+          {/* Footer - Matching Dom Demand Create Style */}
+          <div className="text-center pt-8">
+            <p className="text-neutral-400 text-sm">
+              Want to play something else? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
+            </p>
           </div>
 
           {/* Timestamps */}
