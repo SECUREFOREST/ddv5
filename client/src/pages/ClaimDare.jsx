@@ -636,7 +636,7 @@ export default function ClaimDare() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto space-y-8">
             <ListSkeleton count={5} />
@@ -648,7 +648,7 @@ export default function ClaimDare() {
 
   if (!dare) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <MainContent className="max-w-2xl mx-auto space-y-8">
             {/* Header */}
@@ -665,7 +665,7 @@ export default function ClaimDare() {
             </div>
 
             {/* Error Details */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <div className="text-center space-y-6">
                 <div className="text-neutral-400 text-lg">
                   This dare may have been:
@@ -707,7 +707,7 @@ export default function ClaimDare() {
   if (isCompleted) {
     // Show completed dare preview
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <MainContent className="max-w-2xl mx-auto space-y-8">
             {/* Header */}
@@ -724,7 +724,7 @@ export default function ClaimDare() {
             </div>
 
             {/* Dare Details */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <div className="text-center mb-6">
                 <div className="text-green-400 text-xl mb-4">The Dare</div>
                 <DifficultyBadge level={dare.difficulty} />
@@ -1020,7 +1020,7 @@ export default function ClaimDare() {
     // For dom demands, show the actual demand after consent
     if (dare.dareType === 'domination' && dare.requiresConsent) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+        <div className="min-h-screen bg-black">
           <ContentContainer>
             <MainContent className="max-w-2xl mx-auto space-y-8">
               {/* Header */}
@@ -1141,7 +1141,7 @@ export default function ClaimDare() {
 
 
                 {/* Proof Submission */}
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                   <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
                   
                   <form onSubmit={handleProofSubmit} className="space-y-6">
@@ -1508,7 +1508,7 @@ export default function ClaimDare() {
 
     // For regular dares, show the standard thank you message
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
             <div className="bg-gradient-to-br from-green-900/20 to-green-800/10 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
@@ -1526,7 +1526,7 @@ export default function ClaimDare() {
   const creator = dare.creator;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -1547,7 +1547,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Dom Information Table - OSA Style */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
@@ -1592,7 +1592,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Consent Question */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
             <h3 className="text-2xl font-bold text-white mb-6">
               Will you agree to perform their demand?
             </h3>
@@ -1609,7 +1609,7 @@ export default function ClaimDare() {
           </div>
 
           {/* Difficulty Information */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="text-center mb-6">
               <p className="text-neutral-300 text-lg mb-4">
                 This dare might describe any act up to or including the following difficulty level:

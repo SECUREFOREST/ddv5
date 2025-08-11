@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 export default function TermsOfService() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -25,7 +25,7 @@ export default function TermsOfService() {
 
           <div className="space-y-8">
             {/* Core Principles */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <HeartIcon className="w-8 h-8 text-red-500" />
                 Core Principles
@@ -44,7 +44,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Safety & Privacy */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <LockClosedIcon className="w-8 h-8 text-blue-500" />
                 Safety & Privacy
@@ -72,7 +72,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Community Guidelines */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <UserGroupIcon className="w-8 h-8 text-green-500" />
                 Community Guidelines
@@ -103,7 +103,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Enforcement */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
                 Enforcement & Reporting
@@ -125,7 +125,7 @@ export default function TermsOfService() {
             </div>
 
             {/* Account Management */}
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <EyeIcon className="w-8 h-8 text-purple-500" />
                 Account Management

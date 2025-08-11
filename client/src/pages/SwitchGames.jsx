@@ -85,7 +85,7 @@ export default function SwitchGames() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-16">
@@ -102,7 +102,7 @@ export default function SwitchGames() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
         <MainContent>

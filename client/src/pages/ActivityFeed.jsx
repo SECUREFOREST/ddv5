@@ -102,7 +102,7 @@ export default function ActivityFeed() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={10} />
@@ -113,7 +113,7 @@ export default function ActivityFeed() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -132,7 +132,7 @@ export default function ActivityFeed() {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <Search
               placeholder="Search activity, user, or type..."
               onSearch={setSearch}
@@ -141,7 +141,7 @@ export default function ActivityFeed() {
           </div>
 
           {/* Activity List */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             {filteredActivities.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">No activities found</div>

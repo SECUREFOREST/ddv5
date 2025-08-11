@@ -204,7 +204,7 @@ export default function SwitchGameParticipate() {
   let content;
   if (!gameId) {
     content = (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
@@ -320,7 +320,7 @@ export default function SwitchGameParticipate() {
     );
   } else if (error) {
     content = (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
@@ -347,7 +347,7 @@ export default function SwitchGameParticipate() {
     );
   } else if (!game || loading) {
     content = (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <ListSkeleton />
         </div>
@@ -356,7 +356,7 @@ export default function SwitchGameParticipate() {
   } else {
     const u = game.creator;
     content = (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
@@ -595,7 +595,7 @@ export default function SwitchGameParticipate() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
         <MainContent>

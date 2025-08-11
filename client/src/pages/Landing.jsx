@@ -79,7 +79,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <Helmet>
         <title>Deviant Dare | Explore Your Fantasies Online</title>
         <meta name="description" content="A safe, private space to share your sexual fantasies with strangers or lovers. Choose your role and start your adventure." />
@@ -206,7 +206,7 @@ const Landing = () => {
               {features.map((feature, index) => (
                 <div 
                   key={index}
-                  className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                  className="bg-black/80 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
                 >
                   <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-neutral-800/50 rounded-xl group-hover:scale-110 transition-transform duration-300">

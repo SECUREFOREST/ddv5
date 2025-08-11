@@ -182,7 +182,7 @@ export default function DareParticipant() {
 
   if (fetching) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={6} />
@@ -193,7 +193,7 @@ export default function DareParticipant() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -213,7 +213,7 @@ export default function DareParticipant() {
 
           {!consented ? (
             /* Consent Form */
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-white mb-4">Choose Your Challenge</h2>
                 <p className="text-neutral-300 mb-6">
@@ -296,7 +296,7 @@ export default function DareParticipant() {
             /* Dare Display and Proof Submission */
             <div className="space-y-8">
               {/* Dare Card */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                 <div className="flex items-start gap-4 mb-6">
                   <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-xl">
                     {DIFFICULTY_ICONS[dare.difficulty]}
@@ -334,7 +334,7 @@ export default function DareParticipant() {
               </div>
 
               {/* Proof Submission */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                 <h3 className="text-xl font-bold text-white mb-6">Submit Proof</h3>
                 
                 <form onSubmit={handleProofSubmit} className="space-y-6">
@@ -444,7 +444,7 @@ export default function DareParticipant() {
             </div>
           ) : noDare ? (
             /* No Dare Available */
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">No dares available</div>
               <p className="text-neutral-500 text-sm mb-6">
                 No dares are available for the selected difficulty level. Try a different difficulty or create your own dare.

@@ -178,7 +178,7 @@ export default function DarePerform() {
 
   if (fetchingDare) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={5} />
@@ -189,7 +189,7 @@ export default function DarePerform() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -209,7 +209,7 @@ export default function DarePerform() {
 
           {!consented ? (
             /* Consent Form */
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
               {/* Progress Indicator */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
@@ -305,7 +305,7 @@ export default function DarePerform() {
               </div>
               
               {/* Dare Card */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                 <div className="flex items-start gap-4 mb-6">
                   <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-xl">
                     {DIFFICULTY_ICONS[dare.difficulty]}
@@ -334,7 +334,7 @@ export default function DarePerform() {
               </div>
 
               {/* Proof Submission */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                 {/* Progress Indicator */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
@@ -444,7 +444,7 @@ export default function DarePerform() {
             </div>
           ) : noDare ? (
             /* No Dare Available */
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">No dares available</div>
               <p className="text-neutral-500 text-sm mb-6">
                 No dares are available for the selected difficulty level. Try a different difficulty or create your own dare.

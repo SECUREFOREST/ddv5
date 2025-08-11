@@ -112,7 +112,7 @@ export default function DomDemandCreator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
 
@@ -131,7 +131,7 @@ export default function DomDemandCreator() {
           </div>
 
           {/* Create Dominant Dare Form */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
             {createError && (
               <ErrorAlert className="mb-6">

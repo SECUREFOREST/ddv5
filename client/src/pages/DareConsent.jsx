@@ -84,7 +84,7 @@ export default function DareConsent() {
 
   if (fetching) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto space-y-8">
             <ListSkeleton count={5} />
@@ -96,10 +96,10 @@ export default function DareConsent() {
 
   if (!dare) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
               <p className="text-neutral-500 text-sm">
                 The dare you're looking for could not be found.
@@ -116,7 +116,7 @@ export default function DareConsent() {
   const creator = dare.creator;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -137,7 +137,7 @@ export default function DareConsent() {
           </div>
 
           {/* Dom Information Table - OSA Style */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="space-y-4">
@@ -182,7 +182,7 @@ export default function DareConsent() {
           </div>
 
           {/* Consent Question */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
             <h3 className="text-2xl font-bold text-white mb-6">
               Will you agree to perform their demand?
             </h3>
@@ -199,7 +199,7 @@ export default function DareConsent() {
           </div>
 
           {/* Difficulty Information */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="text-center mb-6">
               <p className="text-neutral-300 text-lg mb-4">
                 This dare might describe any act up to or including the following difficulty level:

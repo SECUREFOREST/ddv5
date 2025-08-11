@@ -98,7 +98,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800 p-4">
+    <div className="min-h-screen bg-black p-4">
       <div className="w-full max-w-2xl">
         <Card className="p-8">
           <Helmet>

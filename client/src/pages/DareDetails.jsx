@@ -379,7 +379,7 @@ export default function DareDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={5} />
@@ -391,7 +391,7 @@ export default function DareDetails() {
 
   if (!dare) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-16">
@@ -416,13 +416,13 @@ export default function DareDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
         <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="flex items-start gap-6">
               <div className="flex-shrink-0">
                 <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
@@ -486,7 +486,7 @@ export default function DareDetails() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Difficulty and Tags */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <TrophyIcon className="w-6 h-6 text-primary" />
                   Dare Information
@@ -551,7 +551,7 @@ export default function DareDetails() {
               </div>
 
               {/* Actions */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
                 <h2 className="text-xl font-bold text-white mb-4">Actions</h2>
                 
 
@@ -591,7 +591,7 @@ export default function DareDetails() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Participants */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
                 <h3 className="text-lg font-bold text-white mb-4">Participants</h3>
                 
                 <div className="space-y-3">
@@ -622,7 +622,7 @@ export default function DareDetails() {
               </div>
 
               {/* Status Timeline */}
-              <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
                 <h3 className="text-lg font-bold text-white mb-4">Timeline</h3>
                 
                 <div className="space-y-3">

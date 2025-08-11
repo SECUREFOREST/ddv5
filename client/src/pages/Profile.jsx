@@ -542,7 +542,7 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <div className="max-w-7xl mx-auto space-y-16">
           <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
@@ -684,7 +684,7 @@ export default function Profile() {
               <div className="mt-6 mb-6 space-y-6">
                 {/* Role Balance Display - OSA Style */}
                 {(stats.dominantPercent !== undefined || stats.submissivePercent !== undefined) && (
-                  <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+                  <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
                     <div className="text-center mb-6">
                       <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-3">
                         <ShieldCheckIcon className="w-8 h-8 text-primary" />
@@ -1176,7 +1176,7 @@ export default function Profile() {
                 {
                   label: 'Privacy & Safety',
                   content: (
-                    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
+                    <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl space-y-8">
                       <div className="bg-neutral-800/50 rounded-xl p-6 border border-neutral-700/30">
                         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                           <ShieldCheckIcon className="w-6 h-6 text-primary" />
@@ -1320,7 +1320,7 @@ function ChangePasswordForm() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+    <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
       <div className="max-w-md mx-auto">
         <form onSubmit={handleChangePassword} className="space-y-6">
           <div className="text-center mb-8">

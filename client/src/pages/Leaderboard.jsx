@@ -161,7 +161,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <div key={`leaderboard-${renderKey}`} className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div key={`leaderboard-${renderKey}`} className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -198,7 +198,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <Search
               placeholder="Search by username or name..."
               onSearch={setSearch}
@@ -208,7 +208,7 @@ export default function Leaderboard() {
           </div>
 
           {/* Leaderboard Content */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             {authLoading ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">Loading authentication...</div>

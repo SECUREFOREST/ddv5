@@ -54,7 +54,7 @@ export default function Advertise() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <Helmet>
         <title>Advertise | Deviant Dare</title>
         <meta name="description" content="Advertise your brand on Deviant Dare - reach engaged users through banner ads, sponsored dares, and targeted campaigns." />
@@ -121,7 +121,7 @@ export default function Advertise() {
               {advertisingOptions.map((option, index) => (
                 <div 
                   key={index}
-                  className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="bg-black/80 border border-neutral-700/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <div className="text-center mb-6">
                     <div className="p-4 bg-neutral-800/50 rounded-2xl inline-block mb-4">
@@ -158,7 +158,7 @@ export default function Advertise() {
               {benefits.map((benefit, index) => (
                 <div 
                   key={index}
-                  className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
+                  className="bg-black/80 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
                 >
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-neutral-800/50 rounded-xl">

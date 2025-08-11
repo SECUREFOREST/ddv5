@@ -164,7 +164,7 @@ export default function DareReveal() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-4xl mx-auto space-y-8">
             <ListSkeleton count={6} />
@@ -176,10 +176,10 @@ export default function DareReveal() {
 
   if (!dare) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+      <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
               <div className="text-neutral-400 text-xl mb-4">Dare Not Found</div>
               <p className="text-neutral-500 text-sm">
                 The dare you're looking for could not be found or you don't have permission to view it.
@@ -192,7 +192,7 @@ export default function DareReveal() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -211,7 +211,7 @@ export default function DareReveal() {
           </div>
 
           {/* Status Progress */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               {STATUS_STEPS.map((step, index) => (
                 <div key={step.key} className="flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function DareReveal() {
           </div>
 
           {/* Dare Card */}
-          <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+          <div className="bg-black/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-gradient-to-r from-primary to-primary-dark p-3 rounded-xl">
                 <DifficultyBadge level={dare.difficulty} />

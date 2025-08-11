@@ -226,7 +226,7 @@ export default function Dashboard() {
   const RoleIcon = currentRoleForm.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
@@ -289,7 +289,7 @@ export default function Dashboard() {
               {/* Quick Action */}
               <div className="md:col-span-2">
                 <h3 className="text-lg font-semibold text-white mb-4">Quick Action</h3>
-                <div className="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 rounded-xl p-6 border border-neutral-700/50">
+                <div className="bg-black/80 rounded-xl p-6 border border-neutral-700/50">
                   <div className="flex items-center gap-4 mb-4">
                     <div className={`p-3 bg-gradient-to-r ${currentRoleForm.color} rounded-xl`}>
                       <RoleIcon className="w-6 h-6 text-white" />

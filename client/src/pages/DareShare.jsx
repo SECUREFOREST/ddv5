@@ -76,7 +76,7 @@ export default function DareShare() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center text-white/60">Loading...</div>
         </div>
@@ -86,7 +86,7 @@ export default function DareShare() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-8 shadow-2xl text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -100,7 +100,7 @@ export default function DareShare() {
 
   if (canceled) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-green-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-8 shadow-2xl text-center">
             <h2 className="text-2xl font-bold text-white mb-4">Dare Canceled</h2>
@@ -112,7 +112,7 @@ export default function DareShare() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
         <MainContent className="max-w-2xl mx-auto px-4 py-8">

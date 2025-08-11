@@ -478,7 +478,7 @@ export default function SwitchGameDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <ListSkeleton />
         </div>
@@ -488,7 +488,7 @@ export default function SwitchGameDetails() {
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-8 shadow-2xl text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -508,7 +508,7 @@ export default function SwitchGameDetails() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-yellow-500/20 backdrop-blur-lg rounded-2xl border border-yellow-500/30 p-8 shadow-2xl text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
@@ -521,7 +521,7 @@ export default function SwitchGameDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">Skip to main content</a>
         <MainContent className="max-w-4xl mx-auto px-4 py-8">
