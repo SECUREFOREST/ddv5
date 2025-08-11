@@ -98,8 +98,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-4">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-black p-4 flex items-center justify-center">
+      <div className="w-full max-w-2xl mx-auto">
         <Card className="p-8">
           <Helmet>
             <title>Register | Deviant Dare</title>
