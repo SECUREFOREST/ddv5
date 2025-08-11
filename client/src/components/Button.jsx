@@ -68,6 +68,7 @@ export default function Button({
       // Check if it's a Heroicon or any element with icon-related classes
       return child.type && (
         child.type.name?.includes('Icon') || 
+        child.type.displayName?.includes('Icon') ||
         child.props?.className?.includes('w-') ||
         child.props?.className?.includes('h-')
       );
@@ -75,13 +76,8 @@ export default function Button({
     return false;
   });
 
-  // Ensure children are properly structured for horizontal layout
-  const renderChildren = () => {
-    if (!hasIcons) return children;
-    
-    // Simply return children as-is, the flex container will handle the layout
-    return children;
-  };
+  // Always wrap children in flex container when there are multiple children
+  const shouldWrapInFlex = React.Children.count(children) > 1;
 
   return (
     <button 
@@ -94,9 +90,9 @@ export default function Button({
           <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
           Loading...
         </div>
-      ) : hasIcons ? (
+      ) : shouldWrapInFlex ? (
         <div className="flex items-center justify-center gap-2">
-          {renderChildren()}
+          {children}
         </div>
       ) : (
         children
