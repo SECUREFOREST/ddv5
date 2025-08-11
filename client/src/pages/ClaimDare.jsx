@@ -1037,7 +1037,7 @@ export default function ClaimDare() {
               </div>
 
               {/* Revealed Demand */}
-              <div className="bg-gradient-to-br from-red-900/20 to-red-800/10 rounded-2xl p-8 border border-red-800/30 shadow-xl">
+              <div className="bg-black/80 rounded-2xl p-8 border border-red-800/30 shadow-xl">
                 <div className="text-center mb-6">
                   <div className="text-red-400 text-xl mb-4">The Dom's Demand</div>
                   <DifficultyBadge level={dare.difficulty} />
@@ -1511,7 +1511,7 @@ export default function ClaimDare() {
       <div className="min-h-screen bg-black">
         <ContentContainer>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-green-900/20 to-green-800/10 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
+            <div className="bg-black/80 rounded-2xl p-8 border border-green-800/30 shadow-xl text-center">
               <div className="text-green-400 text-xl mb-4">Thank You!</div>
               <p className="text-green-300 text-sm">
                 You have consented to perform this dare.

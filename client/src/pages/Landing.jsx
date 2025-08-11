@@ -124,7 +124,7 @@ const Landing = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Offer your Submission */}
-              <div className="bg-gradient-to-br from-pink-900/20 to-pink-800/10 border border-pink-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-black/80 border border-pink-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-center">
                   <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-4 rounded-2xl shadow-2xl shadow-pink-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
                     <UserIcon className="w-8 h-8 text-white" />
@@ -142,7 +142,7 @@ const Landing = () => {
               </div>
 
               {/* Demand and Dominate */}
-              <div className="bg-gradient-to-br from-red-900/20 to-red-800/10 border border-red-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-black/80 border border-red-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-center">
                   <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-2xl shadow-2xl shadow-red-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
                     <ShieldCheckIcon className="w-8 h-8 text-white" />
@@ -160,7 +160,7 @@ const Landing = () => {
               </div>
 
               {/* Compete with a Switch */}
-              <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="bg-black/80 border border-purple-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="text-center">
                   <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
                     <PlayIcon className="w-8 h-8 text-white" />

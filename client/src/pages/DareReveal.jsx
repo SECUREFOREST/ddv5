@@ -320,7 +320,7 @@ export default function DareReveal() {
             <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
             
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Panel className="bg-gradient-to-br from-neutral-900/95 to-neutral-800/95 rounded-2xl p-8 border border-neutral-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <Dialog.Panel className="bg-black/95 rounded-2xl p-8 border border-neutral-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <Dialog.Title className="text-2xl font-bold text-white mb-6">
                   Submit Proof
                 </Dialog.Title>

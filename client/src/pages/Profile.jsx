@@ -549,7 +549,7 @@ export default function Profile() {
           
           <MainContent>
             {/* Profile Header */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-neutral-900/90 to-neutral-800/70 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
+            <div className="relative overflow-hidden bg-black/90 backdrop-blur-sm rounded-3xl border border-white/10 shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
               <div className="relative p-8">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">

@@ -1115,7 +1115,7 @@ export default function DarePerformerDashboard() {
   // Check if user is authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center py-16">
             <NeumorphicCard variant="glass" className="p-8">
@@ -1139,7 +1139,7 @@ export default function DarePerformerDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center py-16">
             <LoadingSpinner size="lg" color="primary" />
@@ -1152,7 +1152,7 @@ export default function DarePerformerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
           Skip to main content

@@ -97,7 +97,7 @@ export default function DareDifficultySelect() {
           </div>
 
           {/* How it Works Section */}
-          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-2xl p-6 border border-blue-800/30">
+          <div className="bg-black/80 rounded-2xl p-6 border border-blue-800/30">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-white text-xs font-bold">i</span>
