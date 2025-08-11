@@ -13,54 +13,64 @@ router.get('/', auth, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     
-    // Find all dares and switch games where the user is creator, performer, or assignedSwitch
-    const dares = await Dare.find({
-      $or: [
-        { creator: userId },
-        { performer: userId },
-        { assignedSwitch: userId }
-      ]
-    }).select('_id');
-    const switchGames = await SwitchGame.find({
-      $or: [
-        { creator: userId },
-        { participant: userId }
-      ]
-    }).select('_id');
-    const relevantDareIds = dares.map(d => d._id);
-    const relevantSwitchGameIds = switchGames.map(g => g._id);
-
-    // Build the filter for activities
-    const filter = {
-      $or: [
-        { user: userId },
-        { dare: { $in: relevantDareIds } },
-        { switchGame: { $in: relevantSwitchGameIds } }
-      ]
-    };
-
-    // Get total count for pagination
-    const totalActivities = await Activity.countDocuments(filter);
-
-    // Find activities with pagination
-    const activities = await Activity.find(filter)
+    // Get activities where the user is directly involved
+    let activities = [];
+    let totalActivities = 0;
+    
+    // First, get activities created by the user
+    const userActivities = await Activity.find({ user: userId })
       .populate('user', 'username avatar')
       .populate('switchGame', 'description difficulty creator participant status')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    // Set total count header for client-side pagination
-    res.set('X-Total-Count', totalActivities.toString());
+      .populate('dare', 'description difficulty')
+      .sort({ createdAt: -1 });
+    
+    // Get activities related to dares where user is creator or performer
+    const userDares = await Dare.find({
+      $or: [{ creator: userId }, { performer: userId }]
+    }).select('_id');
+    
+    const dareActivities = await Activity.find({
+      dare: { $in: userDares.map(d => d._id) },
+      user: { $ne: userId } // Exclude user's own activities (already included above)
+    })
+      .populate('user', 'username avatar')
+      .populate('switchGame', 'description difficulty creator participant status')
+      .populate('dare', 'description difficulty')
+      .sort({ createdAt: -1 });
+    
+    // Get activities related to switch games where user is creator or participant
+    const userSwitchGames = await SwitchGame.find({
+      $or: [{ creator: userId }, { participant: userId }]
+    }).select('_id');
+    
+    const switchGameActivities = await Activity.find({
+      switchGame: { $in: userSwitchGames.map(g => g._id) },
+      user: { $ne: userId } // Exclude user's own activities
+    })
+      .populate('user', 'username avatar')
+      .populate('switchGame', 'description difficulty creator participant status')
+      .populate('dare', 'description difficulty')
+      .sort({ createdAt: -1 });
+    
+    // Combine and sort all activities
+    activities = [...userActivities, ...dareActivities, ...switchGameActivities]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    totalActivities = activities.length;
+    
+    // Apply pagination
+    const startIndex = skip;
+    const endIndex = startIndex + limit;
+    const paginatedActivities = activities.slice(startIndex, endIndex);
     
     res.json({
-      activities,
+      activities: paginatedActivities,
       pagination: {
         page,
         limit,
         total: totalActivities,
         totalPages: Math.ceil(totalActivities / limit),
-        hasNextPage: page * limit < totalActivities,
+        hasNextPage: endIndex < totalActivities,
         hasPrevPage: page > 1
       }
     });
