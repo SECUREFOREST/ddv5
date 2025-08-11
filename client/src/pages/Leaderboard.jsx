@@ -67,6 +67,8 @@ export default function Leaderboard() {
       setLoading(true);
       setError('');
       
+      console.log('Fetching leaderboard data...');
+      
       // Use retry mechanism for leaderboard fetch with timeout
       const response = await Promise.race([
         retryApiCall(() => api.get('/stats/leaderboard', { timeout: 15000 })),
@@ -77,18 +79,43 @@ export default function Leaderboard() {
         })
       ]);
       
+      console.log('Leaderboard response received:', response);
+      
       if (response && response.data) {
         const usersData = validateApiResponse(response, API_RESPONSE_TYPES.USER_ARRAY);
+        console.log('Validated leaderboard data:', usersData);
         setUsers(usersData);
         setTotalItems(usersData.length);
-
       } else {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      const errorMessage = handleApiError(error, 'leaderboard');
-      setError(errorMessage);
-      showError(errorMessage);
+      console.error('Leaderboard fetch error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: error.config
+      });
+      
+      let errorMessage = 'Failed to load leaderboard.';
+      
+      if (error.response?.status === 500) {
+        errorMessage = 'Server error occurred while loading leaderboard. Please try again later.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Please log in to view the leaderboard.';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Access denied to leaderboard.';
+      } else if (error.message === 'Request timeout') {
+        errorMessage = 'Request timed out. Please check your connection and try again.';
+      } else if (error.message.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      const finalErrorMessage = handleApiError(error, 'leaderboard') || errorMessage;
+      setError(finalErrorMessage);
+      showError(finalErrorMessage);
       setUsers([]);
     } finally {
       setLoading(false);
@@ -222,13 +249,33 @@ export default function Leaderboard() {
             ) : error ? (
               <div className="text-center py-12">
                 <div className="text-red-400 text-xl mb-4">Error Loading Leaderboard</div>
-                <p className="text-neutral-500 text-sm">{error}</p>
-                <button 
-                  onClick={fetchLeaderboard}
-                  className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-                >
-                  Try Again
-                </button>
+                <p className="text-neutral-500 text-sm mb-4">{error}</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button 
+                    onClick={fetchLeaderboard}
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                  >
+                    Try Again
+                  </button>
+                  <button 
+                    onClick={() => {
+                      console.log('Current error state:', error);
+                      console.log('Current users state:', users);
+                      console.log('Current loading state:', loading);
+                    }}
+                    className="px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
+                  >
+                    Debug Info
+                  </button>
+                </div>
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="mt-4 p-3 bg-neutral-800 rounded-lg text-left">
+                    <p className="text-xs text-neutral-400 mb-2">Debug Info (Development Only):</p>
+                    <pre className="text-xs text-neutral-300 overflow-auto">
+                      {JSON.stringify({ error, users: users.length, loading }, null, 2)}
+                    </pre>
+                  </div>
+                )}
               </div>
             ) : loading ? (
               <div className="text-center py-12">
