@@ -30,7 +30,6 @@ export default function Leaderboard() {
   const [hasFetched, setHasFetched] = useState(false); // Add flag to prevent refetching
   const { showSuccess, showError } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const hasFetchedRef = useRef(false);
   
 
   
@@ -168,6 +167,9 @@ export default function Leaderboard() {
     }
   });
 
+  // Determine if we should show loading
+  const shouldShowLoading = loading && users.length === 0;
+
   // Debug logging for state
   console.log('Leaderboard state:', {
     loading,
@@ -188,11 +190,8 @@ export default function Leaderboard() {
     willShowData: !shouldShowLoading && users.length > 0
   });
 
-  // Determine if we should show loading
-  const shouldShowLoading = loading && users.length === 0;
-  
   // Update total items when filtered users change
-  React.useEffect(() => {
+  useEffect(() => {
     setTotalItems(filteredUsers.length);
   }, [filteredUsers, setTotalItems]);
 
