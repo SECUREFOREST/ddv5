@@ -29,6 +29,7 @@ export default function SwitchGameCreate() {
   const [difficulty, setDifficulty] = useState('titillating');
   const [move, setMove] = useState('rock');
   const [tags, setTags] = useState([]);
+  const [publicGame, setPublicGame] = useState(true);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -53,7 +54,8 @@ export default function SwitchGameCreate() {
         description,
         difficulty,
         move,
-        tags
+        tags,
+        public: publicGame
       }));
       
       if (res.data && res.data._id) {
@@ -77,7 +79,7 @@ export default function SwitchGameCreate() {
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
         
-        <MainContent className="max-w-4xl mx-auto space-y-8">
+        <MainContent className="max-w-3xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
@@ -91,6 +93,49 @@ export default function SwitchGameCreate() {
             </p>
           </div>
 
+          {/* Difficulty Selection - Vertical Layout like Dom Demand Create */}
+          <div className="space-y-4">
+            {DIFFICULTY_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setDifficulty(option.value)}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
+                    ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                    : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                  }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-neutral-700/50 text-neutral-400'
+                    }`}>
+                    {DIFFICULTY_ICONS[option.value]}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-2">{option.label}</div>
+                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                      {option.desc}
+                    </div>
+                    {option.longDesc && (
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                        {option.longDesc}
+                      </div>
+                    )}
+                    {option.examples && (
+                      <div className="text-xs text-neutral-500 italic">
+                        Examples: {option.examples}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
           {/* Create Switch Game Form */}
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             {/* Error Display */}
@@ -100,7 +145,7 @@ export default function SwitchGameCreate() {
               </ErrorAlert>
             )}
             
-            <form onSubmit={handleCreate} className="space-y-8">
+            <form onSubmit={handleCreate} className="space-y-6">
               {/* Description */}
               <FormTextarea
                 label="Game Description"
@@ -112,40 +157,6 @@ export default function SwitchGameCreate() {
                 maxLength={1000}
                 showCharacterCount
               />
-
-              {/* Difficulty Selection */}
-              <div>
-                <label className="block text-lg font-semibold text-white mb-3">
-                  Difficulty Level
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {DIFFICULTY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDifficulty(option.value)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                        difficulty === option.value
-                          ? 'border-primary bg-primary/20 text-primary'
-                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {DIFFICULTY_ICONS[option.value]}
-                        <div className="text-left">
-                          <div className="font-semibold">{option.label}</div>
-                          <div className="text-sm opacity-75">{option.desc}</div>
-                          {option.longDesc && (
-                            <div className="text-xs opacity-60 mt-1">
-                              {option.longDesc}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Move Selection */}
               <div>
@@ -172,7 +183,7 @@ export default function SwitchGameCreate() {
               </div>
 
               {/* Tags */}
-              <div>
+              <div className="pt-4">
                 <label className="block text-lg font-semibold text-white mb-3">
                   Tags
                 </label>
@@ -185,44 +196,51 @@ export default function SwitchGameCreate() {
 
               {/* Options */}
               <div className="space-y-4">
-                {/* Removed public game option */}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="publicGame"
+                    checked={publicGame}
+                    onChange={(e) => setPublicGame(e.target.checked)}
+                    className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
+                  />
+                  <label htmlFor="publicGame" className="text-white">
+                    Make this game public
+                  </label>
+                </div>
               </div>
 
               {/* Removed OSA-Style Privacy Settings */}
 
-              {/* Submit Button */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  type="submit"
-                  disabled={creating || !description.trim()}
-                  variant="primary"
-                  size="lg"
-                  className="flex-1"
-                >
-                  {creating ? (
-                    <>
-                      <ButtonLoading />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <PlayIcon className="w-6 h-6" />
-                      Create Switch Game
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  type="button"
-                  onClick={() => navigate('/switches')}
-                  variant="default"
-                  size="lg"
-                  className="flex-1"
-                >
-                  Back to Switch Games
-                </Button>
-              </div>
             </form>
+          </div>
+
+          {/* Submit Button - Centered like Dom Demand Create */}
+          <div className="text-center pt-8">
+            <button
+              onClick={handleCreate}
+              disabled={creating || !description.trim()}
+              className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
+            >
+              {creating ? (
+                <>
+                  <ButtonLoading />
+                  Creating Switch Game...
+                </>
+              ) : (
+                <>
+                  <PlayIcon className="w-6 h-6" />
+                  Create Switch Game
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Footer - Matching Dom Demand Create Style */}
+          <div className="text-center pt-8">
+            <p className="text-neutral-400 text-sm">
+              Want to play something else? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
+            </p>
           </div>
         </MainContent>
       </ContentContainer>
