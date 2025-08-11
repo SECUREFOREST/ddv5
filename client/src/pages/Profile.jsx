@@ -813,7 +813,7 @@ export default function Profile() {
             )}
 
             {/* Add spacing between profile header and tabs */}
-            <div className="mt-8">
+            <div className="mt-6">
               <Tabs
               tabs={[
                 {
