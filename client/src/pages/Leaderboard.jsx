@@ -58,11 +58,6 @@ export default function Leaderboard() {
       return;
     }
     
-    // Add a ref to track if we've already fetched data
-    if (users.length > 0) {
-      return; // Don't refetch if we already have data
-    }
-    
     try {
       setLoading(true);
       setError('');
@@ -120,21 +115,18 @@ export default function Leaderboard() {
     } finally {
       setLoading(false);
     }
-  }, [showSuccess, showError, setTotalItems, user, loading, users.length]);
+  }, [showSuccess, showError, setTotalItems, user, loading]); // Removed users.length dependency
 
   useEffect(() => {
     if (authLoading) return;
     
-    if (user && !hasFetchedRef.current) {
-      hasFetchedRef.current = true;
+    if (user) {
+      console.log('User authenticated, fetching leaderboard...');
       fetchLeaderboard();
     }
   }, [user, authLoading, fetchLeaderboard]);
   
-  // Reset fetch flag when user changes
-  useEffect(() => {
-    hasFetchedRef.current = false;
-  }, [user]);
+  // Remove the complex ref logic that might be causing issues
 
   // Filter users based on active tab and search
   const filteredUsers = users.filter(u => {
@@ -163,6 +155,16 @@ export default function Leaderboard() {
       default:
         return b.daresCount - a.daresCount;
     }
+  });
+
+  // Debug logging for state
+  console.log('Leaderboard state:', {
+    loading,
+    error,
+    usersCount: users.length,
+    filteredUsersCount: filteredUsers.length,
+    activeTab,
+    search
   });
 
   // Update total items when filtered users change
@@ -195,6 +197,18 @@ export default function Leaderboard() {
             <p className="text-xl sm:text-2xl text-neutral-300">
               Track the top performers in each role
             </p>
+            <button 
+              onClick={() => {
+                console.log('Manual refresh clicked');
+                setLoading(true);
+                setError('');
+                setUsers([]);
+                fetchLeaderboard();
+              }}
+              className="mt-4 px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
+            >
+              Refresh Data
+            </button>
           </div>
 
           {/* Tab Navigation */}
@@ -315,24 +329,52 @@ export default function Leaderboard() {
                     </p>
                   </div>
                 ) : (
-                  <Suspense fallback={<ListSkeleton count={5} />}>
-                    <LeaderboardWidget 
-                      leaders={paginatedUsers.map(u => ({
-                        id: u.user?.id,
-                        username: u.user?.username,
-                        fullName: u.user?.fullName,
-                        avatar: u.user?.avatar,
-                        daresCount: activeTab === 'subs' ? u.daresCompletedAsPerformer : 
-                                    activeTab === 'doms' ? u.daresCreated : 
-                                    u.daresCount,
-                        role: u.user?.roles?.[0] || 'user'
-                      }))} 
-                      loading={loading} 
-                      title={activeTab === 'subs' ? 'Subs Leaderboard' : 
-                             activeTab === 'doms' ? 'Doms Leaderboard' : 
-                             'Overall Leaderboard'}
-                    />
-                  </Suspense>
+                  <div>
+                    {/* Debug display */}
+                    <div className="mb-4 p-4 bg-neutral-800 rounded-lg">
+                      <h3 className="text-white font-bold mb-2">Debug Info:</h3>
+                      <p className="text-neutral-300">Users count: {users.length}</p>
+                      <p className="text-neutral-300">Filtered count: {filteredUsers.length}</p>
+                      <p className="text-neutral-300">Paginated count: {paginatedUsers.length}</p>
+                      <p className="text-neutral-300">Loading: {loading.toString()}</p>
+                      <p className="text-neutral-300">Error: {error || 'none'}</p>
+                    </div>
+                    
+                    {/* Simple data display for testing */}
+                    <div className="mb-4">
+                      <h3 className="text-white font-bold mb-2">Raw Data (First 3 users):</h3>
+                      {users.slice(0, 3).map((user, index) => (
+                        <div key={index} className="p-2 bg-neutral-700 rounded mb-2">
+                          <p className="text-white">Username: {user.user?.username}</p>
+                          <p className="text-neutral-300">Dares Created: {user.daresCreated}</p>
+                          <p className="text-neutral-300">Dares Completed: {user.daresCompletedAsPerformer}</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Suspense fallback={<ListSkeleton count={5} />}>
+                      <LeaderboardWidget 
+                        leaders={paginatedUsers.map(u => {
+                          const mappedUser = {
+                            id: u.user?.id,
+                            username: u.user?.username,
+                            fullName: u.user?.fullName,
+                            avatar: u.user?.avatar,
+                            daresCount: activeTab === 'subs' ? u.daresCompletedAsPerformer : 
+                                        activeTab === 'doms' ? u.daresCreated : 
+                                        u.daresCount,
+                            role: u.user?.roles?.[0] || 'user'
+                          };
+                          console.log('Mapped user for LeaderboardWidget:', mappedUser);
+                          return mappedUser;
+                        })} 
+                        loading={loading} 
+                        title={activeTab === 'subs' ? 'Subs Leaderboard' : 
+                               activeTab === 'doms' ? 'Doms Leaderboard' : 
+                               'Overall Leaderboard'}
+                      />
+                    </Suspense>
+                  </div>
                 )}
               </div>
             )}
