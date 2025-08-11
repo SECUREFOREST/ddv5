@@ -322,9 +322,37 @@ export default function Leaderboard() {
                 <div className="mt-4">
                   <ListSkeleton count={5} />
                 </div>
+                {/* Debug info for loading state */}
+                <div className="mt-4 p-3 bg-red-800 rounded-lg text-left">
+                  <p className="text-xs text-white mb-2">DEBUG: Showing Loading State</p>
+                  <pre className="text-xs text-white overflow-auto">
+                    {JSON.stringify({ 
+                      shouldShowLoading, 
+                      loading, 
+                      usersLength: users.length,
+                      hasFetched,
+                      error 
+                    }, null, 2)}
+                  </pre>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
+                {/* Debug info for data state */}
+                <div className="mb-4 p-3 bg-green-800 rounded-lg text-left">
+                  <p className="text-xs text-white mb-2">DEBUG: Showing Data State</p>
+                  <pre className="text-xs text-white overflow-auto">
+                    {JSON.stringify({ 
+                      shouldShowLoading, 
+                      loading, 
+                      usersLength: users.length,
+                      hasFetched,
+                      error,
+                      filteredUsersLength: filteredUsers.length
+                    }, null, 2)}
+                  </pre>
+                </div>
+                
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-primary/20 rounded-lg">
                     <FireIcon className="w-6 h-6 text-primary" />
