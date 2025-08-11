@@ -54,8 +54,8 @@ export function SectionHeader({ title, subtitle, children, className = '' }) {
  */
 export function ContentContainer({ children, maxWidth = 'max-w-7xl', className = '' }) {
   return (
-    <div className={`container mx-auto px-4 sm:px-6 lg:px-8 py-8 ${className}`}>
-      <div className={`${maxWidth} mx-auto space-y-8`}>
+    <div className={`w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 ${className}`}>
+      <div className={`w-full ${maxWidth} mx-auto space-y-4 sm:space-y-6 lg:space-y-8`}>
         {children}
       </div>
     </div>
@@ -179,4 +179,20 @@ export function Spacer({ size = 'md', className = '' }) {
   };
 
   return <div className={`${getSize()} ${className}`} />;
+} 
+
+/**
+ * Mobile-First Content Container component
+ * @param {React.ReactNode} children - Container content
+ * @param {string} maxWidth - Max width class for larger screens
+ * @param {string} className - Additional CSS classes
+ */
+export function MobileContentContainer({ children, maxWidth = 'max-w-7xl', className = '' }) {
+  return (
+    <div className={`w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 ${className}`}>
+      <div className={`w-full ${maxWidth} mx-auto space-y-4 sm:space-y-6 lg:space-y-8`}>
+        {children}
+      </div>
+    </div>
+  );
 } 
