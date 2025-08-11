@@ -455,13 +455,31 @@ export default function DarePerformerDashboard() {
       
       // Handle successful responses
       if (ongoingData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(ongoingData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
+        // Extract dares from the response structure
+        const responseData = ongoingData.value.data;
+        const dares = responseData.dares || responseData;
+        
+        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        
+        // Debug: Log the data structure
+        console.log('Ongoing dares data:', {
+          raw: ongoingData.value.data,
+          responseData,
+          dares,
+          validated: validatedData,
+          firstDare: validatedData?.[0],
+          creator: validatedData?.[0]?.creator
+        });
 
         setOngoing(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (completedData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(completedData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
+        // Extract dares from the response structure
+        const responseData = completedData.value.data;
+        const dares = responseData.dares || responseData;
+        
+        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
 
         setCompleted(Array.isArray(validatedData) ? validatedData : []);
       }
@@ -473,7 +491,11 @@ export default function DarePerformerDashboard() {
       }
       
       if (publicData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(publicData.value.data, API_RESPONSE_TYPES.DARE_ARRAY);
+        // Extract dares from the response structure
+        const responseData = publicData.value.data;
+        const dares = responseData.dares || responseData;
+        
+        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
 
         setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
