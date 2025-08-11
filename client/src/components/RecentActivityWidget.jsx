@@ -241,10 +241,10 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
           {[...Array(3)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-black/60 rounded mr-2"></div>
+                <div className="w-4 h-4 bg-neutral-700/60 rounded mr-2"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-black/60 rounded mb-1"></div>
-                  <div className="h-3 bg-black/40 rounded w-1/2"></div>
+                  <div className="h-4 bg-neutral-700/60 rounded mb-1"></div>
+                  <div className="h-3 bg-neutral-600/40 rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -252,7 +252,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         </div>
       ) : displayActivities.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-black/80 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-neutral-800/80 rounded-full flex items-center justify-center mx-auto mb-4">
             <EllipsisHorizontalIcon className="w-6 h-6 text-white/50" />
           </div>
           <p className="text-white/70 text-sm">No recent activity</p>
@@ -262,7 +262,7 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         <>
           <div className="space-y-3">
             {displayActivities.map((activity, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-black/80 hover:bg-black/90 transition-colors">
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/80 hover:bg-neutral-700/90 transition-colors">
                 {ICONS[activity.type] || ICONS.default}
                 <div className="flex-1">
                   <div className="text-sm text-white">{getActivityMessage(activity, userId)}</div>
