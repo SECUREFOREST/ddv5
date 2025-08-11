@@ -177,18 +177,6 @@ export default function Leaderboard() {
             <p className="text-xl sm:text-2xl text-neutral-300">
               Track the top performers in each role
             </p>
-            <button 
-              onClick={() => {
-                setLoading(true);
-                setError('');
-                setUsers([]);
-                setHasFetched(false); // Reset the flag to allow refetching
-                fetchLeaderboard();
-              }}
-              className="mt-4 px-4 py-2 bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
-            >
-              Refresh Data
-            </button>
           </div>
 
           {/* Tab Navigation */}
