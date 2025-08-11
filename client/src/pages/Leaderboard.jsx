@@ -125,7 +125,10 @@ export default function Leaderboard() {
     if (user && !hasFetched) {
       console.log('User authenticated, fetching leaderboard for the first time...');
       setHasFetched(true);
-      fetchLeaderboard();
+      // Add a small delay to ensure proper state initialization
+      setTimeout(() => {
+        fetchLeaderboard();
+      }, 100);
     }
   }, [user, authLoading, hasFetched, fetchLeaderboard]);
   
@@ -172,9 +175,13 @@ export default function Leaderboard() {
     usersCount: users.length,
     filteredUsersCount: filteredUsers.length,
     activeTab,
-    search
+    search,
+    hasFetched
   });
 
+  // Determine if we should show loading
+  const shouldShowLoading = loading && users.length === 0;
+  
   // Update total items when filtered users change
   React.useEffect(() => {
     setTotalItems(filteredUsers.length);
@@ -300,7 +307,7 @@ export default function Leaderboard() {
                   </div>
                 )}
               </div>
-            ) : loading ? (
+            ) : shouldShowLoading ? (
               <div className="text-center py-12">
                 <div className="text-neutral-400 text-xl mb-4">Loading leaderboard...</div>
                 <p className="text-neutral-500 text-sm">Please wait while we fetch the latest data.</p>
