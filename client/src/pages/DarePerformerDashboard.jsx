@@ -472,7 +472,21 @@ export default function DarePerformerDashboard() {
         '/users/associates'
       ]);
       
-                  // Parallel data fetching for better performance with server-side pagination
+                              // Get total counts first for proper pagination
+            const [activeCounts, completedCounts] = await Promise.allSettled([
+              // Get total counts for active dares (both as creator and participant)
+              Promise.all([
+                api.get(`/dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&limit=1`),
+                api.get(`/dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&limit=1`)
+              ]),
+              // Get total counts for completed dares (both as creator and participant)
+              Promise.all([
+                api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`),
+                api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`)
+              ])
+            ]);
+
+            // Parallel data fetching for better performance with server-side pagination
             const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
               // Active dares: both as creator and participant with pagination
               Promise.all([
@@ -484,20 +498,20 @@ export default function DarePerformerDashboard() {
                 api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
                 api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
-        api.get('/switches/performer'),
-        api.get('/dares?public=true&limit=10'),
-        api.get('/switches?public=true&status=waiting_for_participant'),
-        api.get('/users/associates')
-      ]);
+              api.get('/switches/performer'),
+              api.get('/dares?public=true&limit=10'),
+              api.get('/switches?public=true&status=waiting_for_participant'),
+              api.get('/users/associates')
+            ]);
       
                   // Handle successful responses
             if (ongoingData.status === 'fulfilled') {
               // Merge dares from both creator and participant responses
               const allActiveDares = [];
-              let totalActiveItems = 0;
-              let totalActivePages = 1;
+              let creatorTotal = 0;
+              let participantTotal = 0;
               
-              ongoingData.value.forEach(response => {
+              ongoingData.value.forEach((response, index) => {
                 if (response.status === 200) {
                   const responseData = response.data;
                   const dares = responseData.dares || responseData;
@@ -506,10 +520,15 @@ export default function DarePerformerDashboard() {
                     allActiveDares.push(...validatedData);
                   }
                   
-                  // Extract pagination metadata (use the first response for totals)
+                  // Extract pagination metadata for each response
                   if (responseData.pagination) {
-                    totalActiveItems = Math.max(totalActiveItems, responseData.pagination.total || 0);
-                    totalActivePages = Math.max(totalActivePages, responseData.pagination.pages || 1);
+                    if (index === 0) {
+                      // First response is creator dares
+                      creatorTotal = responseData.pagination.total || 0;
+                    } else if (index === 1) {
+                      // Second response is participant dares
+                      participantTotal = responseData.pagination.total || 0;
+                    }
                   }
                 }
               });
@@ -518,6 +537,30 @@ export default function DarePerformerDashboard() {
               const uniqueActiveDares = allActiveDares.filter((dare, index, self) => 
                 index === self.findIndex(d => d._id === dare._id)
               );
+              
+              // Calculate total items from the count API calls
+              let totalActiveItems = 0;
+              if (activeCounts.status === 'fulfilled') {
+                activeCounts.value.forEach((response, index) => {
+                  if (response.status === 200 && response.data.pagination) {
+                    if (index === 0) {
+                      // Creator dares total
+                      totalActiveItems += response.data.pagination.total || 0;
+                    } else if (index === 1) {
+                      // Participant dares total
+                      totalActiveItems += response.data.pagination.total || 0;
+                    }
+                  }
+                });
+              }
+              
+              // Fallback to actual unique dares if count API fails
+              if (totalActiveItems === 0) {
+                totalActiveItems = uniqueActiveDares.length;
+              }
+              
+              // Calculate total pages based on total items
+              const totalActivePages = Math.max(1, Math.ceil(totalActiveItems / ITEMS_PER_PAGE));
               
               // Update pagination state
               setActiveTotalItems(totalActiveItems);
@@ -528,6 +571,7 @@ export default function DarePerformerDashboard() {
                 allActiveDares,
                 uniqueActiveDares,
                 count: uniqueActiveDares.length,
+                activeCounts: activeCounts.status === 'fulfilled' ? activeCounts.value.map(r => r.data.pagination) : 'failed',
                 totalItems: totalActiveItems,
                 totalPages: totalActivePages,
                 firstDare: uniqueActiveDares?.[0],
@@ -540,10 +584,10 @@ export default function DarePerformerDashboard() {
       if (completedData.status === 'fulfilled') {
         // Merge dares from both creator and participant responses
         const allCompletedDares = [];
-        let totalCompletedItems = 0;
-        let totalCompletedPages = 1;
+        let creatorTotal = 0;
+        let participantTotal = 0;
         
-        completedData.value.forEach(response => {
+        completedData.value.forEach((response, index) => {
           if (response.status === 200) {
             const responseData = response.data;
             const dares = responseData.dares || responseData;
@@ -552,10 +596,15 @@ export default function DarePerformerDashboard() {
               allCompletedDares.push(...validatedData);
             }
             
-            // Extract pagination metadata (use the first response for totals)
+            // Extract pagination metadata for each response
             if (responseData.pagination) {
-              totalCompletedItems = Math.max(totalCompletedItems, responseData.pagination.total || 0);
-              totalCompletedPages = Math.max(totalCompletedPages, responseData.pagination.pages || 1);
+              if (index === 0) {
+                // First response is creator dares
+                creatorTotal = responseData.pagination.total || 0;
+              } else if (index === 1) {
+                // Second response is participant dares
+                participantTotal = responseData.pagination.total || 0;
+              }
             }
           }
         });
@@ -564,6 +613,30 @@ export default function DarePerformerDashboard() {
         const uniqueCompletedDares = allCompletedDares.filter((dare, index, self) => 
           index === self.findIndex(d => d._id === dare._id)
         );
+        
+        // Calculate total items from the count API calls
+        let totalCompletedItems = 0;
+        if (completedCounts.status === 'fulfilled') {
+          completedCounts.value.forEach((response, index) => {
+            if (response.status === 200 && response.data.pagination) {
+              if (index === 0) {
+                // Creator dares total
+                totalCompletedItems += response.data.pagination.total || 0;
+              } else if (index === 1) {
+                // Participant dares total
+                totalCompletedItems += response.data.pagination.total || 0;
+              }
+            }
+          });
+        }
+        
+        // Fallback to actual unique dares if count API fails
+        if (totalCompletedItems === 0) {
+          totalCompletedItems = uniqueCompletedDares.length;
+        }
+        
+        // Calculate total pages based on total items
+        const totalCompletedPages = Math.max(1, Math.ceil(totalCompletedItems / ITEMS_PER_PAGE));
         
         // Update pagination state
         setCompletedTotalItems(totalCompletedItems);
@@ -574,6 +647,7 @@ export default function DarePerformerDashboard() {
           allCompletedDares,
           uniqueCompletedDares,
           count: uniqueCompletedDares.length,
+          completedCounts: completedCounts.status === 'fulfilled' ? completedCounts.value.map(r => r.data.pagination) : 'failed',
           totalItems: totalCompletedItems,
           totalPages: totalCompletedPages
         });
@@ -961,7 +1035,7 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Active Dares Pagination */}
-                {activeTotalPages > 1 && (
+                {activeTotalPages > 1 && activeTotalItems > 0 && (
                   <div className="mt-6">
                     <Pagination
                       currentPage={activePage}
@@ -1041,7 +1115,7 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Completed Dares Pagination */}
-                {completedTotalPages > 1 && (
+                {completedTotalPages > 1 && completedTotalItems > 0 && (
                   <div className="mt-6">
                     <Pagination
                       currentPage={completedPage}
