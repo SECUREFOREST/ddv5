@@ -490,11 +490,8 @@ export default function DarePerformerDashboard() {
                 api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`),
                 api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`)
               ]),
-              // Get total counts for switch games (both as creator and participant)
-              Promise.all([
-                api.get(`/switches?creator=${currentUserId}&limit=1`),
-                api.get(`/switches?participant=${currentUserId}&limit=1`)
-              ])
+              // Get total count for switch games using the performer endpoint
+              api.get(`/switches/performer?limit=1`)
             ]);
 
             // Parallel data fetching for better performance with server-side pagination
@@ -509,11 +506,8 @@ export default function DarePerformerDashboard() {
                 api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
                 api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
-              // Switch games: both as creator and participant with pagination
-              Promise.all([
-                api.get(`/switches?creator=${currentUserId}&page=${switchPage}&limit=${ITEMS_PER_PAGE}`),
-                api.get(`/switches?participant=${currentUserId}&page=${switchPage}&limit=${ITEMS_PER_PAGE}`)
-              ]),
+              // Switch games: using performer endpoint with pagination
+              api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}`),
               api.get('/dares?public=true&limit=10'),
               api.get('/switches?public=true&status=waiting_for_participant'),
               api.get('/users/associates')
@@ -671,61 +665,24 @@ export default function DarePerformerDashboard() {
       }
       
       if (switchData.status === 'fulfilled') {
-        // Merge switch games from both creator and participant responses
-        const allSwitchGames = [];
-        let creatorTotal = 0;
-        let participantTotal = 0;
+        // Handle switch games response with pagination
+        const responseData = switchData.value.data;
+        const games = responseData.games || responseData;
+        const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         
-        switchData.value.forEach((response, index) => {
-          if (response.status === 200) {
-            const responseData = response.data;
-            const games = responseData.games || responseData;
-            const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-            if (Array.isArray(validatedData)) {
-              allSwitchGames.push(...validatedData);
-            }
-            
-            // Extract pagination metadata for each response
-            if (responseData.pagination) {
-              if (index === 0) {
-                // First response is creator games
-                creatorTotal = responseData.pagination.total || 0;
-              } else if (index === 1) {
-                // Second response is participant games
-                participantTotal = responseData.pagination.total || 0;
-              }
-            }
-          }
-        });
-        
-        // Remove duplicates by _id
-        const uniqueSwitchGames = allSwitchGames.filter((game, index, self) => 
-          index === self.findIndex(g => g._id === game._id)
-        );
-        
-        // Calculate total items from the count API calls
+        // Extract pagination metadata
         let totalSwitchItems = 0;
-        if (switchCounts.status === 'fulfilled') {
-          switchCounts.value.forEach((response, index) => {
-            if (response.status === 200 && response.data.pagination) {
-              if (index === 0) {
-                // Creator games total
-                totalSwitchItems += response.data.pagination.total || 0;
-              } else if (index === 1) {
-                // Participant games total
-                totalSwitchItems += response.data.pagination.total || 0;
-              }
-            }
-          });
+        let totalSwitchPages = 1;
+        
+        if (responseData.pagination) {
+          totalSwitchItems = responseData.pagination.total || 0;
+          totalSwitchPages = responseData.pagination.pages || 1;
         }
         
-        // Fallback to actual unique games if count API fails
+        // Fallback to actual games if pagination metadata is missing
         if (totalSwitchItems === 0) {
-          totalSwitchItems = uniqueSwitchGames.length;
+          totalSwitchItems = Array.isArray(validatedData) ? validatedData.length : 0;
         }
-        
-        // Calculate total pages based on total items
-        const totalSwitchPages = Math.max(1, Math.ceil(totalSwitchItems / ITEMS_PER_PAGE));
         
         // Update pagination state
         setSwitchTotalItems(totalSwitchItems);
@@ -733,15 +690,14 @@ export default function DarePerformerDashboard() {
         
         // Debug: Log the switch games data structure
         console.log('Switch games data:', {
-          allSwitchGames,
-          uniqueSwitchGames,
-          count: uniqueSwitchGames.length,
-          switchCounts: switchCounts.status === 'fulfilled' ? switchCounts.value.map(r => r.data.pagination) : 'failed',
+          games: validatedData,
+          count: Array.isArray(validatedData) ? validatedData.length : 0,
+          switchCounts: switchCounts.status === 'fulfilled' ? switchCounts.value.data.pagination : 'failed',
           totalItems: totalSwitchItems,
           totalPages: totalSwitchPages
         });
 
-        setMySwitchGames(uniqueSwitchGames);
+        setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicData.status === 'fulfilled') {
@@ -974,11 +930,11 @@ export default function DarePerformerDashboard() {
             
             <SmartStatsCard
               title="Switch Games"
-              value={mySwitchGames.length}
+              value={switchTotalItems}
               icon={FireIconFilled}
               color="purple"
               loading={dataLoading.switchGames}
-              trend={calculateTrend(mySwitchGames.length, 'switchGames')}
+              trend={calculateTrend(switchTotalItems, 'switchGames')}
               onClick={() => setActiveTab('switch-games')}
             />
             

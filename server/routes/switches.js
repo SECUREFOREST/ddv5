@@ -108,12 +108,33 @@ router.get('/performer', auth, async (req, res) => {
         filter.status = status;
       }
     }
+    
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const total = await SwitchGame.countDocuments(filter);
+    
+    // Get paginated games
     const games = await SwitchGame.find(filter)
       .populate('creator', 'username fullName avatar')
       .populate('participant', 'username fullName avatar')
       .populate('winner', 'username fullName avatar')
+      .skip(skip)
+      .limit(limit)
       .sort({ updatedAt: -1 });
-    res.json(games);
+    
+    res.json({
+      games,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch performer switch games.' });
   }
