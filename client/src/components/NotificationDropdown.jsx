@@ -17,7 +17,7 @@ function timeAgo(date) {
 // Comprehensive notification message generator
 function getNotificationMessage(n) {
   // Try to extract actor, target, dare, etc.
-  const actor = n.actor?.fullName || n.actor?.username || n.actorName || 'Someone';
+  const actor = n.sender?.fullName || n.sender?.username || n.actor?.fullName || n.actor?.username || n.actorName || 'Someone';
   const dare = n.dareTitle || n.dare?.title || n.targetTitle || '';
   switch (n.type) {
     case 'dare_created':
@@ -95,7 +95,17 @@ export default function NotificationDropdown() {
       const response = await api.get('/notifications');
       
       if (response.data) {
-        const notificationsData = validateApiResponse(response, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        // Notifications API returns data directly, not wrapped in a notifications property
+        const notificationsData = validateApiResponse(response.data, API_RESPONSE_TYPES.ACTIVITY_ARRAY);
+        
+        // Debug: Log the notification data structure
+        console.log('Notifications data:', {
+          raw: response.data,
+          validated: notificationsData,
+          firstNotification: notificationsData?.[0],
+          sender: notificationsData?.[0]?.sender
+        });
+        
         setNotifications(notificationsData);
 
       } else {
