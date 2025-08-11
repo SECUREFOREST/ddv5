@@ -1035,13 +1035,22 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Active Dares Pagination */}
-                {activeTotalPages > 1 && activeTotalItems > 0 && (
+                {activeTotalPages > 1 && activeTotalItems > 0 && 
+                 Number.isInteger(activePage) && Number.isInteger(activeTotalPages) && Number.isInteger(activeTotalItems) && (
                   <div className="mt-6">
+                    {/* Debug: Log pagination values */}
+                    {console.log('Active Dares Pagination Props:', {
+                      currentPage: activePage,
+                      totalPages: activeTotalPages,
+                      totalItems: activeTotalItems,
+                      pageSize: ITEMS_PER_PAGE
+                    })}
                     <Pagination
                       currentPage={activePage}
                       totalPages={activeTotalPages}
                       onPageChange={handleActivePageChange}
                       totalItems={activeTotalItems}
+                      pageSize={ITEMS_PER_PAGE}
                     />
                   </div>
                 )}
@@ -1115,13 +1124,22 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Completed Dares Pagination */}
-                {completedTotalPages > 1 && completedTotalItems > 0 && (
+                {completedTotalPages > 1 && completedTotalItems > 0 && 
+                 Number.isInteger(completedPage) && Number.isInteger(completedTotalPages) && Number.isInteger(completedTotalItems) && (
                   <div className="mt-6">
+                    {/* Debug: Log pagination values */}
+                    {console.log('Completed Dares Pagination Props:', {
+                      currentPage: completedPage,
+                      totalPages: completedTotalPages,
+                      totalItems: completedTotalItems,
+                      pageSize: ITEMS_PER_PAGE
+                    })}
                     <Pagination
                       currentPage={completedPage}
                       totalPages={completedTotalPages}
                       onPageChange={handleCompletedPageChange}
                       totalItems={completedTotalItems}
+                      pageSize={ITEMS_PER_PAGE}
                     />
                   </div>
                 )}
