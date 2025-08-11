@@ -179,6 +179,15 @@ export default function Leaderboard() {
     hasFetched
   });
 
+  // Debug render decision
+  console.log('Render decision:', {
+    shouldShowLoading,
+    hasData: users.length > 0,
+    hasError: !!error,
+    willShowSkeleton: shouldShowLoading,
+    willShowData: !shouldShowLoading && users.length > 0
+  });
+
   // Determine if we should show loading
   const shouldShowLoading = loading && users.length === 0;
   
