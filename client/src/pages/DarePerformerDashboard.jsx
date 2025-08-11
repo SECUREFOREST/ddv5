@@ -421,6 +421,12 @@ export default function DarePerformerDashboard() {
   const [completedTotalPages, setCompletedTotalPages] = useState(1);
   const [activeTotalItems, setActiveTotalItems] = useState(0);
   const [completedTotalItems, setCompletedTotalItems] = useState(0);
+  
+  // Pagination state for switch games (server-side)
+  const [switchPage, setSwitchPage] = useState(1);
+  const [switchTotalPages, setSwitchTotalPages] = useState(1);
+  const [switchTotalItems, setSwitchTotalItems] = useState(0);
+  
   const ITEMS_PER_PAGE = 8;
   
 
@@ -473,7 +479,7 @@ export default function DarePerformerDashboard() {
       ]);
       
                               // Get total counts first for proper pagination
-            const [activeCounts, completedCounts] = await Promise.allSettled([
+            const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant)
               Promise.all([
                 api.get(`/dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&limit=1`),
@@ -483,6 +489,11 @@ export default function DarePerformerDashboard() {
               Promise.all([
                 api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`),
                 api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`)
+              ]),
+              // Get total counts for switch games (both as creator and participant)
+              Promise.all([
+                api.get(`/switches?creator=${currentUserId}&limit=1`),
+                api.get(`/switches?participant=${currentUserId}&limit=1`)
               ])
             ]);
 
@@ -498,7 +509,11 @@ export default function DarePerformerDashboard() {
                 api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
                 api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
-              api.get('/switches/performer'),
+              // Switch games: both as creator and participant with pagination
+              Promise.all([
+                api.get(`/switches?creator=${currentUserId}&page=${switchPage}&limit=${ITEMS_PER_PAGE}`),
+                api.get(`/switches?participant=${currentUserId}&page=${switchPage}&limit=${ITEMS_PER_PAGE}`)
+              ]),
               api.get('/dares?public=true&limit=10'),
               api.get('/switches?public=true&status=waiting_for_participant'),
               api.get('/users/associates')
@@ -656,9 +671,77 @@ export default function DarePerformerDashboard() {
       }
       
       if (switchData.status === 'fulfilled') {
-        const validatedData = validateApiResponse(switchData.value.data, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        // Merge switch games from both creator and participant responses
+        const allSwitchGames = [];
+        let creatorTotal = 0;
+        let participantTotal = 0;
+        
+        switchData.value.forEach((response, index) => {
+          if (response.status === 200) {
+            const responseData = response.data;
+            const games = responseData.games || responseData;
+            const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+            if (Array.isArray(validatedData)) {
+              allSwitchGames.push(...validatedData);
+            }
+            
+            // Extract pagination metadata for each response
+            if (responseData.pagination) {
+              if (index === 0) {
+                // First response is creator games
+                creatorTotal = responseData.pagination.total || 0;
+              } else if (index === 1) {
+                // Second response is participant games
+                participantTotal = responseData.pagination.total || 0;
+              }
+            }
+          }
+        });
+        
+        // Remove duplicates by _id
+        const uniqueSwitchGames = allSwitchGames.filter((game, index, self) => 
+          index === self.findIndex(g => g._id === game._id)
+        );
+        
+        // Calculate total items from the count API calls
+        let totalSwitchItems = 0;
+        if (switchCounts.status === 'fulfilled') {
+          switchCounts.value.forEach((response, index) => {
+            if (response.status === 200 && response.data.pagination) {
+              if (index === 0) {
+                // Creator games total
+                totalSwitchItems += response.data.pagination.total || 0;
+              } else if (index === 1) {
+                // Participant games total
+                totalSwitchItems += response.data.pagination.total || 0;
+              }
+            }
+          });
+        }
+        
+        // Fallback to actual unique games if count API fails
+        if (totalSwitchItems === 0) {
+          totalSwitchItems = uniqueSwitchGames.length;
+        }
+        
+        // Calculate total pages based on total items
+        const totalSwitchPages = Math.max(1, Math.ceil(totalSwitchItems / ITEMS_PER_PAGE));
+        
+        // Update pagination state
+        setSwitchTotalItems(totalSwitchItems);
+        setSwitchTotalPages(totalSwitchPages);
+        
+        // Debug: Log the switch games data structure
+        console.log('Switch games data:', {
+          allSwitchGames,
+          uniqueSwitchGames,
+          count: uniqueSwitchGames.length,
+          switchCounts: switchCounts.status === 'fulfilled' ? switchCounts.value.map(r => r.data.pagination) : 'failed',
+          totalItems: totalSwitchItems,
+          totalPages: totalSwitchPages
+        });
 
-        setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
+        setMySwitchGames(uniqueSwitchGames);
       }
       
       if (publicData.status === 'fulfilled') {
@@ -722,7 +805,7 @@ export default function DarePerformerDashboard() {
         associates: false
       });
     }
-  }, [currentUserId, activePage, completedPage]);
+  }, [currentUserId, activePage, completedPage, switchPage]);
   
   // 2025: Gesture handlers
   const handleSwipe = (direction) => {
@@ -802,10 +885,10 @@ export default function DarePerformerDashboard() {
   
   // Refetch data when pagination changes
   useEffect(() => {
-    if (activePage > 1 || completedPage > 1) {
+    if (activePage > 1 || completedPage > 1 || switchPage > 1) {
       fetchData();
     }
-  }, [activePage, completedPage, fetchData]);
+  }, [activePage, completedPage, switchPage, fetchData]);
   
   // Debug: Log pagination state changes
   useEffect(() => {
@@ -816,9 +899,12 @@ export default function DarePerformerDashboard() {
       completedPage,
       completedTotalPages,
       completedTotalItems,
+      switchPage,
+      switchTotalPages,
+      switchTotalItems,
       ITEMS_PER_PAGE
     });
-  }, [activePage, activeTotalPages, activeTotalItems, completedPage, completedTotalPages, completedTotalItems]);
+  }, [activePage, activeTotalPages, activeTotalItems, completedPage, completedTotalPages, completedTotalItems, switchPage, switchTotalPages, switchTotalItems]);
   
   useEffect(() => {
     // 2025: Auto-refresh on focus
@@ -845,10 +931,15 @@ export default function DarePerformerDashboard() {
     setCompletedPage(newPage);
   };
   
+  const handleSwitchPageChange = (newPage) => {
+    setSwitchPage(newPage);
+  };
+  
   // Reset pagination when switching tabs or refreshing
   const resetPagination = () => {
     setActivePage(1);
     setCompletedPage(1);
+    setSwitchPage(1);
   };
   
   // 2025: Smart tabs with modern interactions
@@ -994,7 +1085,7 @@ export default function DarePerformerDashboard() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <ClockIcon className="w-6 h-6 text-blue-400" />
-                Active Dares ({ongoing.length})
+                Active Dares ({activeTotalItems})
               </h3>
               <Search
                 placeholder="Search active dares..."
@@ -1089,7 +1180,7 @@ export default function DarePerformerDashboard() {
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <TrophyIcon className="w-6 h-6 text-green-400" />
-              Completed Dares ({completed.length})
+              Completed Dares ({completedTotalItems})
             </h3>
             {completed.length === 0 ? (
                 <div className="text-center py-12">
@@ -1178,7 +1269,7 @@ export default function DarePerformerDashboard() {
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <FireIcon className="w-6 h-6 text-purple-400" />
-              Switch Games ({mySwitchGames.length})
+              Switch Games ({switchTotalItems})
             </h3>
             {mySwitchGames.length === 0 ? (
               <div className="text-center py-12">
@@ -1231,6 +1322,27 @@ export default function DarePerformerDashboard() {
                     }
                   />
               ))}
+              
+              {/* Switch Games Pagination */}
+              {switchTotalPages > 1 && switchTotalItems > 0 && 
+               Number.isInteger(switchPage) && Number.isInteger(switchTotalPages) && Number.isInteger(switchTotalItems) && (
+                <div className="mt-6">
+                  {/* Debug: Log pagination values */}
+                  {console.log('Switch Games Pagination Props:', {
+                    currentPage: switchPage,
+                    totalPages: switchTotalPages,
+                    totalItems: switchTotalItems,
+                    pageSize: ITEMS_PER_PAGE
+                  })}
+                  <Pagination
+                    currentPage={switchPage}
+                    totalPages={switchTotalPages}
+                    onPageChange={handleSwitchPageChange}
+                    totalItems={switchTotalItems}
+                    pageSize={ITEMS_PER_PAGE}
+                  />
+                </div>
+              )}
             </div>
             )}
           </NeumorphicCard>
