@@ -13,8 +13,54 @@ const { logAudit } = require('../utils/auditLog');
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+
+// Helper function to clean up expired proof submissions
+async function cleanupExpiredProofs() {
+  try {
+    const now = new Date();
+    const expiredGames = await SwitchGame.find({
+      status: { $in: ['awaiting_proof', 'proof_submitted'] },
+      proofExpiresAt: { $lt: now }
+    });
+    
+    for (const game of expiredGames) {
+      if (game.status === 'awaiting_proof') {
+        // Game expired without proof submission
+        game.status = 'expired';
+        game.updatedAt = new Date();
+        await game.save();
+        
+        // Notify both players
+        if (game.creator) {
+          await sendNotification(game.creator, 'switchgame_expired', 'Your switch game expired without proof submission.', null);
+        }
+        if (game.participant) {
+          await sendNotification(game.participant, 'switchgame_expired', 'Your switch game expired without proof submission.', null);
+        }
+      } else if (game.status === 'proof_submitted' && game.proof) {
+        // Proof expired
+        game.proof = null;
+        game.status = 'awaiting_proof';
+        game.proofExpiresAt = null;
+        game.updatedAt = new Date();
+        await game.save();
+        
+        // Notify the loser that proof expired
+        if (game.loser) {
+          await sendNotification(game.loser, 'switchgame_proof_expired', 'Your proof for the switch game has expired. Please resubmit.', null);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error cleaning up expired proofs:', error);
+  }
+}
+
 router.get('/', auth, async (req, res) => {
   try {
+    // Clean up expired proofs before fetching games
+    await cleanupExpiredProofs();
+    
     if (req.query.id) {
       const game = await SwitchGame.findById(req.query.id)
         .populate('creator', 'username fullName avatar participant winner proof.user');
@@ -547,7 +593,10 @@ router.post('/:id/move',
             // Both lose - both must perform each other's demands
             game.bothLose = true;
             game.status = 'awaiting_proof';
-            game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            // Set proof deadline based on participant's content deletion preference
+            const proofDeadline = game.contentDeletion === 'delete_after_view' ? 24 : 
+                                 game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+            game.proofExpiresAt = new Date(Date.now() + proofDeadline * 60 * 60 * 1000);
             // Both players need to submit proof
             await logActivity({ type: 'switchgame_draw_rock', user: game.creator, switchGame: game._id });
             await logActivity({ type: 'switchgame_draw_rock', user: game.participant, switchGame: game._id });
@@ -572,7 +621,10 @@ router.post('/:id/move',
               loser = game.creator;
             }
             game.status = 'awaiting_proof';
-            game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            // Set proof deadline based on participant's content deletion preference
+            const proofDeadline = game.contentDeletion === 'delete_after_view' ? 24 : 
+                                 game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+            game.proofExpiresAt = new Date(Date.now() + proofDeadline * 60 * 60 * 1000);
             await logActivity({ type: 'switchgame_draw_scissors', user: winner, switchGame: game._id });
           }
         } else {
@@ -596,7 +648,10 @@ router.post('/:id/move',
             loser = game.creator;
           }
           game.status = 'awaiting_proof';
-          game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+          // Set proof deadline based on participant's content deletion preference
+          const proofDeadline = game.contentDeletion === 'delete_after_view' ? 24 : 
+                               game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+          game.proofExpiresAt = new Date(Date.now() + proofDeadline * 60 * 60 * 1000);
         }
       }
       await game.save();
@@ -661,7 +716,10 @@ router.post('/:id/proof',
       // Submit proof
       game.proof = { user: userId, text };
       game.status = 'proof_submitted';
-      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48h from now
+      // Set proof expiration based on participant's content deletion preference
+      const proofExpiration = game.contentDeletion === 'delete_after_view' ? 24 : 
+                              game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+      game.proofExpiresAt = new Date(Date.now() + proofExpiration * 60 * 60 * 1000);
       game.expireProofAfterView = expireAfterView || false;
       await game.save();
       res.json({ message: 'Proof submitted successfully.', game });
@@ -680,7 +738,10 @@ router.patch('/:id/proof-viewed', auth, async (req, res) => {
     if (!game.creator.equals(userId)) throw new Error('Only the creator can mark proof as viewed.');
     if (game.expireProofAfterView && !game.proofViewedAt) {
       game.proofViewedAt = new Date();
-      game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+      // Set proof expiration based on participant's content deletion preference
+      const proofExpiration = game.contentDeletion === 'delete_after_view' ? 24 : 
+                              game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+      game.proofExpiresAt = new Date(Date.now() + proofExpiration * 60 * 60 * 1000);
       await game.save();
     }
     res.json(game);
@@ -855,5 +916,8 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 
+
+// Schedule cleanup of expired proofs every hour
+setInterval(cleanupExpiredProofs, 60 * 60 * 1000);
 
 module.exports = router; 

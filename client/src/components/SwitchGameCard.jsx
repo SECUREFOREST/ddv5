@@ -14,15 +14,26 @@ function StatusBadge({ status }) {
       badgeClass = 'bg-info text-info-contrast rounded-none';
       text = 'In Progress';
       break;
+    case 'awaiting_proof':
+      badgeClass = 'bg-warning text-warning-contrast rounded-none';
+      text = 'Awaiting Proof';
+      break;
+    case 'proof_submitted':
+      badgeClass = 'bg-info text-info-contrast rounded-none';
+      text = 'Proof Submitted';
+      break;
     case 'completed':
       badgeClass = 'bg-success text-success-contrast rounded-none';
       text = 'Completed';
       break;
-            case 'chickened_out':
+    case 'chickened_out':
       badgeClass = 'bg-danger text-danger-contrast rounded-none';
       text = 'Chickened Out';
       break;
-
+    case 'expired':
+      badgeClass = 'bg-red-900 text-red-200 rounded-none';
+      text = 'Expired';
+      break;
     default:
       text = status ? status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
   }
@@ -44,10 +55,10 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const isCreator = game.creator && (game.creator._id === currentUserId || game.creator.id === currentUserId);
   const isParticipant = game.participant && (game.participant._id === currentUserId || game.participant.id === currentUserId);
   // Determine available actions
-  const canSubmitProof = isLoser && game.status === 'completed' && (!game.proof || !game.proof.submitted);
-  const canReviewProof = isWinner && game.status === 'completed' && game.proof && game.proof.submitted && !game.proof.reviewed;
+  const canSubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && (!game.proof || !game.proof.user);
+  const canReviewProof = isWinner && game.status === 'proof_submitted' && game.proof && !game.proof.review?.action;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => g.user === currentUserId);
-  const canChickenOut = isLoser && game.status === 'in_progress';
+  const canChickenOut = (isCreator || isParticipant) && game.status === 'in_progress';
 
   // Helper for clickable profile links
   const userProfileLink = (user) => {
@@ -101,6 +112,122 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
           </Link>
         )}
       </div>
+      {/* Game Outcome Section */}
+      {game.status === 'awaiting_proof' && (
+        <div className="mt-3 p-3 bg-neutral-800/50 border border-neutral-700 rounded">
+          <h4 className="text-sm font-semibold text-white mb-2">Game Outcome</h4>
+          
+          {/* Show the moves that were played */}
+          <div className="mb-3 p-2 bg-neutral-700/50 rounded text-xs">
+            <div className="text-neutral-300 mb-1">
+              <strong>Moves Played:</strong>
+            </div>
+            <div className="flex gap-4">
+              <div>
+                <span className="text-neutral-400">Creator:</span>
+                <span className="ml-1 text-white">
+                  {game.creatorDare?.move ? `🪨 ${game.creatorDare.move.toUpperCase()}` : 'Not played'}
+                </span>
+              </div>
+              <div>
+                <span className="text-neutral-400">Participant:</span>
+                <span className="ml-1 text-white">
+                  {game.participantDare?.move ? `🪨 ${game.participantDare.move.toUpperCase()}` : 'Not played'}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {game.bothLose && (
+            <div className="text-amber-400 text-sm">
+              🪨 <strong>Rock vs Rock - Both Lose!</strong><br/>
+              Both players must perform each other's dares and submit proof.
+            </div>
+          )}
+          {game.bothWin && (
+            <div className="text-green-400 text-sm">
+              📄 <strong>Paper vs Paper - Both Win!</strong><br/>
+              No one has to do anything - it's a draw!
+            </div>
+          )}
+          {game.drawType === 'scissors' && (
+            <div className="text-blue-400 text-sm">
+              ✂️ <strong>Scissors vs Scissors - Coin Flip Result</strong><br/>
+              {game.winner ? `${game.winner?.fullName || game.winner?.username} won the coin flip` : 'Winner determined by coin flip'}
+            </div>
+          )}
+          {!game.bothLose && !game.bothWin && game.drawType !== 'scissors' && (
+            <div className="text-sm">
+              {game.winner && (
+                <div className="text-green-400 mb-1">
+                  🏆 <strong>Winner:</strong> {game.winner?.fullName || game.winner?.username}
+                  {isWinner && <span className="ml-2 text-green-600 font-semibold">(You won!)</span>}
+                </div>
+              )}
+              {game.loser && (
+                <div className="text-red-400 mb-1">
+                  ❌ <strong>Loser:</strong> {game.loser?.fullName || game.loser?.username}
+                  {isLoser && <span className="ml-2 text-red-600 font-semibold">(You lost - submit proof!)</span>}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Show what dares need to be performed */}
+          <div className="mt-3 p-2 bg-neutral-700/50 rounded text-xs">
+            <div className="text-neutral-300 mb-1">
+              <strong>Dares to Perform:</strong>
+            </div>
+            {game.bothLose ? (
+              <div className="space-y-2">
+                <div>
+                  <span className="text-neutral-400">Creator must do:</span>
+                  <div className="text-white ml-2 mt-1 p-1 bg-neutral-600 rounded">
+                    {game.participantDare?.description || 'No dare description'}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-neutral-400">Participant must do:</span>
+                  <div className="text-white ml-2 mt-1 p-1 bg-neutral-600 rounded">
+                    {game.creatorDare?.description || 'No dare description'}
+                  </div>
+                </div>
+              </div>
+            ) : game.loser ? (
+              <div>
+                <span className="text-neutral-400">
+                  {game.loser === game.creator ? 'Creator' : 'Participant'} must do:
+                </span>
+                <div className="text-white ml-2 mt-1 p-1 bg-neutral-600 rounded">
+                  {game.loser === game.creator 
+                    ? (game.participantDare?.description || 'No dare description')
+                    : (game.creatorDare?.description || 'No dare description')
+                  }
+                </div>
+              </div>
+            ) : (
+              <div className="text-neutral-400">No dares to perform</div>
+            )}
+          </div>
+          
+          {/* Show proof expiration info */}
+          {game.proofExpiresAt && (
+            <div className="mt-3 p-2 bg-amber-900/20 border border-amber-700/50 rounded text-xs">
+              <div className="text-amber-400">
+                <strong>⏰ Proof Deadline:</strong> {new Date(game.proofExpiresAt).toLocaleString()}
+              </div>
+              <div className="text-amber-300 text-xs mt-1">
+                {new Date(game.proofExpiresAt) > new Date() 
+                  ? `Time remaining to submit proof (${game.contentDeletion === 'delete_after_view' ? '24 hours' : 
+                                                       game.contentDeletion === 'delete_after_30_days' ? '30 days' : '7 days'})`
+                  : 'Proof deadline has passed'
+                }
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Details Section */}
       <div className="mt-2 text-xs text-neutral-400">
         {game.proof && (
@@ -109,12 +236,18 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {game.grades && game.grades.length > 0 && (
           <div>Grade: {game.grades.map(g => g.grade).join(', ')}{game.feedback && ` | Feedback: ${game.feedback}`}</div>
         )}
-        <div>Winner: {game.winner ? (game.winner?.fullName || game.winner?.username || 'Unknown') : 'N/A'}{isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}</div>
+        {game.status !== 'awaiting_proof' && (
+          <div>Winner: {game.winner ? (game.winner?.fullName || game.winner?.username || 'Unknown') : 'N/A'}{isWinner && <span className="ml-2 text-green-600 font-semibold">(You won)</span>}</div>
+        )}
         <div>Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : 'N/A'}</div>
       </div>
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-2">
-        {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>Submit Proof</button>}
+        {canSubmitProof && (
+          <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>
+            {game.bothLose ? 'Submit Proof' : 'Submit Proof'}
+          </button>
+        )}
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
         {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}
