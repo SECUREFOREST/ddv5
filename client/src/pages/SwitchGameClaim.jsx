@@ -228,142 +228,113 @@ export default function SwitchGameClaim() {
   return (
     <div className="min-h-screen bg-black">
       <ContentContainer>
-        <MainContent className="max-w-4xl mx-auto px-4 py-8">
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+        
+        <MainContent className="max-w-2xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-2xl shadow-2xl shadow-green-600/25">
-                <FireIcon className="w-8 h-8 text-white" />
+              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
+                <UserIcon className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Join Switch Game</h1>
-            <p className="text-xl sm:text-2xl text-neutral-300">
-              Challenge the creator in a game of Rock, Paper, Scissors
-            </p>
-          </div>
-
-          {/* Game Info Card */}
-          <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-600/30 rounded-2xl p-8 mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-green-600/20 rounded-xl">
-                <FireIcon className="w-8 h-8 text-green-400" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-green-400">Game Details</h2>
-                <p className="text-neutral-300">Review the game before joining</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Creator Info */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-green-300 flex items-center gap-2">
-                  <UserIcon className="w-5 h-5" />
-                  Creator
-                </h3>
-                <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
-                  <div className="flex items-center gap-3 mb-2">
-                    {game.creator?.avatar ? (
-                      <img 
-                        src={game.creator.avatar} 
-                        alt={game.creator.fullName || game.creator.username}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 bg-neutral-700 rounded-full flex items-center justify-center">
-                        <UserIcon className="w-6 h-6 text-neutral-400" />
-                      </div>
-                    )}
-                    <div>
-                      <div className="font-semibold text-white">
-                        {game.creator?.fullName || game.creator?.username || 'Unknown User'}
-                      </div>
-                      <div className="text-sm text-neutral-400">
-                        @{game.creator?.username || 'unknown'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Game Stats */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-green-300 flex items-center gap-2">
-                  <TagIcon className="w-5 h-5" />
-                  Game Info
-                </h3>
-                <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">Difficulty:</span>
-                    <span className="text-white font-semibold capitalize">{game.creatorDare?.difficulty}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">Created:</span>
-                    <span className="text-white font-semibold">
-                      {new Date(game.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">Status:</span>
-                    <span className="text-green-400 font-semibold">Waiting for Player</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Creator's Dare Preview */}
-            <div className="mt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-green-300 flex items-center gap-2">
-                  <EyeIcon className="w-5 h-5" />
-                  Creator's Dare Preview
-                </h3>
-                <button
-                  onClick={() => setShowCreatorDare(!showCreatorDare)}
-                  className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-2"
-                >
-                  {showCreatorDare ? (
-                    <>
-                      <EyeSlashIcon className="w-4 h-4" />
-                      Hide
-                    </>
-                  ) : (
-                    <>
-                      <EyeIcon className="w-4 h-4" />
-                      Show
-                    </>
-                  )}
-                </button>
-              </div>
-              
-              {showCreatorDare ? (
-                <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
-                  <p className="text-white">{game.creatorDare?.description}</p>
-                  <div className="flex items-center gap-4 mt-3 text-sm text-neutral-400">
-                    <span>Move: {game.creatorDare?.move}</span>
-                    <span>Tags: {game.creatorDare?.tags?.join(', ') || 'None'}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30 text-center">
-                  <p className="text-neutral-400">Click "Show" to preview the creator's dare</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Join Game Form */}
-          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-              <PlayIcon className="w-6 h-6 text-green-400" />
-              Join the Game
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              {game?.creator?.fullName || game?.creator?.username || 'Someone'} wants to challenge you to a
+            </h1>
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4">
+              Switch Game
             </h2>
+          </div>
 
+          {/* Creator Information Table - OSA Style */}
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <tbody className="space-y-4">
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Name</td>
+                    <td className="py-2 text-white font-semibold">
+                      {game?.creator?.fullName || game?.creator?.username || 'Anonymous'}
+                    </td>
+                  </tr>
+                  {game?.creator?.gender && (
+                    <tr className="border-b border-neutral-700/30 pb-4">
+                      <td className="py-2 text-neutral-400 font-semibold w-1/3">Gender</td>
+                      <td className="py-2 text-white capitalize">{game.creator.gender}</td>
+                    </tr>
+                  )}
+                  {game?.creator?.age && (
+                    <tr className="border-b border-neutral-700/30 pb-4">
+                      <td className="py-2 text-neutral-400 font-semibold w-1/3">Age</td>
+                      <td className="py-2 text-white">{game.creator.age} years old</td>
+                    </tr>
+                  )}
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Games Created</td>
+                    <td className="py-2 text-white">{game?.creator?.switchGamesCreated || 0}</td>
+                  </tr>
+                  <tr className="border-b border-neutral-700/30 pb-4">
+                    <td className="py-2 text-neutral-400 font-semibold w-1/3">Games Won</td>
+                    <td className="py-2 text-white">{game?.creator?.switchGamesWon || 0}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Game Details */}
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-white mb-4">Game Details</h3>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <span className="px-3 py-1 bg-blue-600/20 border border-blue-500/30 text-blue-400 rounded-full text-sm font-medium">
+                  {game?.difficulty || 'Unknown'} Difficulty
+                </span>
+                <span className="px-3 py-1 bg-green-600/20 border border-green-500/30 text-green-400 rounded-full text-sm font-medium">
+                  {game?.move || 'Unknown'} Move
+                </span>
+              </div>
+            </div>
+            
+            {game?.tags && game.tags.length > 0 && (
+              <div className="text-center mb-4">
+                <div className="flex flex-wrap justify-center gap-2">
+                  {game.tags.map((tag, index) => (
+                    <span key={index} className="px-2 py-1 bg-neutral-700/50 border border-neutral-600/30 text-neutral-300 rounded text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Consent Question */}
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl text-center">
+            <h3 className="text-2xl font-bold text-white mb-6">
+              Will you accept this challenge?
+            </h3>
+          </div>
+
+          {/* Catch Warning */}
+          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-700/20 border border-yellow-500/30 rounded-2xl p-6 shadow-xl">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-yellow-400 mb-2">Here's how it works:</h3>
+              <p className="text-yellow-300 text-lg">
+                You'll both reveal your moves (Rock, Paper, Scissors). The loser must perform the winner's dare!
+              </p>
+            </div>
+          </div>
+
+          {/* Join Form */}
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <form onSubmit={handleJoin} className="space-y-6">
+              <h3 className="text-2xl font-bold text-white text-center mb-6">Join the Game</h3>
+              
               {/* Your Dare */}
               <FormTextarea
-                label="Your Dare (What the creator must do if you win)"
-                placeholder="Describe the dare that the creator will have to perform if you win... (Be creative but respectful)"
+                label="Your Dare (What the loser must do)"
+                placeholder="Describe the dare you want the loser to perform... (minimum 10 characters)"
                 value={demand}
                 onChange={(e) => setDemand(e.target.value)}
                 required
@@ -430,7 +401,7 @@ export default function SwitchGameClaim() {
                   ) : (
                     <>
                       <PlayIcon className="w-6 h-6" />
-                      Join Switch Game
+                      Accept Challenge
                     </>
                   )}
                 </button>
