@@ -29,7 +29,6 @@ const Advertise = React.lazy(() => import('./pages/Advertise'));
 // Dynamic imports for code-splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Profile = React.lazy(() => import('./pages/Profile'));
-const Dares = React.lazy(() => import('./pages/Dares'));
 const DareDetails = React.lazy(() => import('./pages/DareDetails'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Admin = React.lazy(() => import('./pages/Admin'));
