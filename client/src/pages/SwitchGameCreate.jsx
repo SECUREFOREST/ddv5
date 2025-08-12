@@ -31,11 +31,41 @@ export default function SwitchGameCreate() {
 
   // Ensure constants are available to prevent errors
   const safeDifficultyOptions = Array.isArray(DIFFICULTY_OPTIONS) ? DIFFICULTY_OPTIONS : [
-    { value: 'titillating', label: 'Titillating', icon: '🔥', desc: 'A gentle challenge for beginners.', longDesc: 'Perfect for first-timers or those who prefer a more relaxed dare.', examples: 'A simple dare like "Take a sip of water" or "Tell a joke"' },
-    { value: 'arousing', label: 'Arousing', icon: '💋', desc: 'A playful dare that might make you blush.', longDesc: 'Useful for playful dares or dares that require a bit of imagination.', examples: 'A dare like "Kiss your hand" or "Pretend to be a cat and meow"' },
-    { value: 'explicit', label: 'Explicit', icon: '💦', desc: 'A daring dare that might be too personal.', longDesc: 'Useful for dares that involve physical contact or personal boundaries.', examples: 'A dare like "Give a back rub" or "Pretend to be a dog and bark"' },
-    { value: 'edgy', label: 'Edgy', icon: '⚡', desc: 'A daring dare that might push boundaries.', longDesc: 'Useful for dares that involve risk or discomfort.', examples: 'A dare like "Eat a spoonful of hot sauce" or "Pretend to be a chicken and cluck"' },
-    { value: 'hardcore', label: 'Hardcore', icon: '💀', desc: 'A very daring dare that might be dangerous.', longDesc: 'Useful for dares that involve extreme physical or mental challenges.', examples: 'A dare like "Eat a whole raw onion" or "Pretend to be a zombie and moan"' }
+    { 
+      value: 'titillating', 
+      label: 'Titillating', 
+      desc: 'Fun, flirty, and easy. For beginners or light play.',
+      longDesc: 'Perfect for those new to the scene. Light teasing, playful challenges, and gentle exploration. Think flirty photos, mild dares, or simple tasks that build confidence.',
+      examples: 'Send a flirty selfie, wear something slightly revealing, or perform a simple dance'
+    },
+    { 
+      value: 'arousing', 
+      label: 'Arousing', 
+      desc: 'A bit more daring, but still approachable.',
+      longDesc: 'A step up from titillating. More sensual and intimate, but still within comfortable boundaries. Good for those with some experience who want to push their limits gently.',
+      examples: 'Strip tease, sensual massage, or intimate photography'
+    },
+    { 
+      value: 'explicit', 
+      label: 'Explicit', 
+      desc: 'Sexually explicit or more intense.',
+      longDesc: 'Directly sexual content and activities. Explicit language, nudity, and sexual dares. For experienced users who are comfortable with adult content.',
+      examples: 'Nude photos, sexual dares, or explicit roleplay scenarios'
+    },
+    { 
+      value: 'edgy', 
+      label: 'Edgy', 
+      desc: 'Pushes boundaries, not for the faint of heart.',
+      longDesc: 'Advanced content that may involve kink, BDSM elements, or taboo scenarios. Requires clear consent and understanding of limits. Not for everyone.',
+      examples: 'BDSM activities, taboo scenarios, or extreme roleplay'
+    },
+    { 
+      value: 'hardcore', 
+      label: 'Hardcore', 
+      desc: 'Extreme, risky, or very advanced.',
+      longDesc: 'The most intense level. May involve extreme kinks, public elements, or very taboo content. Only for experienced users with explicit consent and understanding of risks.',
+      examples: 'Extreme BDSM, public exposure, or very taboo scenarios'
+    }
   ];
 
   // Wait for constants to be loaded
@@ -199,7 +229,7 @@ export default function SwitchGameCreate() {
                       ? 'bg-primary/20 text-primary'
                       : 'bg-neutral-700/50 text-neutral-400'
                   }`}>
-                    {option.icon}
+                    {DIFFICULTY_ICONS[option.value] || '⚙️'}
                   </div>
 
                   {/* Content */}
