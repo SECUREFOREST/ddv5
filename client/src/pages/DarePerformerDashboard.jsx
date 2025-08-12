@@ -1212,6 +1212,8 @@ export default function DarePerformerDashboard() {
                     proof={dare.proof}
                     grades={dare.grades}
                     currentUserId={currentUserId}
+                    claimable={dare.claimable}
+                    claimToken={dare.claimToken}
                     actions={
                       <div className="flex gap-2">
                         <button
@@ -1295,6 +1297,8 @@ export default function DarePerformerDashboard() {
                     proof={dare.proof}
                     grades={dare.grades}
                     currentUserId={currentUserId}
+                    claimable={dare.claimable}
+                    claimToken={dare.claimToken}
                     actions={
                       <div className="flex gap-2">
                         <button
@@ -1603,14 +1607,24 @@ export default function DarePerformerDashboard() {
                     proof={dare.proof}
                     grades={dare.grades}
                     currentUserId={currentUserId}
+                    claimable={dare.claimable}
+                    claimToken={dare.claimToken}
                     actions={
                       <div className="flex gap-2">
                         <button
-                          onClick={() => navigate(`/dare/consent/${dare._id}`)}
+                          onClick={() => {
+                            if (dare.claimToken) {
+                              navigate(`/claim/${dare.claimToken}`);
+                            } else {
+                              // Fallback to direct dare view if no claim token
+                              navigate(`/dare/${dare._id}`);
+                            }
+                          }}
                           className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          title={dare.claimToken ? "Click to claim and perform this dare" : "Click to view dare details"}
                         >
                           <PlayIcon className="w-4 h-4" />
-                          Perform Dare
+                          {dare.claimToken ? "Claim & Perform" : "View Dare"}
                         </button>
                         <button
                           onClick={() => navigate(`/dare/${dare._id}`)}
@@ -1704,7 +1718,7 @@ export default function DarePerformerDashboard() {
                     actions={
                       <div className="flex gap-2">
                         <button
-                          onClick={() => navigate(`/switches/participate/${game._id}`)}
+                          onClick={() => navigate(`/switches/claim/${game._id}`)}
                           className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
                         >
                           <UserGroupIcon className="w-4 h-4" />

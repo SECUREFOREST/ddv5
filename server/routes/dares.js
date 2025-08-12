@@ -169,8 +169,18 @@ router.get('/', auth, async (req, res, next) => {
         })
       : dares;
     
+    // Include claim tokens for public dares that are claimable
+    const daresWithClaimTokens = filteredDares.map(dare => {
+      const dareObj = dare.toObject();
+      // Only include claim token for public, claimable dares that are waiting for participants
+      if (dare.public && dare.claimable && dare.status === 'waiting_for_participant' && !dare.claimedBy) {
+        dareObj.claimToken = dare.claimToken;
+      }
+      return dareObj;
+    });
+    
     res.json({
-      dares: filteredDares,
+      dares: daresWithClaimTokens,
       pagination: {
         page,
         limit,

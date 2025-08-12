@@ -221,6 +221,13 @@ const DareCard = memo(function DareCard({
           <div className="flex items-center gap-2">
             <DifficultyBadge level={difficulty} />
             <StatusBadge status={status} />
+            {/* Claimable indicator */}
+            {props.claimable && props.claimToken && status === 'waiting_for_participant' && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full text-xs font-medium">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Claimable
+              </div>
+            )}
           </div>
           
           {/* Tags with better spacing */}
