@@ -224,7 +224,13 @@ export default function DarePerformerDashboard() {
   
   const ITEMS_PER_PAGE = 8;
   
-
+  // Ensure arrays are always valid arrays to prevent .map() errors
+  const safePublicDares = Array.isArray(publicDares) ? publicDares : [];
+  const safePublicSwitchGames = Array.isArray(publicSwitchGames) ? publicSwitchGames : [];
+  const safeOngoing = Array.isArray(ongoing) ? ongoing : [];
+  const safeCompleted = Array.isArray(completed) ? completed : [];
+  const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
+  const safeAssociates = Array.isArray(associates) ? associates : [];
   
   // 2025: Smart notifications
   const notificationTimeoutRef = useRef(null);
@@ -1592,14 +1598,6 @@ export default function DarePerformerDashboard() {
       )
     }
   ];
-
-  // Ensure arrays are always valid arrays to prevent .map() errors
-  const safePublicDares = Array.isArray(publicDares) ? publicDares : [];
-  const safePublicSwitchGames = Array.isArray(publicSwitchGames) ? publicSwitchGames : [];
-  const safeOngoing = Array.isArray(ongoing) ? ongoing : [];
-  const safeCompleted = Array.isArray(completed) ? completed : [];
-  const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
-  const safeAssociates = Array.isArray(associates) ? associates : [];
 
   // Check if user is authenticated
   if (!user) {
