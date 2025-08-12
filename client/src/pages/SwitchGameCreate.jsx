@@ -31,11 +31,11 @@ export default function SwitchGameCreate() {
 
   // Ensure constants are available to prevent errors
   const safeDifficultyOptions = Array.isArray(DIFFICULTY_OPTIONS) ? DIFFICULTY_OPTIONS : [
-    { value: 'titillating', label: 'Titillating', icon: '🔥' },
-    { value: 'arousing', label: 'Arousing', icon: '💋' },
-    { value: 'explicit', label: 'Explicit', icon: '💦' },
-    { value: 'edgy', label: 'Edgy', icon: '⚡' },
-    { value: 'hardcore', label: 'Hardcore', icon: '💀' }
+    { value: 'titillating', label: 'Titillating', icon: '🔥', desc: 'A gentle challenge for beginners.', longDesc: 'Perfect for first-timers or those who prefer a more relaxed dare.', examples: 'A simple dare like "Take a sip of water" or "Tell a joke"' },
+    { value: 'arousing', label: 'Arousing', icon: '💋', desc: 'A playful dare that might make you blush.', longDesc: 'Useful for playful dares or dares that require a bit of imagination.', examples: 'A dare like "Kiss your hand" or "Pretend to be a cat and meow"' },
+    { value: 'explicit', label: 'Explicit', icon: '💦', desc: 'A daring dare that might be too personal.', longDesc: 'Useful for dares that involve physical contact or personal boundaries.', examples: 'A dare like "Give a back rub" or "Pretend to be a dog and bark"' },
+    { value: 'edgy', label: 'Edgy', icon: '⚡', desc: 'A daring dare that might push boundaries.', longDesc: 'Useful for dares that involve risk or discomfort.', examples: 'A dare like "Eat a spoonful of hot sauce" or "Pretend to be a chicken and cluck"' },
+    { value: 'hardcore', label: 'Hardcore', icon: '💀', desc: 'A very daring dare that might be dangerous.', longDesc: 'Useful for dares that involve extreme physical or mental challenges.', examples: 'A dare like "Eat a whole raw onion" or "Pretend to be a zombie and moan"' }
   ];
 
   // Wait for constants to be loaded
@@ -131,6 +131,22 @@ export default function SwitchGameCreate() {
     navigate(`/switches/${createdGame._id}`);
   };
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(claimLink);
+      showSuccess('Link copied to clipboard!');
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = claimLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showSuccess('Link copied to clipboard!');
+    }
+  };
+
   const handleCancelGame = async () => {
     if (!createdGame?._id) return;
     
@@ -149,71 +165,63 @@ export default function SwitchGameCreate() {
     }
   };
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(claimLink);
-      showSuccess('Link copied to clipboard!');
-    } catch (err) {
-      showError('Failed to copy link. Please copy manually.');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black">
       <ContentContainer>
-        <MainContent className="max-w-4xl mx-auto space-y-8">
-          {/* Header */}
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
+
+        <MainContent className="max-w-3xl mx-auto space-y-8">
+          {/* Header - Matching Dom Demand Create Design */}
           <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-2xl shadow-2xl shadow-green-600/25">
-                <FireIcon className="w-8 h-8 text-white" />
-              </div>
-            </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Create Switch Game</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
-              Challenge others to a game of chance where the loser must perform a dare
+              Challenge someone to a game where the loser performs your dare
             </p>
           </div>
 
-          {/* Rules & Info */}
-          <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-600/30 rounded-2xl p-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-green-600/20 rounded-xl">
-                <ShieldCheckIcon className="w-8 h-8 text-green-400" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-green-400">How Switch Games Work</h2>
-                <p className="text-neutral-300">Understand the rules before creating your game</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-neutral-200">
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-green-300 flex items-center gap-2">
-                  <RocketLaunchIcon className="w-5 h-5" />
-                  Game Setup
-                </h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• You create a dare and choose your move</li>
-                  <li>• Others join with their own dare and move</li>
-                  <li>• Rock-Paper-Scissors determines the winner</li>
-                  <li>• Loser must perform the winner's dare</li>
-                </ul>
-              </div>
-              
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-green-300 flex items-center gap-2">
-                  <EyeDropperIcon className="w-5 h-5" />
-                  Privacy & Safety
-                </h3>
-                <ul className="space-y-2 text-sm">
-                  <li>• All content expires automatically</li>
-                  <li>• Proof submissions are private</li>
-                  <li>• Consent required before participation</li>
-                  <li>• Block users you don't want to play with</li>
-                </ul>
-              </div>
-            </div>
+          {/* Difficulty Selection - Vertical Layout like Dom Demand Create */}
+          <div className="space-y-4">
+            {safeDifficultyOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setDifficulty(option.value)}
+                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
+                  difficulty === option.value
+                    ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                    : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className={`p-3 rounded-lg flex-shrink-0 ${
+                    difficulty === option.value
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-neutral-700/50 text-neutral-400'
+                  }`}>
+                    {option.icon}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="font-bold text-lg mb-2">{option.label}</div>
+                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                      {option.desc}
+                    </div>
+                    {option.longDesc && (
+                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                        {option.longDesc}
+                      </div>
+                    )}
+                    {option.examples && (
+                      <div className="text-xs text-neutral-500 italic">
+                        Examples: {option.examples}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {/* Create Switch Game Form */}
@@ -229,7 +237,7 @@ export default function SwitchGameCreate() {
               {/* Description */}
               <FormTextarea
                 label="Your Dare (What the loser must do)"
-                placeholder="Describe the dare that the loser will have to perform... (Be creative but respectful)"
+                placeholder="Describe your dare in detail... (This is what the loser will have to perform)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
@@ -238,44 +246,33 @@ export default function SwitchGameCreate() {
                 showCharacterCount
               />
 
-              {/* Difficulty & Move Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Difficulty */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-neutral-200">
-                    Difficulty Level
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <select
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                  >
-                    {safeDifficultyOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.icon} {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Move Selection */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-neutral-200">
-                    Your Move (Rock, Paper, or Scissors)
-                    <span className="text-red-400 ml-1">*</span>
-                  </label>
-                  <select
-                    value={move}
-                    onChange={(e) => setMove(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                  >
-                    <option value="rock">🪨 Rock</option>
-                    <option value="paper">📄 Paper</option>
-                    <option value="scissors">✂️ Scissors</option>
-                  </select>
+              {/* Move Selection */}
+              <div className="space-y-2">
+                <label className="block text-lg font-semibold text-white mb-3">
+                  Your Move (Rock, Paper, or Scissors)
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { value: 'rock', label: '🪨 Rock', desc: 'Strong and solid' },
+                    { value: 'paper', label: '📄 Paper', desc: 'Flexible and covering' },
+                    { value: 'scissors', label: '✂️ Scissors', desc: 'Sharp and precise' }
+                  ].map((moveOption) => (
+                    <button
+                      key={moveOption.value}
+                      type="button"
+                      onClick={() => setMove(moveOption.value)}
+                      className={`p-4 rounded-xl border-2 transition-all duration-300 text-center ${
+                        move === moveOption.value
+                          ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">{moveOption.label.split(' ')[0]}</div>
+                      <div className="font-semibold text-sm">{moveOption.label.split(' ')[1]}</div>
+                      <div className="text-xs text-neutral-400 mt-1">{moveOption.desc}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -309,7 +306,7 @@ export default function SwitchGameCreate() {
             </form>
           </div>
 
-          {/* Submit Button - Centered like Dare Difficulty Select */}
+          {/* Submit Button - Centered like Dom Demand Create */}
           <div className="text-center pt-8">
             <button
               onClick={handleCreate}
@@ -376,48 +373,33 @@ export default function SwitchGameCreate() {
                 </button>
               </div>
               <p className="text-xs text-neutral-400 mt-1">
-                Anyone with this link can join your switch game
+                Anyone with this link can join your game and challenge you!
               </p>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <button
-              onClick={handleViewGame}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <ShareIcon className="w-5 h-5" />
-              View Game
-            </button>
-            
+          <div className="flex gap-4 pt-4">
             <button
               onClick={handleCreateAnother}
-              className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 flex items-center justify-center gap-2"
+              className="flex-1 bg-neutral-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-neutral-600 transition-colors"
             >
-              <PlusIcon className="w-5 h-5" />
               Create Another
+            </button>
+            <button
+              onClick={handleViewGame}
+              className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            >
+              View Game
             </button>
           </div>
 
-          {/* Cancel Game Option */}
-          <div className="pt-4 border-t border-neutral-700">
+          <div className="text-center">
             <button
-              onClick={handleCancelGame}
-              disabled={cancelling}
-              className="w-full bg-red-600/20 text-red-400 px-4 py-2 rounded-lg font-medium hover:bg-red-600/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              onClick={() => navigate('/dashboard')}
+              className="text-neutral-400 hover:text-white underline text-sm transition-colors"
             >
-              {cancelling ? (
-                <>
-                  <ButtonLoading />
-                  Cancelling...
-                </>
-              ) : (
-                <>
-                  <ExclamationTriangleIcon className="w-4 h-4" />
-                  Cancel Game
-                </>
-              )}
+              Go to Dashboard
             </button>
           </div>
         </div>
