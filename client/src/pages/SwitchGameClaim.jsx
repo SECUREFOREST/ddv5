@@ -104,7 +104,7 @@ export default function SwitchGameClaim() {
     setClaiming(true);
     try {
       const response = await retryApiCall(() => api.post(`/switches/${gameId}/join`, {
-        difficulty: game?.difficulty || 'titillating',
+        difficulty: game?.creatorDare?.difficulty || 'titillating',
         move: gesture,
         consent: true,
         dare: demand
@@ -313,8 +313,8 @@ export default function SwitchGameClaim() {
                 This game might involve dares up to or including the following difficulty level:
               </p>
               <div className="flex items-center justify-center gap-4 mb-4">
-                {game?.difficulty ? (
-                  <DifficultyBadge level={game.difficulty} />
+                {game?.creatorDare?.difficulty ? (
+                  <DifficultyBadge level={game.creatorDare.difficulty} />
                 ) : (
                   <span className="px-3 py-1 bg-neutral-600/20 border border-neutral-500/30 text-neutral-400 rounded-full text-sm font-medium">
                     Difficulty not set
@@ -323,10 +323,10 @@ export default function SwitchGameClaim() {
               </div>
             </div>
             
-            {game?.difficulty && DIFFICULTY_OPTIONS.find(d => d.value === game.difficulty) ? (
+                        {game?.creatorDare?.difficulty && DIFFICULTY_OPTIONS.find(d => d.value === game.creatorDare.difficulty) ? (
               <div className="text-center">
                 <p className="text-neutral-300 leading-relaxed">
-                  {DIFFICULTY_OPTIONS.find(d => d.value === game.difficulty).desc}
+                  {DIFFICULTY_OPTIONS.find(d => d.value === game.creatorDare.difficulty).desc}
                 </p>
               </div>
             ) : (
