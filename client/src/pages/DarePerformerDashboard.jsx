@@ -817,45 +817,81 @@ export default function DarePerformerDashboard() {
         <div className="space-y-8">
           {/* Smart Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <SmartStatsCard
-              title="Active Dares"
-              value={activeTotalItems}
-              icon={ClockIconFilled}
-              color="blue"
-              loading={dataLoading.ongoing}
-              trend={calculateTrend(ongoing.length, 'ongoing')}
+            <NeumorphicCard 
+              variant="elevated" 
+              interactive 
+              className="p-6 cursor-pointer"
               onClick={() => setActiveTab('ongoing')}
-            />
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {dataLoading.ongoing ? '...' : activeTotalItems}
+                  </div>
+                  <div className="text-sm text-white/70 mb-2">Active Dares</div>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400">
+                  <ClockIconFilled className="w-6 h-6" />
+                </div>
+              </div>
+            </NeumorphicCard>
             
-            <SmartStatsCard
-              title="Completed"
-              value={completedTotalItems}
-              icon={TrophyIconFilled}
-              color="green"
-              loading={dataLoading.completed}
-              trend={calculateTrend(completed.length, 'completed')}
+            <NeumorphicCard 
+              variant="elevated" 
+              interactive 
+              className="p-6 cursor-pointer"
               onClick={() => setActiveTab('completed')}
-            />
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {dataLoading.completed ? '...' : completedTotalItems}
+                  </div>
+                  <div className="text-sm text-white/70 mb-2">Completed</div>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400">
+                  <TrophyIconFilled className="w-6 h-6" />
+                </div>
+              </div>
+            </NeumorphicCard>
             
-            <SmartStatsCard
-              title="Switch Games"
-              value={switchTotalItems}
-              icon={FireIconFilled}
-              color="purple"
-              loading={dataLoading.switchGames}
-              trend={calculateTrend(switchTotalItems, 'switchGames')}
+            <NeumorphicCard 
+              variant="elevated" 
+              interactive 
+              className="p-6 cursor-pointer"
               onClick={() => setActiveTab('switch-games')}
-            />
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {dataLoading.switchGames ? '...' : switchTotalItems}
+                  </div>
+                  <div className="text-sm text-white/70 mb-2">Switch Games</div>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-400">
+                  <FireIconFilled className="w-6 h-6" />
+                </div>
+              </div>
+            </NeumorphicCard>
             
-            <SmartStatsCard
-              title="Available"
-              value={publicDares.length + publicSwitchGames.length}
-              icon={SparklesIconFilled}
-              color="orange"
-              loading={dataLoading.public}
-              trend={calculateTrend(publicDares.length + publicSwitchGames.length, 'public')}
+            <NeumorphicCard 
+              variant="elevated" 
+              interactive 
+              className="p-6 cursor-pointer"
               onClick={() => setActiveTab('public')}
-            />
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {dataLoading.public ? '...' : (publicDares.length + publicSwitchGames.length)}
+                  </div>
+                  <div className="text-sm text-white/70 mb-2">Available</div>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400">
+                  <SparklesIconFilled className="w-6 h-6" />
+                </div>
+              </div>
+            </NeumorphicCard>
           </div>
           
 
