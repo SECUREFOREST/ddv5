@@ -42,7 +42,7 @@ export default function BottomNavigation() {
       auth: true
     },
     {
-      to: '/dare/create',
+      
       label: 'Create',
       icon: PlusIcon,
       solidIcon: PlusIconSolid,

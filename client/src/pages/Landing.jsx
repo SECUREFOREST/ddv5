@@ -31,7 +31,7 @@ const Landing = () => {
       icon: <SparklesIcon className="w-8 h-8 text-purple-500" />,
       title: "Demand and Dominate", 
       description: "Act as a dominant - assign dares for a submissive",
-      path: "/dare/create",
+      path: "/dare/dom-demand/create",
       color: "from-purple-600 to-indigo-600",
       hoverColor: "from-purple-700 to-indigo-700"
     },

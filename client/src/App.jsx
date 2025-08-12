@@ -10,7 +10,7 @@ import { AccessibilityProvider } from './components/AccessibilityProvider';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { safeStorage } from './utils/cleanup';
 // Dynamic imports for code-splitting
-const DareCreator = React.lazy(() => import('./pages/DareCreator'));
+
 const DareParticipant = React.lazy(() => import('./pages/DareParticipant'));
 const ProfileView = React.lazy(() => import('./pages/ProfileView'));
 const DarePerform = React.lazy(() => import('./pages/DarePerform'));
@@ -112,6 +112,7 @@ function AppContent() {
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
+              <Route path="/dares" element={<PrivateRoute><Dares /></PrivateRoute>} />
               <Route path="/dares/:id" element={<PrivateRoute><DareDetails /></PrivateRoute>} />
               <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
@@ -127,7 +128,7 @@ function AppContent() {
               <Route path="/switches/claim/:gameId" element={<SwitchGameClaim />} />
               <Route path="/switches/:id" element={<PrivateRoute><SwitchGameDetails /></PrivateRoute>} />
               <Route path="/activity-feed" element={<PrivateRoute><ActivityFeed /></PrivateRoute>} />
-              <Route path="/dare/create" element={<PrivateRoute><DareCreator /></PrivateRoute>} />
+      
               <Route path="/dare/:id/participate" element={<PrivateRoute><DareParticipant /></PrivateRoute>} />
               <Route path="/dare/select" element={<PrivateRoute><DareDifficultySelect /></PrivateRoute>} />
               <Route path="/dare/consent/:id" element={<PrivateRoute><DareConsent /></PrivateRoute>} />

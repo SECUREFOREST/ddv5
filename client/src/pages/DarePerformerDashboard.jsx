@@ -946,7 +946,7 @@ export default function DarePerformerDashboard() {
       
       switch (action) {
         case 'create-dare':
-          navigate('/dare/create');
+                          navigate('/dom-demand/create');
           break;
         case 'perform-dare':
           navigate('/dare/select');
