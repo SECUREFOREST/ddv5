@@ -161,7 +161,7 @@ const DareCard = memo(function DareCard({
   onSubmitProof,
   onReviewProof,
   onGrade,
-  onForfeit,
+  onChickenOut,
   loading = false,
   ...props
 }) {
@@ -365,7 +365,7 @@ const DareCard = memo(function DareCard({
         </div>
 
         {/* Actions with improved layout */}
-        {(onSubmitProof || onReviewProof || onGrade || onForfeit || actions) && (
+        {(onSubmitProof || onReviewProof || onGrade || onChickenOut || actions) && (
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-700/30 mt-6">
             {onSubmitProof && (
               <button 
@@ -394,13 +394,13 @@ const DareCard = memo(function DareCard({
                 Grade
               </button>
             )}
-            {onForfeit && (
+            {onChickenOut && (
               <button 
                 className="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-red-600 hover:to-red-700 transition-all duration-200 hover:scale-105 active:scale-95" 
-                onClick={onForfeit}
+                onClick={onChickenOut}
               >
                 <XMarkIcon className="w-4 h-4" />
-                Forfeit
+                Chicken Out
               </button>
             )}
             {actions}

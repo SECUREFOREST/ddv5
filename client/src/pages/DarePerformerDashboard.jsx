@@ -469,13 +469,13 @@ export default function DarePerformerDashboard() {
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant)
               Promise.all([
-                api.get(`/dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&limit=1`),
-                api.get(`/dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&limit=1`)
+                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1`),
+        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1`)
               ]),
               // Get total counts for completed dares (both as creator and participant)
               Promise.all([
-                api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`),
-                api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&limit=1`)
+                        api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`),
+        api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`)
               ]),
               // Get total count for switch games using the performer endpoint
               api.get(`/switches/performer?limit=1`)
@@ -485,13 +485,13 @@ export default function DarePerformerDashboard() {
             const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
               // Active dares: both as creator and participant with pagination
               Promise.all([
-                api.get(`/dares?creator=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&page=${activePage}&limit=${ITEMS_PER_PAGE}`),
-                api.get(`/dares?participant=${currentUserId}&status=in_progress,pending,consented,approved,waiting_for_participant,soliciting&page=${activePage}&limit=${ITEMS_PER_PAGE}`)
+                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}`),
+        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}`)
               ]),
               // Completed dares: both as creator and participant with pagination
               Promise.all([
-                api.get(`/dares?creator=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
-                api.get(`/dares?participant=${currentUserId}&status=completed,graded,forfeited,rejected,expired,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
+                        api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
+        api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
               // Switch games: using performer endpoint with pagination
               api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}`),

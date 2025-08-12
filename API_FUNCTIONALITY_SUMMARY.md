@@ -140,13 +140,10 @@
   - Checks for blocked users
   - Sends notifications
 
-#### `POST /api/dares/:id/forfeit`
-- **Purpose**: Forfeit a dare
-- **Auth**: Required
-- **Features**:
-  - Only for in-progress dares
-  - Updates status to 'forfeited'
-  - Sends notifications
+#### `POST /api/dares/:id/forfeit` (Removed)
+- **Purpose**: Chicken out of a dare (legacy endpoint - removed, use /chicken-out instead)
+- **Status**: Endpoint removed from API
+- **Use**: `/api/dares/:id/chicken-out` instead
 
 #### `POST /api/dares/claim/:token`
 - **Purpose**: Claim a dare by token
@@ -205,7 +202,7 @@
 - **Purpose**: Record consent for dom demands
 - **Auth**: Required
 - **Body Parameters**:
-  - `consented` (optional) - Consent status
+  - `consented` (optional) - Boolean indicating if consent was given
   - `consentedAt` (optional) - Consent timestamp
 - **Features**:
   - Only for dom demands requiring consent
@@ -227,7 +224,7 @@
 {
   description: String,
   creator: ObjectId (ref: 'User'),
-  status: String (enum: ['pending', 'completed', 'in_progress', 'graded', 'waiting_for_participant', 'forfeited', 'approved', 'rejected', 'soliciting', 'expired', 'cancelled', 'user_deleted']),
+  status: String (enum: ['completed', 'in_progress', 'graded', 'waiting_for_participant', 'chickened_out', 'approved', 'rejected', 'cancelled', 'user_deleted']),
   difficulty: String (enum: ['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
   grades: [{
     user: ObjectId (ref: 'User'),
@@ -289,11 +286,10 @@
 - **waiting_for_participant**: Available for claiming
 - **in_progress**: Currently being performed
 - **completed**: Successfully completed
-- **forfeited**: Abandoned by performer
+- **chickened_out**: Chickened out by performer (database status)
 - **approved**: Approved by admin
 - **rejected**: Rejected by admin
 - **pending**: Pending approval
-- **soliciting**: Awaiting approval
 - **expired**: Expired
 - **cancelled**: Cancelled
 - **graded**: Graded

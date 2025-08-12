@@ -23,7 +23,7 @@ import { MainContent, ContentContainer } from '../components/Layout';
 const STATUS_STEPS = [
   { key: 'in_progress', label: 'In Progress', icon: <ClockIcon className="w-5 h-5" /> },
   { key: 'completed', label: 'Completed', icon: <CheckCircleIcon className="w-5 h-5" /> },
-  { key: 'forfeited', label: 'Forfeited', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
+          { key: 'chickened_out', label: 'Chickened Out', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
 ];
 
 export default function DareReveal() {

@@ -39,11 +39,11 @@
   - Duplicate grade prevention
   - User blocking checks
 
-#### `/switches/:id/forfeit` ✅
+#### `/switches/:id/chicken-out` ✅
 - **Status**: Fully implemented
 - **File**: `server/routes/switches.js` (lines 650-700)
 - **Features**:
-  - Game forfeiting
+  - Game chickening out
   - Notifications to other player
   - Activity logging
   - Open dares count management

@@ -54,8 +54,8 @@
 - **Frontend calls**: `POST /switches/:id/grade`
 - **Status**: Implemented but needs verification
 
-#### 9. **Missing `/forfeit` endpoint for switches**
-- **Frontend calls**: `POST /switches/:id/forfeit`
+#### 9. **Missing `/chicken-out` endpoint for switches**
+- **Frontend calls**: `POST /switches/:id/chicken-out`
 - **Status**: Implemented but needs verification
 
 #### 10. **Missing `/join` endpoint for switches**
@@ -123,7 +123,7 @@
 2. **`/switches/:id/proof-viewed`** - Used in SwitchGameDetails.jsx
 3. **`/switches/:id/move`** - Used in SwitchGameDetails.jsx
 4. **`/switches/:id/grade`** - Used in SwitchGameDetails.jsx
-5. **`/switches/:id/forfeit`** - Used in SwitchGameParticipate.jsx
+5. **`/switches/:id/chicken-out`** - Used in SwitchGameParticipate.jsx
 6. **`/switches/:id/join`** - Used in SwitchGameParticipate.jsx
 
 ### Low Priority (Already Implemented):

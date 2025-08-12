@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const DareSchema = new mongoose.Schema({
   description: { type: String },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['pending', 'completed', 'in_progress', 'graded', 'waiting_for_participant', 'forfeited', 'approved', 'rejected', 'soliciting', 'expired', 'cancelled', 'user_deleted'], default: 'waiting_for_participant' },
+  status: { type: String, enum: ['completed', 'in_progress', 'graded', 'waiting_for_participant', 'chickened_out', 'approved', 'rejected', 'cancelled', 'user_deleted'], default: 'waiting_for_participant' },
   difficulty: { type: String },
   grades: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

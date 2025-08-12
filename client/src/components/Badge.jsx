@@ -40,16 +40,14 @@ export default function Badge({ type, value, variant = 'default', className = ''
 
   const getStatusBadgeStyle = (status) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-600/20 border-yellow-600/30 text-yellow-400';
+
       case 'in_progress':
         return 'bg-blue-600/20 border-blue-600/30 text-blue-400';
       case 'completed':
         return 'bg-green-600/20 border-green-600/30 text-green-400';
       case 'cancelled':
         return 'bg-red-600/20 border-red-600/30 text-red-400';
-      case 'expired':
-        return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
+
       default:
         return 'bg-neutral-600/20 border-neutral-600/30 text-neutral-400';
     }
@@ -57,11 +55,11 @@ export default function Badge({ type, value, variant = 'default', className = ''
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'pending': return 'Pending';
+
       case 'in_progress': return 'In Progress';
       case 'completed': return 'Completed';
       case 'cancelled': return 'Cancelled';
-      case 'expired': return 'Expired';
+
       default: return status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
     }
   };

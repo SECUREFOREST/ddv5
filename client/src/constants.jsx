@@ -88,16 +88,15 @@ export const ROLE_OPTIONS = [
 export const STATUS_OPTIONS = [
   { value: '', label: 'All' },
   { value: 'in_progress', label: 'In Progress' },
-  { value: 'pending', label: 'Pending' },
+
   { value: 'completed', label: 'Completed' },
-  { value: 'forfeited', label: 'Forfeited' },
-  { value: 'expired', label: 'Expired' },
+  { value: 'chickened_out', label: 'Chickened Out' }, // 'chickened_out' is the database status value
+
   { value: 'waiting_for_participant', label: 'Waiting For Participant' },
   { value: 'rejected', label: 'Rejected' },
   { value: 'cancelled', label: 'Cancelled' },
   { value: 'graded', label: 'Graded' },
   { value: 'approved', label: 'Approved' },
-  { value: 'soliciting', label: 'Awaiting Approval' },
   { value: 'user_deleted', label: 'User deleted' },
 ];
 
@@ -115,16 +114,7 @@ export const STATUS_MAP = {
     color: 'bg-blue-600/20 border border-blue-500/50 text-blue-300',
     icon: '⏳'
   },
-  pending: { 
-    label: 'Pending', 
-    color: 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300',
-    icon: '⏳'
-  },
-  soliciting: { 
-    label: 'Soliciting', 
-    color: 'bg-purple-600/20 border border-purple-500/50 text-purple-300',
-    icon: '📝'
-  },
+
   in_progress: { 
     label: 'In Progress', 
     color: 'bg-green-600/20 border border-green-500/50 text-green-300',
@@ -150,16 +140,12 @@ export const STATUS_MAP = {
     color: 'bg-green-600/20 border border-green-500/50 text-green-300',
     icon: '✅'
   },
-  forfeited: { 
-    label: 'Forfeited', 
+  chickened_out: { // 'chickened_out' is the database status value
+    label: 'Chickened Out', 
     color: 'bg-red-600/20 border border-red-500/50 text-red-300',
     icon: '🏳️'
   },
-  expired: { 
-    label: 'Expired', 
-    color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300',
-    icon: '⏰'
-  },
+
   cancelled: { 
     label: 'Cancelled', 
     color: 'bg-neutral-600/20 border border-neutral-500/50 text-neutral-300',

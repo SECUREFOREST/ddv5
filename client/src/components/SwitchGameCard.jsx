@@ -18,14 +18,11 @@ function StatusBadge({ status }) {
       badgeClass = 'bg-success text-success-contrast rounded-none';
       text = 'Completed';
       break;
-    case 'forfeited':
+            case 'chickened_out':
       badgeClass = 'bg-danger text-danger-contrast rounded-none';
-      text = 'Forfeited';
+      text = 'Chickened Out';
       break;
-    case 'expired':
-      badgeClass = 'bg-warning text-warning-contrast rounded-none';
-      text = 'Expired';
-      break;
+
     default:
       text = status ? status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
   }
@@ -40,7 +37,7 @@ function Tag({ tag }) {
   );
 }
 
-export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onForfeit, ...props }) {
+export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, ...props }) {
   if (!game) return null;
   const isWinner = currentUserId && game.winner && (game.winner._id === currentUserId || game.winner === currentUserId);
   const isLoser = currentUserId && game.loser && (game.loser._id === currentUserId || game.loser === currentUserId);
@@ -50,7 +47,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const canSubmitProof = isLoser && game.status === 'completed' && (!game.proof || !game.proof.submitted);
   const canReviewProof = isWinner && game.status === 'completed' && game.proof && game.proof.submitted && !game.proof.reviewed;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => g.user === currentUserId);
-  const canForfeit = isLoser && game.status === 'in_progress';
+  const canChickenOut = isLoser && game.status === 'in_progress';
 
   // Helper for clickable profile links
   const userProfileLink = (user) => {
@@ -120,7 +117,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {canSubmitProof && <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>Submit Proof</button>}
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
-        {canForfeit && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onForfeit}>Forfeit</button>}
+        {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}
         {actions}
       </div>
     </div>

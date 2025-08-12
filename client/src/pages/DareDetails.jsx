@@ -528,25 +528,7 @@ export default function DareDetails() {
                     </div>
                   )}
                   
-                  {/* Consent Status for Dom Demands */}
-                  {dare.dareType === 'domination' && dare.requiresConsent && (
-                    <div className="flex items-center gap-3">
-                      <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                      <div className="flex-1">
-                        <span className="text-neutral-400 text-sm">Consent status:</span>
-                        <span className={`text-sm font-semibold ml-2 ${
-                          dare.consented ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {dare.consented ? 'Consented' : 'Pending consent'}
-                        </span>
-                        {dare.consentedAt && (
-                          <span className="text-neutral-500 text-xs ml-2">
-                            ({new Date(dare.consentedAt).toLocaleDateString()})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+
                 </div>
               </div>
 
@@ -557,7 +539,7 @@ export default function DareDetails() {
 
                 
                 <div className="flex flex-wrap gap-4">
-                  {dare.status === 'pending' && dare.creator?._id !== user?.id && (
+                  {dare.status === 'waiting_for_participant' && dare.creator?._id !== user?.id && (
                     <button
                       onClick={handleAcceptDare}
                       className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-green-700 hover:to-green-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center gap-2"
@@ -567,7 +549,7 @@ export default function DareDetails() {
                     </button>
                   )}
                   
-                  {dare.status === 'pending' && dare.creator?._id !== user?.id && (
+                  {dare.status === 'waiting_for_participant' && dare.creator?._id !== user?.id && (
                     <button
                       onClick={() => setShowRejectModal(true)}
                       className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-red-700 hover:to-red-600 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center gap-2"
@@ -631,7 +613,7 @@ export default function DareDetails() {
                     <div className="text-sm text-neutral-300">Dare Created</div>
                   </div>
                   
-                  {dare.status !== 'pending' && (
+                  {dare.status !== 'waiting_for_participant' && (
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <div className="text-sm text-neutral-300">Dare Accepted</div>

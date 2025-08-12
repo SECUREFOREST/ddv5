@@ -140,7 +140,7 @@ router.get('/performer', auth, async (req, res) => {
   }
 });
 
-// GET /api/switches/history - get all completed/forfeited/expired switch games for current user
+// GET /api/switches/history - get all completed/chickened out switch games for current user
 router.get('/history', auth, async (req, res) => {
   try {
     const userId = req.userId;
@@ -153,7 +153,7 @@ router.get('/history', auth, async (req, res) => {
           ]
         },
         {
-          status: { $in: ['completed', 'forfeited', 'expired'] }
+          status: { $in: ['completed', 'chickened_out'] } // 'chickened_out' is the database status value for chickened out
         }
       ]
     };
@@ -584,8 +584,6 @@ router.post('/:id/proof',
       }
       if (game.status !== 'awaiting_proof') throw new Error('Proof cannot be submitted at this stage.');
       if (game.proofExpiresAt && Date.now() > game.proofExpiresAt.getTime()) {
-        game.status = 'expired';
-        await game.save();
         return res.status(400).json({ error: 'Proof submission window has expired.' });
       }
       // Blocked user check for proof submission
@@ -670,8 +668,8 @@ router.post('/:id/proof-review', auth, async (req, res) => {
   }
 });
 
-// POST /api/switches/:id/forfeit - creator or participant forfeits (chickens out) of a switch game
-router.post('/:id/forfeit',
+// POST /api/switches/:id/chicken-out - creator or participant chickens out of a switch game
+router.post('/:id/chicken-out',
   (req, res, next) => {
     if (Object.keys(req.body).length > 0) {
       return res.status(400).json({ error: 'No body expected.' });
@@ -685,32 +683,32 @@ router.post('/:id/forfeit',
       const game = await SwitchGame.findById(req.params.id);
       if (!game) return res.status(404).json({ error: 'Switch game not found.' });
       if (game.status !== 'in_progress') {
-        return res.status(400).json({ error: 'Only in-progress games can be forfeited.' });
+        return res.status(400).json({ error: 'Only in-progress games can be chickened out of.' });
       }
       if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
-        return res.status(403).json({ error: 'Only the creator or participant can forfeit this game.' });
+        return res.status(403).json({ error: 'Only the creator or participant can chicken out of this game.' });
       }
-      game.status = 'forfeited';
+      game.status = 'chickened_out';
       game.updatedAt = new Date();
       await game.save();
-      // Decrement openDares for the forfeiting user
+              // Decrement openDares for the user who chickened out
       const User = require('../models/User');
       await User.findByIdAndUpdate(userId, { $inc: { openDares: -1 } });
-      await logActivity({ type: 'switchgame_forfeited', user: req.userId, switchGame: game._id });
+              await logActivity({ type: 'switchgame_chickened_out', user: req.userId, switchGame: game._id });
       // Notify the other user
       const otherUser = userId === game.creator.toString() ? game.participant : game.creator;
       if (otherUser) {
         await sendNotification(
           otherUser,
-          'switchgame_forfeited',
-          `A user has chickened out (forfeited) the switch game. You may start a new game or wait for another participant.`,
+          'switchgame_chickened_out',
+          `A user has chickened out of the switch game. You may start a new game or wait for another participant.`,
           req.userId
         );
       }
       // Optionally log the action (if you have a logActivity util for switch games)
-      res.json({ message: 'Switch game forfeited (chickened out).', game });
+              res.json({ message: 'Switch game chickened out successfully.', game });
     } catch (err) {
-      res.status(500).json({ error: 'Failed to forfeit switch game.' });
+              res.status(500).json({ error: 'Failed to chicken out of switch game.' });
     }
   }
 );

@@ -39,10 +39,10 @@ function StatusBadge({ status }) {
       icon = <CheckCircleIcon className="w-5 h-5" />;
       text = 'Completed';
       break;
-    case 'forfeited':
-      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
-      icon = <ExclamationTriangleIcon className="w-5 h-5" />;
-      text = 'Forfeited';
+            case 'chickened_out':
+          badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
+          icon = <ExclamationTriangleIcon className="w-5 h-5" />;
+          text = 'Chickened Out';
       break;
     default:
       badgeClass = 'bg-neutral-700 text-neutral-100';
@@ -190,8 +190,8 @@ export default function SwitchGameParticipate() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      // Use retry mechanism for forfeit
-      await retryApiCall(() => api.post(`/switches/${game._id}/forfeit`));
+              // Use retry mechanism for chicken out
+        await retryApiCall(() => api.post(`/switches/${game._id}/chicken-out`));
       showSuccess('You have successfully chickened out.');
       // Optionally refresh or redirect
       window.location.reload();

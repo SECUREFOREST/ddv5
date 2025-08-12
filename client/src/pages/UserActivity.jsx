@@ -90,9 +90,9 @@ export default function UserActivity() {
       setError('');
     }
     
-    // Fetch active dares (not completed/forfeited/expired)
-    const activeStatuses = ['in_progress', 'waiting_for_participant', 'pending'];
-    const historyStatuses = ['completed', 'forfeited', 'expired'];
+            // Fetch active dares (not completed/chickened out)
+    const activeStatuses = ['in_progress', 'waiting_for_participant'];
+          const historyStatuses = ['completed', 'chickened_out']; // 'chickened_out' is the database status value
     
     Promise.allSettled([
       retryApiCall(() => api.get('/dares', { params: { creator: userId, status: activeStatuses.join(',') } })),
@@ -203,8 +203,8 @@ export default function UserActivity() {
   const stats = useMemo(() => {
     const dareTotal = (Array.isArray(activeDares) ? activeDares.length : 0) + (Array.isArray(historyDares) ? historyDares.length : 0);
     const dareCompleted = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'completed').length : 0;
-    const dareForfeited = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'forfeited').length : 0;
-    const dareExpired = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'expired').length : 0;
+            const dareChickenedOut = Array.isArray(historyDares) ? historyDares.filter(d => d.status === 'chickened_out').length : 0;
+
     const dareAvgGrade = (() => {
       const grades = Array.isArray(historyDares) ? historyDares.flatMap(d => (d.grades || []).map(g => g.grade)).filter(g => typeof g === 'number') : [];
       return grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 'N/A';
@@ -213,8 +213,8 @@ export default function UserActivity() {
 
     const switchTotal = (Array.isArray(activeSwitchGames) ? activeSwitchGames.length : 0) + (Array.isArray(historySwitchGames) ? historySwitchGames.length : 0);
     const switchCompleted = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'completed').length : 0;
-    const switchForfeited = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'forfeited').length : 0;
-    const switchExpired = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'expired').length : 0;
+            const switchChickenedOut = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.status === 'chickened_out').length : 0;
+
     const switchWins = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.winner && (g.winner._id === (user?._id || user?.id))).length : 0;
     const switchLosses = Array.isArray(historySwitchGames) ? historySwitchGames.filter(g => g.loser && (g.loser._id === (user?._id || user?.id))).length : 0;
     const switchAvgGrade = (() => {
@@ -226,14 +226,14 @@ export default function UserActivity() {
     return {
       dareTotal,
       dareCompleted,
-      dareForfeited,
-      dareExpired,
+      dareChickenedOut,
+
       dareAvgGrade,
       dareCompletionRate,
       switchTotal,
       switchCompleted,
-      switchForfeited,
-      switchExpired,
+      switchChickenedOut,
+
       switchWins,
       switchLosses,
       switchAvgGrade,
@@ -244,14 +244,14 @@ export default function UserActivity() {
   const {
     dareTotal,
     dareCompleted,
-    dareForfeited,
-    dareExpired,
+    dareChickenedOut,
+
     dareAvgGrade,
     dareCompletionRate,
     switchTotal,
     switchCompleted,
-    switchForfeited,
-    switchExpired,
+    switchChickenedOut,
+
     switchWins,
     switchLosses,
     switchAvgGrade,
@@ -302,26 +302,26 @@ export default function UserActivity() {
         ],
       },
       pieData: {
-        labels: ['Completed', 'Forfeited', 'Expired'],
+        labels: ['Completed', 'Chickened Out'],
         datasets: [
           {
-            data: [dareCompleted + switchCompleted, dareForfeited + switchForfeited, dareExpired + switchExpired],
+            data: [dareCompleted + switchCompleted, dareChickenedOut + switchChickenedOut],
             backgroundColor: [
               'rgba(34, 197, 94, 0.8)',
               'rgba(239, 68, 68, 0.8)',
-              'rgba(156, 163, 175, 0.8)',
+
             ],
             borderColor: [
               'rgba(34, 197, 94, 1)',
               'rgba(239, 68, 68, 1)',
-              'rgba(156, 163, 175, 1)',
+
             ],
             borderWidth: 1,
           },
         ],
       }
     };
-  }, [historyDares, historySwitchGames, dareCompleted, switchCompleted, dareForfeited, switchForfeited, dareExpired, switchExpired]);
+  }, [historyDares, historySwitchGames, dareCompleted, switchCompleted, dareChickenedOut, switchChickenedOut]);
 
   const { barData, pieData } = chartData;
 
@@ -385,14 +385,14 @@ export default function UserActivity() {
               {!Array.isArray(activeDares) || activeDares.length === 0 ? <div className="mb-4 text-white/60">No active dares.</div> : (
                 <div className="space-y-4">
                   {activePaginatedItems.map(dare => (
-                    <DareCard
-                      key={dare._id}
-                      {...dare}
-                      currentUserId={user._id || user.id}
-                      onSubmitProof={() => navigate(`/dares/${dare._id}`)}
-                      onForfeit={() => navigate(`/dares/${dare._id}`)}
-                    />
-                  ))}
+                <DareCard
+                  key={dare._id}
+                  {...dare}
+                  currentUserId={user._id || user.id}
+                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                      onChickenOut={() => navigate(`/dares/${dare._id}`)}
+                />
+              ))}
                 </div>
               )}
 
@@ -415,7 +415,7 @@ export default function UserActivity() {
                   game={game}
                   currentUserId={user._id || user.id}
                   onSubmitProof={() => navigate(`/switches/${game._id}`)}
-                  onForfeit={() => navigate(`/switches/${game._id}`)}
+                  onChickenOut={() => navigate(`/switches/${game._id}`)}
                 />
               ))}
             </>
@@ -437,14 +437,14 @@ export default function UserActivity() {
               {!Array.isArray(historyDares) || historyDares.length === 0 ? <div className="mb-4 text-white/60">No historical dares.</div> : (
                 <div className="space-y-4">
                   {historyPaginatedItems.map(dare => (
-                    <DareCard
-                      key={dare._id}
-                      {...dare}
-                      currentUserId={user._id || user.id}
-                      onSubmitProof={() => navigate(`/dares/${dare._id}`)}
-                      onForfeit={() => navigate(`/dares/${dare._id}`)}
-                    />
-                  ))}
+                <DareCard
+                  key={dare._id}
+                  {...dare}
+                  currentUserId={user._id || user.id}
+                  onSubmitProof={() => navigate(`/dares/${dare._id}`)}
+                      onChickenOut={() => navigate(`/dares/${dare._id}`)}
+                />
+              ))}
                 </div>
               )}
 
@@ -494,8 +494,8 @@ export default function UserActivity() {
               <div className="space-y-2 text-white/80 text-sm">
                 <div>Total: <span className="font-semibold text-white">{dareTotal}</span></div>
                 <div>Completed: <span className="font-semibold text-green-300">{dareCompleted}</span></div>
-                <div>Forfeited: <span className="font-semibold text-red-300">{dareForfeited}</span></div>
-                <div>Expired: <span className="font-semibold text-neutral-300">{dareExpired}</span></div>
+                <div>Chickened Out: <span className="font-semibold text-red-300">{dareChickenedOut}</span></div>
+
                 <div>Avg. Grade: <span className="font-semibold text-purple-300">{dareAvgGrade}</span></div>
                 <div>Completion Rate: <span className="font-semibold text-blue-300">{dareCompletionRate}</span></div>
               </div>
@@ -508,8 +508,8 @@ export default function UserActivity() {
               <div className="space-y-2 text-white/80 text-sm">
                 <div>Total: <span className="font-semibold text-white">{switchTotal}</span></div>
                 <div>Completed: <span className="font-semibold text-green-300">{switchCompleted}</span></div>
-                <div>Forfeited: <span className="font-semibold text-red-300">{switchForfeited}</span></div>
-                <div>Expired: <span className="font-semibold text-neutral-300">{switchExpired}</span></div>
+                <div>Chickened Out: <span className="font-semibold text-red-300">{switchChickenedOut}</span></div>
+
                 <div>Wins: <span className="font-semibold text-green-300">{switchWins}</span></div>
                 <div>Losses: <span className="font-semibold text-red-300">{switchLosses}</span></div>
                 <div>Avg. Grade: <span className="font-semibold text-purple-300">{switchAvgGrade}</span></div>

@@ -52,10 +52,10 @@ async function checkSlotAndCooldownAtomic(userId) {
   if (user && user.dareCooldownUntil && user.dareCooldownUntil > now) {
     throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
   }
-  // Count dares where user is performer and status is not completed or forfeited
+          // Count dares where user is performer and status is not completed or chickened out
   const openDaresCount = await Dare.countDocuments({
     performer: userId,
-    status: { $nin: ['completed', 'forfeited'] }
+          status: { $nin: ['completed', 'chickened_out'] } // 'chickened_out' is the database status value for chickened out
   });
   if (openDaresCount >= 5) {
     throw new Error('You are in cooldown or have reached the maximum of 5 open dares.');
@@ -247,7 +247,7 @@ router.get('/random', auth, async (req, res) => {
       (err.message.includes('cooldown') || err.message.includes('maximum of 5 open dares'))
     ) {
       return res.status(429).json({
-        error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or forfeit some dares, or wait for your cooldown to expire.'
+        error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or chicken out of some dares, or wait for your cooldown to expire.'
       });
     }
     res.status(500).json({ error: 'Failed to get dare.' });
@@ -503,7 +503,7 @@ router.patch('/:id',
     require('express-validator').param('id').isMongoId(),
     require('express-validator').body('description').optional().isString().isLength({ min: 5, max: 500 }).trim().escape(),
     require('express-validator').body('difficulty').optional().isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
-    require('express-validator').body('status').optional().isString().isIn(['waiting_for_participant', 'in_progress', 'completed', 'forfeited', 'approved', 'rejected', 'pending', 'soliciting', 'expired', 'cancelled', 'graded', 'user_deleted']),
+    require('express-validator').body('status').optional().isString().isIn(['waiting_for_participant', 'in_progress', 'completed', 'chickened_out', 'approved', 'rejected', 'cancelled', 'graded', 'user_deleted']), // 'chickened_out' is the database status value for chickened out
     require('express-validator').body('tags').optional().isArray(),
     require('express-validator').body('assignedSwitch').optional().isString().isLength({ min: 1 }),
     require('express-validator').body('dareType').optional().isString().isIn(['submission', 'domination', 'switch']),
@@ -849,7 +849,7 @@ router.post('/:id/accept',
         (err.message.includes('cooldown') || err.message.includes('maximum of 5 open dares'))
       ) {
         return res.status(429).json({
-          error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or forfeit some dares, or wait for your cooldown to expire.'
+          error: 'You are in cooldown or have reached the maximum of 5 open dares. Please complete or chicken out of some dares, or wait for your cooldown to expire.'
         });
       }
       res.status(500).json({ error: 'Failed to accept dare.' });
@@ -857,7 +857,7 @@ router.post('/:id/accept',
   }
 );
 
-// POST /api/dares/:id/chicken-out - performer chickens out of a dare (alias for forfeit)
+// POST /api/dares/:id/chicken-out - performer chickens out of a dare
 router.post('/:id/chicken-out',
   auth,
   require('express-validator').param('id').isMongoId(),
@@ -881,67 +881,26 @@ router.post('/:id/chicken-out',
       if (dare.status !== 'in_progress') {
         return res.status(400).json({ error: 'Only in-progress dares can be chickened out of.' });
       }
-      dare.status = 'forfeited';
+      dare.status = 'chickened_out'; // 'chickened_out' is the database status value for chickened out
       dare.updatedAt = new Date();
       await dare.save();
       // Notify creator
-      await sendNotification(
-        dare.creator,
-        'dare_forfeited',
-        'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.',
-        req.userId
-      );
-      // Log activity
-      await logActivity({ type: 'dare_forfeited', user: req.userId, dare: dare._id });
-      res.json({ message: 'Dare chickened out (forfeited).', dare });
+              await sendNotification(
+          dare.creator,
+          'dare_chickened_out',
+          'The performer has chickened out of your dare. You may make it available again or create a new dare.',
+          req.userId
+        );
+        // Log activity
+        await logActivity({ type: 'dare_chickened_out', user: req.userId, dare: dare._id });
+        res.json({ message: 'Dare chickened out successfully.', dare });
     } catch (err) {
       res.status(500).json({ error: 'Failed to chicken out of dare.' });
     }
   }
 );
 
-// POST /api/dares/:id/forfeit - performer forfeits (chickens out) of a dare
-router.post('/:id/forfeit',
-  auth,
-  require('express-validator').param('id').isMongoId(),
-  (req, res, next) => {
-    if (Object.keys(req.body).length > 0) {
-      return res.status(400).json({ error: 'No body expected.' });
-    }
-    next();
-  },
-  async (req, res) => {
-    const errors = require('express-validator').validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array().map(e => e.msg).join(', ') });
-    }
-    try {
-      const dare = await Dare.findById(req.params.id);
-      if (!dare) return res.status(404).json({ error: 'Dare not found.' });
-      if (!dare.performer || dare.performer.toString() !== req.userId) {
-        return res.status(403).json({ error: 'Only the performer can forfeit this dare.' });
-      }
-      if (dare.status !== 'in_progress') {
-        return res.status(400).json({ error: 'Only in-progress dares can be forfeited.' });
-      }
-      dare.status = 'forfeited';
-      dare.updatedAt = new Date();
-      await dare.save();
-      // Notify creator
-      await sendNotification(
-        dare.creator,
-        'dare_forfeited',
-        'The performer has chickened out (forfeited) your dare. You may make it available again or create a new dare.',
-        req.userId
-      );
-      // Log activity
-      await logActivity({ type: 'dare_forfeited', user: req.userId, dare: dare._id });
-      res.json({ message: 'Dare forfeited (chickened out).', dare });
-    } catch (err) {
-      res.status(500).json({ error: 'Failed to forfeit dare.' });
-    }
-  }
-);
+// Legacy /forfeit endpoint removed - use /chicken-out instead
 
 // DELETE /api/dares/:id - only creator can delete
 router.delete('/:id',
@@ -1578,9 +1537,10 @@ router.patch('/:id/consent', auth, async (req, res) => {
       return res.status(403).json({ error: 'You cannot consent to this dare.' });
     }
     
-    // Update consent status
+    // Update consent status and move to in_progress
     dare.consented = consented || true;
     dare.consentedAt = consentedAt || new Date();
+    dare.status = 'in_progress'; // Move to in_progress when consent is given
     dare.updatedAt = new Date();
     
     await dare.save();
@@ -1589,12 +1549,13 @@ router.patch('/:id/consent', auth, async (req, res) => {
     await logActivity(req.userId, 'dare_consented', `Consented to view dom demand`, dare._id);
     
     res.json({ 
-      message: 'Consent recorded successfully.', 
+      message: 'Consent recorded successfully. Dare is now in progress.', 
       dare: {
         _id: dare._id,
         description: dare.description, // Now reveal the full description
         difficulty: dare.difficulty,
         dareType: dare.dareType,
+        status: dare.status, // Include the new status
         consented: dare.consented,
         consentedAt: dare.consentedAt
       }

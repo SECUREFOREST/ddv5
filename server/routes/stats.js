@@ -54,7 +54,7 @@ router.get('/leaderboard', auth, async (req, res) => {
     let daresCreatedStats, daresCompletedStats;
     try {
       [daresCreatedStats, daresCompletedStats] = await Promise.all([
-        Dare.aggregate([
+      Dare.aggregate([
           { 
             $match: { 
               creator: { 
@@ -66,8 +66,8 @@ router.get('/leaderboard', auth, async (req, res) => {
           },
           { $group: { _id: '$creator', count: { $sum: 1 } } },
           { $sort: { count: -1 } }  // Sort by count for better performance
-        ]),
-        Dare.aggregate([
+      ]),
+      Dare.aggregate([
           { 
             $match: { 
               status: 'completed', 
@@ -80,9 +80,9 @@ router.get('/leaderboard', auth, async (req, res) => {
           },
           { $group: { _id: '$performer', count: { $sum: 1 } } },
           { $sort: { count: -1 } }  // Sort by count for better performance
-        ])
-      ]);
-      
+      ])
+    ]);
+    
       // Additional validation of aggregation results
       if (!Array.isArray(daresCreatedStats)) {
         daresCreatedStats = [];
@@ -184,15 +184,15 @@ router.get('/leaderboard', auth, async (req, res) => {
         
         const daresCreated = daresCreatedMap.get(userId) || 0;
         const daresCompletedAsPerformer = daresCompletedMap.get(userId) || 0;
-        
-        return {
-          user: {
-            id: user._id,
+      
+      return {
+        user: {
+          id: user._id,
             username: user.username || 'Unknown',
             fullName: user.fullName || user.username || 'Unknown',
             avatar: user.avatar || null,
             roles: Array.isArray(user.roles) ? user.roles : []
-          },
+        },
           daresCreated: parseInt(daresCreated) || 0,
           daresCompletedAsPerformer: parseInt(daresCompletedAsPerformer) || 0,
           daresCount: (parseInt(daresCreated) || 0) + (parseInt(daresCompletedAsPerformer) || 0)
@@ -210,13 +210,13 @@ router.get('/leaderboard', auth, async (req, res) => {
     let leaderboard = userStats;
     try {
       const currentUser = await User.findById(req.userId).select('blockedUsers').lean();
-      
+    
       if (currentUser && currentUser.blockedUsers && Array.isArray(currentUser.blockedUsers) && currentUser.blockedUsers.length > 0) {
         const blockedUserIds = currentUser.blockedUsers.map(id => id.toString());
-        leaderboard = userStats.filter(entry => 
+      leaderboard = userStats.filter(entry => 
           entry && entry.user && entry.user.id && 
           !blockedUserIds.includes(entry.user.id.toString())
-        );
+      );
       }
     } catch (blockError) {
       console.error('Error filtering blocked users:', blockError);

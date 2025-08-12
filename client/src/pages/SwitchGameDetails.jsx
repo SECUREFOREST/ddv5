@@ -131,11 +131,7 @@ export default function SwitchGameDetails() {
   // --- granularStatus logic ---
   let granularStatus = game?.status;
   if (game?.status === 'completed' && !game?.proof) {
-    if (isLoser && proofExpiresAt && !proofExpired) {
-      granularStatus = 'expired';
-    } else {
-      granularStatus = 'awaiting_proof';
-    }
+    granularStatus = 'awaiting_proof';
   }
 
   // Show error toast helper
@@ -459,13 +455,13 @@ export default function SwitchGameDetails() {
   const [joinMove, setJoinMove] = useState('rock');
   const { contentDeletion, updateContentDeletion } = useContentDeletion();
 
-  // Chicken out (forfeit) handler
+          // Chicken out handler
   const handleChickenOut = async () => {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-      // Use retry mechanism for forfeit
-      await retryApiCall(() => api.post(`/switches/${id}/forfeit`));
+              // Use retry mechanism for chicken out
+        await retryApiCall(() => api.post(`/switches/${id}/chicken-out`));
       setChickenOutLoading(false);
       showSuccess('You have chickened out of this switch game.');
       fetchGameWithFeedback(true);
@@ -540,10 +536,7 @@ export default function SwitchGameDetails() {
                 <span className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/50 text-green-300 rounded-full px-6 py-3 font-semibold text-lg">
               <CheckCircleIcon className="w-6 h-6" /> Completed
             </span>
-          ) : game.status === 'expired' ? (
-                <span className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/50 text-red-300 rounded-full px-6 py-3 font-semibold text-lg">
-              <ExclamationTriangleIcon className="w-6 h-6" /> Expired
-            </span>
+
           ) : game.status === 'in_progress' ? (
                 <span className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/50 text-blue-300 rounded-full px-6 py-3 font-semibold text-lg">
               <ClockIcon className="w-6 h-6" /> In Progress

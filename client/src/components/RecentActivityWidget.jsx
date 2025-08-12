@@ -260,19 +260,19 @@ export default function RecentActivityWidget({ userId, activities = [], loading 
         </div>
       ) : (
         <>
-          <div className="space-y-3">
-            {displayActivities.map((activity, i) => (
+        <div className="space-y-3">
+          {displayActivities.map((activity, i) => (
               <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/80 hover:bg-neutral-700/90 transition-colors">
-                {ICONS[activity.type] || ICONS.default}
-                <div className="flex-1">
+              {ICONS[activity.type] || ICONS.default}
+              <div className="flex-1">
                   <div className="text-sm text-white">{getActivityMessage(activity, userId)}</div>
-                  <div className="text-xs text-white/60">
-                    <time dateTime={activity.createdAt}>{timeAgo(activity.createdAt)}</time>
-                  </div>
+                <div className="text-xs text-white/60">
+                  <time dateTime={activity.createdAt}>{timeAgo(activity.createdAt)}</time>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
           
           {/* Pagination */}
           {showPagination && (

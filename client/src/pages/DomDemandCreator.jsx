@@ -126,47 +126,47 @@ export default function DomDemandCreator() {
           </div>
 
           {/* Difficulty Selection - Vertical Layout like Dare Difficulty Select */}
-          <div className="space-y-4">
-            {DIFFICULTY_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setDifficulty(option.value)}
-                className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
+                <div className="space-y-4">
+                  {DIFFICULTY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDifficulty(option.value)}
+                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${difficulty === option.value
                     ? 'border-primary bg-primary/20 text-primary shadow-lg'
-                    : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                  }`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                        }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Icon */}
+                        <div className={`p-3 rounded-lg flex-shrink-0 ${difficulty === option.value
                       ? 'bg-primary/20 text-primary'
-                      : 'bg-neutral-700/50 text-neutral-400'
-                    }`}>
-                    {DIFFICULTY_ICONS[option.value]}
-                  </div>
+                            : 'bg-neutral-700/50 text-neutral-400'
+                          }`}>
+                          {DIFFICULTY_ICONS[option.value]}
+                        </div>
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="font-bold text-lg mb-2">{option.label}</div>
-                    <div className="text-sm leading-relaxed text-neutral-300 mb-2">
-                      {option.desc}
-                    </div>
-                    {option.longDesc && (
-                      <div className="text-xs text-neutral-400 leading-relaxed mb-2">
-                        {option.longDesc}
+                        {/* Content */}
+                        <div className="flex-1">
+                          <div className="font-bold text-lg mb-2">{option.label}</div>
+                          <div className="text-sm leading-relaxed text-neutral-300 mb-2">
+                            {option.desc}
+                          </div>
+                          {option.longDesc && (
+                            <div className="text-xs text-neutral-400 leading-relaxed mb-2">
+                              {option.longDesc}
+                            </div>
+                          )}
+                          {option.examples && (
+                            <div className="text-xs text-neutral-500 italic">
+                              Examples: {option.examples}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    {option.examples && (
-                      <div className="text-xs text-neutral-500 italic">
-                        Examples: {option.examples}
-                      </div>
-                    )}
-                  </div>
+                    </button>
+                  ))}
                 </div>
-              </button>
-            ))}
-          </div>
 
           {/* Create Dominant Dare Form */}
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
@@ -219,27 +219,27 @@ export default function DomDemandCreator() {
                 </div>
               </div>
             </form>
-          </div>
+              </div>
 
           {/* Submit Button - Centered like Dare Difficulty Select */}
           <div className="text-center pt-8">
-            <button
+              <button
               onClick={handleCreate}
-              disabled={creating}
+                disabled={creating}
               className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
-            >
-              {creating ? (
-                <>
-                  <ButtonLoading />
-                  Creating Dare...
-                </>
-              ) : (
-                <>
-                  <PlusIcon className="w-6 h-6" />
-                  Create Dominant Dare
-                </>
-              )}
-            </button>
+              >
+                {creating ? (
+                  <>
+                    <ButtonLoading />
+                    Creating Dare...
+                  </>
+                ) : (
+                  <>
+                    <PlusIcon className="w-6 h-6" />
+                    Create Dominant Dare
+                  </>
+                )}
+              </button>
           </div>
 
           {/* Footer - Matching Dare Difficulty Select Style */}

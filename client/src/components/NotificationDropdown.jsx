@@ -56,8 +56,8 @@ function getNotificationMessage(n) {
       return n.message || 'You have been assigned a new dare.';
     case 'dare_deleted':
       return n.message || 'A dare you were involved in has been deleted.';
-    case 'dare_forfeited':
-      return n.message || 'A dare was forfeited.';
+            case 'dare_chickened_out':
+          return n.message || 'A dare was chickened out of.';
     // Add more legacy types/verbs as needed
     default:
       if (process.env.NODE_ENV === 'development') {

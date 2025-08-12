@@ -62,7 +62,7 @@ router.get('/', auth, async (req, res) => {
     const startIndex = skip;
     const endIndex = startIndex + limit;
     const paginatedActivities = activities.slice(startIndex, endIndex);
-    
+
     res.json({
       activities: paginatedActivities,
       pagination: {

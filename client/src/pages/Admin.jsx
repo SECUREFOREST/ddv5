@@ -38,10 +38,10 @@ const validateRoles = (roles) => {
 // Status mapping utilities
 const mapDareStatus = (status) => {
   const statusMap = {
-    'waiting_for_participant': 'pending',
+    
     'in_progress': 'active',
     'completed': 'completed',
-    'forfeited': 'forfeited',
+            'chickened_out': 'chickened_out',
     'approved': 'approved',
     'rejected': 'rejected'
   };
@@ -50,10 +50,10 @@ const mapDareStatus = (status) => {
 
 const getStatusColor = (status) => {
   const colorMap = {
-    'pending': 'bg-yellow-600/20 text-yellow-400',
+    
     'active': 'bg-blue-600/20 text-blue-400',
     'completed': 'bg-green-600/20 text-green-400',
-    'forfeited': 'bg-red-600/20 text-red-400',
+            'chickened_out': 'bg-red-600/20 text-red-400',
     'approved': 'bg-green-600/20 text-green-400',
     'rejected': 'bg-red-600/20 text-red-400'
   };
@@ -1482,7 +1482,7 @@ function Admin() {
                           <div className="text-sm text-neutral-400 flex items-center gap-2">
                             <span>Total: {dares.length} dares</span>
                             <span>•</span>
-                            <span>Pending: {dares.filter(d => mapDareStatus(d.status) === 'pending').length}</span>
+                            
                             <span>•</span>
                             <span>Approved: {dares.filter(d => mapDareStatus(d.status) === 'approved').length}</span>
                           </div>
@@ -1518,24 +1518,10 @@ function Admin() {
                                     </div>
                                   )}
 
-                                  {/* Consent Status for Dom Demands */}
-                                  {dare.dareType === 'domination' && dare.requiresConsent && (
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                                      <span className={`text-xs font-semibold ${dare.consented ? 'text-green-400' : 'text-red-400'
-                                        }`}>
-                                        {dare.consented ? 'Consented' : 'Pending consent'}
-                                      </span>
-                                      {dare.consentedAt && (
-                                        <span className="text-xs text-neutral-500">
-                                          ({new Date(dare.consentedAt).toLocaleDateString()})
-                                        </span>
-                                      )}
-                                    </div>
-                                  )}
+
                                 </div>
                                 <div className="flex gap-2">
-                                  {mapDareStatus(dare.status) === 'pending' && (
+                                  {mapDareStatus(dare.status) === 'waiting_for_participant' && (
                                     <>
                                       <ActionLoading
                                         loading={actionLoading}

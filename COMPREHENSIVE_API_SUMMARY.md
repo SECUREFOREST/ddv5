@@ -71,8 +71,8 @@ All API endpoints have been implemented to support the complete functionality of
 - `POST /:id/accept` - Accept dare
 - `POST /:id/proof` - Submit proof
 - `POST /:id/grade` - Grade dare
-- `POST /:id/forfeit` - Forfeit dare
-- `POST /:id/chicken-out` - Chicken out (alias for forfeit)
+- `POST /:id/forfeit` - Chicken out of dare (removed - use /chicken-out instead)
+- `POST /:id/chicken-out` - Chicken out of dare
 - `POST /:id/reject` - Reject dare
 - `POST /:id/appeal` - Appeal rejected dare
 - `PATCH /:id` - Update dare
@@ -108,7 +108,7 @@ All API endpoints have been implemented to support the complete functionality of
 - `POST /:id/proof` - Submit proof
 - `PATCH /:id/proof-viewed` - Mark proof as viewed
 - `POST /:id/proof-review` - Review proof
-- `POST /:id/forfeit` - Forfeit game
+- `POST /:id/chicken-out` - Chicken out of game
 - `POST /:id/grade` - Grade game
 - `DELETE /:id` - Delete game
 
