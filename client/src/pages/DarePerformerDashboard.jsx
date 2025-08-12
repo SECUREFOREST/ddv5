@@ -175,9 +175,7 @@ export default function DarePerformerDashboard() {
     activityLoading: false
   });
   
-  // 2025: Gesture and interaction state
-  const [gestureMode, setGestureMode] = useState(false);
-  const [lastGesture, setLastGesture] = useState(null);
+
   
   // Data state
   const [ongoing, setOngoing] = useState([]);
@@ -558,30 +556,7 @@ export default function DarePerformerDashboard() {
     }
   }, [currentUserId, activePage, completedPage, switchPage]);
   
-  // 2025: Gesture handlers
-  const handleSwipe = (direction) => {
-    setLastGesture(direction);
-    
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate([20]);
-    }
-    
-    // Navigate based on swipe
-    if (direction === 'left') {
-      // Next tab
-      const tabs = ['overview', 'ongoing', 'completed', 'switch-games', 'public', 'associates'];
-      const currentIndex = tabs.indexOf(activeTab);
-      const nextIndex = (currentIndex + 1) % tabs.length;
-      setActiveTab(tabs[nextIndex]);
-    } else if (direction === 'right') {
-      // Previous tab
-      const tabs = ['overview', 'ongoing', 'completed', 'switch-games', 'public', 'associates'];
-      const currentIndex = tabs.indexOf(activeTab);
-      const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
-      setActiveTab(tabs[prevIndex]);
-    }
-  };
+
   
   // Filter change handlers for public content
   const handlePublicFilterChange = (filterType, value) => {
