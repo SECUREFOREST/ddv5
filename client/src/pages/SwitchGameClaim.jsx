@@ -63,6 +63,8 @@ export default function SwitchGameClaim() {
       const response = await retryApiCall(() => api.get(`/switches/claim/${gameId}`));
       
       if (response.data) {
+        console.log('Switch game data received:', response.data);
+        console.log('Game difficulty:', response.data.difficulty);
         setGame(response.data);
       } else {
         throw new Error('Invalid response from server');
@@ -311,14 +313,26 @@ export default function SwitchGameClaim() {
                 This game might involve dares up to or including the following difficulty level:
               </p>
               <div className="flex items-center justify-center gap-4 mb-4">
-                <DifficultyBadge level={game?.difficulty} />
+                {game?.difficulty ? (
+                  <DifficultyBadge level={game.difficulty} />
+                ) : (
+                  <span className="px-3 py-1 bg-neutral-600/20 border border-neutral-500/30 text-neutral-400 rounded-full text-sm font-medium">
+                    Difficulty not set
+                  </span>
+                )}
               </div>
             </div>
             
-            {DIFFICULTY_OPTIONS.find(d => d.value === game?.difficulty) && (
+            {game?.difficulty && DIFFICULTY_OPTIONS.find(d => d.value === game.difficulty) ? (
               <div className="text-center">
                 <p className="text-neutral-300 leading-relaxed">
-                  {DIFFICULTY_OPTIONS.find(d => d.value === game?.difficulty).desc}
+                  {DIFFICULTY_OPTIONS.find(d => d.value === game.difficulty).desc}
+                </p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-neutral-300 leading-relaxed">
+                  The difficulty level for this game has not been specified by the creator.
                 </p>
               </div>
             )}
