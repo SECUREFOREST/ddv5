@@ -11,6 +11,7 @@ import { ButtonLoading } from '../components/LoadingSpinner';
 import { DifficultyBadge } from '../components/Badge';
 import Button from '../components/Button';
 import { DIFFICULTY_OPTIONS } from '../constants.jsx';
+import { FormTextarea, FormSelect } from '../components/Form';
 import { 
   FireIcon, 
   ExclamationTriangleIcon, 
@@ -42,6 +43,11 @@ export default function SwitchGameClaim() {
   const [blocking, setBlocking] = useState(false);
   const [showCreatorDare, setShowCreatorDare] = useState(false);
   
+  // Form state for joining the game
+  const [demand, setDemand] = useState('');
+  const [gesture, setGesture] = useState('rock');
+  const [consent, setConsent] = useState(false);
+  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days');
 
 
   useEffect(() => {
@@ -71,9 +77,26 @@ export default function SwitchGameClaim() {
     }
   };
 
-  const handleJoin = async () => {
+  const handleJoin = async (e) => {
+    e.preventDefault();
+    
     if (!user) {
       showError('You must be logged in to join this game.');
+      return;
+    }
+    
+    if (!demand.trim() || demand.trim().length < 10) {
+      showError('Please enter a dare of at least 10 characters.');
+      return;
+    }
+    
+    if (!gesture) {
+      showError('Please select your gesture.');
+      return;
+    }
+    
+    if (!consent) {
+      showError('You must consent to participate in this game.');
       return;
     }
     
@@ -81,10 +104,10 @@ export default function SwitchGameClaim() {
     try {
       const response = await retryApiCall(() => api.post(`/switches/${gameId}/join`, {
         difficulty: game?.difficulty || 'titillating',
-        move: 'rock',
+        move: gesture,
         consent: true,
-        dare: 'Default dare - will be set when game starts',
-        contentDeletion: 'delete_after_30_days'
+        dare: demand,
+        contentDeletion
       }));
       
       showSuccess('Successfully joined the switch game!');
@@ -303,27 +326,118 @@ export default function SwitchGameClaim() {
             )}
           </div>
 
-          {/* Consent Button */}
-          <div className="mt-8 text-center">
-            <Button
-              onClick={handleJoin}
-              disabled={claiming}
-              variant="primary"
-              size="lg"
-              className="mx-auto"
+          {/* Join Game Form */}
+          <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
+            <form onSubmit={handleJoin} className="space-y-6">
+              <h3 className="text-2xl font-bold text-white text-center mb-6">Join the Game</h3>
+              
+              {/* Your Dare */}
+              <FormTextarea
+                label="Your Dare (What the loser must do)"
+                placeholder="Describe the dare you want the loser to perform... (minimum 10 characters)"
+                value={demand}
+                onChange={(e) => setDemand(e.target.value)}
+                required
+                className="h-32 resize-none"
+                maxLength={1000}
+                showCharacterCount
+              />
+
+              {/* Your Move */}
+              <FormSelect
+                label="Your Move (Rock, Paper, or Scissors)"
+                options={[
+                  { value: 'rock', label: '🪨 Rock' },
+                  { value: 'paper', label: '📄 Paper' },
+                  { value: 'scissors', label: '✂️ Scissors' }
+                ]}
+                value={gesture}
+                onChange={(e) => setGesture(e.target.value)}
+                required
+              />
+
+              {/* Content Deletion Preference */}
+              <FormSelect
+                label="Content Deletion Preference"
+                options={[
+                  { value: 'delete_after_view', label: 'Delete after viewing (24 hours)' },
+                  { value: 'delete_after_30_days', label: 'Delete after 30 days' },
+                  { value: 'never_delete', label: 'Never delete' }
+                ]}
+                value={contentDeletion}
+                onChange={(e) => setContentDeletion(e.target.value)}
+                required
+              />
+
+              {/* Consent */}
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="consent"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="w-5 h-5 text-green-500 bg-neutral-800 border-neutral-700 rounded focus:ring-green-500 focus:ring-2 mt-1"
+                    required
+                  />
+                  <label htmlFor="consent" className="text-white text-sm leading-relaxed">
+                    I consent to participate in this switch game. I understand that if I lose, I will be required to perform the creator's dare and submit proof. I also understand that the creator will be required to perform my dare if they lose.
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-6">
+                <button
+                  type="submit"
+                  disabled={claiming || !consent || !demand.trim() || demand.trim().length < 10}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-green-600 hover:to-emerald-700 transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                >
+                  {claiming ? (
+                    <>
+                      <ButtonLoading />
+                      Joining Game...
+                    </>
+                  ) : (
+                    <>
+                      <PlayIcon className="w-6 h-6" />
+                      Accept Challenge
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Block Creator Option */}
+          <div className="text-center pt-8">
+            <button
+              onClick={handleBlockCreator}
+              disabled={blocking}
+              className="bg-red-600/20 text-red-400 px-6 py-3 rounded-xl font-medium hover:bg-red-600/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
             >
-              {claiming ? (
+              {blocking ? (
                 <>
                   <ButtonLoading />
-                  Processing...
+                  Blocking...
                 </>
               ) : (
                 <>
-                  <CheckCircleIcon className="w-6 h-6" />
-                  I Accept
+                  <XMarkIcon className="w-5 h-5" />
+                  Block Creator
                 </>
               )}
-            </Button>
+            </button>
+            <p className="text-neutral-400 text-sm mt-2">
+              Don't want to play with this creator? Block them to avoid future interactions.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center pt-8">
+            <p className="text-neutral-400 text-sm">
+              Changed your mind? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Go back to dashboard</a>.
+            </p>
           </div>
 
 
