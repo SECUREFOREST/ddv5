@@ -375,26 +375,28 @@ export default function SwitchGameClaim() {
               {/* Your Move */}
               <FormSelect
                 label="Your Move (Rock, Paper, or Scissors)"
+                options={[
+                  { value: 'rock', label: '🪨 Rock' },
+                  { value: 'paper', label: '📄 Paper' },
+                  { value: 'scissors', label: '✂️ Scissors' }
+                ]}
                 value={gesture}
                 onChange={(e) => setGesture(e.target.value)}
                 required
-              >
-                <option value="rock">🪨 Rock</option>
-                <option value="paper">📄 Paper</option>
-                <option value="scissors">✂️ Scissors</option>
-              </FormSelect>
+              />
 
               {/* Content Deletion Preference */}
               <FormSelect
                 label="Content Deletion Preference"
+                options={[
+                  { value: 'delete_after_view', label: 'Delete after viewing (24 hours)' },
+                  { value: 'delete_after_30_days', label: 'Delete after 30 days' },
+                  { value: 'never_delete', label: 'Never delete' }
+                ]}
                 value={contentDeletion}
                 onChange={(e) => setContentDeletion(e.target.value)}
                 required
-              >
-                <option value="delete_after_view">Delete after viewing (24 hours)</option>
-                <option value="delete_after_30_days">Delete after 30 days</option>
-                <option value="never_delete">Never delete</option>
-              </FormSelect>
+              />
 
               {/* Consent */}
               <div className="space-y-3">
