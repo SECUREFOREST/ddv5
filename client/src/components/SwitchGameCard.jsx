@@ -77,7 +77,6 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const isParticipant = game.participant && isSameUser(game.participant, currentUserId);
   // Determine available actions
   const canSubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && (!game.proof || !game.proof.user);
-  const canResubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && game.proof && game.proof.user && game.proof.review?.action === 'rejected';
   const canReviewProof = isWinner && game.status === 'proof_submitted' && game.proof && !game.proof.review?.action;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => isSameUser(g.user, currentUserId));
   const canChickenOut = (isCreator || isParticipant) && game.status === 'in_progress';
@@ -334,11 +333,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
             {game.bothLose ? 'Submit Proof' : 'Submit Proof'}
           </button>
         )}
-        {canResubmitProof && (
-          <button className="bg-orange-600 text-white rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>
-            Resubmit Proof
-          </button>
-        )}
+
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
         {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}

@@ -834,17 +834,13 @@ router.post('/:id/proof',
       ) {
         return res.status(400).json({ error: 'You cannot submit proof due to user blocking.' });
       }
-      // Submit proof (handle both new submissions and resubmissions)
+      // Submit proof (no resubmissions allowed)
       if (game.proof && game.proof.user) {
-        // Resubmission - update existing proof
-        game.proof.text = text;
-        game.proof.review = null; // Clear previous review
-        console.log(`Proof resubmitted for game ${game._id} by user ${userId}`);
-      } else {
-        // New submission
-        game.proof = { user: userId, text };
-        console.log(`New proof submitted for game ${game._id} by user ${userId}`);
+        throw new Error('Proof has already been submitted. Resubmissions are not allowed.');
       }
+      
+      game.proof = { user: userId, text };
+      console.log(`New proof submitted for game ${game._id} by user ${userId}`);
       
       game.status = 'proof_submitted';
       // Set proof expiration based on participant's content deletion preference
