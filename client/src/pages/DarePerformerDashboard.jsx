@@ -814,7 +814,7 @@ export default function DarePerformerDashboard() {
       label: 'Overview',
       icon: ChartBarIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-8">
+        <div className="space-y-8">
           {/* Smart Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <SmartStatsCard
@@ -937,7 +937,7 @@ export default function DarePerformerDashboard() {
             </h3>
             <RecentActivityWidget userId={currentUserId} />
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     },
     {
@@ -945,7 +945,7 @@ export default function DarePerformerDashboard() {
       label: 'Active Dares',
       icon: ClockIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+        <div className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -1026,10 +1026,10 @@ export default function DarePerformerDashboard() {
                     />
                   </div>
                 )}
-              </div>
-              )}
+                            </div>
+            )}
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     },
     {
@@ -1037,7 +1037,7 @@ export default function DarePerformerDashboard() {
       label: 'Completed',
       icon: TrophyIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+        <div className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <TrophyIcon className="w-6 h-6 text-green-400" />
@@ -1114,7 +1114,7 @@ export default function DarePerformerDashboard() {
               </div>
             )}
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     },
     {
@@ -1122,7 +1122,7 @@ export default function DarePerformerDashboard() {
       label: 'Switch Games',
       icon: FireIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+        <div className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <FireIcon className="w-6 h-6 text-purple-400" />
@@ -1199,10 +1199,10 @@ export default function DarePerformerDashboard() {
                   />
                 </div>
               )}
-            </div>
+                          </div>
             )}
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     },
     {
@@ -1210,7 +1210,7 @@ export default function DarePerformerDashboard() {
       label: 'Public',
       icon: SparklesIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+        <div className="space-y-6">
           {/* Public Content Filters */}
           <NeumorphicCard variant="glass" className="p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
@@ -1539,7 +1539,7 @@ export default function DarePerformerDashboard() {
               </div>
             )}
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     },
     {
@@ -1547,7 +1547,7 @@ export default function DarePerformerDashboard() {
       label: 'Associates',
       icon: UserGroupIcon,
       content: (
-        <GestureContainer onSwipe={handleSwipe} className="space-y-6">
+        <div className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <UserGroupIcon className="w-6 h-6 text-indigo-400" />
@@ -1589,7 +1589,7 @@ export default function DarePerformerDashboard() {
               </div>
             )}
           </NeumorphicCard>
-        </GestureContainer>
+        </div>
       )
     }
   ];
