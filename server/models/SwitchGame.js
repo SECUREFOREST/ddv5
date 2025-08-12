@@ -25,6 +25,13 @@ const SwitchGameSchema = new mongoose.Schema({
   proof: {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // userId of loser
     text: String, // proof text or link
+    files: [{
+      filename: String, // stored filename
+      originalName: String, // original filename
+      mimetype: String, // file type
+      size: Number, // file size in bytes
+      path: String // file path on server
+    }],
     review: {
       action: { type: String, enum: ['approved', 'rejected'] },
       feedback: String

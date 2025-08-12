@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
 
@@ -49,6 +49,12 @@ function Tag({ tag }) {
 }
 
 export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, onFixGameState, ...props }) {
+  const [proofText, setProofText] = useState('');
+  const [expireAfterView, setExpireAfterView] = useState(false);
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofFiles, setProofFiles] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  
   if (!game) return null;
   
   // Validate game has required fields
@@ -80,6 +86,66 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const canReviewProof = isWinner && game.status === 'proof_submitted' && game.proof && !game.proof.review?.action;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => isSameUser(g.user, currentUserId));
   const canChickenOut = (isCreator || isParticipant) && game.status === 'in_progress';
+
+  const handleProofSubmit = async () => {
+    if (!proofText.trim() && proofFiles.length === 0) {
+      // You could add a toast notification here
+      return;
+    }
+    
+    setSubmittingProof(true);
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      if (proofText.trim()) {
+        formData.append('text', proofText);
+      }
+      formData.append('expireAfterView', expireAfterView);
+      
+      // Add all files
+      proofFiles.forEach((file, index) => {
+        formData.append('files', file);
+      });
+      
+      // Call the onSubmitProof with the FormData
+      await onSubmitProof(formData);
+      
+      // Clear form after successful submission
+      setProofText('');
+      setExpireAfterView(false);
+      setProofFiles([]);
+    } catch (error) {
+      console.error('Proof submission error:', error);
+    } finally {
+      setSubmittingProof(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => {
+      const maxSize = 10 * 1024 * 1024; // 10MB limit
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+      
+      if (file.size > maxSize) {
+        console.warn(`File ${file.name} is too large. Max size is 10MB.`);
+        return false;
+      }
+      
+      if (!allowedTypes.includes(file.type)) {
+        console.warn(`File ${file.name} is not a supported type.`);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setProofFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const removeFile = (index) => {
+    setProofFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Helper for clickable profile links
   const userProfileLink = (user) => {
@@ -326,14 +392,161 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         )}
         <div>Last updated: {game.updatedAt ? new Date(game.updatedAt).toLocaleString() : 'N/A'}</div>
       </div>
-      {/* Actions Section */}
-      <div className="flex items-center justify-end gap-2 mt-2">
-        {canSubmitProof && (
-          <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>
-            {game.bothLose ? 'Submit Proof' : 'Submit Proof'}
-          </button>
-        )}
+      {/* Proof Submission Form - Aligned with DOM Demand Creator Design */}
+      {canSubmitProof && (
+        <div className="mt-6 bg-neutral-800/80 rounded-2xl p-6 border border-neutral-700/50 shadow-xl">
+          <h4 className="text-lg font-semibold text-white mb-4">Submit Your Proof</h4>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
+                Proof Description
+              </label>
+              <textarea
+                placeholder="Describe how you completed the dare... (This will be visible to the winner for review)"
+                className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none"
+                rows={4}
+                maxLength={1000}
+                value={proofText}
+                onChange={(e) => setProofText(e.target.value)}
+              />
+              <div className="text-xs text-neutral-500 mt-1 text-right">
+                {proofText.length}/1000 characters
+              </div>
+            </div>
 
+            {/* File Upload Section */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">
+                Upload Proof Files
+              </label>
+              <div className="space-y-3">
+                {/* File Input */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    id={`file-upload-${game._id}`}
+                  />
+                  <label
+                    htmlFor={`file-upload-${game._id}`}
+                    className="flex items-center justify-center w-full px-4 py-3 bg-neutral-800/50 border-2 border-dashed border-neutral-600 rounded-xl text-neutral-300 hover:border-neutral-500 hover:bg-neutral-700/50 transition-all duration-200 cursor-pointer"
+                  >
+                    <div className="text-center">
+                      <div className="text-lg mb-1">📁</div>
+                      <div className="text-sm font-medium">Click to upload files</div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        Images (JPEG, PNG, GIF, WebP) • Videos (MP4, WebM) • Max 10MB each
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {/* File List */}
+                {proofFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-xs text-neutral-400 font-medium">Selected Files:</div>
+                    {proofFiles.map((file, index) => (
+                      <div key={index} className="p-3 bg-neutral-700/50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-neutral-300">
+                              {file.type.startsWith('image/') ? '🖼️' : '🎥'} {file.name}
+                            </span>
+                            <span className="text-xs text-neutral-500">
+                              ({(file.size / 1024 / 1024).toFixed(1)}MB)
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="text-red-400 hover:text-red-300 text-sm p-1 rounded hover:bg-red-900/20 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        
+                        {/* Image Preview */}
+                        {file.type.startsWith('image/') && (
+                          <div className="mt-2">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview of ${file.name}`}
+                              className="w-full h-32 object-cover rounded-lg border border-neutral-600"
+                              onLoad={(e) => {
+                                // Clean up the object URL after loading
+                                setTimeout(() => URL.revokeObjectURL(e.target.src), 1000);
+                              }}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Video Preview */}
+                        {file.type.startsWith('video/') && (
+                          <div className="mt-2">
+                            <video
+                              src={URL.createObjectURL(file)}
+                              className="w-full h-32 object-cover rounded-lg border border-neutral-600"
+                              controls
+                              muted
+                              onLoadedMetadata={(e) => {
+                                // Clean up the object URL after loading
+                                setTimeout(() => URL.revokeObjectURL(e.target.src), 1000);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id={`expireAfterView-${game._id}`}
+                checked={expireAfterView}
+                onChange={(e) => setExpireAfterView(e.target.checked)}
+                className="w-5 h-5 text-primary bg-neutral-800 border-neutral-700 rounded focus:ring-primary focus:ring-2"
+              />
+              <label htmlFor={`expireAfterView-${game._id}`} className="text-sm text-neutral-300">
+                Delete proof after winner views it
+              </label>
+            </div>
+            
+            <div className="text-center pt-4">
+              <button 
+                className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                onClick={handleProofSubmit}
+                disabled={submittingProof || (!proofText.trim() && proofFiles.length === 0)}
+              >
+                {submittingProof ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    📸 Submit Proof
+                    {proofFiles.length > 0 && (
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full ml-2">
+                        {proofFiles.length} file{proofFiles.length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Actions Section */}
+      <div className="flex items-center justify-end gap-2 mt-4">
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
         {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}

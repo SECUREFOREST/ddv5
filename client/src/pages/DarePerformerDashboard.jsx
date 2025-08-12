@@ -1378,6 +1378,20 @@ export default function DarePerformerDashboard() {
                     key={game._id} 
                     game={game}
                     currentUserId={currentUserId}
+                    onSubmitProof={async (formData) => {
+                      try {
+                        await api.post(`/switches/${game._id}/proof`, formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' },
+                        });
+                        showSuccess('Proof submitted successfully!');
+                        // Refresh the data
+                        fetchMySwitchGames();
+                      } catch (error) {
+                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                        showError(errorMessage);
+                        throw error; // Re-throw so the component can handle it
+                      }
+                    }}
                     actions={
                       <div className="flex gap-2">
                         <button
@@ -1673,6 +1687,20 @@ export default function DarePerformerDashboard() {
                     key={game._id} 
                     game={game}
                     currentUserId={currentUserId}
+                    onSubmitProof={async (formData) => {
+                      try {
+                        await api.post(`/switches/${game._id}/proof`, formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' },
+                        });
+                        showSuccess('Proof submitted successfully!');
+                        // Refresh the data
+                        fetchPublicDataWithFilters();
+                      } catch (error) {
+                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                        showError(errorMessage);
+                        throw error; // Re-throw so the component can handle it
+                      }
+                    }}
                     actions={
                       <div className="flex gap-2">
                         <button

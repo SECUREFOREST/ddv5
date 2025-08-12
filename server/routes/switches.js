@@ -5,14 +5,45 @@ const Dare = require('../models/Dare');
 const { sendNotification } = require('../utils/notification');
 const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
-const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'application/pdf'];
+const allowedProofTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
 const MAX_PROOF_SIZE = 10 * 1024 * 1024; // 10MB
 const { logActivity } = require('../utils/activity');
 const { logAudit } = require('../utils/auditLog');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 // GET /api/switches - list all switch games (auth required, filter out blocked users)
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+
+// Multer setup for proof file uploads
+const proofStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Create proofs directory if it doesn't exist
+    const proofsDir = path.join(__dirname, '../uploads/proofs');
+    if (!fs.existsSync(proofsDir)) {
+      fs.mkdirSync(proofsDir, { recursive: true });
+    }
+    cb(null, proofsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const proofUpload = multer({ 
+  storage: proofStorage, 
+  limits: { fileSize: MAX_PROOF_SIZE },
+  fileFilter: function (req, file, cb) {
+    if (allowedProofTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images and videos are allowed.'), false);
+    }
+  }
+});
 
 // Helper function to clean up expired proof submissions
 async function cleanupExpiredProofs() {
@@ -790,6 +821,7 @@ router.post('/:id/move',
 // POST /api/switches/:id/proof - submit proof (auth required)
 router.post('/:id/proof',
   require('express-validator').param('id').isMongoId(),
+  proofUpload.array('files', 5), // Allow up to 5 files
   [
     require('express-validator').body('text').optional().isString().isLength({ max: 1000 }).trim().escape(),
     require('express-validator').body('expireAfterView').optional().isBoolean()
@@ -839,19 +871,48 @@ router.post('/:id/proof',
         throw new Error('Proof has already been submitted. Resubmissions are not allowed.');
       }
       
-      game.proof = { user: userId, text };
-      console.log(`New proof submitted for game ${game._id} by user ${userId}`);
+      // Handle file uploads
+      let proofFiles = [];
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          proofFiles.push({
+            filename: file.filename,
+            originalName: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            path: file.path
+          });
+        }
+      }
+      
+      game.proof = { 
+        user: userId, 
+        text,
+        files: proofFiles,
+        expireAfterView: expireAfterView || false
+      };
+      console.log(`New proof submitted for game ${game._id} by user ${userId} with ${proofFiles.length} files`);
       
       game.status = 'proof_submitted';
       // Set proof expiration based on participant's content deletion preference
       const proofExpiration = game.contentDeletion === 'delete_after_view' ? 24 : 
                               game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
       game.proofExpiresAt = new Date(Date.now() + proofExpiration * 60 * 60 * 1000);
-      game.expireProofAfterView = expireAfterView || false;
       await game.save();
       res.json({ message: 'Proof submitted successfully.', game });
     } catch (err) {
       console.error('Proof submission error:', err);
+      
+      // If files were uploaded but DB update failed, delete the files
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          try {
+            fs.unlinkSync(file.path);
+          } catch (e) {
+            console.error('Failed to delete uploaded file:', e);
+          }
+        }
+      }
       
       // Provide more specific error messages
       let errorMessage = 'Failed to submit proof.';
@@ -863,6 +924,10 @@ router.post('/:id/proof',
         errorMessage = 'Proof submission window has expired.';
       } else if (err.message.includes('blocking')) {
         errorMessage = 'Cannot submit proof due to user blocking.';
+      } else if (err.message.includes('Invalid file type')) {
+        errorMessage = 'Invalid file type. Only images and videos are allowed.';
+      } else if (err.message.includes('File too large')) {
+        errorMessage = 'File too large. Maximum size is 10MB.';
       } else {
         errorMessage = err.message || errorMessage;
       }
