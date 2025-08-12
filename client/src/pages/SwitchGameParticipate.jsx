@@ -39,10 +39,10 @@ function StatusBadge({ status }) {
       icon = <CheckCircleIcon className="w-5 h-5" />;
       text = 'Completed';
       break;
-            case 'chickened_out':
-          badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
-          icon = <ExclamationTriangleIcon className="w-5 h-5" />;
-          text = 'Chickened Out';
+    case 'chickened_out':
+      badgeClass = 'bg-red-600/20 border border-red-500/50 text-red-300';
+      icon = <ExclamationTriangleIcon className="w-5 h-5" />;
+      text = 'Chickened Out';
       break;
     default:
       badgeClass = 'bg-neutral-700 text-neutral-100';
@@ -55,8 +55,6 @@ function StatusBadge({ status }) {
     </span>
   );
 }
-
-
 
 export default function SwitchGameParticipate() {
   const { gameId } = useParams();
@@ -190,8 +188,8 @@ export default function SwitchGameParticipate() {
     setChickenOutLoading(true);
     setChickenOutError('');
     try {
-              // Use retry mechanism for chicken out
-        await retryApiCall(() => api.post(`/switches/${game._id}/chicken-out`));
+      // Use retry mechanism for chicken out
+      await retryApiCall(() => api.post(`/switches/${game._id}/chicken-out`));
       showSuccess('You have successfully chickened out.');
       // Optionally refresh or redirect
       window.location.reload();
@@ -209,7 +207,7 @@ export default function SwitchGameParticipate() {
     content = (
       <div className="min-h-screen bg-black">
         <div className="max-w-3xl mx-auto px-4 py-8">
-          {/* Header */}
+          {/* Header - Matching DomDemandCreator Design */}
           <div className="text-center mb-12">
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Participate in Switch Game</h1>
             <p className="text-xl sm:text-2xl text-neutral-300">
@@ -217,7 +215,7 @@ export default function SwitchGameParticipate() {
             </p>
           </div>
 
-          {/* Difficulty Selection - Vertical Layout like Dom Demand Create */}
+          {/* Difficulty Selection - Vertical Layout like DomDemandCreator */}
           <div className="space-y-4 mb-8">
             {DIFFICULTY_OPTIONS.map(opt => (
               <button
@@ -260,10 +258,9 @@ export default function SwitchGameParticipate() {
             ))}
           </div>
 
-          {/* Form Card */}
+          {/* Form Card - Matching DomDemandCreator Design */}
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
-                        <form onSubmit={handleFindGame} className="space-y-6">
-
+            <form onSubmit={handleFindGame} className="space-y-6">
               <div className="pt-4">
                 <label className="block text-lg font-semibold text-white mb-3">Your Demand (if they lose)</label>
                 <textarea
@@ -295,7 +292,7 @@ export default function SwitchGameParticipate() {
             </form>
           </div>
 
-          {/* Submit Button - Centered like Dom Demand Create */}
+          {/* Submit Button - Centered like DomDemandCreator */}
           <div className="text-center pt-8">
             <button
               onClick={handleFindGame}
@@ -316,7 +313,7 @@ export default function SwitchGameParticipate() {
             </button>
           </div>
 
-          {/* Footer - Matching Dom Demand Create Style */}
+          {/* Footer - Matching DomDemandCreator Style */}
           <div className="text-center pt-8">
             <p className="text-neutral-400 text-sm">
               Want to play something else? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
@@ -362,7 +359,7 @@ export default function SwitchGameParticipate() {
     content = (
       <div className="min-h-screen bg-black">
         <div className="max-w-3xl mx-auto px-4 py-8">
-          {/* Header */}
+          {/* Header - Matching DomDemandCreator Design */}
           <div className="text-center mb-12">
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Participate in Switch Game</h1>
           </div>
@@ -370,7 +367,7 @@ export default function SwitchGameParticipate() {
           {/* Status Badge */}
           {game && <StatusBadge status={game.status} />}
 
-          {/* Game Info Card */}
+          {/* Game Info Card - Matching DomDemandCreator Design */}
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl mb-8">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Game Details</h2>
             
@@ -418,7 +415,7 @@ export default function SwitchGameParticipate() {
             </div>
           </div>
 
-          {/* Join Form Card */}
+          {/* Join Form Card - Matching DomDemandCreator Design */}
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Join Game</h2>
             
@@ -531,11 +528,10 @@ export default function SwitchGameParticipate() {
                   ))}
                 </div>
               </div>
-
             </form>
           </div>
 
-          {/* Submit Button - Centered like Dom Demand Create */}
+          {/* Submit Button - Centered like DomDemandCreator */}
           <div className="text-center pt-8">
             <button
               onClick={handleSubmit}
@@ -547,7 +543,7 @@ export default function SwitchGameParticipate() {
             </button>
           </div>
 
-          {/* Footer - Matching Dom Demand Create Style */}
+          {/* Footer - Matching DomDemandCreator Style */}
           <div className="text-center pt-8">
             <p className="text-neutral-400 text-sm">
               Want to play something else? <a href="/dashboard" className="text-primary hover:text-primary-light underline">Try one of our other options</a>.
