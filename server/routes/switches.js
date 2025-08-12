@@ -370,6 +370,7 @@ router.post('/:id/join',
     require('express-validator').body('difficulty').isString().isIn(['titillating', 'arousing', 'explicit', 'edgy', 'hardcore']),
     require('express-validator').body('move').isString().isIn(['rock', 'paper', 'scissors']),
     require('express-validator').body('consent').isBoolean(),
+    require('express-validator').body('dare').isString().isLength({ min: 10, max: 1000 }).withMessage('Dare must be between 10 and 1000 characters.'),
     require('express-validator').body('contentDeletion').optional()
       .isString().withMessage('Content deletion must be a string.')
       .isIn(['delete_after_view', 'delete_after_30_days', 'never_delete']).withMessage('Content deletion must be one of: delete_after_view, delete_after_30_days, never_delete.'),
@@ -383,7 +384,7 @@ router.post('/:id/join',
       // Prevent joining if in cooldown or at open dare limit
       await require('./dares').checkSlotAndCooldownAtomic(req.userId);
       const userId = req.userId;
-      const { difficulty, move, consent, contentDeletion } = req.body;
+      const { difficulty, move, consent, dare, contentDeletion } = req.body;
       const game = await SwitchGame.findById(req.params.id);
       if (!game) throw new Error('Not found');
       if (game.status !== 'waiting_for_participant' || game.participant) {
@@ -391,7 +392,7 @@ router.post('/:id/join',
       }
       if (game.participant) throw new Error('This switch game already has a participant.');
       if (game.creator.equals(userId)) throw new Error('You cannot join your own switch game as a participant.');
-      if (!difficulty || !move || !consent) throw new Error('Difficulty, move, and consent are required.');
+      if (!difficulty || !move || !consent || !dare) throw new Error('Difficulty, move, consent, and dare are required.');
       // Blocked user check
       const creator = await User.findById(game.creator).select('blockedUsers');
       const participantUser = await User.findById(userId).select('blockedUsers');
@@ -401,21 +402,6 @@ router.post('/:id/join',
       ) {
         throw new Error('You cannot join this switch game due to user blocking.');
       }
-      // Assign a random dare to the participant from the pool with the same difficulty, dareType 'switch', not created by the participant
-      const darePool = await Dare.aggregate([
-        { $match: {
-            difficulty: difficulty,
-            dareType: 'switch',
-            creator: { $ne: mongoose.Types.ObjectId(userId) },
-            public: true
-          }
-        },
-        { $sample: { size: 1 } }
-      ]);
-      if (!darePool.length) {
-        return res.status(400).json({ error: 'No available dares for this difficulty. Please try another difficulty or contact support.' });
-      }
-      const randomDare = darePool[0];
       
       // OSA-style content expiration setup based on participant's choice
       const thirtyDaysFromNow = new Date();
@@ -423,8 +409,8 @@ router.post('/:id/join',
       
       game.participant = userId;
       game.participantDare = {
-        description: randomDare.description,
-        difficulty: randomDare.difficulty,
+        description: dare, // Use the participant's own dare
+        difficulty: difficulty, // Use the difficulty the participant chose
         move,
         consent
       };

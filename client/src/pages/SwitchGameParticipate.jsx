@@ -158,17 +158,60 @@ export default function SwitchGameParticipate() {
       showError('Please select your gesture.');
       return;
     }
+    
+    // Validate difficulty is available
+    const gameDifficulty = game.creatorDare?.difficulty || game.difficulty;
+    if (!gameDifficulty) {
+      showError('Game difficulty is not available. Please try refreshing the page.');
+      return;
+    }
+    
+    // Validate difficulty is one of the allowed values
+    const allowedDifficulties = ['titillating', 'arousing', 'explicit', 'edgy', 'hardcore'];
+    if (!allowedDifficulties.includes(gameDifficulty)) {
+      showError(`Invalid difficulty: ${gameDifficulty}. Please contact support.`);
+      return;
+    }
+    
+    // Validate contentDeletion is one of the allowed values
+    const allowedContentDeletion = ['delete_after_view', 'delete_after_30_days', 'never_delete'];
+    if (!allowedContentDeletion.includes(contentDeletion)) {
+      showError(`Invalid content deletion setting: ${contentDeletion}. Please contact support.`);
+      return;
+    }
+    
+    // Debug logging
+    console.log('Game object:', game);
+    console.log('Game difficulty:', gameDifficulty);
+    console.log('Participant dare:', demand);
+    console.log('Content deletion:', contentDeletion);
+    console.log('Request payload:', {
+      move: gesture,
+      consent: true,
+      difficulty: gameDifficulty,
+      dare: demand,
+      contentDeletion
+    });
+    
     try {
       // Use retry mechanism for switch game join
-      await retryApiCall(() => api.post(`/switches/${gameId}/join`, { 
-        move: gesture, 
-        consent: true, 
-        difficulty: game.difficulty,
-        contentDeletion // OSA-style content expiration specified by participant
-      }));
+      const requestPayload = {
+        move: gesture,
+        consent: true,
+        difficulty: gameDifficulty,
+        dare: demand, // Participant's dare description for the creator
+        contentDeletion
+      };
+      
+      console.log('Sending request with payload:', requestPayload);
+      
+      await retryApiCall(() => api.post(`/switches/${gameId}/join`, requestPayload));
       showSuccess('Successfully joined the game!');
       navigate(`/switches/${gameId}`);
     } catch (err) {
+      console.error('Join game error:', err);
+      console.error('Error response:', err.response?.data);
+      
       const errorMessage = err.response?.data?.error || 'Failed to join game.';
       
       // Handle block-related errors specifically
@@ -262,7 +305,7 @@ export default function SwitchGameParticipate() {
           <div className="bg-neutral-800/80 rounded-2xl p-8 border border-neutral-700/50 shadow-xl">
             <form onSubmit={handleFindGame} className="space-y-6">
               <div className="pt-4">
-                <label className="block text-lg font-semibold text-white mb-3">Your Demand (if they lose)</label>
+                <label className="block text-lg font-semibold text-white mb-3">Your Dare for the Creator</label>
                 <textarea
                   className="w-full rounded-xl border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                   value={demand}
@@ -270,10 +313,13 @@ export default function SwitchGameParticipate() {
                   rows={4}
                   required
                   minLength={10}
-                  placeholder="Describe the dare you want the other to perform if they lose..."
+                  placeholder="Describe the dare you want the creator to perform if you win the rock-paper-scissors game..."
                   aria-label="Description or requirements"
                 />
-                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game.</p>
+                <p className="text-neutral-400 text-sm mt-2">
+                  <strong>Important:</strong> If you win the rock-paper-scissors game, the creator will have to perform this dare. 
+                  Make it challenging but fair!
+                </p>
               </div>
 
               <div className="flex items-center gap-3">
@@ -421,19 +467,22 @@ export default function SwitchGameParticipate() {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="pt-4">
-                <label className="block text-lg font-semibold text-white mb-3">Your demand, if they lose</label>
+                <label className="block text-lg font-semibold text-white mb-3">Your dare for the creator</label>
                 <textarea
                   rows={4}
                   className="w-full rounded-xl border border-neutral-700 px-4 py-3 bg-neutral-800/50 text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                   required
                   aria-required="true"
-                  name="switch[demand]"
-                  id="switch_demand"
+                  name="switch[dare]"
+                  id="switch_dare"
                   value={demand}
                   onChange={e => setDemand(e.target.value)}
-                  placeholder="Describe the dare you want the other to perform if they lose..."
+                  placeholder="Describe the dare you want the creator to perform if you win the rock-paper-scissors game..."
                 />
-                <p className="text-neutral-400 text-sm mt-2">They will only see this if they lose the game.</p>
+                <p className="text-neutral-400 text-sm mt-2">
+                  <strong>Important:</strong> If you win the rock-paper-scissors game, the creator will have to perform this dare. 
+                  Make it challenging but fair!
+                </p>
               </div>
 
               <div className="pt-4">
