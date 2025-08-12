@@ -282,18 +282,19 @@ export default function PublicDares() {
                                 </Link>
                               </div>
                             </div>
-                            <Link to={`/dare/consent/${dare._id}`}>
+                            <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`}>
                               <button 
                                 className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
                                 aria-label={`Participate in dare by ${dare.creator?.fullName || 'User'}`}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
-                                    window.location.href = `/dare/consent/${dare._id}`;
+                                    const link = dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`;
+                                    window.location.href = link;
                                   }
                                 }}
                               >
-                                Participate
+                                {dare.claimToken ? 'Claim & Perform' : 'Participate'}
                               </button>
                             </Link>
                           </div>
@@ -357,18 +358,18 @@ export default function PublicDares() {
                                 </Link>
                               </div>
                             </div>
-                            <Link to={`/switches/consent/${game._id}`}>
+                            <Link to={`/switches/claim/${game._id}`}>
                               <button 
                                 className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:from-purple-700 hover:to-pink-700" 
                                 aria-label={`Participate in switch game by ${game.creator?.fullName || 'User'}`}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
-                                    window.location.href = `/switches/consent/${game._id}`;
+                                    window.location.href = `/switches/claim/${game._id}`;
                                   }
                                 }}
                               >
-                                Participate
+                                Join Game
                               </button>
                             </Link>
                           </div>

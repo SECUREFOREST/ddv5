@@ -24,7 +24,11 @@ export default function DareDifficultySelect() {
 
       if (response.data && response.data._id) {
         showSuccess('Dare found! Redirecting...');
-        navigate(`/dare/consent/${response.data._id}`, { state: { dare: response.data } });
+        // Use claimable link if available, otherwise fall back to consent
+        const targetRoute = response.data.claimToken 
+          ? `/claim/${response.data.claimToken}` 
+          : `/dare/consent/${response.data._id}`;
+        navigate(targetRoute, { state: { dare: response.data } });
       } else {
         showError('No dare found for this difficulty level.');
       }

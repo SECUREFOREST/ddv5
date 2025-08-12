@@ -153,8 +153,19 @@ router.get('/', auth, async (req, res) => {
       }
     }
     
+    // Include claimable information for public switch games
+    const gamesWithClaimInfo = games.map(game => {
+      const gameObj = game.toObject();
+      // Mark as claimable if it's public, waiting for participants, and not created by current user
+      if (game.public && game.status === 'waiting_for_participant' && !game.participant && game.creator.toString() !== req.userId) {
+        gameObj.claimable = true;
+        gameObj.claimRoute = `/switches/claim/${game._id}`;
+      }
+      return gameObj;
+    });
+    
     res.json({
-      games,
+      games: gamesWithClaimInfo,
       pagination: {
         page,
         limit,

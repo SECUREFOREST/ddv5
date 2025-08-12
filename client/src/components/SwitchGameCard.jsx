@@ -177,6 +177,13 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
           {/* No difficulty badge for switch games, but you can add if available: */}
           {/* <DifficultyBadge level={game.difficulty} /> */}
           <StatusBadge status={game.status} />
+          {/* Claimable indicator */}
+          {game.claimable && game.status === 'waiting_for_participant' && !game.participant && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full text-xs font-medium ml-2">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              Claimable
+            </div>
+          )}
         </div>
       </div>
       {/* Tags if available */}
