@@ -456,6 +456,32 @@ export default function DarePerformerDashboard() {
           const games = responseData.games || responseData;
           const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
           
+          // Debug logging for switch games data
+          console.log('Switch games response data:', responseData);
+          console.log('Validated switch games data:', validatedData);
+          
+          // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
+          const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
+            const hasRequiredFields = game && game.creator && game.participant && game.status;
+            if (!hasRequiredFields) {
+              console.warn('Filtering out switch game with missing required fields:', {
+                gameId: game?._id,
+                hasCreator: !!game?.creator,
+                hasParticipant: !!game?.participant,
+                hasStatus: !!game?.status,
+                gameData: game
+              });
+            }
+            return hasRequiredFields;
+          }) : [];
+          
+          // Log summary of filtering
+          if (validatedData.length !== filteredGames.length) {
+            console.warn(`Filtered out ${validatedData.length - filteredGames.length} switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredGames.length}`);
+          }
+          
+          console.log('Filtered switch games:', filteredGames);
+          
           // Extract pagination metadata
           let totalSwitchItems = 0;
           let totalSwitchPages = 1;
@@ -467,14 +493,14 @@ export default function DarePerformerDashboard() {
           
           // Fallback to actual games if pagination metadata is missing
           if (totalSwitchItems === 0) {
-            totalSwitchItems = Array.isArray(validatedData) ? validatedData.length : 0;
+            totalSwitchItems = filteredGames.length;
           }
           
           // Update pagination state
           setSwitchTotalItems(totalSwitchItems);
           setSwitchTotalPages(totalSwitchPages);
           
-          setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
+          setMySwitchGames(filteredGames);
         }
       }
       
@@ -503,7 +529,27 @@ export default function DarePerformerDashboard() {
           
           const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
 
-          setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
+          // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
+          const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
+            const hasRequiredFields = game && game.creator && game.participant && game.status;
+            if (!hasRequiredFields) {
+              console.warn('Filtering out public switch game with missing required fields:', {
+                gameId: game?._id,
+                hasCreator: !!game?.creator,
+                hasParticipant: !!game?.participant,
+                hasStatus: !!game?.status,
+                gameData: game
+              });
+            }
+            return hasRequiredFields;
+          }) : [];
+          
+          // Log summary of filtering
+          if (validatedData.length !== filteredPublicSwitchGames.length) {
+            console.warn(`Filtered out ${validatedData.length - filteredPublicSwitchGames.length} public switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredPublicSwitchGames.length}`);
+          }
+
+          setPublicSwitchGames(filteredPublicSwitchGames);
           
           // Extract pagination metadata
           if (responseData.pagination) {
@@ -1135,6 +1181,18 @@ export default function DarePerformerDashboard() {
               <FireIcon className="w-6 h-6 text-purple-400" />
               Switch Games ({switchTotalItems})
             </h3>
+            
+            {/* Show info about filtered games if any were removed due to incomplete data */}
+            {mySwitchGames.length !== safeMySwitchGames.length && (
+              <div className="mb-4 p-3 bg-amber-900/20 border border-amber-700/50 rounded text-sm">
+                <div className="text-amber-400">
+                  <strong>Note:</strong> Some games were filtered out due to incomplete data. This is usually a temporary issue.
+                </div>
+                <div className="text-amber-300 text-xs mt-1">
+                  Showing {safeMySwitchGames.length} of {mySwitchGames.length} games. Try refreshing the page.
+                </div>
+              </div>
+            )}
             {safeMySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1457,6 +1515,18 @@ export default function DarePerformerDashboard() {
                 )}
               </div>
             </div>
+            
+            {/* Show info about filtered games if any were removed due to incomplete data */}
+            {publicSwitchGames.length !== safePublicSwitchGames.length && (
+              <div className="mb-4 p-3 bg-amber-900/20 border border-amber-700/50 rounded text-sm">
+                <div className="text-amber-400">
+                  <strong>Note:</strong> Some public switch games were filtered out due to incomplete data. This is usually a temporary issue.
+                </div>
+                <div className="text-amber-300 text-xs mt-1">
+                  Showing {safePublicSwitchGames.length} of {publicSwitchGames.length} games. Try refreshing the page.
+                </div>
+              </div>
+            )}
             {dataLoading.publicSwitch ? (
               <div className="text-center py-8">
                 <LoadingSpinner size="lg" />
