@@ -442,6 +442,13 @@ export default function DarePerformerDashboard() {
     search: ''
   });
   
+  // Filter state for public switch games
+  const [publicSwitchFilters, setPublicSwitchFilters] = useState({
+    difficulty: '',
+    tags: [],
+    search: ''
+  });
+  
   const ITEMS_PER_PAGE = 8;
   
 
@@ -790,6 +797,13 @@ export default function DarePerformerDashboard() {
       ...prev,
       [filterType]: value
     }));
+    // Also apply to switch games for unified filtering (except dareType which is dare-specific)
+    if (filterType === 'difficulty' || filterType === 'tags') {
+      setPublicSwitchFilters(prev => ({
+        ...prev,
+        [filterType]: value
+      }));
+    }
     // Reset to first page when filters change
     setPublicDarePage(1);
     setPublicSwitchPage(1);
@@ -803,6 +817,10 @@ export default function DarePerformerDashboard() {
   
   const handlePublicSearch = (searchTerm) => {
     setPublicFilters(prev => ({
+      ...prev,
+      search: searchTerm
+    }));
+    setPublicSwitchFilters(prev => ({
       ...prev,
       search: searchTerm
     }));
@@ -823,6 +841,11 @@ export default function DarePerformerDashboard() {
       tags: [],
       search: ''
     });
+    setPublicSwitchFilters({
+      difficulty: '',
+      tags: [],
+      search: ''
+    });
     setPublicDarePage(1);
     setPublicSwitchPage(1);
     // Fetch new data with cleared filters
@@ -832,6 +855,8 @@ export default function DarePerformerDashboard() {
       }
     }, 100);
   };
+  
+
   
   // Separate function to get filtered counts first, then paginated results
   const fetchPublicDataWithFilters = useCallback(async () => {
@@ -862,7 +887,7 @@ export default function DarePerformerDashboard() {
       // Step 3: Get paginated results with filters
       const [publicData, publicSwitchData] = await Promise.allSettled([
         api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}`),
-        api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}`)
+        api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}&tags=${(publicSwitchFilters?.tags || []).join(',')}&search=${publicSwitchFilters?.search || ''}`)
       ]);
       
       // Step 4: Process the paginated results
@@ -885,7 +910,7 @@ export default function DarePerformerDashboard() {
     } finally {
       setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
     }
-  }, [currentUserId, publicFilters, publicDarePage, publicSwitchPage]);
+  }, [currentUserId, publicFilters, publicSwitchFilters, publicDarePage, publicSwitchPage]);
   
   // Separate effect for public data with filters-first approach
   useEffect(() => {
@@ -1390,7 +1415,7 @@ export default function DarePerformerDashboard() {
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <FunnelIcon className="w-6 h-6 text-blue-400" />
-                Filters & Search
+                Public Content Filters & Search
                 {(dataLoading.public || dataLoading.publicSwitch) && (
                   <div className="flex items-center gap-2 text-sm text-blue-400">
                     <LoadingSpinner size="sm" />
@@ -1416,7 +1441,7 @@ export default function DarePerformerDashboard() {
                   className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
                   disabled={dataLoading.public || dataLoading.publicSwitch}
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               </div>
             </div>
@@ -1426,7 +1451,7 @@ export default function DarePerformerDashboard() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white/80">Search</label>
                 <Search
-                  placeholder="Search dares..."
+                  placeholder="Search dares and switch games..."
                   onSearch={handlePublicSearch}
                   className="w-full"
                 />
@@ -1455,7 +1480,7 @@ export default function DarePerformerDashboard() {
                 <select
                   value={publicFilters.dareType}
                   onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
-                  className="w-full bg-neutral-800 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-neutral-800 border border-white/20 rounded-lg px-3 py-2 text-white focus:border-transparent"
                 >
                   <option value="">All Types</option>
                   <option value="submission">Submission</option>
@@ -1475,7 +1500,21 @@ export default function DarePerformerDashboard() {
                 />
               </div>
             </div>
+            
+            {/* Filter Application Info */}
+            <div className="mt-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <div className="text-sm text-blue-300">
+                <strong>Filter Application:</strong>
+                <ul className="mt-2 space-y-1 text-blue-200">
+                  <li>• <strong>Search:</strong> Applies to both dares and switch games</li>
+                  <li>• <strong>Difficulty:</strong> Applies to both dares and switch games</li>
+                  <li>• <strong>Tags:</strong> Applies to both dares and switch games</li>
+                  <li>• <strong>Dare Type:</strong> Applies only to dares</li>
+                </ul>
+              </div>
+            </div>
           </NeumorphicCard>
+          
           
           {/* Public Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
@@ -1578,7 +1617,16 @@ export default function DarePerformerDashboard() {
                   <FireIcon className="w-6 h-6 text-purple-400" />
                   Public Switch Games ({publicSwitchTotalItems})
                 </h3>
-                <div className="text-sm text-white/70">Showing all available switch games</div>
+                {publicSwitchFilters.difficulty || publicSwitchFilters.tags.length > 0 || publicSwitchFilters.search ? (
+                  <div className="text-sm text-white/70">
+                    Showing filtered results
+                    {publicSwitchFilters.difficulty && ` • ${publicSwitchFilters.difficulty}`}
+                    {publicSwitchFilters.tags.length > 0 && ` • ${publicSwitchFilters.tags.length} tags`}
+                    {publicSwitchFilters.search && ` • "${publicSwitchFilters.search}"`}
+                  </div>
+                ) : (
+                  <div className="text-sm text-white/70">Showing all available switch games</div>
+                )}
               </div>
             </div>
             {dataLoading.publicSwitch ? (
