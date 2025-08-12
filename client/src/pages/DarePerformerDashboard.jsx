@@ -1172,10 +1172,10 @@ export default function DarePerformerDashboard() {
                     onClick={() => setActiveTab('public')}
                     className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
                   >
-                    Find Games
+                                        Find Games
                   </button>
+                </div>
               </div>
-          </div>
             ) : (
             <div className="space-y-4">
                 {safeMySwitchGames.length > 0 && safeMySwitchGames.map((game) => (
