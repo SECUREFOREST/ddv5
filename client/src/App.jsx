@@ -40,6 +40,9 @@ const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
 const UIDemo = React.lazy(() => import('./pages/UIDemo'));
 const SwitchGames = React.lazy(() => import('./pages/SwitchGames'));
 const SwitchGameCreate = React.lazy(() => import('./pages/SwitchGameCreate'));
+const SwitchGameJoin = React.lazy(() => import('./pages/SwitchGameJoin'));
+const SwitchGameLobby = React.lazy(() => import('./pages/SwitchGameLobby'));
+const SwitchGameHistory = React.lazy(() => import('./pages/SwitchGameHistory'));
 const SwitchGameParticipate = React.lazy(() => import('./pages/SwitchGameParticipate'));
 const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
@@ -121,6 +124,9 @@ function AppContent() {
               <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
+              <Route path="/switches/join" element={<PrivateRoute><SwitchGameJoin /></PrivateRoute>} />
+              <Route path="/switches/lobby" element={<PrivateRoute><SwitchGameLobby /></PrivateRoute>} />
+              <Route path="/switches/history" element={<PrivateRoute><SwitchGameHistory /></PrivateRoute>} />
               <Route path="/switches/participate" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
               <Route path="/switches/participate/:gameId" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
               <Route path="/switches/:id" element={<PrivateRoute><SwitchGameDetails /></PrivateRoute>} />

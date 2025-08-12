@@ -160,34 +160,66 @@ export default function SwitchGames() {
           )}
 
           {/* Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {/* Create Game Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Squares2X2Icon className="w-8 h-8 text-purple-300" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-4">Create a Switch Game</h2>
-                <p className="text-white/70 mb-6">Start a new switch game and invite others to participate</p>
+                <h2 className="text-xl font-bold text-white mb-4">Create Game</h2>
+                <p className="text-white/70 mb-6 text-sm">Start a new switch game</p>
                 <Link to="/switches/create">
-                  <Button variant="gradient-purple" size="lg" className="w-full">
-                    Create Game
+                  <Button variant="gradient-purple" size="md" className="w-full">
+                    Create
                   </Button>
                 </Link>
               </div>
             </div>
 
-            {/* Participate Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+            {/* Join Game Card */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <PlayIcon className="w-8 h-8 text-blue-300" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-4">Join a Switch Game</h2>
-                <p className="text-white/70 mb-6">Find and join available switch games</p>
+                <h2 className="text-xl font-bold text-white mb-4">Join Game</h2>
+                <p className="text-white/70 mb-6 text-sm">Find available games</p>
                 <Link to="/switches/join">
-                  <Button variant="gradient-blue" size="lg" className="w-full">
-                    Join Game
+                  <Button variant="gradient-blue" size="md" className="w-full">
+                    Join
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Manage Games Card */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PlayIcon className="w-8 h-8 text-green-300" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-4">Manage Games</h2>
+                <p className="text-white/70 mb-6 text-sm">Active game lobby</p>
+                <Link to="/switches/lobby">
+                  <Button variant="gradient-green" size="md" className="w-full">
+                    Manage
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* History Card */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PlayIcon className="w-8 h-8 text-yellow-300" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-4">Game History</h2>
+                <p className="text-white/70 mb-6 text-sm">Track performance</p>
+                <Link to="/switches/history">
+                  <Button variant="gradient-yellow" size="md" className="w-full">
+                    History
                   </Button>
                 </Link>
               </div>
@@ -227,7 +259,7 @@ export default function SwitchGames() {
               </div>
               {userSwitchGames.length > 6 && (
                 <div className="text-center mt-6">
-                  <Link to="/switches">
+                  <Link to="/switches/lobby">
                     <Button variant="default" size="md">
                       View All Games ({userSwitchGames.length})
                     </Button>
