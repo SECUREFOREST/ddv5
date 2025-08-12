@@ -18,14 +18,20 @@ const auth = require('../middleware/auth');
 async function cleanupExpiredProofs() {
   try {
     const now = new Date();
+    console.log('Cleanup: Checking for expired proofs at', now.toISOString());
+    
     const expiredGames = await SwitchGame.find({
       status: { $in: ['awaiting_proof', 'proof_submitted'] },
       proofExpiresAt: { $lt: now }
     });
     
+    console.log('Cleanup: Found', expiredGames.length, 'expired games');
+    
     for (const game of expiredGames) {
+      console.log('Cleanup: Processing game', game._id, 'status:', game.status, 'expires:', game.proofExpiresAt);
       if (game.status === 'awaiting_proof') {
         // Game expired without proof submission
+        console.log('Cleanup: Game expired without proof, changing status to expired');
         game.status = 'expired';
         game.updatedAt = new Date();
         await game.save();
@@ -39,6 +45,7 @@ async function cleanupExpiredProofs() {
         }
       } else if (game.status === 'proof_submitted' && game.proof) {
         // Proof expired
+        console.log('Cleanup: Proof expired, resetting to awaiting_proof');
         game.proof = null;
         game.status = 'awaiting_proof';
         game.proofExpiresAt = null;
@@ -226,6 +233,10 @@ router.get('/:id',
         details: errors.array().map(e => ({ field: e.param, message: e.msg }))
       });
     }
+    
+    // Clean up expired proofs before fetching game
+    await cleanupExpiredProofs();
+    
     const game = await SwitchGame.findById(req.params.id)
       .populate('creator', 'username fullName avatar')
       .populate('participant', 'username fullName avatar')
@@ -254,7 +265,10 @@ router.get('/:id',
           game.winner = game.participant;
         }
         game.status = 'awaiting_proof';
-        game.proofExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        // Set proof deadline based on participant's content deletion preference
+        const proofDeadline = game.contentDeletion === 'delete_after_view' ? 24 : 
+                             game.contentDeletion === 'delete_after_30_days' ? 30 * 24 : 7 * 24; // hours
+        game.proofExpiresAt = new Date(Date.now() + proofDeadline * 60 * 60 * 1000);
         await game.save();
         await game.populate('creator participant winner proof.user');
       } else {
