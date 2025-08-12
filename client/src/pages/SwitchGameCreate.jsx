@@ -373,77 +373,79 @@ export default function SwitchGameCreate() {
       </ContentContainer>
 
       {/* Success Modal */}
-      {showModal && (
-        <Modal open={showModal} onClose={() => setShowModal(false)} title="Game Created Successfully!">
-          <div className="text-center space-y-6">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <ShieldCheckIcon className="w-8 h-8 text-green-600" />
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Your Switch Game is Ready!</h3>
-              <p className="text-gray-600 mb-4">
-                Share this link with someone to challenge them to your game. The loser will have to perform your dare!
-              </p>
-              
-              <div className="bg-gray-50 p-4 rounded-lg border">
-                <p className="text-sm text-gray-600 mb-2">Share this link:</p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={claimLink}
-                    readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
-                  />
-                  <button
-                    onClick={copyToClipboard}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    <ClipboardDocumentIcon className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={handleCreateAnother}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
-              >
-                Create Another Game
-              </button>
-              
-              <button
-                onClick={handleViewGame}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
-              >
-                View Game
-              </button>
-              
-              <button
-                onClick={handleCancelGame}
-                disabled={cancelling}
-                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {cancelling ? (
-                  <>
-                    <ButtonLoading className="w-4 h-4 mr-2" />
-                    Cancelling...
-                  </>
-                ) : (
-                  'Cancel Game'
-                )}
-              </button>
-            </div>
-            
-            <div className="pt-4 border-t border-gray-200">
-              <Link to="/dashboard" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                ← Go to Dashboard
-              </Link>
-            </div>
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="space-y-4">
+          <div className="text-center">
+            <ShieldCheckIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Game Created!</h3>
+            <p className="text-neutral-300 mb-4">
+              Your switch game has been created successfully.
+              Share the link below to invite others to join and challenge you.
+            </p>
           </div>
-        </Modal>
-      )}
-    </div>
-  );
+
+          {claimLink && (
+            <div>
+              <label htmlFor="claim-link" className="block font-semibold mb-1 text-white">Shareable Link</label>
+              <input
+                id="claim-link"
+                type="text"
+                value={claimLink}
+                readOnly
+                className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                onFocus={(e) => e.target.select()}
+              />
+              <button
+                onClick={copyToClipboard}
+                className="w-full mt-2 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+              >
+                Copy Link
+              </button>
+            </div>
+          )}
+          
+          {/* Cancel Button - Matching Dom Demand Create Style */}
+          <div className="pt-4 border-t border-neutral-700">
+            <button
+              onClick={handleCancelGame}
+              disabled={cancelling}
+              className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-yellow-700 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {cancelling ? (
+                <>
+                  <ButtonLoading />
+                  Cancelling Game...
+                </>
+              ) : (
+                <>
+                  🚨 OMG, Cancel This! 🚨
+                </>
+              )}
+            </button>
+          </div>
+          
+          <div className="flex gap-4">
+            <button
+              onClick={handleCreateAnother}
+              className="flex-1 bg-neutral-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-neutral-600 transition-colors"
+            >
+              Create Another
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+
+        </div>
+      </Modal>
+      </div>
+    );
 }
