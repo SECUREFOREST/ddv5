@@ -903,65 +903,55 @@ export default function DarePerformerDashboard() {
               Quick Actions
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <MicroInteractionButton
+              <button
                 onClick={() => handleQuickAction('create-dare')}
-                variant="primary"
-                size="lg"
-                className="h-20"
+                className="h-20 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <div className="flex flex-col items-center gap-2">
                   <PlusIcon className="w-8 h-8" />
                   <span className="text-sm">Create Dare</span>
                 </div>
-              </MicroInteractionButton>
+              </button>
               
-              <MicroInteractionButton
+              <button
                 onClick={() => handleQuickAction('perform-dare')}
-                variant="secondary"
-                size="lg"
-                className="h-20"
+                className="h-20 bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-xl font-semibold transition-all duration-200 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
               >
                 <div className="flex flex-col items-center gap-2">
                   <PlayIcon className="w-8 h-8" />
                   <span className="text-sm">Perform Dare</span>
                 </div>
-              </MicroInteractionButton>
+              </button>
               
-              <MicroInteractionButton
+              <button
                 onClick={() => handleQuickAction('submit-offer')}
-                variant="success"
-                size="lg"
-                className="h-20"
+                className="h-20 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 <div className="flex flex-col items-center gap-2">
                   <DocumentPlusIcon className="w-8 h-8" />
                   <span className="text-sm">Submit Offer</span>
                 </div>
-              </MicroInteractionButton>
+              </button>
               
-              <MicroInteractionButton
+              <button
                 onClick={() => handleQuickAction('create-switch')}
-                variant="primary"
-                size="lg"
-                className="h-20"
+                className="h-20 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <div className="flex flex-col items-center gap-2">
                   <PuzzlePieceIcon className="w-8 h-8" />
                   <span className="text-sm">Create Game</span>
                 </div>
-              </MicroInteractionButton>
+              </button>
               
-              <MicroInteractionButton
+              <button
                 onClick={() => handleQuickAction('join-game')}
-                variant="warning"
-                size="lg"
-                className="h-20"
+                className="h-20 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
               >
                 <div className="flex flex-col items-center gap-2">
                   <UserGroupIcon className="w-8 h-8" />
                   <span className="text-sm">Join Game</span>
                 </div>
-              </MicroInteractionButton>
+              </button>
             </div>
           </NeumorphicCard>
           
