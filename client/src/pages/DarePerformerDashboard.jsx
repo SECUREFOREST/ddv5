@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
@@ -350,8 +350,7 @@ export default function DarePerformerDashboard() {
   // Use the logged-in user's ID instead of URL params
   const currentUserId = user?._id || user?.id;
   
-  // Get location for URL parameters
-  const location = useLocation();
+
   
   // State management with 2025 patterns
   const [isLoading, setIsLoading] = useState(true);
@@ -988,15 +987,6 @@ export default function DarePerformerDashboard() {
     }
   }, [user, currentUserId, fetchData]);
   
-  // Handle URL parameters for tab navigation
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const tabParam = searchParams.get('tab');
-    if (tabParam && ['overview', 'ongoing', 'completed', 'switch-games', 'public', 'associates'].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [location.search]);
-  
   // Refetch data when pagination changes
   useEffect(() => {
     if (activePage > 1 || completedPage > 1 || switchPage > 1) {
@@ -1355,15 +1345,10 @@ export default function DarePerformerDashboard() {
       content: (
         <GestureContainer onSwipe={handleSwipe} className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                <FireIcon className="w-6 h-6 text-purple-400" />
-                Switch Games ({switchTotalItems})
-              </h3>
-              <Link to="/switches" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
-                ← Back to Switch Games
-              </Link>
-            </div>
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+              <FireIcon className="w-6 h-6 text-purple-400" />
+              Switch Games ({switchTotalItems})
+            </h3>
             {mySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1400,7 +1385,7 @@ export default function DarePerformerDashboard() {
                         });
                         showSuccess('Proof submitted successfully!');
                         // Refresh the data
-                        fetchData();
+                        fetchMySwitchGames();
                       } catch (error) {
                         const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
                         showError(errorMessage);
@@ -1459,21 +1444,16 @@ export default function DarePerformerDashboard() {
           {/* Public Content Filters */}
           <NeumorphicCard variant="glass" className="p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <FunnelIcon className="w-6 h-6 text-blue-400" />
-                  Public Content Filters & Search
-                  {(dataLoading.public || dataLoading.publicSwitch) && (
-                    <div className="flex items-center gap-2 text-sm text-blue-400">
-                      <LoadingSpinner size="sm" />
-                      Applying filters...
-                    </div>
-                  )}
-                </h3>
-                <Link to="/switches" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors ml-4">
-                  ← Back to Switch Games
-                </Link>
-              </div>
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <FunnelIcon className="w-6 h-6 text-blue-400" />
+                Public Content Filters & Search
+                {(dataLoading.public || dataLoading.publicSwitch) && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Applying filters...
+                  </div>
+                )}
+              </h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => {

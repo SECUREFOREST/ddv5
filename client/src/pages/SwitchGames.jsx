@@ -185,7 +185,7 @@ export default function SwitchGames() {
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-4">Join a Switch Game</h2>
                 <p className="text-white/70 mb-6">Find and join available switch games</p>
-                <Link to="/performer-dashboard?tab=public">
+                <Link to="/switches/join">
                   <Button variant="gradient-blue" size="lg" className="w-full">
                     Join Game
                   </Button>
