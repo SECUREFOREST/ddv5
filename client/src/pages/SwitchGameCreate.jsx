@@ -40,12 +40,21 @@ export default function SwitchGameCreate() {
     e.preventDefault();
     setCreateError('');
     
+    // Enhanced validation with better user feedback
+    if (!description.trim()) {
+      showError('Description is required.');
+      return;
+    }
     if (description.trim().length < 10) {
       showError('Description must be at least 10 characters.');
       return;
     }
     if (description.trim().length > 1000) {
       showError('Description must be less than 1000 characters.');
+      return;
+    }
+    if (!move) {
+      showError('Please select a move.');
       return;
     }
     
