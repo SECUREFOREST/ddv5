@@ -283,7 +283,7 @@ export default function SwitchGameCreate() {
               />
 
               {/* Move Selection */}
-              <div className="space-y-2">
+              <div className="pt-6 space-y-2">
                 <label className="block text-lg font-semibold text-white mb-3">
                   Your Move (Rock, Paper, or Scissors)
                   <span className="text-red-400 ml-1">*</span>
