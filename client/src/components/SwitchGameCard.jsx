@@ -50,20 +50,29 @@ function Tag({ tag }) {
 
 export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, ...props }) {
   if (!game) return null;
-  const isWinner = currentUserId && game.winner && (game.winner._id === currentUserId || game.winner === currentUserId);
-  const isLoser = currentUserId && game.loser && (game.loser._id === currentUserId || game.loser === currentUserId);
-  const isCreator = game.creator && (game.creator._id === currentUserId || game.creator.id === currentUserId);
-  const isParticipant = game.participant && (game.participant._id === currentUserId || game.participant.id === currentUserId);
+  
+  // Helper function to safely compare ObjectIds
+  const isSameUser = (user1, user2) => {
+    if (!user1 || !user2) return false;
+    const id1 = user1._id || user1;
+    const id2 = user2._id || user2;
+    return id1.toString() === id2.toString();
+  };
+  
+  const isWinner = currentUserId && game.winner && isSameUser(game.winner, currentUserId);
+  const isLoser = currentUserId && game.loser && isSameUser(game.loser, currentUserId);
+  const isCreator = game.creator && isSameUser(game.creator, currentUserId);
+  const isParticipant = game.participant && isSameUser(game.participant, currentUserId);
   // Determine available actions
   const canSubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && (!game.proof || !game.proof.user);
   const canReviewProof = isWinner && game.status === 'proof_submitted' && game.proof && !game.proof.review?.action;
-  const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => g.user === currentUserId);
+  const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => isSameUser(g.user, currentUserId));
   const canChickenOut = (isCreator || isParticipant) && game.status === 'in_progress';
 
   // Helper for clickable profile links
   const userProfileLink = (user) => {
     if (!user) return '#';
-    return user._id === currentUserId ? '/profile' : `/profile/${user._id}`;
+    return isSameUser(user, currentUserId) ? '/profile' : `/profile/${user._id}`;
   };
 
   return (
@@ -116,6 +125,29 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
       {game.status === 'awaiting_proof' && (
         <div className="mt-3 p-3 bg-neutral-800/50 border border-neutral-700 rounded">
           <h4 className="text-sm font-semibold text-white mb-2">Game Outcome</h4>
+          
+          {/* Debug info - remove this after fixing */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-3 p-2 bg-red-900/20 border border-red-700/50 rounded text-xs">
+              <div className="text-red-300">
+                <strong>Debug Info:</strong>
+              </div>
+              <div className="text-red-200 text-xs">
+                Current User ID: {currentUserId}<br/>
+                Winner: {game.winner ? (game.winner?.fullName || game.winner?.username || game.winner) : 'null'}<br/>
+                Loser: {game.loser ? (game.loser?.fullName || game.loser?.username || game.loser) : 'null'}<br/>
+                Both Lose: {game.bothLose ? 'true' : 'false'}<br/>
+                Both Win: {game.bothWin ? 'true' : 'false'}<br/>
+                Draw Type: {game.drawType || 'null'}<br/>
+                Creator Move: {game.creatorDare?.move || 'null'}<br/>
+                Participant Move: {game.participantDare?.move || 'null'}<br/>
+                Is Winner: {isWinner ? 'true' : 'false'}<br/>
+                Is Loser: {isLoser ? 'true' : 'false'}<br/>
+                Is Creator: {isCreator ? 'true' : 'false'}<br/>
+                Is Participant: {isParticipant ? 'true' : 'false'}
+              </div>
+            </div>
+          )}
           
           {/* Show the moves that were played */}
           <div className="mb-3 p-2 bg-neutral-700/50 rounded text-xs">
@@ -170,6 +202,12 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
                   {isLoser && <span className="ml-2 text-red-600 font-semibold">(You lost - submit proof!)</span>}
                 </div>
               )}
+              {!game.winner && !game.loser && (
+                <div className="text-yellow-400 mb-1">
+                  ⚠️ <strong>Game outcome not yet determined</strong><br/>
+                  Waiting for both players to submit their moves.
+                </div>
+              )}
             </div>
           )}
           
@@ -222,6 +260,19 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
                                                        game.contentDeletion === 'delete_after_30_days' ? '30 days' : '7 days'})`
                   : 'Proof deadline has passed'
                 }
+              </div>
+            </div>
+          )}
+          
+          {/* Fallback message if no outcome can be determined */}
+          {!game.bothLose && !game.bothWin && !game.drawType && !game.winner && !game.loser && (
+            <div className="mt-3 p-2 bg-yellow-900/20 border border-yellow-700/50 rounded text-xs">
+              <div className="text-yellow-400">
+                <strong>⚠️ Game Status Unclear</strong>
+              </div>
+              <div className="text-yellow-300 text-xs mt-1">
+                The game outcome could not be determined. This might be a temporary issue.
+                Please check back later or contact support if the problem persists.
               </div>
             </div>
           )}
