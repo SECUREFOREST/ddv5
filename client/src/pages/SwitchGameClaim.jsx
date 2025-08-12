@@ -363,9 +363,9 @@ export default function SwitchGameClaim() {
                 </label>
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { value: 'rock', label: '🪨 Rock', desc: 'Strong and solid' },
-                    { value: 'paper', label: '📄 Paper', desc: 'Flexible and covering' },
-                    { value: 'scissors', label: '✂️ Scissors', desc: 'Sharp and precise' }
+                    { value: 'rock', label: '🪨 Rock' },
+                    { value: 'paper', label: '📄 Paper' },
+                    { value: 'scissors', label: '✂️ Scissors' }
                   ].map((moveOption) => (
                     <button
                       key={moveOption.value}
@@ -379,7 +379,6 @@ export default function SwitchGameClaim() {
                     >
                       <div className="text-2xl mb-2">{moveOption.label.split(' ')[0]}</div>
                       <div className="text-sm font-semibold">{moveOption.label.split(' ')[1]}</div>
-                      <div className="text-xs text-neutral-400 mt-1">{moveOption.desc}</div>
                     </button>
                   ))}
                 </div>
