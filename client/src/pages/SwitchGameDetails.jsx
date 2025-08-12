@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { ListSkeleton } from '../components/Skeleton';
 import Avatar from '../components/Avatar';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS, ERROR_MESSAGES } from '../constants.jsx';
-import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon } from '@heroicons/react/24/solid';
+import { Squares2X2Icon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon, PlayIcon, ShareIcon, ClipboardDocumentIcon } from '@heroicons/react/24/solid';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
 import BlockButton from '../components/BlockButton';
 import { retryApiCall } from '../utils/retry';
@@ -62,6 +62,10 @@ export default function SwitchGameDetails() {
   const [fetchingGame, setFetchingGame] = useState(false);
   const [fetchGameError, setFetchGameError] = useState('');
   const { showSuccess, showError } = useToast();
+  
+  // Share functionality
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareLink, setShareLink] = useState('');
 
   function getId(obj) {
     if (!obj) return undefined;
@@ -72,6 +76,22 @@ export default function SwitchGameDetails() {
     }
     return obj;
   }
+
+  // Share game function
+  const handleShare = () => {
+    const link = `${window.location.origin}/switches/claim/${game._id}`;
+    setShareLink(link);
+    setShowShareModal(true);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      showSuccess('Link copied to clipboard!');
+    } catch (err) {
+      showError('Failed to copy link. Please copy manually.');
+    }
+  };
 
   // --- Move winner/loser/isLoser logic up here ---
   const username = user?.username;
@@ -527,7 +547,20 @@ export default function SwitchGameDetails() {
               <PlayIcon className="w-12 h-12 text-white mr-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white">Switch Game Details</h1>
             </div>
-      </div>
+            
+            {/* Share Button - Only show for creator or if game is waiting for participant */}
+            {(isCreator || (game.status === 'waiting_for_participant' && !game.participant)) && (
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={handleShare}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
+                >
+                  <ShareIcon className="w-5 h-5" />
+                  Share Game
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Status Badge */}
           <div className="flex justify-center mb-8">
@@ -1098,6 +1131,58 @@ export default function SwitchGameDetails() {
           )}
         </MainContent>
       </ContentContainer>
+
+          {/* Share Modal */}
+          {showShareModal && (
+            <Modal open={showShareModal} onClose={() => setShowShareModal(false)} title="Share Switch Game" role="dialog" aria-modal="true">
+              <div className="space-y-4">
+                <div className="text-center">
+                  <ShareIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">Share Your Switch Game</h3>
+                  <p className="text-neutral-300 mb-4">
+                    Share this link with others to invite them to join your switch game challenge!
+                  </p>
+                </div>
+
+                {shareLink && (
+                  <div>
+                    <label htmlFor="share-link" className="block font-semibold mb-1 text-white">Shareable Link</label>
+                    <div className="flex gap-2">
+                      <input
+                        id="share-link"
+                        type="text"
+                        value={shareLink}
+                        readOnly
+                        className="flex-1 px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        onFocus={(e) => e.target.select()}
+                      />
+                      <button
+                        onClick={copyToClipboard}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+                      >
+                        <ClipboardDocumentIcon className="w-4 h-4" />
+                        Copy
+                      </button>
+                    </div>
+                    <p className="text-xs text-neutral-400 mt-1">
+                      Anyone with this link can join your switch game
+                    </p>
+                  </div>
+                )}
+
+                {/* Game Info in Share Modal */}
+                <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/30">
+                  <h4 className="font-semibold text-white mb-2">Game Preview</h4>
+                  <div className="space-y-2 text-sm text-neutral-300">
+                    <div><strong>Creator:</strong> {game.creator?.fullName || game.creator?.username}</div>
+                    <div><strong>Difficulty:</strong> {game.creatorDare?.difficulty}</div>
+                    <div><strong>Status:</strong> Waiting for participant</div>
+                    <div><strong>Created:</strong> {new Date(game.createdAt).toLocaleDateString()}</div>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          )}
     </div>
   );
 } 

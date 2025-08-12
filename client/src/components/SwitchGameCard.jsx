@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from './Avatar';
+import { ShareIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { useToast } from '../context/ToastContext';
 
 function StatusBadge({ status }) {
   let badgeClass = 'bg-neutral-700 text-neutral-100 rounded-none';
@@ -54,8 +56,19 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const [submittingProof, setSubmittingProof] = useState(false);
   const [proofFiles, setProofFiles] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
+  const { showSuccess, showError } = useToast();
   
   if (!game) return null;
+  
+  // Share functionality
+  const handleShare = () => {
+    const link = `${window.location.origin}/switches/claim/${game._id}`;
+    navigator.clipboard.writeText(link).then(() => {
+      showSuccess('Game link copied to clipboard!');
+    }).catch(() => {
+      showError('Failed to copy link. Please copy manually.');
+    });
+  };
   
   // Validate game has required fields
   const hasRequiredFields = game.creator && game.participant && game.status;
@@ -547,6 +560,18 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
 
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-4">
+        {/* Share Button - Only show for creator or if game is waiting for participant */}
+        {(isCreator || (game.status === 'waiting_for_participant' && !game.participant)) && (
+          <button 
+            className="bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold shadow-lg hover:bg-green-700 transition-colors flex items-center gap-1" 
+            onClick={handleShare}
+            title="Share this game"
+          >
+            <ShareIcon className="w-3 h-3" />
+            Share
+          </button>
+        )}
+        
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
         {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}

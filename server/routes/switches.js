@@ -394,6 +394,58 @@ router.get('/:id',
   }
 );
 
+// GET /api/switches/claim/:id - get game details for claiming (public access)
+router.get('/claim/:id',
+  require('express-validator').param('id').isMongoId().withMessage('Game ID must be a valid MongoDB ObjectId.'),
+  async (req, res) => {
+    try {
+      const errors = require('express-validator').validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+        });
+      }
+      
+      const game = await SwitchGame.findById(req.params.id)
+        .populate('creator', 'username fullName avatar')
+        .populate('participant', 'username fullName avatar');
+        
+      if (!game) {
+        return res.status(404).json({ error: 'Switch game not found' });
+      }
+      
+      // Check if game is still available for joining
+      if (game.status !== 'waiting_for_participant' || game.participant) {
+        return res.status(400).json({ error: 'This switch game is no longer available to join' });
+      }
+      
+      // Return limited game info for claiming
+      res.json({
+        _id: game._id,
+        status: game.status,
+        creator: {
+          _id: game.creator._id,
+          username: game.creator.username,
+          fullName: game.creator.fullName,
+          avatar: game.creator.avatar,
+        },
+        creatorDare: {
+          description: game.creatorDare.description,
+          difficulty: game.creatorDare.difficulty,
+          move: game.creatorDare.move,
+          tags: game.creatorDare.tags || [],
+        },
+        public: game.public,
+        createdAt: game.createdAt,
+      });
+    } catch (err) {
+      console.error('Error fetching switch game for claiming:', err);
+      res.status(500).json({ error: 'Failed to fetch switch game' });
+    }
+  }
+);
+
 // POST /api/switches - create new game (auth required)
 router.post('/',
   auth,
