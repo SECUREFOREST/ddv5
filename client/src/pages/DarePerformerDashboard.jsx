@@ -1376,13 +1376,12 @@ export default function DarePerformerDashboard() {
                 </div>
                 <h4 className="text-md font-semibold text-white mb-2">No Public Dares</h4>
                 <p className="text-white/70 mb-4 text-sm">No public dares are available at the moment.</p>
-                <MicroInteractionButton
+                <button
                   onClick={() => handleQuickAction('create-dare')}
-                  variant="primary"
-                  size="sm"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Create a Dare
-                </MicroInteractionButton>
+                </button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1489,13 +1488,12 @@ export default function DarePerformerDashboard() {
                 </div>
                 <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games</h4>
                 <p className="text-white/70 mb-4 text-sm">No public switch games are available at the moment.</p>
-                <MicroInteractionButton
+                <button
                   onClick={() => handleQuickAction('create-switch')}
-                  variant="primary"
-                  size="sm"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Create a Game
-                </MicroInteractionButton>
+                </button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1586,12 +1584,12 @@ export default function DarePerformerDashboard() {
                   </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Associates</h4>
                 <p className="text-white/70 mb-6">Connect with other users to see them here.</p>
-                <MicroInteractionButton
+                <button
                   onClick={() => navigate('/public-dares')}
-                  variant="primary"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Discover Users
-                </MicroInteractionButton>
+                </button>
                 </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1639,13 +1637,12 @@ export default function DarePerformerDashboard() {
               <p className="text-red-300 mb-6">
                 Please log in to access the performer dashboard.
               </p>
-              <MicroInteractionButton
+              <button
                 onClick={() => navigate('/login')}
-                variant="danger"
-                size="lg"
+                className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Go to Login
-              </MicroInteractionButton>
+              </button>
             </NeumorphicCard>
           </div>
         </div>
@@ -1707,14 +1704,13 @@ export default function DarePerformerDashboard() {
                   <ExclamationTriangleIcon className="w-5 h-5" />
                   <span className="capitalize font-medium">{section}: {errorMsg}</span>
                 </div>
-                <MicroInteractionButton
+                <button
                   onClick={fetchData}
-                  variant="secondary"
-                  size="sm"
+                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
                 >
                   <ArrowPathIcon className="w-4 h-4" />
                   Retry
-                </MicroInteractionButton>
+                </button>
               </div>
             </NeumorphicCard>
           ))}
@@ -1744,22 +1740,20 @@ export default function DarePerformerDashboard() {
                 It looks like you're just getting started. Create your first dare or join a switch game to begin your journey!
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <MicroInteractionButton
+                <button
                   onClick={() => handleQuickAction('create-dare')}
-                  variant="primary"
-                  size="lg"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <PlusIcon className="w-6 h-6" />
                   Create Your First Dare
-                </MicroInteractionButton>
-                <MicroInteractionButton
+                </button>
+                <button
                   onClick={() => handleQuickAction('create-switch')}
-                  variant="secondary"
-                  size="lg"
+                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
                 >
                   <PuzzlePieceIcon className="w-6 h-6" />
                   Create a Switch Game
-                </MicroInteractionButton>
+                </button>
               </div>
             </NeumorphicCard>
           )}
