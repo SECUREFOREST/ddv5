@@ -991,12 +991,12 @@ export default function DarePerformerDashboard() {
                 </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Active Dares</h4>
                 <p className="text-white/70 mb-6">You don't have any active dares at the moment.</p>
-                <MicroInteractionButton
+                <button
                   onClick={() => handleQuickAction('perform-dare')}
-                  variant="primary"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Find Dares to Perform
-                </MicroInteractionButton>
+                </button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1076,12 +1076,12 @@ export default function DarePerformerDashboard() {
                   </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Completed Dares</h4>
                 <p className="text-white/70 mb-6">Complete your first dare to see it here!</p>
-                <MicroInteractionButton
+                <button
                   onClick={() => handleQuickAction('perform-dare')}
-                  variant="success"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   Start Performing Dares
-                </MicroInteractionButton>
+                </button>
                 </div>
             ) : (
               <div className="space-y-4">
