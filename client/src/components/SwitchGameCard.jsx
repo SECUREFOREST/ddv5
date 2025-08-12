@@ -51,6 +51,18 @@ function Tag({ tag }) {
 export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, onFixGameState, ...props }) {
   if (!game) return null;
   
+  // Validate game has required fields
+  const hasRequiredFields = game.creator && game.participant && game.status;
+  if (!hasRequiredFields) {
+    return (
+      <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()}>
+        <div className="text-red-400 text-center py-4">
+          ⚠️ Game data is incomplete. Please refresh the page or contact support.
+        </div>
+      </div>
+    );
+  }
+  
   // Helper function to safely compare ObjectIds
   const isSameUser = (user1, user2) => {
     if (!user1 || !user2) return false;
@@ -65,6 +77,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   const isParticipant = game.participant && isSameUser(game.participant, currentUserId);
   // Determine available actions
   const canSubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && (!game.proof || !game.proof.user);
+  const canResubmitProof = (isLoser || game.bothLose) && game.status === 'awaiting_proof' && game.proof && game.proof.user && game.proof.review?.action === 'rejected';
   const canReviewProof = isWinner && game.status === 'proof_submitted' && game.proof && !game.proof.review?.action;
   const canGrade = (isWinner || isLoser) && game.status === 'completed' && game.grades && !game.grades.some(g => isSameUser(g.user, currentUserId));
   const canChickenOut = (isCreator || isParticipant) && game.status === 'in_progress';
@@ -300,7 +313,11 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
       {/* Details Section */}
       <div className="mt-2 text-xs text-neutral-400">
         {game.proof && (
-          <div>Proof: {game.proof.submitted ? 'Submitted' : 'Not submitted'}{game.proof.reviewed ? ' (Reviewed)' : ''}</div>
+          <div>
+            Proof: {game.proof.user ? 'Submitted' : 'Not submitted'}
+            {game.proof.review?.action && ` (${game.proof.review.action})`}
+            {game.proof.review?.feedback && ` - ${game.proof.review.feedback}`}
+          </div>
         )}
         {game.grades && game.grades.length > 0 && (
           <div>Grade: {game.grades.map(g => g.grade).join(', ')}{game.feedback && ` | Feedback: ${game.feedback}`}</div>
@@ -315,6 +332,11 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {canSubmitProof && (
           <button className="bg-primary text-primary-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>
             {game.bothLose ? 'Submit Proof' : 'Submit Proof'}
+          </button>
+        )}
+        {canResubmitProof && (
+          <button className="bg-orange-600 text-white rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onSubmitProof}>
+            Resubmit Proof
           </button>
         )}
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}

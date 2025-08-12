@@ -768,7 +768,21 @@ router.post('/:id/move',
       }
       res.json(game);
     } catch (err) {
-      res.status(400).json({ error: err.message || 'Failed to submit move.' });
+      console.error('Move submission error:', err);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to submit move.';
+      if (err.message.includes('validation failed')) {
+        errorMessage = 'Invalid move data. Please try again.';
+      } else if (err.message.includes('save')) {
+        errorMessage = 'Failed to save move. Please try again.';
+      } else if (err.message.includes('not found')) {
+        errorMessage = 'Game not found.';
+      } else {
+        errorMessage = err.message || errorMessage;
+      }
+      
+      res.status(400).json({ error: errorMessage });
     }
   }
 );
@@ -820,8 +834,18 @@ router.post('/:id/proof',
       ) {
         return res.status(400).json({ error: 'You cannot submit proof due to user blocking.' });
       }
-      // Submit proof
-      game.proof = { user: userId, text };
+      // Submit proof (handle both new submissions and resubmissions)
+      if (game.proof && game.proof.user) {
+        // Resubmission - update existing proof
+        game.proof.text = text;
+        game.proof.review = null; // Clear previous review
+        console.log(`Proof resubmitted for game ${game._id} by user ${userId}`);
+      } else {
+        // New submission
+        game.proof = { user: userId, text };
+        console.log(`New proof submitted for game ${game._id} by user ${userId}`);
+      }
+      
       game.status = 'proof_submitted';
       // Set proof expiration based on participant's content deletion preference
       const proofExpiration = game.contentDeletion === 'delete_after_view' ? 24 : 
@@ -831,7 +855,23 @@ router.post('/:id/proof',
       await game.save();
       res.json({ message: 'Proof submitted successfully.', game });
     } catch (err) {
-      res.status(400).json({ error: err.message || 'Failed to submit proof.' });
+      console.error('Proof submission error:', err);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to submit proof.';
+      if (err.message.includes('not found')) {
+        errorMessage = 'Game not found.';
+      } else if (err.message.includes('cannot be submitted')) {
+        errorMessage = 'Proof cannot be submitted at this stage.';
+      } else if (err.message.includes('expired')) {
+        errorMessage = 'Proof submission window has expired.';
+      } else if (err.message.includes('blocking')) {
+        errorMessage = 'Cannot submit proof due to user blocking.';
+      } else {
+        errorMessage = err.message || errorMessage;
+      }
+      
+      res.status(400).json({ error: errorMessage });
     }
   }
 );
@@ -873,12 +913,20 @@ router.post('/:id/proof-review', auth, async (req, res) => {
     if (game.status !== 'proof_submitted') {
       return res.status(400).json({ error: 'Proof is not awaiting review.' });
     }
-    const loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
+    // Ensure we have the loser ID
+    let loserId;
+    if (game.loser) {
+      loserId = game.loser;
+    } else {
+      // Fallback: determine loser based on winner
+      loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
+      game.loser = loserId; // Set the missing loser field
+    }
+    
     if (action === 'approve') {
       game.status = 'completed';
       game.updatedAt = new Date();
       if (!game.winner) game.winner = userId;
-      const loserId = (game.creator.toString() === userId) ? game.participant : game.creator;
       if (!game.loser) game.loser = loserId;
       game.proof.review = { action: 'approved', feedback: feedback || '' };
       await game.save();
