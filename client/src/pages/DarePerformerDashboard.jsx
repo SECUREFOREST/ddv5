@@ -526,33 +526,37 @@ export default function DarePerformerDashboard() {
             ]);
       
                   // Handle successful responses
-            if (ongoingData.status === 'fulfilled') {
+            if (ongoingData && ongoingData.status === 'fulfilled') {
               // Merge dares from both creator and participant responses
               const allActiveDares = [];
               let creatorTotal = 0;
               let participantTotal = 0;
               
-              ongoingData.value.forEach((response, index) => {
-                if (response.status === 200) {
-                  const responseData = response.data;
-                  const dares = responseData.dares || responseData;
-                  const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-                  if (Array.isArray(validatedData)) {
-                    allActiveDares.push(...validatedData);
-                  }
-                  
-                  // Extract pagination metadata for each response
-                  if (responseData.pagination) {
-                    if (index === 0) {
-                      // First response is creator dares
-                      creatorTotal = responseData.pagination.total || 0;
-                    } else if (index === 1) {
-                      // Second response is participant dares
-                      participantTotal = responseData.pagination.total || 0;
+              if (ongoingData.value && Array.isArray(ongoingData.value)) {
+                ongoingData.value.forEach((response, index) => {
+                  if (response && response.status === 200) {
+                    const responseData = response.data;
+                    if (responseData) {
+                      const dares = responseData.dares || responseData;
+                      const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+                      if (Array.isArray(validatedData)) {
+                        allActiveDares.push(...validatedData);
+                      }
+                      
+                      // Extract pagination metadata for each response
+                      if (responseData.pagination) {
+                        if (index === 0) {
+                          // First response is creator dares
+                          creatorTotal = responseData.pagination.total || 0;
+                        } else if (index === 1) {
+                          // Second response is participant dares
+                          participantTotal = responseData.pagination.total || 0;
+                        }
+                      }
                     }
                   }
-                }
-              });
+                });
+              }
               
               // Remove duplicates by _id
               const uniqueActiveDares = allActiveDares.filter((dare, index, self) => 
@@ -561,18 +565,20 @@ export default function DarePerformerDashboard() {
               
               // Calculate total items from the count API calls
               let totalActiveItems = 0;
-              if (activeCounts.status === 'fulfilled') {
-                activeCounts.value.forEach((response, index) => {
-                  if (response.status === 200 && response.data.pagination) {
-                    if (index === 0) {
-                      // Creator dares total
-                      totalActiveItems += response.data.pagination.total || 0;
-                    } else if (index === 1) {
-                      // Participant dares total
-                      totalActiveItems += response.data.pagination.total || 0;
+              if (activeCounts && activeCounts.status === 'fulfilled') {
+                if (activeCounts.value && Array.isArray(activeCounts.value)) {
+                  activeCounts.value.forEach((response, index) => {
+                    if (response && response.status === 200 && response.data && response.data.pagination) {
+                      if (index === 0) {
+                        // Creator dares total
+                        totalActiveItems += response.data.pagination.total || 0;
+                      } else if (index === 1) {
+                        // Participant dares total
+                        totalActiveItems += response.data.pagination.total || 0;
+                      }
                     }
-                  }
-                });
+                  });
+                }
               }
               
               // Fallback to actual unique dares if count API fails
@@ -592,33 +598,37 @@ export default function DarePerformerDashboard() {
               setOngoing(uniqueActiveDares);
             }
       
-      if (completedData.status === 'fulfilled') {
+      if (completedData && completedData.status === 'fulfilled') {
         // Merge dares from both creator and participant responses
         const allCompletedDares = [];
         let creatorTotal = 0;
         let participantTotal = 0;
         
-        completedData.value.forEach((response, index) => {
-          if (response.status === 200) {
-            const responseData = response.data;
-            const dares = responseData.dares || responseData;
-            const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-            if (Array.isArray(validatedData)) {
-              allCompletedDares.push(...validatedData);
-            }
-            
-            // Extract pagination metadata for each response
-            if (responseData.pagination) {
-              if (index === 0) {
-                // First response is creator dares
-                creatorTotal = responseData.pagination.total || 0;
-              } else if (index === 1) {
-                // Second response is participant dares
-                participantTotal = responseData.pagination.total || 0;
+        if (completedData.value && Array.isArray(completedData.value)) {
+          completedData.value.forEach((response, index) => {
+            if (response && response.status === 200) {
+              const responseData = response.data;
+              if (responseData) {
+                const dares = responseData.dares || responseData;
+                const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+                if (Array.isArray(validatedData)) {
+                  allCompletedDares.push(...validatedData);
+                }
+                
+                // Extract pagination metadata for each response
+                if (responseData.pagination) {
+                  if (index === 0) {
+                    // First response is creator dares
+                    creatorTotal = responseData.pagination.total || 0;
+                  } else if (index === 1) {
+                    // Second response is participant dares
+                    participantTotal = responseData.pagination.total || 0;
+                  }
+                }
               }
             }
-          }
-        });
+          });
+        }
         
         // Remove duplicates by _id
         const uniqueCompletedDares = allCompletedDares.filter((dare, index, self) => 
@@ -627,18 +637,20 @@ export default function DarePerformerDashboard() {
         
         // Calculate total items from the count API calls
         let totalCompletedItems = 0;
-        if (completedCounts.status === 'fulfilled') {
-          completedCounts.value.forEach((response, index) => {
-            if (response.status === 200 && response.data.pagination) {
-              if (index === 0) {
-                // Creator dares total
-                totalCompletedItems += response.data.pagination.total || 0;
-              } else if (index === 1) {
-                // Participant dares total
-                totalCompletedItems += response.data.pagination.total || 0;
+        if (completedCounts && completedCounts.status === 'fulfilled') {
+          if (completedCounts.value && Array.isArray(completedCounts.value)) {
+            completedCounts.value.forEach((response, index) => {
+              if (response && response.status === 200 && response.data && response.data.pagination) {
+                if (index === 0) {
+                  // Creator dares total
+                  totalCompletedItems += response.data.pagination.total || 0;
+                } else if (index === 1) {
+                  // Participant dares total
+                  totalCompletedItems += response.data.pagination.total || 0;
+                }
               }
-            }
-          });
+            });
+          }
         }
         
         // Fallback to actual unique dares if count API fails
@@ -658,96 +670,101 @@ export default function DarePerformerDashboard() {
         setCompleted(uniqueCompletedDares);
       }
       
-      if (switchData.status === 'fulfilled') {
+      if (switchData && switchData.status === 'fulfilled') {
         // Handle switch games response with pagination
-        const responseData = switchData.value.data;
-        const games = responseData.games || responseData;
-        const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        
-        // Extract pagination metadata
-        let totalSwitchItems = 0;
-        let totalSwitchPages = 1;
-        
-        if (responseData.pagination) {
-          totalSwitchItems = responseData.pagination.total || 0;
-          totalSwitchPages = responseData.pagination.pages || 1;
+        const responseData = switchData.value?.data;
+        if (responseData) {
+          const games = responseData.games || responseData;
+          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+          
+          // Extract pagination metadata
+          let totalSwitchItems = 0;
+          let totalSwitchPages = 1;
+          
+          if (responseData.pagination) {
+            totalSwitchItems = responseData.pagination.total || 0;
+            totalSwitchPages = responseData.pagination.pages || 1;
+          }
+          
+          // Fallback to actual games if pagination metadata is missing
+          if (totalSwitchItems === 0) {
+            totalSwitchItems = Array.isArray(validatedData) ? validatedData.length : 0;
+          }
+          
+          // Update pagination state
+          setSwitchTotalItems(totalSwitchItems);
+          setSwitchTotalPages(totalSwitchPages);
+          
+          setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
         }
-        
-        // Fallback to actual games if pagination metadata is missing
-        if (totalSwitchItems === 0) {
-          totalSwitchItems = Array.isArray(validatedData) ? validatedData.length : 0;
-        }
-        
-        // Update pagination state
-        setSwitchTotalItems(totalSwitchItems);
-        setSwitchTotalPages(totalSwitchPages);
-        
-
-
-        setMySwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
       
-      if (publicData.status === 'fulfilled') {
+      if (publicData && publicData.status === 'fulfilled') {
         // Extract dares from the response structure
-        const responseData = publicData.value.data;
-        const dares = responseData.dares || responseData;
-        
-        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        const responseData = publicData.value?.data;
+        if (responseData) {
+          const dares = responseData.dares || responseData;
+          
+          const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
 
-        setPublicDares(Array.isArray(validatedData) ? validatedData : []);
-        
-        // Extract pagination metadata
-        if (responseData.pagination) {
-          setPublicDareTotalItems(responseData.pagination.total || 0);
-          setPublicDareTotalPages(responseData.pagination.pages || 1);
+          setPublicDares(Array.isArray(validatedData) ? validatedData : []);
+          
+          // Extract pagination metadata
+          if (responseData.pagination) {
+            setPublicDareTotalItems(responseData.pagination.total || 0);
+            setPublicDareTotalPages(responseData.pagination.pages || 1);
+          }
         }
       }
       
-      if (publicSwitchData.status === 'fulfilled') {
-        const responseData = publicSwitchData.value.data;
-        const games = responseData.switchGames || responseData;
-        
-        const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+      if (publicSwitchData && publicSwitchData.status === 'fulfilled') {
+        const responseData = publicSwitchData.value?.data;
+        if (responseData) {
+          const games = responseData.switchGames || responseData;
+          
+          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
 
-        setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
-        
-        // Extract pagination metadata
-        if (responseData.pagination) {
-          setPublicSwitchTotalItems(responseData.pagination.total || 0);
-          setPublicSwitchTotalPages(responseData.pagination.pages || 1);
+          setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
+          
+          // Extract pagination metadata
+          if (responseData.pagination) {
+            setPublicSwitchTotalItems(responseData.pagination.total || 0);
+            setPublicSwitchTotalPages(responseData.pagination.pages || 1);
+          }
         }
       }
       
-      if (associatesData.status === 'fulfilled') {
-
-        const validatedData = validateApiResponse(associatesData.value.data, API_RESPONSE_TYPES.USER_ARRAY);
-
-        setAssociates(Array.isArray(validatedData) ? validatedData : []);
+      if (associatesData && associatesData.status === 'fulfilled') {
+        const responseData = associatesData.value?.data;
+        if (responseData) {
+          const validatedData = validateApiResponse(responseData, API_RESPONSE_TYPES.USER_ARRAY);
+          setAssociates(Array.isArray(validatedData) ? validatedData : []);
+        }
       }
       
-        // 2025: Smart error handling with detailed error messages
-  const errors = {};
-  if (ongoingData.status === 'rejected') {
-    errors.ongoing = ongoingData.reason?.message || ERROR_MESSAGES.ONGOING_DARES_LOAD_FAILED;
-  }
-  if (completedData.status === 'rejected') {
-    errors.completed = completedData.reason?.message || ERROR_MESSAGES.COMPLETED_DARES_LOAD_FAILED;
-  }
-  if (switchData.status === 'rejected') {
-    errors.switchGames = switchData.reason?.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
-  }
-  if (publicData.status === 'rejected') {
-    errors.public = publicData.reason?.message || ERROR_MESSAGES.PUBLIC_DARES_LOAD_FAILED;
-  }
-  if (publicSwitchData.status === 'rejected') {
-    errors.publicSwitch = publicSwitchData.reason?.message || ERROR_MESSAGES.PUBLIC_SWITCH_GAMES_LOAD_FAILED;
-  }
-  if (associatesData.status === 'rejected') {
-    console.error('Failed to load associates data from API:', associatesData.reason);
-    errors.associates = handleApiError(associatesData.reason, 'associates');
-  }
-  
-  setErrors(errors);
+      // 2025: Smart error handling with detailed error messages
+      const errors = {};
+      if (ongoingData && ongoingData.status === 'rejected') {
+        errors.ongoing = ongoingData.reason?.message || ERROR_MESSAGES.ONGOING_DARES_LOAD_FAILED;
+      }
+      if (completedData && completedData.status === 'rejected') {
+        errors.completed = completedData.reason?.message || ERROR_MESSAGES.COMPLETED_DARES_LOAD_FAILED;
+      }
+      if (switchData && switchData.status === 'rejected') {
+        errors.switchGames = switchData.reason?.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
+      }
+      if (publicData && publicData.status === 'rejected') {
+        errors.public = publicData.reason?.message || ERROR_MESSAGES.PUBLIC_DARES_LOAD_FAILED;
+      }
+      if (publicSwitchData && publicSwitchData.status === 'rejected') {
+        errors.publicSwitch = publicSwitchData.reason?.message || ERROR_MESSAGES.PUBLIC_SWITCH_GAMES_LOAD_FAILED;
+      }
+      if (associatesData && associatesData.status === 'rejected') {
+        console.error('Failed to load associates data from API:', associatesData.reason);
+        errors.associates = handleApiError(associatesData.reason, 'associates');
+      }
+      
+      setErrors(errors);
       
     } catch (err) {
       console.error('Failed to fetch dashboard data from API:', err);
