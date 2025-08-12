@@ -47,7 +47,6 @@ export default function SwitchGameClaim() {
   const [demand, setDemand] = useState('');
   const [gesture, setGesture] = useState('rock');
   const [consent, setConsent] = useState(false);
-  const [contentDeletion, setContentDeletion] = useState('delete_after_30_days');
 
 
   useEffect(() => {
@@ -106,8 +105,7 @@ export default function SwitchGameClaim() {
         difficulty: game?.difficulty || 'titillating',
         move: gesture,
         consent: true,
-        dare: demand,
-        contentDeletion
+        dare: demand
       }));
       
       showSuccess('Successfully joined the switch game!');
@@ -343,31 +341,35 @@ export default function SwitchGameClaim() {
                 showCharacterCount
               />
 
-              {/* Your Move */}
-              <FormSelect
-                label="Your Move (Rock, Paper, or Scissors)"
-                options={[
-                  { value: 'rock', label: '🪨 Rock' },
-                  { value: 'paper', label: '📄 Paper' },
-                  { value: 'scissors', label: '✂️ Scissors' }
-                ]}
-                value={gesture}
-                onChange={(e) => setGesture(e.target.value)}
-                required
-              />
-
-              {/* Content Deletion Preference */}
-              <FormSelect
-                label="Content Deletion Preference"
-                options={[
-                  { value: 'delete_after_view', label: 'Delete after viewing (24 hours)' },
-                  { value: 'delete_after_30_days', label: 'Delete after 30 days' },
-                  { value: 'never_delete', label: 'Never delete' }
-                ]}
-                value={contentDeletion}
-                onChange={(e) => setContentDeletion(e.target.value)}
-                required
-              />
+              {/* Move Selection */}
+              <div className="pt-6 space-y-2">
+                <label className="block text-lg font-semibold text-white mb-3">
+                  Your Move (Rock, Paper, or Scissors)
+                  <span className="text-red-400 ml-1">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { value: 'rock', label: '🪨 Rock', desc: 'Strong and solid' },
+                    { value: 'paper', label: '📄 Paper', desc: 'Flexible and covering' },
+                    { value: 'scissors', label: '✂️ Scissors', desc: 'Sharp and precise' }
+                  ].map((moveOption) => (
+                    <button
+                      key={moveOption.value}
+                      type="button"
+                      onClick={() => setGesture(moveOption.value)}
+                      className={`p-4 rounded-xl border-2 transition-all duration-300 text-center ${
+                        gesture === moveOption.value
+                          ? 'border-primary bg-primary/20 text-primary shadow-lg'
+                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">{moveOption.label.split(' ')[0]}</div>
+                      <div className="text-sm font-semibold">{moveOption.label.split(' ')[1]}</div>
+                      <div className="text-xs text-neutral-400 mt-1">{moveOption.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Consent */}
               <div className="space-y-3">
