@@ -42,6 +42,7 @@ const SwitchGames = React.lazy(() => import('./pages/SwitchGames'));
 const SwitchGameCreate = React.lazy(() => import('./pages/SwitchGameCreate'));
 const SwitchGameParticipate = React.lazy(() => import('./pages/SwitchGameParticipate'));
 const SwitchGameDetails = React.lazy(() => import('./pages/SwitchGameDetails'));
+const SwitchGameClaim = React.lazy(() => import('./pages/SwitchGameClaim'));
 const ActivityFeed = React.lazy(() => import('./pages/ActivityFeed'));
 const Landing = React.lazy(() => import('./pages/Landing'));
 const PublicDares = React.lazy(() => import('./pages/PublicDares'));
