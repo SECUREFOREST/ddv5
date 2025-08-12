@@ -9,7 +9,7 @@ async function fixGameState() {
     console.log('Connected to MongoDB');
     
     // Import the SwitchGame model
-    const SwitchGame = require('./server/models/SwitchGame');
+    const SwitchGame = require('./models/SwitchGame');
     
     // Find the specific game
     const gameId = '687f93c464fbcde0469ed322';
