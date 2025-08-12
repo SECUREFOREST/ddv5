@@ -7,7 +7,7 @@ const SwitchGameSchema = new mongoose.Schema({
   creatorDare: {
     description: { type: String, required: true },
     difficulty: { type: String, required: true },
-    move: { type: String, enum: ['rock', 'paper', 'scissors'], required: true },
+    move: { type: String, enum: ['rock', 'paper', 'scissors'] }, // Remove required: true
     tags: [{ type: String }]
   },
   participantDare: {
@@ -47,5 +47,26 @@ const SwitchGameSchema = new mongoose.Schema({
   contentDeletion: { type: String, enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'], default: 'delete_after_30_days' },
   contentExpiresAt: { type: Date },
 }, { timestamps: true });
+
+// Pre-save hook to ensure data consistency
+SwitchGameSchema.pre('save', function(next) {
+  // Ensure moves are strings if they exist
+  if (this.creatorDare && this.creatorDare.move) {
+    this.creatorDare.move = this.creatorDare.move.toString();
+  }
+  if (this.participantDare && this.participantDare.move) {
+    this.participantDare.move = this.participantDare.move.toString();
+  }
+  
+  // Ensure winner and loser are ObjectIds if they exist
+  if (this.winner && typeof this.winner === 'string') {
+    this.winner = new mongoose.Types.ObjectId(this.winner);
+  }
+  if (this.loser && typeof this.loser === 'string') {
+    this.loser = new mongoose.Types.ObjectId(this.loser);
+  }
+  
+  next();
+});
 
 module.exports = mongoose.model('SwitchGame', SwitchGameSchema); 

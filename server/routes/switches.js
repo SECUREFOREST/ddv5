@@ -585,6 +585,14 @@ router.post('/:id/move',
         game.participantDare.move = move;
         console.log(`Participant move set: ${move} for game ${game._id}`);
       }
+      
+      // Validate that moves were set correctly
+      if (userId === game.creator.toString() && game.creatorDare.move !== move) {
+        throw new Error('Failed to set creator move');
+      }
+      if (userId === game.participant?.toString() && game.participantDare.move !== move) {
+        throw new Error('Failed to set participant move');
+      }
       // If both moves present, determine winner
       let winner = null, loser = null;
       if (game.creatorDare.move && game.participantDare.move && !game.winner) {
@@ -667,8 +675,79 @@ router.post('/:id/move',
         console.error(`Moves not properly saved. Creator move: ${game.creatorDare.move}, Participant move: ${game.participantDare.move}`);
       }
       
-      await game.save();
+      // Save the game with proper error handling and atomic updates
+      try {
+        // First, ensure the moves are saved
+        if (game.creatorDare.move || game.participantDare.move) {
+          const moveUpdate = {
+            $set: {}
+          };
+          
+          if (game.creatorDare.move) {
+            moveUpdate.$set['creatorDare.move'] = game.creatorDare.move;
+          }
+          if (game.participantDare.move) {
+            moveUpdate.$set['participantDare.move'] = game.participantDare.move;
+          }
+          
+          await SwitchGame.findByIdAndUpdate(game._id, moveUpdate);
+          console.log(`Moves saved for game ${game._id}:`, moveUpdate.$set);
+        }
+        
+        // Now save the entire game state
+        await game.save();
+        console.log(`Game ${game._id} saved successfully with moves and outcome`);
+        
+      } catch (saveError) {
+        console.error(`Failed to save game ${game._id}:`, saveError);
+        
+        // If the main save fails, try to save the outcome separately
+        try {
+          const outcomeUpdate = {
+            $set: {}
+          };
+          
+          if (game.winner) outcomeUpdate.$set.winner = game.winner;
+          if (game.loser) outcomeUpdate.$set.loser = game.loser;
+          if (game.status) outcomeUpdate.$set.status = game.status;
+          if (game.bothLose !== undefined) outcomeUpdate.$set.bothLose = game.bothLose;
+          if (game.bothWin !== undefined) outcomeUpdate.$set.bothWin = game.bothWin;
+          if (game.drawType) outcomeUpdate.$set.drawType = game.drawType;
+          if (game.proofExpiresAt) outcomeUpdate.$set.proofExpiresAt = game.proofExpiresAt;
+          
+          if (Object.keys(outcomeUpdate.$set).length > 0) {
+            await SwitchGame.findByIdAndUpdate(game._id, outcomeUpdate);
+            console.log(`Outcome saved separately for game ${game._id}:`, outcomeUpdate.$set);
+          }
+          
+          // Refresh the game object
+          const updatedGame = await SwitchGame.findById(game._id);
+          if (updatedGame) {
+            Object.assign(game, updatedGame.toObject());
+          }
+        } catch (fallbackError) {
+          console.error(`Fallback save also failed for game ${game._id}:`, fallbackError);
+          throw new Error(`Failed to save game state: ${fallbackError.message}`);
+        }
+      }
+      
       await game.populate('creator participant winner loser');
+      
+      // Final validation - verify the data was actually saved
+      const finalGame = await SwitchGame.findById(game._id);
+      if (finalGame) {
+        console.log('Final game state verification:', {
+          gameId: finalGame._id,
+          creatorMove: finalGame.creatorDare?.move,
+          participantMove: finalGame.participantDare?.move,
+          winner: finalGame.winner,
+          loser: finalGame.loser,
+          status: finalGame.status
+        });
+        
+        // Update the game object with the final state
+        Object.assign(game, finalGame.toObject());
+      }
       
       // Debug logging for game outcome
       console.log('Game outcome determined:', {
