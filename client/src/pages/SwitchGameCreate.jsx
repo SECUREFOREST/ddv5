@@ -32,6 +32,7 @@ export default function SwitchGameCreate() {
   const [publicGame, setPublicGame] = useState(true);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [showRules, setShowRules] = useState(false);
 
 
 
@@ -163,23 +164,58 @@ export default function SwitchGameCreate() {
                 <label className="block text-lg font-semibold text-white mb-3">
                   Your Move
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                   {MOVES.map((moveOption) => (
-                    <button
-                      key={moveOption}
-                      type="button"
-                      onClick={() => setMove(moveOption)}
-                      className={`p-6 rounded-xl border-2 transition-all duration-200 text-center ${
-                        move === moveOption
-                          ? 'border-primary bg-primary/20 text-primary'
-                          : 'border-neutral-700 bg-neutral-800/50 text-neutral-300 hover:border-neutral-600 hover:bg-neutral-700/50'
-                      }`}
+                    <label 
+                      key={moveOption} 
+                      className={`cursor-pointer p-4 rounded-xl border transition-all duration-200 flex flex-col items-center hover:scale-105
+                        ${move === moveOption 
+                          ? 'bg-primary/20 text-primary border-primary shadow-lg' 
+                          : 'bg-neutral-800/50 text-neutral-300 border-neutral-700 hover:border-primary/50'
+                        }`}
+                      tabIndex={0} 
+                      aria-label={`Select move ${moveOption}`}
                     >
-                      <div className="text-4xl mb-2">{MOVE_ICONS[moveOption]}</div>
-                      <div className="font-semibold capitalize">{moveOption}</div>
-                    </button>
+                      <input
+                        className="sr-only"
+                        required
+                        aria-required="true"
+                        type="radio"
+                        value={moveOption}
+                        name="move"
+                        checked={move === moveOption}
+                        onChange={(e) => setMove(e.target.value)}
+                      />
+                      <span className="text-4xl mb-2">{MOVE_ICONS[moveOption]}</span>
+                      <span className="font-semibold text-lg">{moveOption.charAt(0).toUpperCase() + moveOption.slice(1)}</span>
+                    </label>
                   ))}
                 </div>
+                <p className="text-neutral-400 text-sm">
+                  The winner is determined by this game of rock-paper-scissors. 
+                  <button 
+                    type="button"
+                    onClick={() => setShowRules(!showRules)} 
+                    className="text-primary underline hover:text-primary-light ml-1"
+                  >
+                    See game rules
+                  </button>
+                </p>
+                
+                {showRules && (
+                  <div className="mt-4 bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
+                    <h4 className="font-bold text-white mb-3">Game rules</h4>
+                    <div className="text-sm text-neutral-300 space-y-2">
+                      <p><strong>Rock:</strong> Strong and steady. Good against scissors, weak against paper.</p>
+                      <p><strong>Paper:</strong> Flexible and adaptable. Good against rock, weak against scissors.</p>
+                      <p><strong>Scissors:</strong> Sharp and decisive. Good against paper, weak against rock.</p>
+                      <p className="mt-3 text-yellow-300"><strong>Draw scenarios:</strong></p>
+                      <p><strong>Rock vs Rock:</strong> Both lose - both must perform each other's dares.</p>
+                      <p><strong>Paper vs Paper:</strong> Both win - no dares required.</p>
+                      <p><strong>Scissors vs Scissors:</strong> Coin flip determines winner.</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Tags */}
@@ -219,7 +255,7 @@ export default function SwitchGameCreate() {
           <div className="text-center pt-8">
             <button
               onClick={handleCreate}
-              disabled={creating || !description.trim()}
+              disabled={creating || !description.trim() || !move}
               className="bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 mx-auto"
             >
               {creating ? (
