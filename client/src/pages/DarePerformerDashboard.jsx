@@ -703,7 +703,7 @@ export default function DarePerformerDashboard() {
         // Extract dares from the response structure
         const responseData = publicData.value?.data;
         if (responseData) {
-          const dares = responseData.dares || responseData;
+          const dares = responseData?.dares || responseData || [];
           
           const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
 
@@ -720,7 +720,7 @@ export default function DarePerformerDashboard() {
       if (publicSwitchData && publicSwitchData.status === 'fulfilled') {
         const responseData = publicSwitchData.value?.data;
         if (responseData) {
-          const games = responseData.switchGames || responseData;
+          const games = responseData?.switchGames || responseData || [];
           
           const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
 
@@ -910,14 +910,14 @@ export default function DarePerformerDashboard() {
       // Step 4: Process the paginated results
       if (publicData.status === 'fulfilled') {
         const responseData = publicData.value.data;
-        const dares = responseData.dares || responseData;
+        const dares = responseData?.dares || responseData || [];
         const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
         setPublicDares(Array.isArray(validatedData) ? validatedData : []);
       }
       
       if (publicSwitchData.status === 'fulfilled') {
         const responseData = publicSwitchData.value.data;
-        const games = responseData.switchGames || responseData;
+        const games = responseData?.switchGames || responseData || [];
         const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
       }
@@ -1199,7 +1199,7 @@ export default function DarePerformerDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-                {Array.isArray(ongoing) && ongoing.map((dare) => (
+                {safeOngoing.length > 0 && safeOngoing.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -1284,7 +1284,7 @@ export default function DarePerformerDashboard() {
                 </div>
             ) : (
               <div className="space-y-4">
-                {Array.isArray(completed) && completed.map((dare) => (
+                {safeCompleted.length > 0 && safeCompleted.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -1311,10 +1311,10 @@ export default function DarePerformerDashboard() {
                         {dare.proof && !dare.proof.reviewed && dare.creator?._id === currentUserId && (
                           <button
                             onClick={() => navigate(`/dare/${dare._id}`)}
-                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
                           >
                             <StarIcon className="w-4 h-4" />
-                            Review Proof
+                            Grade
                           </button>
                         )}
                       </div>
@@ -1353,7 +1353,7 @@ export default function DarePerformerDashboard() {
               <FireIcon className="w-6 h-6 text-purple-400" />
               Switch Games ({switchTotalItems})
             </h3>
-            {mySwitchGames.length === 0 ? (
+            {safeMySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FireIcon className="w-8 h-8 text-purple-400" />
@@ -1377,7 +1377,7 @@ export default function DarePerformerDashboard() {
           </div>
             ) : (
             <div className="space-y-4">
-                {Array.isArray(mySwitchGames) && mySwitchGames.map((game) => (
+                {safeMySwitchGames.length > 0 && safeMySwitchGames.map((game) => (
                   <SwitchGameCard 
                     key={game._id} 
                     game={game}
@@ -1405,19 +1405,10 @@ export default function DarePerformerDashboard() {
                           <EyeIcon className="w-4 h-4" />
                           View Details
                         </button>
-                        {game.status === 'in_progress' && (
-                          <button
-                            onClick={() => navigate(`/switches/${game._id}`)}
-                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          >
-                            <CheckCircleIcon className="w-4 h-4" />
-                            Submit Move
-                          </button>
-                        )}
                       </div>
                     }
                   />
-              ))}
+                ))}
               
               {/* Switch Games Pagination */}
               {switchTotalPages > 1 && switchTotalItems > 0 && 
@@ -1594,7 +1585,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {Array.isArray(publicDares) && publicDares.map((dare) => (
+                {safePublicDares.length > 0 && safePublicDares.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -1637,6 +1628,17 @@ export default function DarePerformerDashboard() {
                     }
                   />
                 ))}
+                
+                {/* Show message if no dares */}
+                {safePublicDares.length === 0 && !dataLoading.public && (
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <SparklesIcon className="w-6 h-6 text-orange-400" />
+                    </div>
+                    <h4 className="text-md font-semibold text-white mb-2">No Public Dares Found</h4>
+                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
+                  </div>
+                )}
                 
                 {/* Public Dares Pagination */}
                 {publicDareTotalPages > 1 && (
@@ -1696,7 +1698,7 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {Array.isArray(publicSwitchGames) && publicSwitchGames.map((game) => (
+                {safePublicSwitchGames.length > 0 && safePublicSwitchGames.map((game) => (
                   <SwitchGameCard 
                     key={game._id} 
                     game={game}
@@ -1735,6 +1737,17 @@ export default function DarePerformerDashboard() {
                     }
                   />
                 ))}
+                
+                {/* Show message if no switch games */}
+                {safePublicSwitchGames.length === 0 && !dataLoading.publicSwitch && (
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <FireIcon className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games Found</h4>
+                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
+                  </div>
+                )}
                 
                 {/* Public Switch Games Pagination */}
                 {publicSwitchTotalPages > 1 && (
@@ -1781,7 +1794,7 @@ export default function DarePerformerDashboard() {
                 </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.isArray(associates) && associates.map((associate) => (
+                {safeAssociates.length > 0 && safeAssociates.map((associate) => (
                   <NeumorphicCard 
                     key={associate._id} 
                     variant="elevated" 
@@ -1805,6 +1818,14 @@ export default function DarePerformerDashboard() {
       )
     }
   ];
+
+  // Ensure arrays are always valid arrays to prevent .map() errors
+  const safePublicDares = Array.isArray(publicDares) ? publicDares : [];
+  const safePublicSwitchGames = Array.isArray(publicSwitchGames) ? publicSwitchGames : [];
+  const safeOngoing = Array.isArray(ongoing) ? ongoing : [];
+  const safeCompleted = Array.isArray(completed) ? completed : [];
+  const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
+  const safeAssociates = Array.isArray(associates) ? associates : [];
 
   // Check if user is authenticated
   if (!user) {
@@ -1907,12 +1928,12 @@ export default function DarePerformerDashboard() {
 
           {/* 2025 Empty State - Show when all sections are empty */}
           {!isLoading && 
-           ongoing.length === 0 && 
-           completed.length === 0 && 
-           mySwitchGames.length === 0 && 
-           publicDares.length === 0 && 
-           publicSwitchGames.length === 0 && 
-           associates.length === 0 && (
+           safeOngoing.length === 0 && 
+           safeCompleted.length === 0 && 
+           safeMySwitchGames.length === 0 && 
+           safePublicDares.length === 0 && 
+           safePublicSwitchGames.length === 0 && 
+           safeAssociates.length === 0 && (
             <NeumorphicCard variant="glass" className="p-12 text-center">
               <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <SparklesIcon className="w-12 h-12 text-purple-400" />

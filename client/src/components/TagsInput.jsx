@@ -4,15 +4,18 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
   const [input, setInput] = useState('');
   const inputRef = useRef(null);
 
+  // Ensure value is always an array to prevent .map() errors
+  const safeValue = Array.isArray(value) ? value : [];
+
   const addTag = (tag) => {
     tag = tag.trim();
-    if (tag && !value.some(t => t.toLowerCase() === tag.toLowerCase())) {
-      onChange([...value, tag]);
+    if (tag && !safeValue.some(t => t.toLowerCase() === tag.toLowerCase())) {
+      onChange([...safeValue, tag]);
     }
   };
 
   const removeTag = (tag) => {
-    onChange(value.filter(t => t !== tag));
+    onChange(safeValue.filter(t => t !== tag));
   };
 
   const handleInput = (e) => {
@@ -24,8 +27,8 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
       e.preventDefault();
       addTag(input);
       setInput('');
-    } else if (e.key === 'Backspace' && !input && value.length > 0) {
-      removeTag(value[value.length - 1]);
+    } else if (e.key === 'Backspace' && !input && safeValue.length > 0) {
+      removeTag(safeValue[safeValue.length - 1]);
     }
   };
 
@@ -34,8 +37,8 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
     const tags = pasted.split(/[\,\s]+/).map(t => t.trim()).filter(Boolean);
     let added = false;
     tags.forEach(tag => {
-      if (tag && !value.some(t => t.toLowerCase() === tag.toLowerCase())) {
-        onChange([...value, tag]);
+      if (tag && !safeValue.some(t => t.toLowerCase() === tag.toLowerCase())) {
+        onChange([...safeValue, tag]);
         added = true;
       }
     });
@@ -44,7 +47,7 @@ export default function TagsInput({ value = [], onChange, placeholder = 'Add tag
 
   return (
     <div className={`flex flex-wrap items-center gap-2 bg-neutral-900 rounded p-2 min-h-[44px] ${className}`.trim()} role="list" {...props}>
-      {value.map(tag => (
+      {safeValue.map(tag => (
         <span key={tag} className="flex items-center bg-primary text-primary-contrast px-2 py-1 rounded-none text-xs font-semibold" role="listitem">
           {tag}
           <button

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import TagsInput from '../components/TagsInput';
@@ -26,7 +26,44 @@ export default function SwitchGameCreate() {
   const [claimLink, setClaimLink] = useState('');
   const [createdGame, setCreatedGame] = useState(null);
   const [cancelling, setCancelling] = useState(false);
+  const [constantsLoaded, setConstantsLoaded] = useState(false);
   const navigate = useNavigate();
+
+  // Ensure constants are available to prevent errors
+  const safeDifficultyOptions = Array.isArray(DIFFICULTY_OPTIONS) ? DIFFICULTY_OPTIONS : [
+    { value: 'titillating', label: 'Titillating', icon: '🔥' },
+    { value: 'arousing', label: 'Arousing', icon: '💋' },
+    { value: 'explicit', label: 'Explicit', icon: '💦' },
+    { value: 'edgy', label: 'Edgy', icon: '⚡' },
+    { value: 'hardcore', label: 'Hardcore', icon: '💀' }
+  ];
+
+  // Wait for constants to be loaded
+  useEffect(() => {
+    if (DIFFICULTY_OPTIONS && Array.isArray(DIFFICULTY_OPTIONS)) {
+      setConstantsLoaded(true);
+    } else {
+      // Fallback: set constants as loaded after a short delay
+      const timer = setTimeout(() => setConstantsLoaded(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Don't render until constants are loaded
+  if (!constantsLoaded) {
+    return (
+      <div className="min-h-screen bg-black">
+        <ContentContainer>
+          <MainContent className="max-w-4xl mx-auto space-y-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+              <div className="text-white/80 text-lg font-medium">Loading...</div>
+            </div>
+          </MainContent>
+        </ContentContainer>
+      </div>
+    );
+  }
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -204,30 +241,42 @@ export default function SwitchGameCreate() {
               {/* Difficulty & Move Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Difficulty */}
-                <FormSelect
-                  label="Difficulty Level"
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  required
-                >
-                  {DIFFICULTY_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.icon} {option.label}
-                    </option>
-                  ))}
-                </FormSelect>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-200">
+                    Difficulty Level
+                    <span className="text-red-400 ml-1">*</span>
+                  </label>
+                  <select
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  >
+                    {safeDifficultyOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.icon} {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 {/* Move Selection */}
-                <FormSelect
-                  label="Your Move (Rock, Paper, or Scissors)"
-                  value={move}
-                  onChange={(e) => setMove(e.target.value)}
-                  required
-                >
-                  <option value="rock">🪨 Rock</option>
-                  <option value="paper">📄 Paper</option>
-                  <option value="scissors">✂️ Scissors</option>
-                </FormSelect>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-200">
+                    Your Move (Rock, Paper, or Scissors)
+                    <span className="text-red-400 ml-1">*</span>
+                  </label>
+                  <select
+                    value={move}
+                    onChange={(e) => setMove(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                  >
+                    <option value="rock">🪨 Rock</option>
+                    <option value="paper">📄 Paper</option>
+                    <option value="scissors">✂️ Scissors</option>
+                  </select>
+                </div>
               </div>
 
               {/* Tags */}
