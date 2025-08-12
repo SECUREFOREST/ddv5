@@ -759,13 +759,6 @@ export default function DarePerformerDashboard() {
     }
   }, [currentUserId, activePage, completedPage, switchPage]);
   
-  // Separate effect for public data with filters-first approach
-  useEffect(() => {
-    if (currentUserId) {
-      fetchPublicDataWithFilters();
-    }
-  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, fetchPublicDataWithFilters]);
-  
   // 2025: Gesture handlers
   const handleSwipe = (direction) => {
     setLastGesture(direction);
@@ -801,7 +794,11 @@ export default function DarePerformerDashboard() {
     setPublicDarePage(1);
     setPublicSwitchPage(1);
     // Fetch new data with updated filters
-    setTimeout(() => fetchPublicDataWithFilters(), 100);
+    setTimeout(() => {
+      if (typeof fetchPublicDataWithFilters === 'function') {
+        fetchPublicDataWithFilters();
+      }
+    }, 100);
   };
   
   const handlePublicSearch = (searchTerm) => {
@@ -812,7 +809,11 @@ export default function DarePerformerDashboard() {
     setPublicDarePage(1);
     setPublicSwitchPage(1);
     // Fetch new data with updated search
-    setTimeout(() => fetchPublicDataWithFilters(), 100);
+    setTimeout(() => {
+      if (typeof fetchPublicDataWithFilters === 'function') {
+        fetchPublicDataWithFilters();
+      }
+    }, 100);
   };
   
   const clearPublicFilters = () => {
@@ -825,7 +826,11 @@ export default function DarePerformerDashboard() {
     setPublicDarePage(1);
     setPublicSwitchPage(1);
     // Fetch new data with cleared filters
-    setTimeout(() => fetchPublicDataWithFilters(), 100);
+    setTimeout(() => {
+      if (typeof fetchPublicDataWithFilters === 'function') {
+        fetchPublicDataWithFilters();
+      }
+    }, 100);
   };
   
   // Separate function to get filtered counts first, then paginated results
@@ -837,7 +842,7 @@ export default function DarePerformerDashboard() {
       
       // Step 1: Get total counts with filters (no pagination)
       const [filteredDareCount, filteredSwitchCount] = await Promise.allSettled([
-        api.get(`/dares?public=true&difficulty=${publicFilters.difficulty}&dareType=${publicFilters.dareType}&tags=${publicFilters.tags.join(',')}&search=${publicFilters.search}&limit=1`),
+        api.get(`/dares?public=true&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}&limit=1`),
         api.get(`/switches?public=true&status=waiting_for_participant&limit=1`)
       ]);
       
@@ -856,7 +861,7 @@ export default function DarePerformerDashboard() {
       
       // Step 3: Get paginated results with filters
       const [publicData, publicSwitchData] = await Promise.allSettled([
-        api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters.difficulty}&dareType=${publicFilters.dareType}&tags=${publicFilters.tags.join(',')}&search=${publicFilters.search}`),
+        api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}`),
         api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}`)
       ]);
       
@@ -881,6 +886,13 @@ export default function DarePerformerDashboard() {
       setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
     }
   }, [currentUserId, publicFilters, publicDarePage, publicSwitchPage]);
+  
+  // Separate effect for public data with filters-first approach
+  useEffect(() => {
+    if (currentUserId && typeof fetchPublicDataWithFilters === 'function') {
+      fetchPublicDataWithFilters();
+    }
+  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, fetchPublicDataWithFilters]);
   
   // 2025: Smart actions with micro-interactions
   const handleQuickAction = async (action, params = {}) => {
@@ -1388,7 +1400,11 @@ export default function DarePerformerDashboard() {
               </h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => fetchPublicDataWithFilters()}
+                  onClick={() => {
+                    if (typeof fetchPublicDataWithFilters === 'function') {
+                      fetchPublicDataWithFilters();
+                    }
+                  }}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
                   disabled={dataLoading.public || dataLoading.publicSwitch}
                 >
