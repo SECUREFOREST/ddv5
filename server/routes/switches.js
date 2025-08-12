@@ -396,10 +396,87 @@ router.post('/:id/join',
       // Blocked user check
       const creator = await User.findById(game.creator).select('blockedUsers');
       const participantUser = await User.findById(userId).select('blockedUsers');
-      if (
-        (creator.blockedUsers && creator.blockedUsers.includes(userId)) ||
-        (participantUser.blockedUsers && participantUser.blockedUsers.includes(game.creator.toString()))
-      ) {
+      
+      console.log('Raw user objects:', {
+        creator: creator,
+        participantUser: participantUser,
+        creatorId: game.creator,
+        participantId: userId
+      });
+      
+      // Ensure blockedUsers arrays exist and are arrays
+      const creatorBlockedUsers = Array.isArray(creator?.blockedUsers) ? creator.blockedUsers : [];
+      const participantBlockedUsers = Array.isArray(participantUser?.blockedUsers) ? participantUser.blockedUsers : [];
+      
+      // Debug logging for blocking
+      console.log('Blocking check debug:', {
+        gameId: req.params.id,
+        creatorId: game.creator.toString(),
+        participantId: userId,
+        creatorBlockedUsers: creatorBlockedUsers,
+        participantBlockedUsers: participantBlockedUsers,
+        creatorBlockedParticipant: creatorBlockedUsers.some(id => id.toString() === userId.toString()),
+        participantBlockedCreator: participantBlockedUsers.some(id => id.toString() === game.creator.toString())
+      });
+      
+      // Additional debug info
+      console.log('User objects debug:', {
+        creator: {
+          _id: creator?._id,
+          blockedUsers: creator?.blockedUsers,
+          blockedUsersType: typeof creator?.blockedUsers,
+          isArray: Array.isArray(creator?.blockedUsers)
+        },
+        participantUser: {
+          _id: participantUser?._id,
+          blockedUsers: participantUser?.blockedUsers,
+          blockedUsersType: typeof participantUser?.blockedUsers,
+          isArray: Array.isArray(participantUser?.blockedUsers)
+        }
+      });
+      
+      // Check if creator has blocked the participant
+      const creatorBlockedParticipant = creatorBlockedUsers.some(id => {
+        try {
+          const result = id && id.toString() === userId.toString();
+          console.log('Creator blocked participant check:', { id: id?.toString(), userId: userId.toString(), result });
+          return result;
+        } catch (err) {
+          console.error('Error checking creator blocked participant:', err, { id, userId });
+          return false;
+        }
+      });
+      
+      // Check if participant has blocked the creator
+      const participantBlockedCreator = participantBlockedUsers.some(id => {
+        try {
+          const result = id && id.toString() === game.creator.toString();
+          console.log('Participant blocked creator check:', { id: id?.toString(), creatorId: game.creator.toString(), result });
+          return result;
+        } catch (err) {
+          console.error('Error checking participant blocked creator:', err, { id, creatorId: game.creator });
+          return false;
+        }
+      });
+      
+      if (creatorBlockedParticipant || participantBlockedCreator) {
+              console.log('Blocking detected:', {
+        creatorBlockedParticipant,
+        participantBlockedCreator,
+        creatorId: game.creator.toString(),
+        participantId: userId,
+        creatorBlockedUsers: creatorBlockedUsers.map(id => id.toString()),
+        participantBlockedUsers: participantBlockedUsers.map(id => id.toString())
+      });
+      
+      console.log('Detailed blocking info:', {
+        creatorBlockedUsers: creatorBlockedUsers,
+        participantBlockedUsers: participantBlockedUsers,
+        creatorId: game.creator,
+        participantId: userId,
+        creatorIdType: typeof game.creator,
+        participantIdType: typeof userId
+      });
         throw new Error('You cannot join this switch game due to user blocking.');
       }
       
@@ -576,8 +653,8 @@ router.post('/:id/proof',
       const creatorUser = await User.findById(game.creator).select('blockedUsers');
       const participantUser = await User.findById(game.participant).select('blockedUsers');
       if (
-        (creatorUser.blockedUsers && participantUser.blockedUsers && creatorUser.blockedUsers.includes(game.participant.toString())) ||
-        (creatorUser.blockedUsers && participantUser.blockedUsers && participantUser.blockedUsers.includes(game.creator.toString()))
+        (creatorUser.blockedUsers && participantUser.blockedUsers && creatorUser.blockedUsers.some(id => id.toString() === game.participant.toString())) ||
+        (creatorUser.blockedUsers && participantUser.blockedUsers && participantUser.blockedUsers.some(id => id.toString() === game.creator.toString()))
       ) {
         return res.status(400).json({ error: 'You cannot submit proof due to user blocking.' });
       }
@@ -722,8 +799,8 @@ router.post('/:id/grade',
       const graderUser = await User.findById(req.userId).select('blockedUsers');
       const targetUser = game.creator.equals(req.userId) ? await User.findById(game.participant).select('blockedUsers') : await User.findById(game.creator).select('blockedUsers');
       if (
-        (graderUser.blockedUsers && targetUser && targetUser.blockedUsers && targetUser.blockedUsers.includes(req.userId)) ||
-        (graderUser.blockedUsers && graderUser.blockedUsers.includes(targetUser?._id?.toString()))
+        (graderUser.blockedUsers && targetUser && targetUser.blockedUsers && targetUser.blockedUsers.some(id => id.toString() === req.userId.toString())) ||
+        (graderUser.blockedUsers && graderUser.blockedUsers.some(id => id.toString() === targetUser?._id?.toString()))
       ) {
         return res.status(400).json({ error: 'You cannot grade this user due to user blocking.' });
       }
@@ -735,6 +812,24 @@ router.post('/:id/grade',
     }
   }
 );
+
+// GET /api/switches/debug/blocking - debug endpoint for blocking issues
+router.get('/debug/blocking', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId).select('blockedUsers');
+    
+    res.json({
+      userId: userId.toString(),
+      userBlockedUsers: user?.blockedUsers || [],
+      userBlockedUsersType: typeof user?.blockedUsers,
+      isArray: Array.isArray(user?.blockedUsers),
+      blockedUsersLength: user?.blockedUsers?.length || 0
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // DELETE /api/switches/:id - allow deletion regardless of status
 router.delete('/:id', auth, async (req, res) => {

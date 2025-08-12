@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   bio: { type: String },
   roles: [{ type: String }],
   stats: { type: mongoose.Schema.Types.Mixed },
-  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  blockedUsers: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: [] },
   banned: { type: Boolean, default: false },
   dareCooldownUntil: { type: Date },
   openDares: { type: Number, default: 0 },
@@ -54,6 +54,11 @@ UserSchema.pre('save', function(next) {
   if (this.contentDeletion && !validValues.includes(this.contentDeletion)) {
     console.warn(`Invalid contentDeletion value "${this.contentDeletion}" for user ${this.username}, setting to default`);
     this.contentDeletion = '';
+  }
+  
+  // Ensure blockedUsers is always an array
+  if (!this.blockedUsers) {
+    this.blockedUsers = [];
   }
   
   next();

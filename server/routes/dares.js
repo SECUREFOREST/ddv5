@@ -221,8 +221,8 @@ router.get('/random', auth, async (req, res) => {
     const creator = await require('../models/User').findById(dareDoc[0].creator).select('blockedUsers');
     const performerUser = await require('../models/User').findById(userId).select('blockedUsers');
     if (
-      (creator.blockedUsers && creator.blockedUsers.includes(userId)) ||
-      (performerUser.blockedUsers && performerUser.blockedUsers.includes(dareDoc[0].creator.toString()))
+      (creator.blockedUsers && creator.blockedUsers.some(id => id.toString() === userId.toString())) ||
+      (performerUser.blockedUsers && performerUser.blockedUsers.some(id => id.toString() === dareDoc[0].creator.toString()))
     ) {
       return res.status(400).json({ error: 'You cannot perform this dare due to user blocking.' });
     }
@@ -678,8 +678,8 @@ router.post('/:id/grade-user',
       const graderUserGrade = await User.findById(req.userId).select('blockedUsers');
       const targetUserGrade = await User.findById(target).select('blockedUsers');
       if (
-        (graderUserGrade.blockedUsers && graderUserGrade.blockedUsers.includes(target)) ||
-        (targetUserGrade.blockedUsers && targetUserGrade.blockedUsers.includes(req.userId))
+        (graderUserGrade.blockedUsers && graderUserGrade.blockedUsers.some(id => id.toString() === target.toString())) ||
+        (targetUserGrade.blockedUsers && targetUserGrade.blockedUsers.some(id => id.toString() === req.userId.toString()))
       ) {
         return res.status(400).json({ error: 'You cannot grade this user due to user blocking.' });
       }
@@ -817,8 +817,8 @@ router.post('/:id/accept',
       await checkSlotAndCooldownAtomic(req.userId);
       
       if (
-        (creator2.blockedUsers && creator2.blockedUsers.includes(req.userId)) ||
-        (performerUser2.blockedUsers && performerUser2.blockedUsers.includes(dare.creator.toString()))
+        (creator2.blockedUsers && creator2.blockedUsers.some(id => id.toString() === req.userId.toString())) ||
+        (performerUser2.blockedUsers && performerUser2.blockedUsers.some(id => id.toString() === dare.creator.toString()))
       ) {
         return res.status(400).json({ error: 'You cannot perform this dare due to user blocking.' });
       }
@@ -1272,8 +1272,8 @@ router.get('/random', auth, async (req, res) => {
     const performerUser = await User.findById(userId).select('blockedUsers');
     
     if (
-      (creator.blockedUsers && performerUser.blockedUsers && creator.blockedUsers.includes(userId)) ||
-      (creator.blockedUsers && performerUser.blockedUsers && performerUser.blockedUsers.includes(dareDoc[0].creator.toString()))
+              (creator.blockedUsers && performerUser.blockedUsers && creator.blockedUsers.some(id => id.toString() === userId.toString())) ||
+        (creator.blockedUsers && performerUser.blockedUsers && performerUser.blockedUsers.some(id => id.toString() === dareDoc[0].creator.toString()))
     ) {
       return res.status(400).json({ error: 'You cannot perform this dare due to user blocking.' });
     }
