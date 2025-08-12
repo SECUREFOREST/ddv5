@@ -48,7 +48,7 @@ function Tag({ tag }) {
   );
 }
 
-export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, ...props }) {
+export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, onFixGameState, ...props }) {
   if (!game) return null;
   
   // Helper function to safely compare ObjectIds
@@ -276,6 +276,24 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
               </div>
             </div>
           )}
+          
+          {/* Warning for inconsistent game state */}
+          {game.status === 'awaiting_proof' && game.winner && !game.loser && (
+            <div className="mt-3 p-2 bg-red-900/20 border border-red-700/50 rounded text-xs">
+              <div className="text-red-400">
+                <strong>🚨 Game State Inconsistent</strong>
+              </div>
+              <div className="text-red-300 text-xs mt-1">
+                This game has a winner but is missing the loser information. 
+                The game state needs to be fixed to proceed properly.
+                {onFixGameState && (
+                  <span className="block mt-2">
+                    <strong>Solution:</strong> Click the "🔧 Fix Game" button below to resolve this issue.
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -302,6 +320,18 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
         {canReviewProof && <button className="bg-info text-info-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onReviewProof}>Review Proof</button>}
         {canGrade && <button className="bg-success text-success-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onGrade}>Grade</button>}
         {canChickenOut && <button className="bg-danger text-danger-contrast rounded px-2 py-1 text-xs font-semibold shadow-lg" onClick={onChickenOut}>Chicken Out</button>}
+        
+        {/* Fix Game State Button - show when game is inconsistent */}
+        {game.status === 'awaiting_proof' && game.winner && !game.loser && onFixGameState && (
+          <button 
+            className="bg-yellow-600 text-white rounded px-2 py-1 text-xs font-semibold shadow-lg hover:bg-yellow-700 transition-colors" 
+            onClick={onFixGameState}
+            title="Fix inconsistent game state"
+          >
+            🔧 Fix Game
+          </button>
+        )}
+        
         {actions}
       </div>
     </div>

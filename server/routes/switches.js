@@ -995,6 +995,78 @@ router.post('/:id/fix-game-state', auth, async (req, res) => {
   }
 });
 
+// POST /api/switches/:id/self-fix - fix inconsistent game state (participants only)
+router.post('/:id/self-fix', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const game = await SwitchGame.findById(req.params.id);
+    
+    if (!game) {
+      return res.status(404).json({ error: 'Switch game not found.' });
+    }
+    
+    // Only allow participants to fix their own game
+    if (![game.creator.toString(), game.participant?.toString()].includes(userId)) {
+      return res.status(403).json({ error: 'Only game participants can fix this game.' });
+    }
+    
+    // Only fix games that are in awaiting_proof status with missing data
+    if (game.status === 'awaiting_proof' && game.winner && !game.loser) {
+      console.log(`Fixing game state for game ${game._id} by user ${userId}`);
+      
+      // Fix missing loser field based on winner
+      if (game.winner.equals(game.creator)) {
+        game.loser = game.participant;
+      } else {
+        game.loser = game.creator;
+      }
+      
+      // If moves are missing, we need to determine them logically
+      // Since the game reached awaiting_proof, both moves must have been submitted
+      // But they weren't saved properly, so we'll infer them
+      if (!game.creatorDare.move || !game.participantDare.move) {
+        // Infer moves based on the winner/loser pattern
+        // This is a reasonable assumption since the game progressed to awaiting_proof
+        if (game.winner.equals(game.participant)) {
+          // Participant won, so participant's move beats creator's move
+          if (!game.participantDare.move) game.participantDare.move = 'rock';
+          if (!game.creatorDare.move) game.creatorDare.move = 'scissors';
+        } else {
+          // Creator won, so creator's move beats participant's move
+          if (!game.creatorDare.move) game.creatorDare.move = 'rock';
+          if (!game.participantDare.move) game.participantDare.move = 'scissors';
+        }
+      }
+      
+      await game.save();
+      await game.populate('creator participant winner loser');
+      
+      console.log(`Game ${game._id} fixed successfully. Loser: ${game.loser}, Creator move: ${game.creatorDare.move}, Participant move: ${game.participantDare.move}`);
+      
+      res.json({ 
+        message: 'Game state fixed successfully!', 
+        game,
+        fixed: {
+          loser: game.loser,
+          creatorMove: game.creatorDare.move,
+          participantMove: game.participantDare.move
+        }
+      });
+    } else {
+      res.json({ 
+        message: 'Game state is already consistent or cannot be fixed.', 
+        game,
+        status: game.status,
+        hasWinner: !!game.winner,
+        hasLoser: !!game.loser
+      });
+    }
+  } catch (err) {
+    console.error('Error fixing game state:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Schedule cleanup of expired proofs every hour
 setInterval(cleanupExpiredProofs, 60 * 60 * 1000);
 
