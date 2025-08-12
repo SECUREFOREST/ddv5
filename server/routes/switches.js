@@ -577,8 +577,14 @@ router.post('/:id/move',
       // Only allow each user to submit their move once
       if (userId === game.creator.toString() && game.creatorDare.move) throw new Error('Creator has already submitted a move.');
       if (userId === game.participant?.toString() && game.participantDare.move) throw new Error('Participant has already submitted a move.');
-      if (userId === game.creator.toString()) game.creatorDare.move = move;
-      if (userId === game.participant?.toString()) game.participantDare.move = move;
+      if (userId === game.creator.toString()) {
+        game.creatorDare.move = move;
+        console.log(`Creator move set: ${move} for game ${game._id}`);
+      }
+      if (userId === game.participant?.toString()) {
+        game.participantDare.move = move;
+        console.log(`Participant move set: ${move} for game ${game._id}`);
+      }
       // If both moves present, determine winner
       let winner = null, loser = null;
       if (game.creatorDare.move && game.participantDare.move && !game.winner) {
@@ -654,6 +660,13 @@ router.post('/:id/move',
           game.proofExpiresAt = new Date(Date.now() + proofDeadline * 60 * 60 * 1000);
         }
       }
+      // Validate that moves were saved
+      if (game.creatorDare.move && game.participantDare.move) {
+        console.log(`Both moves present - determining winner. Creator: ${game.creatorDare.move}, Participant: ${game.participantDare.move}`);
+      } else {
+        console.error(`Moves not properly saved. Creator move: ${game.creatorDare.move}, Participant move: ${game.participantDare.move}`);
+      }
+      
       await game.save();
       await game.populate('creator participant winner loser');
       
@@ -931,6 +944,56 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 
+
+// POST /api/switches/:id/fix-game-state - fix inconsistent game state (admin only)
+router.post('/:id/fix-game-state', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+    
+    const game = await SwitchGame.findById(req.params.id);
+    if (!game) {
+      return res.status(404).json({ error: 'Switch game not found.' });
+    }
+    
+    if (game.status === 'awaiting_proof' && game.winner && !game.loser) {
+      // Fix missing loser field
+      if (game.winner.equals(game.creator)) {
+        game.loser = game.participant;
+      } else {
+        game.loser = game.creator;
+      }
+      
+      // Set moves if they're missing (this is a fallback)
+      if (!game.creatorDare.move) {
+        game.creatorDare.move = 'rock'; // Default fallback
+      }
+      if (!game.participantDare.move) {
+        game.participantDare.move = 'scissors'; // Default fallback
+      }
+      
+      await game.save();
+      await game.populate('creator participant winner loser');
+      
+      res.json({ 
+        message: 'Game state fixed successfully.', 
+        game,
+        fixed: {
+          loser: game.loser,
+          creatorMove: game.creatorDare.move,
+          participantMove: game.participantDare.move
+        }
+      });
+    } else {
+      res.json({ message: 'Game state is already consistent or cannot be fixed.', game });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Schedule cleanup of expired proofs every hour
 setInterval(cleanupExpiredProofs, 60 * 60 * 1000);
