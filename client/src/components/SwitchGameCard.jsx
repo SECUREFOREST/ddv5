@@ -70,9 +70,14 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
     });
   };
   
-  // Validate game has required fields
-  const hasRequiredFields = game.creator && game.participant && game.status;
-  if (!hasRequiredFields) {
+  // Validate game has required fields based on status
+  const hasRequiredFields = game && game.creator && game.status;
+  
+  // For games that are in progress or completed, participant is required
+  const needsParticipant = ['in_progress', 'completed', 'proof_submitted', 'awaiting_proof', 'chickened_out'].includes(game.status);
+  const hasParticipantIfNeeded = !needsParticipant || game.participant;
+  
+  if (!hasRequiredFields || !hasParticipantIfNeeded) {
     return (
       <div className={`bg-[#222] border border-[#282828] rounded-none shadow-sm p-[15px] mb-5 ${className}`.trim()}>
         <div className="text-red-400 text-center py-4">
