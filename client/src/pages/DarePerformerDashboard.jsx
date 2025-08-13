@@ -118,7 +118,7 @@ const NeumorphicCard = ({ children, className = '', variant = 'default', interac
 
 
 // Main Dashboard Component with 2025 Design
-export default async function DarePerformerDashboard() {
+export default function DarePerformerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -711,84 +711,9 @@ export default async function DarePerformerDashboard() {
     });
   };
   
-
+    
 
     
-    try {
-      setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
-      
-      // Step 1: Get total counts with filters (no pagination)
-      const [filteredDareCount, filteredSwitchCount] = await Promise.allSettled([
-        api.get(`/dares?public=true&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}&limit=1`),
-        api.get(`/switches?public=true&status=waiting_for_participant&limit=1`)
-      ]);
-      
-      // Step 2: Update total counts and calculate total pages
-      if (filteredDareCount.status === 'fulfilled' && filteredDareCount.value.data.pagination) {
-        const totalItems = filteredDareCount.value.data.pagination.total || 0;
-        setPublicDareTotalItems(totalItems);
-        setPublicDareTotalPages(Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE)));
-      }
-      
-      if (filteredSwitchCount.status === 'fulfilled' && filteredSwitchCount.value.data.pagination) {
-        const totalItems = filteredSwitchCount.value.data.pagination.total || 0;
-        setPublicSwitchTotalItems(totalItems);
-        setPublicSwitchTotalPages(Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE)));
-      }
-      
-      // Step 3: Get paginated results with filters
-      const [publicData, publicSwitchData] = await Promise.allSettled([
-        api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}`),
-        api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}&tags=${(publicSwitchFilters?.tags || []).join(',')}&search=${publicSwitchFilters?.search || ''}`)
-      ]);
-      
-      // Step 4: Process the paginated results
-      if (publicData.status === 'fulfilled') {
-        const responseData = publicData.value.data;
-        const dares = responseData?.dares || responseData || [];
-        const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-        setPublicDares(Array.isArray(validatedData) ? validatedData : []);
-      }
-      
-      if (publicSwitchData.status === 'fulfilled') {
-        const responseData = publicSwitchData.value.data;
-        const games = responseData?.switchGames || responseData || [];
-        const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        
-        // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
-        const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-          // For public switch games, participant is only required if the game has been joined
-          // Games waiting for participants are valid without a participant
-          const hasRequiredFields = game && game.creator && game.status;
-          const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
-          
-          if (!hasRequiredFields || !hasParticipantIfNeeded) {
-            console.warn('Filtering out public switch game with missing required fields:', {
-              gameId: game?._id,
-              hasCreator: !!game?.creator,
-              hasParticipant: !!game?.participant,
-              hasStatus: !!game?.status,
-              status: game?.status,
-              gameData: game
-            });
-          }
-          return hasRequiredFields && hasParticipantIfNeeded;
-        }) : [];
-        
-        // Log summary of filtering
-        if (validatedData.length !== filteredPublicSwitchGames.length) {
-          console.warn(`Filtered out ${validatedData.length - filteredPublicSwitchGames.length} public switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredPublicSwitchGames.length}`);
-        }
-        
-        console.log('Setting filtered public switch games:', filteredPublicSwitchGames);
-        setPublicSwitchGames(filteredPublicSwitchGames);
-      }
-      
-    } catch (err) {
-      console.error('Failed to fetch public data with filters:', err);
-    } finally {
-
-  
   // 2025: Smart actions with micro-interactions
   const handleQuickAction = async (action, params = {}) => {
     try {
@@ -2099,4 +2024,4 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
-}}
+}
