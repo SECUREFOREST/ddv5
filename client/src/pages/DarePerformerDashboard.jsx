@@ -1147,6 +1147,12 @@ export default function DarePerformerDashboard() {
             return (ongoing.length === 0 && completed.length === 0) && 
                    (!dataLoading.ongoing && !dataLoading.completed);
           case 'switch-games':
+            // Don't auto-refresh switch games if filters are active (this is expected behavior)
+            const hasActiveFilters = switchGameFilters.difficulty || switchGameFilters.status;
+            if (hasActiveFilters) {
+              console.log('Switch games tab has filters active, not auto-refreshing');
+              return false;
+            }
             return mySwitchGames.length === 0 && !dataLoading.switchGames;
           case 'public':
             return (safePublicDares.length === 0 && safePublicSwitchGames.length === 0) && 
@@ -1180,7 +1186,14 @@ export default function DarePerformerDashboard() {
   }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
       safePublicDares.length, safePublicSwitchGames.length, 
       dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
-      dataLoading.public, dataLoading.publicSwitch]);
+      dataLoading.public, dataLoading.publicSwitch, switchGameFilters.difficulty, switchGameFilters.status]);
+  
+  // Add a guard to prevent infinite refresh loops
+  useEffect(() => {
+    if (activeTab === 'switch-games' && mySwitchGames.length === 0 && !dataLoading.switchGames && !isLoading) {
+      console.log('Switch games tab has no data and no loading in progress - this is expected with filters');
+    }
+  }, [activeTab, mySwitchGames.length, dataLoading.switchGames, isLoading]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
