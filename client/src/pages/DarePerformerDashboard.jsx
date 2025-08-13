@@ -212,16 +212,12 @@ export default function DarePerformerDashboard() {
   // Filter state for public content
   const [publicFilters, setPublicFilters] = useState({
     difficulty: '',
-    dareType: '',
-    tags: [],
-    search: ''
+    dareType: ''
   });
   
   // Filter state for public switch games
   const [publicSwitchFilters, setPublicSwitchFilters] = useState({
-    difficulty: '',
-    tags: [],
-    search: ''
+    difficulty: ''
   });
   
   // Filter state for personal dares
@@ -314,7 +310,7 @@ export default function DarePerformerDashboard() {
       }, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicFilters.tags, publicFilters.search, publicSwitchFilters.difficulty, publicSwitchFilters.tags, currentUserId]);
+  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
 
   // 2025: Enhanced data fetching with smart loading
   const fetchData = useCallback(async () => {
@@ -369,9 +365,9 @@ export default function DarePerformerDashboard() {
               // Switch games: using performer endpoint with pagination and filters
               api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`),
               // Public dares with filters and pagination
-              api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}`),
+              api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}`),
               // Public switch games with filters and pagination
-              api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}&tags=${(publicSwitchFilters?.tags || []).join(',')}&search=${publicSwitchFilters?.search || ''}`),
+              api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`),
 
             ]);
       
@@ -687,27 +683,18 @@ export default function DarePerformerDashboard() {
   const handlePublicFilterChange = (filterType, value) => {
     setPublicFilters(prev => ({ ...prev, [filterType]: value }));
     // Also apply to switch games for unified filtering (except dareType which is dare-specific)
-    if (filterType === 'difficulty' || filterType === 'tags') {
+    if (filterType === 'difficulty') {
       setPublicSwitchFilters(prev => ({ ...prev, [filterType]: value }));
     }
-  };
-  
-  const handlePublicSearch = (searchTerm) => {
-    setPublicFilters(prev => ({ ...prev, search: searchTerm }));
-    setPublicSwitchFilters(prev => ({ ...prev, search: searchTerm }));
   };
   
   const clearPublicFilters = () => {
     setPublicFilters({
       difficulty: '',
-      dareType: '',
-      tags: [],
-      search: ''
+      dareType: ''
     });
     setPublicSwitchFilters({
-      difficulty: '',
-      tags: [],
-      search: ''
+      difficulty: ''
     });
   };
   
@@ -1555,13 +1542,6 @@ export default function DarePerformerDashboard() {
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Search */}
-              <Search
-                placeholder="Search dares and switch games..."
-                onSearch={handlePublicSearch}
-                className="w-64"
-              />
-              
               {/* Difficulty Filter */}
               <Dropdown
                 label="Difficulty"
@@ -1590,14 +1570,6 @@ export default function DarePerformerDashboard() {
                 ]}
                 className="w-40"
               />
-              
-              {/* Tags Filter */}
-              <TagsInput
-                value={publicFilters.tags}
-                onChange={(tags) => handlePublicFilterChange('tags', tags)}
-                placeholder="Add tags..."
-                className="w-48"
-              />
             </div>
             
             {/* Filter Application Info */}
@@ -1605,9 +1577,7 @@ export default function DarePerformerDashboard() {
               <div className="text-sm text-blue-300">
                 <strong>Filter Application:</strong>
                 <ul className="mt-2 space-y-1 text-blue-200">
-                  <li>• <strong>Search:</strong> Applies to both dares and switch games</li>
                   <li>• <strong>Difficulty:</strong> Applies to both dares and switch games</li>
-                  <li>• <strong>Tags:</strong> Applies to both dares and switch games</li>
                   <li>• <strong>Dare Type:</strong> Applies only to dares</li>
                 </ul>
               </div>
@@ -1623,13 +1593,11 @@ export default function DarePerformerDashboard() {
                   <SparklesIcon className="w-6 h-6 text-orange-400" />
                   Public Dares ({publicDareTotalItems})
                 </h3>
-                {publicFilters.difficulty || publicFilters.dareType || publicFilters.tags.length > 0 || publicFilters.search ? (
+                {publicFilters.difficulty || publicFilters.dareType ? (
                   <div className="text-sm text-white/70">
                     Showing filtered results
                     {publicFilters.difficulty && ` • ${publicFilters.difficulty}`}
                     {publicFilters.dareType && ` • ${publicFilters.dareType}`}
-                    {publicFilters.tags.length > 0 && ` • ${publicFilters.tags.length} tags`}
-                    {publicFilters.search && ` • "${publicFilters.search}"`}
                   </div>
                 ) : (
                   <div className="text-sm text-white/70">Showing all public dares</div>
@@ -1736,12 +1704,10 @@ export default function DarePerformerDashboard() {
                   <FireIcon className="w-6 h-6 text-purple-400" />
                   Public Switch Games ({publicSwitchTotalItems})
                 </h3>
-                {publicSwitchFilters.difficulty || publicSwitchFilters.tags.length > 0 || publicSwitchFilters.search ? (
+                {publicSwitchFilters.difficulty ? (
                   <div className="text-sm text-white/70">
                     Showing filtered results
                     {publicSwitchFilters.difficulty && ` • ${publicSwitchFilters.difficulty}`}
-                    {publicSwitchFilters.tags.length > 0 && ` • ${publicSwitchFilters.tags.length} tags`}
-                    {publicSwitchFilters.search && ` • "${publicSwitchFilters.search}"`}
                   </div>
                 ) : (
                   <div className="text-sm text-white/70">Showing all available switch games</div>
