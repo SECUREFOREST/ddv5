@@ -1882,12 +1882,24 @@ export default function DarePerformerDashboard() {
               <TrophyIcon className="w-6 h-6 text-green-400" />
               Completed Switch Games ({(() => {
                 // Filter for actually completed games
-                const completedGames = safeMySwitchGames.filter(game => 
-                  game.status === 'completed' || 
-                  game.status === 'proof_submitted' || 
-                  game.status === 'awaiting_proof' ||
-                  (game.winner && game.winner !== 'N/A')
-                );
+                const completedGames = safeMySwitchGames.filter(game => {
+                  const isCompleted = game.status === 'completed' || 
+                    game.status === 'proof_submitted' || 
+                    game.status === 'awaiting_proof' ||
+                    (game.winner && game.winner !== 'N/A');
+                  
+                  // Debug logging
+                  console.log(`Game ${game._id} status: ${game.status}, winner: ${game.winner}, isCompleted: ${isCompleted}`);
+                  
+                  return isCompleted;
+                });
+                
+                console.log('Completed games filter result:', {
+                  totalGames: safeMySwitchGames.length,
+                  completedGames: completedGames.length,
+                  gameStatuses: safeMySwitchGames.map(g => ({ id: g._id, status: g.status, winner: g.winner }))
+                });
+                
                 return completedGames.length;
               })()})
               {dataLoading.switchGames && (
@@ -1953,38 +1965,44 @@ export default function DarePerformerDashboard() {
               
               return (
                 <div className="space-y-4">
+                  {/* Debug info */}
+                  <div className="text-xs text-white/50 mb-4 p-2 bg-gray-800/50 rounded">
+                    Debug: Found {completedGames.length} completed games. 
+                    Game IDs: {completedGames.map(g => g._id).join(', ')}
+                  </div>
+                  
                   {completedGames.map((game) => (
-                  <SwitchGameCard 
-                    key={game._id} 
-                    game={game}
-                    currentUserId={currentUserId}
-                    onSubmitProof={async (formData) => {
-                      try {
-                        await api.post(`/switches/${game._id}/proof`, formData, {
-                          headers: { 'Content-Type': 'multipart/form-data' },
-                        });
-                        showSuccess('Proof submitted successfully!');
-                        // Refresh the data
-                        fetchData();
-                      } catch (error) {
-                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                        showError(errorMessage);
-                        throw error; // Re-throw so the component can handle it
+                    <SwitchGameCard 
+                      key={game._id} 
+                      game={game}
+                      currentUserId={currentUserId}
+                      onSubmitProof={async (formData) => {
+                        try {
+                          await api.post(`/switches/${game._id}/proof`, formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' },
+                          });
+                          showSuccess('Proof submitted successfully!');
+                          // Refresh the data
+                          fetchData();
+                        } catch (error) {
+                          const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                          showError(errorMessage);
+                          throw error; // Re-throw so the component can handle it
+                        }
+                      }}
+                      actions={
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/switches/${game._id}`)}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                            View Details
+                          </button>
+                        </div>
                       }
-                    }}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
-                      </div>
-                    }
-                  />
-                ))}
+                    />
+                  ))}
                 
                 {/* Completed Switch Games Pagination */}
                 {switchTotalPages > 1 && switchTotalItems > 0 && (
