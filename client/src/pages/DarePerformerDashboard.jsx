@@ -309,7 +309,7 @@ export default function DarePerformerDashboard() {
       }, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
+  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId, fetchPublicDataWithFilters]);
 
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
