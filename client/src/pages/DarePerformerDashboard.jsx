@@ -437,6 +437,14 @@ export default function DarePerformerDashboard() {
               api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`),
 
             ]);
+            
+            // Debug: Log all API calls being made
+            console.log('API calls made:', {
+              activeDares: `/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`,
+              switchGames: `/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`,
+              publicDares: `/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}`,
+              publicSwitchGames: `/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`
+            });
       
                   // Handle successful responses
             if (ongoingData && ongoingData.status === 'fulfilled') {
@@ -809,6 +817,12 @@ export default function DarePerformerDashboard() {
         // Public switch games with server-side filters and pagination
         api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}${publicSwitchQueryString}`)
       ]);
+      
+      // Debug: Log public API calls being made
+      console.log('Public API calls made:', {
+        publicDares: `/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}${publicDareQueryString}`,
+        publicSwitchGames: `/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}${publicSwitchQueryString}`
+      });
       
       // Handle public dares response - data already filtered and paginated by server
       if (publicData && publicData.status === 'fulfilled') {

@@ -132,7 +132,12 @@ router.get('/', auth, async (req, res) => {
     } else {
       // Only return joinable games: status = 'waiting_for_participant', participant = null, and not created by current user
       filter = { status: 'waiting_for_participant', participant: null, creator: { $ne: req.userId } };
-      if (difficulty) filter['creatorDare.difficulty'] = difficulty;
+      if (difficulty) {
+        // Support both direct difficulty and nested creatorDare.difficulty
+        filter['creatorDare.difficulty'] = difficulty;
+        // Also support direct difficulty for backward compatibility
+        filter.difficulty = difficulty;
+      }
       if (isPublic !== undefined) filter.public = isPublic === 'true';
       total = await SwitchGame.countDocuments(filter);
       games = await SwitchGame.find(filter)
@@ -197,7 +202,10 @@ router.get('/performer', auth, async (req, res) => {
       }
     }
     if (difficulty) {
+      // Support both direct difficulty and nested creatorDare.difficulty
       filter['creatorDare.difficulty'] = difficulty;
+      // Also support direct difficulty for backward compatibility
+      filter.difficulty = difficulty;
     }
     
     // Pagination parameters
