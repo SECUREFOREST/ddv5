@@ -552,6 +552,7 @@ export default function DarePerformerDashboard() {
             console.warn(`Filtered out ${validatedData.length - filteredPublicSwitchGames.length} public switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredPublicSwitchGames.length}`);
           }
 
+          console.log('Main fetchData: Setting filtered public switch games:', filteredPublicSwitchGames);
           setPublicSwitchGames(filteredPublicSwitchGames);
           
           // Extract pagination metadata
@@ -724,7 +725,29 @@ export default function DarePerformerDashboard() {
         const responseData = publicSwitchData.value.data;
         const games = responseData?.switchGames || responseData || [];
         const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-        setPublicSwitchGames(Array.isArray(validatedData) ? validatedData : []);
+        
+        // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
+        const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
+          const hasRequiredFields = game && game.creator && game.participant && game.status;
+          if (!hasRequiredFields) {
+            console.warn('Filtering out public switch game with missing required fields:', {
+              gameId: game?._id,
+              hasCreator: !!game?.creator,
+              hasParticipant: !!game?.participant,
+              hasStatus: !!game?.status,
+              gameData: game
+            });
+          }
+          return hasRequiredFields;
+        }) : [];
+        
+        // Log summary of filtering
+        if (validatedData.length !== filteredPublicSwitchGames.length) {
+          console.warn(`Filtered out ${validatedData.length - filteredPublicSwitchGames.length} public switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredPublicSwitchGames.length}`);
+        }
+        
+        console.log('Setting filtered public switch games:', filteredPublicSwitchGames);
+        setPublicSwitchGames(filteredPublicSwitchGames);
       }
       
     } catch (err) {
@@ -923,7 +946,7 @@ export default function DarePerformerDashboard() {
           case 'switch-games':
             return mySwitchGames.length === 0 && !dataLoading.switchGames;
           case 'public':
-            return (publicDares.length === 0 && publicSwitchGames.length === 0) && 
+            return (safePublicDares.length === 0 && safePublicSwitchGames.length === 0) && 
                    (!dataLoading.public && !dataLoading.publicSwitch);
           case 'associates':
             return associates.length === 0 && !dataLoading.associates;
@@ -947,7 +970,7 @@ export default function DarePerformerDashboard() {
       }
     }
   }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
-      publicDares.length, publicSwitchGames.length, associates.length, 
+      safePublicDares.length, safePublicSwitchGames.length, associates.length, 
       dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
       dataLoading.public, dataLoading.publicSwitch, dataLoading.associates, fetchData]);
   
@@ -1047,7 +1070,7 @@ export default function DarePerformerDashboard() {
                         <LoadingSpinner size="sm" />
                         ...
                       </div>
-                    ) : (publicDares.length + publicSwitchGames.length)}
+                    ) : (safePublicDares.length + safePublicSwitchGames.length)}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Available</div>
                 </div>
@@ -1747,7 +1770,7 @@ export default function DarePerformerDashboard() {
                 <LoadingSpinner size="lg" />
                 <p className="text-white/70 mt-4">Loading public switch games...</p>
               </div>
-            ) : publicSwitchGames.length === 0 ? (
+            ) : safePublicSwitchGames.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <FireIcon className="w-6 h-6 text-purple-400" />
