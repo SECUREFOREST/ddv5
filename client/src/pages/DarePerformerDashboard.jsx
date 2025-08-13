@@ -16,7 +16,7 @@ import {
   PlusIcon,
   PlayIcon,
   DocumentPlusIcon,
-  UserGroupIcon,
+
   ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -140,7 +140,7 @@ export default function DarePerformerDashboard() {
     switchGames: true,
     public: true,
     publicSwitch: true,
-    associates: true
+    
   });
   
   // 2025: Smart state consolidation
@@ -184,7 +184,7 @@ export default function DarePerformerDashboard() {
   const [mySwitchGames, setMySwitchGames] = useState([]);
   const [publicDares, setPublicDares] = useState([]);
   const [publicSwitchGames, setPublicSwitchGames] = useState([]);
-  const [associates, setAssociates] = useState([]);
+
   const [errors, setErrors] = useState({});
   
   // Pagination state for active and completed dares (server-side)
@@ -231,7 +231,7 @@ export default function DarePerformerDashboard() {
   const safeOngoing = Array.isArray(ongoing) ? ongoing : [];
   const safeCompleted = Array.isArray(completed) ? completed : [];
   const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
-  const safeAssociates = Array.isArray(associates) ? associates : [];
+
   
   // 2025: Smart notifications
   const notificationTimeoutRef = useRef(null);
@@ -286,7 +286,7 @@ export default function DarePerformerDashboard() {
             ]);
 
             // Parallel data fetching for better performance with server-side pagination
-            const [ongoingData, completedData, switchData, publicData, publicSwitchData, associatesData] = await Promise.allSettled([
+            const [ongoingData, completedData, switchData, publicData, publicSwitchData] = await Promise.allSettled([
               // Active dares: both as creator and participant with pagination
               Promise.all([
                         api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}`),
@@ -302,7 +302,7 @@ export default function DarePerformerDashboard() {
               // Public data is now fetched separately with filters-first approach
               Promise.resolve({ status: 'fulfilled', value: { data: { dares: [], pagination: { total: 0, pages: 1 } } } }),
               Promise.resolve({ status: 'fulfilled', value: { data: { switchGames: [], pagination: { total: 0, pages: 1 } } } }),
-              api.get('/users/associates')
+
             ]);
       
                   // Handle successful responses
@@ -571,13 +571,7 @@ export default function DarePerformerDashboard() {
         }
       }
       
-      if (associatesData && associatesData.status === 'fulfilled') {
-        const responseData = associatesData.value?.data;
-        if (responseData) {
-          const validatedData = validateApiResponse(responseData, API_RESPONSE_TYPES.USER_ARRAY);
-          setAssociates(Array.isArray(validatedData) ? validatedData : []);
-        }
-      }
+
       
       // 2025: Smart error handling with detailed error messages
       const errors = {};
@@ -596,10 +590,7 @@ export default function DarePerformerDashboard() {
       if (publicSwitchData && publicSwitchData.status === 'rejected') {
         errors.publicSwitch = publicSwitchData.reason?.message || ERROR_MESSAGES.PUBLIC_SWITCH_GAMES_LOAD_FAILED;
       }
-      if (associatesData && associatesData.status === 'rejected') {
-        console.error('Failed to load associates data from API:', associatesData.reason);
-        errors.associates = handleApiError(associatesData.reason, 'associates');
-      }
+
       
       setErrors(errors);
       
@@ -615,7 +606,7 @@ export default function DarePerformerDashboard() {
         switchGames: false,
         public: false,
         publicSwitch: false,
-        associates: false
+
       });
     }
   }, [currentUserId, activePage, completedPage, switchPage]);
@@ -960,8 +951,7 @@ export default function DarePerformerDashboard() {
           case 'public':
             return (safePublicDares.length === 0 && safePublicSwitchGames.length === 0) && 
                    (!dataLoading.public && !dataLoading.publicSwitch);
-          case 'associates':
-            return associates.length === 0 && !dataLoading.associates;
+
           default:
             return false;
         }
@@ -976,15 +966,15 @@ export default function DarePerformerDashboard() {
            activeTab === 'completed' ? 'completed' : 
            activeTab === 'switch-games' ? 'switchGames' : 
            activeTab === 'public' ? 'public' : 
-           activeTab === 'associates' ? 'associates' : 'ongoing']: true
+           'ongoing']: true
         }));
         fetchData();
       }
     }
   }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
-      safePublicDares.length, safePublicSwitchGames.length, associates.length, 
+      safePublicDares.length, safePublicSwitchGames.length, 
       dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
-      dataLoading.public, dataLoading.publicSwitch, dataLoading.associates, fetchData]);
+      dataLoading.public, dataLoading.publicSwitch, fetchData]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -1859,84 +1849,6 @@ export default function DarePerformerDashboard() {
           </NeumorphicCard>
         </div>
       )
-    },
-    {
-      key: 'associates',
-      label: 'Associates',
-      icon: UserGroupIcon,
-      content: (
-        <div className="space-y-6">
-          <NeumorphicCard variant="glass" className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-              <UserGroupIcon className="w-6 h-6 text-indigo-400" />
-              Associates ({associates.length})
-              {dataLoading.associates && (
-                <div className="flex items-center gap-2 text-sm text-blue-400">
-                  <LoadingSpinner size="sm" />
-                  Loading...
-                </div>
-              )}
-            </h3>
-            
-            {/* Show loading state */}
-            {dataLoading.associates ? (
-              <div className="text-center py-12">
-                <LoadingSpinner size="lg" />
-                <p className="text-white/70 mt-4">Loading associates...</p>
-              </div>
-            ) : errors.associates ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
-                </div>
-                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Associates</h4>
-                <p className="text-white/70 mb-6">{errors.associates}</p>
-                <button
-                  onClick={fetchData}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  <ArrowPathIcon className="w-4 h-4" />
-                  Retry
-                </button>
-              </div>
-            ) : associates.length === 0 ? (
-                <div className="text-center py-12">
-                <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserGroupIcon className="w-8 h-8 text-indigo-400" />
-                  </div>
-                <h4 className="text-lg font-semibold text-white mb-2">No Associates</h4>
-                <p className="text-white/70 mb-6">Connect with other users to see them here.</p>
-                <button
-                  onClick={() => navigate('/public-dares')}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Discover Users
-                </button>
-                </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {safeAssociates.length > 0 && safeAssociates.map((associate) => (
-                  <NeumorphicCard 
-                    key={associate._id} 
-                    variant="elevated" 
-                    interactive 
-                    className="p-4 cursor-pointer"
-                    onClick={() => navigate(`/profile/${associate._id}`)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar user={associate} size={40} />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-white">{associate.fullName}</h4>
-                        <p className="text-sm text-white/70">@{associate.username}</p>
-                      </div>
-                    </div>
-                  </NeumorphicCard>
-                ))}
-              </div>
-            )}
-          </NeumorphicCard>
-        </div>
-      )
     }
   ];
 
@@ -2053,8 +1965,7 @@ export default function DarePerformerDashboard() {
            safeCompleted.length === 0 && 
            safeMySwitchGames.length === 0 && 
            safePublicDares.length === 0 && 
-           safePublicSwitchGames.length === 0 && 
-           safeAssociates.length === 0 && (
+           safePublicSwitchGames.length === 0 && (
             <NeumorphicCard variant="glass" className="p-12 text-center">
               <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <SparklesIcon className="w-12 h-12 text-purple-400" />
