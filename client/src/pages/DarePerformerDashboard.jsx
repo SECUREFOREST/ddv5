@@ -58,6 +58,7 @@ import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
+import Dropdown from '../components/Dropdown';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 import { retryApiCall } from '../utils/retry';
@@ -117,7 +118,7 @@ const NeumorphicCard = ({ children, className = '', variant = 'default', interac
 
 
 // Main Dashboard Component with 2025 Design
-export default function DarePerformerDashboard() {
+export default async function DarePerformerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -223,6 +224,18 @@ export default function DarePerformerDashboard() {
     search: ''
   });
   
+  // Filter state for personal dares
+  const [dareFilters, setDareFilters] = useState({
+    difficulty: '',
+    status: ''
+  });
+  
+  // Filter state for personal switch games
+  const [switchGameFilters, setSwitchGameFilters] = useState({
+    difficulty: '',
+    status: ''
+  });
+  
   const ITEMS_PER_PAGE = 8;
   
   // Ensure arrays are always valid arrays to prevent .map() errors
@@ -231,6 +244,11 @@ export default function DarePerformerDashboard() {
   const safeOngoing = Array.isArray(ongoing) ? ongoing : [];
   const safeCompleted = Array.isArray(completed) ? completed : [];
   const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
+  
+  // Server-side filtering is now handled in the API calls
+  // These variables now represent the filtered data from the server
+  const filteredOngoing = safeOngoing;
+  const filteredMySwitchGames = safeMySwitchGames;
 
   
   // 2025: Smart notifications
@@ -259,6 +277,45 @@ export default function DarePerformerDashboard() {
   
 
   
+  // Handle filter changes
+  const handleDareFilterChange = (filterType, value) => {
+    setDareFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+  
+  const handleSwitchGameFilterChange = (filterType, value) => {
+    setSwitchGameFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+  
+  // Refetch data when personal filters change
+  useEffect(() => {
+    if (currentUserId) {
+      // Reset pagination when filters change
+      setActivePage(1);
+      setSwitchPage(1);
+      // Use a small delay to avoid immediate refetch
+      const timeoutId = setTimeout(() => {
+        fetchData();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
+  
+  // Refetch public data when filters change
+  useEffect(() => {
+    if (currentUserId) {
+      // Reset pagination when filters change
+      setPublicDarePage(1);
+      setPublicSwitchPage(1);
+      // Use a small delay to avoid immediate refetch
+      const timeoutId = setTimeout(() => {
+        if (typeof fetchPublicDataWithFilters === 'function') {
+          fetchPublicDataWithFilters();
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [publicFilters.difficulty, publicFilters.dareType, publicFilters.tags, publicFilters.search, publicSwitchFilters.difficulty, publicSwitchFilters.tags, currentUserId]);
+
   // 2025: Enhanced data fetching with smart loading
   const fetchData = useCallback(async () => {
     if (!currentUserId) return;
@@ -270,38 +327,51 @@ export default function DarePerformerDashboard() {
 
       
                               // Get total counts first for proper pagination
+            // Build filter query parameters for active dares
+            const activeDareFilters = [];
+            if (dareFilters.difficulty) activeDareFilters.push(`difficulty=${dareFilters.difficulty}`);
+            if (dareFilters.status) activeDareFilters.push(`status=${dareFilters.status}`);
+            const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
+            
+            // Build filter query parameters for switch games
+            const switchGameFilters = [];
+            if (switchGameFilters.difficulty) switchGameFilters.push(`difficulty=${switchGameFilters.difficulty}`);
+            if (switchGameFilters.status) switchGameFilters.push(`status=${switchGameFilters.status}`);
+            const switchGameQueryString = switchGameFilters.length > 0 ? `&${switchGameFilters.join('&')}` : '';
+            
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
-              // Get total counts for active dares (both as creator and participant)
+              // Get total counts for active dares (both as creator and participant) with filters
               Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1`),
-        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1`)
+                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1${activeDareQueryString}`),
+        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1${activeDareQueryString}`)
               ]),
               // Get total counts for completed dares (both as creator and participant)
               Promise.all([
                         api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`),
         api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`)
               ]),
-              // Get total count for switch games using the performer endpoint
-              api.get(`/switches/performer?limit=1`)
+              // Get total count for switch games using the performer endpoint with filters
+              api.get(`/switches/performer?limit=1${switchGameQueryString}`)
             ]);
 
             // Parallel data fetching for better performance with server-side pagination
             const [ongoingData, completedData, switchData, publicData, publicSwitchData] = await Promise.allSettled([
-              // Active dares: both as creator and participant with pagination
+              // Active dares: both as creator and participant with pagination and filters
               Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}`),
-        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}`)
+                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`),
+        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`)
               ]),
               // Completed dares: both as creator and participant with pagination
               Promise.all([
                         api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
         api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
-              // Switch games: using performer endpoint with pagination
-              api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}`),
-              // Public data is now fetched separately with filters-first approach
-              Promise.resolve({ status: 'fulfilled', value: { data: { dares: [], pagination: { total: 0, pages: 1 } } } }),
-              Promise.resolve({ status: 'fulfilled', value: { data: { switchGames: [], pagination: { total: 0, pages: 1 } } } }),
+              // Switch games: using performer endpoint with pagination and filters
+              api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`),
+              // Public dares with filters and pagination
+              api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}&tags=${(publicFilters?.tags || []).join(',')}&search=${publicFilters?.search || ''}`),
+              // Public switch games with filters and pagination
+              api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}&tags=${(publicSwitchFilters?.tags || []).join(',')}&search=${publicSwitchFilters?.search || ''}`),
 
             ]);
       
@@ -613,47 +683,18 @@ export default function DarePerformerDashboard() {
   
 
   
-  // Filter change handlers for public content
+  // Handle public filter changes
   const handlePublicFilterChange = (filterType, value) => {
-    setPublicFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
+    setPublicFilters(prev => ({ ...prev, [filterType]: value }));
     // Also apply to switch games for unified filtering (except dareType which is dare-specific)
     if (filterType === 'difficulty' || filterType === 'tags') {
-      setPublicSwitchFilters(prev => ({
-        ...prev,
-        [filterType]: value
-      }));
+      setPublicSwitchFilters(prev => ({ ...prev, [filterType]: value }));
     }
-    // Reset to first page when filters change
-    setPublicDarePage(1);
-    setPublicSwitchPage(1);
-    // Fetch new data with updated filters
-    setTimeout(() => {
-      if (typeof fetchPublicDataWithFilters === 'function') {
-        fetchPublicDataWithFilters();
-      }
-    }, 100);
   };
   
   const handlePublicSearch = (searchTerm) => {
-    setPublicFilters(prev => ({
-      ...prev,
-      search: searchTerm
-    }));
-    setPublicSwitchFilters(prev => ({
-      ...prev,
-      search: searchTerm
-    }));
-    setPublicDarePage(1);
-    setPublicSwitchPage(1);
-    // Fetch new data with updated search
-    setTimeout(() => {
-      if (typeof fetchPublicDataWithFilters === 'function') {
-        fetchPublicDataWithFilters();
-      }
-    }, 100);
+    setPublicFilters(prev => ({ ...prev, search: searchTerm }));
+    setPublicSwitchFilters(prev => ({ ...prev, search: searchTerm }));
   };
   
   const clearPublicFilters = () => {
@@ -668,21 +709,10 @@ export default function DarePerformerDashboard() {
       tags: [],
       search: ''
     });
-    setPublicDarePage(1);
-    setPublicSwitchPage(1);
-    // Fetch new data with cleared filters
-    setTimeout(() => {
-      if (typeof fetchPublicDataWithFilters === 'function') {
-        fetchPublicDataWithFilters();
-      }
-    }, 100);
   };
   
 
-  
-  // Separate function to get filtered counts first, then paginated results
-  const fetchPublicDataWithFilters = useCallback(async () => {
-    if (!currentUserId) return;
+
     
     try {
       setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
@@ -757,16 +787,7 @@ export default function DarePerformerDashboard() {
     } catch (err) {
       console.error('Failed to fetch public data with filters:', err);
     } finally {
-      setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
-    }
-  }, [currentUserId, publicFilters, publicSwitchFilters, publicDarePage, publicSwitchPage]);
-  
-  // Separate effect for public data with filters-first approach
-  useEffect(() => {
-    if (currentUserId && typeof fetchPublicDataWithFilters === 'function') {
-      fetchPublicDataWithFilters();
-    }
-  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, fetchPublicDataWithFilters]);
+
   
   // 2025: Smart actions with micro-interactions
   const handleQuickAction = async (action, params = {}) => {
@@ -1157,7 +1178,7 @@ export default function DarePerformerDashboard() {
     },
     {
       key: 'dares',
-      label: 'Dares',
+      label: 'My Dares',
       icon: ClockIcon,
       content: (
         <div className="space-y-6">
@@ -1165,7 +1186,7 @@ export default function DarePerformerDashboard() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <ClockIcon className="w-6 h-6 text-blue-400" />
-                Active Dares ({activeTotalItems})
+                My Active Dares ({filteredOngoing.length})
                 {dataLoading.ongoing && (
                   <div className="flex items-center gap-2 text-sm text-blue-400">
                     <LoadingSpinner size="sm" />
@@ -1173,11 +1194,38 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
-              <Search
-                placeholder="Search active dares..."
-                onSearch={setSearch}
-                className="w-64"
-              />
+              <div className="flex items-center gap-4">
+                <Dropdown
+                  label="Difficulty"
+                  value={dareFilters.difficulty}
+                  onChange={(value) => handleDareFilterChange('difficulty', value)}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    { value: 'easy', label: 'Easy' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'hard', label: 'Hard' },
+                    { value: 'extreme', label: 'Extreme' }
+                  ]}
+                  className="w-40"
+                />
+                <Dropdown
+                  label="Status"
+                  value={dareFilters.status}
+                  onChange={(value) => handleDareFilterChange('status', value)}
+                  options={[
+                    { value: '', label: 'All Statuses' },
+                    { value: 'waiting_for_participant', label: 'Waiting for Participant' },
+                    { value: 'approved', label: 'Approved' },
+                    { value: 'in_progress', label: 'In Progress' }
+                  ]}
+                  className="w-48"
+                />
+                <Search
+                  placeholder="Search active dares..."
+                  onSearch={setSearch}
+                  className="w-64"
+                />
+              </div>
             </div>
             
             {/* Show loading state */}
@@ -1201,23 +1249,25 @@ export default function DarePerformerDashboard() {
                   Retry
                 </button>
               </div>
-            ) : ongoing.length === 0 ? (
+            ) : filteredOngoing.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ClockIcon className="w-8 h-8 text-blue-400" />
                 </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Active Dares</h4>
-                <p className="text-white/70 mb-6">You don't have any active dares at the moment.</p>
+                <p className="text-white/70 mb-6">You don't have any active dares matching the selected filters.</p>
                 <button
-                  onClick={() => handleQuickAction('perform-dare')}
+                  onClick={() => {
+                    setDareFilters({ difficulty: '', status: '' });
+                  }}
                   className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Find Dares to Perform
+                  Clear Filters
                 </button>
             </div>
           ) : (
             <div className="space-y-4">
-                {safeOngoing.length > 0 && safeOngoing.map((dare) => (
+                {filteredOngoing.length > 0 && filteredOngoing.map((dare) => (
                   <DareCard 
                     key={dare._id} 
                     creator={dare.creator}
@@ -1379,21 +1429,53 @@ export default function DarePerformerDashboard() {
     },
     {
       key: 'switch-games',
-      label: 'Switch Games',
+      label: 'My Switch Games',
       icon: FireIcon,
       content: (
         <div className="space-y-6">
           <NeumorphicCard variant="glass" className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-              <FireIcon className="w-6 h-6 text-purple-400" />
-              Switch Games ({switchTotalItems})
-              {dataLoading.switchGames && (
-                <div className="flex items-center gap-2 text-sm text-blue-400">
-                  <LoadingSpinner size="sm" />
-                  Loading...
-                </div>
-              )}
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+                              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                  <FireIcon className="w-6 h-6 text-purple-400" />
+                  My Switch Games ({filteredMySwitchGames.length})
+                {dataLoading.switchGames && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Loading...
+                  </div>
+                )}
+              </h3>
+              <div className="flex items-center gap-4">
+                <Dropdown
+                  label="Difficulty"
+                  value={switchGameFilters.difficulty}
+                  onChange={(value) => handleSwitchGameFilterChange('difficulty', value)}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    { value: 'easy', label: 'Easy' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'hard', label: 'Hard' },
+                    { value: 'extreme', label: 'Extreme' }
+                  ]}
+                  className="w-40"
+                />
+                <Dropdown
+                  label="Status"
+                  value={switchGameFilters.status}
+                  onChange={(value) => handleSwitchGameFilterChange('status', value)}
+                  options={[
+                    { value: '', label: 'All Statuses' },
+                    { value: 'waiting_for_participant', label: 'Waiting for Participant' },
+                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'completed', label: 'Completed' },
+                    { value: 'awaiting_proof', label: 'Awaiting Proof' },
+                    { value: 'proof_submitted', label: 'Proof Submitted' },
+                    { value: 'chickened_out', label: 'Chickened Out' }
+                  ]}
+                  className="w-48"
+                />
+              </div>
+            </div>
             
             {/* Show info about filtered games if any were removed due to incomplete data */}
             {mySwitchGames.length !== safeMySwitchGames.length && (
@@ -1428,31 +1510,33 @@ export default function DarePerformerDashboard() {
                   Retry
                 </button>
               </div>
-            ) : safeMySwitchGames.length === 0 ? (
+            ) : filteredMySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FireIcon className="w-8 h-8 text-purple-400" />
                 </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Switch Games</h4>
-                <p className="text-white/70 mb-6">Create or join switch games to get started!</p>
+                <p className="text-white/70 mb-6">No switch games match the selected filters.</p>
                 <div className="flex gap-4 justify-center">
                   <button
-                    onClick={() => handleQuickAction('create-switch')}
+                    onClick={() => {
+                      setSwitchGameFilters({ difficulty: '', status: '' });
+                    }}
                     className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Create Game
+                    Clear Filters
                   </button>
                   <button
                     onClick={() => setActiveTab('public')}
                     className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
                   >
-                                        Find Games
+                    Find Games
                   </button>
                 </div>
               </div>
             ) : (
             <div className="space-y-4">
-                {safeMySwitchGames.length > 0 && safeMySwitchGames.map((game) => (
+                {filteredMySwitchGames.length > 0 && filteredMySwitchGames.map((game) => (
                   <SwitchGameCard 
                     key={game._id} 
                     game={game}
@@ -1545,59 +1629,50 @@ export default function DarePerformerDashboard() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex items-center gap-4">
               {/* Search */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80">Search</label>
-                <Search
-                  placeholder="Search dares and switch games..."
-                  onSearch={handlePublicSearch}
-                  className="w-full"
-                />
-              </div>
+              <Search
+                placeholder="Search dares and switch games..."
+                onSearch={handlePublicSearch}
+                className="w-64"
+              />
               
               {/* Difficulty Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80">Difficulty</label>
-                <select
-                  value={publicFilters.difficulty}
-                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
-                  className="w-full bg-neutral-800 border border-white/20 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">All Difficulties</option>
-                  <option value="titillating">Titillating</option>
-                  <option value="arousing">Arousing</option>
-                  <option value="explicit">Explicit</option>
-                  <option value="edgy">Edgy</option>
-                  <option value="hardcore">Hardcore</option>
-                </select>
-              </div>
+              <Dropdown
+                label="Difficulty"
+                value={publicFilters.difficulty}
+                onChange={(value) => handlePublicFilterChange('difficulty', value)}
+                options={[
+                  { value: '', label: 'All Difficulties' },
+                  { value: 'easy', label: 'Easy' },
+                  { value: 'medium', label: 'Medium' },
+                  { value: 'hard', label: 'Hard' },
+                  { value: 'extreme', label: 'Extreme' }
+                ]}
+                className="w-40"
+              />
               
               {/* Dare Type Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80">Dare Type</label>
-                <select
-                  value={publicFilters.dareType}
-                  onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
-                  className="w-full bg-neutral-800 border border-white/20 rounded-lg px-3 py-2 text-white focus:border-transparent"
-                >
-                  <option value="">All Types</option>
-                  <option value="submission">Submission</option>
-                  <option value="domination">Domination</option>
-                  <option value="switch">Switch</option>
-                </select>
-              </div>
+              <Dropdown
+                label="Dare Type"
+                value={publicFilters.dareType}
+                onChange={(value) => handlePublicFilterChange('dareType', value)}
+                options={[
+                  { value: '', label: 'All Types' },
+                  { value: 'submission', label: 'Submission' },
+                  { value: 'domination', label: 'Domination' },
+                  { value: 'switch', label: 'Switch' }
+                ]}
+                className="w-40"
+              />
               
               {/* Tags Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80">Tags</label>
-                <TagsInput
-                  value={publicFilters.tags}
-                  onChange={(tags) => handlePublicFilterChange('tags', tags)}
-                  placeholder="Add tags..."
-                  className="w-full"
-                />
-              </div>
+              <TagsInput
+                value={publicFilters.tags}
+                onChange={(tags) => handlePublicFilterChange('tags', tags)}
+                placeholder="Add tags..."
+                className="w-48"
+              />
             </div>
             
             {/* Filter Application Info */}
@@ -2024,4 +2099,4 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
-}
+}}

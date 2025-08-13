@@ -181,7 +181,7 @@ router.get('/', auth, async (req, res) => {
 // GET /api/switches/performer - get all switch games where current user is creator or participant
 router.get('/performer', auth, async (req, res) => {
   try {
-    const { status } = req.query;
+    const { status, difficulty } = req.query;
     const userId = req.userId;
     const filter = {
       $or: [
@@ -195,6 +195,9 @@ router.get('/performer', auth, async (req, res) => {
       } else {
         filter.status = status;
       }
+    }
+    if (difficulty) {
+      filter['creatorDare.difficulty'] = difficulty;
     }
     
     // Pagination parameters
