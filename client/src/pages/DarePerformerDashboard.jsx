@@ -276,11 +276,23 @@ export default function DarePerformerDashboard() {
   
   // Handle filter changes
   const handleDareFilterChange = (filterType, value) => {
-    setDareFilters(prev => ({ ...prev, [filterType]: value }));
+    console.log(`Dare filter changed: ${filterType} = ${value}`);
+    console.log('Previous dare filters:', dareFilters);
+    setDareFilters(prev => {
+      const newFilters = { ...prev, [filterType]: value };
+      console.log('New dare filters:', newFilters);
+      return newFilters;
+    });
   };
   
   const handleSwitchGameFilterChange = (filterType, value) => {
-    setSwitchGameFilters(prev => ({ ...prev, [filterType]: value }));
+    console.log(`Switch game filter changed: ${filterType} = ${value}`);
+    console.log('Previous switch game filters:', switchGameFilters);
+    setSwitchGameFilters(prev => {
+      const newFilters = { ...prev, [filterType]: value };
+      console.log('New switch game filters:', newFilters);
+      return newFilters;
+    });
   };
   
   // Refetch data when personal filters change
@@ -309,7 +321,57 @@ export default function DarePerformerDashboard() {
       }, 100);
       return () => clearTimeout(timeoutId);
     }
+  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
+
+  // Separate effect to handle fetchData dependency
+  useEffect(() => {
+    console.log('Personal filters effect triggered:', { dareFilters, switchGameFilters, currentUserId });
+    if (currentUserId && (dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status)) {
+      console.log('Triggering fetchData due to personal filter change');
+      fetchData();
+    }
+  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId, fetchData]);
+
+  // Separate effect to handle fetchPublicDataWithFilters dependency
+  useEffect(() => {
+    console.log('Public filters effect triggered:', { publicFilters, publicSwitchFilters, currentUserId });
+    if (currentUserId && (publicFilters.difficulty || publicFilters.dareType || publicSwitchFilters.difficulty)) {
+      console.log('Triggering fetchPublicDataWithFilters due to public filter change');
+      fetchPublicDataWithFilters();
+    }
   }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId, fetchPublicDataWithFilters]);
+
+  // Handle public pagination changes
+  useEffect(() => {
+    if (currentUserId && (publicDarePage > 1 || publicSwitchPage > 1)) {
+      fetchPublicDataWithFilters();
+    }
+  }, [publicDarePage, publicSwitchPage, currentUserId, fetchPublicDataWithFilters]);
+
+  // Debug logging for data changes
+  useEffect(() => {
+    console.log('Data updated:', {
+      ongoing: ongoing.length,
+      completed: completed.length,
+      mySwitchGames: mySwitchGames.length,
+      publicDares: publicDares.length,
+      publicSwitchGames: publicSwitchGames.length,
+      dareFilters,
+      switchGameFilters,
+      publicFilters,
+      publicSwitchFilters
+    });
+  }, [ongoing, completed, mySwitchGames, publicDares, publicSwitchGames, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
+
+  // Debug logging for filter state changes
+  useEffect(() => {
+    console.log('Filter state changed:', {
+      dareFilters,
+      switchGameFilters,
+      publicFilters,
+      publicSwitchFilters
+    });
+  }, [dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
 
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
@@ -330,11 +392,15 @@ export default function DarePerformerDashboard() {
             if (dareFilters.status) activeDareFilters.push(`status=${dareFilters.status}`);
             const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
             
+            console.log('Active dare filters being applied:', { dareFilters, activeDareQueryString });
+            
             // Build filter query parameters for switch games
             const switchGameQueryParams = [];
             if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
             if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
             const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
+            
+            console.log('Switch game filters being applied:', { switchGameFilters, switchGameQueryString });
             
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant) with filters
@@ -678,21 +744,32 @@ export default function DarePerformerDashboard() {
 
       });
     }
-  }, [currentUserId, activePage, completedPage, switchPage, fetchPublicDataWithFilters]);
+  }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
   
 
   
   // Handle public filter changes
   const handlePublicFilterChange = (filterType, value) => {
     console.log(`Public filter changed: ${filterType} = ${value}`);
-    setPublicFilters(prev => ({ ...prev, [filterType]: value }));
+    console.log('Previous public filters:', publicFilters);
+    setPublicFilters(prev => {
+      const newFilters = { ...prev, [filterType]: value };
+      console.log('New public filters:', newFilters);
+      return newFilters;
+    });
     // Also apply to switch games for unified filtering (except dareType which is dare-specific)
     if (filterType === 'difficulty') {
-      setPublicSwitchFilters(prev => ({ ...prev, [filterType]: value }));
+      console.log('Also updating public switch filters difficulty to:', value);
+      setPublicSwitchFilters(prev => {
+        const newSwitchFilters = { ...prev, [filterType]: value };
+        console.log('New public switch filters:', newSwitchFilters);
+        return newSwitchFilters;
+      });
     }
   };
   
   const clearPublicFilters = () => {
+    console.log('Clearing public filters');
     setPublicFilters({
       difficulty: '',
       dareType: ''
@@ -722,6 +799,7 @@ export default function DarePerformerDashboard() {
       if (publicSwitchFilters.difficulty) publicSwitchQueryParams.push(`difficulty=${publicSwitchFilters.difficulty}`);
       const publicSwitchQueryString = publicSwitchQueryParams.length > 0 ? `&${publicSwitchQueryParams.join('&')}` : '';
       
+      console.log('Public filters being applied:', { publicFilters, publicSwitchFilters });
       console.log('Server-side query strings:', { publicDareQueryString, publicSwitchQueryString });
       
       // Fetch public data with server-side filtering and pagination
@@ -1173,6 +1251,60 @@ export default function DarePerformerDashboard() {
             </h3>
             <RecentActivityWidget userId={currentUserId} />
           </NeumorphicCard>
+
+          {/* Debug Controls */}
+          <NeumorphicCard variant="glass" className="p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+              <CogIcon className="w-6 h-6 text-gray-400" />
+              Debug Controls
+            </h3>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  console.log('Manual refresh triggered');
+                  fetchData();
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Refresh All Data
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Manual public refresh triggered');
+                  fetchPublicDataWithFilters();
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Refresh Public Data
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Current filter state:', { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters });
+                }}
+                className="bg-gray-600 hover:bg-gray-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Log Filter State
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Testing filter state update');
+                  setDareFilters(prev => ({ ...prev, difficulty: 'easy' }));
+                }}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Test Filter Update
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Testing public filter state update');
+                  setPublicFilters(prev => ({ ...prev, difficulty: 'titillating' }));
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Test Public Filter
+              </button>
+            </div>
+          </NeumorphicCard>
         </div>
       )
     },
@@ -1194,11 +1326,18 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
+              {/* Debug info */}
+              <div className="text-xs text-white/50">
+                Filters: {JSON.stringify(dareFilters)}
+              </div>
               <div className="flex items-center gap-4">
                 <FormSelect
                   label="Difficulty"
                   value={dareFilters.difficulty}
-                  onChange={(e) => handleDareFilterChange('difficulty', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Dare difficulty FormSelect onChange triggered:', e.target.value);
+                    handleDareFilterChange('difficulty', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
@@ -1208,7 +1347,10 @@ export default function DarePerformerDashboard() {
                 <FormSelect
                   label="Status"
                   value={dareFilters.status}
-                  onChange={(e) => handleDareFilterChange('status', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Dare status FormSelect onChange triggered:', e.target.value);
+                    handleDareFilterChange('status', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Statuses' },
                     { value: 'waiting_for_participant', label: 'Waiting for Participant' },
@@ -1438,11 +1580,18 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
+              {/* Debug info */}
+              <div className="text-xs text-white/50">
+                Filters: {JSON.stringify(switchGameFilters)}
+              </div>
               <div className="flex items-center gap-4">
                 <FormSelect
                   label="Difficulty"
                   value={switchGameFilters.difficulty}
-                  onChange={(e) => handleSwitchGameFilterChange('difficulty', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Switch game difficulty FormSelect onChange triggered:', e.target.value);
+                    handleSwitchGameFilterChange('difficulty', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
@@ -1452,7 +1601,10 @@ export default function DarePerformerDashboard() {
                 <FormSelect
                   label="Status"
                   value={switchGameFilters.status}
-                  onChange={(e) => handleSwitchGameFilterChange('status', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Switch game status FormSelect onChange triggered:', e.target.value);
+                    handleSwitchGameFilterChange('status', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Statuses' },
                     { value: 'waiting_for_participant', label: 'Waiting for Participant' },
@@ -1695,12 +1847,19 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
+              {/* Debug info */}
+              <div className="text-xs text-white/50">
+                Filters: {JSON.stringify(publicFilters)}
+              </div>
               <div className="flex items-center gap-4">
                 {/* Difficulty Filter */}
                 <FormSelect
                   label="Difficulty"
                   value={publicFilters.difficulty}
-                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Public difficulty FormSelect onChange triggered:', e.target.value);
+                    handlePublicFilterChange('difficulty', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
@@ -1712,7 +1871,10 @@ export default function DarePerformerDashboard() {
                 <FormSelect
                   label="Dare Type"
                   value={publicFilters.dareType}
-                  onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Public dare type FormSelect onChange triggered:', e.target.value);
+                    handlePublicFilterChange('dareType', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Types' },
                     { value: 'submission', label: 'Submission' },
@@ -1828,12 +1990,19 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
+              {/* Debug info */}
+              <div className="text-xs text-white/50">
+                Filters: {JSON.stringify(publicSwitchFilters)}
+              </div>
               <div className="flex items-center gap-4">
                 {/* Difficulty Filter */}
                 <FormSelect
                   label="Difficulty"
                   value={publicSwitchFilters.difficulty}
-                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
+                  onChange={(e) => {
+                    console.log('Public switch difficulty FormSelect onChange triggered:', e.target.value);
+                    handlePublicFilterChange('difficulty', e.target.value);
+                  }}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
