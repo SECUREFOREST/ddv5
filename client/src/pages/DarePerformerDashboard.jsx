@@ -145,13 +145,6 @@ export default function DarePerformerDashboard() {
     
   });
   
-  // Track which tabs have already attempted to refresh to prevent infinite loops
-  const [refreshAttempted, setRefreshAttempted] = useState({
-    dares: false,
-    'switch-games': false,
-    public: false
-  });
-  
   // 2025: Smart state consolidation
   const [filters, setFilters] = useState({
     status: 'all',
@@ -257,6 +250,7 @@ export default function DarePerformerDashboard() {
   
   // 2025: Smart notifications
   const notificationTimeoutRef = useRef(null);
+  const isFetchingRef = useRef(false); // Track if we're currently fetching to prevent loops
   
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
@@ -285,104 +279,104 @@ export default function DarePerformerDashboard() {
   const handleDareFilterChange = (filterType, value) => {
     console.log(`Dare filter changed: ${filterType} = ${value}`);
     console.log('Previous dare filters:', dareFilters);
-    setDareFilters(prev => {
-      const newFilters = { ...prev, [filterType]: value };
-      console.log('New dare filters:', newFilters);
-      return newFilters;
-    });
+    
+    // Only update if the value actually changed to prevent unnecessary re-renders
+    if (dareFilters[filterType] !== value) {
+      setDareFilters(prev => {
+        const newFilters = { ...prev, [filterType]: value };
+        console.log('New dare filters:', newFilters);
+        return newFilters;
+      });
+    }
   };
   
   const handleSwitchGameFilterChange = (filterType, value) => {
     console.log(`Switch game filter changed: ${filterType} = ${value}`);
     console.log('Previous switch game filters:', switchGameFilters);
-    setSwitchGameFilters(prev => {
-      const newFilters = { ...prev, [filterType]: value };
-      console.log('New switch game filters:', newFilters);
-      return newFilters;
-    });
+    
+    // Only update if the value actually changed to prevent unnecessary re-renders
+    if (switchGameFilters[filterType] !== value) {
+      setSwitchGameFilters(prev => {
+        const newFilters = { ...prev, [filterType]: value };
+        console.log('New switch game filters:', newFilters);
+        return newFilters;
+      });
+    }
   };
   
-  // Refetch data when personal filters change
+  // Refetch data when personal filters change - with debouncing to prevent loops
   useEffect(() => {
     if (currentUserId) {
       // Reset pagination when filters change
       setActivePage(1);
       setSwitchPage(1);
-      // Reset refresh attempts when filters change so data can be refreshed
-      setRefreshAttempted({
-        dares: false,
-        'switch-games': false,
-        public: false
-      });
-      // Use a small delay to avoid immediate refetch
-      const timeoutId = setTimeout(() => {
-        if (typeof fetchData === 'function') {
-          fetchData();
-        }
-      }, 100);
-      return () => clearTimeout(timeoutId);
+      
+      // Use a longer delay and only fetch if filters actually have values
+      const hasActiveFilters = dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status;
+      
+      if (hasActiveFilters) {
+        const timeoutId = setTimeout(() => {
+          if (typeof fetchData === 'function') {
+            fetchData();
+          }
+        }, 300); // Increased delay to prevent rapid successive calls
+        return () => clearTimeout(timeoutId);
+      }
     }
   }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
   
-  // Refetch public data when filters change
+  // Refetch public data when filters change - with debouncing to prevent loops
   useEffect(() => {
     if (currentUserId) {
       // Reset pagination when filters change
       setPublicDarePage(1);
       setPublicSwitchPage(1);
-      // Reset refresh attempts when filters change so data can be refreshed
-      setRefreshAttempted({
-        dares: false,
-        'switch-games': false,
-        public: false
-      });
-      // Use a small delay to avoid immediate refetch
+      
+      // Use a longer delay and only fetch if filters actually have values
+      const hasActiveFilters = publicFilters.difficulty || publicFilters.dareType || publicSwitchFilters.difficulty;
+      
+      if (hasActiveFilters) {
+        const timeoutId = setTimeout(() => {
+          if (typeof fetchPublicDataWithFilters === 'function') {
+            fetchPublicDataWithFilters();
+          }
+        }, 300); // Increased delay to prevent rapid successive calls
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
+  
+  // Add a separate effect to handle clearing filters and fetching default data
+  useEffect(() => {
+    if (currentUserId) {
+      // Check if all filters are cleared (empty strings)
+      const allPersonalFiltersCleared = !dareFilters.difficulty && !dareFilters.status && 
+                                       !switchGameFilters.difficulty && !switchGameFilters.status;
+      const allPublicFiltersCleared = !publicFilters.difficulty && !publicFilters.dareType && 
+                                     !publicSwitchFilters.difficulty;
+      
+      // If all filters are cleared, fetch default data after a delay
+      if (allPersonalFiltersCleared && allPublicFiltersCleared) {
+        const timeoutId = setTimeout(() => {
+          if (typeof fetchData === 'function') {
+            fetchData();
+          }
+        }, 500); // Longer delay for clearing filters
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, 
+      publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
+
+  // Handle public pagination changes - only when page > 1 to avoid loops
+  useEffect(() => {
+    if (currentUserId && (publicDarePage > 1 || publicSwitchPage > 1)) {
       const timeoutId = setTimeout(() => {
         if (typeof fetchPublicDataWithFilters === 'function') {
           fetchPublicDataWithFilters();
         }
       }, 100);
       return () => clearTimeout(timeoutId);
-    }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
-
-  // Separate effect to handle fetchData dependency
-  useEffect(() => {
-    console.log('Personal filters effect triggered:', { dareFilters, switchGameFilters, currentUserId });
-    if (currentUserId && (dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status)) {
-      console.log('Triggering fetchData due to personal filter change');
-      // Use setTimeout to avoid calling fetchData before it's defined
-      setTimeout(() => {
-        if (typeof fetchData === 'function') {
-          fetchData();
-        }
-      }, 0);
-    }
-  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
-
-  // Separate effect to handle fetchPublicDataWithFilters dependency
-  useEffect(() => {
-    console.log('Public filters effect triggered:', { publicFilters, publicSwitchFilters, currentUserId });
-    if (currentUserId && (publicFilters.difficulty || publicFilters.dareType || publicSwitchFilters.difficulty)) {
-      console.log('Triggering fetchPublicDataWithFilters due to public filter change');
-      // Use setTimeout to avoid calling fetchPublicDataWithFilters before it's defined
-      setTimeout(() => {
-        if (typeof fetchPublicDataWithFilters === 'function') {
-          fetchPublicDataWithFilters();
-        }
-      }, 0);
-    }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
-
-  // Handle public pagination changes
-  useEffect(() => {
-    if (currentUserId && (publicDarePage > 1 || publicSwitchPage > 1)) {
-      // Use setTimeout to avoid calling fetchPublicDataWithFilters before it's defined
-      setTimeout(() => {
-        if (typeof fetchPublicDataWithFilters === 'function') {
-          fetchPublicDataWithFilters();
-        }
-      }, 0);
     }
   }, [publicDarePage, publicSwitchPage, currentUserId]);
 
@@ -417,28 +411,33 @@ export default function DarePerformerDashboard() {
   const fetchData = useCallback(async () => {
     if (!currentUserId) return;
     
+    // Prevent multiple simultaneous requests
+    if (isFetchingRef.current) {
+      console.log('Already fetching data, skipping request');
+      return;
+    }
+    
     try {
+      isFetchingRef.current = true;
       setIsLoading(true);
       setError(null);
       
-
+      // Get total counts first for proper pagination
+      // Build filter query parameters for active dares
+      const activeDareFilters = [];
+      if (dareFilters.difficulty) activeDareFilters.push(`difficulty=${dareFilters.difficulty}`);
+      if (dareFilters.status) activeDareFilters.push(`status=${dareFilters.status}`);
+      const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
       
-                              // Get total counts first for proper pagination
-            // Build filter query parameters for active dares
-            const activeDareFilters = [];
-            if (dareFilters.difficulty) activeDareFilters.push(`difficulty=${dareFilters.difficulty}`);
-            if (dareFilters.status) activeDareFilters.push(`status=${dareFilters.status}`);
-            const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
-            
-            console.log('Active dare filters being applied:', { dareFilters, activeDareQueryString });
-            
-            // Build filter query parameters for switch games
-            const switchGameQueryParams = [];
-            if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
-            if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
-            const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
-            
-            console.log('Switch game filters being applied:', { switchGameFilters, switchGameQueryString });
+      console.log('Active dare filters being applied:', { dareFilters, activeDareQueryString });
+      
+      // Build filter query parameters for switch games
+      const switchGameQueryParams = [];
+      if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
+      if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
+      const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
+      
+      console.log('Switch game filters being applied:', { switchGameFilters, switchGameQueryString });
             
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant) with filters
@@ -787,8 +786,8 @@ export default function DarePerformerDashboard() {
         switchGames: false,
         public: false,
         publicSwitch: false,
-
       });
+      isFetchingRef.current = false; // Reset the fetching flag
     }
   }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
   
@@ -798,19 +797,24 @@ export default function DarePerformerDashboard() {
   const handlePublicFilterChange = (filterType, value) => {
     console.log(`Public filter changed: ${filterType} = ${value}`);
     console.log('Previous public filters:', publicFilters);
-    setPublicFilters(prev => {
-      const newFilters = { ...prev, [filterType]: value };
-      console.log('New public filters:', newFilters);
-      return newFilters;
-    });
-    // Also apply to switch games for unified filtering (except dareType which is dare-specific)
-    if (filterType === 'difficulty') {
-      console.log('Also updating public switch filters difficulty to:', value);
-      setPublicSwitchFilters(prev => {
-        const newSwitchFilters = { ...prev, [filterType]: value };
-        console.log('New public switch filters:', newSwitchFilters);
-        return newSwitchFilters;
+    
+    // Only update if the value actually changed to prevent unnecessary re-renders
+    if (publicFilters[filterType] !== value) {
+      setPublicFilters(prev => {
+        const newFilters = { ...prev, [filterType]: value };
+        console.log('New public filters:', newFilters);
+        return newFilters;
       });
+      
+      // Also apply to switch games for unified filtering (except dareType which is dare-specific)
+      if (filterType === 'difficulty') {
+        console.log('Also updating public switch filters difficulty to:', value);
+        setPublicSwitchFilters(prev => {
+          const newSwitchFilters = { ...prev, [filterType]: value };
+          console.log('New public switch filters:', newSwitchFilters);
+          return newSwitchFilters;
+        });
+      }
     }
   };
   
@@ -829,9 +833,16 @@ export default function DarePerformerDashboard() {
   const fetchPublicDataWithFilters = useCallback(async () => {
     if (!currentUserId) return;
     
+    // Prevent multiple simultaneous requests
+    if (isFetchingRef.current) {
+      console.log('Already fetching public data, skipping request');
+      return;
+    }
+    
     console.log('Fetching public data with filters:', { publicFilters, publicSwitchFilters });
     
     try {
+      isFetchingRef.current = true;
       setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
       
       // Build server-side filter query parameters for public dares
@@ -919,6 +930,7 @@ export default function DarePerformerDashboard() {
       setError(errorMessage);
     } finally {
       setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
+      isFetchingRef.current = false; // Reset the fetching flag
     }
   }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, publicSwitchFilters]);
   
@@ -986,14 +998,19 @@ export default function DarePerformerDashboard() {
     return () => {
       isMounted = false;
     };
-  }, [user, currentUserId, fetchData]);
+  }, [user, currentUserId]); // Removed fetchData from dependencies to prevent loops
   
   // Refetch data when pagination changes
   useEffect(() => {
     if (activePage > 1 || completedPage > 1 || switchPage > 1) {
-      fetchData();
+      const timeoutId = setTimeout(() => {
+        if (typeof fetchData === 'function') {
+          fetchData();
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
-  }, [activePage, completedPage, switchPage, fetchData]);
+  }, [activePage, completedPage, switchPage]); // Removed fetchData from dependencies to prevent loops
   
 
   
@@ -1033,17 +1050,6 @@ export default function DarePerformerDashboard() {
     setSwitchPage(1);
     setPublicDarePage(1);
     setPublicSwitchPage(1);
-  };
-  
-  // Manual refresh function to reset refresh attempts and fetch fresh data
-  const handleManualRefresh = () => {
-    setRefreshAttempted({
-      dares: false,
-      'switch-games': false,
-      public: false
-    });
-    resetPagination();
-    fetchData();
   };
   
   // Validate pagination state
@@ -1086,11 +1092,6 @@ export default function DarePerformerDashboard() {
     });
   }, [mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
   
-  // Debug logging for refresh attempts
-  useEffect(() => {
-    console.log('Refresh attempts state changed:', refreshAttempted);
-  }, [refreshAttempted]);
-  
   // Debug logging for active tab changes
   useEffect(() => {
     console.log('Active tab changed to:', activeTab);
@@ -1104,7 +1105,7 @@ export default function DarePerformerDashboard() {
     }
   }, [activeTab, mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
   
-  // Handle tab switching and ensure data is loaded
+  // Handle tab switching and ensure data is loaded - with loop prevention
   useEffect(() => {
     if (activeTab && !isLoading) {
       // Check if the current tab has data, if not, trigger a refresh
@@ -1112,17 +1113,12 @@ export default function DarePerformerDashboard() {
         switch (activeTab) {
           case 'dares':
             return (ongoing.length === 0 && completed.length === 0) && 
-                   (!dataLoading.ongoing && !dataLoading.completed) &&
-                   !refreshAttempted.dares;
+                   (!dataLoading.ongoing && !dataLoading.completed);
           case 'switch-games':
-            // Only refresh if we haven't already tried to load data for this tab
-            return mySwitchGames.length === 0 && !dataLoading.switchGames && 
-                   !refreshAttempted['switch-games'];
+            return mySwitchGames.length === 0 && !dataLoading.switchGames;
           case 'public':
             return (safePublicDares.length === 0 && safePublicSwitchGames.length === 0) && 
-                   (!dataLoading.public && !dataLoading.publicSwitch) &&
-                   !refreshAttempted.public;
-
+                   (!dataLoading.public && !dataLoading.publicSwitch);
           default:
             return false;
         }
@@ -1130,13 +1126,6 @@ export default function DarePerformerDashboard() {
       
       if (needsRefresh) {
         console.log(`Tab ${activeTab} has no data, refreshing...`);
-        
-        // Mark this tab as having attempted refresh
-        setRefreshAttempted(prev => ({
-          ...prev,
-          [activeTab]: true
-        }));
-        
         // Set loading state for the specific tab before fetching
         setDataLoading(prev => ({
           ...prev,
@@ -1147,52 +1136,19 @@ export default function DarePerformerDashboard() {
            'ongoing']: true
         }));
         
-        // Fetch data for this specific tab only
-        if (activeTab === 'switch-games') {
-          // For switch games, only fetch switch games data to avoid unnecessary API calls
-          const fetchSwitchGamesOnly = async () => {
-            try {
-              const switchGameQueryParams = [];
-              if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
-              if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
-              const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
-              
-              const response = await api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`);
-              const responseData = response?.data;
-              
-              if (responseData) {
-                const games = responseData.games || responseData;
-                const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-                
-                const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-                  return game && game.creator && game.status;
-                }) : [];
-                
-                setMySwitchGames(filteredGames);
-                
-                if (responseData.pagination) {
-                  setSwitchTotalItems(responseData.pagination.total || 0);
-                  setSwitchTotalPages(responseData.pagination.pages || 1);
-                }
-              }
-            } catch (err) {
-              console.error('Failed to fetch switch games:', err);
-            } finally {
-              setDataLoading(prev => ({ ...prev, switchGames: false }));
-            }
-          };
-          
-          fetchSwitchGamesOnly();
-        } else {
-          // For other tabs, use the full fetchData
-          fetchData();
-        }
+        // Use a small delay to prevent immediate re-triggering
+        const timeoutId = setTimeout(() => {
+          if (typeof fetchData === 'function') {
+            fetchData();
+          }
+        }, 100);
+        return () => clearTimeout(timeoutId);
       }
     }
   }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
       safePublicDares.length, safePublicSwitchGames.length, 
       dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
-      dataLoading.public, dataLoading.publicSwitch, refreshAttempted, switchGameFilters, switchPage]);
+      dataLoading.public, dataLoading.publicSwitch]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -1386,15 +1342,6 @@ export default function DarePerformerDashboard() {
                 className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
                 Refresh All Data
-              </button>
-              <button
-                onClick={() => {
-                  console.log('Manual refresh with reset triggered');
-                  handleManualRefresh();
-                }}
-                className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Refresh & Reset Attempts
               </button>
               <button
                 onClick={() => {
@@ -2316,18 +2263,7 @@ export default function DarePerformerDashboard() {
             <p className="text-xl text-white/80 max-w-2xl mx-auto mb-6">
               Manage your dares and track your progress with intelligent insights
             </p>
-            
-            {/* Manual Refresh Button */}
-            <div className="flex justify-center">
-              <button
-                onClick={handleManualRefresh}
-                className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white rounded-xl px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-3 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                title="Refresh all dashboard data"
-              >
-                <ArrowPathIcon className="w-5 h-5" />
-                Refresh Dashboard
-              </button>
-            </div>
+
           </div>
 
           {/* 2025 Error Display */}
