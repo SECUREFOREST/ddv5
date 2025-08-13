@@ -1996,6 +1996,11 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
+              
+              {/* Claim system info */}
+              <div className="text-xs text-white/60 max-w-xs">
+                💡 <strong>Claim System:</strong> Use "Claim & Perform" to participate, or "View Details" to see more info
+              </div>
               {/* Debug info */}
               <div className="text-xs text-white/50">
                 Filters: {JSON.stringify(publicFilters)}
@@ -2055,49 +2060,68 @@ export default function DarePerformerDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {safePublicDares.length > 0 && safePublicDares.map((dare) => (
-                  <DareCard 
-                    key={dare._id} 
-                    creator={dare.creator}
-                    performer={dare.performer}
-                    assignedSwitch={dare.assignedSwitch}
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    status={dare.status}
-                    tags={dare.tags}
-                    proof={dare.proof}
-                    grades={dare.grades}
-                    currentUserId={currentUserId}
-                    claimable={dare.claimable}
-                    claimToken={dare.claimToken}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            if (dare.claimToken) {
-                              navigate(`/claim/${dare.claimToken}`);
-                            } else {
-                              // Fallback to direct dare view if no claim token
-                              navigate(`/dare/${dare._id}`);
-                            }
-                          }}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          title={dare.claimToken ? "Click to claim and perform this dare" : "Click to view dare details"}
-                        >
-                          <PlayIcon className="w-4 h-4" />
-                          {dare.claimToken ? "Claim & Perform" : "View Dare"}
-                        </button>
-                        <button
-                          onClick={() => navigate(`/dare/${dare._id}`)}
-                          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
-                      </div>
-                    }
-                  />
-                ))}
+                {safePublicDares.length > 0 && safePublicDares.map((dare) => {
+                  // Debug logging for claim tokens
+                  console.log(`Dare ${dare._id} claim info:`, {
+                    hasClaimToken: !!dare.claimToken,
+                    claimToken: dare.claimToken,
+                    claimable: dare.claimable,
+                    status: dare.status
+                  });
+                  
+                  return (
+                    <DareCard 
+                      key={dare._id} 
+                      creator={dare.creator}
+                      performer={dare.performer}
+                      assignedSwitch={dare.assignedSwitch}
+                      description={dare.description}
+                      difficulty={dare.difficulty}
+                      status={dare.status}
+                      tags={dare.tags}
+                      proof={dare.proof}
+                      grades={dare.grades}
+                      currentUserId={currentUserId}
+                      claimable={dare.claimable}
+                      claimToken={dare.claimToken}
+                      actions={
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              if (dare.claimToken) {
+                                navigate(`/claim/${dare.claimToken}`);
+                              } else {
+                                // Fallback to direct dare view if no claim token
+                                navigate(`/dare/${dare._id}`);
+                              }
+                            }}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            title={dare.claimToken ? "Click to claim and perform this dare" : "Click to view dare details"}
+                          >
+                            <PlayIcon className="w-4 h-4" />
+                            {dare.claimToken ? "Claim & Perform" : "View Dare"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (dare.claimToken) {
+                                // If there's a claim token, use the claim URL for viewing too
+                                navigate(`/claim/${dare.claimToken}`);
+                              } else {
+                                // Only fallback to direct dare view if no claim token exists
+                                navigate(`/dare/${dare._id}`);
+                              }
+                            }}
+                            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            title={dare.claimToken ? "View dare details through claim process" : "View dare details directly"}
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                            View Details
+                          </button>
+                        </div>
+                      }
+                    />
+                  );
+                })}
                 
                 {/* Show message if no dares */}
                 {safePublicDares.length === 0 && !dataLoading.public && (
