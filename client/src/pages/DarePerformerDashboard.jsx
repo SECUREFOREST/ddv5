@@ -58,7 +58,7 @@ import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
-import Dropdown from '../components/Dropdown';
+import { FormSelect } from '../components/Form';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 import { retryApiCall } from '../utils/retry';
@@ -1107,10 +1107,10 @@ export default function DarePerformerDashboard() {
                 )}
               </h3>
               <div className="flex items-center gap-4">
-                <Dropdown
+                <FormSelect
                   label="Difficulty"
                   value={dareFilters.difficulty}
-                  onChange={(value) => handleDareFilterChange('difficulty', value)}
+                  onChange={(e) => handleDareFilterChange('difficulty', e.target.value)}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     { value: 'easy', label: 'Easy' },
@@ -1120,10 +1120,10 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-40"
                 />
-                <Dropdown
+                <FormSelect
                   label="Status"
                   value={dareFilters.status}
-                  onChange={(value) => handleDareFilterChange('status', value)}
+                  onChange={(e) => handleDareFilterChange('status', e.target.value)}
                   options={[
                     { value: '', label: 'All Statuses' },
                     { value: 'waiting_for_participant', label: 'Waiting for Participant' },
@@ -1358,10 +1358,10 @@ export default function DarePerformerDashboard() {
                 )}
               </h3>
               <div className="flex items-center gap-4">
-                <Dropdown
+                <FormSelect
                   label="Difficulty"
                   value={switchGameFilters.difficulty}
-                  onChange={(value) => handleSwitchGameFilterChange('difficulty', value)}
+                  onChange={(e) => handleSwitchGameFilterChange('difficulty', e.target.value)}
                   options={[
                     { value: '', label: 'All Difficulties' },
                     { value: 'easy', label: 'Easy' },
@@ -1371,10 +1371,10 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-40"
                 />
-                <Dropdown
+                <FormSelect
                   label="Status"
                   value={switchGameFilters.status}
-                  onChange={(value) => handleSwitchGameFilterChange('status', value)}
+                  onChange={(e) => handleSwitchGameFilterChange('status', e.target.value)}
                   options={[
                     { value: '', label: 'All Statuses' },
                     { value: 'waiting_for_participant', label: 'Waiting for Participant' },
@@ -1543,10 +1543,10 @@ export default function DarePerformerDashboard() {
             
             <div className="flex items-center gap-4">
               {/* Difficulty Filter */}
-              <Dropdown
+              <FormSelect
                 label="Difficulty"
                 value={publicFilters.difficulty}
-                onChange={(value) => handlePublicFilterChange('difficulty', value)}
+                onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
                 options={[
                   { value: '', label: 'All Difficulties' },
                   { value: 'easy', label: 'Easy' },
@@ -1558,10 +1558,10 @@ export default function DarePerformerDashboard() {
               />
               
               {/* Dare Type Filter */}
-              <Dropdown
+              <FormSelect
                 label="Dare Type"
                 value={publicFilters.dareType}
-                onChange={(value) => handlePublicFilterChange('dareType', value)}
+                onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
                 options={[
                   { value: '', label: 'All Types' },
                   { value: 'submission', label: 'Submission' },
