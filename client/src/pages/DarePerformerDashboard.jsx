@@ -145,6 +145,13 @@ export default function DarePerformerDashboard() {
     
   });
   
+  // Track which tabs have already attempted to refresh to prevent infinite loops
+  const [refreshAttempted, setRefreshAttempted] = useState({
+    dares: false,
+    'switch-games': false,
+    public: false
+  });
+  
   // 2025: Smart state consolidation
   const [filters, setFilters] = useState({
     status: 'all',
@@ -301,6 +308,12 @@ export default function DarePerformerDashboard() {
       // Reset pagination when filters change
       setActivePage(1);
       setSwitchPage(1);
+      // Reset refresh attempts when filters change so data can be refreshed
+      setRefreshAttempted({
+        dares: false,
+        'switch-games': false,
+        public: false
+      });
       // Use a small delay to avoid immediate refetch
       const timeoutId = setTimeout(() => {
         if (typeof fetchData === 'function') {
@@ -317,6 +330,12 @@ export default function DarePerformerDashboard() {
       // Reset pagination when filters change
       setPublicDarePage(1);
       setPublicSwitchPage(1);
+      // Reset refresh attempts when filters change so data can be refreshed
+      setRefreshAttempted({
+        dares: false,
+        'switch-games': false,
+        public: false
+      });
       // Use a small delay to avoid immediate refetch
       const timeoutId = setTimeout(() => {
         if (typeof fetchPublicDataWithFilters === 'function') {
@@ -1016,6 +1035,17 @@ export default function DarePerformerDashboard() {
     setPublicSwitchPage(1);
   };
   
+  // Manual refresh function to reset refresh attempts and fetch fresh data
+  const handleManualRefresh = () => {
+    setRefreshAttempted({
+      dares: false,
+      'switch-games': false,
+      public: false
+    });
+    resetPagination();
+    fetchData();
+  };
+  
   // Validate pagination state
   const validatePaginationState = () => {
     const issues = [];
@@ -1056,6 +1086,11 @@ export default function DarePerformerDashboard() {
     });
   }, [mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
   
+  // Debug logging for refresh attempts
+  useEffect(() => {
+    console.log('Refresh attempts state changed:', refreshAttempted);
+  }, [refreshAttempted]);
+  
   // Debug logging for active tab changes
   useEffect(() => {
     console.log('Active tab changed to:', activeTab);
@@ -1077,12 +1112,16 @@ export default function DarePerformerDashboard() {
         switch (activeTab) {
           case 'dares':
             return (ongoing.length === 0 && completed.length === 0) && 
-                   (!dataLoading.ongoing && !dataLoading.completed);
+                   (!dataLoading.ongoing && !dataLoading.completed) &&
+                   !refreshAttempted.dares;
           case 'switch-games':
-            return mySwitchGames.length === 0 && !dataLoading.switchGames;
+            // Only refresh if we haven't already tried to load data for this tab
+            return mySwitchGames.length === 0 && !dataLoading.switchGames && 
+                   !refreshAttempted['switch-games'];
           case 'public':
             return (safePublicDares.length === 0 && safePublicSwitchGames.length === 0) && 
-                   (!dataLoading.public && !dataLoading.publicSwitch);
+                   (!dataLoading.public && !dataLoading.publicSwitch) &&
+                   !refreshAttempted.public;
 
           default:
             return false;
@@ -1091,6 +1130,13 @@ export default function DarePerformerDashboard() {
       
       if (needsRefresh) {
         console.log(`Tab ${activeTab} has no data, refreshing...`);
+        
+        // Mark this tab as having attempted refresh
+        setRefreshAttempted(prev => ({
+          ...prev,
+          [activeTab]: true
+        }));
+        
         // Set loading state for the specific tab before fetching
         setDataLoading(prev => ({
           ...prev,
@@ -1100,13 +1146,53 @@ export default function DarePerformerDashboard() {
            activeTab === 'public' ? 'public' : 
            'ongoing']: true
         }));
-        fetchData();
+        
+        // Fetch data for this specific tab only
+        if (activeTab === 'switch-games') {
+          // For switch games, only fetch switch games data to avoid unnecessary API calls
+          const fetchSwitchGamesOnly = async () => {
+            try {
+              const switchGameQueryParams = [];
+              if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
+              if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
+              const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
+              
+              const response = await api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`);
+              const responseData = response?.data;
+              
+              if (responseData) {
+                const games = responseData.games || responseData;
+                const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+                
+                const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
+                  return game && game.creator && game.status;
+                }) : [];
+                
+                setMySwitchGames(filteredGames);
+                
+                if (responseData.pagination) {
+                  setSwitchTotalItems(responseData.pagination.total || 0);
+                  setSwitchTotalPages(responseData.pagination.pages || 1);
+                }
+              }
+            } catch (err) {
+              console.error('Failed to fetch switch games:', err);
+            } finally {
+              setDataLoading(prev => ({ ...prev, switchGames: false }));
+            }
+          };
+          
+          fetchSwitchGamesOnly();
+        } else {
+          // For other tabs, use the full fetchData
+          fetchData();
+        }
       }
     }
   }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
       safePublicDares.length, safePublicSwitchGames.length, 
       dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
-      dataLoading.public, dataLoading.publicSwitch, fetchData]);
+      dataLoading.public, dataLoading.publicSwitch, refreshAttempted, switchGameFilters, switchPage]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -1300,6 +1386,15 @@ export default function DarePerformerDashboard() {
                 className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
                 Refresh All Data
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Manual refresh with reset triggered');
+                  handleManualRefresh();
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Refresh & Reset Attempts
               </button>
               <button
                 onClick={() => {
@@ -2221,7 +2316,18 @@ export default function DarePerformerDashboard() {
             <p className="text-xl text-white/80 max-w-2xl mx-auto mb-6">
               Manage your dares and track your progress with intelligent insights
             </p>
-
+            
+            {/* Manual Refresh Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={handleManualRefresh}
+                className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white rounded-xl px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-3 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                title="Refresh all dashboard data"
+              >
+                <ArrowPathIcon className="w-5 h-5" />
+                Refresh Dashboard
+              </button>
+            </div>
           </div>
 
           {/* 2025 Error Display */}
