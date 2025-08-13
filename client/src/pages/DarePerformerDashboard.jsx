@@ -1937,6 +1937,8 @@ export default function DarePerformerDashboard() {
                 </button>
               </div>
             ) : (() => {
+              console.log('Starting completed games rendering logic...');
+              
               // Filter for actually completed games
               const completedGames = safeMySwitchGames.filter(game => 
                 game.status === 'completed' || 
@@ -1945,7 +1947,14 @@ export default function DarePerformerDashboard() {
                 (game.winner && game.winner !== 'N/A')
               );
               
+              console.log('Filtered completed games:', {
+                total: safeMySwitchGames.length,
+                completed: completedGames.length,
+                games: completedGames.map(g => ({ id: g._id, status: g.status, winner: g.winner }))
+              });
+              
               if (completedGames.length === 0) {
+                console.log('No completed games found, showing empty state');
                 return (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center gap-2 mx-auto mb-4">
@@ -1963,6 +1972,8 @@ export default function DarePerformerDashboard() {
                 );
               }
               
+              console.log('About to render completed games list...');
+              
               return (
                 <div className="space-y-4">
                   {/* Debug info */}
@@ -1973,47 +1984,74 @@ export default function DarePerformerDashboard() {
                     Game Statuses: {completedGames.map(g => `${g._id}: ${g.status}`).join(', ')}
                   </div>
                   
-                  {completedGames.map((game, index) => {
-                    console.log(`Rendering completed game ${index + 1}:`, {
-                      id: game._id,
-                      status: game.status,
-                      winner: game.winner,
-                      gameData: game
-                    });
-                    
-                    return (
-                      <SwitchGameCard 
-                        key={game._id} 
-                        game={game}
-                        currentUserId={currentUserId}
-                        onSubmitProof={async (formData) => {
-                          try {
-                            await api.post(`/switches/${game._id}/proof`, formData, {
-                              headers: { 'Content-Type': 'multipart/form-data' },
-                            });
-                            showSuccess('Proof submitted successfully!');
-                            // Refresh the data
-                            fetchData();
-                          } catch (error) {
-                            const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                            showError(errorMessage);
-                            throw error; // Re-throw so the component can handle it
-                          }
-                        }}
-                        actions={
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => navigate(`/switches/${game._id}`)}
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                              View Details
-                            </button>
-                          </div>
+                  {(() => {
+                    console.log('Starting to map over completed games...');
+                    try {
+                      return completedGames.map((game, index) => {
+                        console.log(`Rendering completed game ${index + 1}:`, {
+                          id: game._id,
+                          status: game.status,
+                          winner: game.winner,
+                          gameData: game
+                        });
+                        
+                        // Try to render the game card
+                        try {
+                          return (
+                            <SwitchGameCard 
+                              key={game._id} 
+                              game={game}
+                              currentUserId={currentUserId}
+                              onSubmitProof={async (formData) => {
+                                try {
+                                  await api.post(`/switches/${game._id}/proof`, formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                  });
+                                  showSuccess('Proof submitted successfully!');
+                                  // Refresh the data
+                                  fetchData();
+                                } catch (error) {
+                                  const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                                  showError(errorMessage);
+                                  throw error; // Re-throw so the component can handle it
+                                }
+                              }}
+                              actions={
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => navigate(`/switches/${game._id}`)}
+                                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                                  >
+                                    <EyeIcon className="w-4 h-4" />
+                                    View Details
+                                  </button>
+                                </div>
+                              }
+                            />
+                          );
+                        } catch (renderError) {
+                          console.error('Error rendering SwitchGameCard for game:', game._id, renderError);
+                          // Fallback display if SwitchGameCard fails
+                          return (
+                            <div key={game._id} className="p-4 bg-red-900/20 border border-red-700/50 rounded">
+                              <div className="text-red-400 font-semibold">Game Card Render Error</div>
+                              <div className="text-red-300 text-sm">Game ID: {game._id}</div>
+                              <div className="text-red-300 text-sm">Status: {game.status}</div>
+                              <div className="text-red-300 text-sm">Error: {renderError.message}</div>
+                            </div>
+                          );
                         }
-                      />
-                    );
-                  })}
+                      });
+                    } catch (mapError) {
+                      console.error('Error in completed games map:', mapError);
+                      return (
+                        <div className="p-4 bg-red-900/20 border border-red-700/50 rounded">
+                          <div className="text-red-400 font-semibold">Mapping Error</div>
+                          <div className="text-red-300 text-sm">Error: {mapError.message}</div>
+                        </div>
+                      );
+                    }
+                  })()}
                 
                 {/* Completed Switch Games Pagination */}
                 {switchTotalPages > 1 && switchTotalItems > 0 && (
