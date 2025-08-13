@@ -40,6 +40,7 @@ import {
   SparklesIcon as SparklesIconSolid,
   PuzzlePieceIcon
 } from '@heroicons/react/24/outline';
+import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 import { 
   SparklesIcon as SparklesIconFilled,
   FireIcon as FireIconFilled,
@@ -57,7 +58,7 @@ import Modal from '../components/Modal';
 import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { MainContent, ContentContainer } from '../components/Layout';
-import Search from '../components/Search';
+
 import { FormSelect } from '../components/Form';
 import ErrorBoundary from '../components/ErrorBoundary';
 
@@ -133,7 +134,7 @@ export default function DarePerformerDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
-  const [search, setSearch] = useState('');
+
   const [activeTab, setActiveTab] = useState('overview');
   const [dataLoading, setDataLoading] = useState({
     ongoing: true,
@@ -1113,10 +1114,7 @@ export default function DarePerformerDashboard() {
                   onChange={(e) => handleDareFilterChange('difficulty', e.target.value)}
                   options={[
                     { value: '', label: 'All Difficulties' },
-                    { value: 'easy', label: 'Easy' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'hard', label: 'Hard' },
-                    { value: 'extreme', label: 'Extreme' }
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
                   ]}
                   className="w-40"
                 />
@@ -1132,11 +1130,7 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-48"
                 />
-                <Search
-                  placeholder="Search active dares..."
-                  onSearch={setSearch}
-                  className="w-64"
-                />
+
               </div>
             </div>
             
@@ -1364,10 +1358,7 @@ export default function DarePerformerDashboard() {
                   onChange={(e) => handleSwitchGameFilterChange('difficulty', e.target.value)}
                   options={[
                     { value: '', label: 'All Difficulties' },
-                    { value: 'easy', label: 'Easy' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'hard', label: 'Hard' },
-                    { value: 'extreme', label: 'Extreme' }
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
                   ]}
                   className="w-40"
                 />
@@ -1496,6 +1487,105 @@ export default function DarePerformerDashboard() {
                           </div>
             )}
           </NeumorphicCard>
+
+          {/* Completed Switch Games Section */}
+          <NeumorphicCard variant="glass" className="p-6">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+              <TrophyIcon className="w-6 h-6 text-green-400" />
+              Completed Switch Games ({switchTotalItems})
+              {dataLoading.switchGames && (
+                <div className="flex items-center gap-2 text-sm text-blue-400">
+                  <LoadingSpinner size="sm" />
+                  Loading...
+                </div>
+              )}
+            </h3>
+            
+            {/* Show loading state */}
+            {dataLoading.switchGames ? (
+              <div className="text-center py-12">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading completed switch games...</p>
+              </div>
+            ) : errors.switchGames ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Completed Switch Games</h4>
+                <p className="text-white/70 mb-6">{errors.switchGames}</p>
+                <button
+                  onClick={fetchData}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            ) : safeMySwitchGames.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center gap-2 mx-auto mb-4">
+                  <TrophyIcon className="w-8 h-8 text-green-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">No Completed Switch Games</h4>
+                <p className="text-white/70 mb-6">Complete your first switch game to see it here!</p>
+                <button
+                  onClick={() => setActiveTab('public')}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Find Games to Join
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {safeMySwitchGames.length > 0 && safeMySwitchGames.map((game) => (
+                  <SwitchGameCard 
+                    key={game._id} 
+                    game={game}
+                    currentUserId={currentUserId}
+                    onSubmitProof={async (formData) => {
+                      try {
+                        await api.post(`/switches/${game._id}/proof`, formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' },
+                        });
+                        showSuccess('Proof submitted successfully!');
+                        // Refresh the data
+                        fetchData();
+                      } catch (error) {
+                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                        showError(errorMessage);
+                        throw error; // Re-throw so the component can handle it
+                      }
+                    }}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/switches/${game._id}`)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
+                        </button>
+                      </div>
+                    }
+                  />
+                ))}
+                
+                {/* Completed Switch Games Pagination */}
+                {switchTotalPages > 1 && switchTotalItems > 0 && (
+                  <div className="mt-6">
+                    <Pagination
+                      currentPage={switchPage}
+                      totalPages={switchTotalPages}
+                      onPageChange={handleSwitchPageChange}
+                      totalItems={switchTotalItems}
+                      pageSize={ITEMS_PER_PAGE}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </NeumorphicCard>
         </div>
       )
     },
@@ -1507,10 +1597,10 @@ export default function DarePerformerDashboard() {
         <div className="space-y-6">
           {/* Public Content Filters */}
           <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <FunnelIcon className="w-6 h-6 text-blue-400" />
-                Public Content Filters & Search
+                Public Content Filters
                 {(dataLoading.public || dataLoading.publicSwitch) && (
                   <div className="flex items-center gap-2 text-sm text-blue-400">
                     <LoadingSpinner size="sm" />
@@ -1518,7 +1608,33 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-4">
+                {/* Difficulty Filter */}
+                <FormSelect
+                  label="Difficulty"
+                  value={publicFilters.difficulty}
+                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
+                  ]}
+                  className="w-40"
+                />
+                
+                {/* Dare Type Filter */}
+                <FormSelect
+                  label="Dare Type"
+                  value={publicFilters.dareType}
+                  onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
+                  options={[
+                    { value: '', label: 'All Types' },
+                    { value: 'submission', label: 'Submission' },
+                    { value: 'domination', label: 'Domination' },
+                    { value: 'switch', label: 'Switch' }
+                  ]}
+                  className="w-40"
+                />
+                
                 <button
                   onClick={() => {
                     if (typeof fetchPublicDataWithFilters === 'function') {
@@ -1538,48 +1654,6 @@ export default function DarePerformerDashboard() {
                 >
                   Clear All Filters
                 </button>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              {/* Difficulty Filter */}
-              <FormSelect
-                label="Difficulty"
-                value={publicFilters.difficulty}
-                onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
-                options={[
-                  { value: '', label: 'All Difficulties' },
-                  { value: 'easy', label: 'Easy' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'hard', label: 'Hard' },
-                  { value: 'extreme', label: 'Extreme' }
-                ]}
-                className="w-40"
-              />
-              
-              {/* Dare Type Filter */}
-              <FormSelect
-                label="Dare Type"
-                value={publicFilters.dareType}
-                onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
-                options={[
-                  { value: '', label: 'All Types' },
-                  { value: 'submission', label: 'Submission' },
-                  { value: 'domination', label: 'Domination' },
-                  { value: 'switch', label: 'Switch' }
-                ]}
-                className="w-40"
-              />
-            </div>
-            
-            {/* Filter Application Info */}
-            <div className="mt-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-              <div className="text-sm text-blue-300">
-                <strong>Filter Application:</strong>
-                <ul className="mt-2 space-y-1 text-blue-200">
-                  <li>• <strong>Difficulty:</strong> Applies to both dares and switch games</li>
-                  <li>• <strong>Dare Type:</strong> Applies only to dares</li>
-                </ul>
               </div>
             </div>
           </NeumorphicCard>
