@@ -462,14 +462,12 @@ export default function DarePerformerDashboard() {
           console.log('Validated switch games data:', validatedData);
           
           // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
+          // For personal switch games, we only require creator and status - participant is optional
           const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            // For switch games, participant is only required if the game has been joined
-            // Games waiting for participants are valid without a participant
             const hasRequiredFields = game && game.creator && game.status;
-            const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
             
-            if (!hasRequiredFields || !hasParticipantIfNeeded) {
-              console.warn('Filtering out switch game with missing required fields:', {
+            if (!hasRequiredFields) {
+              console.warn('Filtering out personal switch game with missing required fields:', {
                 gameId: game?._id,
                 hasCreator: !!game?.creator,
                 hasParticipant: !!game?.participant,
@@ -478,7 +476,7 @@ export default function DarePerformerDashboard() {
                 gameData: game
               });
             }
-            return hasRequiredFields && hasParticipantIfNeeded;
+            return hasRequiredFields;
           }) : [];
           
           // Log summary of filtering
@@ -954,10 +952,9 @@ export default function DarePerformerDashboard() {
       // Check if the current tab has data, if not, trigger a refresh
       const needsRefresh = (() => {
         switch (activeTab) {
-          case 'ongoing':
-            return ongoing.length === 0 && !dataLoading.ongoing;
-          case 'completed':
-            return completed.length === 0 && !dataLoading.completed;
+          case 'dares':
+            return (ongoing.length === 0 && completed.length === 0) && 
+                   (!dataLoading.ongoing && !dataLoading.completed);
           case 'switch-games':
             return mySwitchGames.length === 0 && !dataLoading.switchGames;
           case 'public':
@@ -1003,7 +1000,7 @@ export default function DarePerformerDashboard() {
               variant="elevated" 
               interactive 
               className="p-6 cursor-pointer"
-              onClick={() => setActiveTab('ongoing')}
+              onClick={() => setActiveTab('dares')}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -1027,7 +1024,7 @@ export default function DarePerformerDashboard() {
               variant="elevated" 
               interactive 
               className="p-6 cursor-pointer"
-              onClick={() => setActiveTab('completed')}
+              onClick={() => setActiveTab('dares')}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -1169,8 +1166,8 @@ export default function DarePerformerDashboard() {
       )
     },
     {
-      key: 'ongoing',
-      label: 'Active Dares',
+      key: 'dares',
+      label: 'Dares',
       icon: ClockIcon,
       content: (
         <div className="space-y-6">
@@ -1283,15 +1280,8 @@ export default function DarePerformerDashboard() {
                             </div>
             )}
           </NeumorphicCard>
-        </div>
-      )
-    },
-    {
-      key: 'completed',
-      label: 'Completed',
-      icon: TrophyIcon,
-      content: (
-        <div className="space-y-6">
+
+          {/* Completed Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <TrophyIcon className="w-6 h-6 text-green-400" />
@@ -1319,26 +1309,26 @@ export default function DarePerformerDashboard() {
                 <p className="text-white/70 mb-6">{errors.completed}</p>
                 <button
                   onClick={fetchData}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   <ArrowPathIcon className="w-4 h-4" />
                   Retry
                 </button>
               </div>
             ) : completed.length === 0 ? (
-                <div className="text-center py-12">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center gap-2 mx-auto mb-4">
                   <TrophyIcon className="w-8 h-8 text-green-400" />
-                  </div>
+                </div>
                 <h4 className="text-lg font-semibold text-white mb-2">No Completed Dares</h4>
                 <p className="text-white/70 mb-6">Complete your first dare to see it here!</p>
                 <button
                   onClick={() => handleQuickAction('perform-dare')}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   Start Performing Dares
                 </button>
-                </div>
+              </div>
             ) : (
               <div className="space-y-4">
                 {safeCompleted.length > 0 && safeCompleted.map((dare) => (
