@@ -1594,71 +1594,7 @@ export default function DarePerformerDashboard() {
       label: 'Public',
       icon: SparklesIcon,
       content: (
-        <div className="space-y-6">
-          {/* Public Content Filters */}
-          <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                <FunnelIcon className="w-6 h-6 text-blue-400" />
-                Public Content Filters
-                {(dataLoading.public || dataLoading.publicSwitch) && (
-                  <div className="flex items-center gap-2 text-sm text-blue-400">
-                    <LoadingSpinner size="sm" />
-                    Applying filters...
-                  </div>
-                )}
-              </h3>
-              <div className="flex items-center gap-4">
-                {/* Difficulty Filter */}
-                <FormSelect
-                  label="Difficulty"
-                  value={publicFilters.difficulty}
-                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
-                  options={[
-                    { value: '', label: 'All Difficulties' },
-                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
-                  ]}
-                  className="w-40"
-                />
-                
-                {/* Dare Type Filter */}
-                <FormSelect
-                  label="Dare Type"
-                  value={publicFilters.dareType}
-                  onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
-                  options={[
-                    { value: '', label: 'All Types' },
-                    { value: 'submission', label: 'Submission' },
-                    { value: 'domination', label: 'Domination' },
-                    { value: 'switch', label: 'Switch' }
-                  ]}
-                  className="w-40"
-                />
-                
-                <button
-                  onClick={() => {
-                    if (typeof fetchPublicDataWithFilters === 'function') {
-                      fetchPublicDataWithFilters();
-                    }
-                  }}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
-                  Refresh
-                </button>
-                <button
-                  onClick={clearPublicFilters}
-                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            </div>
-          </NeumorphicCard>
-          
-          
+        <div className="space-y-6">          
           {/* Public Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -1698,26 +1634,6 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-40"
                 />
-                
-                <button
-                  onClick={() => {
-                    if (typeof fetchPublicDataWithFilters === 'function') {
-                      fetchPublicDataWithFilters();
-                    }
-                  }}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
-                  Refresh
-                </button>
-                <button
-                  onClick={clearPublicFilters}
-                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  Clear All Filters
-                </button>
               </div>
             </div>
             {dataLoading.public ? (
