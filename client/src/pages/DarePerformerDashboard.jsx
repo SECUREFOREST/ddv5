@@ -242,8 +242,8 @@ export default function DarePerformerDashboard() {
   const safeCompleted = Array.isArray(completed) ? completed : [];
   const safeMySwitchGames = Array.isArray(mySwitchGames) ? mySwitchGames : [];
   
-  // Server-side filtering is now handled in the API calls
-  // These variables now represent the filtered data from the server
+  // All filtering and pagination is handled server-side
+  // These variables represent the data returned from the server
   const filteredOngoing = safeOngoing;
   const filteredMySwitchGames = safeMySwitchGames;
 
@@ -305,15 +305,15 @@ export default function DarePerformerDashboard() {
       setPublicSwitchPage(1);
       // Use a small delay to avoid immediate refetch
       const timeoutId = setTimeout(() => {
-        if (typeof fetchPublicDataWithFilters === 'function') {
-          fetchPublicDataWithFilters();
-        }
+        fetchPublicDataWithFilters();
       }, 100);
       return () => clearTimeout(timeoutId);
     }
   }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
 
-  // 2025: Enhanced data fetching with smart loading
+  // 2025: Enhanced data fetching with server-side filtering and pagination
+  // All filtering and pagination is handled by the server APIs
+  // Client only merges results from multiple endpoints when necessary
   const fetchData = useCallback(async () => {
     if (!currentUserId) return;
     
@@ -331,10 +331,10 @@ export default function DarePerformerDashboard() {
             const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
             
             // Build filter query parameters for switch games
-            const switchGameFilters = [];
-            if (switchGameFilters.difficulty) switchGameFilters.push(`difficulty=${switchGameFilters.difficulty}`);
-            if (switchGameFilters.status) switchGameFilters.push(`status=${switchGameFilters.status}`);
-            const switchGameQueryString = switchGameFilters.length > 0 ? `&${switchGameFilters.join('&')}` : '';
+            const switchGameQueryParams = [];
+            if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
+            if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
+            const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
             
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant) with filters
@@ -351,23 +351,23 @@ export default function DarePerformerDashboard() {
               api.get(`/switches/performer?limit=1${switchGameQueryString}`)
             ]);
 
-            // Parallel data fetching for better performance with server-side pagination
+            // Parallel data fetching with server-side filtering and pagination
             const [ongoingData, completedData, switchData, publicData, publicSwitchData] = await Promise.allSettled([
-              // Active dares: both as creator and participant with pagination and filters
+              // Active dares: both as creator and participant with server-side pagination and filters
               Promise.all([
                         api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`),
         api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`)
               ]),
-              // Completed dares: both as creator and participant with pagination
+              // Completed dares: both as creator and participant with server-side pagination
               Promise.all([
                         api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
         api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
               ]),
-              // Switch games: using performer endpoint with pagination and filters
+              // Switch games: using performer endpoint with server-side pagination and filters
               api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`),
-              // Public dares with filters and pagination
+              // Public dares with server-side filtering and pagination
               api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}`),
-              // Public switch games with filters and pagination
+              // Public switch games with server-side filtering and pagination
               api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`),
 
             ]);
@@ -405,7 +405,8 @@ export default function DarePerformerDashboard() {
                 });
               }
               
-              // Remove duplicates by _id
+              // Merge results from creator and participant endpoints (necessary due to dual API calls)
+              // Server-side filtering and pagination is applied to each endpoint separately
               const uniqueActiveDares = allActiveDares.filter((dare, index, self) => 
                 index === self.findIndex(d => d._id === dare._id)
               );
@@ -477,7 +478,8 @@ export default function DarePerformerDashboard() {
           });
         }
         
-        // Remove duplicates by _id
+        // Merge results from creator and participant endpoints (necessary due to dual API calls)
+        // Server-side filtering and pagination is applied to each endpoint separately
         const uniqueCompletedDares = allCompletedDares.filter((dare, index, self) => 
           index === self.findIndex(d => d._id === dare._id)
         );
@@ -676,12 +678,13 @@ export default function DarePerformerDashboard() {
 
       });
     }
-  }, [currentUserId, activePage, completedPage, switchPage]);
+  }, [currentUserId, activePage, completedPage, switchPage, fetchPublicDataWithFilters]);
   
 
   
   // Handle public filter changes
   const handlePublicFilterChange = (filterType, value) => {
+    console.log(`Public filter changed: ${filterType} = ${value}`);
     setPublicFilters(prev => ({ ...prev, [filterType]: value }));
     // Also apply to switch games for unified filtering (except dareType which is dare-specific)
     if (filterType === 'difficulty') {
@@ -698,6 +701,96 @@ export default function DarePerformerDashboard() {
       difficulty: ''
     });
   };
+
+  // Fetch public data with current filters - all filtering and pagination handled server-side
+  const fetchPublicDataWithFilters = useCallback(async () => {
+    if (!currentUserId) return;
+    
+    console.log('Fetching public data with filters:', { publicFilters, publicSwitchFilters });
+    
+    try {
+      setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
+      
+      // Build server-side filter query parameters for public dares
+      const publicDareQueryParams = [];
+      if (publicFilters.difficulty) publicDareQueryParams.push(`difficulty=${publicFilters.difficulty}`);
+      if (publicFilters.dareType) publicDareQueryParams.push(`dareType=${publicFilters.dareType}`);
+      const publicDareQueryString = publicDareQueryParams.length > 0 ? `&${publicDareQueryParams.join('&')}` : '';
+      
+      // Build server-side filter query parameters for public switch games
+      const publicSwitchQueryParams = [];
+      if (publicSwitchFilters.difficulty) publicSwitchQueryParams.push(`difficulty=${publicSwitchFilters.difficulty}`);
+      const publicSwitchQueryString = publicSwitchQueryParams.length > 0 ? `&${publicSwitchQueryParams.join('&')}` : '';
+      
+      console.log('Server-side query strings:', { publicDareQueryString, publicSwitchQueryString });
+      
+      // Fetch public data with server-side filtering and pagination
+      const [publicData, publicSwitchData] = await Promise.allSettled([
+        // Public dares with server-side filters and pagination
+        api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}${publicDareQueryString}`),
+        // Public switch games with server-side filters and pagination
+        api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}${publicSwitchQueryString}`)
+      ]);
+      
+      // Handle public dares response - data already filtered and paginated by server
+      if (publicData && publicData.status === 'fulfilled') {
+        const responseData = publicData.value?.data;
+        if (responseData) {
+          const dares = responseData?.dares || responseData || [];
+          const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+          setPublicDares(Array.isArray(validatedData) ? validatedData : []);
+          
+          // Extract server-side pagination metadata
+          if (responseData.pagination) {
+            setPublicDareTotalItems(responseData.pagination.total || 0);
+            setPublicDareTotalPages(responseData.pagination.pages || 1);
+          }
+        }
+      }
+      
+      // Handle public switch games response - data already filtered and paginated by server
+      if (publicSwitchData && publicSwitchData.status === 'fulfilled') {
+        const responseData = publicSwitchData.value?.data;
+        if (responseData) {
+          const games = responseData?.switchGames || responseData || [];
+          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+          
+          // Only basic validation - no client-side filtering
+          const validGames = Array.isArray(validatedData) ? validatedData.filter(game => {
+            return game && game.creator && game.status;
+          }) : [];
+          
+          setPublicSwitchGames(validGames);
+          
+          // Extract server-side pagination metadata
+          if (responseData.pagination) {
+            setPublicSwitchTotalItems(responseData.pagination.total || 0);
+            setPublicSwitchTotalPages(responseData.pagination.pages || 1);
+          }
+        }
+      }
+      
+      // Handle errors
+      const errors = {};
+      if (publicData && publicData.status === 'rejected') {
+        errors.public = publicData.reason?.message || 'Failed to load public dares';
+      }
+      if (publicSwitchData && publicSwitchData.status === 'rejected') {
+        errors.publicSwitch = publicSwitchData.reason?.message || 'Failed to load public switch games';
+      }
+      
+      if (Object.keys(errors).length > 0) {
+        setErrors(prev => ({ ...prev, ...errors }));
+      }
+      
+    } catch (err) {
+      console.error('Failed to fetch public data with filters:', err);
+      const errorMessage = handleApiError(err, 'public data');
+      setError(errorMessage);
+    } finally {
+      setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
+    }
+  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, publicSwitchFilters]);
   
     
 
@@ -738,13 +831,7 @@ export default function DarePerformerDashboard() {
     }
   };
   
-  // 2025: Smart filtering with debouncing
-  const debouncedFilter = useCallback(
-    debounce((newFilters) => {
-      setFilters(newFilters);
-    }, 300),
-    []
-  );
+
   
   // Effects
   useEffect(() => {
@@ -1755,11 +1842,7 @@ export default function DarePerformerDashboard() {
                 />
                 
                 <button
-                  onClick={() => {
-                    if (typeof fetchPublicDataWithFilters === 'function') {
-                      fetchPublicDataWithFilters();
-                    }
-                  }}
+                  onClick={fetchPublicDataWithFilters}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
                   disabled={dataLoading.public || dataLoading.publicSwitch}
                 >
