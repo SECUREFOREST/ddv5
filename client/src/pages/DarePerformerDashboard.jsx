@@ -1661,21 +1661,63 @@ export default function DarePerformerDashboard() {
           
           {/* Public Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
-              <div className="flex flex-col gap-2">
-                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <SparklesIcon className="w-6 h-6 text-orange-400" />
-                  Public Dares ({publicDareTotalItems})
-                </h3>
-                {publicFilters.difficulty || publicFilters.dareType ? (
-                  <div className="text-sm text-white/70">
-                    Showing filtered results
-                    {publicFilters.difficulty && ` • ${publicFilters.difficulty}`}
-                    {publicFilters.dareType && ` • ${publicFilters.dareType}`}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <SparklesIcon className="w-6 h-6 text-orange-400" />
+                Public Dares ({publicDareTotalItems})
+                {(dataLoading.public || dataLoading.publicSwitch) && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Applying filters...
                   </div>
-                ) : (
-                  <div className="text-sm text-white/70">Showing all public dares</div>
                 )}
+              </h3>
+              <div className="flex items-center gap-4">
+                {/* Difficulty Filter */}
+                <FormSelect
+                  label="Difficulty"
+                  value={publicFilters.difficulty}
+                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
+                  ]}
+                  className="w-40"
+                />
+                
+                {/* Dare Type Filter */}
+                <FormSelect
+                  label="Dare Type"
+                  value={publicFilters.dareType}
+                  onChange={(e) => handlePublicFilterChange('dareType', e.target.value)}
+                  options={[
+                    { value: '', label: 'All Types' },
+                    { value: 'submission', label: 'Submission' },
+                    { value: 'domination', label: 'Domination' },
+                    { value: 'switch', label: 'Switch' }
+                  ]}
+                  className="w-40"
+                />
+                
+                <button
+                  onClick={() => {
+                    if (typeof fetchPublicDataWithFilters === 'function') {
+                      fetchPublicDataWithFilters();
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+                <button
+                  onClick={clearPublicFilters}
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  Clear All Filters
+                </button>
               </div>
             </div>
             {dataLoading.public ? (
@@ -1772,20 +1814,49 @@ export default function DarePerformerDashboard() {
 
           {/* Public Switch Games Section */}
           <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
-              <div className="flex flex-col gap-2">
-                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <FireIcon className="w-6 h-6 text-purple-400" />
-                  Public Switch Games ({publicSwitchTotalItems})
-                </h3>
-                {publicSwitchFilters.difficulty ? (
-                  <div className="text-sm text-white/70">
-                    Showing filtered results
-                    {publicSwitchFilters.difficulty && ` • ${publicSwitchFilters.difficulty}`}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <FireIcon className="w-6 h-6 text-purple-400" />
+                Public Switch Games ({publicSwitchTotalItems})
+                {(dataLoading.public || dataLoading.publicSwitch) && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Applying filters...
                   </div>
-                ) : (
-                  <div className="text-sm text-white/70">Showing all available switch games</div>
                 )}
+              </h3>
+              <div className="flex items-center gap-4">
+                {/* Difficulty Filter */}
+                <FormSelect
+                  label="Difficulty"
+                  value={publicSwitchFilters.difficulty}
+                  onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
+                  ]}
+                  className="w-40"
+                />
+                
+                <button
+                  onClick={() => {
+                    if (typeof fetchPublicDataWithFilters === 'function') {
+                      fetchPublicDataWithFilters();
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+                <button
+                  onClick={clearPublicFilters}
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  Clear All Filters
+                </button>
               </div>
             </div>
             
