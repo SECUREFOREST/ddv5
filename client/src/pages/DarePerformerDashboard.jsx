@@ -16,7 +16,7 @@ import {
   PlusIcon,
   PlayIcon,
   DocumentPlusIcon,
-
+  UserGroupIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
