@@ -1880,7 +1880,16 @@ export default function DarePerformerDashboard() {
           <NeumorphicCard variant="glass" className="p-6">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <TrophyIcon className="w-6 h-6 text-green-400" />
-              Completed Switch Games ({switchTotalItems})
+              Completed Switch Games ({(() => {
+                // Filter for actually completed games
+                const completedGames = safeMySwitchGames.filter(game => 
+                  game.status === 'completed' || 
+                  game.status === 'proof_submitted' || 
+                  game.status === 'awaiting_proof' ||
+                  (game.winner && game.winner !== 'N/A')
+                );
+                return completedGames.length;
+              })()})
               {dataLoading.switchGames && (
                 <div className="flex items-center gap-2 text-sm text-blue-400">
                   <LoadingSpinner size="sm" />
@@ -1888,6 +1897,11 @@ export default function DarePerformerDashboard() {
                 </div>
               )}
             </h3>
+            
+            {/* Info about what constitutes a completed game */}
+            <div className="text-xs text-white/60 mb-4">
+              💡 <strong>Completed games</strong> include: finished games, proof submitted, awaiting proof, or games with winners
+            </div>
             
             {/* Show loading state */}
             {dataLoading.switchGames ? (
@@ -1910,23 +1924,36 @@ export default function DarePerformerDashboard() {
                   Retry
                 </button>
               </div>
-            ) : safeMySwitchGames.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center gap-2 mx-auto mb-4">
-                  <TrophyIcon className="w-8 h-8 text-green-400" />
-                </div>
-                <h4 className="text-lg font-semibold text-white mb-2">No Completed Switch Games</h4>
-                <p className="text-white/70 mb-6">Complete your first switch game to see it here!</p>
-                <button
-                  onClick={() => setActiveTab('public')}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Find Games to Join
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {safeMySwitchGames.length > 0 && safeMySwitchGames.map((game) => (
+            ) : (() => {
+              // Filter for actually completed games
+              const completedGames = safeMySwitchGames.filter(game => 
+                game.status === 'completed' || 
+                game.status === 'proof_submitted' || 
+                game.status === 'awaiting_proof' ||
+                (game.winner && game.winner !== 'N/A')
+              );
+              
+              if (completedGames.length === 0) {
+                return (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center gap-2 mx-auto mb-4">
+                      <TrophyIcon className="w-8 h-8 text-green-400" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-white mb-2">No Completed Switch Games</h4>
+                    <p className="text-white/70 mb-6">Complete your first switch game to see it here!</p>
+                    <button
+                      onClick={() => setActiveTab('public')}
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Find Games to Join
+                    </button>
+                  </div>
+                );
+              }
+              
+              return (
+                <div className="space-y-4">
+                  {completedGames.map((game) => (
                   <SwitchGameCard 
                     key={game._id} 
                     game={game}
@@ -1972,7 +1999,7 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </div>
-            )}
+            )})}
           </NeumorphicCard>
         </div>
       )

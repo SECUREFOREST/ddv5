@@ -424,30 +424,6 @@ export default function SwitchGameClaim() {
             </form>
           </div>
 
-          {/* Block Creator Option */}
-          <div className="text-center pt-8">
-            <button
-              onClick={handleBlockCreator}
-              disabled={blocking}
-              className="bg-red-600/20 text-red-400 px-6 py-3 rounded-xl font-medium hover:bg-red-600/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
-            >
-              {blocking ? (
-                <>
-                  <ButtonLoading />
-                  Blocking...
-                </>
-              ) : (
-                <>
-                  <XMarkIcon className="w-5 h-5" />
-                  Block Creator
-                </>
-              )}
-            </button>
-            <p className="text-neutral-400 text-sm mt-2">
-              Don't want to play with this creator? Block them to avoid future interactions.
-            </p>
-          </div>
-
           {/* Footer */}
           <div className="text-center pt-8">
             <p className="text-neutral-400 text-sm">
