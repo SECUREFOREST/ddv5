@@ -296,16 +296,21 @@ export default function DarePerformerDashboard() {
     
     // Only update if the value actually changed to prevent unnecessary re-renders
     if (switchGameFilters[filterType] !== value) {
+      console.log('Updating switch game filters state');
       setSwitchGameFilters(prev => {
         const newFilters = { ...prev, [filterType]: value };
         console.log('New switch game filters:', newFilters);
         return newFilters;
       });
+    } else {
+      console.log('Filter value unchanged, not updating state');
     }
   };
   
   // Refetch data when personal filters change - with debouncing to prevent loops
   useEffect(() => {
+    console.log('Personal filter effect triggered:', { dareFilters, switchGameFilters, currentUserId });
+    
     if (currentUserId) {
       // Reset pagination when filters change
       setActivePage(1);
@@ -314,13 +319,21 @@ export default function DarePerformerDashboard() {
       // Use a longer delay and only fetch if filters actually have values
       const hasActiveFilters = dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status;
       
+      console.log('Has active filters:', hasActiveFilters, { dareFilters, switchGameFilters });
+      
       if (hasActiveFilters) {
+        console.log('Triggering fetchData due to active filters');
         const timeoutId = setTimeout(() => {
           if (typeof fetchData === 'function') {
+            console.log('Calling fetchData from filter effect');
             fetchData();
+          } else {
+            console.warn('fetchData is not a function yet');
           }
         }, 300); // Increased delay to prevent rapid successive calls
         return () => clearTimeout(timeoutId);
+      } else {
+        console.log('No active filters, not fetching');
       }
     }
   }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
@@ -403,12 +416,28 @@ export default function DarePerformerDashboard() {
       publicFilters,
       publicSwitchFilters
     });
+    
+    // Log which specific filter changed
+    if (dareFilters.difficulty || dareFilters.status) {
+      console.log('Dare filters changed:', dareFilters);
+    }
+    if (switchGameFilters.difficulty || switchGameFilters.status) {
+      console.log('Switch game filters changed:', switchGameFilters);
+    }
+    if (publicFilters.difficulty || publicFilters.dareType) {
+      console.log('Public filters changed:', publicFilters);
+    }
+    if (publicSwitchFilters.difficulty) {
+      console.log('Public switch filters changed:', publicSwitchFilters);
+    }
   }, [dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
 
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
   // Client only merges results from multiple endpoints when necessary
   const fetchData = useCallback(async () => {
+    console.log('fetchData function called with filters:', { dareFilters, switchGameFilters });
+    
     if (!currentUserId) return;
     
     // Prevent multiple simultaneous requests
@@ -789,7 +818,7 @@ export default function DarePerformerDashboard() {
       });
       isFetchingRef.current = false; // Reset the fetching flag
     }
-  }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
+  }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage]); // Removed filter dependencies to prevent function recreation
   
 
   
@@ -932,7 +961,7 @@ export default function DarePerformerDashboard() {
       setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
       isFetchingRef.current = false; // Reset the fetching flag
     }
-  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, publicSwitchFilters]);
+  }, [currentUserId, publicDarePage, publicSwitchPage]); // Removed filter dependencies to prevent function recreation
   
     
 
@@ -1434,7 +1463,21 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-48"
                 />
-
+                
+                {/* Manual refresh button for debugging */}
+                <button
+                  onClick={() => {
+                    console.log('Manual refresh triggered for dares');
+                    console.log('Current filters:', dareFilters);
+                    console.log('Current state:', { ongoing: ongoing.length, completed: completed.length, dataLoading: dataLoading.ongoing });
+                    fetchData();
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200"
+                  disabled={dataLoading.ongoing || dataLoading.completed}
+                >
+                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.ongoing || dataLoading.completed) ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
               </div>
             </div>
             
@@ -1691,6 +1734,21 @@ export default function DarePerformerDashboard() {
                   ]}
                   className="w-48"
                 />
+                
+                {/* Manual refresh button for debugging */}
+                <button
+                  onClick={() => {
+                    console.log('Manual refresh triggered for switch games');
+                    console.log('Current filters:', switchGameFilters);
+                    console.log('Current state:', { mySwitchGames: mySwitchGames.length, dataLoading: dataLoading.switchGames });
+                    fetchData();
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200"
+                  disabled={dataLoading.switchGames}
+                >
+                  <ArrowPathIcon className={`w-4 h-4 ${dataLoading.switchGames ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
               </div>
             </div>
             
