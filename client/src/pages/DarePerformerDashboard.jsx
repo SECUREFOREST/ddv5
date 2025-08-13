@@ -502,6 +502,8 @@ export default function DarePerformerDashboard() {
           
           setMySwitchGames(filteredGames);
         }
+      } else if (switchData && switchData.status === 'rejected') {
+        console.error('Switch games data fetch failed:', switchData.reason);
       }
       
       if (publicData && publicData.status === 'fulfilled') {
@@ -784,9 +786,27 @@ export default function DarePerformerDashboard() {
   
   // Effects
   useEffect(() => {
+    let isMounted = true;
+    
     if (user && currentUserId) {
-      fetchData();
+      // Validate pagination state first
+      validatePaginationState();
+      
+      fetchData().then(() => {
+        // Only update state if component is still mounted
+        if (isMounted) {
+          console.log('Dashboard data fetched successfully');
+        }
+      }).catch((error) => {
+        if (isMounted) {
+          console.error('Failed to fetch dashboard data:', error);
+        }
+      });
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [user, currentUserId, fetchData]);
   
   // Refetch data when pagination changes
@@ -832,7 +852,103 @@ export default function DarePerformerDashboard() {
     setActivePage(1);
     setCompletedPage(1);
     setSwitchPage(1);
+    setPublicDarePage(1);
+    setPublicSwitchPage(1);
   };
+  
+  // Validate pagination state
+  const validatePaginationState = () => {
+    const issues = [];
+    
+    if (activePage < 1 || !Number.isInteger(activePage)) {
+      issues.push('Active page invalid, resetting to 1');
+      setActivePage(1);
+    }
+    if (completedPage < 1 || !Number.isInteger(completedPage)) {
+      issues.push('Completed page invalid, resetting to 1');
+      setCompletedPage(1);
+    }
+    if (switchPage < 1 || !Number.isInteger(switchPage)) {
+      issues.push('Switch page invalid, resetting to 1');
+      setSwitchPage(1);
+    }
+    if (publicDarePage < 1 || !Number.isInteger(publicDarePage)) {
+      issues.push('Public dare page invalid, resetting to 1');
+      setPublicDarePage(1);
+    }
+    if (publicSwitchPage < 1 || !Number.isInteger(publicSwitchPage)) {
+      issues.push('Public switch page invalid, resetting to 1');
+      setPublicSwitchPage(1);
+    }
+    
+    if (issues.length > 0) {
+      console.warn('Pagination validation issues found:', issues);
+    }
+  };
+  
+  // Debug logging for switch games data changes
+  useEffect(() => {
+    console.log('Switch games data changed:', {
+      mySwitchGames: mySwitchGames.length,
+      safeMySwitchGames: safeMySwitchGames.length,
+      switchTotalItems,
+      dataLoading: dataLoading.switchGames
+    });
+  }, [mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
+  
+  // Debug logging for active tab changes
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+    if (activeTab === 'switch-games') {
+      console.log('Switch games tab selected. Current state:', {
+        mySwitchGames: mySwitchGames.length,
+        safeMySwitchGames: safeMySwitchGames.length,
+        switchTotalItems,
+        dataLoading: dataLoading.switchGames
+      });
+    }
+  }, [activeTab, mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
+  
+  // Handle tab switching and ensure data is loaded
+  useEffect(() => {
+    if (activeTab && !isLoading) {
+      // Check if the current tab has data, if not, trigger a refresh
+      const needsRefresh = (() => {
+        switch (activeTab) {
+          case 'ongoing':
+            return ongoing.length === 0 && !dataLoading.ongoing;
+          case 'completed':
+            return completed.length === 0 && !dataLoading.completed;
+          case 'switch-games':
+            return mySwitchGames.length === 0 && !dataLoading.switchGames;
+          case 'public':
+            return (publicDares.length === 0 && publicSwitchGames.length === 0) && 
+                   (!dataLoading.public && !dataLoading.publicSwitch);
+          case 'associates':
+            return associates.length === 0 && !dataLoading.associates;
+          default:
+            return false;
+        }
+      })();
+      
+      if (needsRefresh) {
+        console.log(`Tab ${activeTab} has no data, refreshing...`);
+        // Set loading state for the specific tab before fetching
+        setDataLoading(prev => ({
+          ...prev,
+          [activeTab === 'ongoing' ? 'ongoing' : 
+           activeTab === 'completed' ? 'completed' : 
+           activeTab === 'switch-games' ? 'switchGames' : 
+           activeTab === 'public' ? 'public' : 
+           activeTab === 'associates' ? 'associates' : 'ongoing']: true
+        }));
+        fetchData();
+      }
+    }
+  }, [activeTab, isLoading, ongoing.length, completed.length, mySwitchGames.length, 
+      publicDares.length, publicSwitchGames.length, associates.length, 
+      dataLoading.ongoing, dataLoading.completed, dataLoading.switchGames, 
+      dataLoading.public, dataLoading.publicSwitch, dataLoading.associates, fetchData]);
   
   // 2025: Smart tabs with modern interactions
   const tabs = [
@@ -853,7 +969,12 @@ export default function DarePerformerDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {dataLoading.ongoing ? '...' : activeTotalItems}
+                    {dataLoading.ongoing ? (
+                      <div className="flex items-center gap-2">
+                        <LoadingSpinner size="sm" />
+                        ...
+                      </div>
+                    ) : activeTotalItems}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Active Dares</div>
                 </div>
@@ -872,7 +993,12 @@ export default function DarePerformerDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {dataLoading.completed ? '...' : completedTotalItems}
+                    {dataLoading.completed ? (
+                      <div className="flex items-center gap-2">
+                        <LoadingSpinner size="sm" />
+                        ...
+                      </div>
+                    ) : completedTotalItems}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Completed</div>
                 </div>
@@ -891,7 +1017,12 @@ export default function DarePerformerDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {dataLoading.switchGames ? '...' : switchTotalItems}
+                    {dataLoading.switchGames ? (
+                      <div className="flex items-center gap-2">
+                        <LoadingSpinner size="sm" />
+                        ...
+                      </div>
+                    ) : switchTotalItems}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Switch Games</div>
                 </div>
@@ -910,7 +1041,12 @@ export default function DarePerformerDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {dataLoading.public ? '...' : (publicDares.length + publicSwitchGames.length)}
+                    {dataLoading.public ? (
+                      <div className="flex items-center gap-2">
+                        <LoadingSpinner size="sm" />
+                        ...
+                      </div>
+                    ) : (publicDares.length + publicSwitchGames.length)}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Available</div>
                 </div>
@@ -1004,6 +1140,12 @@ export default function DarePerformerDashboard() {
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <ClockIcon className="w-6 h-6 text-blue-400" />
                 Active Dares ({activeTotalItems})
+                {dataLoading.ongoing && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Loading...
+                  </div>
+                )}
               </h3>
               <Search
                 placeholder="Search active dares..."
@@ -1011,7 +1153,29 @@ export default function DarePerformerDashboard() {
                 className="w-64"
               />
             </div>
-            {ongoing.length === 0 ? (
+            
+            {/* Show loading state */}
+            {dataLoading.ongoing ? (
+              <div className="text-center py-12">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading active dares...</p>
+              </div>
+            ) : errors.ongoing ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Active Dares</h4>
+                <p className="text-white/70 mb-6">{errors.ongoing}</p>
+                <button
+                  onClick={fetchData}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            ) : ongoing.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ClockIcon className="w-8 h-8 text-blue-400" />
@@ -1066,10 +1230,8 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Active Dares Pagination */}
-                {activeTotalPages > 1 && activeTotalItems > 0 && 
-                 Number.isInteger(activePage) && Number.isInteger(activeTotalPages) && Number.isInteger(activeTotalItems) && (
+                {activeTotalPages > 1 && activeTotalItems > 0 && (
                   <div className="mt-6">
-
                     <Pagination
                       currentPage={activePage}
                       totalPages={activeTotalPages}
@@ -1095,8 +1257,36 @@ export default function DarePerformerDashboard() {
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <TrophyIcon className="w-6 h-6 text-green-400" />
               Completed Dares ({completedTotalItems})
+              {dataLoading.completed && (
+                <div className="flex items-center gap-2 text-sm text-blue-400">
+                  <LoadingSpinner size="sm" />
+                  Loading...
+                </div>
+              )}
             </h3>
-            {completed.length === 0 ? (
+            
+            {/* Show loading state */}
+            {dataLoading.completed ? (
+              <div className="text-center py-12">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading completed dares...</p>
+              </div>
+            ) : errors.completed ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Completed Dares</h4>
+                <p className="text-white/70 mb-6">{errors.completed}</p>
+                <button
+                  onClick={fetchData}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            ) : completed.length === 0 ? (
                 <div className="text-center py-12">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrophyIcon className="w-8 h-8 text-green-400" />
@@ -1151,10 +1341,8 @@ export default function DarePerformerDashboard() {
                 ))}
                 
                 {/* Completed Dares Pagination */}
-                {completedTotalPages > 1 && completedTotalItems > 0 && 
-                 Number.isInteger(completedPage) && Number.isInteger(completedTotalPages) && Number.isInteger(completedTotalItems) && (
+                {completedTotalPages > 1 && completedTotalItems > 0 && (
                   <div className="mt-6">
-
                     <Pagination
                       currentPage={completedPage}
                       totalPages={completedTotalPages}
@@ -1180,6 +1368,12 @@ export default function DarePerformerDashboard() {
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <FireIcon className="w-6 h-6 text-purple-400" />
               Switch Games ({switchTotalItems})
+              {dataLoading.switchGames && (
+                <div className="flex items-center gap-2 text-sm text-blue-400">
+                  <LoadingSpinner size="sm" />
+                  Loading...
+                </div>
+              )}
             </h3>
             
             {/* Show info about filtered games if any were removed due to incomplete data */}
@@ -1193,7 +1387,29 @@ export default function DarePerformerDashboard() {
                 </div>
               </div>
             )}
-            {safeMySwitchGames.length === 0 ? (
+            
+            {/* Show loading state */}
+            {dataLoading.switchGames ? (
+              <div className="text-center py-12">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading switch games...</p>
+              </div>
+            ) : errors.switchGames ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Switch Games</h4>
+                <p className="text-white/70 mb-6">{errors.switchGames}</p>
+                <button
+                  onClick={fetchData}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            ) : safeMySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FireIcon className="w-8 h-8 text-purple-400" />
@@ -1251,10 +1467,8 @@ export default function DarePerformerDashboard() {
                 ))}
               
               {/* Switch Games Pagination */}
-              {switchTotalPages > 1 && switchTotalItems > 0 && 
-               Number.isInteger(switchPage) && Number.isInteger(switchTotalPages) && Number.isInteger(switchTotalItems) && (
+              {switchTotalPages > 1 && switchTotalItems > 0 && (
                 <div className="mt-6">
-
                   <Pagination
                     currentPage={switchPage}
                     totalPages={switchTotalPages}
@@ -1627,8 +1841,36 @@ export default function DarePerformerDashboard() {
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
               <UserGroupIcon className="w-6 h-6 text-indigo-400" />
               Associates ({associates.length})
+              {dataLoading.associates && (
+                <div className="flex items-center gap-2 text-sm text-blue-400">
+                  <LoadingSpinner size="sm" />
+                  Loading...
+                </div>
+              )}
             </h3>
-            {associates.length === 0 ? (
+            
+            {/* Show loading state */}
+            {dataLoading.associates ? (
+              <div className="text-center py-12">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading associates...</p>
+              </div>
+            ) : errors.associates ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">Failed to Load Associates</h4>
+                <p className="text-white/70 mb-6">{errors.associates}</p>
+                <button
+                  onClick={fetchData}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            ) : associates.length === 0 ? (
                 <div className="text-center py-12">
                 <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <UserGroupIcon className="w-8 h-8 text-indigo-400" />
@@ -1759,12 +2001,22 @@ export default function DarePerformerDashboard() {
           ))}
           
           {/* 2025 Smart Tabs */}
-          <Tabs
-            tabs={tabs}
-            value={tabs.findIndex(t => t.key === activeTab)}
-            onChange={idx => setActiveTab(tabs[idx].key)}
-            className="mb-8"
-          />
+          <ErrorBoundary>
+            <Tabs
+              tabs={tabs}
+              value={tabs.findIndex(t => t.key === activeTab)}
+              onChange={idx => setActiveTab(tabs[idx].key)}
+              className="mb-8"
+            />
+          </ErrorBoundary>
+          
+          {/* Show loading state for overview tab */}
+          {activeTab === 'overview' && isLoading && (
+            <NeumorphicCard variant="glass" className="p-6 text-center">
+              <LoadingSpinner size="lg" />
+              <p className="text-white/70 mt-4">Loading dashboard data...</p>
+            </NeumorphicCard>
+          )}
 
           {/* 2025 Empty State - Show when all sections are empty */}
           {!isLoading && 
