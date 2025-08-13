@@ -58,6 +58,7 @@ import Avatar from '../components/Avatar';
 import TagsInput from '../components/TagsInput';
 import { MainContent, ContentContainer } from '../components/Layout';
 import Search from '../components/Search';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 import { retryApiCall } from '../utils/retry';
 
