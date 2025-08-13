@@ -303,7 +303,9 @@ export default function DarePerformerDashboard() {
       setSwitchPage(1);
       // Use a small delay to avoid immediate refetch
       const timeoutId = setTimeout(() => {
-        fetchData();
+        if (typeof fetchData === 'function') {
+          fetchData();
+        }
       }, 100);
       return () => clearTimeout(timeoutId);
     }
@@ -317,7 +319,9 @@ export default function DarePerformerDashboard() {
       setPublicSwitchPage(1);
       // Use a small delay to avoid immediate refetch
       const timeoutId = setTimeout(() => {
-        fetchPublicDataWithFilters();
+        if (typeof fetchPublicDataWithFilters === 'function') {
+          fetchPublicDataWithFilters();
+        }
       }, 100);
       return () => clearTimeout(timeoutId);
     }
@@ -328,25 +332,40 @@ export default function DarePerformerDashboard() {
     console.log('Personal filters effect triggered:', { dareFilters, switchGameFilters, currentUserId });
     if (currentUserId && (dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status)) {
       console.log('Triggering fetchData due to personal filter change');
-      fetchData();
+      // Use setTimeout to avoid calling fetchData before it's defined
+      setTimeout(() => {
+        if (typeof fetchData === 'function') {
+          fetchData();
+        }
+      }, 0);
     }
-  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId, fetchData]);
+  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
 
   // Separate effect to handle fetchPublicDataWithFilters dependency
   useEffect(() => {
     console.log('Public filters effect triggered:', { publicFilters, publicSwitchFilters, currentUserId });
     if (currentUserId && (publicFilters.difficulty || publicFilters.dareType || publicSwitchFilters.difficulty)) {
       console.log('Triggering fetchPublicDataWithFilters due to public filter change');
-      fetchPublicDataWithFilters();
+      // Use setTimeout to avoid calling fetchPublicDataWithFilters before it's defined
+      setTimeout(() => {
+        if (typeof fetchPublicDataWithFilters === 'function') {
+          fetchPublicDataWithFilters();
+        }
+      }, 0);
     }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId, fetchPublicDataWithFilters]);
+  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
 
   // Handle public pagination changes
   useEffect(() => {
     if (currentUserId && (publicDarePage > 1 || publicSwitchPage > 1)) {
-      fetchPublicDataWithFilters();
+      // Use setTimeout to avoid calling fetchPublicDataWithFilters before it's defined
+      setTimeout(() => {
+        if (typeof fetchPublicDataWithFilters === 'function') {
+          fetchPublicDataWithFilters();
+        }
+      }, 0);
     }
-  }, [publicDarePage, publicSwitchPage, currentUserId, fetchPublicDataWithFilters]);
+  }, [publicDarePage, publicSwitchPage, currentUserId]);
 
   // Debug logging for data changes
   useEffect(() => {
