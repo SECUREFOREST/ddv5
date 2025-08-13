@@ -463,17 +463,22 @@ export default function DarePerformerDashboard() {
           
           // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
           const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            const hasRequiredFields = game && game.creator && game.participant && game.status;
-            if (!hasRequiredFields) {
+            // For switch games, participant is only required if the game has been joined
+            // Games waiting for participants are valid without a participant
+            const hasRequiredFields = game && game.creator && game.status;
+            const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
+            
+            if (!hasRequiredFields || !hasParticipantIfNeeded) {
               console.warn('Filtering out switch game with missing required fields:', {
                 gameId: game?._id,
                 hasCreator: !!game?.creator,
                 hasParticipant: !!game?.participant,
                 hasStatus: !!game?.status,
+                status: game?.status,
                 gameData: game
               });
             }
-            return hasRequiredFields;
+            return hasRequiredFields && hasParticipantIfNeeded;
           }) : [];
           
           // Log summary of filtering
@@ -534,17 +539,22 @@ export default function DarePerformerDashboard() {
 
           // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
           const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            const hasRequiredFields = game && game.creator && game.participant && game.status;
-            if (!hasRequiredFields) {
+            // For public switch games, participant is only required if the game has been joined
+            // Games waiting for participants are valid without a participant
+            const hasRequiredFields = game && game.creator && game.status;
+            const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
+            
+            if (!hasRequiredFields || !hasParticipantIfNeeded) {
               console.warn('Filtering out public switch game with missing required fields:', {
                 gameId: game?._id,
                 hasCreator: !!game?.creator,
                 hasParticipant: !!game?.participant,
                 hasStatus: !!game?.status,
+                status: game?.status,
                 gameData: game
               });
             }
-            return hasRequiredFields;
+            return hasRequiredFields && hasParticipantIfNeeded;
           }) : [];
           
           // Log summary of filtering
@@ -728,17 +738,22 @@ export default function DarePerformerDashboard() {
         
         // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
         const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-          const hasRequiredFields = game && game.creator && game.participant && game.status;
-          if (!hasRequiredFields) {
+          // For public switch games, participant is only required if the game has been joined
+          // Games waiting for participants are valid without a participant
+          const hasRequiredFields = game && game.creator && game.status;
+          const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
+          
+          if (!hasRequiredFields || !hasParticipantIfNeeded) {
             console.warn('Filtering out public switch game with missing required fields:', {
               gameId: game?._id,
               hasCreator: !!game?.creator,
               hasParticipant: !!game?.participant,
               hasStatus: !!game?.status,
+              status: game?.status,
               gameData: game
             });
           }
-          return hasRequiredFields;
+          return hasRequiredFields && hasParticipantIfNeeded;
         }) : [];
         
         // Log summary of filtering
