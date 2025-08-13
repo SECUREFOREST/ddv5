@@ -325,12 +325,13 @@ export default function DarePerformerDashboard() {
         console.log('Triggering fetchData due to active filters');
         const timeoutId = setTimeout(() => {
           if (typeof fetchData === 'function') {
-            console.log('Calling fetchData from filter effect');
-            fetchData();
+            console.log('Calling fetchData from filter effect with current filters');
+            // Pass the current filter values directly to avoid timing issues
+            fetchData({ dareFilters, switchGameFilters });
           } else {
             console.warn('fetchData is not a function yet');
           }
-        }, 300); // Increased delay to prevent rapid successive calls
+        }, 100); // Reduced delay since we're fixing the timing issue
         return () => clearTimeout(timeoutId);
       } else {
         console.log('No active filters, not fetching');
@@ -435,8 +436,10 @@ export default function DarePerformerDashboard() {
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
   // Client only merges results from multiple endpoints when necessary
-  const fetchData = useCallback(async () => {
-    console.log('fetchData function called with filters:', { dareFilters, switchGameFilters });
+  const fetchData = useCallback(async (overrideFilters = null) => {
+    // Use override filters if provided, otherwise use current state
+    const filtersToUse = overrideFilters || { dareFilters, switchGameFilters };
+    console.log('fetchData function called with filters:', filtersToUse);
     
     if (!currentUserId) return;
     
@@ -454,19 +457,19 @@ export default function DarePerformerDashboard() {
       // Get total counts first for proper pagination
       // Build filter query parameters for active dares
       const activeDareFilters = [];
-      if (dareFilters.difficulty) activeDareFilters.push(`difficulty=${dareFilters.difficulty}`);
-      if (dareFilters.status) activeDareFilters.push(`status=${dareFilters.status}`);
+      if (filtersToUse.dareFilters.difficulty) activeDareFilters.push(`difficulty=${filtersToUse.dareFilters.difficulty}`);
+      if (filtersToUse.dareFilters.status) activeDareFilters.push(`status=${filtersToUse.dareFilters.status}`);
       const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
       
-      console.log('Active dare filters being applied:', { dareFilters, activeDareQueryString });
+      console.log('Active dare filters being applied:', { dareFilters: filtersToUse.dareFilters, activeDareQueryString });
       
       // Build filter query parameters for switch games
       const switchGameQueryParams = [];
-      if (switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${switchGameFilters.difficulty}`);
-      if (switchGameFilters.status) switchGameQueryParams.push(`status=${switchGameFilters.status}`);
+      if (filtersToUse.switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${filtersToUse.switchGameFilters.difficulty}`);
+      if (filtersToUse.switchGameFilters.status) switchGameQueryParams.push(`status=${filtersToUse.switchGameFilters.status}`);
       const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
       
-      console.log('Switch game filters being applied:', { switchGameFilters, switchGameQueryString });
+      console.log('Switch game filters being applied:', { switchGameFilters: filtersToUse.switchGameFilters, switchGameQueryString });
             
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant) with filters
