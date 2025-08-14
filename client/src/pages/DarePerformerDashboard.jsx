@@ -20,6 +20,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import api from '../api/axios';
 import { validateApiResponse } from '../utils/apiValidation';
 import { API_RESPONSE_TYPES, ERROR_MESSAGES } from '../constants.jsx';
 import { handleApiError } from '../utils/errorHandler';
@@ -1916,4 +1917,192 @@ export default function DarePerformerDashboard() {
                                 // If no claim token, this might be an error - log it
                                 console.warn('Public dare missing claim token:', dare._id);
                                 // Still try to use claim URL with dare ID as fallback
-                                navigate(`
+                                navigate(`/claim/${dare._id}`);
+                              }
+                            }}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            title="Start the consent and claim process to perform this dare"
+                          >
+                            <PlayIcon className="w-4 h-4" />
+                            Claim & Perform
+                          </button>
+                        </div>
+                      }
+                    />
+                  );
+                })}
+                
+                {/* Show message if no dares */}
+                {safePublicDares.length === 0 && !dataLoading.public && (
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <SparklesIcon className="w-6 h-6 text-orange-400" />
+                    </div>
+                    <h4 className="text-md font-semibold text-white mb-2">No Public Dares Found</h4>
+                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
+                  </div>
+                )}
+                
+                {/* Public Dares Pagination */}
+                {publicDareTotalPages > 1 && (
+                  <div className="mt-6">
+                    <Pagination
+                      currentPage={publicDarePage}
+                      totalPages={publicDareTotalPages}
+                      onPageChange={setPublicDarePage}
+                      totalItems={publicDareTotalItems}
+                      itemsPerPage={ITEMS_PER_PAGE}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </NeumorphicCard>
+
+          {/* Public Switch Games Section */}
+          <NeumorphicCard variant="glass" className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <FireIcon className="w-6 h-6 text-purple-400" />
+                Public Switch Games ({publicSwitchTotalItems})
+                {(dataLoading.public || dataLoading.publicSwitch) && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Applying filters...
+                  </div>
+                )}
+              </h3>
+              {/* Debug info */}
+              <div className="text-xs text-white/50">
+                Filters: {JSON.stringify(publicSwitchFilters)}
+              </div>
+              <div className="flex items-center gap-4">
+                {/* Difficulty Filter */}
+                <FormSelect
+                  label="Difficulty"
+                  value={publicSwitchFilters.difficulty}
+                  onChange={(e) => {
+                    console.log('Public switch difficulty FormSelect onChange triggered:', e.target.value);
+                    handlePublicFilterChange('difficulty', e.target.value);
+                  }}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
+                  ]}
+                  className="w-40"
+                />
+                
+                <button
+                  onClick={fetchPublicDataWithFilters}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+                <button
+                  onClick={clearPublicFilters}
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
+                  disabled={dataLoading.public || dataLoading.publicSwitch}
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            </div>
+            
+            {/* Show info about filtered games if any were removed due to incomplete data */}
+            {publicSwitchGames.length !== safePublicSwitchGames.length && (
+              <div className="mb-4 p-3 bg-amber-900/20 border border-amber-700/50 rounded text-sm">
+                <div className="text-amber-400">
+                  <strong>Note:</strong> Some public switch games were filtered out due to incomplete data. This is usually a temporary issue.
+                </div>
+                <div className="text-amber-300 text-xs mt-1">
+                  Showing {safePublicSwitchGames.length} of {publicSwitchGames.length} games. Try refreshing the page.
+                </div>
+              </div>
+            )}
+            {dataLoading.publicSwitch ? (
+              <div className="text-center py-8">
+                <LoadingSpinner size="lg" />
+                <p className="text-white/70 mt-4">Loading public switch games...</p>
+              </div>
+            ) : safePublicSwitchGames.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <FireIcon className="w-6 h-6 text-purple-400" />
+                </div>
+                <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games</h4>
+                <p className="text-white/70 mb-4 text-sm">No public switch games are available at the moment.</p>
+                <button
+                  onClick={() => handleQuickAction('create-switch')}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Create a Game
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {safePublicSwitchGames.length > 0 && safePublicSwitchGames.map((game) => (
+                  <SwitchGameCard 
+                    key={game._id} 
+                    game={game}
+                    currentUserId={currentUserId}
+                    onSubmitProof={async (formData) => {
+                      try {
+                        await api.post(`/switches/${game._id}/proof`, formData, {
+                          headers: { 'Content-Type': 'multipart/form-data' },
+                        });
+                        showSuccess('Proof submitted successfully!');
+                        // Refresh the data
+                        fetchPublicDataWithFilters();
+                      } catch (error) {
+                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                        showError(errorMessage);
+                        throw error; // Re-throw so the component can handle it
+                      }
+                    }}
+                    actions={
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/switches/claim/${game._id}`)}
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <UserGroupIcon className="w-4 h-4" />
+                          Join Game
+                        </button>
+                      </div>
+                    }
+                  />
+                ))}
+                
+                {/* Show message if no switch games */}
+                {safePublicSwitchGames.length === 0 && !dataLoading.publicSwitch && (
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <FireIcon className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games Found</h4>
+                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
+                  </div>
+                )}
+                
+                {/* Public Switch Games Pagination */}
+                {publicSwitchTotalPages > 1 && (
+                  <div className="mt-6">
+                    <Pagination
+                      currentPage={publicSwitchPage}
+                      totalPages={publicSwitchTotalPages}
+                      onPageChange={setPublicSwitchPage}
+                      totalItems={publicSwitchTotalItems}
+                      itemsPerPage={ITEMS_PER_PAGE}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </NeumorphicCard>
+        </div>
+      )
+    }
+  ];
+}
