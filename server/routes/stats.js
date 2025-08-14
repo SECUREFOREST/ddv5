@@ -7,6 +7,29 @@ const SwitchGame = require('../models/SwitchGame');
 const Dare = require('../models/Dare');
 const User = require('../models/User');
 
+// Helper function to serialize MongoDB ObjectIds for JSON transmission
+const serializeObjectIds = (obj) => {
+  if (obj === null || obj === undefined) return obj;
+  
+  if (obj._bsontype === 'ObjectID') {
+    return obj.toString();
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => serializeObjectIds(item));
+  }
+  
+  if (typeof obj === 'object') {
+    const serialized = {};
+    for (const [key, value] of Object.entries(obj)) {
+      serialized[key] = serializeObjectIds(value);
+    }
+    return serialized;
+  }
+  
+  return obj;
+};
+
 // Health check endpoint for debugging
 router.get('/health', async (req, res) => {
   try {
@@ -410,21 +433,24 @@ router.get('/dashboard', auth, [
       summary: response.summary
     });
 
+    // Serialize ObjectIds before sending response
+    const serializedResponse = serializeObjectIds(response);
+    
     // Log response size to check for truncation
-    const responseString = JSON.stringify(response);
+    const responseString = JSON.stringify(serializedResponse);
     console.log('Response size check:', {
       responseSize: responseString.length,
       responseSizeKB: (responseString.length / 1024).toFixed(2),
       hasLargeArrays: {
-        activeDares: response.data.activeDares.length > 0,
-        completedDares: response.data.completedDares.length > 0,
-        switchGames: response.data.switchGames.length > 0,
-        publicDares: response.data.publicDares.length > 0,
-        publicSwitchGames: response.data.publicSwitchGames.length > 0
+        activeDares: serializedResponse.data.activeDares.length > 0,
+        completedDares: serializedResponse.data.completedDares.length > 0,
+        switchGames: serializedResponse.data.switchGames.length > 0,
+        publicDares: serializedResponse.data.publicDares.length > 0,
+        publicSwitchGames: serializedResponse.data.publicSwitchGames.length > 0
       }
     });
 
-    res.json(response);
+    res.json(serializedResponse);
 
   } catch (error) {
     console.error('Dashboard API error:', error);
@@ -739,8 +765,8 @@ router.get('/activities', async (req, res) => {
   }
 });
 
-// GET /api/stats/dashboard - general dashboard stats
-router.get('/dashboard', async (req, res) => {
+// GET /api/stats/general - general dashboard stats (renamed to avoid conflict)
+router.get('/general', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalDares = await Dare.countDocuments();
