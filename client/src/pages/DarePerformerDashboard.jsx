@@ -579,26 +579,31 @@ export default function DarePerformerDashboard() {
       if (pagination.activeDares) {
         setActiveTotalItems(pagination.activeDares.total || 0);
         setActiveTotalPages(pagination.activeDares.pages || 1);
+        console.log('Setting active dares pagination:', pagination.activeDares);
       }
       
       if (pagination.completedDares) {
         setCompletedTotalItems(pagination.completedDares.total || 0);
         setCompletedTotalPages(pagination.completedDares.pages || 1);
+        console.log('Setting completed dares pagination:', pagination.completedDares);
       }
       
       if (pagination.switchGames) {
         setSwitchTotalItems(pagination.switchGames.total || 0);
         setSwitchTotalPages(pagination.switchGames.pages || 1);
+        console.log('Setting switch games pagination:', pagination.switchGames);
       }
       
       if (pagination.publicDares) {
         setPublicDareTotalItems(pagination.publicDares.total || 0);
         setPublicDareTotalPages(pagination.publicDares.pages || 1);
+        console.log('Setting public dares pagination:', pagination.publicDares);
       }
       
       if (pagination.publicSwitchGames) {
         setPublicSwitchTotalItems(pagination.publicSwitchGames.total || 0);
         setPublicSwitchTotalPages(pagination.publicSwitchGames.pages || 1);
+        console.log('Setting public switch games pagination:', pagination.publicSwitchGames);
       }
       
       // Clear any previous errors since the API call succeeded
@@ -1226,6 +1231,53 @@ export default function DarePerformerDashboard() {
               >
                 Test Public Filter
               </button>
+            </div>
+            
+            {/* Debug State Display */}
+            <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
+              <h4 className="text-lg font-semibold text-white mb-3">Current State Values</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-300 mb-2">Data Arrays:</div>
+                  <div className="space-y-1 text-gray-400">
+                    <div>Ongoing: {ongoing.length}</div>
+                    <div>Completed: {completed.length}</div>
+                    <div>Switch Games: {mySwitchGames.length}</div>
+                    <div>Public Dares: {publicDares.length}</div>
+                    <div>Public Switch: {publicSwitchGames.length}</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-300 mb-2">Summary State:</div>
+                  <div className="space-y-1 text-gray-400">
+                    <div>Active Dares: {summary.totalActiveDares}</div>
+                    <div>Completed Dares: {summary.totalCompletedDares}</div>
+                    <div>Switch Games: {summary.totalSwitchGames}</div>
+                    <div>Public Dares: {summary.totalPublicDares}</div>
+                    <div>Public Switch: {summary.totalPublicSwitchGames}</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-300 mb-2">Pagination Totals:</div>
+                  <div className="space-y-1 text-gray-400">
+                    <div>Active Total: {activeTotalItems}</div>
+                    <div>Completed Total: {completedTotalItems}</div>
+                    <div>Switch Total: {switchTotalItems}</div>
+                    <div>Public Dare Total: {publicDareTotalItems}</div>
+                    <div>Public Switch Total: {publicSwitchTotalItems}</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-300 mb-2">Loading States:</div>
+                  <div className="space-y-1 text-gray-400">
+                    <div>Main Loading: {isLoading ? 'Yes' : 'No'}</div>
+                    <div>Ongoing: {dataLoading.ongoing ? 'Yes' : 'No'}</div>
+                    <div>Completed: {dataLoading.completed ? 'Yes' : 'No'}</div>
+                    <div>Switch Games: {dataLoading.switchGames ? 'Yes' : 'No'}</div>
+                    <div>Public: {dataLoading.public ? 'Yes' : 'No'}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </NeumorphicCard>
         </div>
