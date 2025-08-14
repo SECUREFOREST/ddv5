@@ -2105,4 +2105,177 @@ export default function DarePerformerDashboard() {
       )
     }
   ];
+
+  // Check if user is authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <NeumorphicCard variant="glass" className="p-8">
+              <h2 className="text-2xl font-bold text-red-400 mb-4">Authentication Required</h2>
+              <p className="text-red-300 mb-6">
+                Please log in to access the performer dashboard.
+              </p>
+              <button
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Go to Login
+              </button>
+            </NeumorphicCard>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <LoadingSpinner size="lg" color="primary" />
+            <h2 className="text-2xl font-bold text-white mt-4">Loading Dashboard</h2>
+            <p className="text-white/70">Please wait while we load your data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black">
+      <ContentContainer>
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
+          Skip to main content
+        </a>
+        
+        <MainContent className="max-w-6xl mx-auto px-4 py-8">
+          {/* 2025 Header Design */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-4 rounded-2xl bg-neutral-800/80 backdrop-blur-xl border border-white/20 mr-6">
+                <UserIcon className="w-12 h-12 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-white">Performer Dashboard</h1>
+            </div>
+            <p className="text-xl text-white/80 max-w-2xl mx-auto mb-6">
+              Manage your dares and track your progress with intelligent insights
+            </p>
+
+          </div>
+
+          {/* 2025 Error Display */}
+          {error && (
+            <NeumorphicCard variant="pressed" className="mb-8 p-6 border-red-500/30">
+              <div className="flex items-center justify-center gap-3 text-red-300" role="alert" aria-live="assertive">
+                <ExclamationTriangleIcon className="w-6 h-6" />
+                <span className="font-semibold">{error}</span>
+            </div>
+            </NeumorphicCard>
+          )}
+          
+          {/* 2025 Individual Section Errors */}
+          {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
+            <NeumorphicCard key={section} variant="pressed" className="mb-6 p-4 border-orange-500/30" role="alert" aria-live="polite">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-orange-300">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  <span className="capitalize font-medium">{section}: {errorMsg}</span>
+                </div>
+                <button
+                  onClick={fetchData}
+                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  Retry
+                </button>
+              </div>
+            </NeumorphicCard>
+          ))}
+          
+          {/* 2025 Smart Tabs */}
+          <ErrorBoundary>
+            <Tabs
+              tabs={tabs}
+              value={tabs.findIndex(t => t.key === activeTab)}
+              onChange={idx => setActiveTab(tabs[idx].key)}
+              className="mb-8"
+            />
+          </ErrorBoundary>
+          
+          {/* Show loading state for overview tab */}
+          {activeTab === 'overview' && isLoading && (
+            <NeumorphicCard variant="glass" className="p-6 text-center">
+              <LoadingSpinner size="lg" />
+              <p className="text-white/70 mt-4">Loading dashboard data...</p>
+            </NeumorphicCard>
+          )}
+
+          {/* 2025 Empty State - Show when all sections are empty */}
+          {!isLoading && 
+           safeOngoing.length === 0 && 
+           safeCompleted.length === 0 && 
+           safeMySwitchGames.length === 0 && 
+           safePublicDares.length === 0 && 
+           safePublicSwitchGames.length === 0 && (
+            <NeumorphicCard variant="glass" className="p-12 text-center">
+              <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <SparklesIcon className="w-12 h-12 text-purple-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Welcome to Your Dashboard!</h3>
+              <p className="text-white/70 mb-8 max-w-md mx-auto">
+                It looks like you're just getting started. Create your first dare or join a switch game to begin your journey!
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <button
+                  onClick={() => handleQuickAction('create-dare')}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <PlusIcon className="w-6 h-6" />
+                  Create Your First Dare
+                </button>
+                <button
+                  onClick={() => handleQuickAction('create-switch')}
+                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
+                >
+                  <PuzzlePieceIcon className="w-6 h-6" />
+                  Create a Switch Game
+                </button>
+              </div>
+            </NeumorphicCard>
+          )}
+
+          {/* 2025 Smart Notifications */}
+          {notification && (
+            <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl text-white backdrop-blur-xl ${
+              notification.type === 'error' ? 'bg-red-600/90 border border-red-500/50' : 
+              notification.type === 'success' ? 'bg-green-600/90 border border-green-500/50' : 
+              'bg-blue-600/90 border border-blue-500/50'
+            }`} role="alert" aria-live="assertive" aria-atomic="true">
+              <div className="flex items-center gap-3">
+                {notification.type === 'error' && <ExclamationTriangleIcon className="w-5 h-5" />}
+                {notification.type === 'success' && <CheckCircleIcon className="w-5 h-5" />}
+                <span className="font-medium">{notification.message}</span>
+              </div>
+            </div>
+          )}
+        </MainContent>
+      </ContentContainer>
+    </div>
+  );
+}
+
+// Utility function for debouncing
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
