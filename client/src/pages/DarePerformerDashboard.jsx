@@ -2186,41 +2186,23 @@ export default function DarePerformerDashboard() {
                       claimToken={dare.claimToken}
                       actions={
                         <div className="flex gap-2">
-                                                  <button
-                          onClick={() => {
-                            if (dare.claimToken) {
-                              navigate(`/claim/${dare.claimToken}`);
-                            } else {
-                              // If no claim token, this might be an error - log it
-                              console.warn('Public dare missing claim token:', dare._id);
-                              // Still try to use claim URL with dare ID as fallback
-                              navigate(`/claim/${dare._id}`);
-                            }
-                          }}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          title="Start the consent and claim process to perform this dare"
-                        >
-                          <PlayIcon className="w-4 h-4" />
-                          Claim & Perform
-                        </button>
-                                                  <button
-                          onClick={() => {
-                            if (dare.claimToken) {
-                              // Always use claim URL for public dares to ensure consent flow
-                              navigate(`/claim/${dare.claimToken}`);
-                            } else {
-                              // If no claim token, this might be an error - log it
-                              console.warn('Public dare missing claim token:', dare._id);
-                              // Still try to use claim URL with dare ID as fallback
-                              navigate(`/claim/${dare._id}`);
-                            }
-                          }}
-                          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          title="View dare details through consent and claim process"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
+                          <button
+                            onClick={() => {
+                              if (dare.claimToken) {
+                                navigate(`/claim/${dare.claimToken}`);
+                              } else {
+                                // If no claim token, this might be an error - log it
+                                console.warn('Public dare missing claim token:', dare._id);
+                                // Still try to use claim URL with dare ID as fallback
+                                navigate(`/claim/${dare._id}`);
+                              }
+                            }}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            title="Start the consent and claim process to perform this dare"
+                          >
+                            <PlayIcon className="w-4 h-4" />
+                            Claim & Perform
+                          </button>
                         </div>
                       }
                     />
@@ -2364,13 +2346,6 @@ export default function DarePerformerDashboard() {
                         >
                           <UserGroupIcon className="w-4 h-4" />
                           Join Game
-                        </button>
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}`)}
-                          className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-gray-600 hover:to-gray-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
                         </button>
                       </div>
                     }
