@@ -147,6 +147,13 @@ export default function DarePerformerDashboard() {
   // Use the logged-in user's ID instead of URL params
   const currentUserId = user?._id || user?.id;
   
+  // Debug user authentication state
+  console.log('User authentication state:', {
+    hasUser: !!user,
+    userId: currentUserId,
+    userObject: user ? { _id: user._id, id: user.id, username: user.username } : null
+  });
+  
 
   
   // State management with 2025 patterns
@@ -507,12 +514,17 @@ export default function DarePerformerDashboard() {
       
       console.log('Fetching dashboard data with filters:', filtersToUse);
       
-      // Single API call to get all dashboard data using the new stats API
-      const dashboardData = await fetchDashboardData({
+      // Log the exact parameters being sent to the API
+      const apiParams = {
         page: Math.max(activePage, completedPage, switchPage, publicDarePage, publicSwitchPage),
         limit: ITEMS_PER_PAGE,
         ...filtersToUse
-      });
+      };
+      console.log('Exact API parameters being sent:', apiParams);
+      console.log('Current user ID:', currentUserId);
+      
+      // Single API call to get all dashboard data using the new stats API
+      const dashboardData = await fetchDashboardData(apiParams);
       
       console.log('Dashboard data received from stats API:', dashboardData);
       console.log('Stats API response structure:', {
@@ -1260,200 +1272,35 @@ export default function DarePerformerDashboard() {
                 Test Public Filter
               </button>
               <button
-                onClick={() => {
-                  console.log('=== RAW API RESPONSE DEBUG ===');
-                  console.log('Current user ID:', currentUserId);
-                  console.log('All component state:', {
-                    ongoing,
-                    completed,
-                    mySwitchGames,
-                    publicDares,
-                    publicSwitchGames,
-                    summary,
-                    activeTotalItems,
-                    completedTotalItems,
-                    switchTotalItems,
-                    publicDareTotalItems,
-                    publicSwitchTotalItems
-                  });
-                  console.log('Filter states:', {
-                    dareFilters,
-                    switchGameFilters,
-                    publicFilters,
-                    publicSwitchFilters
-                  });
-                  console.log('Pagination states:', {
-                    activePage,
-                    completedPage,
-                    switchPage,
-                    publicDarePage,
-                    publicSwitchPage
-                  });
-                  console.log('=== END DEBUG ===');
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Debug Raw State
-              </button>
-              <button
                 onClick={async () => {
+                  console.log('Testing API endpoint directly...');
                   try {
-                    console.log('=== TESTING API CALL DIRECTLY ===');
-                    console.log('Calling stats API with user ID:', currentUserId);
+                    const token = localStorage.getItem('accessToken');
+                    console.log('Current token:', token ? `${token.substring(0, 20)}...` : 'No token');
+                    console.log('Current user ID:', currentUserId);
                     
-                    const testResponse = await fetchDashboardData({
-                      page: 1,
-                      limit: 8,
-                      dareFilters: {},
-                      switchGameFilters: {},
-                      publicFilters: {},
-                      publicSwitchFilters: {}
+                    // Test the API endpoint directly
+                    const response = await fetch('/api/stats/dashboard?page=1&limit=8', {
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                      }
                     });
                     
-                    console.log('Direct API response:', testResponse);
-                    console.log('Response data structure:', {
-                      hasData: !!testResponse.data,
-                      dataKeys: testResponse.data ? Object.keys(testResponse.data) : [],
-                      dataValues: testResponse.data ? Object.entries(testResponse.data).map(([key, value]) => ({
-                        key,
-                        type: typeof value,
-                        isArray: Array.isArray(value),
-                        length: Array.isArray(value) ? value.length : 'N/A'
-                      })) : [],
-                      summary: testResponse.summary,
-                      pagination: testResponse.pagination
-                    });
-                    
-                    console.log('=== END API TEST ===');
+                    if (response.ok) {
+                      const data = await response.json();
+                      console.log('Direct API response:', data);
+                    } else {
+                      console.error('API request failed:', response.status, response.statusText);
+                    }
                   } catch (error) {
-                    console.error('API test failed:', error);
+                    console.error('Direct API test failed:', error);
                   }
                 }}
                 className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
                 Test API Directly
               </button>
-              <button
-                onClick={async () => {
-                  try {
-                    console.log('=== FORCE SETTING DATA FROM API ===');
-                    
-                    // Get fresh data from API
-                    const freshData = await fetchDashboardData({
-                      page: 1,
-                      limit: 8,
-                      dareFilters: {},
-                      switchGameFilters: {},
-                      publicFilters: {},
-                      publicSwitchFilters: {}
-                    });
-                    
-                    console.log('Fresh API data:', freshData);
-                    
-                    // Force set the data to component state
-                    if (freshData.data) {
-                      setOngoing(freshData.data.activeDares || []);
-                      setCompleted(freshData.data.completedDares || []);
-                      setMySwitchGames(freshData.data.switchGames || []);
-                      setPublicDares(freshData.data.publicDares || []);
-                      setPublicSwitchGames(freshData.data.publicSwitchGames || []);
-                      
-                      console.log('Force set data arrays:', {
-                        ongoing: freshData.data.activeDares?.length || 0,
-                        completed: freshData.data.completedDares?.length || 0,
-                        switchGames: freshData.data.switchGames?.length || 0,
-                        publicDares: freshData.data.publicDares?.length || 0,
-                        publicSwitchGames: freshData.data.publicSwitchGames?.length || 0
-                      });
-                    }
-                    
-                    if (freshData.summary) {
-                      setSummary(freshData.summary);
-                      console.log('Force set summary:', freshData.summary);
-                    }
-                    
-                    if (freshData.pagination) {
-                      // Force set pagination
-                      if (freshData.pagination.activeDares) {
-                        setActiveTotalItems(freshData.pagination.activeDares.total || 0);
-                        setActiveTotalPages(freshData.pagination.activeDares.pages || 1);
-                      }
-                      if (freshData.pagination.completedDares) {
-                        setCompletedTotalItems(freshData.pagination.completedDares.total || 0);
-                        setCompletedTotalPages(freshData.pagination.completedDares.pages || 1);
-                      }
-                      if (freshData.pagination.switchGames) {
-                        setSwitchTotalItems(freshData.pagination.switchGames.total || 0);
-                        setSwitchTotalPages(freshData.pagination.switchGames.pages || 1);
-                      }
-                      if (freshData.pagination.publicDares) {
-                        setPublicDareTotalItems(freshData.pagination.publicDares.total || 0);
-                        setPublicDareTotalPages(freshData.pagination.publicDares.pages || 1);
-                      }
-                      if (freshData.pagination.publicSwitchGames) {
-                        setPublicSwitchTotalItems(freshData.pagination.publicSwitchGames.total || 0);
-                        setPublicSwitchTotalPages(freshData.pagination.publicSwitchGames.pages || 1);
-                      }
-                      
-                      console.log('Force set pagination:', freshData.pagination);
-                    }
-                    
-                    console.log('=== END FORCE SET ===');
-                  } catch (error) {
-                    console.error('Force set failed:', error);
-                  }
-                }}
-                className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Force Set Data
-              </button>
-            </div>
-            
-            {/* Debug State Display */}
-            <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
-              <h4 className="text-lg font-semibold text-white mb-3">Current State Values</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-300 mb-2">Data Arrays:</div>
-                  <div className="space-y-1 text-gray-400">
-                    <div>Ongoing: {ongoing.length}</div>
-                    <div>Completed: {completed.length}</div>
-                    <div>Switch Games: {mySwitchGames.length}</div>
-                    <div>Public Dares: {publicDares.length}</div>
-                    <div>Public Switch: {publicSwitchGames.length}</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-300 mb-2">Summary State:</div>
-                  <div className="space-y-1 text-gray-400">
-                    <div>Active Dares: {summary.totalActiveDares}</div>
-                    <div>Completed Dares: {summary.totalCompletedDares}</div>
-                    <div>Switch Games: {summary.totalSwitchGames}</div>
-                    <div>Public Dares: {summary.totalPublicDares}</div>
-                    <div>Public Switch: {summary.totalPublicSwitchGames}</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-300 mb-2">Pagination Totals:</div>
-                  <div className="space-y-1 text-gray-400">
-                    <div>Active Total: {activeTotalItems}</div>
-                    <div>Completed Total: {completedTotalItems}</div>
-                    <div>Switch Total: {switchTotalItems}</div>
-                    <div>Public Dare Total: {publicDareTotalItems}</div>
-                    <div>Public Switch Total: {publicSwitchTotalItems}</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-300 mb-2">Loading States:</div>
-                  <div className="space-y-1 text-gray-400">
-                    <div>Main Loading: {isLoading ? 'Yes' : 'No'}</div>
-                    <div>Ongoing: {dataLoading.ongoing ? 'Yes' : 'No'}</div>
-                    <div>Completed: {dataLoading.completed ? 'Yes' : 'No'}</div>
-                    <div>Switch Games: {dataLoading.switchGames ? 'Yes' : 'No'}</div>
-                    <div>Public: {dataLoading.public ? 'Yes' : 'No'}</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </NeumorphicCard>
         </div>

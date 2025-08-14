@@ -60,6 +60,19 @@ router.get('/dashboard', auth, [
     const limit = parseInt(req.query.limit) || 8;
     const skip = (page - 1) * limit;
 
+    // Debug logging
+    console.log('Dashboard API called with:', {
+      userId,
+      page,
+      limit,
+      skip,
+      dareFilters: req.query.dareFilters,
+      switchGameFilters: req.query.switchGameFilters,
+      publicFilters: req.query.publicFilters,
+      publicSwitchFilters: req.query.publicSwitchFilters,
+      query: req.query
+    });
+
     // Parse filter parameters
     const dareFilters = req.query.dareFilters ? JSON.parse(req.query.dareFilters) : {};
     const switchGameFilters = req.query.switchGameFilters ? JSON.parse(req.query.switchGameFilters) : {};
@@ -190,11 +203,24 @@ router.get('/dashboard', auth, [
       SwitchGame.find(buildPublicSwitchFilter())
         .populate('creator', 'username fullName avatar')
         .populate('participant', 'username fullName avatar')
+        .populate('winner', 'username fullName avatar')
+        .populate('loser', 'username fullName avatar')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean()
     ]);
+
+    // Debug database query results
+    console.log('Database query results:', {
+      activeDaresCreator: activeDaresCreator.status === 'fulfilled' ? activeDaresCreator.value.length : 'rejected',
+      activeDaresParticipant: activeDaresParticipant.status === 'fulfilled' ? activeDaresParticipant.value.length : 'rejected',
+      completedDaresCreator: completedDaresCreator.status === 'fulfilled' ? completedDaresCreator.value.length : 'rejected',
+      completedDaresParticipant: completedDaresParticipant.status === 'fulfilled' ? completedDaresParticipant.value.length : 'rejected',
+      switchGames: switchGames.status === 'fulfilled' ? switchGames.value.length : 'rejected',
+      publicDares: publicDares.status === 'fulfilled' ? publicDares.value.length : 'rejected',
+      publicSwitchGames: publicSwitchGames.status === 'fulfilled' ? publicSwitchGames.value.length : 'rejected'
+    });
 
     // Get total counts for pagination
     const [
