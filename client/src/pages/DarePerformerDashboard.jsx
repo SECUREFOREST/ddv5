@@ -1,8 +1,25 @@
+/**
+ * DarePerformerDashboard - Performer Dashboard Component
+ * 
+ * This component now uses the new unified stats API (/api/stats/dashboard) instead of
+ * multiple individual API calls. The stats API provides:
+ * - All dashboard data in a single request
+ * - Server-side filtering and pagination
+ * - Unified response structure with data, pagination, and summary
+ * - Better performance and reduced network overhead
+ * 
+ * Key improvements:
+ * - Single API call instead of 5+ separate calls
+ * - Server-side filtering reduces client-side processing
+ * - Unified pagination handling
+ * - Better error handling and fallbacks
+ * - Consistent data structure across all dashboard sections
+ */
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import api from '../api/axios';
 import { validateApiResponse } from '../utils/apiValidation';
 import { API_RESPONSE_TYPES, ERROR_MESSAGES } from '../constants.jsx';
 import { handleApiError } from '../utils/errorHandler';
@@ -187,6 +204,15 @@ export default function DarePerformerDashboard() {
   const [mySwitchGames, setMySwitchGames] = useState([]);
   const [publicDares, setPublicDares] = useState([]);
   const [publicSwitchGames, setPublicSwitchGames] = useState([]);
+  
+  // Summary data from stats API
+  const [summary, setSummary] = useState({
+    totalActiveDares: 0,
+    totalCompletedDares: 0,
+    totalSwitchGames: 0,
+    totalPublicDares: 0,
+    totalPublicSwitchGames: 0
+  });
 
   const [errors, setErrors] = useState({});
   
@@ -456,352 +482,97 @@ export default function DarePerformerDashboard() {
       
       console.log('Fetching dashboard data with filters:', filtersToUse);
       
-      // Single API call to get all dashboard data
+      // Single API call to get all dashboard data using the new stats API
       const dashboardData = await fetchDashboardData({
         page: Math.max(activePage, completedPage, switchPage, publicDarePage, publicSwitchPage),
         limit: ITEMS_PER_PAGE,
         ...filtersToUse
       });
-            
-            const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
-              // Get total counts for active dares (both as creator and participant) with filters
-              Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1${activeDareQueryString}`),
-        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&limit=1${activeDareQueryString}`)
-              ]),
-              // Get total counts for completed dares (both as creator and participant)
-              Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`),
-        api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&limit=1`)
-              ]),
-              // Get total count for switch games using the performer endpoint with filters
-              api.get(`/switches/performer?limit=1${switchGameQueryString}`)
-            ]);
-
-            // Parallel data fetching with server-side filtering and pagination
-            const [ongoingData, completedData, switchData, publicData, publicSwitchData] = await Promise.allSettled([
-              // Active dares: both as creator and participant with server-side pagination and filters
-              Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`),
-        api.get(`/dares?participant=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`)
-              ]),
-              // Completed dares: both as creator and participant with server-side pagination
-              Promise.all([
-                        api.get(`/dares?creator=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`),
-        api.get(`/dares?participant=${currentUserId}&status=completed,graded,chickened_out,rejected,cancelled&page=${completedPage}&limit=${ITEMS_PER_PAGE}`)
-              ]),
-              // Switch games: using performer endpoint with server-side pagination and filters
-              api.get(`/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`),
-              // Public dares with server-side filtering and pagination
-              api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}`),
-              // Public switch games with server-side filtering and pagination
-              api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`),
-
-            ]);
-            
-            // Debug: Log all API calls being made
-            console.log('API calls made:', {
-              activeDares: `/dares?creator=${currentUserId}&status=in_progress,approved,waiting_for_participant&page=${activePage}&limit=${ITEMS_PER_PAGE}${activeDareQueryString}`,
-              switchGames: `/switches/performer?page=${switchPage}&limit=${ITEMS_PER_PAGE}${switchGameQueryString}`,
-              publicDares: `/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicFilters?.difficulty || ''}&dareType=${publicFilters?.dareType || ''}`,
-              publicSwitchGames: `/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}&difficulty=${publicSwitchFilters?.difficulty || ''}`
-            });
       
-                  // Handle successful responses
-            if (ongoingData && ongoingData.status === 'fulfilled') {
-              // Merge dares from both creator and participant responses
-              const allActiveDares = [];
-              let creatorTotal = 0;
-              let participantTotal = 0;
-              
-              if (ongoingData.value && Array.isArray(ongoingData.value)) {
-                ongoingData.value.forEach((response, index) => {
-                  if (response && response.status === 200) {
-                    const responseData = response.data;
-                    if (responseData) {
-                      const dares = responseData.dares || responseData;
-                      const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-                      if (Array.isArray(validatedData)) {
-                        allActiveDares.push(...validatedData);
-                      }
-                      
-                      // Extract pagination metadata for each response
-                      if (responseData.pagination) {
-                        if (index === 0) {
-                          // First response is creator dares
-                          creatorTotal = responseData.pagination.total || 0;
-                        } else if (index === 1) {
-                          // Second response is participant dares
-                          participantTotal = responseData.pagination.total || 0;
-                        }
-                      }
-                    }
-                  }
-                });
-              }
-              
-              // Merge results from creator and participant endpoints (necessary due to dual API calls)
-              // Server-side filtering and pagination is applied to each endpoint separately
-              const uniqueActiveDares = allActiveDares.filter((dare, index, self) => 
-                index === self.findIndex(d => d._id === dare._id)
-              );
-              
-              // Calculate total items from the count API calls
-              let totalActiveItems = 0;
-              if (activeCounts && activeCounts.status === 'fulfilled') {
-                if (activeCounts.value && Array.isArray(activeCounts.value)) {
-                  activeCounts.value.forEach((response, index) => {
-                    if (response && response.status === 200 && response.data && response.data.pagination) {
-                      if (index === 0) {
-                        // Creator dares total
-                        totalActiveItems += response.data.pagination.total || 0;
-                      } else if (index === 1) {
-                        // Participant dares total
-                        totalActiveItems += response.data.pagination.total || 0;
-                      }
-                    }
-                  });
-                }
-              }
-              
-              // Fallback to actual unique dares if count API fails
-              if (totalActiveItems === 0) {
-                totalActiveItems = uniqueActiveDares.length;
-              }
-              
-              // Calculate total pages based on total items
-              const totalActivePages = Math.max(1, Math.ceil(totalActiveItems / ITEMS_PER_PAGE));
-              
-              // Update pagination state
-              setActiveTotalItems(totalActiveItems);
-              setActiveTotalPages(totalActivePages);
-              
-
-              
-              setOngoing(uniqueActiveDares);
-            }
+      console.log('Dashboard data received from stats API:', dashboardData);
+      console.log('Stats API response structure:', {
+        hasData: !!dashboardData.data,
+        hasPagination: !!dashboardData.pagination,
+        hasSummary: !!dashboardData.summary,
+        dataKeys: dashboardData.data ? Object.keys(dashboardData.data) : [],
+        paginationKeys: dashboardData.pagination ? Object.keys(dashboardData.pagination) : [],
+        summaryKeys: dashboardData.summary ? Object.keys(dashboardData.summary) : []
+      });
       
-      if (completedData && completedData.status === 'fulfilled') {
-        // Merge dares from both creator and participant responses
-        const allCompletedDares = [];
-        let creatorTotal = 0;
-        let participantTotal = 0;
-        
-        if (completedData.value && Array.isArray(completedData.value)) {
-          completedData.value.forEach((response, index) => {
-            if (response && response.status === 200) {
-              const responseData = response.data;
-              if (responseData) {
-                const dares = responseData.dares || responseData;
-                const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-                if (Array.isArray(validatedData)) {
-                  allCompletedDares.push(...validatedData);
-                }
-                
-                // Extract pagination metadata for each response
-                if (responseData.pagination) {
-                  if (index === 0) {
-                    // First response is creator dares
-                    creatorTotal = responseData.pagination.total || 0;
-                  } else if (index === 1) {
-                    // Second response is participant dares
-                    participantTotal = responseData.pagination.total || 0;
-                  }
-                }
-              }
-            }
-          });
-        }
-        
-        // Merge results from creator and participant endpoints (necessary due to dual API calls)
-        // Server-side filtering and pagination is applied to each endpoint separately
-        const uniqueCompletedDares = allCompletedDares.filter((dare, index, self) => 
-          index === self.findIndex(d => d._id === dare._id)
-        );
-        
-        // Calculate total items from the count API calls
-        let totalCompletedItems = 0;
-        if (completedCounts && completedCounts.status === 'fulfilled') {
-          if (completedCounts.value && Array.isArray(completedCounts.value)) {
-            completedCounts.value.forEach((response, index) => {
-              if (response && response.status === 200 && response.data && response.data.pagination) {
-                if (index === 0) {
-                  // Creator dares total
-                  totalCompletedItems += response.data.pagination.total || 0;
-                } else if (index === 1) {
-                  // Participant dares total
-                  totalCompletedItems += response.data.pagination.total || 0;
-                }
-              }
-            });
-          }
-        }
-        
-        // Fallback to actual unique dares if count API fails
-        if (totalCompletedItems === 0) {
-          totalCompletedItems = uniqueCompletedDares.length;
-        }
-        
-        // Calculate total pages based on total items
-        const totalCompletedPages = Math.max(1, Math.ceil(totalCompletedItems / ITEMS_PER_PAGE));
-        
-        // Update pagination state
-        setCompletedTotalItems(totalCompletedItems);
-        setCompletedTotalPages(totalCompletedPages);
-
-
-
-        setCompleted(uniqueCompletedDares);
+      // Extract data from the unified response
+      const { data, pagination, summary: summaryData } = dashboardData;
+      
+      // Validate that we have the expected data structure
+      if (!data || typeof data !== 'object') {
+        console.warn('Stats API response missing data structure:', dashboardData);
+        throw new Error('Invalid response structure from stats API');
       }
       
-      if (switchData && switchData.status === 'fulfilled') {
-        // Handle switch games response with pagination
-        const responseData = switchData.value?.data;
-        if (responseData) {
-          const games = responseData.games || responseData;
-          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-          
-          // Debug logging for switch games data
-          console.log('Switch games response data:', responseData);
-          console.log('Validated switch games data:', validatedData);
-          
-          // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
-          // For personal switch games, we only require creator and status - participant is optional
-          const filteredGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            const hasRequiredFields = game && game.creator && game.status;
-            
-            if (!hasRequiredFields) {
-              console.warn('Filtering out personal switch game with missing required fields:', {
-                gameId: game?._id,
-                hasCreator: !!game?.creator,
-                hasParticipant: !!game?.participant,
-                hasStatus: !!game?.status,
-                status: game?.status,
-                gameData: game
-              });
-            }
-            return hasRequiredFields;
-          }) : [];
-          
-          // Log summary of filtering
-          if (validatedData.length !== filteredGames.length) {
-            console.warn(`Filtered out ${validatedData.length - filteredGames.length} switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredGames.length}`);
-          }
-          
-          console.log('Filtered switch games:', filteredGames);
-          
-          // Extract pagination metadata
-          let totalSwitchItems = 0;
-          let totalSwitchPages = 1;
-          
-          if (responseData.pagination) {
-            totalSwitchItems = responseData.pagination.total || 0;
-            totalSwitchPages = responseData.pagination.pages || 1;
-          }
-          
-          // Fallback to actual games if pagination metadata is missing
-          if (totalSwitchItems === 0) {
-            totalSwitchItems = filteredGames.length;
-          }
-          
-          // Update pagination state
-          setSwitchTotalItems(totalSwitchItems);
-          setSwitchTotalPages(totalSwitchPages);
-          
-          setMySwitchGames(filteredGames);
-        }
-      } else if (switchData && switchData.status === 'rejected') {
-        console.error('Switch games data fetch failed:', switchData.reason);
+      // Set data from the unified response with fallbacks
+      setOngoing(Array.isArray(data.activeDares) ? data.activeDares : []);
+      setCompleted(Array.isArray(data.completedDares) ? data.completedDares : []);
+      setMySwitchGames(Array.isArray(data.switchGames) ? data.switchGames : []);
+      setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
+      setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
+      
+      // Set summary data from the unified response with fallbacks
+      setSummary(summaryData || {
+        totalActiveDares: 0,
+        totalCompletedDares: 0,
+        totalSwitchGames: 0,
+        totalPublicDares: 0,
+        totalPublicSwitchGames: 0
+      });
+      
+      // Update pagination state from the unified response
+      if (pagination.activeDares) {
+        setActiveTotalItems(pagination.activeDares.total || 0);
+        setActiveTotalPages(pagination.activeDares.pages || 1);
       }
       
-      if (publicData && publicData.status === 'fulfilled') {
-        // Extract dares from the response structure
-        const responseData = publicData.value?.data;
-        if (responseData) {
-          const dares = responseData?.dares || responseData || [];
-          
-          const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-
-          setPublicDares(Array.isArray(validatedData) ? validatedData : []);
-          
-          // Extract pagination metadata
-          if (responseData.pagination) {
-            setPublicDareTotalItems(responseData.pagination.total || 0);
-            setPublicDareTotalPages(responseData.pagination.pages || 1);
-          }
-        }
+      if (pagination.completedDares) {
+        setCompletedTotalItems(pagination.completedDares.total || 0);
+        setCompletedTotalPages(pagination.completedDares.pages || 1);
       }
       
-      if (publicSwitchData && publicSwitchData.status === 'fulfilled') {
-        const responseData = publicSwitchData.value?.data;
-        if (responseData) {
-          const games = responseData?.switchGames || responseData || [];
-          
-          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-
-          // Filter out games with missing required fields to prevent "Game data is incomplete" warnings
-          const filteredPublicSwitchGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            // For public switch games, participant is only required if the game has been joined
-            // Games waiting for participants are valid without a participant
-            const hasRequiredFields = game && game.creator && game.status;
-            const hasParticipantIfNeeded = game.status === 'waiting_for_participant' || game.participant;
-            
-            if (!hasRequiredFields || !hasParticipantIfNeeded) {
-              console.warn('Filtering out public switch game with missing required fields:', {
-                gameId: game?._id,
-                hasCreator: !!game?.creator,
-                hasParticipant: !!game?.participant,
-                hasStatus: !!game?.status,
-                status: game?.status,
-                gameData: game
-              });
-            }
-            return hasRequiredFields && hasParticipantIfNeeded;
-          }) : [];
-          
-          // Log summary of filtering
-          if (validatedData.length !== filteredPublicSwitchGames.length) {
-            console.warn(`Filtered out ${validatedData.length - filteredPublicSwitchGames.length} public switch games due to missing required fields. Original: ${validatedData.length}, Filtered: ${filteredPublicSwitchGames.length}`);
-          }
-
-          console.log('Main fetchData: Setting filtered public switch games:', filteredPublicSwitchGames);
-          setPublicSwitchGames(filteredPublicSwitchGames);
-          
-          // Extract pagination metadata
-          if (responseData.pagination) {
-            setPublicSwitchTotalItems(responseData.pagination.total || 0);
-            setPublicSwitchTotalPages(responseData.pagination.pages || 1);
-          }
-        }
+      if (pagination.switchGames) {
+        setSwitchTotalItems(pagination.switchGames.total || 0);
+        setSwitchTotalPages(pagination.switchGames.pages || 1);
       }
       
-
+      if (pagination.publicDares) {
+        setPublicDareTotalItems(pagination.publicDares.total || 0);
+        setPublicDareTotalPages(pagination.publicDares.pages || 1);
+      }
       
-      // 2025: Smart error handling with detailed error messages
-      const errors = {};
-      if (ongoingData && ongoingData.status === 'rejected') {
-        errors.ongoing = ongoingData.reason?.message || ERROR_MESSAGES.ONGOING_DARES_LOAD_FAILED;
+      if (pagination.publicSwitchGames) {
+        setPublicSwitchTotalItems(pagination.publicSwitchGames.total || 0);
+        setPublicSwitchTotalPages(pagination.publicSwitchGames.pages || 1);
       }
-      if (completedData && completedData.status === 'rejected') {
-        errors.completed = completedData.reason?.message || ERROR_MESSAGES.COMPLETED_DARES_LOAD_FAILED;
-      }
-      if (switchData && switchData.status === 'rejected') {
-        errors.switchGames = switchData.reason?.message || ERROR_MESSAGES.SWITCH_GAMES_LOAD_FAILED;
-      }
-      if (publicData && publicData.status === 'rejected') {
-        errors.public = publicData.reason?.message || ERROR_MESSAGES.PUBLIC_DARES_LOAD_FAILED;
-      }
-      if (publicSwitchData && publicSwitchData.status === 'rejected') {
-        errors.publicSwitch = publicSwitchData.reason?.message || ERROR_MESSAGES.PUBLIC_SWITCH_GAMES_LOAD_FAILED;
-      }
-
       
-      setErrors(errors);
+      // Clear any previous errors since the API call succeeded
+      setErrors({});
       
     } catch (err) {
       console.error('Failed to fetch dashboard data from API:', err);
       const errorMessage = handleApiError(err, 'dashboard');
       setError(errorMessage);
+      
+      // Set empty arrays on error to prevent undefined errors
+      setOngoing([]);
+      setCompleted([]);
+      setMySwitchGames([]);
+      setPublicDares([]);
+      setPublicSwitchGames([]);
+      
+      // Reset summary data to default values
+      setSummary({
+        totalActiveDares: 0,
+        totalCompletedDares: 0,
+        totalSwitchGames: 0,
+        totalPublicDares: 0,
+        totalPublicSwitchGames: 0
+      });
     } finally {
       setIsLoading(false);
       setDataLoading({
@@ -869,89 +640,78 @@ export default function DarePerformerDashboard() {
       isFetchingRef.current = true;
       setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
       
-      // Build server-side filter query parameters for public dares
-      const publicDareQueryParams = [];
-      if (publicFilters.difficulty) publicDareQueryParams.push(`difficulty=${publicFilters.difficulty}`);
-      if (publicFilters.dareType) publicDareQueryParams.push(`dareType=${publicFilters.dareType}`);
-      const publicDareQueryString = publicDareQueryParams.length > 0 ? `&${publicDareQueryParams.join('&')}` : '';
-      
-      // Build server-side filter query parameters for public switch games
-      const publicSwitchQueryParams = [];
-      if (publicSwitchFilters.difficulty) publicSwitchQueryParams.push(`difficulty=${publicSwitchFilters.difficulty}`);
-      const publicSwitchQueryString = publicSwitchQueryParams.length > 0 ? `&${publicSwitchQueryParams.join('&')}` : '';
-      
-      console.log('Public filters being applied:', { publicFilters, publicSwitchFilters });
-      console.log('Server-side query strings:', { publicDareQueryString, publicSwitchQueryString });
-      
-      // Fetch public data with server-side filtering and pagination
-      const [publicData, publicSwitchData] = await Promise.allSettled([
-        // Public dares with server-side filters and pagination
-        api.get(`/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}${publicDareQueryString}`),
-        // Public switch games with server-side filters and pagination
-        api.get(`/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}${publicSwitchQueryString}`)
-      ]);
-      
-      // Debug: Log public API calls being made
-      console.log('Public API calls made:', {
-        publicDares: `/dares?public=true&page=${publicDarePage}&limit=${ITEMS_PER_PAGE}${publicDareQueryString}`,
-        publicSwitchGames: `/switches?public=true&status=waiting_for_participant&page=${publicSwitchPage}&limit=${ITEMS_PER_PAGE}${publicSwitchQueryString}`
+      // Use the unified stats API to fetch public data with filters
+      const dashboardData = await fetchDashboardData({
+        page: Math.max(publicDarePage, publicSwitchPage),
+        limit: ITEMS_PER_PAGE,
+        publicFilters,
+        publicSwitchFilters
       });
       
-      // Handle public dares response - data already filtered and paginated by server
-      if (publicData && publicData.status === 'fulfilled') {
-        const responseData = publicData.value?.data;
-        if (responseData) {
-          const dares = responseData?.dares || responseData || [];
-          const validatedData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
-          setPublicDares(Array.isArray(validatedData) ? validatedData : []);
-          
-          // Extract server-side pagination metadata
-          if (responseData.pagination) {
-            setPublicDareTotalItems(responseData.pagination.total || 0);
-            setPublicDareTotalPages(responseData.pagination.pages || 1);
-          }
-        }
+      console.log('Public data received from stats API:', dashboardData);
+      console.log('Public data API response structure:', {
+        hasData: !!dashboardData.data,
+        hasPagination: !!dashboardData.pagination,
+        hasSummary: !!dashboardData.summary,
+        publicDaresCount: dashboardData.data?.publicDares?.length || 0,
+        publicSwitchGamesCount: dashboardData.data?.publicSwitchGames?.length || 0,
+        paginationKeys: dashboardData.pagination ? Object.keys(dashboardData.pagination) : [],
+        summaryKeys: dashboardData.summary ? Object.keys(dashboardData.summary) : []
+      });
+      
+      // Extract public data from the unified response
+      const { data, pagination, summary: summaryData } = dashboardData;
+      
+      // Validate that we have the expected data structure
+      if (!data || typeof data !== 'object') {
+        console.warn('Stats API response missing data structure for public data:', dashboardData);
+        throw new Error('Invalid response structure from stats API for public data');
       }
       
-      // Handle public switch games response - data already filtered and paginated by server
-      if (publicSwitchData && publicSwitchData.status === 'fulfilled') {
-        const responseData = publicSwitchData.value?.data;
-        if (responseData) {
-          const games = responseData?.switchGames || responseData || [];
-          const validatedData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
-          
-          // Only basic validation - no client-side filtering
-          const validGames = Array.isArray(validatedData) ? validatedData.filter(game => {
-            return game && game.creator && game.status;
-          }) : [];
-          
-          setPublicSwitchGames(validGames);
-          
-          // Extract server-side pagination metadata
-          if (responseData.pagination) {
-            setPublicSwitchTotalItems(responseData.pagination.total || 0);
-            setPublicSwitchTotalPages(responseData.pagination.pages || 1);
-          }
-        }
+      // Set public data from the unified response with fallbacks
+      setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
+      setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
+      
+      // Update summary data for public content
+      if (summaryData) {
+        setSummary(prev => ({
+          ...prev,
+          totalPublicDares: summaryData.totalPublicDares || 0,
+          totalPublicSwitchGames: summaryData.totalPublicSwitchGames || 0
+        }));
       }
       
-      // Handle errors
-      const errors = {};
-      if (publicData && publicData.status === 'rejected') {
-        errors.public = publicData.reason?.message || 'Failed to load public dares';
-      }
-      if (publicSwitchData && publicSwitchData.status === 'rejected') {
-        errors.publicSwitch = publicSwitchData.reason?.message || 'Failed to load public switch games';
+      // Update pagination state from the unified response
+      if (pagination.publicDares) {
+        setPublicDareTotalItems(pagination.publicDares.total || 0);
+        setPublicDareTotalPages(pagination.publicDares.pages || 1);
       }
       
+      if (pagination.publicSwitchGames) {
+        setPublicSwitchTotalItems(pagination.publicSwitchGames.total || 0);
+        setPublicSwitchTotalPages(pagination.publicSwitchGames.pages || 1);
+      }
+      
+      // Clear any previous errors since the API call succeeded
       if (Object.keys(errors).length > 0) {
-        setErrors(prev => ({ ...prev, ...errors }));
+        setErrors(prev => ({ ...prev, public: null, publicSwitch: null }));
       }
       
     } catch (err) {
       console.error('Failed to fetch public data with filters:', err);
       const errorMessage = handleApiError(err, 'public data');
       setError(errorMessage);
+      
+      // Set empty arrays on error to prevent undefined errors
+      setPublicDares([]);
+      setPublicSwitchGames([]);
+      
+      // Reset public summary data to default values
+      setSummary(prev => ({
+        ...prev,
+        totalPublicDares: 0,
+        totalPublicSwitchGames: 0
+      }));
     } finally {
       setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
       isFetchingRef.current = false; // Reset the fetching flag
@@ -1211,7 +971,7 @@ export default function DarePerformerDashboard() {
                         <LoadingSpinner size="sm" />
                         ...
                       </div>
-                    ) : activeTotalItems}
+                    ) : summary.totalActiveDares}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Active Dares</div>
                 </div>
@@ -1235,7 +995,7 @@ export default function DarePerformerDashboard() {
                         <LoadingSpinner size="sm" />
                         ...
                       </div>
-                    ) : completedTotalItems}
+                    ) : summary.totalCompletedDares}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Completed</div>
                 </div>
@@ -1259,7 +1019,7 @@ export default function DarePerformerDashboard() {
                         <LoadingSpinner size="sm" />
                         ...
                       </div>
-                    ) : switchTotalItems}
+                    ) : summary.totalSwitchGames}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Switch Games</div>
                 </div>
@@ -1283,7 +1043,7 @@ export default function DarePerformerDashboard() {
                         <LoadingSpinner size="sm" />
                         ...
                       </div>
-                    ) : (safePublicDares.length + safePublicSwitchGames.length)}
+                    ) : (summary.totalPublicDares + summary.totalPublicSwitchGames)}
                   </div>
                   <div className="text-sm text-white/70 mb-2">Available</div>
                 </div>
@@ -2156,365 +1916,4 @@ export default function DarePerformerDashboard() {
                                 // If no claim token, this might be an error - log it
                                 console.warn('Public dare missing claim token:', dare._id);
                                 // Still try to use claim URL with dare ID as fallback
-                                navigate(`/claim/${dare._id}`);
-                              }
-                            }}
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                            title="Start the consent and claim process to perform this dare"
-                          >
-                            <PlayIcon className="w-4 h-4" />
-                            Claim & Perform
-                          </button>
-                        </div>
-                      }
-                    />
-                  );
-                })}
-                
-                {/* Show message if no dares */}
-                {safePublicDares.length === 0 && !dataLoading.public && (
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <SparklesIcon className="w-6 h-6 text-orange-400" />
-                    </div>
-                    <h4 className="text-md font-semibold text-white mb-2">No Public Dares Found</h4>
-                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
-                  </div>
-                )}
-                
-                {/* Public Dares Pagination */}
-                {publicDareTotalPages > 1 && (
-                  <div className="mt-6">
-                    <Pagination
-                      currentPage={publicDarePage}
-                      totalPages={publicDareTotalPages}
-                      onPageChange={setPublicDarePage}
-                      totalItems={publicDareTotalItems}
-                      itemsPerPage={ITEMS_PER_PAGE}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </NeumorphicCard>
-
-          {/* Public Switch Games Section */}
-          <NeumorphicCard variant="glass" className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                <FireIcon className="w-6 h-6 text-purple-400" />
-                Public Switch Games ({publicSwitchTotalItems})
-                {(dataLoading.public || dataLoading.publicSwitch) && (
-                  <div className="flex items-center gap-2 text-sm text-blue-400">
-                    <LoadingSpinner size="sm" />
-                    Applying filters...
-                  </div>
-                )}
-              </h3>
-              {/* Debug info */}
-              <div className="text-xs text-white/50">
-                Filters: {JSON.stringify(publicSwitchFilters)}
-              </div>
-              <div className="flex items-center gap-4">
-                {/* Difficulty Filter */}
-                <FormSelect
-                  label="Difficulty"
-                  value={publicSwitchFilters.difficulty}
-                  onChange={(e) => {
-                    console.log('Public switch difficulty FormSelect onChange triggered:', e.target.value);
-                    handlePublicFilterChange('difficulty', e.target.value);
-                  }}
-                  options={[
-                    { value: '', label: 'All Difficulties' },
-                    ...DIFFICULTY_OPTIONS.map(diff => ({ value: diff.value, label: diff.label }))
-                  ]}
-                  className="w-40"
-                />
-                
-                <button
-                  onClick={fetchPublicDataWithFilters}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center gap-2"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  <ArrowPathIcon className={`w-4 h-4 ${(dataLoading.public || dataLoading.publicSwitch) ? 'animate-spin' : ''}`} />
-                  Refresh
-                </button>
-                <button
-                  onClick={clearPublicFilters}
-                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200"
-                  disabled={dataLoading.public || dataLoading.publicSwitch}
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            </div>
-            
-            {/* Show info about filtered games if any were removed due to incomplete data */}
-            {publicSwitchGames.length !== safePublicSwitchGames.length && (
-              <div className="mb-4 p-3 bg-amber-900/20 border border-amber-700/50 rounded text-sm">
-                <div className="text-amber-400">
-                  <strong>Note:</strong> Some public switch games were filtered out due to incomplete data. This is usually a temporary issue.
-                </div>
-                <div className="text-amber-300 text-xs mt-1">
-                  Showing {safePublicSwitchGames.length} of {publicSwitchGames.length} games. Try refreshing the page.
-                </div>
-              </div>
-            )}
-            {dataLoading.publicSwitch ? (
-              <div className="text-center py-8">
-                <LoadingSpinner size="lg" />
-                <p className="text-white/70 mt-4">Loading public switch games...</p>
-              </div>
-            ) : safePublicSwitchGames.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <FireIcon className="w-6 h-6 text-purple-400" />
-                </div>
-                <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games</h4>
-                <p className="text-white/70 mb-4 text-sm">No public switch games are available at the moment.</p>
-                <button
-                  onClick={() => handleQuickAction('create-switch')}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Create a Game
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {safePublicSwitchGames.length > 0 && safePublicSwitchGames.map((game) => (
-                  <SwitchGameCard 
-                    key={game._id} 
-                    game={game}
-                    currentUserId={currentUserId}
-                    onSubmitProof={async (formData) => {
-                      try {
-                        await api.post(`/switches/${game._id}/proof`, formData, {
-                          headers: { 'Content-Type': 'multipart/form-data' },
-                        });
-                        showSuccess('Proof submitted successfully!');
-                        // Refresh the data
-                        fetchPublicDataWithFilters();
-                      } catch (error) {
-                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                        showError(errorMessage);
-                        throw error; // Re-throw so the component can handle it
-                      }
-                    }}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/switches/claim/${game._id}`)}
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <UserGroupIcon className="w-4 h-4" />
-                          Join Game
-                        </button>
-                      </div>
-                    }
-                  />
-                ))}
-                
-                {/* Show message if no switch games */}
-                {safePublicSwitchGames.length === 0 && !dataLoading.publicSwitch && (
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <FireIcon className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <h4 className="text-md font-semibold text-white mb-2">No Public Switch Games Found</h4>
-                    <p className="text-white/70 mb-4 text-sm">Try adjusting your filters or search terms.</p>
-                  </div>
-                )}
-                
-                {/* Public Switch Games Pagination */}
-                {publicSwitchTotalPages > 1 && (
-                  <div className="mt-6">
-                    <Pagination
-                      currentPage={publicSwitchPage}
-                      totalPages={publicSwitchTotalPages}
-                      onPageChange={setPublicSwitchPage}
-                      totalItems={publicSwitchTotalItems}
-                      itemsPerPage={ITEMS_PER_PAGE}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </NeumorphicCard>
-        </div>
-      )
-    }
-  ];
-
-  // Check if user is authenticated
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-black">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="text-center py-16">
-            <NeumorphicCard variant="glass" className="p-8">
-              <h2 className="text-2xl font-bold text-red-400 mb-4">Authentication Required</h2>
-              <p className="text-red-300 mb-6">
-                Please log in to access the performer dashboard.
-              </p>
-              <button
-                onClick={() => navigate('/login')}
-                className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Go to Login
-              </button>
-            </NeumorphicCard>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="text-center py-16">
-            <LoadingSpinner size="lg" color="primary" />
-            <h2 className="text-2xl font-bold text-white mt-4">Loading Dashboard</h2>
-            <p className="text-white/70">Please wait while we load your data...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-black">
-      <ContentContainer>
-        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-purple-600 text-white px-4 py-2 rounded z-50">
-          Skip to main content
-        </a>
-        
-        <MainContent className="max-w-6xl mx-auto px-4 py-8">
-          {/* 2025 Header Design */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <div className="p-4 rounded-2xl bg-neutral-800/80 backdrop-blur-xl border border-white/20 mr-6">
-                <UserIcon className="w-12 h-12 text-white" />
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white">Performer Dashboard</h1>
-            </div>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto mb-6">
-              Manage your dares and track your progress with intelligent insights
-            </p>
-
-          </div>
-
-          {/* 2025 Error Display */}
-          {error && (
-            <NeumorphicCard variant="pressed" className="mb-8 p-6 border-red-500/30">
-              <div className="flex items-center justify-center gap-3 text-red-300" role="alert" aria-live="assertive">
-                <ExclamationTriangleIcon className="w-6 h-6" />
-                <span className="font-semibold">{error}</span>
-            </div>
-            </NeumorphicCard>
-          )}
-          
-          {/* 2025 Individual Section Errors */}
-          {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
-            <NeumorphicCard key={section} variant="pressed" className="mb-6 p-4 border-orange-500/30" role="alert" aria-live="polite">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-orange-300">
-                  <ExclamationTriangleIcon className="w-5 h-5" />
-                  <span className="capitalize font-medium">{section}: {errorMsg}</span>
-                </div>
-                <button
-                  onClick={fetchData}
-                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
-                >
-                  <ArrowPathIcon className="w-4 h-4" />
-                  Retry
-                </button>
-              </div>
-            </NeumorphicCard>
-          ))}
-          
-          {/* 2025 Smart Tabs */}
-          <ErrorBoundary>
-            <Tabs
-              tabs={tabs}
-              value={tabs.findIndex(t => t.key === activeTab)}
-              onChange={idx => setActiveTab(tabs[idx].key)}
-              className="mb-8"
-            />
-          </ErrorBoundary>
-          
-          {/* Show loading state for overview tab */}
-          {activeTab === 'overview' && isLoading && (
-            <NeumorphicCard variant="glass" className="p-6 text-center">
-              <LoadingSpinner size="lg" />
-              <p className="text-white/70 mt-4">Loading dashboard data...</p>
-            </NeumorphicCard>
-          )}
-
-          {/* 2025 Empty State - Show when all sections are empty */}
-          {!isLoading && 
-           safeOngoing.length === 0 && 
-           safeCompleted.length === 0 && 
-           safeMySwitchGames.length === 0 && 
-           safePublicDares.length === 0 && 
-           safePublicSwitchGames.length === 0 && (
-            <NeumorphicCard variant="glass" className="p-12 text-center">
-              <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <SparklesIcon className="w-12 h-12 text-purple-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Welcome to Your Dashboard!</h3>
-              <p className="text-white/70 mb-8 max-w-md mx-auto">
-                It looks like you're just getting started. Create your first dare or join a switch game to begin your journey!
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={() => handleQuickAction('create-dare')}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <PlusIcon className="w-6 h-6" />
-                  Create Your First Dare
-                </button>
-                <button
-                  onClick={() => handleQuickAction('create-switch')}
-                  className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-6 py-3 text-base font-semibold shadow-lg flex items-center gap-2 hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500"
-                >
-                  <PuzzlePieceIcon className="w-6 h-6" />
-                  Create a Switch Game
-                </button>
-              </div>
-            </NeumorphicCard>
-          )}
-
-          {/* 2025 Smart Notifications */}
-          {notification && (
-            <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl text-white backdrop-blur-xl ${
-              notification.type === 'error' ? 'bg-red-600/90 border border-red-500/50' : 
-              notification.type === 'success' ? 'bg-green-600/90 border border-green-500/50' : 
-              'bg-blue-600/90 border border-blue-500/50'
-            }`} role="alert" aria-live="assertive" aria-atomic="true">
-              <div className="flex items-center gap-3">
-                {notification.type === 'error' && <ExclamationTriangleIcon className="w-5 h-5" />}
-                {notification.type === 'success' && <CheckCircleIcon className="w-5 h-5" />}
-                <span className="font-medium">{notification.message}</span>
-              </div>
-            </div>
-          )}
-        </MainContent>
-      </ContentContainer>
-    </div>
-  );
-}
-
-// Utility function for debouncing
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
+                                navigate(`
