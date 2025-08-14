@@ -1844,11 +1844,6 @@ export default function DarePerformerDashboard() {
                 )}
               </h3>
               
-              {/* Claim system info */}
-              <div className="text-xs text-white/60 max-w-xs">
-                💡 <strong>Consent First:</strong> Both buttons lead through the consent and claim process for safety
-              </div>
-
               <div className="flex items-center gap-4">
                 {/* Difficulty Filter */}
                 <FormSelect
@@ -2052,6 +2047,7 @@ export default function DarePerformerDashboard() {
                     key={game._id} 
                     game={game}
                     currentUserId={currentUserId}
+                    hideShareButton={true}
                     onSubmitProof={async (formData) => {
                       try {
                         await api.post(`/switches/${game._id}/proof`, formData, {

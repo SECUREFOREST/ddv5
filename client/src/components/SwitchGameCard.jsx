@@ -50,7 +50,7 @@ function Tag({ tag }) {
   );
 }
 
-export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, onFixGameState, ...props }) {
+export default function SwitchGameCard({ game, currentUserId, actions, className = '', onSubmitProof, onReviewProof, onGrade, onChickenOut, onFixGameState, hideShareButton = false, ...props }) {
   const [proofText, setProofText] = useState('');
   const [expireAfterView, setExpireAfterView] = useState(false);
   const [submittingProof, setSubmittingProof] = useState(false);
@@ -572,8 +572,8 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
 
       {/* Actions Section */}
       <div className="flex items-center justify-end gap-2 mt-4">
-        {/* Share Button - Only show for creator or if game is waiting for participant */}
-        {(isCreator || (game.status === 'waiting_for_participant' && !game.participant)) && (
+        {/* Share Button - Only show for creator or if game is waiting for participant, and not hidden */}
+        {!hideShareButton && (isCreator || (game.status === 'waiting_for_participant' && !game.participant)) && (
           <button 
             className="bg-green-600 text-white rounded px-2 py-1 text-xs font-semibold shadow-lg hover:bg-green-700 transition-colors flex items-center gap-1" 
             onClick={handleShare}
