@@ -467,7 +467,7 @@ export default function DarePerformerDashboard() {
       setIsLoading(true);
       setError(null);
       
-
+      
       
       // Single API call to get all dashboard data using the new stats API
       const dashboardData = await fetchDashboardData({
@@ -1544,10 +1544,7 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
-              {/* Debug info */}
-              <div className="text-xs text-white/50">
-                Filters: {JSON.stringify(switchGameFilters)}
-              </div>
+
               <div className="flex items-center gap-4">
                 <FormSelect
                   label="Difficulty"
@@ -1776,36 +1773,36 @@ export default function DarePerformerDashboard() {
               return (
                 <div className="space-y-4">
                   {completedGames.map((game, index) => (
-                    <SwitchGameCard 
-                      key={game._id} 
-                      game={game}
-                      currentUserId={currentUserId}
-                      onSubmitProof={async (formData) => {
-                        try {
-                          await api.post(`/switches/${game._id}/proof`, formData, {
-                            headers: { 'Content-Type': 'multipart/form-data' },
-                          });
-                          showSuccess('Proof submitted successfully!');
-                          // Refresh the data
-                          fetchData();
-                        } catch (error) {
-                          const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                          showError(errorMessage);
-                          throw error; // Re-throw so the component can handle it
+                      <SwitchGameCard 
+                        key={game._id} 
+                        game={game}
+                        currentUserId={currentUserId}
+                        onSubmitProof={async (formData) => {
+                          try {
+                            await api.post(`/switches/${game._id}/proof`, formData, {
+                              headers: { 'Content-Type': 'multipart/form-data' },
+                            });
+                            showSuccess('Proof submitted successfully!');
+                            // Refresh the data
+                            fetchData();
+                          } catch (error) {
+                            const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
+                            showError(errorMessage);
+                            throw error; // Re-throw so the component can handle it
+                          }
+                        }}
+                        actions={
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => navigate(`/switches/${game._id}`)}
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                            >
+                              <EyeIcon className="w-4 h-4" />
+                              View Details
+                            </button>
+                          </div>
                         }
-                      }}
-                      actions={
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => navigate(`/switches/${game._id}`)}
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          >
-                            <EyeIcon className="w-4 h-4" />
-                            View Details
-                          </button>
-                        </div>
-                      }
-                    />
+                      />
                   ))}
                 
                   {/* Completed Switch Games Pagination */}
@@ -1851,10 +1848,7 @@ export default function DarePerformerDashboard() {
               <div className="text-xs text-white/60 max-w-xs">
                 💡 <strong>Consent First:</strong> Both buttons lead through the consent and claim process for safety
               </div>
-              {/* Debug info */}
-              <div className="text-xs text-white/50">
-                Filters: {JSON.stringify(publicFilters)}
-              </div>
+
               <div className="flex items-center gap-4">
                 {/* Difficulty Filter */}
                 <FormSelect
@@ -1989,10 +1983,7 @@ export default function DarePerformerDashboard() {
                   </div>
                 )}
               </h3>
-              {/* Debug info */}
-              <div className="text-xs text-white/50">
-                Filters: {JSON.stringify(publicSwitchFilters)}
-              </div>
+
               <div className="flex items-center gap-4">
                 {/* Difficulty Filter */}
                 <FormSelect
@@ -2190,30 +2181,9 @@ export default function DarePerformerDashboard() {
             </NeumorphicCard>
           )}
           
-          {/* 2025 Request Status Display */}
-          {isFetchingRef.current && (
-            <NeumorphicCard variant="glass" className="mb-6 p-4 border-blue-500/30">
-              <div className="flex items-center justify-center gap-3 text-blue-300">
-                <LoadingSpinner size="sm" />
-                <span className="font-medium">Fetching dashboard data...</span>
-              </div>
-            </NeumorphicCard>
-          )}
+
           
-          {/* 2025 Request Deduplication Info */}
-          {lastFetchRef.current?.key && !isFetchingRef.current && lastFetchTimeRef.current && (
-            <NeumorphicCard variant="glass" className="mb-6 p-4 border-green-500/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-green-300">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span className="font-medium">Data loaded successfully</span>
-                </div>
-                <div className="text-xs text-green-400">
-                  Last updated: {new Date(lastFetchTimeRef.current).toLocaleTimeString()}
-                </div>
-            </div>
-            </NeumorphicCard>
-          )}
+
           
           {/* 2025 Individual Section Errors */}
           {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
