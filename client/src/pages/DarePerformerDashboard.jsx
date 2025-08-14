@@ -1884,9 +1884,8 @@ export default function DarePerformerDashboard() {
                 // Filter for actually completed games
                 const completedGames = safeMySwitchGames.filter(game => {
                   const isCompleted = game.status === 'completed' || 
-                    game.status === 'proof_submitted' || 
-                    game.status === 'awaiting_proof' ||
-                    (game.winner && game.winner !== 'N/A');
+                    game.status === 'proof_submitted' ||
+                    (game.winner && game.winner !== 'N/A' && game.status !== 'awaiting_proof');
                   
                   // Debug logging
                   console.log(`Game ${game._id} status: ${game.status}, winner: ${game.winner}, isCompleted: ${isCompleted}`);
@@ -1912,7 +1911,7 @@ export default function DarePerformerDashboard() {
             
             {/* Info about what constitutes a completed game */}
             <div className="text-xs text-white/60 mb-4">
-              💡 <strong>Completed games</strong> include: finished games, proof submitted, awaiting proof, or games with winners
+              💡 <strong>Completed games</strong> include: finished games, proof submitted, or games with winners (excluding games awaiting proof)
             </div>
             
             {/* Show loading state */}
@@ -1940,9 +1939,8 @@ export default function DarePerformerDashboard() {
               // Filter for actually completed games
               const completedGames = safeMySwitchGames.filter(game => 
                 game.status === 'completed' || 
-                game.status === 'proof_submitted' || 
-                game.status === 'awaiting_proof' ||
-                (game.winner && game.winner !== 'N/A')
+                game.status === 'proof_submitted' ||
+                (game.winner && game.winner !== 'N/A' && game.status !== 'awaiting_proof')
               );
               
               console.log('Filtered completed games:', {
