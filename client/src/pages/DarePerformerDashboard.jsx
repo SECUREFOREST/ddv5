@@ -308,10 +308,10 @@ export default function DarePerformerDashboard() {
   const shouldSkipRequest = (filters, page, limit) => {
     const requestKey = createRequestKey(filters, page, limit);
     const now = Date.now();
-    const timeSinceLastFetch = now - lastFetchTimeRef.current;
+    const timeSinceLastFetch = now - (lastFetchTimeRef.current || 0);
     
     // Skip if this is the same request as last time
-    if (lastFetchRef.current.key === requestKey) {
+    if (lastFetchRef.current?.key === requestKey) {
       console.log('Skipping duplicate request:', requestKey);
       return true;
     }
@@ -500,9 +500,9 @@ export default function DarePerformerDashboard() {
   useEffect(() => {
     console.log('Request tracking state:', {
       isFetching: isFetchingRef.current,
-      lastFetchKey: lastFetchRef.current.key,
-      lastFetchTime: lastFetchTimeRef.current,
-      timeSinceLastFetch: Date.now() - lastFetchTimeRef.current
+      lastFetchKey: lastFetchRef.current?.key || null,
+      lastFetchTime: lastFetchTimeRef.current || null,
+      timeSinceLastFetch: lastFetchTimeRef.current ? Date.now() - lastFetchTimeRef.current : null
     });
   }, [ongoing, completed, mySwitchGames, publicDares, publicSwitchGames]);
 
@@ -977,6 +977,34 @@ export default function DarePerformerDashboard() {
     }
   };
   
+  // Manual refresh function that bypasses deduplication
+  const forceRefresh = useCallback(async () => {
+    if (!currentUserId) return;
+    
+    console.log('Force refresh triggered - bypassing deduplication');
+    
+    // Reset request tracking to allow immediate refresh
+    lastFetchRef.current = {};
+    lastFetchTimeRef.current = 0;
+    
+    // Force fetch data
+    await fetchData();
+  }, [currentUserId, fetchData]);
+
+  // Manual refresh function for public data
+  const forceRefreshPublic = useCallback(async () => {
+    if (!currentUserId) return;
+    
+    console.log('Force refresh public data triggered - bypassing deduplication');
+    
+    // Reset request tracking to allow immediate refresh
+    lastFetchRef.current = {};
+    lastFetchTimeRef.current = 0;
+    
+    // Force fetch public data
+    await fetchPublicDataWithFilters();
+  }, [currentUserId, fetchPublicDataWithFilters]);
+  
 
   
   // Effects
@@ -1381,9 +1409,9 @@ export default function DarePerformerDashboard() {
                   console.log('Current filter state:', { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters });
                   console.log('Request tracking state:', {
                     isFetching: isFetchingRef.current,
-                    lastFetchKey: lastFetchRef.current.key,
-                    lastFetchTime: lastFetchRef.current.time,
-                    timeSinceLastFetch: Date.now() - lastFetchTimeRef.current
+                    lastFetchKey: lastFetchRef.current?.key || null,
+                    lastFetchTime: lastFetchTimeRef.current || null,
+                    timeSinceLastFetch: lastFetchTimeRef.current ? Date.now() - lastFetchTimeRef.current : null
                   });
                 }}
                 className="bg-gray-600 hover:bg-gray-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
@@ -2376,34 +2404,6 @@ export default function DarePerformerDashboard() {
     );
   }
 
-  // Manual refresh function that bypasses deduplication
-  const forceRefresh = useCallback(async () => {
-    if (!currentUserId) return;
-    
-    console.log('Force refresh triggered - bypassing deduplication');
-    
-    // Reset request tracking to allow immediate refresh
-    lastFetchRef.current = {};
-    lastFetchTimeRef.current = 0;
-    
-    // Force fetch data
-    await fetchData();
-  }, [currentUserId, fetchData]);
-
-  // Manual refresh function for public data
-  const forceRefreshPublic = useCallback(async () => {
-    if (!currentUserId) return;
-    
-    console.log('Force refresh public data triggered - bypassing deduplication');
-    
-    // Reset request tracking to allow immediate refresh
-    lastFetchRef.current = {};
-    lastFetchTimeRef.current = 0;
-    
-    // Force fetch public data
-    await fetchPublicDataWithFilters();
-  }, [currentUserId, fetchPublicDataWithFilters]);
-
   return (
     <div className="min-h-screen bg-black">
       <ContentContainer>
@@ -2447,7 +2447,7 @@ export default function DarePerformerDashboard() {
           )}
           
           {/* 2025 Request Deduplication Info */}
-          {lastFetchRef.current.key && !isFetchingRef.current && (
+          {lastFetchRef.current?.key && !isFetchingRef.current && lastFetchTimeRef.current && (
             <NeumorphicCard variant="glass" className="mb-6 p-4 border-green-500/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-green-300">
