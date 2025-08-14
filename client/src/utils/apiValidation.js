@@ -15,7 +15,10 @@ export function validateApiResponse(response, expectedType) {
   // Handle different response formats
   let data = null;
   
-  if (response.data !== undefined) {
+  if (expectedType === API_RESPONSE_TYPES.DASHBOARD) {
+    // For dashboard, keep the full response structure
+    data = response;
+  } else if (response.data !== undefined) {
     // Standard format: { data: ..., pagination: ... }
     data = response.data;
   } else if (Array.isArray(response)) {
@@ -61,7 +64,7 @@ export function validateApiResponse(response, expectedType) {
         summaryKeys: data.summary ? Object.keys(data.summary) : []
       });
       
-      // The dashboard response should have data, pagination, and summary
+      // The dashboard response should have data, pagination, and summary at the top level
       const isValidDashboard = typeof data === 'object' && data !== null && 
                               data.data && data.pagination && data.summary;
       
