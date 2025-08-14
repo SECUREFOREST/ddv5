@@ -38,13 +38,10 @@ router.get('/health', async (req, res) => {
 router.get('/dashboard', auth, [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  query('dareFilters.difficulty').optional().isString().withMessage('Dare difficulty filter must be a string'),
-  query('dareFilters.status').optional().isString().withMessage('Dare status filter must be a string'),
-  query('switchGameFilters.difficulty').optional().isString().withMessage('Switch game difficulty filter must be a string'),
-  query('switchGameFilters.status').optional().isString().withMessage('Switch game status filter must be a string'),
-  query('publicFilters.difficulty').optional().isString().withMessage('Public difficulty filter must be a string'),
-  query('publicFilters.dareType').optional().isString().withMessage('Public dare type filter must be a string'),
-  query('publicSwitchFilters.difficulty').optional().isString().withMessage('Public switch difficulty filter must be a string')
+  query('dareFilters').optional().isString().withMessage('Dare filters must be a JSON string'),
+  query('switchGameFilters').optional().isString().withMessage('Switch game filters must be a JSON string'),
+  query('publicFilters').optional().isString().withMessage('Public filters must be a JSON string'),
+  query('publicSwitchFilters').optional().isString().withMessage('Public switch filters must be a JSON string')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -60,11 +57,38 @@ router.get('/dashboard', auth, [
     const limit = parseInt(req.query.limit) || 8;
     const skip = (page - 1) * limit;
 
-    // Parse filter parameters
-    const dareFilters = req.query.dareFilters ? JSON.parse(req.query.dareFilters) : {};
-    const switchGameFilters = req.query.switchGameFilters ? JSON.parse(req.query.switchGameFilters) : {};
-    const publicFilters = req.query.publicFilters ? JSON.parse(req.query.publicFilters) : {};
-    const publicSwitchFilters = req.query.publicSwitchFilters ? JSON.parse(req.query.publicSwitchFilters) : {};
+    // Parse filter parameters - handle both JSON strings and individual parameters
+    let dareFilters = {};
+    let switchGameFilters = {};
+    let publicFilters = {};
+    let publicSwitchFilters = {};
+
+    try {
+      // Try to parse JSON filter objects first
+      if (req.query.dareFilters) {
+        dareFilters = JSON.parse(req.query.dareFilters);
+      }
+      if (req.query.switchGameFilters) {
+        switchGameFilters = JSON.parse(req.query.switchGameFilters);
+      }
+      if (req.query.publicFilters) {
+        publicFilters = JSON.parse(req.query.publicFilters);
+      }
+      if (req.query.publicSwitchFilters) {
+        publicSwitchFilters = JSON.parse(req.query.publicSwitchFilters);
+      }
+    } catch (parseError) {
+      console.warn('Failed to parse filter JSON, using empty filters:', parseError.message);
+      // Continue with empty filters if JSON parsing fails
+    }
+
+    // Log the parsed filters for debugging
+    console.log('Parsed filters:', {
+      dareFilters,
+      switchGameFilters,
+      publicFilters,
+      publicSwitchFilters
+    });
 
     // Build filter queries
     const buildDareFilter = (baseFilter = {}) => {
@@ -176,23 +200,21 @@ router.get('/dashboard', auth, [
         .limit(limit)
         .lean(),
 
-      // Public dares
+      // Public dares - always fetch first page for overview
       Dare.find(buildPublicDareFilter())
         .populate('creator', 'username fullName avatar')
         .populate('performer', 'username fullName avatar')
         .populate('assignedSwitch', 'username fullName avatar')
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
+        .limit(limit) // Always fetch first page for public content
         .lean(),
 
-      // Public switch games
+      // Public switch games - always fetch first page for overview
       SwitchGame.find(buildPublicSwitchFilter())
         .populate('creator', 'username fullName avatar')
         .populate('participant', 'username fullName avatar')
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
+        .limit(limit) // Always fetch first page for public content
         .lean()
     ]);
 
@@ -298,52 +320,96 @@ router.get('/dashboard', auth, [
     // Build response
     const response = {
       data: {
-        activeDares: uniqueActiveDares,
-        completedDares: uniqueCompletedDares,
-        switchGames: processed[4],
-        publicDares: filteredPublicDares,
-        publicSwitchGames: filteredPublicSwitchGames
+        activeDares: uniqueActiveDares || [],
+        completedDares: uniqueCompletedDares || [],
+        switchGames: processed[4] || [],
+        publicDares: filteredPublicDares || [],
+        publicSwitchGames: filteredPublicSwitchGames || []
       },
       pagination: {
         activeDares: {
           page,
           limit,
-          total: totalActiveItems,
-          pages: Math.ceil(totalActiveItems / limit)
+          total: totalActiveItems || 0,
+          pages: Math.max(1, Math.ceil((totalActiveItems || 0) / limit))
         },
         completedDares: {
           page,
           limit,
-          total: totalCompletedItems,
-          pages: Math.ceil(totalCompletedItems / limit)
+          total: totalCompletedItems || 0,
+          pages: Math.max(1, Math.ceil((totalCompletedItems || 0) / limit))
         },
         switchGames: {
           page,
           limit,
-          total: processedCounts[4],
-          pages: Math.ceil(processedCounts[4] / limit)
+          total: processedCounts[4] || 0,
+          pages: Math.max(1, Math.ceil((processedCounts[4] || 0) / limit))
         },
         publicDares: {
-          page,
+          page: 1, // Public content is always first page
           limit,
-          total: processedCounts[5],
-          pages: Math.ceil(processedCounts[5] / limit)
+          total: processedCounts[5] || 0,
+          pages: Math.max(1, Math.ceil((processedCounts[5] || 0) / limit))
         },
         publicSwitchGames: {
-          page,
+          page: 1, // Public content is always first page
           limit,
-          total: processedCounts[6],
-          pages: Math.ceil(processedCounts[6] / limit)
+          total: processedCounts[6] || 0,
+          pages: Math.max(1, Math.ceil((processedCounts[6] || 0) / limit))
         }
       },
       summary: {
-        totalActiveDares: totalActiveItems,
-        totalCompletedDares: totalCompletedItems,
-        totalSwitchGames: processedCounts[4],
-        totalPublicDares: processedCounts[5],
-        totalPublicSwitchGames: processedCounts[6]
+        totalActiveDares: totalActiveItems || 0,
+        totalCompletedDares: totalCompletedItems || 0,
+        totalSwitchGames: processedCounts[4] || 0,
+        totalPublicDares: processedCounts[5] || 0,
+        totalPublicSwitchGames: processedCounts[6] || 0
       }
     };
+
+    // Ensure all arrays are actually arrays
+    Object.keys(response.data).forEach(key => {
+      if (!Array.isArray(response.data[key])) {
+        console.warn(`Data key ${key} is not an array, converting to empty array`);
+        response.data[key] = [];
+      }
+    });
+
+    // Ensure all pagination objects have required properties
+    Object.keys(response.pagination).forEach(key => {
+      const pagination = response.pagination[key];
+      if (!pagination.page || !pagination.limit || pagination.total === undefined || !pagination.pages) {
+        console.warn(`Pagination key ${key} is missing required properties, setting defaults`);
+        response.pagination[key] = {
+          page: key.includes('public') ? 1 : page,
+          limit,
+          total: 0,
+          pages: 1
+        };
+      }
+    });
+
+    // Ensure all summary values are numbers
+    Object.keys(response.summary).forEach(key => {
+      if (typeof response.summary[key] !== 'number') {
+        console.warn(`Summary key ${key} is not a number, converting to 0`);
+        response.summary[key] = 0;
+      }
+    });
+
+    // Log the response structure for debugging
+    console.log('Dashboard API response structure:', {
+      dataKeys: Object.keys(response.data),
+      paginationKeys: Object.keys(response.pagination),
+      summaryKeys: Object.keys(response.summary),
+      dataCounts: {
+        activeDares: response.data.activeDares.length,
+        completedDares: response.data.completedDares.length,
+        switchGames: response.data.switchGames.length,
+        publicDares: response.data.publicDares.length,
+        publicSwitchGames: response.data.publicSwitchGames.length
+      }
+    });
 
     res.json(response);
 
