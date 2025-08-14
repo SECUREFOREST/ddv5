@@ -63,6 +63,7 @@ import { FormSelect } from '../components/Form';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 import { retryApiCall } from '../utils/retry';
+import { fetchDashboardData, fetchDashboardPage, refreshDashboardData } from '../utils/dashboardApi';
 
 // 2025 Design System - Neumorphism 2.0
 const NeumorphicCard = ({ children, className = '', variant = 'default', interactive = false, onClick }) => {
@@ -437,10 +438,6 @@ export default function DarePerformerDashboard() {
   // All filtering and pagination is handled by the server APIs
   // Client only merges results from multiple endpoints when necessary
   const fetchData = useCallback(async (overrideFilters = null) => {
-    // Use override filters if provided, otherwise use current state
-    const filtersToUse = overrideFilters || { dareFilters, switchGameFilters };
-    console.log('fetchData function called with filters:', filtersToUse);
-    
     if (!currentUserId) return;
     
     // Prevent multiple simultaneous requests
@@ -454,22 +451,17 @@ export default function DarePerformerDashboard() {
       setIsLoading(true);
       setError(null);
       
-      // Get total counts first for proper pagination
-      // Build filter query parameters for active dares
-      const activeDareFilters = [];
-      if (filtersToUse.dareFilters.difficulty) activeDareFilters.push(`difficulty=${filtersToUse.dareFilters.difficulty}`);
-      if (filtersToUse.dareFilters.status) activeDareFilters.push(`status=${filtersToUse.dareFilters.status}`);
-      const activeDareQueryString = activeDareFilters.length > 0 ? `&${activeDareFilters.join('&')}` : '';
+      // Use override filters if provided, otherwise use current state
+      const filtersToUse = overrideFilters || { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters };
       
-      console.log('Active dare filters being applied:', { dareFilters: filtersToUse.dareFilters, activeDareQueryString });
+      console.log('Fetching dashboard data with filters:', filtersToUse);
       
-      // Build filter query parameters for switch games
-      const switchGameQueryParams = [];
-      if (filtersToUse.switchGameFilters.difficulty) switchGameQueryParams.push(`difficulty=${filtersToUse.switchGameFilters.difficulty}`);
-      if (filtersToUse.switchGameFilters.status) switchGameQueryParams.push(`status=${filtersToUse.switchGameFilters.status}`);
-      const switchGameQueryString = switchGameQueryParams.length > 0 ? `&${switchGameQueryParams.join('&')}` : '';
-      
-      console.log('Switch game filters being applied:', { switchGameFilters: filtersToUse.switchGameFilters, switchGameQueryString });
+      // Single API call to get all dashboard data
+      const dashboardData = await fetchDashboardData({
+        page: Math.max(activePage, completedPage, switchPage, publicDarePage, publicSwitchPage),
+        limit: ITEMS_PER_PAGE,
+        ...filtersToUse
+      });
             
             const [activeCounts, completedCounts, switchCounts] = await Promise.allSettled([
               // Get total counts for active dares (both as creator and participant) with filters

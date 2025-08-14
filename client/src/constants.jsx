@@ -168,7 +168,8 @@ export const API_RESPONSE_TYPES = {
   USER_ARRAY: 'user_array',
   STATS: 'stats',
   ACTIVITY: 'activity',
-  ACTIVITY_ARRAY: 'activity_array'
+  ACTIVITY_ARRAY: 'activity_array',
+  DASHBOARD: 'dashboard'
 };
 
 // Pagination constants

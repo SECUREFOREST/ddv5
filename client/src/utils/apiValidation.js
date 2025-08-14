@@ -48,6 +48,10 @@ export function validateApiResponse(response, expectedType) {
       return Array.isArray(data.activities) ? data.activities : 
              Array.isArray(data) ? data : [];
     
+    case API_RESPONSE_TYPES.DASHBOARD:
+      return typeof data === 'object' && data !== null && 
+             data.data && data.pagination && data.summary ? data : getDefaultValue(expectedType);
+    
     case API_RESPONSE_TYPES.DARE:
     case API_RESPONSE_TYPES.SWITCH_GAME:
     case API_RESPONSE_TYPES.USER:
@@ -73,6 +77,31 @@ function getDefaultValue(type) {
     case API_RESPONSE_TYPES.USER_ARRAY:
     case API_RESPONSE_TYPES.ACTIVITY_ARRAY:
       return [];
+    
+    case API_RESPONSE_TYPES.DASHBOARD:
+      return {
+        data: {
+          activeDares: [],
+          completedDares: [],
+          switchGames: [],
+          publicDares: [],
+          publicSwitchGames: []
+        },
+        pagination: {
+          activeDares: { page: 1, limit: 8, total: 0, pages: 1 },
+          completedDares: { page: 1, limit: 8, total: 0, pages: 1 },
+          switchGames: { page: 1, limit: 8, total: 0, pages: 1 },
+          publicDares: { page: 1, limit: 8, total: 0, pages: 1 },
+          publicSwitchGames: { page: 1, limit: 8, total: 0, pages: 1 }
+        },
+        summary: {
+          totalActiveDares: 0,
+          totalCompletedDares: 0,
+          totalSwitchGames: 0,
+          totalPublicDares: 0,
+          totalPublicSwitchGames: 0
+        }
+      };
     
     case API_RESPONSE_TYPES.DARE:
     case API_RESPONSE_TYPES.SWITCH_GAME:
