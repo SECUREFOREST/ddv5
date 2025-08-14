@@ -509,12 +509,50 @@ export default function DarePerformerDashboard() {
         throw new Error('Invalid response structure from stats API');
       }
       
+      // Validate that all expected data arrays are present
+      const expectedDataKeys = ['activeDares', 'completedDares', 'switchGames', 'publicDares', 'publicSwitchGames'];
+      const missingKeys = expectedDataKeys.filter(key => !(key in data));
+      
+      if (missingKeys.length > 0) {
+        console.warn('Stats API response missing expected data keys:', missingKeys);
+        console.warn('Available keys:', Object.keys(data));
+      }
+      
+      // Validate pagination structure if present
+      if (pagination && typeof pagination === 'object') {
+        const expectedPaginationKeys = ['activeDares', 'completedDares', 'switchGames', 'publicDares', 'publicSwitchGames'];
+        const missingPaginationKeys = expectedPaginationKeys.filter(key => !(key in pagination));
+        
+        if (missingPaginationKeys.length > 0) {
+          console.warn('Stats API response missing expected pagination keys:', missingPaginationKeys);
+        }
+      }
+      
+      // Validate summary structure if present
+      if (summaryData && typeof summaryData === 'object') {
+        const expectedSummaryKeys = ['totalActiveDares', 'totalCompletedDares', 'totalSwitchGames', 'totalPublicDares', 'totalPublicSwitchGames'];
+        const missingSummaryKeys = expectedSummaryKeys.filter(key => !(key in summaryData));
+        
+        if (missingSummaryKeys.length > 0) {
+          console.warn('Stats API response missing expected summary keys:', missingSummaryKeys);
+        }
+      }
+      
       // Set data from the unified response with fallbacks
       setOngoing(Array.isArray(data.activeDares) ? data.activeDares : []);
       setCompleted(Array.isArray(data.completedDares) ? data.completedDares : []);
       setMySwitchGames(Array.isArray(data.switchGames) ? data.switchGames : []);
       setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
       setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
+      
+      // Log data counts for debugging
+      console.log('Data counts from stats API:', {
+        activeDares: data.activeDares?.length || 0,
+        completedDares: data.completedDares?.length || 0,
+        switchGames: data.switchGames?.length || 0,
+        publicDares: data.publicDares?.length || 0,
+        publicSwitchGames: data.publicSwitchGames?.length || 0
+      });
       
       // Set summary data from the unified response with fallbacks
       setSummary(summaryData || {
@@ -524,6 +562,19 @@ export default function DarePerformerDashboard() {
         totalPublicDares: 0,
         totalPublicSwitchGames: 0
       });
+      
+      // If summary data is missing, try to calculate from actual data arrays
+      if (!summaryData) {
+        console.warn('Summary data missing from stats API, calculating from data arrays');
+        const calculatedSummary = {
+          totalActiveDares: data.activeDares?.length || 0,
+          totalCompletedDares: data.completedDares?.length || 0,
+          totalSwitchGames: data.switchGames?.length || 0,
+          totalPublicDares: data.publicDares?.length || 0,
+          totalPublicSwitchGames: data.publicSwitchGames?.length || 0
+        };
+        setSummary(calculatedSummary);
+      }
       
       // Update pagination state from the unified response
       if (pagination.activeDares) {
@@ -551,6 +602,30 @@ export default function DarePerformerDashboard() {
         setPublicSwitchTotalPages(pagination.publicSwitchGames.pages || 1);
       }
       
+      // If pagination data is missing, try to calculate from actual data arrays
+      if (!pagination || Object.keys(pagination).length === 0) {
+        console.warn('Pagination data missing from stats API, calculating from data arrays');
+        const calculatedPagination = {
+          activeDares: { total: data.activeDares?.length || 0, pages: 1 },
+          completedDares: { total: data.completedDares?.length || 0, pages: 1 },
+          switchGames: { total: data.switchGames?.length || 0, pages: 1 },
+          publicDares: { total: data.publicDares?.length || 0, pages: 1 },
+          publicSwitchGames: { total: data.publicSwitchGames?.length || 0, pages: 1 }
+        };
+        
+        // Apply calculated pagination
+        setActiveTotalItems(calculatedPagination.activeDares.total);
+        setActiveTotalPages(calculatedPagination.activeDares.pages);
+        setCompletedTotalItems(calculatedPagination.completedDares.total);
+        setCompletedTotalPages(calculatedPagination.completedDares.pages);
+        setSwitchTotalItems(calculatedPagination.switchGames.total);
+        setSwitchTotalPages(calculatedPagination.switchGames.pages);
+        setPublicDareTotalItems(calculatedPagination.publicDares.total);
+        setPublicDareTotalPages(calculatedPagination.publicDares.pages);
+        setPublicSwitchTotalItems(calculatedPagination.publicSwitchGames.total);
+        setPublicSwitchTotalPages(calculatedPagination.publicSwitchGames.pages);
+      }
+      
       // Clear any previous errors since the API call succeeded
       setErrors({});
       
@@ -558,6 +633,26 @@ export default function DarePerformerDashboard() {
       console.error('Failed to fetch dashboard data from API:', err);
       const errorMessage = handleApiError(err, 'dashboard');
       setError(errorMessage);
+      
+      // Set specific error states for different data types
+      const newErrors = {};
+      
+      // Check if it's a network error vs API error
+      if (err.code === 'NETWORK_ERROR' || err.message?.includes('Network Error')) {
+        newErrors.network = 'Network connection failed. Please check your internet connection.';
+      } else if (err.response?.status === 401) {
+        newErrors.auth = 'Authentication failed. Please log in again.';
+      } else if (err.response?.status === 403) {
+        newErrors.permission = 'You do not have permission to access this data.';
+      } else if (err.response?.status === 404) {
+        newErrors.notFound = 'Dashboard data not found. Please try refreshing.';
+      } else if (err.response?.status >= 500) {
+        newErrors.server = 'Server error. Please try again later.';
+      } else {
+        newErrors.general = errorMessage;
+      }
+      
+      setErrors(newErrors);
       
       // Set empty arrays on error to prevent undefined errors
       setOngoing([]);
@@ -669,6 +764,35 @@ export default function DarePerformerDashboard() {
         throw new Error('Invalid response structure from stats API for public data');
       }
       
+      // Validate that all expected data arrays are present
+      const expectedDataKeys = ['activeDares', 'completedDares', 'switchGames', 'publicDares', 'publicSwitchGames'];
+      const missingKeys = expectedDataKeys.filter(key => !(key in data));
+      
+      if (missingKeys.length > 0) {
+        console.warn('Stats API response missing expected data keys:', missingKeys);
+        console.warn('Available keys:', Object.keys(data));
+      }
+      
+      // Validate pagination structure if present
+      if (pagination && typeof pagination === 'object') {
+        const expectedPaginationKeys = ['activeDares', 'completedDares', 'switchGames', 'publicDares', 'publicSwitchGames'];
+        const missingPaginationKeys = expectedPaginationKeys.filter(key => !(key in pagination));
+        
+        if (missingPaginationKeys.length > 0) {
+          console.warn('Stats API response missing expected pagination keys:', missingPaginationKeys);
+        }
+      }
+      
+      // Validate summary structure if present
+      if (summaryData && typeof summaryData === 'object') {
+        const expectedSummaryKeys = ['totalActiveDares', 'totalCompletedDares', 'totalSwitchGames', 'totalPublicDares', 'totalPublicSwitchGames'];
+        const missingSummaryKeys = expectedSummaryKeys.filter(key => !(key in summaryData));
+        
+        if (missingSummaryKeys.length > 0) {
+          console.warn('Stats API response missing expected summary keys:', missingSummaryKeys);
+        }
+      }
+      
       // Set public data from the unified response with fallbacks
       setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
       setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
@@ -702,6 +826,31 @@ export default function DarePerformerDashboard() {
       console.error('Failed to fetch public data with filters:', err);
       const errorMessage = handleApiError(err, 'public data');
       setError(errorMessage);
+      
+      // Set specific error states for public data
+      const newErrors = {};
+      
+      if (err.code === 'NETWORK_ERROR' || err.message?.includes('Network Error')) {
+        newErrors.public = 'Network connection failed while loading public data.';
+        newErrors.publicSwitch = 'Network connection failed while loading public switch games.';
+      } else if (err.response?.status === 401) {
+        newErrors.public = 'Authentication failed while loading public data.';
+        newErrors.publicSwitch = 'Authentication failed while loading public switch games.';
+      } else if (err.response?.status === 403) {
+        newErrors.public = 'You do not have permission to access public data.';
+        newErrors.publicSwitch = 'You do not have permission to access public switch games.';
+      } else if (err.response?.status === 404) {
+        newErrors.public = 'Public data not found. Please try refreshing.';
+        newErrors.publicSwitch = 'Public switch games not found. Please try refreshing.';
+      } else if (err.response?.status >= 500) {
+        newErrors.public = 'Server error while loading public data. Please try again later.';
+        newErrors.publicSwitch = 'Server error while loading public switch games. Please try again later.';
+      } else {
+        newErrors.public = errorMessage;
+        newErrors.publicSwitch = errorMessage;
+      }
+      
+      setErrors(prev => ({ ...prev, ...newErrors }));
       
       // Set empty arrays on error to prevent undefined errors
       setPublicDares([]);
