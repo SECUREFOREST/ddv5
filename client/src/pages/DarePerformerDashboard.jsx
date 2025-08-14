@@ -1305,6 +1305,80 @@ export default function DarePerformerDashboard() {
               >
                 Test API Directly
               </button>
+              <button
+                onClick={async () => {
+                  try {
+                    console.log('=== FORCE SETTING DATA FROM API ===');
+                    
+                    // Get fresh data from API
+                    const freshData = await fetchDashboardData({
+                      page: 1,
+                      limit: 8,
+                      dareFilters: {},
+                      switchGameFilters: {},
+                      publicFilters: {},
+                      publicSwitchFilters: {}
+                    });
+                    
+                    console.log('Fresh API data:', freshData);
+                    
+                    // Force set the data to component state
+                    if (freshData.data) {
+                      setOngoing(freshData.data.activeDares || []);
+                      setCompleted(freshData.data.completedDares || []);
+                      setMySwitchGames(freshData.data.switchGames || []);
+                      setPublicDares(freshData.data.publicDares || []);
+                      setPublicSwitchGames(freshData.data.publicSwitchGames || []);
+                      
+                      console.log('Force set data arrays:', {
+                        ongoing: freshData.data.activeDares?.length || 0,
+                        completed: freshData.data.completedDares?.length || 0,
+                        switchGames: freshData.data.switchGames?.length || 0,
+                        publicDares: freshData.data.publicDares?.length || 0,
+                        publicSwitchGames: freshData.data.publicSwitchGames?.length || 0
+                      });
+                    }
+                    
+                    if (freshData.summary) {
+                      setSummary(freshData.summary);
+                      console.log('Force set summary:', freshData.summary);
+                    }
+                    
+                    if (freshData.pagination) {
+                      // Force set pagination
+                      if (freshData.pagination.activeDares) {
+                        setActiveTotalItems(freshData.pagination.activeDares.total || 0);
+                        setActiveTotalPages(freshData.pagination.activeDares.pages || 1);
+                      }
+                      if (freshData.pagination.completedDares) {
+                        setCompletedTotalItems(freshData.pagination.completedDares.total || 0);
+                        setCompletedTotalPages(freshData.pagination.completedDares.pages || 1);
+                      }
+                      if (freshData.pagination.switchGames) {
+                        setSwitchTotalItems(freshData.pagination.switchGames.total || 0);
+                        setSwitchTotalPages(freshData.pagination.switchGames.pages || 1);
+                      }
+                      if (freshData.pagination.publicDares) {
+                        setPublicDareTotalItems(freshData.pagination.publicDares.total || 0);
+                        setPublicDareTotalPages(freshData.pagination.publicDares.pages || 1);
+                      }
+                      if (freshData.pagination.publicSwitchGames) {
+                        setPublicSwitchTotalItems(freshData.pagination.publicSwitchGames.total || 0);
+                        setPublicSwitchTotalPages(freshData.pagination.publicSwitchGames.pages || 1);
+                      }
+                      
+                      console.log('Force set pagination:', freshData.pagination);
+                    }
+                    
+                    console.log('=== END FORCE SET ===');
+                  } catch (error) {
+                    console.error('Force set failed:', error);
+                  }
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Force Set Data
+              </button>
             </div>
             
             {/* Debug State Display */}
