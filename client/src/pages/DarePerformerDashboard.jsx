@@ -1231,6 +1231,80 @@ export default function DarePerformerDashboard() {
               >
                 Test Public Filter
               </button>
+              <button
+                onClick={() => {
+                  console.log('=== RAW API RESPONSE DEBUG ===');
+                  console.log('Current user ID:', currentUserId);
+                  console.log('All component state:', {
+                    ongoing,
+                    completed,
+                    mySwitchGames,
+                    publicDares,
+                    publicSwitchGames,
+                    summary,
+                    activeTotalItems,
+                    completedTotalItems,
+                    switchTotalItems,
+                    publicDareTotalItems,
+                    publicSwitchTotalItems
+                  });
+                  console.log('Filter states:', {
+                    dareFilters,
+                    switchGameFilters,
+                    publicFilters,
+                    publicSwitchFilters
+                  });
+                  console.log('Pagination states:', {
+                    activePage,
+                    completedPage,
+                    switchPage,
+                    publicDarePage,
+                    publicSwitchPage
+                  });
+                  console.log('=== END DEBUG ===');
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Debug Raw State
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    console.log('=== TESTING API CALL DIRECTLY ===');
+                    console.log('Calling stats API with user ID:', currentUserId);
+                    
+                    const testResponse = await fetchDashboardData({
+                      page: 1,
+                      limit: 8,
+                      dareFilters: {},
+                      switchGameFilters: {},
+                      publicFilters: {},
+                      publicSwitchFilters: {}
+                    });
+                    
+                    console.log('Direct API response:', testResponse);
+                    console.log('Response data structure:', {
+                      hasData: !!testResponse.data,
+                      dataKeys: testResponse.data ? Object.keys(testResponse.data) : [],
+                      dataValues: testResponse.data ? Object.entries(testResponse.data).map(([key, value]) => ({
+                        key,
+                        type: typeof value,
+                        isArray: Array.isArray(value),
+                        length: Array.isArray(value) ? value.length : 'N/A'
+                      })) : [],
+                      summary: testResponse.summary,
+                      pagination: testResponse.pagination
+                    });
+                    
+                    console.log('=== END API TEST ===');
+                  } catch (error) {
+                    console.error('API test failed:', error);
+                  }
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Test API Directly
+              </button>
             </div>
             
             {/* Debug State Display */}
