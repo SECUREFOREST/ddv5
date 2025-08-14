@@ -826,6 +826,16 @@ export default function DarePerformerDashboard() {
     };
   }, [user, currentUserId]); // Removed fetchData from dependencies to prevent loops
   
+  // Cleanup effect to cancel pending requests on unmount
+  useEffect(() => {
+    return () => {
+      if (currentRequestRef.current) {
+        console.log('Component unmounting, cancelling pending request');
+        currentRequestRef.current.abort();
+      }
+    };
+  }, []);
+  
   // Refetch data when pagination changes
   useEffect(() => {
     if (activePage > 1 || completedPage > 1 || switchPage > 1) {
@@ -2351,14 +2361,3 @@ function debounce(func, wait) {
   };
 }
 
-// Cleanup effect to cancel pending requests on unmount
-useEffect(() => {
-  return () => {
-    if (currentRequestRef.current) {
-      console.log('Component unmounting, cancelling pending request');
-      currentRequestRef.current.abort();
-    }
-  };
-}, []);
-
-// Initial data fetch effect
