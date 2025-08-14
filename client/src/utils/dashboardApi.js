@@ -46,13 +46,6 @@ export const fetchDashboardData = async (options = {}) => {
 
     const response = await api.get(`/stats/dashboard?${queryParams.toString()}`);
     
-    // Log the response for debugging
-    console.log('Dashboard API response:', {
-      status: response.status,
-      hasData: !!response.data,
-      dataKeys: response.data ? Object.keys(response.data) : []
-    });
-    
     // Validate the response structure
     const validatedData = validateApiResponse(response.data, API_RESPONSE_TYPES.DASHBOARD);
     
