@@ -279,6 +279,7 @@ export default function DarePerformerDashboard() {
   // 2025: Smart notifications
   const notificationTimeoutRef = useRef(null);
   const isFetchingRef = useRef(false); // Track if we're currently fetching to prevent loops
+  const isInitialLoadRef = useRef(true); // Track if this is the initial load
   
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
@@ -390,17 +391,29 @@ export default function DarePerformerDashboard() {
   
   // Add a separate effect to handle clearing filters and fetching default data
   useEffect(() => {
-    if (currentUserId) {
+    if (currentUserId && !isInitialLoadRef.current) {
       // Check if all filters are cleared (empty strings)
       const allPersonalFiltersCleared = !dareFilters.difficulty && !dareFilters.status && 
                                        !switchGameFilters.difficulty && !switchGameFilters.status;
       const allPublicFiltersCleared = !publicFilters.difficulty && !publicFilters.dareType && 
                                      !publicSwitchFilters.difficulty;
       
+      console.log('Filter clearing effect triggered:', {
+        allPersonalFiltersCleared,
+        allPublicFiltersCleared,
+        dareFilters,
+        switchGameFilters,
+        publicFilters,
+        publicSwitchFilters,
+        isInitialLoad: isInitialLoadRef.current
+      });
+      
       // If all filters are cleared, fetch default data after a delay
       if (allPersonalFiltersCleared && allPublicFiltersCleared) {
+        console.log('All filters cleared, triggering fetchData after delay');
         const timeoutId = setTimeout(() => {
           if (typeof fetchData === 'function') {
+            console.log('Calling fetchData from filter clearing effect');
             fetchData();
           }
         }, 500); // Longer delay for clearing filters
@@ -435,8 +448,19 @@ export default function DarePerformerDashboard() {
       publicFilters,
       publicSwitchFilters
     });
+    
+    // Log if data was unexpectedly cleared
+    if (ongoing.length === 0 && completed.length === 0 && mySwitchGames.length === 0 && 
+        publicDares.length === 0 && publicSwitchGames.length === 0) {
+      console.warn('All data arrays are empty - this might indicate data was cleared unexpectedly');
+    }
   }, [ongoing, completed, mySwitchGames, publicDares, publicSwitchGames, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
-
+  
+  // Debug logging for summary changes
+  useEffect(() => {
+    console.log('Summary updated:', summary);
+  }, [summary]);
+  
   // Debug logging for filter state changes
   useEffect(() => {
     console.log('Filter state changed:', {
@@ -500,36 +524,25 @@ export default function DarePerformerDashboard() {
         summaryKeys: dashboardData.summary ? Object.keys(dashboardData.summary) : []
       });
       
-      // Add detailed logging of actual data content
+      // Add detailed logging for the actual data content
       console.log('Stats API detailed data content:', {
-        activeDares: {
-          count: dashboardData.data?.activeDares?.length || 0,
-          data: dashboardData.data?.activeDares || [],
-          pagination: dashboardData.pagination?.activeDares || null
-        },
-        completedDares: {
-          count: dashboardData.data?.completedDares?.length || 0,
-          data: dashboardData.data?.completedDares || [],
-          pagination: dashboardData.pagination?.completedDares || null
-        },
-        switchGames: {
-          count: dashboardData.data?.switchGames?.length || 0,
-          data: dashboardData.data?.switchGames || [],
-          pagination: dashboardData.pagination?.switchGames || null
-        },
-        publicDares: {
-          count: dashboardData.data?.publicDares?.length || 0,
-          data: dashboardData.data?.publicDares || [],
-          pagination: dashboardData.pagination?.publicDares || null
-        },
-        publicSwitchGames: {
-          count: dashboardData.data?.publicSwitchGames?.length || 0,
-          data: dashboardData.data?.publicSwitchGames || [],
-          pagination: dashboardData.pagination?.publicSwitchGames || null
-        }
+        activeDares: dashboardData.data?.activeDares,
+        completedDares: dashboardData.data?.completedDares,
+        switchGames: dashboardData.data?.switchGames,
+        publicDares: dashboardData.data?.publicDares,
+        publicSwitchGames: dashboardData.data?.publicSwitchGames
       });
       
-      // Log summary data details
+      // Log the raw data structure to see exactly what we're getting
+      console.log('Raw dashboard data structure:', {
+        dataType: typeof dashboardData.data,
+        dataKeys: dashboardData.data ? Object.keys(dashboardData.data) : [],
+        activeDaresType: typeof dashboardData.data?.activeDares,
+        activeDaresIsArray: Array.isArray(dashboardData.data?.activeDares),
+        activeDaresLength: dashboardData.data?.activeDares?.length,
+        activeDaresSample: dashboardData.data?.activeDares?.[0]
+      });
+      
       console.log('Stats API summary data:', dashboardData.summary);
       
       // Extract data from the unified response
@@ -542,72 +555,83 @@ export default function DarePerformerDashboard() {
       }
       
       // Set data from the unified response with fallbacks
-      setOngoing(Array.isArray(data.activeDares) ? data.activeDares : []);
-      setCompleted(Array.isArray(data.completedDares) ? data.completedDares : []);
-      setMySwitchGames(Array.isArray(data.switchGames) ? data.switchGames : []);
-      setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
-      setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
+      const activeDares = Array.isArray(data.activeDares) ? data.activeDares : [];
+      const completedDares = Array.isArray(data.completedDares) ? data.completedDares : [];
+      const switchGames = Array.isArray(data.switchGames) ? data.switchGames : [];
+      const publicDares = Array.isArray(data.publicDares) ? data.publicDares : [];
+      const publicSwitchGames = Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : [];
       
-      // Log what's being set to component state
-      console.log('Setting component state with data:', {
-        ongoing: Array.isArray(data.activeDares) ? data.activeDares.length : 0,
-        completed: Array.isArray(data.completedDares) ? data.completedDares.length : 0,
-        mySwitchGames: Array.isArray(data.switchGames) ? data.switchGames.length : 0,
-        publicDares: Array.isArray(data.publicDares) ? data.publicDares.length : 0,
-        publicSwitchGames: Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames.length : 0
+      // Log the extracted data to verify it's correct
+      console.log('Extracted data arrays:', {
+        activeDares: { length: activeDares.length, sample: activeDares[0] },
+        completedDares: { length: completedDares.length, sample: completedDares[0] },
+        switchGames: { length: switchGames.length, sample: switchGames[0] },
+        publicDares: { length: publicDares.length, sample: publicDares[0] },
+        publicSwitchGames: { length: publicSwitchGames.length, sample: publicSwitchGames[0] }
       });
+      
+      console.log('Setting component state with data:', {
+        ongoing: activeDares.length,
+        completed: completedDares.length,
+        mySwitchGames: switchGames.length,
+        publicDares: publicDares.length,
+        publicSwitchGames: publicSwitchGames.length
+      });
+      
+      setOngoing(activeDares);
+      setCompleted(completedDares);
+      setMySwitchGames(switchGames);
+      setPublicDares(publicDares);
+      setPublicSwitchGames(publicSwitchGames);
       
       // Set summary data from the unified response with fallbacks
-      setSummary(summaryData || {
-        totalActiveDares: 0,
-        totalCompletedDares: 0,
-        totalSwitchGames: 0,
-        totalPublicDares: 0,
-        totalPublicSwitchGames: 0
-      });
+      const summaryInfo = summaryData || {
+        totalActiveDares: activeDares.length,
+        totalCompletedDares: completedDares.length,
+        totalSwitchGames: switchGames.length,
+        totalPublicDares: publicDares.length,
+        totalPublicSwitchGames: publicSwitchGames.length
+      };
       
-      // Log summary state being set
-      console.log('Setting summary state:', summaryData || {
-        totalActiveDares: 0,
-        totalCompletedDares: 0,
-        totalSwitchGames: 0,
-        totalPublicDares: 0,
-        totalPublicSwitchGames: 0
-      });
+      console.log('Setting summary state:', summaryInfo);
+      setSummary(summaryInfo);
       
       // Update pagination state from the unified response
       if (pagination.activeDares) {
+        console.log('Setting active dares pagination:', pagination.activeDares);
         setActiveTotalItems(pagination.activeDares.total || 0);
         setActiveTotalPages(pagination.activeDares.pages || 1);
-        console.log('Setting active dares pagination:', pagination.activeDares);
       }
       
       if (pagination.completedDares) {
+        console.log('Setting completed dares pagination:', pagination.completedDares);
         setCompletedTotalItems(pagination.completedDares.total || 0);
         setCompletedTotalPages(pagination.completedDares.pages || 1);
-        console.log('Setting completed dares pagination:', pagination.completedDares);
       }
       
       if (pagination.switchGames) {
+        console.log('Setting switch games pagination:', pagination.switchGames);
         setSwitchTotalItems(pagination.switchGames.total || 0);
         setSwitchTotalPages(pagination.switchGames.pages || 1);
-        console.log('Setting switch games pagination:', pagination.switchGames);
       }
       
       if (pagination.publicDares) {
+        console.log('Setting public dares pagination:', pagination.publicDares);
         setPublicDareTotalItems(pagination.publicDares.total || 0);
         setPublicDareTotalPages(pagination.publicDares.pages || 1);
-        console.log('Setting public dares pagination:', pagination.publicDares);
       }
       
       if (pagination.publicSwitchGames) {
+        console.log('Setting public switch games pagination:', pagination.publicSwitchGames);
         setPublicSwitchTotalItems(pagination.publicSwitchGames.total || 0);
         setPublicSwitchTotalPages(pagination.publicSwitchGames.pages || 1);
-        console.log('Setting public switch games pagination:', pagination.publicSwitchGames);
       }
       
       // Clear any previous errors since the API call succeeded
       setErrors({});
+      
+      // Log final state verification
+      console.log('Final state verification - data should now be populated');
       
     } catch (err) {
       console.error('Failed to fetch dashboard data from API:', err);
@@ -827,10 +851,14 @@ export default function DarePerformerDashboard() {
         // Only update state if component is still mounted
         if (isMounted) {
           console.log('Dashboard data fetched successfully');
+          // Mark initial load as complete
+          isInitialLoadRef.current = false;
         }
       }).catch((error) => {
         if (isMounted) {
           console.error('Failed to fetch dashboard data:', error);
+          // Mark initial load as complete even on error
+          isInitialLoadRef.current = false;
         }
       });
     }
