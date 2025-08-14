@@ -222,6 +222,12 @@ export default function DarePerformerDashboard() {
     totalPublicSwitchGames: 0
   });
 
+  // Public summary data for public content sections
+  const [publicSummary, setPublicSummary] = useState({
+    totalPublicDares: 0,
+    totalPublicSwitchGames: 0
+  });
+
   const [errors, setErrors] = useState({});
   
   // Pagination state for active and completed dares (server-side)
@@ -344,105 +350,8 @@ export default function DarePerformerDashboard() {
     }
   };
   
-  // Refetch data when personal filters change - with debouncing to prevent loops
-  useEffect(() => {
-    console.log('Personal filter effect triggered:', { dareFilters, switchGameFilters, currentUserId });
-    
-    if (currentUserId) {
-      // Reset pagination when filters change
-      setActivePage(1);
-      setSwitchPage(1);
-      
-      // Use a longer delay and only fetch if filters actually have values
-      const hasActiveFilters = dareFilters.difficulty || dareFilters.status || switchGameFilters.difficulty || switchGameFilters.status;
-      
-      console.log('Has active filters:', hasActiveFilters, { dareFilters, switchGameFilters });
-      
-      if (hasActiveFilters) {
-        console.log('Triggering fetchData due to active filters');
-        const timeoutId = setTimeout(() => {
-          if (typeof fetchData === 'function') {
-            console.log('Calling fetchData from filter effect with current filters');
-            // Pass the current filter values directly to avoid timing issues
-            fetchData({ dareFilters, switchGameFilters });
-          } else {
-            console.warn('fetchData is not a function yet');
-          }
-        }, 100); // Reduced delay since we're fixing the timing issue
-        return () => clearTimeout(timeoutId);
-      } else {
-        console.log('No active filters, not fetching');
-      }
-    }
-  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, currentUserId]);
+  // 2025: Enhanced data fetching with server-side filtering and pagination
   
-  // Refetch public data when filters change - with debouncing to prevent loops
-  useEffect(() => {
-    if (currentUserId) {
-      // Reset pagination when filters change
-      setPublicDarePage(1);
-      setPublicSwitchPage(1);
-      
-      // Use a longer delay and only fetch if filters actually have values
-      const hasActiveFilters = publicFilters.difficulty || publicFilters.dareType || publicSwitchFilters.difficulty;
-      
-      if (hasActiveFilters) {
-        const timeoutId = setTimeout(() => {
-          if (typeof fetchPublicDataWithFilters === 'function') {
-            fetchPublicDataWithFilters();
-          }
-        }, 300); // Increased delay to prevent rapid successive calls
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
-  
-  // Add a separate effect to handle clearing filters and fetching default data
-  useEffect(() => {
-    if (currentUserId && !isInitialLoadRef.current) {
-      // Check if all filters are cleared (empty strings)
-      const allPersonalFiltersCleared = !dareFilters.difficulty && !dareFilters.status && 
-                                       !switchGameFilters.difficulty && !switchGameFilters.status;
-      const allPublicFiltersCleared = !publicFilters.difficulty && !publicFilters.dareType && 
-                                     !publicSwitchFilters.difficulty;
-      
-      console.log('Filter clearing effect triggered:', {
-        allPersonalFiltersCleared,
-        allPublicFiltersCleared,
-        dareFilters,
-        switchGameFilters,
-        publicFilters,
-        publicSwitchFilters,
-        isInitialLoad: isInitialLoadRef.current
-      });
-      
-      // If all filters are cleared, fetch default data after a delay
-      if (allPersonalFiltersCleared && allPublicFiltersCleared) {
-        console.log('All filters cleared, triggering fetchData after delay');
-        const timeoutId = setTimeout(() => {
-          if (typeof fetchData === 'function') {
-            console.log('Calling fetchData from filter clearing effect');
-            fetchData();
-          }
-        }, 500); // Longer delay for clearing filters
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [dareFilters.difficulty, dareFilters.status, switchGameFilters.difficulty, switchGameFilters.status, 
-      publicFilters.difficulty, publicFilters.dareType, publicSwitchFilters.difficulty, currentUserId]);
-
-  // Handle public pagination changes - only when page > 1 to avoid loops
-  useEffect(() => {
-    if (currentUserId && (publicDarePage > 1 || publicSwitchPage > 1)) {
-      const timeoutId = setTimeout(() => {
-        if (typeof fetchPublicDataWithFilters === 'function') {
-          fetchPublicDataWithFilters();
-        }
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [publicDarePage, publicSwitchPage, currentUserId]);
-
   // Debug logging for data changes
   useEffect(() => {
     console.log('Data updated:', {
@@ -468,31 +377,27 @@ export default function DarePerformerDashboard() {
   useEffect(() => {
     console.log('Summary updated:', summary);
   }, [summary]);
-
+  
   // Debug logging for filter state changes
   useEffect(() => {
-    console.log('Filter state changed:', {
-      dareFilters,
-      switchGameFilters,
-      publicFilters,
-      publicSwitchFilters
-    });
-    
-    // Log which specific filter changed
-    if (dareFilters.difficulty || dareFilters.status) {
-      console.log('Dare filters changed:', dareFilters);
-    }
-    if (switchGameFilters.difficulty || switchGameFilters.status) {
-      console.log('Switch game filters changed:', switchGameFilters);
-    }
-    if (publicFilters.difficulty || publicFilters.dareType) {
-      console.log('Public filters changed:', publicFilters);
-    }
-    if (publicSwitchFilters.difficulty) {
-      console.log('Public switch filters changed:', publicSwitchFilters);
-    }
+    console.log('Filter state changed:', { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters });
   }, [dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
-
+  
+  // Debug logging for switch games data changes
+  useEffect(() => {
+    console.log('Switch games data changed:', {
+      mySwitchGames: mySwitchGames.length,
+      safeMySwitchGames: safeMySwitchGames.length,
+      switchTotalItems,
+      dataLoading: dataLoading.switchGames
+    });
+  }, [mySwitchGames, safeMySwitchGames, switchTotalItems, dataLoading.switchGames]);
+  
+  // Debug logging for active tab changes
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+  }, [activeTab]);
+  
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
   // Client only merges results from multiple endpoints when necessary
