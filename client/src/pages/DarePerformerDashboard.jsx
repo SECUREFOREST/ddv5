@@ -1361,28 +1361,34 @@ export default function DarePerformerDashboard() {
               <button
                 onClick={() => {
                   console.log('Manual refresh triggered');
-                  fetchData();
+                  forceRefresh();
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
-                Refresh All Data
+                Force Refresh All Data
               </button>
               <button
                 onClick={() => {
                   console.log('Manual public refresh triggered');
-                  fetchPublicDataWithFilters();
+                  forceRefreshPublic();
                 }}
                 className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
-                Refresh Public Data
+                Force Refresh Public Data
               </button>
               <button
                 onClick={() => {
                   console.log('Current filter state:', { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters });
+                  console.log('Request tracking state:', {
+                    isFetching: isFetchingRef.current,
+                    lastFetchKey: lastFetchRef.current.key,
+                    lastFetchTime: lastFetchRef.current.time,
+                    timeSinceLastFetch: Date.now() - lastFetchTimeRef.current
+                  });
                 }}
                 className="bg-gray-600 hover:bg-gray-700 text-white rounded-lg px-4 py-2 text-sm font-semibold"
               >
-                Log Filter State
+                Log Debug Info
               </button>
               <button
                 onClick={() => {
@@ -2369,6 +2375,34 @@ export default function DarePerformerDashboard() {
       </div>
     );
   }
+
+  // Manual refresh function that bypasses deduplication
+  const forceRefresh = useCallback(async () => {
+    if (!currentUserId) return;
+    
+    console.log('Force refresh triggered - bypassing deduplication');
+    
+    // Reset request tracking to allow immediate refresh
+    lastFetchRef.current = {};
+    lastFetchTimeRef.current = 0;
+    
+    // Force fetch data
+    await fetchData();
+  }, [currentUserId, fetchData]);
+
+  // Manual refresh function for public data
+  const forceRefreshPublic = useCallback(async () => {
+    if (!currentUserId) return;
+    
+    console.log('Force refresh public data triggered - bypassing deduplication');
+    
+    // Reset request tracking to allow immediate refresh
+    lastFetchRef.current = {};
+    lastFetchTimeRef.current = 0;
+    
+    // Force fetch public data
+    await fetchPublicDataWithFilters();
+  }, [currentUserId, fetchPublicDataWithFilters]);
 
   return (
     <div className="min-h-screen bg-black">
