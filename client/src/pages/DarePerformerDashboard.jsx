@@ -542,6 +542,16 @@ export default function DarePerformerDashboard() {
         ...filtersToUse
       });
       
+      // Log the raw API response for debugging
+      console.log('Raw API response received:', {
+        timestamp: new Date().toISOString(),
+        requestKey: createRequestKey(filtersToUse, pageToUse, ITEMS_PER_PAGE),
+        responseType: typeof dashboardData,
+        hasData: !!dashboardData.data,
+        dataKeys: dashboardData.data ? Object.keys(dashboardData.data) : [],
+        responseSize: JSON.stringify(dashboardData).length
+      });
+      
       // Update request tracking
       const requestKey = createRequestKey(filtersToUse, pageToUse, ITEMS_PER_PAGE);
       lastFetchRef.current = { key: requestKey, filters: filtersToUse, page: pageToUse };
@@ -609,6 +619,51 @@ export default function DarePerformerDashboard() {
         switchGames: data.switchGames?.length || 0,
         publicDares: data.publicDares?.length || 0,
         publicSwitchGames: data.publicSwitchGames?.length || 0
+      });
+      
+      // Add detailed logging of the actual data structure
+      console.log('Detailed API response data:', {
+        activeDares: {
+          isArray: Array.isArray(data.activeDares),
+          length: data.activeDares?.length,
+          firstItem: data.activeDares?.[0],
+          type: typeof data.activeDares
+        },
+        completedDares: {
+          isArray: Array.isArray(data.completedDares),
+          length: data.completedDares?.length,
+          firstItem: data.completedDares?.[0],
+          type: typeof data.completedDares
+        },
+        switchGames: {
+          isArray: Array.isArray(data.switchGames),
+          length: data.switchGames?.length,
+          firstItem: data.switchGames?.[0],
+          type: typeof data.switchGames
+        },
+        publicDares: {
+          isArray: Array.isArray(data.publicDares),
+          length: data.publicDares?.length,
+          firstItem: data.publicDares?.[0],
+          type: typeof data.publicDares
+        },
+        publicSwitchGames: {
+          isArray: Array.isArray(data.publicSwitchGames),
+          length: data.publicSwitchGames?.length,
+          firstItem: data.publicSwitchGames?.[0],
+          type: typeof data.publicSwitchGames
+        }
+      });
+      
+      // Log the raw data structure for debugging
+      console.log('Raw data structure:', {
+        dataKeys: Object.keys(data),
+        dataValues: Object.entries(data).map(([key, value]) => ({
+          key,
+          type: typeof value,
+          isArray: Array.isArray(value),
+          length: Array.isArray(value) ? value.length : 'N/A'
+        }))
       });
       
       // Set summary data from the unified response with fallbacks

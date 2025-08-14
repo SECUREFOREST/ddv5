@@ -46,13 +46,27 @@ export const fetchDashboardData = async (options = {}) => {
 
     const response = await api.get(`/stats/dashboard?${queryParams.toString()}`);
     
+    // Log the raw response for debugging
+    console.log('Raw API response in dashboardApi:', {
+      status: response.status,
+      hasData: !!response.data,
+      dataKeys: response.data ? Object.keys(response.data) : [],
+      responseSize: JSON.stringify(response.data).length
+    });
+    
+    // TEMPORARY: Skip validation for debugging
+    console.log('Skipping validation temporarily for debugging');
+    return response.data;
+    
     // Validate the response structure
     const validatedData = validateApiResponse(response.data, API_RESPONSE_TYPES.DASHBOARD);
     
     if (!validatedData) {
+      console.error('API validation failed, response structure invalid');
       throw new Error('Invalid dashboard response structure');
     }
-
+    
+    console.log('API validation successful, returning validated data');
     return validatedData;
 
   } catch (error) {

@@ -49,8 +49,34 @@ export function validateApiResponse(response, expectedType) {
              Array.isArray(data) ? data : [];
     
     case API_RESPONSE_TYPES.DASHBOARD:
-      return typeof data === 'object' && data !== null && 
-             data.data && data.pagination && data.summary ? data : getDefaultValue(expectedType);
+      console.log('Validating DASHBOARD response:', {
+        hasData: !!data.data,
+        hasPagination: !!data.pagination,
+        hasSummary: !!data.summary,
+        dataType: typeof data.data,
+        paginationType: typeof data.pagination,
+        summaryType: typeof data.summary,
+        dataKeys: data.data ? Object.keys(data.data) : [],
+        paginationKeys: data.pagination ? Object.keys(data.pagination) : [],
+        summaryKeys: data.summary ? Object.keys(data.summary) : []
+      });
+      
+      const isValidDashboard = typeof data === 'object' && data !== null && 
+                              data.data && data.pagination && data.summary;
+      
+      if (!isValidDashboard) {
+        console.warn('Dashboard validation failed:', {
+          isObject: typeof data === 'object',
+          isNotNull: data !== null,
+          hasData: !!data.data,
+          hasPagination: !!data.pagination,
+          hasSummary: !!data.summary
+        });
+        return getDefaultValue(expectedType);
+      }
+      
+      console.log('Dashboard validation successful');
+      return data;
     
     case API_RESPONSE_TYPES.DARE:
     case API_RESPONSE_TYPES.SWITCH_GAME:
