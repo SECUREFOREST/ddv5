@@ -287,6 +287,7 @@ export default function DarePerformerDashboard() {
   const notificationTimeoutRef = useRef(null);
   const isFetchingRef = useRef(false); // Track if we're currently fetching to prevent loops
   const isInitialLoadRef = useRef(true); // Track if this is the initial load
+  const currentRequestRef = useRef(null); // Track current request to cancel duplicates
   
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
@@ -500,12 +501,22 @@ export default function DarePerformerDashboard() {
     
     // Prevent multiple simultaneous requests
     if (isFetchingRef.current) {
-      console.log('Already fetching data, skipping request');
+      console.log('Fetch already in progress, skipping duplicate request');
       return;
     }
     
+    // Cancel any existing request
+    if (currentRequestRef.current) {
+      console.log('Cancelling previous request');
+      currentRequestRef.current.abort();
+    }
+    
+    // Create abort controller for this request
+    const abortController = new AbortController();
+    currentRequestRef.current = abortController;
+    isFetchingRef.current = true;
+    
     try {
-      isFetchingRef.current = true;
       setIsLoading(true);
       setError(null);
       
@@ -525,6 +536,14 @@ export default function DarePerformerDashboard() {
       
       // Single API call to get all dashboard data using the new stats API
       const dashboardData = await fetchDashboardData(apiParams);
+      
+      // Log the raw response to see what we actually received
+      console.log('Raw API response received:', {
+        hasData: !!dashboardData,
+        responseType: typeof dashboardData,
+        responseKeys: dashboardData ? Object.keys(dashboardData) : [],
+        responseString: JSON.stringify(dashboardData).substring(0, 500) + '...'
+      });
       
       console.log('Dashboard data received from stats API:', dashboardData);
       console.log('Stats API response structure:', {
@@ -559,6 +578,18 @@ export default function DarePerformerDashboard() {
       
       // Extract data from the unified response
       const { data, pagination, summary: summaryData } = dashboardData;
+      
+      // Log the extracted data structure
+      console.log('Data extraction results:', {
+        hasData: !!data,
+        dataType: typeof data,
+        dataKeys: data ? Object.keys(data) : [],
+        hasPagination: !!pagination,
+        hasSummary: !!summaryData,
+        extractedData: data,
+        extractedPagination: pagination,
+        extractedSummary: summaryData
+      });
       
       // Validate that we have the expected data structure
       if (!data || typeof data !== 'object') {
@@ -646,18 +677,21 @@ export default function DarePerformerDashboard() {
       console.log('Final state verification - data should now be populated');
       
     } catch (err) {
-      console.error('Failed to fetch dashboard data from API:', err);
-      const errorMessage = handleApiError(err, 'dashboard');
-      setError(errorMessage);
+      // Check if request was aborted
+      if (err.name === 'AbortError') {
+        console.log('Request was aborted, skipping error handling');
+        return;
+      }
       
-      // Set empty arrays on error to prevent undefined errors
+      console.error('Error fetching dashboard data:', err);
+      setError(err.message || 'Failed to fetch dashboard data');
+      
+      // Reset data on error
       setOngoing([]);
       setCompleted([]);
       setMySwitchGames([]);
       setPublicDares([]);
       setPublicSwitchGames([]);
-      
-      // Reset summary data to default values
       setSummary({
         totalActiveDares: 0,
         totalCompletedDares: 0,
@@ -666,17 +700,12 @@ export default function DarePerformerDashboard() {
         totalPublicSwitchGames: 0
       });
     } finally {
+      // Always clean up
       setIsLoading(false);
-      setDataLoading({
-        ongoing: false,
-        completed: false,
-        switchGames: false,
-        public: false,
-        publicSwitch: false,
-      });
-      isFetchingRef.current = false; // Reset the fetching flag
+      isFetchingRef.current = false;
+      currentRequestRef.current = null;
     }
-  }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage]); // Removed filter dependencies to prevent function recreation
+  }, [currentUserId, activePage, completedPage, switchPage, publicDarePage, publicSwitchPage, dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
   
 
   
@@ -722,17 +751,24 @@ export default function DarePerformerDashboard() {
     
     // Prevent multiple simultaneous requests
     if (isFetchingRef.current) {
-      console.log('Already fetching public data, skipping request');
+      console.log('Public data fetch already in progress, skipping duplicate request');
       return;
     }
     
-    console.log('Fetching public data with filters:', { publicFilters, publicSwitchFilters });
+    // Cancel any existing request
+    if (currentRequestRef.current) {
+      console.log('Cancelling previous request for public data');
+      currentRequestRef.current.abort();
+    }
+    
+    // Create abort controller for this request
+    const abortController = new AbortController();
+    currentRequestRef.current = abortController;
+    isFetchingRef.current = true;
     
     try {
-      isFetchingRef.current = true;
-      setDataLoading(prev => ({ ...prev, public: true, publicSwitch: true }));
+      console.log('Fetching public data with filters:', { publicFilters, publicSwitchFilters });
       
-      // Use the unified stats API to fetch public data with filters
       const dashboardData = await fetchDashboardData({
         page: Math.max(publicDarePage, publicSwitchPage),
         limit: ITEMS_PER_PAGE,
@@ -785,30 +821,35 @@ export default function DarePerformerDashboard() {
       }
       
       // Clear any previous errors since the API call succeeded
-      if (Object.keys(errors).length > 0) {
-        setErrors(prev => ({ ...prev, public: null, publicSwitch: null }));
-      }
+      setErrors(prev => ({ ...prev, public: null, publicSwitch: null }));
       
     } catch (err) {
-      console.error('Failed to fetch public data with filters:', err);
-      const errorMessage = handleApiError(err, 'public data');
-      setError(errorMessage);
+      // Check if request was aborted
+      if (err.name === 'AbortError') {
+        console.log('Public data request was aborted, skipping error handling');
+        return;
+      }
       
-      // Set empty arrays on error to prevent undefined errors
+      console.error('Error fetching public data:', err);
+      setErrors(prev => ({ 
+        ...prev, 
+        public: err.message || 'Failed to fetch public dares',
+        publicSwitch: err.message || 'Failed to fetch public switch games'
+      }));
+      
+      // Reset public data on error
       setPublicDares([]);
       setPublicSwitchGames([]);
-      
-      // Reset public summary data to default values
-      setSummary(prev => ({
-        ...prev,
+      setPublicSummary({
         totalPublicDares: 0,
         totalPublicSwitchGames: 0
-      }));
+      });
     } finally {
-      setDataLoading(prev => ({ ...prev, public: false, publicSwitch: false }));
-      isFetchingRef.current = false; // Reset the fetching flag
+      // Always clean up
+      isFetchingRef.current = false;
+      currentRequestRef.current = null;
     }
-  }, [currentUserId, publicDarePage, publicSwitchPage]); // Removed filter dependencies to prevent function recreation
+  }, [currentUserId, publicDarePage, publicSwitchPage, publicFilters, publicSwitchFilters]);
   
     
 
@@ -2404,3 +2445,15 @@ function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
+
+// Cleanup effect to cancel pending requests on unmount
+useEffect(() => {
+  return () => {
+    if (currentRequestRef.current) {
+      console.log('Component unmounting, cancelling pending request');
+      currentRequestRef.current.abort();
+    }
+  };
+}, []);
+
+// Initial data fetch effect
