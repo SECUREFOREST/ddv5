@@ -61,6 +61,7 @@ export function validateApiResponse(response, expectedType) {
         summaryKeys: data.summary ? Object.keys(data.summary) : []
       });
       
+      // The dashboard response should have data, pagination, and summary
       const isValidDashboard = typeof data === 'object' && data !== null && 
                               data.data && data.pagination && data.summary;
       
@@ -72,6 +73,15 @@ export function validateApiResponse(response, expectedType) {
           hasPagination: !!data.pagination,
           hasSummary: !!data.summary
         });
+        return getDefaultValue(expectedType);
+      }
+      
+      // Additional validation: ensure data contains the expected arrays
+      const expectedDataKeys = ['activeDares', 'completedDares', 'switchGames', 'publicDares', 'publicSwitchGames'];
+      const missingDataKeys = expectedDataKeys.filter(key => !(key in data.data));
+      
+      if (missingDataKeys.length > 0) {
+        console.warn('Dashboard data missing expected keys:', missingDataKeys);
         return getDefaultValue(expectedType);
       }
       
