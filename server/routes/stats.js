@@ -410,6 +410,20 @@ router.get('/dashboard', auth, [
       summary: response.summary
     });
 
+    // Log response size to check for truncation
+    const responseString = JSON.stringify(response);
+    console.log('Response size check:', {
+      responseSize: responseString.length,
+      responseSizeKB: (responseString.length / 1024).toFixed(2),
+      hasLargeArrays: {
+        activeDares: response.data.activeDares.length > 0,
+        completedDares: response.data.completedDares.length > 0,
+        switchGames: response.data.switchGames.length > 0,
+        publicDares: response.data.publicDares.length > 0,
+        publicSwitchGames: response.data.publicSwitchGames.length > 0
+      }
+    });
+
     res.json(response);
 
   } catch (error) {
