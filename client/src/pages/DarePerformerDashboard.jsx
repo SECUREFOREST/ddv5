@@ -500,6 +500,38 @@ export default function DarePerformerDashboard() {
         summaryKeys: dashboardData.summary ? Object.keys(dashboardData.summary) : []
       });
       
+      // Add detailed logging of actual data content
+      console.log('Stats API detailed data content:', {
+        activeDares: {
+          count: dashboardData.data?.activeDares?.length || 0,
+          data: dashboardData.data?.activeDares || [],
+          pagination: dashboardData.pagination?.activeDares || null
+        },
+        completedDares: {
+          count: dashboardData.data?.completedDares?.length || 0,
+          data: dashboardData.data?.completedDares || [],
+          pagination: dashboardData.pagination?.completedDares || null
+        },
+        switchGames: {
+          count: dashboardData.data?.switchGames?.length || 0,
+          data: dashboardData.data?.switchGames || [],
+          pagination: dashboardData.pagination?.switchGames || null
+        },
+        publicDares: {
+          count: dashboardData.data?.publicDares?.length || 0,
+          data: dashboardData.data?.publicDares || [],
+          pagination: dashboardData.pagination?.publicDares || null
+        },
+        publicSwitchGames: {
+          count: dashboardData.data?.publicSwitchGames?.length || 0,
+          data: dashboardData.data?.publicSwitchGames || [],
+          pagination: dashboardData.pagination?.publicSwitchGames || null
+        }
+      });
+      
+      // Log summary data details
+      console.log('Stats API summary data:', dashboardData.summary);
+      
       // Extract data from the unified response
       const { data, pagination, summary: summaryData } = dashboardData;
       
@@ -516,8 +548,26 @@ export default function DarePerformerDashboard() {
       setPublicDares(Array.isArray(data.publicDares) ? data.publicDares : []);
       setPublicSwitchGames(Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames : []);
       
+      // Log what's being set to component state
+      console.log('Setting component state with data:', {
+        ongoing: Array.isArray(data.activeDares) ? data.activeDares.length : 0,
+        completed: Array.isArray(data.completedDares) ? data.completedDares.length : 0,
+        mySwitchGames: Array.isArray(data.switchGames) ? data.switchGames.length : 0,
+        publicDares: Array.isArray(data.publicDares) ? data.publicDares.length : 0,
+        publicSwitchGames: Array.isArray(data.publicSwitchGames) ? data.publicSwitchGames.length : 0
+      });
+      
       // Set summary data from the unified response with fallbacks
       setSummary(summaryData || {
+        totalActiveDares: 0,
+        totalCompletedDares: 0,
+        totalSwitchGames: 0,
+        totalPublicDares: 0,
+        totalPublicSwitchGames: 0
+      });
+      
+      // Log summary state being set
+      console.log('Setting summary state:', summaryData || {
         totalActiveDares: 0,
         totalCompletedDares: 0,
         totalSwitchGames: 0,
