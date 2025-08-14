@@ -2436,6 +2436,31 @@ export default function DarePerformerDashboard() {
             </NeumorphicCard>
           )}
           
+          {/* 2025 Request Status Display */}
+          {isFetchingRef.current && (
+            <NeumorphicCard variant="glass" className="mb-6 p-4 border-blue-500/30">
+              <div className="flex items-center justify-center gap-3 text-blue-300">
+                <LoadingSpinner size="sm" />
+                <span className="font-medium">Fetching dashboard data...</span>
+              </div>
+            </NeumorphicCard>
+          )}
+          
+          {/* 2025 Request Deduplication Info */}
+          {lastFetchRef.current.key && !isFetchingRef.current && (
+            <NeumorphicCard variant="glass" className="mb-6 p-4 border-green-500/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-green-300">
+                  <CheckCircleIcon className="w-5 h-5" />
+                  <span className="font-medium">Data loaded successfully</span>
+                </div>
+                <div className="text-xs text-green-400">
+                  Last updated: {new Date(lastFetchTimeRef.current).toLocaleTimeString()}
+                </div>
+              </div>
+            </NeumorphicCard>
+          )}
+          
           {/* 2025 Individual Section Errors */}
           {Object.entries(errors).map(([section, errorMsg]) => errorMsg && (
             <NeumorphicCard key={section} variant="pressed" className="mb-6 p-4 border-orange-500/30" role="alert" aria-live="polite">
