@@ -7,29 +7,6 @@ const SwitchGame = require('../models/SwitchGame');
 const Dare = require('../models/Dare');
 const User = require('../models/User');
 
-// Helper function to serialize MongoDB ObjectIds for JSON transmission
-const serializeObjectIds = (obj) => {
-  if (obj === null || obj === undefined) return obj;
-  
-  if (obj._bsontype === 'ObjectID') {
-    return obj.toString();
-  }
-  
-  if (Array.isArray(obj)) {
-    return obj.map(item => serializeObjectIds(item));
-  }
-  
-  if (typeof obj === 'object') {
-    const serialized = {};
-    for (const [key, value] of Object.entries(obj)) {
-      serialized[key] = serializeObjectIds(value);
-    }
-    return serialized;
-  }
-  
-  return obj;
-};
-
 // Health check endpoint for debugging
 router.get('/health', async (req, res) => {
   try {
@@ -82,19 +59,6 @@ router.get('/dashboard', auth, [
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 8;
     const skip = (page - 1) * limit;
-
-    // Debug logging
-    console.log('Dashboard API called with:', {
-      userId,
-      page,
-      limit,
-      skip,
-      dareFilters: req.query.dareFilters,
-      switchGameFilters: req.query.switchGameFilters,
-      publicFilters: req.query.publicFilters,
-      publicSwitchFilters: req.query.publicSwitchFilters,
-      query: req.query
-    });
 
     // Parse filter parameters
     const dareFilters = req.query.dareFilters ? JSON.parse(req.query.dareFilters) : {};
@@ -226,24 +190,11 @@ router.get('/dashboard', auth, [
       SwitchGame.find(buildPublicSwitchFilter())
         .populate('creator', 'username fullName avatar')
         .populate('participant', 'username fullName avatar')
-        .populate('winner', 'username fullName avatar')
-        .populate('loser', 'username fullName avatar')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean()
     ]);
-
-    // Debug database query results
-    console.log('Database query results:', {
-      activeDaresCreator: activeDaresCreator.status === 'fulfilled' ? activeDaresCreator.value.length : 'rejected',
-      activeDaresParticipant: activeDaresParticipant.status === 'fulfilled' ? activeDaresParticipant.value.length : 'rejected',
-      completedDaresCreator: completedDaresCreator.status === 'fulfilled' ? completedDaresCreator.value.length : 'rejected',
-      completedDaresParticipant: completedDaresParticipant.status === 'fulfilled' ? completedDaresParticipant.value.length : 'rejected',
-      switchGames: switchGames.status === 'fulfilled' ? switchGames.value.length : 'rejected',
-      publicDares: publicDares.status === 'fulfilled' ? publicDares.value.length : 'rejected',
-      publicSwitchGames: publicSwitchGames.status === 'fulfilled' ? publicSwitchGames.value.length : 'rejected'
-    });
 
     // Get total counts for pagination
     const [
@@ -283,21 +234,9 @@ router.get('/dashboard', auth, [
 
     // Process and merge results
     const processResults = (results, counts) => {
-      console.log('Processing results - raw data:', {
-        activeDaresCreator: results[0],
-        activeDaresParticipant: results[1],
-        completedDaresCreator: results[2],
-        completedDaresParticipant: results[3],
-        switchGames: results[4],
-        publicDares: results[5],
-        publicSwitchGames: results[6]
-      });
-      
       const processed = results.map(result => {
         if (result.status === 'fulfilled') {
-          const value = result.value || [];
-          console.log('Processing result:', { status: result.status, valueLength: value.length, value: value });
-          return value;
+          return result.value || [];
         }
         console.error('Failed to fetch data:', result.reason);
         return [];
@@ -309,11 +248,6 @@ router.get('/dashboard', auth, [
         }
         console.error('Failed to fetch count:', count.reason);
         return 0;
-      });
-
-      console.log('Processed results:', {
-        processed: processed.map((p, i) => ({ index: i, length: p.length, sample: p[0] })),
-        processedCounts
       });
 
       return { processed, processedCounts };
@@ -356,16 +290,6 @@ router.get('/dashboard', auth, [
 
     const filteredPublicDares = filterBlockedUsers(processed[5]);
     const filteredPublicSwitchGames = filterBlockedUsers(processed[6]);
-
-    // Debug final processed data
-    console.log('Final processed data before response:', {
-      uniqueActiveDares: uniqueActiveDares.length,
-      uniqueCompletedDares: uniqueCompletedDares.length,
-      switchGames: processed[4].length,
-      filteredPublicDares: filteredPublicDares.length,
-      filteredPublicSwitchGames: filteredPublicSwitchGames.length,
-      processed: processed.map((p, i) => ({ index: i, length: p.length }))
-    });
 
     // Calculate total items for pagination
     const totalActiveItems = processedCounts[0] + processedCounts[1];
@@ -421,36 +345,7 @@ router.get('/dashboard', auth, [
       }
     };
 
-    // Debug final response
-    console.log('Final response being sent:', {
-      dataLengths: {
-        activeDares: response.data.activeDares.length,
-        completedDares: response.data.completedDares.length,
-        switchGames: response.data.switchGames.length,
-        publicDares: response.data.publicDares.length,
-        publicSwitchGames: response.data.publicSwitchGames.length
-      },
-      summary: response.summary
-    });
-
-    // Serialize ObjectIds before sending response
-    const serializedResponse = serializeObjectIds(response);
-    
-    // Log response size to check for truncation
-    const responseString = JSON.stringify(serializedResponse);
-    console.log('Response size check:', {
-      responseSize: responseString.length,
-      responseSizeKB: (responseString.length / 1024).toFixed(2),
-      hasLargeArrays: {
-        activeDares: serializedResponse.data.activeDares.length > 0,
-        completedDares: serializedResponse.data.completedDares.length > 0,
-        switchGames: serializedResponse.data.switchGames.length > 0,
-        publicDares: serializedResponse.data.publicDares.length > 0,
-        publicSwitchGames: serializedResponse.data.publicSwitchGames.length > 0
-      }
-    });
-
-    res.json(serializedResponse);
+    res.json(response);
 
   } catch (error) {
     console.error('Dashboard API error:', error);
@@ -765,8 +660,8 @@ router.get('/activities', async (req, res) => {
   }
 });
 
-// GET /api/stats/general - general dashboard stats (renamed to avoid conflict)
-router.get('/general', async (req, res) => {
+// GET /api/stats/dashboard - general dashboard stats
+router.get('/dashboard', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalDares = await Dare.countDocuments();
