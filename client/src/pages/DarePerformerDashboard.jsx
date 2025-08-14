@@ -279,6 +279,8 @@ export default function DarePerformerDashboard() {
   // 2025: Smart notifications
   const notificationTimeoutRef = useRef(null);
   const isFetchingRef = useRef(false); // Track if we're currently fetching to prevent loops
+  const lastFetchRef = useRef({}); // Track last fetch parameters to prevent duplicates
+  const lastFetchTimeRef = useRef(0); // Track last fetch time for throttling
   
   const showNotification = (msg, type = 'info') => {
     setNotification({ message: msg, type });
@@ -288,6 +290,39 @@ export default function DarePerformerDashboard() {
     }
     // Set new timeout for auto-dismiss
     notificationTimeoutRef.current = setTimeout(() => setNotification(null), 5000);
+  };
+  
+  // Create a cache key for the current request to prevent duplicates
+  const createRequestKey = (filters, page, limit) => {
+    return JSON.stringify({
+      dareFilters: filters.dareFilters || {},
+      switchGameFilters: filters.switchGameFilters || {},
+      publicFilters: filters.publicFilters || {},
+      publicSwitchFilters: filters.publicSwitchFilters || {},
+      page,
+      limit
+    });
+  };
+  
+  // Check if we should skip this request (duplicate or too recent)
+  const shouldSkipRequest = (filters, page, limit) => {
+    const requestKey = createRequestKey(filters, page, limit);
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchTimeRef.current;
+    
+    // Skip if this is the same request as last time
+    if (lastFetchRef.current.key === requestKey) {
+      console.log('Skipping duplicate request:', requestKey);
+      return true;
+    }
+    
+    // Skip if we fetched too recently (throttle to 2 seconds)
+    if (timeSinceLastFetch < 2000) {
+      console.log('Skipping request - too recent, last fetch was', timeSinceLastFetch, 'ms ago');
+      return true;
+    }
+    
+    return false;
   };
   
   // Calculate trend percentage using localStorage for historical data
@@ -352,14 +387,14 @@ export default function DarePerformerDashboard() {
       if (hasActiveFilters) {
         console.log('Triggering fetchData due to active filters');
         const timeoutId = setTimeout(() => {
-          if (typeof fetchData === 'function') {
+          if (typeof fetchData === 'function' && !isFetchingRef.current) {
             console.log('Calling fetchData from filter effect with current filters');
             // Pass the current filter values directly to avoid timing issues
             fetchData({ dareFilters, switchGameFilters });
           } else {
-            console.warn('fetchData is not a function yet');
+            console.warn('fetchData is not a function yet or already fetching');
           }
-        }, 100); // Reduced delay since we're fixing the timing issue
+        }, 300); // Increased delay to prevent rapid successive calls
         return () => clearTimeout(timeoutId);
       } else {
         console.log('No active filters, not fetching');
@@ -379,10 +414,10 @@ export default function DarePerformerDashboard() {
       
       if (hasActiveFilters) {
         const timeoutId = setTimeout(() => {
-          if (typeof fetchPublicDataWithFilters === 'function') {
+          if (typeof fetchPublicDataWithFilters === 'function' && !isFetchingRef.current) {
             fetchPublicDataWithFilters();
           }
-        }, 300); // Increased delay to prevent rapid successive calls
+        }, 500); // Increased delay to prevent rapid successive calls
         return () => clearTimeout(timeoutId);
       }
     }
@@ -400,10 +435,10 @@ export default function DarePerformerDashboard() {
       // If all filters are cleared, fetch default data after a delay
       if (allPersonalFiltersCleared && allPublicFiltersCleared) {
         const timeoutId = setTimeout(() => {
-          if (typeof fetchData === 'function') {
+          if (typeof fetchData === 'function' && !isFetchingRef.current) {
             fetchData();
           }
-        }, 500); // Longer delay for clearing filters
+        }, 800); // Longer delay for clearing filters
         return () => clearTimeout(timeoutId);
       }
     }
@@ -461,6 +496,16 @@ export default function DarePerformerDashboard() {
     }
   }, [dareFilters, switchGameFilters, publicFilters, publicSwitchFilters]);
 
+  // Debug logging for request deduplication
+  useEffect(() => {
+    console.log('Request tracking state:', {
+      isFetching: isFetchingRef.current,
+      lastFetchKey: lastFetchRef.current.key,
+      lastFetchTime: lastFetchTimeRef.current,
+      timeSinceLastFetch: Date.now() - lastFetchTimeRef.current
+    });
+  }, [ongoing, completed, mySwitchGames, publicDares, publicSwitchGames]);
+
   // 2025: Enhanced data fetching with server-side filtering and pagination
   // All filtering and pagination is handled by the server APIs
   // Client only merges results from multiple endpoints when necessary
@@ -473,22 +518,34 @@ export default function DarePerformerDashboard() {
       return;
     }
     
+    // Use override filters if provided, otherwise use current state
+    const filtersToUse = overrideFilters || { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters };
+    const pageToUse = Math.max(activePage, completedPage, switchPage, publicDarePage, publicSwitchPage);
+    
+    // Check if we should skip this request
+    if (shouldSkipRequest(filtersToUse, pageToUse, ITEMS_PER_PAGE)) {
+      console.log('Skipping request due to deduplication rules');
+      return;
+    }
+    
     try {
       isFetchingRef.current = true;
       setIsLoading(true);
       setError(null);
       
-      // Use override filters if provided, otherwise use current state
-      const filtersToUse = overrideFilters || { dareFilters, switchGameFilters, publicFilters, publicSwitchFilters };
-      
       console.log('Fetching dashboard data with filters:', filtersToUse);
       
       // Single API call to get all dashboard data using the new stats API
       const dashboardData = await fetchDashboardData({
-        page: Math.max(activePage, completedPage, switchPage, publicDarePage, publicSwitchPage),
+        page: pageToUse,
         limit: ITEMS_PER_PAGE,
         ...filtersToUse
       });
+      
+      // Update request tracking
+      const requestKey = createRequestKey(filtersToUse, pageToUse, ITEMS_PER_PAGE);
+      lastFetchRef.current = { key: requestKey, filters: filtersToUse, page: pageToUse };
+      lastFetchTimeRef.current = Date.now();
             
       console.log('Dashboard data received from stats API:', dashboardData);
       console.log('Stats API response structure:', {
@@ -730,6 +787,14 @@ export default function DarePerformerDashboard() {
       return;
     }
     
+    const pageToUse = Math.max(publicDarePage, publicSwitchPage);
+    
+    // Check if we should skip this request
+    if (shouldSkipRequest({ publicFilters, publicSwitchFilters }, pageToUse, ITEMS_PER_PAGE)) {
+      console.log('Skipping public data request due to deduplication rules');
+      return;
+    }
+    
     console.log('Fetching public data with filters:', { publicFilters, publicSwitchFilters });
     
     try {
@@ -738,11 +803,16 @@ export default function DarePerformerDashboard() {
       
       // Use the unified stats API to fetch public data with filters
       const dashboardData = await fetchDashboardData({
-        page: Math.max(publicDarePage, publicSwitchPage),
+        page: pageToUse,
         limit: ITEMS_PER_PAGE,
         publicFilters,
         publicSwitchFilters
       });
+      
+      // Update request tracking for public data
+      const requestKey = createRequestKey({ publicFilters, publicSwitchFilters }, pageToUse, ITEMS_PER_PAGE);
+      lastFetchRef.current = { key: requestKey, filters: { publicFilters, publicSwitchFilters }, page: pageToUse };
+      lastFetchTimeRef.current = Date.now();
       
       console.log('Public data received from stats API:', dashboardData);
       console.log('Public data API response structure:', {
@@ -914,6 +984,11 @@ export default function DarePerformerDashboard() {
     let isMounted = true;
     
     if (user && currentUserId) {
+      // Reset fetching state for new user
+      isFetchingRef.current = false;
+      lastFetchRef.current = {};
+      lastFetchTimeRef.current = 0;
+      
       // Validate pagination state first
       validatePaginationState();
       
@@ -931,6 +1006,8 @@ export default function DarePerformerDashboard() {
     
     return () => {
       isMounted = false;
+      // Cleanup fetching state
+      isFetchingRef.current = false;
     };
   }, [user, currentUserId]); // Removed fetchData from dependencies to prevent loops
   
