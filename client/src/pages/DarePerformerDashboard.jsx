@@ -467,7 +467,7 @@ export default function DarePerformerDashboard() {
   useEffect(() => {
     console.log('Summary updated:', summary);
   }, [summary]);
-  
+
   // Debug logging for filter state changes
   useEffect(() => {
     console.log('Filter state changed:', {

@@ -260,9 +260,21 @@ router.get('/dashboard', auth, [
 
     // Process and merge results
     const processResults = (results, counts) => {
+      console.log('Processing results - raw data:', {
+        activeDaresCreator: results[0],
+        activeDaresParticipant: results[1],
+        completedDaresCreator: results[2],
+        completedDaresParticipant: results[3],
+        switchGames: results[4],
+        publicDares: results[5],
+        publicSwitchGames: results[6]
+      });
+      
       const processed = results.map(result => {
         if (result.status === 'fulfilled') {
-          return result.value || [];
+          const value = result.value || [];
+          console.log('Processing result:', { status: result.status, valueLength: value.length, value: value });
+          return value;
         }
         console.error('Failed to fetch data:', result.reason);
         return [];
@@ -274,6 +286,11 @@ router.get('/dashboard', auth, [
         }
         console.error('Failed to fetch count:', count.reason);
         return 0;
+      });
+
+      console.log('Processed results:', {
+        processed: processed.map((p, i) => ({ index: i, length: p.length, sample: p[0] })),
+        processedCounts
       });
 
       return { processed, processedCounts };
@@ -316,6 +333,16 @@ router.get('/dashboard', auth, [
 
     const filteredPublicDares = filterBlockedUsers(processed[5]);
     const filteredPublicSwitchGames = filterBlockedUsers(processed[6]);
+
+    // Debug final processed data
+    console.log('Final processed data before response:', {
+      uniqueActiveDares: uniqueActiveDares.length,
+      uniqueCompletedDares: uniqueCompletedDares.length,
+      switchGames: processed[4].length,
+      filteredPublicDares: filteredPublicDares.length,
+      filteredPublicSwitchGames: filteredPublicSwitchGames.length,
+      processed: processed.map((p, i) => ({ index: i, length: p.length }))
+    });
 
     // Calculate total items for pagination
     const totalActiveItems = processedCounts[0] + processedCounts[1];
@@ -370,6 +397,18 @@ router.get('/dashboard', auth, [
         totalPublicSwitchGames: processedCounts[6]
       }
     };
+
+    // Debug final response
+    console.log('Final response being sent:', {
+      dataLengths: {
+        activeDares: response.data.activeDares.length,
+        completedDares: response.data.completedDares.length,
+        switchGames: response.data.switchGames.length,
+        publicDares: response.data.publicDares.length,
+        publicSwitchGames: response.data.publicSwitchGames.length
+      },
+      summary: response.summary
+    });
 
     res.json(response);
 
