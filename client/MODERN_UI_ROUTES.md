@@ -50,42 +50,47 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/switch-games/:id`** - View specific game details and information
 - **`/modern/switch-games/participate`** - Manage active games and join new ones
 - **`/modern/switch-games/tasks`** - Create, assign, and grade game tasks
+- **`/modern/switch-games/results`** - View game results and manage loser proof submissions
 - **`/modern/switch-games/claim/:gameId`** - Claim available game slots
 
 ## 🔗 **Route Structure**
 
 ```
-/modern-ui                    # Main entry point
-├── /modern                  # Component showcase
-├── /modern/routes           # Route navigation
-├── /modern/dashboard        # Modern dashboard
-├── /modern/create           # Task creator
-├── /modern/browse           # Task browser
-├── /modern/profile          # User profile
-├── /modern/navigation       # Navigation demo
-├── /modern/dares            # Task browsing
-│   ├── /create             # Create new tasks
-│   └── /:id                # View specific task
-├── /modern/leaderboard      # Leaderboard
-├── /modern/activity         # Activity feed
-├── /modern/tasks            # Advanced task management
-│   ├── /active             # Active tasks
-│   ├── /completed          # Completed tasks
-│   ├── /expired            # Expired tasks
-│   └── /cooldown           # Cooldown management
-├── /modern/users            # User analytics & management
-│   ├── /analytics          # Performance analytics
-│   ├── /statistics         # Detailed statistics
-│   └── /achievements       # Achievement tracking
-├── /modern/community        # Community & social features
-│   ├── /feed               # Public activity feed
-│   ├── /public-doms        # Public dominant tasks
-│   └── /public-subs        # Public submissive opportunities
-└── /modern/switch-games     # Switch game system
-    ├── /create             # Create new games
-    ├── /participate        # Join and participate
-    ├── /tasks              # Task management
-    └── /claim/:gameId      # Claim game slots
+/                           # Modern Landing Page
+├── /register              # User Registration
+├── /login                 # User Authentication
+└── /modern               # Modern UI System
+    ├── /routes           # Route Navigation Hub
+    ├── /dashboard        # Main Dashboard
+    ├── /create           # Task Creation
+    ├── /browse           # Task Browser
+    ├── /profile          # User Profile
+    ├── /navigation       # Navigation Demo
+    ├── /dares            # Task Management
+    │   ├── /create       # Create Tasks
+    │   └── /:id          # Task Details
+    ├── /leaderboard      # Leaderboard
+    ├── /activity         # Activity Feed
+    ├── /tasks            # Advanced Task Management
+    │   ├── /active       # Active Tasks
+    │   ├── /completed    # Completed Tasks
+    │   ├── /expired      # Expired Tasks
+    │   └── /cooldown     # Cooldown Tasks
+    ├── /users            # User Management
+    │   ├── /analytics    # User Analytics
+    │   ├── /statistics   # User Statistics
+    │   └── /achievements # User Achievements
+    ├── /community        # Community Features
+    │   ├── /feed         # Community Feed
+    │   ├── /public-doms  # Public Dominants
+    │   └── /public-subs  # Public Submissives
+    └── /switch-games     # Switch game system
+        ├── /create             # Create new games
+        ├── /participate        # Join and participate
+        ├── /tasks              # Task management
+        ├── /results            # Game results & loser proof
+        └── /claim/:gameId      # Claim game slots
+```
 
 ## 📱 **Route Access Requirements**
 
@@ -265,3 +270,13 @@ All routes are wrapped with `PrivateRoute` component for authentication:
 ---
 
 *For technical support or additional information, refer to the component source code and system documentation.* 
+
+## **Route Descriptions**
+
+### **Landing & Authentication**
+- **`/`** - Modern Landing Page - Platform introduction, features showcase, and call-to-action
+- **`/register`** - User Registration - Account creation with role selection and validation
+- **`/login`** - User Authentication - Secure login with demo account option
+
+### **Modern UI System**
+- **`/modern/routes`** - Route Navigation Hub - Central navigation for all modern UI components 

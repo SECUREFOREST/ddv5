@@ -11,13 +11,40 @@ import {
   ChartBarIcon,
   UserGroupIcon,
   PlayIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  UserPlusIcon,
+  LockClosedIcon,
+  CogIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
   const location = useLocation();
 
   const routes = [
+    {
+      path: '/',
+      name: 'Landing Page',
+      icon: <FireIcon className="w-5 h-5" />,
+      description: 'Modern OSA platform introduction and features'
+    },
+    {
+      path: '/register',
+      name: 'Registration',
+      icon: <UserPlusIcon className="w-5 h-5" />,
+      description: 'Create your OSA account and start your journey'
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      icon: <LockClosedIcon className="w-5 h-5" />,
+      description: 'Sign in to your existing OSA account'
+    },
+    {
+      path: '/modern/routes',
+      name: 'Route Navigation',
+      icon: <CogIcon className="w-5 h-5" />,
+      description: 'Navigate between all modern UI components'
+    },
     {
       path: '/modern',
       name: 'Modern UI Demo',

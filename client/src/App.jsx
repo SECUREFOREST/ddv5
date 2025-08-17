@@ -50,7 +50,10 @@ const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
 const SafetyReport = React.lazy(() => import('./pages/SafetyReport'));
 
 // Modern UI Component imports
-const ModernUIDemo = React.lazy(() => import('./components/ModernUIDemo'));
+const ModernUIDemo = React.lazy(() => import('./pages/ModernUIDemo'));
+const ModernLanding = React.lazy(() => import('./pages/ModernLanding'));
+const ModernRegister = React.lazy(() => import('./pages/ModernRegister'));
+const ModernLogin = React.lazy(() => import('./pages/ModernLogin'));
 const ModernDashboard = React.lazy(() => import('./components/ModernDashboard'));
 const ModernTaskCreator = React.lazy(() => import('./components/ModernTaskCreator'));
 const ModernTaskBrowser = React.lazy(() => import('./components/ModernTaskBrowser'));
@@ -65,6 +68,7 @@ const ModernSwitchGameBrowser = React.lazy(() => import('./components/ModernSwit
 const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwitchGameDetails'));
 const ModernSwitchGameParticipate = React.lazy(() => import('./components/ModernSwitchGameParticipate'));
 const ModernSwitchGameTaskManager = React.lazy(() => import('./components/ModernSwitchGameTaskManager'));
+const ModernSwitchGameResults = React.lazy(() => import('./components/ModernSwitchGameResults'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -124,7 +128,18 @@ function AppContent() {
               </div>
             }>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              {/* Modern UI Routes */}
+              <Route path="/modern" element={<ModernUIDemo />} />
+              <Route path="/modern-ui" element={<ModernUIDemo />} />
+              <Route path="/modern/routes" element={<ModernRouteNavigation />} />
+              
+              {/* Modern Landing & Auth Routes */}
+              <Route path="/" element={<ModernLanding />} />
+              <Route path="/register" element={<ModernRegister />} />
+              <Route path="/login" element={<ModernLogin />} />
+              
+              {/* Modern Dashboard Routes */}
+              <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
@@ -136,15 +151,6 @@ function AppContent() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
-              
-              {/* Modern UI Component Routes */}
-              <Route path="/modern" element={<PrivateRoute><ModernUIDemo /></PrivateRoute>} />
-              <Route path="/modern/routes" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
-              <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
-              <Route path="/modern/create" element={<PrivateRoute><ModernTaskCreator /></PrivateRoute>} />
-              <Route path="/modern/browse" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
-              <Route path="/modern/profile" element={<PrivateRoute><ModernProfile /></PrivateRoute>} />
-              <Route path="/modern/navigation" element={<PrivateRoute><ModernNavigation /></PrivateRoute>} />
               
               {/* Modern OSA Integration Routes */}
               <Route path="/modern/dares" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
@@ -176,6 +182,7 @@ function AppContent() {
               <Route path="/modern/switch-games/:id" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
               <Route path="/modern/switch-games/participate" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
               <Route path="/modern/switch-games/tasks" element={<PrivateRoute><ModernSwitchGameTaskManager /></PrivateRoute>} />
+              <Route path="/modern/switch-games/results" element={<PrivateRoute><ModernSwitchGameResults /></PrivateRoute>} />
               <Route path="/modern/switch-games/claim/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
               
               {/* Modern UI Index Route */}
