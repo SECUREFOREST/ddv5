@@ -15,7 +15,6 @@ import {
   FunnelIcon,
   GlobeAltIcon,
   LockClosedIcon,
-  UserGroupIcon,
   StarIcon,
   PlayIcon,
   PauseIcon,

@@ -9,7 +9,9 @@ import {
   FireIcon,
   ClockIcon,
   ChartBarIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  PlayIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -111,6 +113,12 @@ const ModernRouteNavigation = () => {
       name: 'Game Participation',
       icon: <PlayIcon className="w-5 h-5" />,
       description: 'Manage your active games and join new ones'
+    },
+    {
+      path: '/modern/switch-games/tasks',
+      name: 'Task Management',
+      icon: <DocumentTextIcon className="w-5 h-5" />,
+      description: 'Create, assign, and grade game tasks'
     }
   ];
 

@@ -14,7 +14,6 @@ import {
   EyeSlashIcon,
   GlobeAltIcon,
   LockClosedIcon,
-  UserGroupIcon,
   StarIcon,
   XMarkIcon,
   CheckIcon

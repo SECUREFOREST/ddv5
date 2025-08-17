@@ -13,7 +13,6 @@ import {
   PlusIcon,
   GlobeAltIcon,
   LockClosedIcon,
-  UserGroupIcon,
   StarIcon,
   PlayIcon,
   PauseIcon,
