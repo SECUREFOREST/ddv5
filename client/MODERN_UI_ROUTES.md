@@ -47,8 +47,8 @@ This document provides a comprehensive list of all available routes for the Mode
 ### **Switch Game System**
 - **`/modern/switch-games`** - Browse and discover switch games
 - **`/modern/switch-games/create`** - Create new multi-participant games
-- **`/modern/switch-games/:id`** - View specific game details
-- **`/modern/switch-games/participate`** - Join and participate in games
+- **`/modern/switch-games/:id`** - View specific game details and information
+- **`/modern/switch-games/participate`** - Manage active games and join new ones
 - **`/modern/switch-games/claim/:gameId`** - Claim available game slots
 
 ## 🔗 **Route Structure**

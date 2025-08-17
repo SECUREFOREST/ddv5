@@ -6,7 +6,7 @@ import {
   ExclamationTriangleIcon, 
   RocketLaunchIcon,
   PlusIcon,
-  UsersIcon,
+  UserGroupIcon,
   ClockIcon,
   CalendarIcon,
   CogIcon,
@@ -18,7 +18,7 @@ import {
   StarIcon,
   XMarkIcon,
   CheckIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 
 const ModernSwitchGameCreator = () => {
@@ -112,7 +112,7 @@ const ModernSwitchGameCreator = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-2xl flex items-center justify-center">
-              <UsersIcon className="w-8 h-8 text-white" />
+                              <UserGroupIcon className="w-8 h-8 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Create Switch Game</h1>

@@ -12,7 +12,7 @@ import {
   UserGroupIcon,
   LockClosedIcon,
   GlobeAltIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, PRIVACY_OPTIONS } from '../constants';
 
 const ModernTaskCreator = () => {

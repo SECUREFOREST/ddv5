@@ -18,7 +18,7 @@ import {
   LockClosedIcon,
   PlusIcon,
   CheckCircleIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernProfile = () => {

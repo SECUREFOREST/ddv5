@@ -16,9 +16,9 @@ import {
   FunnelIcon,
   GlobeAltIcon,
   LockClosedIcon,
-  UsersIcon,
+  UserGroupIcon,
   StarIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernCommunity = () => {
@@ -288,7 +288,7 @@ const ModernCommunity = () => {
                 <div className="flex items-center justify-between text-sm text-neutral-400">
                   <div className="flex items-center space-x-4">
                     <span className="flex items-center space-x-1">
-                      <UsersIcon className="w-4 h-4" />
+                      <UserGroupIcon className="w-4 h-4" />
                       <span>{act.participants}</span>
                     </span>
                     <span className="flex items-center space-x-1">
@@ -338,7 +338,7 @@ const ModernCommunity = () => {
         {publicActs.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-neutral-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <UsersIcon className="w-12 h-12 text-neutral-400" />
+                              <UserGroupIcon className="w-12 h-12 text-neutral-400" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No Public Acts Available</h3>
             <p className="text-neutral-400 mb-6">

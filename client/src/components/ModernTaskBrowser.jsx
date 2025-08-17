@@ -13,7 +13,7 @@ import {
   UserIcon,
   CheckCircleIcon,
   XCircleIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../constants';
 
 const ModernTaskBrowser = () => {

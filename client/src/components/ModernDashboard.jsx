@@ -12,7 +12,7 @@ import {
   XCircleIcon,
   PlusIcon,
   MagnifyingGlassIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_ICONS, DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernDashboard = () => {

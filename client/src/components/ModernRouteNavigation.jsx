@@ -6,8 +6,11 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
   Bars3Icon,
-  FireIcon
-} from '@heroicons/react/24/outline';
+  FireIcon,
+  ClockIcon,
+  ChartBarIcon,
+  UserGroupIcon
+} from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
   const location = useLocation();
@@ -88,13 +91,13 @@ const ModernRouteNavigation = () => {
     {
       path: '/modern/community',
       name: 'Community',
-      icon: <UsersIcon className="w-5 h-5" />,
+      icon: <UserGroupIcon className="w-5 h-5" />,
       description: 'Public acts and community features'
     },
     {
       path: '/modern/switch-games',
       name: 'Switch Games',
-      icon: <UsersIcon className="w-5 h-5" />,
+      icon: <UserGroupIcon className="w-5 h-5" />,
       description: 'Multi-participant games with role switching'
     },
     {
@@ -102,6 +105,12 @@ const ModernRouteNavigation = () => {
       name: 'Create Switch Game',
       icon: <PlusIcon className="w-5 h-5" />,
       description: 'Design and create new switch games'
+    },
+    {
+      path: '/modern/switch-games/participate',
+      name: 'Game Participation',
+      icon: <PlayIcon className="w-5 h-5" />,
+      description: 'Manage your active games and join new ones'
     }
   ];
 

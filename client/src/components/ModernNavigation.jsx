@@ -16,7 +16,7 @@ import {
   BellIcon,
   CogIcon,
   ArrowRightOnRectangleIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernNavigation = () => {

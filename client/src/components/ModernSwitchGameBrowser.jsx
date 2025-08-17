@@ -5,7 +5,7 @@ import {
   EyeDropperIcon, 
   ExclamationTriangleIcon, 
   RocketLaunchIcon,
-  UsersIcon,
+  UserGroupIcon,
   ClockIcon,
   CalendarIcon,
   EyeIcon,
@@ -21,7 +21,7 @@ import {
   PauseIcon,
   CheckCircleIcon,
   XCircleIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernSwitchGameBrowser = () => {
@@ -238,12 +238,12 @@ const ModernSwitchGameBrowser = () => {
 
   const getStatusIcon = (status) => {
     const icons = {
-      recruiting: <UsersIcon className="w-4 h-4" />,
+      recruiting: <UserGroupIcon className="w-4 h-4" />,
       'in_progress': <PlayIcon className="w-4 h-4" />,
       completed: <CheckCircleIcon className="w-4 h-4" />,
       cancelled: <XCircleIcon className="w-4 h-4" />
     };
-    return icons[status] || <UsersIcon className="w-4 h-4" />;
+    return icons[status] || <UserGroupIcon className="w-4 h-4" />;
   };
 
   const getPrivacyIcon = (privacy) => {
@@ -474,7 +474,7 @@ const ModernSwitchGameBrowser = () => {
         {filteredGames.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-neutral-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <UsersIcon className="w-12 h-12 text-neutral-400" />
+                              <UserGroupIcon className="w-12 h-12 text-neutral-400" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No Switch Games Found</h3>
             <p className="text-neutral-400 mb-6">
