@@ -53,6 +53,10 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/switch-games/results`** - View game results and manage loser proof submissions
 - **`/modern/switch-games/claim/:gameId`** - Claim available game slots
 
+### **Admin & Safety System**
+- **`/modern/admin`** - Admin dashboard for system management and user administration
+- **`/modern/safety/report`** - Safety report system for inappropriate content and behavior
+
 ## 🔗 **Route Structure**
 
 ```
@@ -82,14 +86,17 @@ This document provides a comprehensive list of all available routes for the Mode
     │   └── /achievements # User Achievements
     ├── /community        # Community Features
     │   ├── /feed         # Community Feed
-    │   ├── /public-doms  # Public Dominants
-    │   └── /public-subs  # Public Submissives
-    └── /switch-games     # Switch game system
-        ├── /create             # Create new games
-        ├── /participate        # Join and participate
-        ├── /tasks              # Task management
-        ├── /results            # Game results & loser proof
-        └── /claim/:gameId      # Claim game slots
+    │   ├── /public-doms  # Public dominants
+    │   └── /public-subs  # Public submissives
+    ├── /switch-games     # Switch game system
+    │   ├── /create             # Create new games
+    │   ├── /participate        # Join and participate
+    │   ├── /tasks              # Task management
+    │   ├── /results            # Game results & loser proof
+    │   └── /claim/:gameId      # Claim game slots
+    ├── /admin            # Admin dashboard
+    └── /safety          # Safety & reporting
+        └── /report       # Safety report system
 ```
 
 ## 📱 **Route Access Requirements**
@@ -279,4 +286,8 @@ All routes are wrapped with `PrivateRoute` component for authentication:
 - **`/login`** - User Authentication - Secure login with demo account option
 
 ### **Modern UI System**
-- **`/modern/routes`** - Route Navigation Hub - Central navigation for all modern UI components 
+- **`/modern/routes`** - Route Navigation Hub - Central navigation for all modern UI components
+
+### **Admin & Safety System**
+- **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
+- **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels 

@@ -14,7 +14,9 @@ import {
   DocumentTextIcon,
   UserPlusIcon,
   LockClosedIcon,
-  CogIcon
+  CogIcon,
+  TrophyIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -146,6 +148,24 @@ const ModernRouteNavigation = () => {
       name: 'Task Management',
       icon: <DocumentTextIcon className="w-5 h-5" />,
       description: 'Create, assign, and grade game tasks'
+    },
+    {
+      path: '/modern/switch-games/results',
+      name: 'Game Results',
+      icon: <TrophyIcon className="w-5 h-5" />,
+      description: 'View results and manage loser proof submissions'
+    },
+    {
+      path: '/modern/admin',
+      name: 'Admin Dashboard',
+      icon: <CogIcon className="w-5 h-5" />,
+      description: 'System management and user administration'
+    },
+    {
+      path: '/modern/safety/report',
+      name: 'Safety Report',
+      icon: <ShieldCheckIcon className="w-5 h-5" />,
+      description: 'Report inappropriate content and behavior'
     }
   ];
 
