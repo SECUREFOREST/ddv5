@@ -44,6 +44,13 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/community/public-doms`** - Public dominant task browsing
 - **`/modern/community/public-subs`** - Public submissive opportunity browsing
 
+### **Switch Game System**
+- **`/modern/switch-games`** - Browse and discover switch games
+- **`/modern/switch-games/create`** - Create new multi-participant games
+- **`/modern/switch-games/:id`** - View specific game details
+- **`/modern/switch-games/participate`** - Join and participate in games
+- **`/modern/switch-games/claim/:gameId`** - Claim available game slots
+
 ## 🔗 **Route Structure**
 
 ```
@@ -69,11 +76,14 @@ This document provides a comprehensive list of all available routes for the Mode
 │   ├── /analytics          # Performance analytics
 │   ├── /statistics         # Detailed statistics
 │   └── /achievements       # Achievement tracking
-└── /modern/community        # Community & social features
-    ├── /feed               # Public activity feed
-    ├── /public-doms        # Public dominant tasks
-    └── /public-subs        # Public submissive opportunities
-```
+├── /modern/community        # Community & social features
+│   ├── /feed               # Public activity feed
+│   ├── /public-doms        # Public dominant tasks
+│   └── /public-subs        # Public submissive opportunities
+└── /modern/switch-games     # Switch game system
+    ├── /create             # Create new games
+    ├── /participate        # Join and participate
+    └── /claim/:gameId      # Claim game slots
 
 ## 📱 **Route Access Requirements**
 

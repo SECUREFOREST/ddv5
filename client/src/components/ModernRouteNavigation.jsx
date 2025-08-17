@@ -90,6 +90,18 @@ const ModernRouteNavigation = () => {
       name: 'Community',
       icon: <UsersIcon className="w-5 h-5" />,
       description: 'Public acts and community features'
+    },
+    {
+      path: '/modern/switch-games',
+      name: 'Switch Games',
+      icon: <UsersIcon className="w-5 h-5" />,
+      description: 'Multi-participant games with role switching'
+    },
+    {
+      path: '/modern/switch-games/create',
+      name: 'Create Switch Game',
+      icon: <PlusIcon className="w-5 h-5" />,
+      description: 'Design and create new switch games'
     }
   ];
 

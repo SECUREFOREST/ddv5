@@ -60,6 +60,8 @@ const ModernRouteNavigation = React.lazy(() => import('./components/ModernRouteN
 const ModernActiveTasks = React.lazy(() => import('./components/ModernActiveTasks'));
 const ModernUserAnalytics = React.lazy(() => import('./components/ModernUserAnalytics'));
 const ModernCommunity = React.lazy(() => import('./components/ModernCommunity'));
+const ModernSwitchGameCreator = React.lazy(() => import('./components/ModernSwitchGameCreator'));
+const ModernSwitchGameBrowser = React.lazy(() => import('./components/ModernSwitchGameBrowser'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -164,6 +166,13 @@ function AppContent() {
               <Route path="/modern/community/feed" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
               <Route path="/modern/community/public-doms" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
               <Route path="/modern/community/public-subs" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
+              
+              {/* Switch Game Routes */}
+              <Route path="/modern/switch-games" element={<PrivateRoute><ModernSwitchGameBrowser /></PrivateRoute>} />
+              <Route path="/modern/switch-games/create" element={<PrivateRoute><ModernSwitchGameCreator /></PrivateRoute>} />
+              <Route path="/modern/switch-games/:id" element={<PrivateRoute><ModernSwitchGameBrowser /></PrivateRoute>} />
+              <Route path="/modern/switch-games/participate" element={<PrivateRoute><ModernSwitchGameBrowser /></PrivateRoute>} />
+              <Route path="/modern/switch-games/claim/:gameId" element={<PrivateRoute><ModernSwitchGameBrowser /></PrivateRoute>} />
               
               {/* Modern UI Index Route */}
               <Route path="/modern-ui" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
