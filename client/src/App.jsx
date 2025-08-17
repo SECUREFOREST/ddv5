@@ -49,6 +49,15 @@ const News = React.lazy(() => import('./pages/News'));
 const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
 const SafetyReport = React.lazy(() => import('./pages/SafetyReport'));
 
+// Modern UI Component imports
+const ModernUIDemo = React.lazy(() => import('./components/ModernUIDemo'));
+const ModernDashboard = React.lazy(() => import('./components/ModernDashboard'));
+const ModernTaskCreator = React.lazy(() => import('./components/ModernTaskCreator'));
+const ModernTaskBrowser = React.lazy(() => import('./components/ModernTaskBrowser'));
+const ModernProfile = React.lazy(() => import('./components/ModernProfile'));
+const ModernNavigation = React.lazy(() => import('./components/ModernNavigation'));
+const ModernRouteNavigation = React.lazy(() => import('./components/ModernRouteNavigation'));
+
 function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -119,6 +128,26 @@ function AppContent() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
+              
+              {/* Modern UI Component Routes */}
+              <Route path="/modern" element={<PrivateRoute><ModernUIDemo /></PrivateRoute>} />
+              <Route path="/modern/routes" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
+              <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
+              <Route path="/modern/create" element={<PrivateRoute><ModernTaskCreator /></PrivateRoute>} />
+              <Route path="/modern/browse" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
+              <Route path="/modern/profile" element={<PrivateRoute><ModernProfile /></PrivateRoute>} />
+              <Route path="/modern/navigation" element={<PrivateRoute><ModernNavigation /></PrivateRoute>} />
+              
+              {/* Modern OSA Integration Routes */}
+              <Route path="/modern/dares" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
+              <Route path="/modern/dares/create" element={<PrivateRoute><ModernTaskCreator /></PrivateRoute>} />
+              <Route path="/modern/dares/:id" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
+              <Route path="/modern/leaderboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
+              <Route path="/modern/activity" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
+              
+              {/* Modern UI Index Route */}
+              <Route path="/modern-ui" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
+              
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
               <Route path="/switches/participate" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
