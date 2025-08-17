@@ -57,6 +57,9 @@ const ModernTaskBrowser = React.lazy(() => import('./components/ModernTaskBrowse
 const ModernProfile = React.lazy(() => import('./components/ModernProfile'));
 const ModernNavigation = React.lazy(() => import('./components/ModernNavigation'));
 const ModernRouteNavigation = React.lazy(() => import('./components/ModernRouteNavigation'));
+const ModernActiveTasks = React.lazy(() => import('./components/ModernActiveTasks'));
+const ModernUserAnalytics = React.lazy(() => import('./components/ModernUserAnalytics'));
+const ModernCommunity = React.lazy(() => import('./components/ModernCommunity'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -144,6 +147,23 @@ function AppContent() {
               <Route path="/modern/dares/:id" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
               <Route path="/modern/leaderboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
               <Route path="/modern/activity" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
+              
+              {/* Advanced Task Management Routes */}
+              <Route path="/modern/tasks/active" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
+              <Route path="/modern/tasks/completed" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
+              <Route path="/modern/tasks/expired" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
+              <Route path="/modern/tasks/cooldown" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
+              
+              {/* User Management & Analytics Routes */}
+              <Route path="/modern/users/analytics" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute>} />
+              <Route path="/modern/users/statistics" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute>} />
+              <Route path="/modern/users/achievements" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute> } />
+              
+              {/* Community & Social Routes */}
+              <Route path="/modern/community" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
+              <Route path="/modern/community/feed" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
+              <Route path="/modern/community/public-doms" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
+              <Route path="/modern/community/public-subs" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
               
               {/* Modern UI Index Route */}
               <Route path="/modern-ui" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />

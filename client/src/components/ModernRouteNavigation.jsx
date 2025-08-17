@@ -72,6 +72,24 @@ const ModernRouteNavigation = () => {
       name: 'Activity Feed',
       icon: <HomeIcon className="w-5 h-5" />,
       description: 'Activity tracking with modern interface'
+    },
+    {
+      path: '/modern/tasks/active',
+      name: 'Active Tasks',
+      icon: <ClockIcon className="w-5 h-5" />,
+      description: 'Manage active tasks and track progress'
+    },
+    {
+      path: '/modern/users/analytics',
+      name: 'User Analytics',
+      icon: <ChartBarIcon className="w-5 h-5" />,
+      description: 'Comprehensive performance analytics'
+    },
+    {
+      path: '/modern/community',
+      name: 'Community',
+      icon: <UsersIcon className="w-5 h-5" />,
+      description: 'Public acts and community features'
     }
   ];
 

@@ -25,9 +25,24 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/dares/create`** - Create new dares with modern form
 - **`/modern/dares/:id`** - View specific dare with modern interface
 
-### **User Management**
+### **Advanced Task Management**
+- **`/modern/tasks/active`** - Active task management with progress tracking
+- **`/modern/tasks/completed`** - Completed task history and performance review
+- **`/modern/tasks/expired`** - Expired task management and cleanup
+- **`/modern/tasks/cooldown`** - Cooldown timer and slot management interface
+
+### **User Management & Analytics**
 - **`/modern/profile`** - Enhanced user profile and statistics display
+- **`/modern/users/analytics`** - Comprehensive performance analytics and role breakdowns
+- **`/modern/users/statistics`** - Detailed performance metrics and achievements
+- **`/modern/users/achievements`** - Achievement system and milestone tracking
 - **`/modern/navigation`** - Modern navigation system showcase
+
+### **Community & Social Features**
+- **`/modern/community`** - Public acts and community interaction
+- **`/modern/community/feed`** - Public activity feed with filtering
+- **`/modern/community/public-doms`** - Public dominant task browsing
+- **`/modern/community/public-subs`** - Public submissive opportunity browsing
 
 ## 🔗 **Route Structure**
 
@@ -44,7 +59,20 @@ This document provides a comprehensive list of all available routes for the Mode
 │   ├── /create             # Create new tasks
 │   └── /:id                # View specific task
 ├── /modern/leaderboard      # Leaderboard
-└── /modern/activity         # Activity feed
+├── /modern/activity         # Activity feed
+├── /modern/tasks            # Advanced task management
+│   ├── /active             # Active tasks
+│   ├── /completed          # Completed tasks
+│   ├── /expired            # Expired tasks
+│   └── /cooldown           # Cooldown management
+├── /modern/users            # User analytics & management
+│   ├── /analytics          # Performance analytics
+│   ├── /statistics         # Detailed statistics
+│   └── /achievements       # Achievement tracking
+└── /modern/community        # Community & social features
+    ├── /feed               # Public activity feed
+    ├── /public-doms        # Public dominant tasks
+    └── /public-subs        # Public submissive opportunities
 ```
 
 ## 📱 **Route Access Requirements**
