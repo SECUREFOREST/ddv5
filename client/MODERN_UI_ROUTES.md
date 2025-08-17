@@ -49,6 +49,7 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/switch-games/create`** - Create new multi-participant games
 - **`/modern/switch-games/:id`** - View specific game details and information
 - **`/modern/switch-games/participate`** - Manage active games and join new ones
+- **`/modern/switch-games/tasks`** - Create, assign, and grade game tasks
 - **`/modern/switch-games/claim/:gameId`** - Claim available game slots
 
 ## 🔗 **Route Structure**
@@ -83,6 +84,7 @@ This document provides a comprehensive list of all available routes for the Mode
 └── /modern/switch-games     # Switch game system
     ├── /create             # Create new games
     ├── /participate        # Join and participate
+    ├── /tasks              # Task management
     └── /claim/:gameId      # Claim game slots
 
 ## 📱 **Route Access Requirements**

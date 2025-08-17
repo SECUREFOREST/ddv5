@@ -24,7 +24,7 @@ import {
   CogIcon,
   ArrowLeftIcon,
   UserPlusIcon,
-  CrownIcon,
+
   TrophyIcon,
   ExclamationCircleIcon
 } from '@heroicons/react/24/solid';
@@ -495,7 +495,7 @@ const ModernSwitchGameDetails = () => {
                           <div className="flex items-center space-x-2">
                             <span className="text-white font-medium">{participant.username}</span>
                             {participant.isCreator && (
-                              <CrownIcon className="w-4 h-4 text-yellow-400" />
+                              <TrophyIcon className="w-4 h-4 text-yellow-400" />
                             )}
                           </div>
                           <div className="text-sm text-neutral-400 capitalize">
