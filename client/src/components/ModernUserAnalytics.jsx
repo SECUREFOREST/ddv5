@@ -10,8 +10,8 @@ import {
   TrophyIcon,
   ClockIcon,
   StarIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
   CalendarIcon,
   EyeIcon,
   HeartIcon,
@@ -20,7 +20,7 @@ import {
   ExclamationCircleIcon,
   CheckCircleIcon,
   XCircleIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS } from '../constants';
 
 const ModernUserAnalytics = () => {
@@ -254,7 +254,7 @@ const ModernUserAnalytics = () => {
                   <span className="text-white">{userStats.achievements.filter(a => a.unlocked).length} achievements</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <TrendingUpIcon className="w-5 h-5 text-green-400" />
+                  <ChevronUpIcon className="w-5 h-5 text-green-400" />
                   <span className="text-white">{userStats.statistics.currentStreak} day streak</span>
                 </div>
               </div>
