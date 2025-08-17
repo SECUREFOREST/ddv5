@@ -16,7 +16,9 @@ import {
   LockClosedIcon,
   CogIcon,
   TrophyIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  PhotoIcon,
+  BellIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -161,12 +163,36 @@ const ModernRouteNavigation = () => {
       icon: <CogIcon className="w-5 h-5" />,
       description: 'System management and user administration'
     },
-    {
-      path: '/modern/safety/report',
-      name: 'Safety Report',
-      icon: <ShieldCheckIcon className="w-5 h-5" />,
-      description: 'Report inappropriate content and behavior'
-    }
+           {
+         path: '/modern/safety/report',
+         name: 'Safety Report',
+         icon: <ShieldCheckIcon className="w-5 h-5" />,
+         description: 'Report inappropriate content and behavior'
+       },
+       {
+         path: '/modern/tasks/history',
+         name: 'Task History',
+         icon: <ClockIcon className="w-5 h-5" />,
+         description: 'Complete tracking of your platform activities'
+       },
+       {
+         path: '/modern/tasks/evidence',
+         name: 'Evidence Gallery',
+         icon: <PhotoIcon className="w-5 h-5" />,
+         description: 'Manage and view your proof submissions'
+       },
+       {
+         path: '/modern/profile/notifications',
+         name: 'Notification Preferences',
+         icon: <BellIcon className="w-5 h-5" />,
+         description: 'Control how and when you receive notifications'
+       },
+       {
+         path: '/modern/users/:userId',
+         name: 'User Profile',
+         icon: <UserIcon className="w-5 h-5" />,
+         description: 'Detailed user profiles with activity history'
+       }
   ];
 
   return (

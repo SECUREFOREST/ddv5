@@ -69,8 +69,13 @@ const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwit
 const ModernSwitchGameParticipate = React.lazy(() => import('./components/ModernSwitchGameParticipate'));
 const ModernSwitchGameTaskManager = React.lazy(() => import('./components/ModernSwitchGameTaskManager'));
 const ModernSwitchGameResults = React.lazy(() => import('./components/ModernSwitchGameResults'));
+const ModernSwitchGameClaim = React.lazy(() => import('./components/ModernSwitchGameClaim'));
 const ModernAdmin = React.lazy(() => import('./pages/ModernAdmin'));
 const ModernSafetyReport = React.lazy(() => import('./pages/ModernSafetyReport'));
+const ModernTaskHistory = React.lazy(() => import('./pages/ModernTaskHistory'));
+const ModernEvidenceGallery = React.lazy(() => import('./pages/ModernEvidenceGallery'));
+const ModernNotificationPreferences = React.lazy(() => import('./pages/ModernNotificationPreferences'));
+const ModernUserProfile = React.lazy(() => import('./pages/ModernUserProfile'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -185,14 +190,23 @@ function AppContent() {
               <Route path="/modern/switch-games/participate" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
               <Route path="/modern/switch-games/tasks" element={<PrivateRoute><ModernSwitchGameTaskManager /></PrivateRoute>} />
               <Route path="/modern/switch-games/results" element={<PrivateRoute><ModernSwitchGameResults /></PrivateRoute>} />
+          <Route path="/modern/switch-games/claim" element={<PrivateRoute><ModernSwitchGameClaim /></PrivateRoute>} />
               <Route path="/modern/switch-games/claim/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
               
               {/* Modern UI Index Route */}
               <Route path="/modern-ui" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
               
-              {/* Admin & Safety Routes */}
-              <Route path="/modern/admin" element={<PrivateRoute><ModernAdmin /></PrivateRoute>} />
-              <Route path="/modern/safety/report" element={<PrivateRoute><ModernSafetyReport /></PrivateRoute>} />
+                             {/* Admin & Safety Routes */}
+               <Route path="/modern/admin" element={<PrivateRoute><ModernAdmin /></PrivateRoute>} />
+               <Route path="/modern/safety/report" element={<PrivateRoute><ModernSafetyReport /></PrivateRoute>} />
+               
+               {/* User Experience Routes */}
+               <Route path="/modern/tasks/history" element={<PrivateRoute><ModernTaskHistory /></PrivateRoute>} />
+               <Route path="/modern/tasks/evidence" element={<PrivateRoute><ModernEvidenceGallery /></PrivateRoute>} />
+               <Route path="/modern/profile/notifications" element={<PrivateRoute><ModernNotificationPreferences /></PrivateRoute>} />
+               
+               {/* User Profile Routes */}
+               <Route path="/modern/users/:userId" element={<PrivateRoute><ModernUserProfile /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

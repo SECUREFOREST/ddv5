@@ -68,22 +68,25 @@ This document provides a comprehensive list of all available routes for the Mode
     ├── /dashboard        # Main Dashboard
     ├── /create           # Task Creation
     ├── /browse           # Task Browser
-    ├── /profile          # User Profile
-    ├── /navigation       # Navigation Demo
-    ├── /dares            # Task Management
-    │   ├── /create       # Create Tasks
-    │   └── /:id          # Task Details
-    ├── /leaderboard      # Leaderboard
-    ├── /activity         # Activity Feed
-    ├── /tasks            # Advanced Task Management
-    │   ├── /active       # Active Tasks
-    │   ├── /completed    # Completed Tasks
-    │   ├── /expired      # Expired Tasks
-    │   └── /cooldown     # Cooldown Tasks
+           ├── /profile          # User Profile
+       ├── /navigation       # Navigation Demo
+       ├── /dares            # Task Management
+       │   ├── /create       # Create Tasks
+       │   └── /:id          # Task Details
+       ├── /leaderboard      # Leaderboard
+       ├── /activity         # Activity Feed
+       ├── /tasks            # Advanced Task Management
+       │   ├── /active       # Active Tasks
+       │   ├── /completed    # Completed Tasks
+       │   ├── /expired      # Expired Tasks
+       │   ├── /cooldown     # Cooldown Tasks
+       │   ├── /history      # Task History
+       │   └── /evidence     # Evidence Gallery
     ├── /users            # User Management
     │   ├── /analytics    # User Analytics
     │   ├── /statistics   # User Statistics
-    │   └── /achievements # User Achievements
+    │   ├── /achievements # User Achievements
+    │   └── /:userId      # User Profile
     ├── /community        # Community Features
     │   ├── /feed         # Community Feed
     │   ├── /public-doms  # Public dominants
@@ -94,9 +97,15 @@ This document provides a comprehensive list of all available routes for the Mode
     │   ├── /tasks              # Task management
     │   ├── /results            # Game results & loser proof
     │   └── /claim/:gameId      # Claim game slots
-    ├── /admin            # Admin dashboard
-    └── /safety          # Safety & reporting
-        └── /report       # Safety report system
+           ├── /admin            # Admin dashboard
+       ├── /safety          # Safety & reporting
+       │   └── /report       # Safety report system
+       ├── /profile          # User profile management
+       │   └── /settings     # Profile settings & preferences
+       └── /legal            # Legal & compliance
+           ├── /terms        # Terms of Service
+           ├── /privacy      # Privacy Policy
+           └── /guidelines   # Community Guidelines
 ```
 
 ## 📱 **Route Access Requirements**
@@ -288,6 +297,25 @@ All routes are wrapped with `PrivateRoute` component for authentication:
 ### **Modern UI System**
 - **`/modern/routes`** - Route Navigation Hub - Central navigation for all modern UI components
 
-### **Admin & Safety System**
-- **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
-- **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels 
+       ### **Admin & Safety System**
+       - **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
+       - **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels
+       
+       ### **Profile & Account Management**
+       - **`/modern/profile/settings`** - Profile Settings - Comprehensive user account management, privacy controls, and preferences
+       - **`/modern/profile/notifications`** - Notification Preferences - Enhanced control over all platform communications
+       
+       ### **User Experience & Task Management**
+       - **`/modern/tasks/history`** - Task History - Complete user activity tracking with filtering, search, and analytics
+       - **`/modern/tasks/evidence`** - Evidence Gallery - Proof submission management with viewing, organization, and management
+       
+       ### **User Discovery & Profiles**
+       - **`/modern/users/:userId`** - User Profile - Detailed user profiles with activity history, statistics, and social features
+       
+       ### **User Discovery & Profiles**
+       - **`/modern/users/:userId`** - User Profile - Detailed user profiles with activity history, statistics, and social features
+       
+       ### **Legal & Compliance System**
+       - **`/terms`** - Terms of Service - Legal terms and conditions for platform use with detailed sections
+       - **`/privacy`** - Privacy Policy - Data protection, GDPR compliance, and user privacy rights
+       - **`/guidelines`** - Community Guidelines - Behavioral expectations, community standards, and safety guidelines 

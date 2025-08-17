@@ -602,6 +602,22 @@ const TaskListItem = ({ task, onSubmit, onGrade, isCreator, getDifficultyColor, 
               {task.status === 'assigned' ? 'Start' : 'Submit'}
             </button>
           )}
+          
+          <button 
+            onClick={() => onViewEvidence(task)}
+            className="px-3 py-1 bg-neutral-600 hover:bg-neutral-500 text-white text-xs rounded transition-colors duration-200"
+          >
+            Evidence
+          </button>
+          
+          {task.status === 'in_progress' && task.allowExtensions && task.extensionsUsed < task.maxExtensions && (
+            <button 
+              onClick={() => onRequestExtension(task)}
+              className="px-3 py-1 bg-yellow-600 hover:bg-yellow-500 text-white text-xs rounded transition-colors duration-200"
+            >
+              Extend
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -733,16 +749,20 @@ const CreateTaskModal = ({ onClose, onCreateTask }) => {
 };
 
 // Task Submission Modal Component
-const TaskSubmissionModal = ({ task, onClose, onSubmit }) => {
-  const [submissionData, setSubmissionData] = useState({
-    evidence: [],
-    description: '',
-    completionNotes: ''
-  });
+const TaskSubmissionModal = ({ task, onClose, onSubmit, evidenceForm, setEvidenceForm, uploadingEvidence }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ taskId: task.id, ...submissionData });
+    onSubmit();
+  };
+
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setEvidenceForm(prev => ({ ...prev, files: [...prev.files, ...files] }));
+  };
+
+  const removeFile = (index) => {
+    setEvidenceForm(prev => ({ ...prev, files: prev.files.filter((_, i) => i !== index) }));
   };
 
   return (
