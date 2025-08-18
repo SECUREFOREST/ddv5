@@ -356,3 +356,49 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/switches/participate/:gameId`** - Participate in Specific Game - Join a specific switch game with detailed information
        - **`/modern/switches/claim/:gameId`** - Claim Switch Game - Claim and join available switch games with detailed information
        - **`/modern/claim/:claimToken`** - Claim Dare - Accept and participate in dares with consent and challenge details 
+
+---
+
+## 📁 **File Locations**
+
+All modern UI components are now organized in the v2 folder structure for better organization and maintainability:
+
+### **Page Components**
+- **Location**: `client/src/v2/pages/`
+- **Files**: All `Modern*.jsx` page components
+- **Count**: 40+ modern page components
+
+### **Reusable Components**
+- **Location**: `client/src/v2/components/`
+- **Files**: All `Modern*.jsx` reusable components
+- **Count**: 20+ modern UI components
+
+### **Folder Structure**
+```
+client/src/v2/
+├── pages/           # Modern UI page components
+├── components/      # Modern UI reusable components
+└── README.md        # V2 folder documentation
+```
+
+### **Import Paths**
+```jsx
+// Import from v2 pages
+import ModernDashboard from './v2/pages/ModernDashboard';
+import ModernProfile from './v2/pages/ModernProfile';
+
+// Import from v2 components
+import ModernNavigation from './v2/components/ModernNavigation';
+import ModernTaskCreator from './v2/components/ModernTaskCreator';
+```
+
+### **Benefits of V2 Organization**
+- **Clean Separation**: Clear distinction between legacy and modern UI
+- **Better Maintainability**: Organized folder structure
+- **Easier Navigation**: Logical grouping of components
+- **Future Scalability**: Ready for additional versions
+- **Team Collaboration**: Clear ownership and organization
+
+---
+
+*The v2 folder structure provides a clean, organized approach to managing the modern UI system while maintaining backward compatibility with the legacy system.* 

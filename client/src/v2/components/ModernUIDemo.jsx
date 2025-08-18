@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import ModernDashboard from '../ModernDashboard';
-import ModernTaskCreator from '../ModernTaskCreator';
-import ModernTaskBrowser from '../ModernTaskBrowser';
-import ModernProfile from '../ModernProfile';
-import ModernNavigation from '../ModernNavigation';
+import ModernDashboard from './ModernDashboard';
+import ModernTaskCreator from './ModernTaskCreator';
+import ModernTaskBrowser from './ModernTaskBrowser';
+import ModernProfile from './ModernProfile';
+import ModernNavigation from './ModernNavigation';
 
 const ModernUIDemo = () => {
   const [activeComponent, setActiveComponent] = useState('dashboard');
