@@ -10,7 +10,7 @@ import {
   UserIcon,
   StarIcon,
   BoltIcon,
-  CrownIcon,
+  SparklesIcon,
   MedalIcon,
   ChartBarIcon,
   ArrowTopRightOnSquareIcon,
@@ -146,7 +146,7 @@ const ModernLeaderboard = () => {
   };
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return <CrownIcon className="w-6 h-6 text-yellow-400" />;
+    if (rank === 1) return <SparklesIcon className="w-6 h-6 text-yellow-400" />;
     if (rank === 2) return <MedalIcon className="w-6 h-6 text-gray-300" />;
     if (rank === 3) return <MedalIcon className="w-6 h-6 text-amber-600" />;
     return <StarIcon className="w-4 h-4 text-neutral-400" />;
