@@ -5,8 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
 import { retryApiCall } from '../utils/retry';
 import TagsInput from '../components/TagsInput';
-import { 
-  FireIcon, 
+import {
+  FireIcon,
   EyeIcon,
   EyeSlashIcon,
   CheckIcon,
@@ -25,7 +25,7 @@ const ModernRegister = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { showSuccess, showError } = useToast();
-  
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -64,20 +64,20 @@ const ModernRegister = () => {
 
     // Use legacy validation schema
     const validation = validateFormData(
-      { 
-        username: formData.username, 
-        fullName: formData.fullName, 
-        email: formData.email, 
-        password: formData.password, 
-        dob: formData.dob, 
-        gender: formData.gender, 
-        interestedIn: formData.interestedIn, 
-        limits: formData.limits, 
-        newsletter: formData.newsletter 
+      {
+        username: formData.username,
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        dob: formData.dob,
+        gender: formData.gender,
+        interestedIn: formData.interestedIn,
+        limits: formData.limits,
+        newsletter: formData.newsletter
       },
       VALIDATION_SCHEMAS.register
     );
-    
+
     if (!validation.isValid) {
       const errorMessage = Object.values(validation.errors)[0];
       setErrors({ general: errorMessage });
@@ -90,7 +90,7 @@ const ModernRegister = () => {
       setErrors({ general: 'Please confirm your password' });
       return false;
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       setErrors({ general: 'Passwords do not match' });
       return false;
@@ -105,14 +105,14 @@ const ModernRegister = () => {
       setErrors({ general: 'You must agree to the Privacy Policy' });
       return false;
     }
-    
+
     setErrors({});
     return true;
   };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field] || errors.general) {
       setErrors(prev => ({ ...prev, [field]: '', general: '' }));
@@ -122,45 +122,45 @@ const ModernRegister = () => {
   const handleInterestedIn = (val) => {
     setFormData(prev => ({
       ...prev,
-      interestedIn: prev.interestedIn.includes(val) 
-        ? prev.interestedIn.filter(i => i !== val) 
+      interestedIn: prev.interestedIn.includes(val)
+        ? prev.interestedIn.filter(i => i !== val)
         : [...prev.interestedIn, val]
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
     setErrors({});
-    
+
     try {
       // Use retry mechanism for registration (from legacy)
       await retryApiCall(async () => {
-        await register({ 
-          username: formData.username, 
-          fullName: formData.fullName, 
-          email: formData.email, 
-          password: formData.password, 
-          dob: formData.dob, 
-          gender: formData.gender, 
-          interestedIn: formData.interestedIn, 
-          limits: formData.limits, 
-          newsletter: formData.newsletter 
+        await register({
+          username: formData.username,
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          dob: formData.dob,
+          gender: formData.gender,
+          interestedIn: formData.interestedIn,
+          limits: formData.limits,
+          newsletter: formData.newsletter
         });
       });
-      
+
       showSuccess('Registration successful! Redirecting...');
-      
+
       // Memory-safe timeout for navigation (from legacy)
       setTimeout(() => {
         navigate('/modern/dashboard');
       }, 2000);
-      
+
     } catch (error) {
       console.error('Registration error:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Registration failed. Please try again.';
@@ -173,7 +173,7 @@ const ModernRegister = () => {
 
   const getPasswordStrength = (password) => {
     if (!password) return { score: 0, label: '', color: '' };
-    
+
     let score = 0;
     if (password.length >= 8) score++;
     if (/(?=.*[a-z])/.test(password)) score++;
@@ -204,7 +204,7 @@ const ModernRegister = () => {
             <ArrowLeftIcon className="w-5 h-5" />
             <span>Back to Home</span>
           </Link>
-          
+
           <div className="flex items-center justify-center space-x-3 mb-6">
             <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-2xl flex items-center justify-center">
               <FireIcon className="w-8 h-8 text-white" />
@@ -233,9 +233,8 @@ const ModernRegister = () => {
                     id="fullName"
                     value={formData.fullName}
                     onChange={(e) => handleInputChange('fullName', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                      errors.fullName ? 'border-red-500' : 'border-neutral-600/50'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${errors.fullName ? 'border-red-500' : 'border-neutral-600/50'
+                      }`}
                     placeholder="Enter your full name"
                     disabled={isSubmitting}
                   />
@@ -254,9 +253,8 @@ const ModernRegister = () => {
                     id="username"
                     value={formData.username}
                     onChange={(e) => handleInputChange('username', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                      errors.username ? 'border-red-500' : 'border-neutral-600/50'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${errors.username ? 'border-red-500' : 'border-neutral-600/50'
+                      }`}
                     placeholder="Choose a unique username"
                     disabled={isSubmitting}
                   />
@@ -276,9 +274,8 @@ const ModernRegister = () => {
                   id="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                    errors.email ? 'border-red-500' : 'border-neutral-600/50'
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${errors.email ? 'border-red-500' : 'border-neutral-600/50'
+                    }`}
                   placeholder="Enter your email address"
                   disabled={isSubmitting}
                 />
@@ -302,7 +299,7 @@ const ModernRegister = () => {
                   disabled={isSubmitting}
                 />
               </div>
-              
+
               {/* Gender */}
               <div>
                 <label htmlFor="gender" className="block text-sm font-medium text-neutral-300 mb-2">
@@ -332,32 +329,30 @@ const ModernRegister = () => {
                 Interested in *
               </label>
               <div className="grid grid-cols-2 gap-4">
-                <label className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                  formData.interestedIn.includes('female') 
-                    ? 'border-primary bg-primary/10' 
+                <label className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${formData.interestedIn.includes('female')
+                    ? 'border-primary bg-primary/10'
                     : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
-                }`}>
-                  <input 
-                    type="checkbox" 
-                    checked={formData.interestedIn.includes('female')} 
-                    onChange={() => handleInterestedIn('female')} 
-                    className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2" 
+                  }`}>
+                  <input
+                    type="checkbox"
+                    checked={formData.interestedIn.includes('female')}
+                    onChange={() => handleInterestedIn('female')}
+                    className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
                     disabled={isSubmitting}
                   />
                   <span className="text-neutral-100 font-medium">Female</span>
                   {formData.interestedIn.includes('female') && <CheckIcon className="w-5 h-5 text-primary ml-auto" />}
                 </label>
-                
-                <label className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                  formData.interestedIn.includes('male') 
-                    ? 'border-primary bg-primary/10' 
+
+                <label className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${formData.interestedIn.includes('male')
+                    ? 'border-primary bg-primary/10'
                     : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
-                }`}>
-                  <input 
-                    type="checkbox" 
-                    checked={formData.interestedIn.includes('male')} 
-                    onChange={() => handleInterestedIn('male')} 
-                    className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2" 
+                  }`}>
+                  <input
+                    type="checkbox"
+                    checked={formData.interestedIn.includes('male')}
+                    onChange={() => handleInterestedIn('male')}
+                    className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
                     disabled={isSubmitting}
                   />
                   <span className="text-neutral-100 font-medium">Male</span>
@@ -378,9 +373,8 @@ const ModernRegister = () => {
                   id="password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  className={`w-full pl-10 pr-12 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                    errors.password ? 'border-red-500' : 'border-neutral-600/50'
-                  }`}
+                  className={`w-full pl-10 pr-12 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${errors.password ? 'border-red-500' : 'border-neutral-600/50'
+                    }`}
                   placeholder="Create a strong password"
                   disabled={isSubmitting}
                 />
@@ -393,7 +387,7 @@ const ModernRegister = () => {
                   {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </button>
               </div>
-              
+
               {/* Password Strength Indicator */}
               {formData.password && (
                 <div className="mt-2">
@@ -402,13 +396,12 @@ const ModernRegister = () => {
                     <span className={passwordStrength.color}>{passwordStrength.label}</span>
                   </div>
                   <div className="w-full bg-neutral-700/50 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        passwordStrength.score <= 1 ? 'bg-red-500' :
-                        passwordStrength.score <= 2 ? 'bg-yellow-500' :
-                        passwordStrength.score <= 3 ? 'bg-yellow-400' :
-                        passwordStrength.score <= 4 ? 'bg-green-400' : 'bg-green-500'
-                      }`}
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.score <= 1 ? 'bg-red-500' :
+                          passwordStrength.score <= 2 ? 'bg-yellow-500' :
+                            passwordStrength.score <= 3 ? 'bg-yellow-400' :
+                              passwordStrength.score <= 4 ? 'bg-green-400' : 'bg-green-500'
+                        }`}
                       style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
                     ></div>
                   </div>
@@ -428,9 +421,8 @@ const ModernRegister = () => {
                   id="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  className={`w-full pl-10 pr-12 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-neutral-600/50'
-                  }`}
+                  className={`w-full pl-10 pr-12 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${errors.confirmPassword ? 'border-red-500' : 'border-neutral-600/50'
+                    }`}
                   placeholder="Confirm your password"
                   disabled={isSubmitting}
                 />
@@ -447,31 +439,19 @@ const ModernRegister = () => {
 
             {/* Hard Limits - Enhanced Prominence */}
             <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-2xl p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <ExclamationTriangleIcon className="w-8 h-8 text-red-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Hard Limits</h3>
-                  <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                    List any dares or activities you absolutely will not do. This helps ensure your safety and comfort.
-                  </p>
-                </div>
-              </div>
               <div>
                 <label className="block font-semibold mb-3 text-red-300 text-sm">
                   Your Hard Limits (Required) *
                 </label>
-                <TagsInput 
-                  value={formData.limits} 
-                  onChange={(limits) => handleInputChange('limits', limits)} 
-                  placeholder="Add a limit (e.g., 'no photos', 'no public', 'no pain')..." 
+                <TagsInput
+                  value={formData.limits}
+                  onChange={(limits) => handleInputChange('limits', limits)}
+                  placeholder="Add a limit (e.g., 'no photos', 'no public', 'no pain')..."
                   disabled={isSubmitting}
                   className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
                 />
                 <p className="text-neutral-400 text-xs mt-2">
-                  Examples: no photos, no public, no pain, no humiliation, no specific dares
-                </p>
-                <p className="text-neutral-400 text-xs mt-2 italic">
-                  Note: This isn't a social network. Your account isn't publicly listed in any directory.
+                  Examples: no public, no pain, no humiliation, no specific dares
                 </p>
               </div>
             </div>
@@ -488,11 +468,11 @@ const ModernRegister = () => {
                 </div>
               </div>
               <label className="flex items-center gap-3 p-4 rounded-xl border border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50 transition-all cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={formData.newsletter} 
-                  onChange={(e) => handleInputChange('newsletter', e.target.checked)} 
-                  className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2" 
+                <input
+                  type="checkbox"
+                  checked={formData.newsletter}
+                  onChange={(e) => handleInputChange('newsletter', e.target.checked)}
+                  className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
                   disabled={isSubmitting}
                 />
                 <span className="text-neutral-100 font-medium">Subscribe to newsletter for updates</span>
@@ -588,6 +568,9 @@ const ModernRegister = () => {
             <ShieldCheckIcon className="w-4 h-4" />
             <span>Your data is protected with enterprise-grade security</span>
           </div>
+          <p className="flex items-center justify-center space-x-2 text-sm text-neutral-400">
+            Note: This isn't a social network. Your account isn't publicly listed in any directory.
+          </p>
         </div>
       </div>
     </div>
