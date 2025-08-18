@@ -38,7 +38,8 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   SparklesIcon as SparklesIconSolid,
-  UserIcon
+  UserIcon,
+  BellIcon
 } from '@heroicons/react/24/outline';
 
 const ModernLanding = () => {
@@ -64,29 +65,34 @@ const ModernLanding = () => {
 
   const features = [
     {
-      icon: <UsersIcon className="w-12 h-12" />,
-      title: "Multi-Participant Games",
-      description: "Create and join sophisticated switch games with role switching, task management, and real-time collaboration."
+      icon: <FireIcon className="w-8 h-8 text-red-500" />,
+      title: "Create & Accept",
+      description: "Create and accept dares in a safe, supportive environment"
     },
     {
-      icon: <TrophyIcon className="w-12 h-12" />,
-      title: "Advanced Task System",
-      description: "Comprehensive task creation, assignment, submission, and grading with proof verification and accountability."
+      icon: <TrophyIcon className="w-8 h-8 text-yellow-500" />,
+      title: "Compete & Win",
+      description: "Compete on the global leaderboard and track your progress"
     },
     {
-      icon: <ChartBarIcon className="w-12 h-12" />,
-      title: "Performance Analytics",
-      description: "Detailed performance tracking, role breakdown, difficulty progression, and achievement systems."
+      icon: <UserGroupIcon className="w-8 h-8 text-blue-500" />,
+      title: "Connect",
+      description: "Connect with a vibrant community of challenge-seekers"
     },
     {
-      icon: <GlobeAltIcon className="w-12 h-12" />,
-      title: "Community Features",
-      description: "Public acts, community challenges, social interactions, and discovery of new opportunities."
+      icon: <BellIcon className="w-8 h-8 text-green-500" />,
+      title: "Stay Updated",
+      description: "Get notified about new dares, achievements, and activity"
     },
     {
-      icon: <ShieldCheckIcon className="w-12 h-12" />,
-      title: "Safety & Moderation",
-      description: "Comprehensive safety features, reporting systems, content moderation, and community guidelines."
+      icon: <ShareIcon className="w-8 h-8 text-purple-500" />,
+      title: "Share Victories",
+      description: "Share your victories and inspire others to join the fun"
+    },
+    {
+      icon: <SparklesIcon className="w-8 h-8 text-primary" />,
+      title: "Daily Adventure",
+      description: "Make every day an adventure with exciting challenges"
     }
   ];
 
@@ -270,84 +276,21 @@ const ModernLanding = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Feature Showcase */}
-            <div className="space-y-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className={`p-6 rounded-xl border-2 transition-all duration-500 ${
-                    currentFeature === index
-                      ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
-                      : 'border-neutral-700/50 bg-neutral-800/50'
-                  }`}
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                      currentFeature === index
-                        ? 'bg-primary text-white'
-                        : 'bg-neutral-700/50 text-neutral-400'
-                    }`}>
-                      {feature.icon}
-                    </div>
-                    <div>
-                      <h3 className={`text-xl font-semibold mb-2 transition-colors duration-300 ${
-                        currentFeature === index ? 'text-primary' : 'text-white'
-                      }`}>
-                        {feature.title}
-                      </h3>
-                      <p className="text-neutral-400 leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className="bg-neutral-800/80 border border-neutral-700/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 bg-neutral-800/50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
                   </div>
+                  <h3 className="text-xl font-bold text-white">{feature.title}</h3>
                 </div>
-              ))}
-            </div>
-
-            {/* Interactive Demo */}
-            <div className="relative">
-              <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <PlayIcon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Live Demo</h3>
-                  <p className="text-neutral-400">Experience the platform in action</p>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                      <span className="text-white text-sm">Game Creation</span>
-                    </div>
-                  </div>
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                      <span className="text-white text-sm">Task Management</span>
-                    </div>
-                  </div>
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                      <span className="text-white text-sm">Role Switching</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <Link
-                    to="/modern"
-                    className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 flex items-center justify-center space-x-2"
-                  >
-                    <span>Try Demo</span>
-                    <ArrowRightIcon className="w-5 h-5" />
-                  </Link>
-                </div>
+                <p className="text-neutral-300 leading-relaxed">{feature.description}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -465,28 +408,25 @@ const ModernLanding = () => {
 
       {/* CTA Section */}
       <section className="py-20 px-6 sm:px-8 lg:px-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 rounded-2xl border border-primary/30 p-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-r from-primary/20 to-primary-dark/20 border border-primary/30 rounded-3xl p-8 sm:p-12 text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready to Experience the Future?
+              Ready to Start Your Adventure?
             </h2>
-            <p className="text-xl text-neutral-300 mb-8">
-              Join thousands of users already enjoying the most advanced switch gaming platform
+            <p className="text-xl text-neutral-300 mb-8 max-w-2xl mx-auto">
+              Join thousands of users who are already creating, accepting, and sharing exciting dares. 
+              Your next challenge awaits!
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <Link
-                to="/register"
-                className="px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 flex items-center space-x-2"
-              >
-                <span>Create Account</span>
-                <ArrowRightIcon className="w-5 h-5" />
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/register" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/25">
+                  Create Account
+                </button>
               </Link>
-              <Link
-                to="/login"
-                className="px-8 py-4 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-xl font-semibold text-lg transition-all duration-200 border border-neutral-600/50 hover:border-neutral-500/50"
-              >
-                Sign In
+              <Link to="/login" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto px-8 py-4 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-xl font-semibold text-lg transition-all duration-200 border border-neutral-600/50 hover:border-neutral-500/50">
+                  Sign In
+                </button>
               </Link>
             </div>
           </div>

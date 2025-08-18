@@ -338,6 +338,8 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/dashboard`** - Dashboard - Your personal command center with statistics, role management, and dare overview
        - **`/modern/activity-feed`** - Activity Feed - Real-time community activity feed with filtering, search, and enhanced user interactions
        - **`/modern/news`** - Community News - Latest platform announcements, feature updates, and community guidelines
+       - **`/modern/public-dares`** - Public Dares - Browse and participate in public dares and switch games from the community
+       - **`/modern/user-activity`** - User Activity - Track your personal performance, completion rates, and activity history
        - **`/modern/switches`** - Switch Games - Browse and manage switch games with enhanced filtering and participation options
        - **`/modern/switches/create`** - Create Switch Game - Create new switch games with advanced configuration and rule setting
        - **`/modern/switches/:gameId`** - Switch Game Details - View detailed switch game information, participants, and game progress

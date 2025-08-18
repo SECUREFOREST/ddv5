@@ -96,6 +96,8 @@ const ModernSwitchGameClaim = React.lazy(() => import('./pages/ModernSwitchGameC
 const ModernClaimDare = React.lazy(() => import('./pages/ModernClaimDare'));
 const ModernActivityFeed = React.lazy(() => import('./pages/ModernActivityFeed'));
 const ModernNews = React.lazy(() => import('./pages/ModernNews'));
+const ModernPublicDares = React.lazy(() => import('./pages/ModernPublicDares'));
+const ModernUserActivity = React.lazy(() => import('./pages/ModernUserActivity'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -173,6 +175,12 @@ function AppContent() {
               
               {/* Modern News Routes */}
               <Route path="/modern/news" element={<ModernNews />} />
+              
+              {/* Modern Public Dares Routes */}
+              <Route path="/modern/public-dares" element={<PrivateRoute><ModernPublicDares /></PrivateRoute>} />
+              
+              {/* Modern User Activity Routes */}
+              <Route path="/modern/user-activity" element={<PrivateRoute><ModernUserActivity /></PrivateRoute>} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />

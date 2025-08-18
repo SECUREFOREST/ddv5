@@ -25,7 +25,8 @@ import {
   DocumentPlusIcon,
   HandRaisedIcon,
   BoltIcon,
-  NewspaperIcon
+  NewspaperIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -295,6 +296,18 @@ const ModernRouteNavigation = () => {
          name: 'Community News',
          icon: <NewspaperIcon className="w-5 h-5" />,
          description: 'Latest platform announcements, feature updates, and community guidelines'
+       },
+       {
+         path: '/modern/public-dares',
+         name: 'Public Dares',
+         icon: <GlobeAltIcon className="w-5 h-5" />,
+         description: 'Browse and participate in public dares and switch games from the community'
+       },
+       {
+         path: '/modern/user-activity',
+         name: 'User Activity',
+         icon: <ChartBarIcon className="w-5 h-5" />,
+         description: 'Track your personal performance, completion rates, and activity history'
        },
        {
          path: '/modern/switches',
