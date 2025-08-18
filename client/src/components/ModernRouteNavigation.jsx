@@ -228,6 +228,12 @@ const ModernRouteNavigation = () => {
          name: 'Dare Reveal',
          icon: <EyeIcon className="w-5 h-5" />,
          description: 'View revealed dare content and submit proof'
+       },
+       {
+         path: '/modern/dares/123/perform',
+         name: 'Dare Performance',
+         icon: <PlayIcon className="w-5 h-5" />,
+         description: 'Perform dares with progress tracking and proof submission'
        }
   ];
 

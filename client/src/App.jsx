@@ -82,6 +82,7 @@ const ModernDareDifficultySelect = React.lazy(() => import('./pages/ModernDareDi
 const ModernDareParticipant = React.lazy(() => import('./pages/ModernDareParticipant'));
 const ModernDareConsent = React.lazy(() => import('./pages/ModernDareConsent'));
 const ModernDareReveal = React.lazy(() => import('./pages/ModernDareReveal'));
+const ModernDarePerform = React.lazy(() => import('./pages/ModernDarePerform'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -231,6 +232,9 @@ function AppContent() {
                
                {/* Modern Task Reveal Routes */}
                <Route path="/modern/dares/:id/reveal" element={<PrivateRoute><ModernDareReveal /></PrivateRoute>} />
+               
+               {/* Modern Task Performance Routes */}
+               <Route path="/modern/dares/:id/perform" element={<PrivateRoute><ModernDarePerform /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

@@ -7,7 +7,7 @@ import {
   DocumentTextIcon,
   EyeIcon,
   TrashIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   ShareIcon,
   CheckIcon,
   XMarkIcon,
@@ -640,7 +640,7 @@ const ModernEvidenceGallery = () => {
                         className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors duration-200"
                         title="Download"
                       >
-                        <DownloadIcon className="w-4 h-4" />
+                        <ArrowDownTrayIcon className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleShare(evidence)}
@@ -778,7 +778,7 @@ const ModernEvidenceGallery = () => {
                     onClick={() => handleDownload(selectedEvidence)}
                     className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
                   >
-                    <DownloadIcon className="w-5 h-5" />
+                    <ArrowDownTrayIcon className="w-5 h-5" />
                     <span>Download</span>
                   </button>
                   <button
