@@ -20,7 +20,8 @@ import {
   PhotoIcon,
   BellIcon,
   EyeIcon,
-  SettingsIcon
+  SettingsIcon,
+  StarIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
