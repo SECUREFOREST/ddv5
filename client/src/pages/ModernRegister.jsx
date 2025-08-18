@@ -106,6 +106,11 @@ const ModernRegister = () => {
       return false;
     }
 
+    if (!formData.newsletter) {
+      setErrors({ general: 'You must agree to receive updates about new features and community events' });
+      return false;
+    }
+
     setErrors({});
     return true;
   };
@@ -467,16 +472,17 @@ const ModernRegister = () => {
                   </p>
                 </div>
               </div>
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50 transition-all cursor-pointer">
+              <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.newsletter}
                   onChange={(e) => handleInputChange('newsletter', e.target.checked)}
-                  className="w-5 h-5 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
+                  className="w-5 h-5 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2"
                   disabled={isSubmitting}
                 />
-                <span className="text-neutral-100 font-medium">Subscribe to newsletter for updates</span>
-                {formData.newsletter && <CheckIcon className="w-5 h-5 text-primary ml-auto" />}
+                <div className="text-sm text-neutral-300">
+                  I agree to receive updates about new features and community events *
+                </div>
               </label>
             </div>
 
