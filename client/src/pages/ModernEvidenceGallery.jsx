@@ -17,7 +17,7 @@ import {
   FilterIcon,
   MagnifyingGlassIcon,
   Squares2X2Icon,
-  ListIcon,
+  Bars3Icon,
   CalendarIcon,
   TagIcon,
   ArrowUpIcon,
@@ -451,7 +451,7 @@ const ModernEvidenceGallery = () => {
                     : 'bg-neutral-700/50 text-neutral-400 hover:text-white'
                 }`}
               >
-                <ListIcon className="w-5 h-5" />
+                <Bars3Icon className="w-5 h-5" />
               </button>
             </div>
 
