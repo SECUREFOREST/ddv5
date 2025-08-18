@@ -87,6 +87,7 @@ const ModernDareShare = React.lazy(() => import('./pages/ModernDareShare'));
 const ModernDarePerformerDashboard = React.lazy(() => import('./pages/ModernDarePerformerDashboard'));
 const ModernOfferSubmission = React.lazy(() => import('./pages/ModernOfferSubmission'));
 const ModernLeaderboard = React.lazy(() => import('./pages/ModernLeaderboard'));
+const ModernProfileView = React.lazy(() => import('./pages/ModernProfileView'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -251,6 +252,9 @@ function AppContent() {
                
                {/* Modern Leaderboard Routes */}
                <Route path="/modern/leaderboard" element={<PrivateRoute><ModernLeaderboard /></PrivateRoute>} />
+               
+               {/* Modern Profile View Routes */}
+               <Route path="/modern/profile/:userId" element={<PrivateRoute><ModernProfileView /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

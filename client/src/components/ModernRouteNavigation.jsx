@@ -258,6 +258,12 @@ const ModernRouteNavigation = () => {
          name: 'Leaderboard',
          icon: <TrophyIcon className="w-5 h-5" />,
          description: 'View performance rankings and community standings with role-based filtering'
+       },
+       {
+         path: '/modern/profile/123',
+         name: 'Profile View',
+         icon: <UserIcon className="w-5 h-5" />,
+         description: 'View detailed user profiles with statistics, preferences, and activity history'
        }
   ];
 

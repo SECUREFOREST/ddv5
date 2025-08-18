@@ -332,4 +332,5 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/dares/:id/share`** - Dare Sharing - Share dares with friends and community with enhanced privacy controls
        - **`/modern/performer-dashboard`** - Performer Dashboard - Comprehensive dashboard for managing dares, switch games, and performance tracking
        - **`/modern/offer-submission`** - Offer Submission - Create submission offers with difficulty selection, tags, and privacy controls
-       - **`/modern/leaderboard`** - Leaderboard - View performance rankings and community standings with role-based filtering 
+       - **`/modern/leaderboard`** - Leaderboard - View performance rankings and community standings with role-based filtering
+       - **`/modern/profile/:userId`** - Profile View - View detailed user profiles with statistics, preferences, and activity history 
