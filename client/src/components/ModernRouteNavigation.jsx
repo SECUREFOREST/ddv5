@@ -20,7 +20,6 @@ import {
   PhotoIcon,
   BellIcon,
   EyeIcon,
-  SettingsIcon,
   StarIcon
 } from '@heroicons/react/24/solid';
 
@@ -271,7 +270,7 @@ const ModernRouteNavigation = () => {
        {
          path: '/modern/profile',
          name: 'Profile Management',
-         icon: <SettingsIcon className="w-5 h-5" />,
+         icon: <CogIcon className="w-5 h-5" />,
          description: 'Manage your profile, preferences, and account settings with enhanced controls'
        }
   ];
