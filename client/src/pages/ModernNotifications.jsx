@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftIcon,
@@ -20,7 +20,7 @@ import {
   FlagIcon,
   HandRaisedIcon
 } from '@heroicons/react/24/outline';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { retryApiCall } from '../utils/retry';
 import { formatRelativeTimeWithTooltip } from '../utils/dateUtils';
@@ -32,7 +32,7 @@ import api from '../api/axios';
 
 const ModernNotifications = () => {
   const navigate = useNavigate();
-  const { user, accessToken } = useContext(AuthContext);
+  const { user, accessToken } = useAuth();
   const { showSuccess, showError } = useToast();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -54,8 +54,8 @@ This document provides a comprehensive list of all available routes for the Mode
 - **`/modern/switch-games/claim/:gameId`** - Claim available game slots
 
 ### **Admin & Safety System**
-- **`/modern/admin`** - Admin dashboard for system management and user administration
-- **`/modern/safety/report`** - Safety report system for inappropriate content and behavior
+- **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
+- **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels
 
 ## 🔗 **Route Structure**
 
