@@ -21,8 +21,6 @@ import {
   EyeSlashIcon,
   UserGroupIcon,
   BoltIcon,
-  SparklesIcon,
-  StarIcon,
   ArrowTopRightOnSquareIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
