@@ -20,7 +20,7 @@ import {
   BookOpenIcon,
   ShieldCheckIcon,
   HeartIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   UsersIcon,
   CalendarIcon,
   TagIcon,
@@ -110,7 +110,7 @@ const ModernAdvertise = () => {
       borderColor: "border-green-500/30"
     },
     {
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       value: "95%",
       label: "Engagement Rate",
       color: "from-purple-500 to-purple-600",

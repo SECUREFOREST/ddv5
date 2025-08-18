@@ -23,8 +23,6 @@ import {
   UsersIcon,
   CalendarIcon,
   TagIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
   MinusIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
