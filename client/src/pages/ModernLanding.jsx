@@ -309,7 +309,7 @@ const ModernLanding = () => {
                 <h3 className="text-xl font-bold text-white mb-3">Set Your Limits</h3>
               </div>
               <p className="text-neutral-300 text-sm leading-relaxed">
-                Set your limits and difficulty level, then explore a private moment of submission with a friend or a stranger. The picture of your submissive act is seen only by them.
+                Set your limits and difficulty level, then explore a private moment of submission with a friend or a stranger. The picture of your submissive dare is seen only by them.
               </p>
             </div>
             
@@ -386,7 +386,7 @@ const ModernLanding = () => {
               </div>
               <div className="space-y-4 text-neutral-300 leading-relaxed">
                 <p>
-                  Our submissive acts come in five levels of explicitness, and we recommend you start at the start. If you're enjoying interactions with some sexy stranger, why not crank things up and allow them a more extreme interaction?
+                  Our submissive dares come in five levels of explicitness, and we recommend you start at the start. If you're enjoying interactions with some sexy stranger, why not crank things up and allow them a more extreme interaction?
                 </p>
                 <p>
                   If you're having a good time, you can continue to interact privately with specific users, providing you're both into it. When there's mutual consent, there's room for a lot of fun.
