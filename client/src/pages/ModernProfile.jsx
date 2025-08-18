@@ -15,7 +15,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
   BoltIcon,
-  CrownIcon,
+  SparklesIcon,
   HeartIcon,
   TagIcon,
   CalendarIcon,
@@ -345,7 +345,7 @@ const ModernProfile = () => {
                 <div className="bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl p-6 border border-blue-500/30">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                      <CrownIcon className="w-6 h-6 text-blue-400" />
+                      <SparklesIcon className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-blue-300">Dominant</div>
