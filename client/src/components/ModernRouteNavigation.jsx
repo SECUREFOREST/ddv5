@@ -240,6 +240,18 @@ const ModernRouteNavigation = () => {
          name: 'Dare Sharing',
          icon: <ShareIcon className="w-5 h-5" />,
          description: 'Share dares with friends and community with enhanced privacy controls'
+       },
+       {
+         path: '/modern/performer-dashboard',
+         name: 'Performer Dashboard',
+         icon: <UserIcon className="w-5 h-5" />,
+         description: 'Comprehensive dashboard for managing dares, switch games, and performance tracking'
+       },
+       {
+         path: '/modern/offer-submission',
+         name: 'Offer Submission',
+         icon: <DocumentPlusIcon className="w-5 h-5" />,
+         description: 'Create submission offers with difficulty selection, tags, and privacy controls'
        }
   ];
 

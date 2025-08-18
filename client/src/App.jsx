@@ -84,6 +84,8 @@ const ModernDareConsent = React.lazy(() => import('./pages/ModernDareConsent'));
 const ModernDareReveal = React.lazy(() => import('./pages/ModernDareReveal'));
 const ModernDarePerform = React.lazy(() => import('./pages/ModernDarePerform'));
 const ModernDareShare = React.lazy(() => import('./pages/ModernDareShare'));
+const ModernDarePerformerDashboard = React.lazy(() => import('./pages/ModernDarePerformerDashboard'));
+const ModernOfferSubmission = React.lazy(() => import('./pages/ModernOfferSubmission'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -239,6 +241,12 @@ function AppContent() {
                
                {/* Modern Task Sharing Routes */}
                <Route path="/modern/dares/:id/share" element={<PrivateRoute><ModernDareShare /></PrivateRoute>} />
+               
+               {/* Modern Performer Dashboard Routes */}
+               <Route path="/modern/performer-dashboard" element={<PrivateRoute><ModernDarePerformerDashboard /></PrivateRoute>} />
+               
+               {/* Modern Offer Submission Routes */}
+               <Route path="/modern/offer-submission" element={<PrivateRoute><ModernOfferSubmission /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
