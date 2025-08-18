@@ -344,7 +344,7 @@ const ModernLanding = () => {
               We like to have kinky fun online, but we wanted to be able to choose who to do it with, and how extreme it should be. Our product team is mostly women, and we've experienced being hassled on adult social networking sites that allow anyone to contact you.
             </p>
             <p className="text-neutral-300 leading-relaxed">
-              On Deviant Dare, you can choose to start a kinky interaction with a person of your choice. Whether you're looking to dominate others, submit to them, or play a risky game, you get to create an offer of one of these activities, and then either share the link allowing others to claim it with those you like, or open it up for strangers. If you don't want to initiate things, browse through our list of people offering their own acts, and choose the one who interests you.
+              On Deviant Dare, you can choose to start a kinky interaction with a person of your choice. Whether you're looking to dominate others, submit to them, or play a risky game, you get to create an offer of one of these activities, and then either share the link allowing others to claim it with those you like, or open it up for strangers. If you don't want to initiate things, browse through our list of people offering their own dares, and choose the one who interests you.
             </p>
           </div>
         </div>
