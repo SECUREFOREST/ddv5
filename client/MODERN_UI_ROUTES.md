@@ -299,8 +299,17 @@ All routes are wrapped with `PrivateRoute` component for authentication:
 - **`/modern/routes`** - Route Navigation Hub - Central navigation for all modern UI components
 
        ### **Admin & Safety System**
-       - **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
-       - **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels
+- **`/modern/admin`** - Admin Dashboard - System management, user administration, and content moderation
+- **`/modern/safety/report`** - Safety Report - Report inappropriate content and behavior with severity levels
+
+### **Authentication & Account Management**
+- **`/modern/forgot-password`** - Forgot Password - Secure password reset with email verification
+- **`/modern/reset-password`** - Reset Password - Set new password with strength validation
+- **`/modern/notifications`** - Notifications - Manage platform alerts and user notifications
+
+### **Development & Testing**
+- **`/modern/ui-demo`** - UI Demo - Interactive demonstration of modern UI components
+- **`/modern/404`** - 404 Page - Custom error page with helpful navigation options
        
        ### **Profile & Account Management**
        - **`/modern/profile/settings`** - Profile Settings - Comprehensive user account management, privacy controls, and preferences
