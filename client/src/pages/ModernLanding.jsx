@@ -26,7 +26,7 @@ import {
   CogIcon,
   ArrowRightIcon,
   UserPlusIcon,
-  CrownIcon,
+  SparklesIcon,
   TrophyIcon,
   ExclamationCircleIcon,
   ArrowPathIcon,

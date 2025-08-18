@@ -17,7 +17,7 @@ import {
   BellIcon,
   ChatBubbleLeftIcon,
   UserMinusIcon,
-  BanIcon
+  NoSymbolIcon
 } from '@heroicons/react/24/outline';
 
 const ModernSafetyReport = () => {
