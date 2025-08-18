@@ -334,4 +334,7 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/offer-submission`** - Offer Submission - Create submission offers with difficulty selection, tags, and privacy controls
        - **`/modern/leaderboard`** - Leaderboard - View performance rankings and community standings with role-based filtering
        - **`/modern/profile/:userId`** - Profile View - View detailed user profiles with statistics, preferences, and activity history
-       - **`/modern/profile`** - Profile Management - Manage your profile, preferences, and account settings with enhanced controls 
+       - **`/modern/profile`** - Profile Management - Manage your profile, preferences, and account settings with enhanced controls
+       - **`/modern/switches`** - Switch Games - Browse and manage switch games with enhanced filtering and participation options
+       - **`/modern/switches/create`** - Create Switch Game - Create new switch games with advanced configuration and rule setting
+       - **`/modern/switches/:gameId`** - Switch Game Details - View detailed switch game information, participants, and game progress 

@@ -20,7 +20,10 @@ import {
   PhotoIcon,
   BellIcon,
   EyeIcon,
-  StarIcon
+  StarIcon,
+  ShareIcon,
+  SettingsIcon,
+  DocumentPlusIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -270,8 +273,26 @@ const ModernRouteNavigation = () => {
        {
          path: '/modern/profile',
          name: 'Profile Management',
-         icon: <CogIcon className="w-5 h-5" />,
+         icon: <SettingsIcon className="w-5 h-5" />,
          description: 'Manage your profile, preferences, and account settings with enhanced controls'
+       },
+       {
+         path: '/modern/switches',
+         name: 'Switch Games',
+         icon: <PlayIcon className="w-5 h-5" />,
+         description: 'Browse and manage switch games with enhanced filtering and participation options'
+       },
+       {
+         path: '/modern/switches/create',
+         name: 'Create Switch Game',
+         icon: <PlusIcon className="w-5 h-5" />,
+         description: 'Create new switch games with advanced configuration and rule setting'
+       },
+       {
+         path: '/modern/switches/123',
+         name: 'Switch Game Details',
+         icon: <EyeIcon className="w-5 h-5" />,
+         description: 'View detailed switch game information, participants, and game progress'
        }
   ];
 

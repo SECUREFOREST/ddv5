@@ -65,7 +65,7 @@ const ModernUserAnalytics = React.lazy(() => import('./components/ModernUserAnal
 const ModernCommunity = React.lazy(() => import('./components/ModernCommunity'));
 const ModernSwitchGameCreator = React.lazy(() => import('./components/ModernSwitchGameCreator'));
 const ModernSwitchGameBrowser = React.lazy(() => import('./components/ModernSwitchGameBrowser'));
-const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwitchGameDetails'));
+// const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwitchGameDetails'));
 const ModernSwitchGameParticipate = React.lazy(() => import('./components/ModernSwitchGameParticipate'));
 const ModernSwitchGameTaskManager = React.lazy(() => import('./components/ModernSwitchGameTaskManager'));
 const ModernSwitchGameResults = React.lazy(() => import('./components/ModernSwitchGameResults'));
@@ -89,6 +89,9 @@ const ModernOfferSubmission = React.lazy(() => import('./pages/ModernOfferSubmis
 const ModernLeaderboard = React.lazy(() => import('./pages/ModernLeaderboard'));
 const ModernProfileView = React.lazy(() => import('./pages/ModernProfileView'));
 const ModernProfile = React.lazy(() => import('./pages/ModernProfile'));
+const ModernSwitchGames = React.lazy(() => import('./pages/ModernSwitchGames'));
+const ModernSwitchGameCreate = React.lazy(() => import('./pages/ModernSwitchGameCreate'));
+const ModernSwitchGameDetails = React.lazy(() => import('./pages/ModernSwitchGameDetails'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -259,6 +262,11 @@ function AppContent() {
                
                {/* Modern Profile Management Routes */}
                <Route path="/modern/profile" element={<PrivateRoute><ModernProfile /></PrivateRoute>} />
+               
+               {/* Modern Switch Game Routes */}
+               <Route path="/modern/switches" element={<PrivateRoute><ModernSwitchGames /></PrivateRoute>} />
+               <Route path="/modern/switches/create" element={<PrivateRoute><ModernSwitchGameCreate /></PrivateRoute>} />
+               <Route path="/modern/switches/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
