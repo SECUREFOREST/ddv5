@@ -5,12 +5,10 @@ import {
   TrophyIcon, 
   FireIcon, 
   HeartIcon, 
-  SparklesIcon,
   ArrowLeftIcon,
   UserIcon,
   StarIcon,
   BoltIcon,
-  SparklesIcon,
   MedalIcon,
   ChartBarIcon,
   ArrowTopRightOnSquareIcon,
@@ -29,7 +27,7 @@ import api from '../api/axios';
 const LEADERBOARD_TABS = [
   { key: 'all', label: 'All Users', icon: TrophyIcon, color: 'from-yellow-500 to-yellow-600' },
   { key: 'subs', label: 'Subs Leaderboard', icon: HeartIcon, color: 'from-pink-500 to-pink-600' },
-  { key: 'doms', label: 'Doms Leaderboard', icon: SparklesIcon, color: 'from-purple-500 to-purple-600' },
+  { key: 'doms', label: 'Doms Leaderboard', icon: ChartBarIcon, color: 'from-purple-500 to-purple-600' },
 ];
 
 const ModernLeaderboard = () => {
@@ -146,7 +144,7 @@ const ModernLeaderboard = () => {
   };
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return <SparklesIcon className="w-6 h-6 text-yellow-400" />;
+    if (rank === 1) return <MedalIcon className="w-6 h-6 text-yellow-400" />;
     if (rank === 2) return <MedalIcon className="w-6 h-6 text-gray-300" />;
     if (rank === 3) return <MedalIcon className="w-6 h-6 text-amber-600" />;
     return <StarIcon className="w-4 h-4 text-neutral-400" />;
