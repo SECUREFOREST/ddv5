@@ -1,388 +1,328 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
-  FireIcon, 
+  ArrowLeftIcon,
   ShieldCheckIcon,
   ExclamationTriangleIcon,
-  CheckIcon,
-  XMarkIcon,
-  DocumentTextIcon,
-  UserIcon,
+  HeartIcon,
+  UserGroupIcon,
   LockClosedIcon,
   EyeIcon,
-  EyeSlashIcon,
-  ArrowUpIcon
+  FireIcon,
+  PlayIcon,
+  ClockIcon,
+  BoltIcon,
+  StarIcon,
+  CogIcon,
+  BellIcon,
+  BookOpenIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  InformationCircleIcon,
+  DocumentTextIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
 const ModernTermsOfService = () => {
-  const [activeSection, setActiveSection] = useState('overview');
-  const [showBackToTop, setShowBackToTop] = useState(false);
+  const navigate = useNavigate();
+  const [expandedSections, setExpandedSections] = useState(new Set(['core-principles']));
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 400);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const toggleSection = (sectionId) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionId)) {
+      newExpanded.delete(sectionId);
+    } else {
+      newExpanded.add(sectionId);
+    }
+    setExpandedSections(newExpanded);
   };
 
   const sections = [
-    { id: 'overview', title: 'Overview', icon: <DocumentTextIcon className="w-5 h-5" /> },
-    { id: 'definitions', title: 'Definitions', icon: <UserIcon className="w-5 h-5" /> },
-    { id: 'user-conduct', title: 'User Conduct', icon: <ShieldCheckIcon className="w-5 h-5" /> },
-    { id: 'content-guidelines', title: 'Content Guidelines', icon: <LockClosedIcon className="w-5 h-5" /> },
-    { id: 'privacy-data', title: 'Privacy & Data', icon: <EyeIcon className="w-5 h-5" /> },
-    { id: 'intellectual-property', title: 'Intellectual Property', icon: <DocumentTextIcon className="w-5 h-5" /> },
-    { id: 'disclaimers', title: 'Disclaimers', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
-    { id: 'termination', title: 'Termination', icon: <XMarkIcon className="w-5 h-5" /> },
-    { id: 'governing-law', title: 'Governing Law', icon: <DocumentTextIcon className="w-5 h-5" /> }
+    {
+      id: 'core-principles',
+      title: 'Core Principles',
+      icon: HeartIcon,
+      color: 'from-red-500 to-red-600',
+      bgColor: 'bg-red-500/20',
+      borderColor: 'border-red-500/30',
+      content: (
+        <div className="space-y-4 text-neutral-300">
+          <p className="text-lg leading-relaxed">
+            Deviant Dare is a safe, private space for consensual adult interactions. Our community is built on mutual respect, explicit consent, and personal responsibility.
+          </p>
+          <ul className="space-y-3 ml-6 list-disc">
+            <li><strong className="text-white">Consent is mandatory.</strong> All interactions must be between consenting adults.</li>
+            <li><strong className="text-white">Respect personal boundaries.</strong> Honor stated limits and preferences.</li>
+            <li><strong className="text-white">Privacy is paramount.</strong> Content is private by default and expires automatically.</li>
+            <li><strong className="text-white">No harassment or abuse.</strong> Verbal abuse, threats, or encouraging harm is strictly prohibited.</li>
+          </ul>
+        </div>
+      )
+    },
+    {
+      id: 'safety-privacy',
+      title: 'Safety & Privacy',
+      icon: LockClosedIcon,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-500/20',
+      borderColor: 'border-blue-500/30',
+      content: (
+        <div className="space-y-4 text-neutral-300">
+          <div className="bg-blue-600/20 border border-blue-500/30 rounded-xl p-4">
+            <h4 className="font-semibold text-blue-300 mb-2 flex items-center gap-2">
+              <CheckCircleIcon className="w-5 h-5" />
+              Photo & Content Privacy
+            </h4>
+            <ul className="space-y-2 text-sm">
+              <li>• Photos are <strong>never public by default</strong></li>
+              <li>• Content expires automatically after 30 days</li>
+              <li>• You can delete content immediately after viewing</li>
+              <li>• Block feature hides your content from unwanted users</li>
+            </ul>
+          </div>
+          <div className="bg-yellow-600/20 border border-yellow-500/30 rounded-xl p-4">
+            <h4 className="font-semibold text-yellow-300 mb-2 flex items-center gap-2">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              Important Privacy Warnings
+            </h4>
+            <ul className="space-y-2 text-sm">
+              <li>• <strong>Photos are automatically deleted after viewing</strong> unless you choose otherwise</li>
+              <li>• Content expires in 30 days by default</li>
+              <li>• Screenshots are not prevented - trust your recipients</li>
+              <li>• Once shared, you lose control over content distribution</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'community-guidelines',
+      title: 'Community Guidelines',
+      icon: UserGroupIcon,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-500/20',
+      borderColor: 'border-green-500/30',
+      content: (
+        <div className="space-y-6 text-neutral-300">
+          <div>
+            <h4 className="text-xl font-semibold text-white mb-3 flex items-center gap-2">
+              <CheckCircleIcon className="w-5 h-5 text-green-400" />
+              What's Allowed
+            </h4>
+            <ul className="space-y-2 ml-6 list-disc">
+              <li>Consensual adult interactions between 18+ users</li>
+              <li>Respectful exploration of kinks and fantasies</li>
+              <li>Honoring stated limits and hard boundaries</li>
+              <li>Personal beliefs and preferences (so long as acts are consensual)</li>
+              <li>Constructive feedback and community support</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xl font-semibold text-white mb-3 flex items-center gap-2">
+              <XCircleIcon className="w-5 h-5 text-red-400" />
+              What's Prohibited
+            </h4>
+            <ul className="space-y-2 ml-6 list-disc">
+              <li>Harassment, threats, or encouraging self-harm</li>
+              <li>Non-consensual content sharing or distribution</li>
+              <li>Underage content or interactions</li>
+              <li>Hate speech or discrimination</li>
+              <li>Impersonation or fake accounts</li>
+              <li>Spam or commercial solicitation</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'enforcement',
+      title: 'Enforcement & Reporting',
+      icon: ExclamationTriangleIcon,
+      color: 'from-red-500 to-red-600',
+      bgColor: 'bg-red-500/20',
+      borderColor: 'border-red-500/30',
+      content: (
+        <div className="space-y-4 text-neutral-300">
+          <p className="text-lg leading-relaxed">
+            Violations of these guidelines can result in temporary suspension or permanent account termination.
+          </p>
+          <div className="bg-red-600/20 border border-red-500/30 rounded-xl p-4">
+            <h4 className="font-semibold text-red-300 mb-2 flex items-center gap-2">
+              <InformationCircleIcon className="w-5 h-5" />
+              How to Report Issues
+            </h4>
+            <ul className="space-y-2 text-sm">
+              <li>• Use the <Link to="/modern/safety/report" className="text-red-300 underline hover:text-red-200">Safety Report</Link> form for violations</li>
+              <li>• Block users who make you uncomfortable</li>
+              <li>• Contact support for technical issues</li>
+              <li>• All reports are reviewed by our safety team</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'account-management',
+      title: 'Account Management',
+      icon: EyeIcon,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-500/20',
+      borderColor: 'border-purple-500/30',
+      content: (
+        <div className="space-y-4 text-neutral-300">
+          <p className="text-lg leading-relaxed">
+            You have full control over your account and content.
+          </p>
+          <ul className="space-y-2 ml-6 list-disc">
+            <li>Edit your profile and preferences at any time</li>
+            <li>Delete your account and all associated content</li>
+            <li>Control content expiration and privacy settings</li>
+            <li>Manage blocked users and privacy preferences</li>
+          </ul>
+        </div>
+      )
+    }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900">
       {/* Header */}
       <div className="bg-neutral-800/50 backdrop-blur-sm border-b border-neutral-700/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-xl flex items-center justify-center">
-                <FireIcon className="w-6 h-6 text-white" />
-              </div>
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-lg transition-colors duration-200"
+              >
+                <ArrowLeftIcon className="w-5 h-5" />
+              </button>
               <div>
                 <h1 className="text-2xl font-bold text-white">Terms of Service</h1>
-                <p className="text-neutral-400 text-sm">Last updated: January 15, 2024</p>
+                <p className="text-neutral-400 text-sm">Community guidelines and rules</p>
               </div>
             </div>
-            <Link
-              to="/"
-              className="px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-lg transition-colors duration-200"
-            >
-              Back to Home
+            
+            <div className="flex items-center space-x-2">
+              <div className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-sm font-medium">
+                <div className="flex items-center space-x-1">
+                  <ShieldCheckIcon className="w-4 h-4" />
+                  <span>Legal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
+        {/* Welcome Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="w-20 h-20 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center">
+              <ShieldCheckIcon className="w-10 h-10 text-white" />
+            </div>
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">Terms of Service & Community Guidelines</h2>
+              <p className="text-xl sm:text-2xl text-neutral-300 mt-2">
+                Built by kinky folks, for kinky folks
+              </p>
+            </div>
+          </div>
+          <p className="text-neutral-400 text-lg max-w-3xl mx-auto">
+            Our platform is built on the foundation of consent, respect, and safety. 
+            These guidelines ensure a positive experience for all community members.
+          </p>
+        </div>
+
+        {/* Interactive Sections */}
+        <div className="space-y-6">
+          {sections.map((section) => {
+            const SectionIcon = section.icon;
+            const isExpanded = expandedSections.has(section.id);
+            
+            return (
+              <div key={section.id} className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 shadow-xl overflow-hidden">
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="w-full p-6 text-left hover:bg-neutral-700/50 transition-all duration-200"
+                  aria-expanded={isExpanded}
+                  aria-controls={`${section.id}-content`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-3 bg-gradient-to-r ${section.color} rounded-xl`}>
+                        <SectionIcon className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white">{section.title}</h3>
+                    </div>
+                    <div className={`p-2 bg-neutral-700/50 rounded-lg transition-transform duration-200 ${
+                      isExpanded ? 'rotate-180' : ''
+                    }`}>
+                      {isExpanded ? (
+                        <ChevronUpIcon className="w-5 h-5 text-neutral-400" />
+                      ) : (
+                        <ChevronDownIcon className="w-5 h-5 text-neutral-400" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+                
+                {isExpanded && (
+                  <div 
+                    id={`${section.id}-content`}
+                    className="px-6 pb-6 border-t border-neutral-700/50"
+                  >
+                    {section.content}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-12 bg-gradient-to-r from-primary/20 to-primary-dark/20 backdrop-blur-sm rounded-2xl border border-primary/30 p-8 text-center">
+          <h3 className="text-2xl font-bold text-white mb-4">Need Help or Want to Report Something?</h3>
+          <p className="text-neutral-300 mb-6">
+            Our safety team is here to help maintain a positive community environment.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/modern/safety/report">
+              <button className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2 justify-center">
+                <ExclamationTriangleIcon className="w-5 h-5" />
+                Report Issue
+              </button>
+            </Link>
+            <Link to="/modern/news">
+              <button className="w-full sm:w-auto bg-neutral-700/50 text-neutral-300 border border-neutral-600/50 rounded-xl px-6 py-3 font-bold transition-all duration-200 hover:bg-neutral-600/50 flex items-center gap-2 justify-center">
+                <BookOpenIcon className="w-5 h-5" />
+                Community News
+              </button>
             </Link>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
-            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 sticky top-32">
-              <h3 className="text-white font-semibold mb-4">Table of Contents</h3>
-              <nav className="space-y-2">
-                {sections.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => {
-                      document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
-                      setActiveSection(section.id);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-                      activeSection === section.id
-                        ? 'bg-primary text-white'
-                        : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                    }`}
-                  >
-                    {section.icon}
-                    <span className="text-sm">{section.title}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-8">
-              {/* Overview Section */}
-              <section id="overview" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Overview</h2>
-                <div className="prose prose-invert max-w-none">
-                  <p className="text-neutral-300 mb-4">
-                    Welcome to OneSubmissiveAct (OSA), a platform designed for consenting adults to engage in 
-                    BDSM task management and performance tracking. These Terms of Service govern your use of our 
-                    platform and services.
-                  </p>
-                  <p className="text-neutral-300 mb-4">
-                    By accessing or using OSA, you agree to be bound by these terms. If you disagree with any 
-                    part of these terms, you may not access our service.
-                  </p>
-                  <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-4">
-                    <div className="flex items-start space-x-3">
-                      <ExclamationTriangleIcon className="w-5 h-5 text-blue-400 mt-0.5" />
-                      <div>
-                        <h4 className="text-blue-300 font-medium mb-1">Important Notice</h4>
-                        <p className="text-blue-200 text-sm">
-                          This platform is intended for consenting adults only. All users must be 18 years or older 
-                          and must provide valid identification during registration.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Definitions Section */}
-              <section id="definitions" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Definitions</h2>
-                <div className="space-y-4">
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <h4 className="text-white font-medium mb-2">"Service" or "Platform"</h4>
-                    <p className="text-neutral-300 text-sm">
-                      Refers to the OneSubmissiveAct website, mobile applications, and related services.
-                    </p>
-                  </div>
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <h4 className="text-white font-medium mb-2">"User" or "You"</h4>
-                    <p className="text-neutral-300 text-sm">
-                      Refers to any individual who accesses or uses our Service.
-                    </p>
-                  </div>
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <h4 className="text-white font-medium mb-2">"Content"</h4>
-                    <p className="text-neutral-300 text-sm">
-                      Refers to any information, text, graphics, photos, or other materials uploaded, 
-                      posted, or shared on the platform.
-                    </p>
-                  </div>
-                  <div className="bg-neutral-700/30 rounded-lg p-4">
-                    <h4 className="text-white font-medium mb-2">"Task" or "Demand"</h4>
-                    <p className="text-neutral-300 text-sm">
-                      Refers to activities, challenges, or requests created by users for others to perform.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* User Conduct Section */}
-              <section id="user-conduct" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">User Conduct</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Acceptable Use</h3>
-                    <p className="text-neutral-300 mb-4">
-                      You agree to use the Service only for lawful purposes and in accordance with these Terms.
-                    </p>
-                    <ul className="text-neutral-300 space-y-2 ml-6">
-                      <li>• Respect the rights and dignity of other users</li>
-                      <li>• Provide accurate and truthful information</li>
-                      <li>• Maintain appropriate boundaries and consent</li>
-                      <li>• Report inappropriate behavior or content</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Prohibited Activities</h3>
-                    <p className="text-neutral-300 mb-4">
-                      The following activities are strictly prohibited:
-                    </p>
-                    <ul className="text-neutral-300 space-y-2 ml-6">
-                      <li>• Harassment, bullying, or abusive behavior</li>
-                      <li>• Sharing non-consensual content or images</li>
-                      <li>• Impersonating others or creating fake profiles</li>
-                      <li>• Attempting to harm or exploit minors</li>
-                      <li>• Violating any applicable laws or regulations</li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
-
-              {/* Content Guidelines Section */}
-              <section id="content-guidelines" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Content Guidelines</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Content Standards</h3>
-                    <p className="text-neutral-300 mb-4">
-                      All content shared on the platform must meet our community standards:
-                    </p>
-                    <ul className="text-neutral-300 space-y-2 ml-6">
-                      <li>• Must be consensual and appropriate for adults</li>
-                      <li>• Cannot promote illegal activities or harm</li>
-                      <li>• Must respect intellectual property rights</li>
-                      <li>• Cannot contain hate speech or discrimination</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Content Moderation</h3>
-                    <p className="text-neutral-300 mb-4">
-                      We reserve the right to review, modify, or remove any content that violates these guidelines.
-                    </p>
-                    <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5" />
-                        <div>
-                          <h4 className="text-yellow-300 font-medium mb-1">Content Review</h4>
-                          <p className="text-yellow-200 text-sm">
-                            All content is subject to review by our moderation team. Violations may result in 
-                            content removal, account suspension, or permanent termination.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Privacy & Data Section */}
-              <section id="privacy-data" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Privacy & Data</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Data Collection</h3>
-                    <p className="text-neutral-300 mb-4">
-                      We collect and process personal data in accordance with our Privacy Policy and applicable 
-                      data protection laws.
-                    </p>
-                    <ul className="text-neutral-300 space-y-2 ml-6">
-                      <li>• Account information and profile data</li>
-                      <li>• Usage data and platform interactions</li>
-                      <li>• Communication and content shared</li>
-                      <li>• Technical data and device information</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Data Protection</h3>
-                    <p className="text-neutral-300 mb-4">
-                      Your privacy and data security are our top priorities:
-                    </p>
-                    <ul className="text-neutral-300 space-y-2 ml-6">
-                      <li>• Encryption of sensitive data</li>
-                      <li>• Secure data storage and transmission</li>
-                      <li>• Limited access to personal information</li>
-                      <li>• Regular security audits and updates</li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
-
-              {/* Intellectual Property Section */}
-              <section id="intellectual-property" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Intellectual Property</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Platform Rights</h3>
-                    <p className="text-neutral-300 mb-4">
-                      The Service and its original content, features, and functionality are owned by OSA and 
-                      are protected by international copyright, trademark, and other intellectual property laws.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">User Content</h3>
-                    <p className="text-neutral-300 mb-4">
-                      You retain ownership of content you create and share on the platform. By posting content, 
-                      you grant us a limited license to use, display, and distribute your content as necessary 
-                      to provide the Service.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Disclaimers Section */}
-              <section id="disclaimers" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Disclaimers</h2>
-                <div className="space-y-6">
-                  <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-6">
-                    <h3 className="text-xl font-semibold text-red-300 mb-3">Important Disclaimers</h3>
-                    <ul className="text-red-200 space-y-2 ml-6">
-                      <li>• The Service is provided "as is" without warranties of any kind</li>
-                      <li>• We are not responsible for user-generated content or interactions</li>
-                      <li>• Users are responsible for their own safety and well-being</li>
-                      <li>• We do not endorse or verify the accuracy of user content</li>
-                      <li>• The platform is not a substitute for professional advice or therapy</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Limitation of Liability</h3>
-                    <p className="text-neutral-300">
-                      OSA shall not be liable for any indirect, incidental, special, consequential, or punitive 
-                      damages resulting from your use of the Service.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Termination Section */}
-              <section id="termination" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Termination</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Account Termination</h3>
-                    <p className="text-neutral-300 mb-4">
-                      We may terminate or suspend your account immediately, without prior notice, for any reason, 
-                      including violation of these Terms.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Effect of Termination</h3>
-                    <p className="text-neutral-300 mb-4">
-                      Upon termination, your right to use the Service will cease immediately. We may delete 
-                      your account and all associated data.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Governing Law Section */}
-              <section id="governing-law" className="mb-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Governing Law</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Legal Jurisdiction</h3>
-                    <p className="text-neutral-300 mb-4">
-                      These Terms shall be governed by and construed in accordance with the laws of the 
-                      jurisdiction in which OSA operates, without regard to conflict of law provisions.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-3">Dispute Resolution</h3>
-                    <p className="text-neutral-300 mb-4">
-                      Any disputes arising from these Terms or your use of the Service shall be resolved 
-                      through binding arbitration in accordance with our dispute resolution procedures.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Contact Information */}
-              <section className="border-t border-neutral-700/50 pt-8">
-                <h2 className="text-2xl font-bold text-white mb-6">Contact Information</h2>
-                <div className="bg-neutral-700/30 rounded-lg p-6">
-                  <p className="text-neutral-300 mb-4">
-                    If you have any questions about these Terms of Service, please contact us:
-                  </p>
-                  <div className="space-y-2 text-neutral-300">
-                    <p>• Email: legal@osa-platform.com</p>
-                    <p>• Support: support@osa-platform.com</p>
-                    <p>• Safety: safety@osa-platform.com</p>
-                  </div>
-                </div>
-              </section>
+        {/* Footer */}
+        <div className="mt-12 text-center py-8 border-t border-neutral-700/50">
+          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-6">
+            <p className="text-neutral-400 text-sm mb-2">
+              Built by kinky folks, for kinky folks
+            </p>
+            <p className="text-neutral-500 text-xs">
+              Last updated: {new Date().toLocaleDateString()}
+            </p>
+            <div className="mt-4 flex justify-center gap-4 text-xs text-neutral-500">
+              <span>Version 2.0</span>
+              <span>•</span>
+              <span>Community Driven</span>
+              <span>•</span>
+              <span>Safety First</span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Back to Top Button */}
-      {showBackToTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 w-12 h-12 bg-primary hover:bg-primary-dark text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center z-50"
-        >
-          <ArrowUpIcon className="w-6 h-6" />
-        </button>
-      )}
     </div>
   );
 };
