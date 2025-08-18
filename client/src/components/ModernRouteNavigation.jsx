@@ -252,6 +252,12 @@ const ModernRouteNavigation = () => {
          name: 'Offer Submission',
          icon: <DocumentPlusIcon className="w-5 h-5" />,
          description: 'Create submission offers with difficulty selection, tags, and privacy controls'
+       },
+       {
+         path: '/modern/leaderboard',
+         name: 'Leaderboard',
+         icon: <TrophyIcon className="w-5 h-5" />,
+         description: 'View performance rankings and community standings with role-based filtering'
        }
   ];
 
