@@ -45,54 +45,30 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center py-12 px-6 sm:px-8 lg:px-12">
       <Helmet>
         <title>Forgot Password - Deviant Dare</title>
         <meta name="description" content="Reset your password for Deviant Dare" />
       </Helmet>
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-neutral-900/95 backdrop-blur-md border-b border-neutral-700/50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-xl flex items-center justify-center">
-                <FireIcon className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">Deviant Dare</span>
-            </Link>
-            
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/login"
-                className="text-neutral-300 hover:text-white transition-colors duration-200 font-medium"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-primary/25"
-              >
-                Get Started
-              </Link>
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <Link to="/login" className="inline-flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors duration-200 mb-6">
+            <ArrowLeftIcon className="w-5 h-5" />
+            <span>Back to Login</span>
+          </Link>
+          
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-dark rounded-2xl flex items-center justify-center">
+              <LockClosedIcon className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Reset Password</h1>
+              <p className="text-neutral-400">Enter your email to receive reset instructions</p>
             </div>
           </div>
         </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="pt-32 pb-20 px-6 sm:px-8 lg:px-12">
-        <div className="max-w-md mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="bg-gradient-to-r from-primary to-primary-dark p-4 rounded-2xl shadow-2xl shadow-primary/25">
-                <LockClosedIcon className="w-10 h-10 text-white" />
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold text-white mb-3">Forgot Password?</h1>
-            <p className="text-neutral-300 text-lg">No worries, we'll send you reset instructions</p>
-          </div>
 
           {/* Form Card */}
           <div className="bg-neutral-800/80 border border-neutral-700/50 rounded-2xl p-8 shadow-xl">
