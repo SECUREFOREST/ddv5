@@ -37,7 +37,8 @@ import {
   PaperAirplaneIcon,
   ChartBarIcon,
   ShieldCheckIcon,
-  SparklesIcon as SparklesIconSolid
+  SparklesIcon as SparklesIconSolid,
+  UserIcon
 } from '@heroicons/react/24/outline';
 
 const ModernLanding = () => {
@@ -144,14 +145,14 @@ const ModernLanding = () => {
               <span>Modern OSA Platform</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Discover the Future of
-              <span className="block bg-gradient-to-r from-primary via-primary-dark to-red-600 bg-clip-text text-transparent">
-                Switch Games
+              Welcome to{" "}
+              <span className="block bg-gradient-to-r from-primary via-red-500 to-pink-500 bg-clip-text text-transparent">
+                Deviant Dare
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-neutral-300 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Experience the most advanced platform for multi-participant games, role switching, 
-              and community-driven challenges with modern design and sophisticated functionality.
+              A safe, private space to share your sexual fantasies with strangers or lovers. 
+              Choose your role and start your adventure.
             </p>
           </div>
           
@@ -160,29 +161,99 @@ const ModernLanding = () => {
               to="/register"
               className="px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 flex items-center space-x-2"
             >
-              <span>Start Your Journey</span>
+              <span>Get Started</span>
               <ArrowRightIcon className="w-5 h-5" />
             </Link>
             <Link
-              to="/modern"
+              to="/login"
               className="px-8 py-4 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-xl font-semibold text-lg transition-all duration-200 border border-neutral-600/50 hover:border-neutral-500/50"
             >
-              Explore Platform
+              Sign In
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* OSA-Style Role-Based Entry Points */}
       <section className="py-20 px-6 sm:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-neutral-400 text-lg">{stat.label}</div>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Choose Your Role
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Offer your Submission */}
+            <div className="bg-neutral-800/80 border border-pink-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-4 rounded-2xl shadow-2xl shadow-pink-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                  <UserIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4">Offer your Submission</h3>
+                <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                  Perform tasks for a dominant. Create private offers that only the chosen person can see. Your picture is seen only by them.
+                </p>
+                <Link to="/register" className="inline-block w-full">
+                  <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-3 rounded-xl font-bold hover:from-pink-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    Sign Up to Start
+                  </button>
+                </Link>
               </div>
-            ))}
+            </div>
+
+            {/* Demand and Dominate */}
+            <div className="bg-neutral-800/80 border border-red-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-2xl shadow-2xl shadow-red-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                  <ShieldCheckIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4">Demand and Dominate</h3>
+                <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                  Assign tasks for a submissive. Your demand is hidden until they first consent to perform a deviant dare of your choice.
+                </p>
+                <Link to="/register" className="inline-block w-full">
+                  <button className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-bold hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    Sign Up to Start
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Compete with a Switch */}
+            <div className="bg-neutral-800/80 border border-purple-500/30 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-2xl shadow-2xl shadow-purple-500/25 mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                  <PlayIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4">Compete with a Switch</h3>
+                <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
+                  Rock-paper-scissors game where the loser performs the winner's demand.
+                </p>
+                <Link to="/register" className="inline-block w-full">
+                  <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    Sign Up to Start
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Traditional CTA Buttons */}
+      <section className="py-20 px-6 sm:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/login" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/25">
+                Get Started
+              </button>
+            </Link>
+            <Link to="/register" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto px-8 py-4 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-xl font-semibold text-lg transition-all duration-200 border border-neutral-600/50 hover:border-neutral-500/50">
+                Join Community
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -192,7 +263,7 @@ const ModernLanding = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Powerful Features for Modern Gaming
+              Why Choose Deviant Dare?
             </h2>
             <p className="text-xl text-neutral-300 max-w-3xl mx-auto">
               Built with cutting-edge technology and designed for the most sophisticated gaming experiences

@@ -23,7 +23,9 @@ import {
   StarIcon,
   ShareIcon,
   DocumentPlusIcon,
-  HandRaisedIcon
+  HandRaisedIcon,
+  BoltIcon,
+  NewspaperIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -281,6 +283,18 @@ const ModernRouteNavigation = () => {
          name: 'Dashboard',
          icon: <ChartBarIcon className="w-5 h-5" />,
          description: 'Your personal command center with statistics, role management, and dare overview'
+       },
+       {
+         path: '/modern/activity-feed',
+         name: 'Activity Feed',
+         icon: <BoltIcon className="w-5 h-5" />,
+         description: 'Real-time community activity feed with filtering, search, and enhanced user interactions'
+       },
+       {
+         path: '/modern/news',
+         name: 'Community News',
+         icon: <NewspaperIcon className="w-5 h-5" />,
+         description: 'Latest platform announcements, feature updates, and community guidelines'
        },
        {
          path: '/modern/switches',
