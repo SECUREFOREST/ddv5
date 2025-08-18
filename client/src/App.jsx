@@ -76,6 +76,10 @@ const ModernTaskHistory = React.lazy(() => import('./pages/ModernTaskHistory'));
 const ModernEvidenceGallery = React.lazy(() => import('./pages/ModernEvidenceGallery'));
 const ModernNotificationPreferences = React.lazy(() => import('./pages/ModernNotificationPreferences'));
 const ModernUserProfile = React.lazy(() => import('./pages/ModernUserProfile'));
+const ModernDomDemandCreator = React.lazy(() => import('./pages/ModernDomDemandCreator'));
+const ModernDareDetails = React.lazy(() => import('./pages/ModernDareDetails'));
+const ModernDareDifficultySelect = React.lazy(() => import('./pages/ModernDareDifficultySelect'));
+const ModernDareParticipant = React.lazy(() => import('./pages/ModernDareParticipant'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -207,6 +211,18 @@ function AppContent() {
                
                {/* User Profile Routes */}
                <Route path="/modern/users/:userId" element={<PrivateRoute><ModernUserProfile /></PrivateRoute>} />
+               
+               {/* Modern Task Creation Routes */}
+               <Route path="/modern/dares/create/dom" element={<PrivateRoute><ModernDomDemandCreator /></PrivateRoute>} />
+               
+               {/* Modern Task Details Routes */}
+               <Route path="/modern/dares/:id" element={<PrivateRoute><ModernDareDetails /></PrivateRoute>} />
+               
+               {/* Modern Task Difficulty Selection Routes */}
+               <Route path="/modern/dares/select" element={<PrivateRoute><ModernDareDifficultySelect /></PrivateRoute>} />
+               
+               {/* Modern Task Participation Routes */}
+               <Route path="/modern/dares/:id/participate" element={<PrivateRoute><ModernDareParticipant /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

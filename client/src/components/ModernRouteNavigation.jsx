@@ -192,6 +192,30 @@ const ModernRouteNavigation = () => {
          name: 'User Profile',
          icon: <UserIcon className="w-5 h-5" />,
          description: 'Detailed user profiles with activity history'
+       },
+       {
+         path: '/modern/dares/create/dom',
+         name: 'Create Dominant Demand',
+         icon: <FireIcon className="w-5 h-5" />,
+         description: 'Create dominant dares with consent protection'
+       },
+       {
+         path: '/modern/dares/:id',
+         name: 'Dare Details',
+         icon: <EyeIcon className="w-5 h-5" />,
+         description: 'View and manage dare details with modern interface'
+       },
+       {
+         path: '/modern/dares/select',
+         name: 'Difficulty Selection',
+         icon: <StarIcon className="w-5 h-5" />,
+         description: 'Choose your comfort level for dare performance'
+       },
+       {
+         path: '/modern/dares/123/participate',
+         name: 'Dare Participation',
+         icon: <UserGroupIcon className="w-5 h-5" />,
+         description: 'Participate in dares with consent and proof submission'
        }
   ];
 

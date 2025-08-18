@@ -72,6 +72,7 @@ This document provides a comprehensive list of all available routes for the Mode
        ├── /navigation       # Navigation Demo
        ├── /dares            # Task Management
        │   ├── /create       # Create Tasks
+       │   │   └── /dom      # Dominant demand creation
        │   └── /:id          # Task Details
        ├── /leaderboard      # Leaderboard
        ├── /activity         # Activity Feed
@@ -318,4 +319,10 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        ### **Legal & Compliance System**
        - **`/terms`** - Terms of Service - Legal terms and conditions for platform use with detailed sections
        - **`/privacy`** - Privacy Policy - Data protection, GDPR compliance, and user privacy rights
-       - **`/guidelines`** - Community Guidelines - Behavioral expectations, community standards, and safety guidelines 
+       - **`/guidelines`** - Community Guidelines - Behavioral expectations, community standards, and safety guidelines
+       
+       ### **Modern Task Creation System**
+       - **`/modern/dares/create/dom`** - Create Dominant Demand - Advanced task creation with consent protection and modern UI
+       - **`/modern/dares/:id`** - Dare Details - Complete task management with modern interface and enhanced UX
+       - **`/modern/dares/select`** - Difficulty Selection - Interactive difficulty selection with enhanced visual feedback
+       - **`/modern/dares/:id/participate`** - Dare Participation - Complete task participation with consent and proof submission 
