@@ -265,6 +265,9 @@ function AppContent() {
                {/* Modern Profile Management Routes */}
                <Route path="/modern/profile" element={<PrivateRoute><ModernProfile /></PrivateRoute>} />
                
+               {/* Modern Dashboard Routes */}
+               <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
+               
                {/* Modern Switch Game Routes */}
                <Route path="/modern/switches" element={<PrivateRoute><ModernSwitchGames /></PrivateRoute>} />
                <Route path="/modern/switches/create" element={<PrivateRoute><ModernSwitchGameCreate /></PrivateRoute>} />

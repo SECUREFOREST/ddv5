@@ -277,6 +277,12 @@ const ModernRouteNavigation = () => {
          description: 'Manage your profile, preferences, and account settings with enhanced controls'
        },
        {
+         path: '/modern/dashboard',
+         name: 'Dashboard',
+         icon: <ChartBarIcon className="w-5 h-5" />,
+         description: 'Your personal command center with statistics, role management, and dare overview'
+       },
+       {
          path: '/modern/switches',
          name: 'Switch Games',
          icon: <PlayIcon className="w-5 h-5" />,
