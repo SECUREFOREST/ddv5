@@ -146,10 +146,6 @@ const ModernLanding = () => {
       <section className="pt-32 pb-20 px-6 sm:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-medium mb-6">
-              <SparklesIconSolid className="w-4 h-4" />
-              <span>Modern OSA Platform</span>
-            </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               Welcome to{" "}
               <span className="block bg-gradient-to-r from-primary via-red-500 to-pink-500 bg-clip-text text-transparent">
@@ -304,7 +300,7 @@ const ModernLanding = () => {
                 Built on Legacy Excellence
               </h2>
               <p className="text-xl text-neutral-300 mb-8 leading-relaxed">
-                OSA represents over a decade of development in sophisticated gaming platforms. 
+                Deviant Dare represents over a decade of development in sophisticated gaming platforms. 
                 Our modern UI system preserves the advanced functionality while delivering 
                 contemporary design and enhanced user experience.
               </p>
@@ -442,7 +438,7 @@ const ModernLanding = () => {
                 <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
                   <FireIcon className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">OSA</span>
+                <span className="text-xl font-bold text-white">Deviant Dare</span>
               </div>
               <p className="text-neutral-400">
                 The most advanced platform for switch gaming and community challenges.
@@ -478,7 +474,7 @@ const ModernLanding = () => {
           </div>
           
           <div className="border-t border-neutral-700/50 mt-8 pt-8 text-center text-neutral-400">
-            <p>&copy; 2024 OSA Platform. All rights reserved.</p>
+            <p>&copy; 2025 Deviant Dare. All rights reserved.</p>
           </div>
         </div>
       </footer>

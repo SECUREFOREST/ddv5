@@ -215,7 +215,7 @@ const ModernRegister = () => {
               <FireIcon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Join OSA</h1>
+              <h1 className="text-3xl font-bold text-white">Join Deviant Dare</h1>
               <p className="text-neutral-400">Create your account and start your journey</p>
             </div>
           </div>

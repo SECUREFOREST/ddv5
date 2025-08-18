@@ -151,7 +151,7 @@ const ModernLogin = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-              <p className="text-neutral-400">Sign in to your OSA account</p>
+              <p className="text-neutral-400">Sign in to your Deviant Dare account</p>
             </div>
           </div>
         </div>
@@ -339,7 +339,7 @@ const ModernLogin = () => {
               Explore Platform
             </Link>
             <Link to="/about" className="text-neutral-400 hover:text-white transition-colors duration-200">
-              About OSA
+              About Deviant Dare
             </Link>
             <Link to="/help" className="text-neutral-400 hover:text-white transition-colors duration-200">
               Help Center
