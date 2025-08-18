@@ -7,6 +7,7 @@ import {
   ExclamationTriangleIcon, 
   ArrowPathIcon, 
   CheckCircleIcon, 
+  CheckIcon,
   ArrowRightOnRectangleIcon, 
   XMarkIcon,
   FireIcon,
@@ -20,8 +21,6 @@ import {
   TagIcon,
   CalendarIcon,
   CameraIcon,
-  SaveIcon,
-  SettingsIcon,
   LockClosedIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
@@ -486,7 +485,7 @@ const ModernProfile = () => {
                     disabled={saving}
                     className="px-8 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <SaveIcon className="w-5 h-5" />
+                    <CheckIcon className="w-5 h-5" />
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                   
