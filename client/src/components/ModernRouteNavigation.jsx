@@ -216,6 +216,12 @@ const ModernRouteNavigation = () => {
          name: 'Dare Participation',
          icon: <UserGroupIcon className="w-5 h-5" />,
          description: 'Participate in dares with consent and proof submission'
+       },
+       {
+         path: '/modern/dares/123/consent',
+         name: 'Dare Consent',
+         icon: <ShieldCheckIcon className="w-5 h-5" />,
+         description: 'Review and consent to perform dares with safety information'
        }
   ];
 

@@ -16,7 +16,7 @@ import {
   StarIcon,
   FilterIcon,
   MagnifyingGlassIcon,
-  GridIcon,
+  Squares2X2Icon,
   ListIcon,
   CalendarIcon,
   TagIcon,
@@ -441,7 +441,7 @@ const ModernEvidenceGallery = () => {
                     : 'bg-neutral-700/50 text-neutral-400 hover:text-white'
                 }`}
               >
-                <GridIcon className="w-5 h-5" />
+                <Squares2X2Icon className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}

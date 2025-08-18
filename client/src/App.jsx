@@ -80,6 +80,7 @@ const ModernDomDemandCreator = React.lazy(() => import('./pages/ModernDomDemandC
 const ModernDareDetails = React.lazy(() => import('./pages/ModernDareDetails'));
 const ModernDareDifficultySelect = React.lazy(() => import('./pages/ModernDareDifficultySelect'));
 const ModernDareParticipant = React.lazy(() => import('./pages/ModernDareParticipant'));
+const ModernDareConsent = React.lazy(() => import('./pages/ModernDareConsent'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -223,6 +224,9 @@ function AppContent() {
                
                {/* Modern Task Participation Routes */}
                <Route path="/modern/dares/:id/participate" element={<PrivateRoute><ModernDareParticipant /></PrivateRoute>} />
+               
+               {/* Modern Task Consent Routes */}
+               <Route path="/modern/dares/:id/consent" element={<PrivateRoute><ModernDareConsent /></PrivateRoute>} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

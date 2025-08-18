@@ -325,4 +325,5 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/dares/create/dom`** - Create Dominant Demand - Advanced task creation with consent protection and modern UI
        - **`/modern/dares/:id`** - Dare Details - Complete task management with modern interface and enhanced UX
        - **`/modern/dares/select`** - Difficulty Selection - Interactive difficulty selection with enhanced visual feedback
-       - **`/modern/dares/:id/participate`** - Dare Participation - Complete task participation with consent and proof submission 
+       - **`/modern/dares/:id/participate`** - Dare Participation - Complete task participation with consent and proof submission
+       - **`/modern/dares/:id/consent`** - Dare Consent - Review and consent to perform dares with safety information 
