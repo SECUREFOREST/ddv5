@@ -50,13 +50,14 @@ const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
 const SafetyReport = React.lazy(() => import('./pages/SafetyReport'));
 
 // Modern UI Component imports
-const ModernUIDemo = React.lazy(() => import('./pages/ModernUIDemo'));
+const ModernUIDemo = React.lazy(() => import('./components/ModernUIDemo'));
 const ModernLanding = React.lazy(() => import('./pages/ModernLanding'));
 const ModernRegister = React.lazy(() => import('./pages/ModernRegister'));
 const ModernLogin = React.lazy(() => import('./pages/ModernLogin'));
-const ModernDashboard = React.lazy(() => import('./pages/ModernDashboard'));
+const ModernDashboard = React.lazy(() => import('./components/ModernDashboard'));
 const ModernTaskCreator = React.lazy(() => import('./components/ModernTaskCreator'));
 const ModernTaskBrowser = React.lazy(() => import('./components/ModernTaskBrowser'));
+// const ModernProfile = React.lazy(() => import('./components/ModernProfile'));
 const ModernNavigation = React.lazy(() => import('./components/ModernNavigation'));
 const ModernRouteNavigation = React.lazy(() => import('./components/ModernRouteNavigation'));
 const ModernActiveTasks = React.lazy(() => import('./components/ModernActiveTasks'));
@@ -64,8 +65,10 @@ const ModernUserAnalytics = React.lazy(() => import('./components/ModernUserAnal
 const ModernCommunity = React.lazy(() => import('./components/ModernCommunity'));
 const ModernSwitchGameCreator = React.lazy(() => import('./components/ModernSwitchGameCreator'));
 const ModernSwitchGameBrowser = React.lazy(() => import('./components/ModernSwitchGameBrowser'));
+// const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwitchGameDetails'));
 const ModernSwitchGameTaskManager = React.lazy(() => import('./components/ModernSwitchGameTaskManager'));
 const ModernSwitchGameResults = React.lazy(() => import('./components/ModernSwitchGameResults'));
+// const ModernSwitchGameClaim = React.lazy(() => import('./components/ModernSwitchGameClaim'));
 const ModernAdmin = React.lazy(() => import('./pages/ModernAdmin'));
 const ModernSafetyReport = React.lazy(() => import('./pages/ModernSafetyReport'));
 const ModernTaskHistory = React.lazy(() => import('./pages/ModernTaskHistory'));
@@ -98,12 +101,10 @@ const ModernUserActivity = React.lazy(() => import('./pages/ModernUserActivity')
 const ModernForgotPassword = React.lazy(() => import('./pages/ModernForgotPassword'));
 const ModernResetPassword = React.lazy(() => import('./pages/ModernResetPassword'));
 const ModernNotifications = React.lazy(() => import('./pages/ModernNotifications'));
+// const ModernUIDemo = React.lazy(() => import('./pages/ModernUIDemo'));
 const ModernNotFound = React.lazy(() => import('./pages/ModernNotFound'));
 const ModernAdvertise = React.lazy(() => import('./pages/ModernAdvertise'));
 const ModernTermsOfService = React.lazy(() => import('./pages/ModernTermsOfService'));
-
-// Migration component for legacy to modern UI transition
-const ModernUIMigration = React.lazy(() => import('./components/ModernUIMigration'));
 
 function AppContent() {
   const { user, loading } = useAuth();
