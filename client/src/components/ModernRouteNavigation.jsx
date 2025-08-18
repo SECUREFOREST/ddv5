@@ -222,6 +222,12 @@ const ModernRouteNavigation = () => {
          name: 'Dare Consent',
          icon: <ShieldCheckIcon className="w-5 h-5" />,
          description: 'Review and consent to perform dares with safety information'
+       },
+       {
+         path: '/modern/dares/123/reveal',
+         name: 'Dare Reveal',
+         icon: <EyeIcon className="w-5 h-5" />,
+         description: 'View revealed dare content and submit proof'
        }
   ];
 

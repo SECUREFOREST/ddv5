@@ -14,7 +14,7 @@ import {
   ExclamationTriangleIcon,
   ClockIcon,
   StarIcon,
-  FilterIcon,
+  FunnelIcon,
   MagnifyingGlassIcon,
   Squares2X2Icon,
   Bars3Icon,
@@ -460,7 +460,7 @@ const ModernEvidenceGallery = () => {
               onClick={() => setShowFilters(!showFilters)}
               className="px-4 py-3 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
             >
-              <FilterIcon className="w-5 h-5" />
+              <FunnelIcon className="w-5 h-5" />
               <span>Filters</span>
             </button>
           </div>
