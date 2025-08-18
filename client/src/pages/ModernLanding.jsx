@@ -294,109 +294,104 @@ const ModernLanding = () => {
       {/* About Section */}
       <section id="about" className="py-20 px-6 sm:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Built on Legacy Excellence
-              </h2>
-              <p className="text-xl text-neutral-300 mb-8 leading-relaxed">
-                Deviant Dare represents over a decade of development in sophisticated gaming platforms. 
-                Our modern UI system preserves the advanced functionality while delivering 
-                contemporary design and enhanced user experience.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <CheckIcon className="w-6 h-6 text-green-400" />
-                  <span className="text-white">Advanced Chart.js Architecture</span>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Get Started
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div className="bg-neutral-800/80 border border-neutral-700/50 rounded-2xl p-6">
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <UserIcon className="w-8 h-8 text-white" />
                 </div>
-                <div className="flex items-center space-x-3">
-                  <CheckIcon className="w-6 h-6 text-green-400" />
-                  <span className="text-white">Professional Animation Systems</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckIcon className="w-6 h-6 text-green-400" />
-                  <span className="text-white">Enterprise-Grade Component Architecture</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckIcon className="w-6 h-6 text-green-400" />
-                  <span className="text-white">Real-Time Communication Systems</span>
-                </div>
+                <h3 className="text-xl font-bold text-white mb-3">Set Your Limits</h3>
               </div>
+              <p className="text-neutral-300 text-sm leading-relaxed">
+                Set your limits and difficulty level, then explore a private moment of submission with a friend or a stranger. The picture of your submissive act is seen only by them.
+              </p>
             </div>
             
-            <div className="relative">
-              <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-gradient-to-r from-primary to-primary-dark rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <CogIcon className="w-10 h-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Technical Excellence</h3>
-                  <div className="space-y-3 text-left">
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Chart.js Integration</span>
-                      <span className="text-green-400">Advanced</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Animation System</span>
-                      <span className="text-green-400">Professional</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Component Architecture</span>
-                      <span className="text-green-400">Enterprise</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">Real-Time Features</span>
-                      <span className="text-green-400">Advanced</span>
-                    </div>
-                  </div>
+            <div className="bg-neutral-800/80 border border-neutral-700/50 rounded-2xl p-6">
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheckIcon className="w-8 h-8 text-white" />
                 </div>
+                <h3 className="text-xl font-bold text-white mb-3">Describe Your Fantasy</h3>
               </div>
+              <p className="text-neutral-300 text-sm leading-relaxed">
+                Describe your dominant fantasy, then share a link with friends or strangers and find out who is willing to perform your demand before they even know what it is.
+              </p>
             </div>
+            
+            <div className="bg-neutral-800/80 border border-neutral-700/50 rounded-2xl p-6">
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <PlayIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">Switch Between Roles</h3>
+              </div>
+              <p className="text-neutral-300 text-sm leading-relaxed">
+                Do you switch between dominance and submission? Start a switch game with one other friend or stranger and you both get to try and dominate each other.
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">Control Your Own Experience</h3>
+            <p className="text-neutral-300 leading-relaxed mb-6">
+              We like to have kinky fun online, but we wanted to be able to choose who to do it with, and how extreme it should be. Our product team is mostly women, and we've experienced being hassled on adult social networking sites that allow anyone to contact you.
+            </p>
+            <p className="text-neutral-300 leading-relaxed">
+              On One Submissive Act, you can choose to start a kinky interaction with a person of your choice. Whether you're looking to dominate others, submit to them, or play a risky game, you get to create an offer of one of these activities, and then either share the link allowing others to claim it with those you like, or open it up for strangers. If you don't want to initiate things, browse through our list of people offering their own acts, and choose the one who interests you.
+            </p>
           </div>
         </div>
       </section>
 
       {/* Safety Section */}
       <section id="safety" className="py-20 px-6 sm:px-8 lg:px-12">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Safety & Moderation First
-          </h2>
-          <p className="text-xl text-neutral-300 max-w-3xl mx-auto mb-12">
-            Your safety and well-being are our top priorities. We provide comprehensive 
-            tools and systems to ensure a secure and respectful gaming environment.
-          </p>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Safety & Privacy First
+            </h2>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6">
-              <div className="w-16 h-16 bg-green-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <ShieldCheckIcon className="w-8 h-8 text-green-400" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <LockClosedIcon className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Share Online Content Safely</h3>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Content Moderation</h3>
-              <p className="text-neutral-400">
-                Advanced AI-powered content filtering and human moderation teams
-              </p>
+              <div className="space-y-4 text-neutral-300 leading-relaxed">
+                <p>
+                  Nothing you share online is truly private. However, rather than sharing your erotic photos with everyone on the net, on this site you share them with a private audience of one person. By default, your photos automatically expire in 30 days, so you can focus on having sexy new interactions without leaving nude photos around the web that you've forgotten about.
+                </p>
+                <p>
+                  Want them deleted faster? You can set them to delete immediately after being viewed on our privacy settings page. If someone doesn't feel right to you, you can block them at the press of the button, making all your content invisible to them, even things you have already uploaded.
+                </p>
+              </div>
             </div>
             
-            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6">
-              <div className="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <FlagIcon className="w-8 h-8 text-blue-400" />
+            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
+              <div className="text-center mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FireIcon className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Allow Things to Heat Up</h3>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Reporting System</h3>
-              <p className="text-neutral-400">
-                Comprehensive reporting tools with quick response times
-              </p>
-            </div>
-            
-            <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6">
-              <div className="w-16 h-16 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <UserGroupIcon className="w-8 h-8 text-purple-400" />
+              <div className="space-y-4 text-neutral-300 leading-relaxed">
+                <p>
+                  Our submissive acts come in five levels of explicitness, and we recommend you start at the start. If you're enjoying interactions with some sexy stranger, why not crank things up and allow them a more extreme interaction?
+                </p>
+                <p>
+                  If you're having a good time, you can continue to interact privately with specific users, providing you're both into it. When there's mutual consent, there's room for a lot of fun.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Community Guidelines</h3>
-              <p className="text-neutral-400">
-                Clear rules and guidelines for respectful participation
-              </p>
             </div>
           </div>
         </div>
