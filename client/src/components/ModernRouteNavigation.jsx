@@ -19,7 +19,8 @@ import {
   ShieldCheckIcon,
   PhotoIcon,
   BellIcon,
-  EyeIcon
+  EyeIcon,
+  SettingsIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -265,6 +266,12 @@ const ModernRouteNavigation = () => {
          name: 'Profile View',
          icon: <UserIcon className="w-5 h-5" />,
          description: 'View detailed user profiles with statistics, preferences, and activity history'
+       },
+       {
+         path: '/modern/profile',
+         name: 'Profile Management',
+         icon: <SettingsIcon className="w-5 h-5" />,
+         description: 'Manage your profile, preferences, and account settings with enhanced controls'
        }
   ];
 
