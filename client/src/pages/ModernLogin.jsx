@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { validateFormData, VALIDATION_SCHEMAS, rateLimiter } from '../utils/validation';
+import { retryApiCall } from '../utils/retry';
+import { safeStorage } from '../utils/cleanup';
 import { 
   FireIcon, 
   EyeIcon,
@@ -17,8 +22,11 @@ import {
 const ModernLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
+  const { showSuccess, showError } = useToast();
+  
   const [formData, setFormData] = useState({
-    username: '',
+    identifier: '',
     password: '',
     rememberMe: false
   });
@@ -38,26 +46,29 @@ const ModernLogin = () => {
   }, [location.state]);
 
   const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+    // Use legacy validation schema
+    const validation = validateFormData(
+      { identifier: formData.identifier, password: formData.password },
+      VALIDATION_SCHEMAS.login
+    );
+    
+    if (!validation.isValid) {
+      const errorMessage = Object.values(validation.errors)[0];
+      setErrors({ general: errorMessage });
+      showError(errorMessage);
+      return false;
     }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    setErrors({});
+    return true;
   };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    if (errors[field] || errors.general) {
+      setErrors(prev => ({ ...prev, [field]: '', general: '' }));
     }
   };
 
@@ -68,22 +79,40 @@ const ModernLogin = () => {
       return;
     }
 
+    // Rate limiting check (from legacy)
+    if (!rateLimiter.isAllowed('login')) {
+      const remaining = rateLimiter.getRemainingAttempts('login');
+      const errorMessage = `Too many login attempts. Please wait before trying again. (${remaining} attempts remaining)`;
+      setErrors({ general: errorMessage });
+      showError(errorMessage);
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrors({});
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Use retry mechanism for login (from legacy)
+      await retryApiCall(async () => {
+        await login(formData.identifier, formData.password);
+      });
       
-      // In real app, make API call to authenticate user
-      console.log('Login data:', formData);
+      // Get last visited path or default to dashboard (from legacy)
+      const lastPath = safeStorage.get('lastVisitedPath', '/modern/dashboard');
+      const redirectPath = lastPath === '/login' ? '/modern/dashboard' : lastPath;
       
-      // Simulate successful login
-      // In real app, store auth token and redirect
-      navigate('/modern/dashboard');
+      showSuccess('Login successful! Redirecting...');
+      
+      // Memory-safe timeout for navigation
+      setTimeout(() => {
+        navigate(redirectPath);
+      }, 1000);
       
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Invalid username or password. Please try again.' });
+      const errorMessage = error.response?.data?.error || error.message || 'Invalid username or password. Please try again.';
+      setErrors({ general: errorMessage });
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -142,29 +171,30 @@ const ModernLogin = () => {
         {/* Login Form */}
         <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username */}
+            {/* Username/Email */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-neutral-300 mb-2">
+              <label htmlFor="identifier" className="block text-sm font-medium text-neutral-300 mb-2">
                 Username or Email
               </label>
               <div className="relative">
                 <UserIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
                 <input
                   type="text"
-                  id="username"
-                  value={formData.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
+                  id="identifier"
+                  value={formData.identifier}
+                  onChange={(e) => handleInputChange('identifier', e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 bg-neutral-700/50 border rounded-lg text-white placeholder-neutral-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
-                    errors.username ? 'border-red-500' : 'border-neutral-600/50'
+                    errors.identifier ? 'border-red-500' : 'border-neutral-600/50'
                   }`}
                   placeholder="Enter your username or email"
                   autoComplete="username"
+                  disabled={isSubmitting}
                 />
               </div>
-              {errors.username && (
+              {errors.identifier && (
                 <p className="mt-2 text-sm text-red-400 flex items-center space-x-1">
                   <XMarkIcon className="w-4 h-4" />
-                  <span>{errors.username}</span>
+                  <span>{errors.identifier}</span>
                 </p>
               )}
             </div>
@@ -186,11 +216,13 @@ const ModernLogin = () => {
                   }`}
                   placeholder="Enter your password"
                   autoComplete="current-password"
+                  disabled={isSubmitting}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white transition-colors duration-200"
+                  disabled={isSubmitting}
                 >
                   {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </button>
@@ -211,6 +243,7 @@ const ModernLogin = () => {
                   checked={formData.rememberMe}
                   onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
                   className="w-5 h-5 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2"
+                  disabled={isSubmitting}
                 />
                 <span className="text-sm text-neutral-300">Remember me</span>
               </label>
