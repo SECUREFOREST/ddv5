@@ -337,4 +337,8 @@ All routes are wrapped with `PrivateRoute` component for authentication:
        - **`/modern/profile`** - Profile Management - Manage your profile, preferences, and account settings with enhanced controls
        - **`/modern/switches`** - Switch Games - Browse and manage switch games with enhanced filtering and participation options
        - **`/modern/switches/create`** - Create Switch Game - Create new switch games with advanced configuration and rule setting
-       - **`/modern/switches/:gameId`** - Switch Game Details - View detailed switch game information, participants, and game progress 
+       - **`/modern/switches/:gameId`** - Switch Game Details - View detailed switch game information, participants, and game progress
+       - **`/modern/switches/participate`** - Participate in Switch Game - Join switch games with difficulty selection and consent management
+       - **`/modern/switches/participate/:gameId`** - Participate in Specific Game - Join a specific switch game with detailed information
+       - **`/modern/switches/claim/:gameId`** - Claim Switch Game - Claim and join available switch games with detailed information
+       - **`/modern/claim/:claimToken`** - Claim Dare - Accept and participate in dares with consent and challenge details 

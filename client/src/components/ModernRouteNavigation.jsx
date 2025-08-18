@@ -22,7 +22,8 @@ import {
   EyeIcon,
   StarIcon,
   ShareIcon,
-  DocumentPlusIcon
+  DocumentPlusIcon,
+  HandRaisedIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -292,6 +293,24 @@ const ModernRouteNavigation = () => {
          name: 'Switch Game Details',
          icon: <EyeIcon className="w-5 h-5" />,
          description: 'View detailed switch game information, participants, and game progress'
+       },
+       {
+         path: '/modern/switches/participate',
+         name: 'Participate in Switch Game',
+         icon: <PlayIcon className="w-5 h-5" />,
+         description: 'Join switch games with difficulty selection and consent management'
+       },
+       {
+         path: '/modern/switches/claim/123',
+         name: 'Claim Switch Game',
+         icon: <HandRaisedIcon className="w-5 h-5" />,
+         description: 'Claim and join available switch games with detailed information'
+       },
+       {
+         path: '/modern/claim/123',
+         name: 'Claim Dare',
+         icon: <DocumentTextIcon className="w-5 h-5" />,
+         description: 'Accept and participate in dares with consent and challenge details'
        }
   ];
 
