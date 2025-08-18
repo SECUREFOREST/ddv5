@@ -26,7 +26,10 @@ import {
   HandRaisedIcon,
   BoltIcon,
   NewspaperIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  KeyIcon,
+  SparklesIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
@@ -344,6 +347,36 @@ const ModernRouteNavigation = () => {
          name: 'Claim Dare',
          icon: <DocumentTextIcon className="w-5 h-5" />,
          description: 'Accept and participate in dares with consent and challenge details'
+       },
+       {
+         path: '/modern/forgot-password',
+         name: 'Forgot Password',
+         icon: <LockClosedIcon className="w-5 h-5" />,
+         description: 'Reset your password if you forgot it'
+       },
+       {
+         path: '/modern/reset-password',
+         name: 'Reset Password',
+         icon: <KeyIcon className="w-5 h-5" />,
+         description: 'Set a new password using your reset token'
+       },
+       {
+         path: '/modern/notifications',
+         name: 'Notifications',
+         icon: <BellIcon className="w-5 h-5" />,
+         description: 'Manage your platform notifications and alerts'
+       },
+       {
+         path: '/modern/ui-demo',
+         name: 'UI Demo',
+         icon: <SparklesIcon className="w-5 h-5" />,
+         description: 'Interactive demonstration of modern UI components'
+       },
+       {
+         path: '/modern/404',
+         name: '404 Page',
+         icon: <ExclamationTriangleIcon className="w-5 h-5" />,
+         description: 'Custom 404 error page for better user experience'
        }
   ];
 

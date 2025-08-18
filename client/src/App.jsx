@@ -98,6 +98,13 @@ const ModernActivityFeed = React.lazy(() => import('./pages/ModernActivityFeed')
 const ModernNews = React.lazy(() => import('./pages/ModernNews'));
 const ModernPublicDares = React.lazy(() => import('./pages/ModernPublicDares'));
 const ModernUserActivity = React.lazy(() => import('./pages/ModernUserActivity'));
+const ModernForgotPassword = React.lazy(() => import('./pages/ModernForgotPassword'));
+const ModernResetPassword = React.lazy(() => import('./pages/ModernResetPassword'));
+const ModernNotifications = React.lazy(() => import('./pages/ModernNotifications'));
+// const ModernUIDemo = React.lazy(() => import('./pages/ModernUIDemo'));
+const ModernNotFound = React.lazy(() => import('./pages/ModernNotFound'));
+const ModernAdvertise = React.lazy(() => import('./pages/ModernAdvertise'));
+const ModernTermsOfService = React.lazy(() => import('./pages/ModernTermsOfService'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -166,6 +173,8 @@ function AppContent() {
               <Route path="/" element={<ModernLanding />} />
               <Route path="/register" element={<ModernRegister />} />
               <Route path="/login" element={<ModernLogin />} />
+              <Route path="/forgot-password" element={<ModernForgotPassword />} />
+              <Route path="/reset-password" element={<ModernResetPassword />} />
               
               {/* Modern Dashboard Routes */}
               <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
@@ -181,6 +190,17 @@ function AppContent() {
               
               {/* Modern User Activity Routes */}
               <Route path="/modern/user-activity" element={<PrivateRoute><ModernUserActivity /></PrivateRoute>} />
+              
+              {/* Modern System Pages Routes */}
+              <Route path="/modern/advertise" element={<ModernAdvertise />} />
+              <Route path="/modern/terms" element={<ModernTermsOfService />} />
+              <Route path="/modern/safety/report" element={<PrivateRoute><ModernSafetyReport /></PrivateRoute>} />
+              <Route path="/modern/admin" element={<PrivateRoute><ModernAdmin /></PrivateRoute>} />
+              <Route path="/modern/notifications" element={<PrivateRoute><ModernNotifications /></PrivateRoute>} />
+              <Route path="/modern/ui-demo" element={<ModernUIDemo />} />
+              
+              {/* Modern 404 Route */}
+              <Route path="/modern/404" element={<ModernNotFound />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
