@@ -118,23 +118,6 @@ const ModernLogin = () => {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setIsSubmitting(true);
-    
-    try {
-      // Simulate demo login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to demo dashboard
-      navigate('/modern/dashboard');
-      
-    } catch (error) {
-      console.error('Demo login error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center py-12 px-6 sm:px-8 lg:px-12">
       <div className="max-w-md w-full">
@@ -285,27 +268,6 @@ const ModernLogin = () => {
               )}
             </button>
           </form>
-
-          {/* Demo Login */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-neutral-600/50"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-neutral-800/50 text-neutral-400">Or try the demo</span>
-              </div>
-            </div>
-            
-            <button
-              onClick={handleDemoLogin}
-              disabled={isSubmitting}
-              className="mt-4 w-full py-3 bg-neutral-700/50 hover:bg-neutral-600/50 disabled:bg-neutral-600 text-white rounded-lg font-medium transition-all duration-200 border border-neutral-600/50 hover:border-neutral-500/50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              <span>Try Demo Account</span>
-              <ArrowRightIcon className="w-5 h-5" />
-            </button>
-          </div>
 
           {/* Registration Link */}
           <div className="mt-6 text-center">
