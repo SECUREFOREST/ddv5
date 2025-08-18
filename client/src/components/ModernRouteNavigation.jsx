@@ -18,7 +18,8 @@ import {
   TrophyIcon,
   ShieldCheckIcon,
   PhotoIcon,
-  BellIcon
+  BellIcon,
+  EyeIcon
 } from '@heroicons/react/24/solid';
 
 const ModernRouteNavigation = () => {
