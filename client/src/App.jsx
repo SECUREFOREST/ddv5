@@ -66,10 +66,9 @@ const ModernCommunity = React.lazy(() => import('./components/ModernCommunity'))
 const ModernSwitchGameCreator = React.lazy(() => import('./components/ModernSwitchGameCreator'));
 const ModernSwitchGameBrowser = React.lazy(() => import('./components/ModernSwitchGameBrowser'));
 // const ModernSwitchGameDetails = React.lazy(() => import('./components/ModernSwitchGameDetails'));
-const ModernSwitchGameParticipate = React.lazy(() => import('./components/ModernSwitchGameParticipate'));
 const ModernSwitchGameTaskManager = React.lazy(() => import('./components/ModernSwitchGameTaskManager'));
 const ModernSwitchGameResults = React.lazy(() => import('./components/ModernSwitchGameResults'));
-const ModernSwitchGameClaim = React.lazy(() => import('./components/ModernSwitchGameClaim'));
+// const ModernSwitchGameClaim = React.lazy(() => import('./components/ModernSwitchGameClaim'));
 const ModernAdmin = React.lazy(() => import('./pages/ModernAdmin'));
 const ModernSafetyReport = React.lazy(() => import('./pages/ModernSafetyReport'));
 const ModernTaskHistory = React.lazy(() => import('./pages/ModernTaskHistory'));
@@ -92,6 +91,9 @@ const ModernProfile = React.lazy(() => import('./pages/ModernProfile'));
 const ModernSwitchGames = React.lazy(() => import('./pages/ModernSwitchGames'));
 const ModernSwitchGameCreate = React.lazy(() => import('./pages/ModernSwitchGameCreate'));
 const ModernSwitchGameDetails = React.lazy(() => import('./pages/ModernSwitchGameDetails'));
+const ModernSwitchGameParticipate = React.lazy(() => import('./pages/ModernSwitchGameParticipate'));
+const ModernSwitchGameClaim = React.lazy(() => import('./pages/ModernSwitchGameClaim'));
+const ModernClaimDare = React.lazy(() => import('./pages/ModernClaimDare'));
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -267,6 +269,12 @@ function AppContent() {
                <Route path="/modern/switches" element={<PrivateRoute><ModernSwitchGames /></PrivateRoute>} />
                <Route path="/modern/switches/create" element={<PrivateRoute><ModernSwitchGameCreate /></PrivateRoute>} />
                <Route path="/modern/switches/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
+               <Route path="/modern/switches/participate" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
+               <Route path="/modern/switches/participate/:gameId" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
+               <Route path="/modern/switches/claim/:gameId" element={<ModernSwitchGameClaim />} />
+               
+               {/* Modern Dare Claim Routes */}
+               <Route path="/modern/claim/:claimToken" element={<ModernClaimDare />} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
