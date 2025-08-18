@@ -461,31 +461,6 @@ const ModernRegister = () => {
               </div>
             </div>
 
-            {/* Newsletter Opt-in */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <SparklesIcon className="w-8 h-8 text-blue-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Stay Updated</h3>
-                  <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                    Get notified about new features, community updates, and exciting challenges.
-                  </p>
-                </div>
-              </div>
-              <label className="flex items-start space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.newsletter}
-                  onChange={(e) => handleInputChange('newsletter', e.target.checked)}
-                  className="w-5 h-5 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2"
-                  disabled={isSubmitting}
-                />
-                <div className="text-sm text-neutral-300">
-                  I agree to receive updates about new features and community events *
-                </div>
-              </label>
-            </div>
-
             {/* Terms and Privacy */}
             <div className="space-y-4">
               <label className="flex items-start space-x-3 cursor-pointer">
@@ -523,6 +498,18 @@ const ModernRegister = () => {
                     Privacy Policy
                   </a>
                   *
+                </div>
+              </label>
+              <label className="flex items-start space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.newsletter}
+                  onChange={(e) => handleInputChange('newsletter', e.target.checked)}
+                  className="w-5 h-5 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2"
+                  disabled={isSubmitting}
+                />
+                <div className="text-sm text-neutral-300">
+                  I agree to receive updates about new features and community events *
                 </div>
               </label>
             </div>
