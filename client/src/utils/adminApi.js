@@ -178,20 +178,27 @@ export const resolveReport = async (reportId, resolution) => {
 // Moderation Queue
 export const fetchModerationQueue = async () => {
   try {
-    // This would need to be implemented on the backend
-    // For now, we'll use a combination of reports and pending content
-    const [reports, pendingDares] = await Promise.all([
+    // Fetch reports and pending content
+    const [reports, pendingDares] = await Promise.allSettled([
       fetchReports(1, 10),
       api.get('/dares?status=pending&limit=10').then(res => res.data)
     ]);
     
+    // Extract data with fallbacks
+    const reportsData = reports.status === 'fulfilled' ? reports.value : { reports: [] };
+    const daresData = pendingDares.status === 'fulfilled' ? pendingDares.value : { dares: [] };
+    
     return {
-      reports: reports.reports || [],
-      pendingDares: pendingDares.dares || []
+      reports: reportsData.reports || [],
+      pendingDares: daresData.dares || []
     };
   } catch (error) {
     console.error('Failed to fetch moderation queue:', error);
-    throw error;
+    // Return empty arrays on error
+    return {
+      reports: [],
+      pendingDares: []
+    };
   }
 };
 
@@ -219,7 +226,7 @@ export const rejectContent = async (contentId, contentType, reason) => {
 // System Monitoring & Health
 export const getSystemHealth = async () => {
   try {
-    const response = await api.get('/admin/system-health');
+    const response = await api.get('/stats/admin/system-health');
     return response.data;
   } catch (error) {
     console.error('Failed to get system health:', error);
@@ -229,7 +236,7 @@ export const getSystemHealth = async () => {
 
 export const getApiStatus = async () => {
   try {
-    const response = await api.get('/admin/api-status');
+    const response = await api.get('/stats/admin/api-status');
     return response.data;
   } catch (error) {
     console.error('Failed to get API status:', error);
@@ -239,7 +246,7 @@ export const getApiStatus = async () => {
 
 export const getPerformanceMetrics = async () => {
   try {
-    const response = await api.get('/admin/performance');
+    const response = await api.get('/stats/admin/performance');
     return response.data;
   } catch (error) {
     console.error('Failed to get performance metrics:', error);
@@ -249,7 +256,7 @@ export const getPerformanceMetrics = async () => {
 
 export const getDatabaseStats = async () => {
   try {
-    const response = await api.get('/admin/database-stats');
+    const response = await api.get('/stats/admin/database-stats');
     return response.data;
   } catch (error) {
     console.error('Failed to get database stats:', error);
@@ -259,7 +266,7 @@ export const getDatabaseStats = async () => {
 
 export const getServerMetrics = async () => {
   try {
-    const response = await api.get('/admin/server-metrics');
+    const response = await api.get('/stats/admin/server-metrics');
     return response.data;
   } catch (error) {
     console.error('Failed to get server metrics:', error);

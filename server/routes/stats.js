@@ -6,6 +6,7 @@ const Activity = require('../models/Activity');
 const SwitchGame = require('../models/SwitchGame');
 const Dare = require('../models/Dare');
 const User = require('../models/User');
+const mongoose = require('mongoose'); // Added for system health check
 
 // Health check endpoint for debugging
 router.get('/health', async (req, res) => {
@@ -803,6 +804,149 @@ router.get('/site', auth, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch site statistics.' });
+  }
+});
+
+// GET /api/stats/admin/system-health - get system health status (admin only)
+router.get('/admin/system-health', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    // Check database connectivity
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    // Get basic system info
+    const uptime = process.uptime();
+    const memoryUsage = process.memoryUsage();
+    
+    res.json({
+      status: dbStatus === 'connected' ? 'healthy' : 'unhealthy',
+      database: dbStatus,
+      uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m`,
+      memory: {
+        used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+        total: Math.round(memoryUsage.heapTotal / 1024 / 1024)
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get system health.' });
+  }
+});
+
+// GET /api/stats/admin/api-status - get API endpoint status (admin only)
+router.get('/admin/api-status', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    // Test basic API functionality
+    const testResults = await Promise.allSettled([
+      User.countDocuments(),
+      Dare.countDocuments(),
+      SwitchGame.countDocuments()
+    ]);
+
+    res.json({
+      users: testResults[0].status === 'fulfilled' ? 'healthy' : 'error',
+      dares: testResults[1].status === 'fulfilled' ? 'healthy' : 'error',
+      switchGames: testResults[2].status === 'fulfilled' ? 'healthy' : 'error',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get API status.' });
+  }
+});
+
+// GET /api/stats/admin/performance - get performance metrics (admin only)
+router.get('/admin/performance', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const memoryUsage = process.memoryUsage();
+    const uptime = process.uptime();
+    
+    res.json({
+      memory: {
+        used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+        total: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+        external: Math.round(memoryUsage.external / 1024 / 1024)
+      },
+      uptime: Math.floor(uptime),
+      nodeVersion: process.version,
+      platform: process.platform,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get performance metrics.' });
+  }
+});
+
+// GET /api/stats/admin/database-stats - get database statistics (admin only)
+router.get('/admin/database-stats', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const [userCount, dareCount, switchGameCount, commentCount] = await Promise.all([
+      User.countDocuments(),
+      Dare.countDocuments(),
+      SwitchGame.countDocuments(),
+      require('../models/Comment').countDocuments().catch(() => 0)
+    ]);
+
+    res.json({
+      totalCollections: 4,
+      totalDocuments: userCount + dareCount + switchGameCount + commentCount,
+      storageSize: 'N/A', // MongoDB Atlas doesn't provide this easily
+      indexes: 'N/A', // Would need to query system.indexes collection
+      collections: {
+        users: userCount,
+        dares: dareCount,
+        switchGames: switchGameCount,
+        comments: commentCount
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get database stats.' });
+  }
+});
+
+// GET /api/stats/admin/server-metrics - get server metrics (admin only)
+router.get('/admin/server-metrics', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    const user = await User.findById(req.userId);
+    if (!user || !user.roles || !user.roles.includes('admin')) {
+      return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const memoryUsage = process.memoryUsage();
+    
+    res.json({
+      cpuUsage: 'N/A', // Node.js doesn't provide CPU usage directly
+      memoryUsage: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100),
+      diskUsage: 'N/A', // Would need fs.statfs or similar
+      networkIO: 'N/A', // Would need network interface monitoring
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get server metrics.' });
   }
 });
 

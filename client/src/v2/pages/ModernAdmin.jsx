@@ -139,7 +139,7 @@ const ModernAdmin = () => {
         daresData,
         switchGamesData,
         healthData
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         fetchSiteStats(),
         fetchReports(1, 20),
         fetchModerationQueue(),
@@ -150,28 +150,50 @@ const ModernAdmin = () => {
         getSystemHealth()
       ]);
 
+      // Extract data with fallbacks
+      const siteStats = siteStatsData.status === 'fulfilled' ? siteStatsData.value : {};
+      const reports = reportsData.status === 'fulfilled' ? reportsData.value : { reports: [], pagination: { total: 0, pages: 1 } };
+      const moderation = moderationData.status === 'fulfilled' ? moderationData.value : { reports: [] };
+      const users = usersData.status === 'fulfilled' ? usersData.value : { users: [] };
+      const audit = auditData.status === 'fulfilled' ? auditData.value : { logs: [] };
+      const dares = daresData.status === 'fulfilled' ? daresData.value : { dares: [] };
+      const switchGames = switchGamesData.status === 'fulfilled' ? switchGamesData.value : { switchGames: [] };
+      const health = healthData.status === 'fulfilled' ? healthData.value : { status: 'unknown', uptime: 'unknown' };
+
+      // Debug logging
+      console.log('API Response Data:', {
+        siteStats,
+        reports,
+        moderation,
+        users: users.users?.length || 0,
+        audit: audit.logs?.length || 0,
+        dares: dares.dares?.length || 0,
+        switchGames: switchGames.switchGames?.length || 0,
+        health
+      });
+
       // Set system stats
       setSystemStats({
-        totalUsers: siteStatsData.totalUsers || 0,
-        totalDares: siteStatsData.totalDares || 0,
-        activeDares: siteStatsData.activeDares || 0,
-        completedTasks: siteStatsData.completedDares || 0,
-        pendingReports: reportsData.pagination?.total || 0,
-        systemHealth: healthData.status || 'unknown',
-        uptime: healthData.uptime || 'unknown',
+        totalUsers: siteStats.totalUsers || 0,
+        totalDares: siteStats.totalDares || 0,
+        activeDares: siteStats.activeDares || 0,
+        completedTasks: siteStats.completedDares || 0,
+        pendingReports: reports.pagination?.total || 0,
+        systemHealth: health.status || 'unknown',
+        uptime: health.uptime || 'unknown',
         lastBackup: new Date().toISOString()
       });
 
-      setRecentReports(reportsData.reports || []);
-      setModerationQueue(moderationData.reports || []);
-      setUsers(usersData.users || []);
-      setAuditLogs(auditData.logs || []);
-      setDares(daresData.dares || []);
-      setSwitchGames(switchGamesData.switchGames || []);
-      setTotalPages(reportsData.pagination?.pages || 1);
+      setRecentReports(reports.reports || []);
+      setModerationQueue(moderation.reports || []);
+      setUsers(users.users || []);
+      setAuditLogs(audit.logs || []);
+      setDares(dares.dares || []);
+      setSwitchGames(switchGames.switchGames || []);
+      setTotalPages(reports.pagination?.pages || 1);
 
       // Generate user activity from audit logs
-      const activity = (auditData.logs || []).slice(0, 5).map(log => ({
+      const activity = (audit.logs || []).slice(0, 5).map(log => ({
         id: log._id,
         user: log.user?.username || 'System',
         action: log.action,
@@ -187,6 +209,26 @@ const ModernAdmin = () => {
     } catch (error) {
       console.error('Error fetching admin data:', error);
       showError('Failed to load admin data');
+      
+      // Set fallback data on error
+      setSystemStats({
+        totalUsers: 0,
+        totalDares: 0,
+        activeDares: 0,
+        completedTasks: 0,
+        pendingReports: 0,
+        systemHealth: 'unknown',
+        uptime: 'unknown',
+        lastBackup: new Date().toISOString()
+      });
+      setRecentReports([]);
+      setModerationQueue([]);
+      setUsers([]);
+      setAuditLogs([]);
+      setDares([]);
+      setSwitchGames([]);
+      setTotalPages(1);
+      setUserActivity([]);
     } finally {
       setIsLoading(false);
     }
