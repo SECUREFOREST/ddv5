@@ -1464,6 +1464,68 @@ const ModernAdmin = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Content Statistics */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">Content Statistics</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-400 mb-1">{dares.length}</div>
+                      <p className="text-neutral-400 text-sm">Total Dares</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-indigo-400 mb-1">{switchGames.length}</div>
+                      <p className="text-neutral-400 text-sm">Switch Games</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-green-400 mb-1">
+                        {dares.filter(d => d.status === 'approved').length}
+                      </div>
+                      <p className="text-neutral-400 text-sm">Approved Dares</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-400 mb-1">
+                        {dares.filter(d => d.status === 'pending').length + switchGames.filter(g => g.status === 'pending').length}
+                      </div>
+                      <p className="text-neutral-400 text-sm">Pending Content</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Type Breakdown */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">Content Type Breakdown</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="text-neutral-300 font-medium mb-3">Dare Difficulties</h5>
+                      <div className="space-y-2">
+                        {['titillating', 'arousing', 'explicit', 'edgy', 'hardcore'].map(difficulty => {
+                          const count = dares.filter(d => d.difficulty === difficulty).length;
+                          return (
+                            <div key={difficulty} className="flex items-center justify-between">
+                              <span className="text-neutral-400 text-sm capitalize">{difficulty}</span>
+                              <span className="text-white font-medium">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <h5 className="text-neutral-300 font-medium mb-3">Switch Game Types</h5>
+                      <div className="space-y-2">
+                        {['submission', 'domination', 'switch'].map(type => {
+                          const count = switchGames.filter(g => g.type === type).length;
+                          return (
+                            <div key={type} className="flex items-center justify-between">
+                              <span className="text-neutral-400 text-sm capitalize">{type}</span>
+                              <span className="text-white font-medium">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
