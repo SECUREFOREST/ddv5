@@ -201,17 +201,17 @@ export default function NotificationDropdown() {
 
   let items;
   if (loading) {
-    items = [<li key="loading"><span className="text-muted">Loading...</span></li>];
+    items = [<li key="loading"><span className="text-neutral-400">Loading...</span></li>];
   } else if (error) {
-    items = [<li key="error"><span className="label label-danger">{error}</span></li>];
+    items = [<li key="error"><span className="text-red-400">{error}</span></li>];
   } else if (notifications.length === 0) {
-    items = [<li key="none" className="mb-2 text-neutral-300">No notifications</li>];
+    items = [<li key="none" className="mb-2 text-neutral-400">No notifications</li>];
   } else {
     items = [];
     items.push(
       <li key="refresh">
         <button
-          className="w-full text-left py-2 px-0 text-neutral-100 hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
+          className="w-full text-left py-2 px-0 text-white hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg px-2"
           onClick={handleRefresh}
           disabled={refreshing}
         >
@@ -223,7 +223,7 @@ export default function NotificationDropdown() {
       items.push(
         <li key="mark-all">
           <button
-            className="w-full text-left py-2 px-0 text-neutral-100 hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
+            className="w-full text-left py-2 px-0 text-white hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg px-2"
             onClick={handleMarkAllAsRead}
             disabled={markingAll}
           >
@@ -231,30 +231,30 @@ export default function NotificationDropdown() {
           </button>
         </li>
       );
-      items.push(<li key="divider" className="border-b border-[#282828] my-1" />);
+      items.push(<li key="divider" className="border-b border-neutral-700/50 my-2" />);
     }
     if (markError) {
-      items.push(<li key="mark-error"><span className="label label-danger">{markError}</span></li>);
+      items.push(<li key="mark-error"><span className="text-red-400">{markError}</span></li>);
     }
     if (markAllError) {
-      items.push(<li key="mark-all-error"><span className="label label-danger">{markAllError}</span></li>);
+      items.push(<li key="mark-all-error"><span className="text-red-400">{markAllError}</span></li>);
     }
     items = items.concat(
       notifications.map((n, idx) => (
         <li
           key={n._id}
-          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-[#282828]' : ''}`}
+          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-neutral-700/50' : ''}`}
           role="menuitem"
         >
           <button
             onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
-            className="w-full text-left py-2 px-0 focus:outline-none hover:bg-neutral-800 focus:bg-neutral-800 transition-colors cursor-pointer"
+            className="w-full text-left py-2 px-2 focus:outline-none hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg"
             aria-haspopup="true"
             aria-expanded={open}
             role="button"
           >
             <span className="block">
-              <span className="description font-medium">{getNotificationMessage(n)}</span>
+              <span className="description font-medium text-white">{getNotificationMessage(n)}</span>
               <span className="age ml-2 text-xs text-neutral-400">{timeAgo(n.createdAt)}</span>
             </span>
           </button>
@@ -275,23 +275,23 @@ export default function NotificationDropdown() {
           aria-expanded={open}
           role="button"
         >
-          <BellIcon className="h-6 w-6 text-neutral-300 hover:text-white transition-colors" />
+          <BellIcon className="h-6 w-6 text-white hover:text-primary transition-colors" />
           {unseenCount > 0 && (
-            <span className="absolute -top-1 -right-2 bg-danger text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
           )}
         </span>
       </span>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-[#222] border border-[#282828] rounded-none z-50 p-[15px] text-neutral-100" role="menu">
+        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-neutral-800 border border-neutral-700/50 rounded-xl shadow-xl z-50 p-4 text-white" role="menu">
           {items}
         </ul>
       )}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#222] border border-[#282828] rounded p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Notification Settings</h2>
+          <div className="bg-neutral-800 border border-neutral-700/50 rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-white">Notification Settings</h2>
             <div className="text-neutral-300 mb-4">(Settings coming soon...)</div>
-            <button className="bg-primary text-primary-contrast px-4 py-2 rounded shadow-lg" onClick={() => setShowSettings(false)}>Close</button>
+            <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg shadow-lg transition-colors" onClick={() => setShowSettings(false)}>Close</button>
           </div>
         </div>
       )}
