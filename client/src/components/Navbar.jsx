@@ -270,49 +270,49 @@ export default function Navbar() {
                     to="/dashboard"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <HomeIcon className="w-5 h-5" />
+                    <HomeIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Dashboard</span>
                   </Link>
                   <Link
                     to="/dom-demand/create"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <PlusIcon className="w-5 h-5" />
+                    <PlusIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Create</span>
                   </Link>
                   <Link
                     to="/dare/select"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <PlayIcon className="w-5 h-5" />
+                    <PlayIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Perform</span>
                   </Link>
                   <Link
                     to="/switches"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <UserGroupIcon className="w-5 h-5" />
+                    <UserGroupIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Games</span>
                   </Link>
                   <Link
                     to="/leaderboard"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <ChartBarIcon className="w-5 h-5" />
+                    <ChartBarIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Leaderboard</span>
                   </Link>
                   <Link
                     to="/user-activity"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <SparklesIcon className="w-5 h-5" />
+                    <SparklesIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Activity</span>
                   </Link>
                   <Link
                     to="/profile"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <UserIcon className="w-5 h-5" />
+                    <UserIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Profile</span>
                   </Link>
                   {user.roles?.includes('admin') && (
@@ -320,7 +320,7 @@ export default function Navbar() {
                       to="/admin"
                       className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                     >
-                      <ShieldCheckIcon className="w-5 h-5" />
+                      <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Admin</span>
                     </Link>
                   )}
@@ -329,7 +329,7 @@ export default function Navbar() {
                     onClick={handleLogout}
                     className="flex items-center space-x-3 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors duration-200 w-full"
                   >
-                    <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Sign Out</span>
                   </button>
                 </>
@@ -340,21 +340,21 @@ export default function Navbar() {
                     to="/news"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <NewspaperIcon className="w-5 h-5" />
+                    <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
                     <span>News</span>
                   </Link>
                   <Link
                     to="/login"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                   >
-                    <UserIcon className="w-5 h-5" />
+                    <UserIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Login</span>
                   </Link>
                   <Link
                     to="/register"
                     className="flex items-center space-x-3 px-3 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200"
                   >
-                    <PlusIcon className="w-5 h-5" />
+                    <PlusIcon className="w-5 h-5 flex-shrink-0" />
                     <span>Register</span>
                   </Link>
                 </>

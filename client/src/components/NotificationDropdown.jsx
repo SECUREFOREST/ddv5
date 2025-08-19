@@ -201,66 +201,36 @@ export default function NotificationDropdown() {
 
   let items;
   if (loading) {
-    items = [<li key="loading"><span className="text-neutral-400">Loading...</span></li>];
+    items = [<div key="loading" className="p-4 text-center text-neutral-400">Loading...</div>];
   } else if (error) {
-    items = [<li key="error"><span className="text-red-400">{error}</span></li>];
+    items = [<div key="error" className="p-4 text-center text-red-400">{error}</div>];
   } else if (notifications.length === 0) {
-    items = [<li key="none" className="mb-2 text-neutral-400">No notifications</li>];
+    items = [<div key="none" className="p-4 text-center text-neutral-400">No notifications</div>];
   } else {
-    items = [];
-    items.push(
-      <li key="refresh">
-        <button
-          className="w-full text-left py-2 px-0 text-white hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg px-2"
-          onClick={handleRefresh}
-          disabled={refreshing}
-        >
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
-      </li>
-    );
-    if (unseenCount > 0) {
-      items.push(
-        <li key="mark-all">
-          <button
-            className="w-full text-left py-2 px-0 text-white hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg px-2"
-            onClick={handleMarkAllAsRead}
-            disabled={markingAll}
-          >
-            {markingAll ? 'Marking all...' : 'Mark all as read'}
-          </button>
-        </li>
-      );
-      items.push(<li key="divider" className="border-b border-neutral-700/50 my-2" />);
-    }
-    if (markError) {
-      items.push(<li key="mark-error"><span className="text-red-400">{markError}</span></li>);
-    }
-    if (markAllError) {
-      items.push(<li key="mark-all-error"><span className="text-red-400">{markAllError}</span></li>);
-    }
-    items = items.concat(
-      notifications.map((n, idx) => (
-        <li
-          key={n._id}
-          className={`${n.read ? 'opacity-60' : ''} ${idx !== notifications.length - 1 ? 'border-b border-neutral-700/50' : ''}`}
-          role="menuitem"
-        >
-          <button
-            onClick={e => { e.preventDefault(); handleMarkAsRead(n._id); }}
-            className="w-full text-left py-2 px-2 focus:outline-none hover:bg-neutral-700/50 focus:bg-neutral-700/50 transition-colors cursor-pointer rounded-lg"
-            aria-haspopup="true"
-            aria-expanded={open}
-            role="button"
-          >
-            <span className="block">
-              <span className="description font-medium text-white">{getNotificationMessage(n)}</span>
-              <span className="age ml-2 text-xs text-neutral-400">{timeAgo(n.createdAt)}</span>
-            </span>
-          </button>
-        </li>
-      ))
-    );
+    items = notifications.map((n) => (
+      <div
+        key={n._id}
+        className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 cursor-pointer ${
+          !n.read ? 'bg-primary/5' : ''
+        }`}
+        onClick={() => handleMarkAsRead(n._id)}
+      >
+        <div className="flex items-start space-x-3">
+          <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <BellIcon className="w-5 h-5 text-neutral-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm">
+              <span className="font-medium">{getNotificationMessage(n)}</span>
+            </p>
+            <p className="text-neutral-500 text-xs mt-2">{timeAgo(n.createdAt)}</p>
+          </div>
+          {!n.read && (
+            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+          )}
+        </div>
+      </div>
+    ));
   }
 
   return (
@@ -295,36 +265,7 @@ export default function NotificationDropdown() {
             </div>
           </div>
           <div className="max-h-96 overflow-y-auto">
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <div
-                  key={notification._id}
-                  className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 ${
-                    !notification.read ? 'bg-primary/5' : ''
-                  }`}
-                  onClick={() => handleMarkAsRead(notification._id)}
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <BellIcon className="w-5 h-5 text-neutral-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm">
-                        <span className="font-medium text-primary">{getNotificationMessage(notification)}</span>
-                      </p>
-                      <p className="text-neutral-500 text-xs mt-2">{timeAgo(notification.createdAt)}</p>
-                    </div>
-                    {!notification.read && (
-                      <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-4 text-center text-neutral-400">
-                No notifications
-              </div>
-            )}
+            {items}
           </div>
         </div>
       )}
