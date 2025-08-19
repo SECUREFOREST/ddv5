@@ -49,6 +49,43 @@ export const bulkUserAction = async (action, userIds, additionalData = {}) => {
   }
 };
 
+// Basic User Management
+export const fetchUsers = async (page = 1, limit = 20, search = '') => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    if (search) params.append('search', search);
+    
+    const response = await api.get(`/users?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    throw error;
+  }
+};
+
+export const updateUser = async (userId, updates) => {
+  try {
+    const response = await api.patch(`/users/${userId}`, updates);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update user:', error);
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId) => {
+  try {
+    const response = await api.delete(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+    throw error;
+  }
+};
+
 // Advanced Audit System
 export const fetchAuditLogs = async (page = 1, limit = 20, filters = {}) => {
   try {
