@@ -163,7 +163,7 @@ export default function Navbar() {
                       onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                       className="flex items-center space-x-3 p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
                     >
-                      <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center">
+                      <div className="flex-shrink-0">
                         <Avatar user={user} size={32} border={false} shadow={false} />
                       </div>
                       <span className="hidden xl:block">{user.fullName || user.username}</span>
@@ -180,12 +180,12 @@ export default function Navbar() {
                       <div className="absolute right-0 mt-2 w-64 bg-neutral-800 rounded-xl border border-neutral-700/50 shadow-xl z-50">
                         <div className="p-4 border-b border-neutral-700/50">
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-neutral-600 rounded-full flex items-center justify-center">
+                            <div className="flex-shrink-0">
                               <Avatar user={user} size={48} border={false} shadow={false} />
                             </div>
-                            <div>
-                              <p className="text-white font-medium">{user.fullName || user.username}</p>
-                              <p className="text-neutral-400 text-sm">@{user.username}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-white font-medium truncate">{user.fullName || user.username}</p>
+                              <p className="text-neutral-400 text-sm truncate">@{user.username}</p>
                             </div>
                           </div>
                         </div>
@@ -194,7 +194,7 @@ export default function Navbar() {
                             to="/profile"
                             className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                           >
-                            <UserIcon className="w-5 h-5" />
+                            <UserIcon className="w-5 h-5 flex-shrink-0" />
                             <span>Profile</span>
                           </Link>
                           {user.roles?.includes('admin') && (
@@ -202,7 +202,7 @@ export default function Navbar() {
                               to="/admin"
                               className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                             >
-                              <ShieldCheckIcon className="w-5 h-5" />
+                              <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
                               <span>Admin</span>
                             </Link>
                           )}
@@ -211,7 +211,7 @@ export default function Navbar() {
                             onClick={handleLogout}
                             className="flex items-center space-x-3 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors duration-200 w-full"
                           >
-                            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                            <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
                             <span>Sign Out</span>
                           </button>
                         </div>
