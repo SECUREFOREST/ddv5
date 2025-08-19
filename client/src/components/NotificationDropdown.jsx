@@ -243,13 +243,14 @@ export default function NotificationDropdown() {
             {getNotificationIcon(n.type)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm leading-relaxed">
-              <span className="font-medium">{getNotificationMessage(n)}</span>
+            <p className="text-white text-sm">
+              <span className="font-medium text-primary">{getNotificationMessage(n)}</span>
             </p>
-            <p className="text-neutral-500 text-xs mt-1">{timeAgo(n.createdAt)}</p>
+            <p className="text-neutral-400 text-sm mt-1">{n.dareTitle || n.task || 'Task'}</p>
+            <p className="text-neutral-500 text-xs mt-2">{timeAgo(n.createdAt)}</p>
           </div>
           {!n.read && (
-            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>
+            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
           )}
         </div>
       </div>
@@ -260,14 +261,14 @@ export default function NotificationDropdown() {
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={() => setOpen(v => !v)}
-        className="relative flex items-center justify-center w-10 h-10 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
+        className="relative p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
         aria-haspopup="true"
         aria-expanded={open}
         role="button"
       >
         <BellIcon className="h-6 w-6" />
         {unseenCount > 0 && (
-          <span className="absolute -top-2 -right-2 w-6 h-6 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium" aria-label={`${unseenCount} unread notifications`}>
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center" aria-label={`${unseenCount} unread notifications`}>
             {unseenCount > 99 ? '99+' : unseenCount}
           </span>
         )}
