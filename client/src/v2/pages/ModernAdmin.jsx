@@ -751,6 +751,85 @@ const ModernAdmin = () => {
                     View Full Activity Log
                   </button>
                 </div>
+
+                {/* Recent Dares */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <TrophyIcon className="w-5 h-5 text-purple-400" />
+                    <span>Recent Dares</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {dares.slice(0, 3).map((dare) => (
+                      <div key={dare._id} className="flex items-center justify-between p-3 bg-neutral-600/30 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            dare.status === 'approved' ? 'bg-green-500' :
+                            dare.status === 'rejected' ? 'bg-red-500' :
+                            dare.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
+                          }`}></div>
+                          <div>
+                            <p className="text-white text-sm font-medium">{dare.description?.substring(0, 50)}...</p>
+                            <p className="text-neutral-400 text-xs">by {dare.creator?.username || 'Unknown'}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className={`text-xs font-medium ${
+                            dare.difficulty === 'hardcore' ? 'text-red-400' :
+                            dare.difficulty === 'explicit' ? 'text-orange-400' :
+                            dare.difficulty === 'edgy' ? 'text-yellow-400' :
+                            dare.difficulty === 'arousing' ? 'text-purple-400' : 'text-pink-400'
+                          }`}>
+                            {dare.difficulty}
+                          </span>
+                          <p className="text-neutral-400 text-xs">{formatDate(dare.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('dares')}
+                    className="w-full mt-4 px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white text-sm rounded-lg transition-colors duration-200"
+                  >
+                    View All Dares
+                  </button>
+                </div>
+
+                {/* Recent Switch Games */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <SparklesIcon className="w-5 h-5 text-indigo-400" />
+                    <span>Recent Switch Games</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {switchGames.slice(0, 3).map((game) => (
+                      <div key={game._id} className="flex items-center justify-between p-3 bg-neutral-600/30 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            game.status === 'approved' ? 'bg-green-500' :
+                            game.status === 'rejected' ? 'bg-red-500' :
+                            game.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
+                          }`}></div>
+                          <div>
+                            <p className="text-white text-sm font-medium">{game.title}</p>
+                            <p className="text-neutral-400 text-xs">by {game.creator?.username || 'Unknown'}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-medium text-indigo-400">
+                            {game.type}
+                          </span>
+                          <p className="text-neutral-400 text-xs">{formatDate(game.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('switchgames')}
+                    className="w-full mt-4 px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white text-sm rounded-lg transition-colors duration-200"
+                  >
+                    View All Switch Games
+                  </button>
+                </div>
               </div>
             )}
 
