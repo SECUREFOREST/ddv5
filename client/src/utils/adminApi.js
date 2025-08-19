@@ -202,3 +202,134 @@ export const cleanupExpiredProofs = async () => {
     throw error;
   }
 };
+
+// Dares Management
+export const fetchDares = async (page = 1, limit = 20, filters = {}) => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    if (filters.status) params.append('status', filters.status);
+    if (filters.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters.type) params.append('dareType', filters.type);
+    if (filters.search) params.append('search', filters.search);
+    
+    const response = await api.get(`/dares?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch dares:', error);
+    throw error;
+  }
+};
+
+export const approveDare = async (dareId) => {
+  try {
+    const response = await api.post(`/dares/${dareId}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to approve dare:', error);
+    throw error;
+  }
+};
+
+export const rejectDare = async (dareId, reason) => {
+  try {
+    const response = await api.post(`/dares/${dareId}/reject`, { reason });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to reject dare:', error);
+    throw error;
+  }
+};
+
+export const deleteDare = async (dareId) => {
+  try {
+    const response = await api.delete(`/dares/${dareId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete dare:', error);
+    throw error;
+  }
+};
+
+export const updateDare = async (dareId, updates) => {
+  try {
+    const response = await api.patch(`/dares/${dareId}`, updates);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update dare:', error);
+    throw error;
+  }
+};
+
+// Switch Games Management
+export const fetchSwitchGames = async (page = 1, limit = 20, filters = {}) => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    if (filters.status) params.append('status', filters.status);
+    if (filters.type) params.append('type', filters.type);
+    if (filters.search) params.append('search', filters.search);
+    
+    const response = await api.get(`/switches?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch switch games:', error);
+    throw error;
+  }
+};
+
+export const approveSwitchGame = async (gameId) => {
+  try {
+    const response = await api.post(`/switches/${gameId}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to approve switch game:', error);
+    throw error;
+  }
+};
+
+export const rejectSwitchGame = async (gameId, reason) => {
+  try {
+    const response = await api.post(`/switches/${gameId}/reject`, { reason });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to reject switch game:', error);
+    throw error;
+  }
+};
+
+export const deleteSwitchGame = async (gameId) => {
+  try {
+    const response = await api.delete(`/switches/${gameId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to delete switch game:', error);
+    throw error;
+  }
+};
+
+export const updateSwitchGame = async (gameId, updates) => {
+  try {
+    const response = await api.patch(`/switches/${gameId}`, updates);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update switch game:', error);
+    throw error;
+  }
+};
+
+export const fixGameState = async (gameId) => {
+  try {
+    const response = await api.post(`/switches/${gameId}/fix-game-state`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fix game state:', error);
+    throw error;
+  }
+};

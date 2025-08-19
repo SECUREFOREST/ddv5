@@ -61,7 +61,18 @@ import {
   approveContent,
   rejectContent,
   runSystemCleanup,
-  cleanupExpiredProofs
+  cleanupExpiredProofs,
+  fetchDares,
+  approveDare,
+  rejectDare,
+  deleteDare,
+  updateDare,
+  fetchSwitchGames,
+  approveSwitchGame,
+  rejectSwitchGame,
+  deleteSwitchGame,
+  updateSwitchGame,
+  fixGameState
 } from '../../utils/adminApi';
 
 const ModernAdmin = () => {
@@ -78,6 +89,10 @@ const ModernAdmin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [dares, setDares] = useState([]);
+  const [switchGames, setSwitchGames] = useState([]);
+  const [dareFilters, setDareFilters] = useState({ status: '', difficulty: '', type: '' });
+  const [switchGameFilters, setSwitchGameFilters] = useState({ status: '', type: '' });
 
   // Fetch all admin data
   const fetchAdminData = async () => {
@@ -450,7 +465,7 @@ const ModernAdmin = () => {
           {/* Tab Navigation */}
           <div className="border-b border-neutral-700/50">
             <nav className="flex space-x-8 px-6">
-              {['overview', 'users', 'moderation', 'reports', 'analytics', 'settings'].map((tab) => (
+              {['overview', 'users', 'moderation', 'reports', 'dares', 'switchgames', 'analytics', 'settings'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -460,7 +475,7 @@ const ModernAdmin = () => {
                       : 'border-transparent text-neutral-400 hover:text-neutral-300'
                   }`}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'switchgames' ? 'Switch Games' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </nav>
