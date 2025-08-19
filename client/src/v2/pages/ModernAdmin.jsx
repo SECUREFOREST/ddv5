@@ -42,113 +42,224 @@ import {
   EyeSlashIcon,
   Cog6ToothIcon,
   BellIcon,
-  ExclamationTriangleIcon as ExclamationTriangleIconSolid
+  ExclamationTriangleIcon as ExclamationTriangleIconSolid,
+  MagnifyingGlassIcon,
+  TrashIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
+import { useToast } from '../../context/ToastContext';
+import {
+  fetchSiteStats,
+  fetchUsers,
+  updateUser,
+  deleteUser,
+  fetchReports,
+  resolveReport,
+  fetchModerationQueue,
+  fetchSystemHealth,
+  fetchAuditLogs,
+  approveContent,
+  rejectContent,
+  runSystemCleanup,
+  cleanupExpiredProofs
+} from '../../utils/adminApi';
 
 const ModernAdmin = () => {
+  const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [systemStats, setSystemStats] = useState({});
   const [recentReports, setRecentReports] = useState([]);
   const [userActivity, setUserActivity] = useState([]);
   const [moderationQueue, setModerationQueue] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
+  // Fetch all admin data
+  const fetchAdminData = async () => {
+    setIsLoading(true);
+    try {
+      const [
+        siteStats,
+        reportsData,
+        moderationData,
+        usersData,
+        auditData,
+        healthData
+      ] = await Promise.all([
+        fetchSiteStats(),
+        fetchReports(1, 10),
+        fetchModerationQueue(),
+        fetchUsers(1, 20),
+        fetchAuditLogs(1, 20),
+        fetchSystemHealth()
+      ]);
+
+      setSystemStats({
+        totalUsers: siteStats.totalUsers || 0,
+        activeUsers: siteStats.activeUsers || 0,
+        totalTasks: (siteStats.totalDares || 0) + (siteStats.totalSwitchGames || 0),
+        completedTasks: siteStats.completedDares || 0,
+        pendingReports: reportsData.pagination?.total || 0,
+        systemHealth: healthData.status || 'unknown',
+        uptime: healthData.uptime || 'unknown',
+        lastBackup: new Date().toISOString()
+      });
+
+      setRecentReports(reportsData.reports || []);
+      setModerationQueue(moderationData.reports || []);
+      setUsers(usersData.users || []);
+      setAuditLogs(auditData.logs || []);
+      setTotalPages(reportsData.pagination?.pages || 1);
+
+      // Generate user activity from audit logs
+      const activity = (auditData.logs || []).slice(0, 5).map(log => ({
+        id: log._id,
+        user: log.user?.username || 'System',
+        action: log.action,
+        details: log.details || log.action,
+        timestamp: log.createdAt,
+        impact: 'low'
+      }));
+      setUserActivity(activity);
+
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      showError('Failed to load admin data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      setIsLoading(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const mockSystemStats = {
-          totalUsers: 1247,
-          activeUsers: 892,
-          totalTasks: 5678,
-          completedTasks: 4892,
-          pendingReports: 23,
-          systemHealth: 'excellent',
-          uptime: '99.9%',
-          lastBackup: '2024-01-15T10:00:00Z'
-        };
-
-        const mockRecentReports = [
-          {
-            id: 'report_001',
-            type: 'inappropriate_content',
-            severity: 'high',
-            reporter: 'User123',
-            reportedUser: 'User456',
-            content: 'Inappropriate task description',
-            status: 'pending',
-            createdAt: '2024-01-15T14:30:00Z',
-            priority: 'urgent'
-          },
-          {
-            id: 'report_002',
-            type: 'harassment',
-            severity: 'medium',
-            reporter: 'User789',
-            reportedUser: 'User101',
-            content: 'Unwanted messages',
-            status: 'investigating',
-            createdAt: '2024-01-15T13:15:00Z',
-            priority: 'high'
-          }
-        ];
-
-        const mockUserActivity = [
-          {
-            id: 'activity_001',
-            user: 'User123',
-            action: 'created_task',
-            details: 'Created new demand task',
-            timestamp: '2024-01-15T15:00:00Z',
-            impact: 'low'
-          },
-          {
-            id: 'activity_002',
-            user: 'User456',
-            action: 'completed_task',
-            details: 'Completed evening challenge',
-            timestamp: '2024-01-15T14:45:00Z',
-            impact: 'medium'
-          }
-        ];
-
-        const mockModerationQueue = [
-          {
-            id: 'mod_001',
-            type: 'task_review',
-            content: 'Weekend challenge task',
-            user: 'User789',
-            priority: 'medium',
-            waitingTime: '2 hours',
-            autoFlagged: false
-          },
-          {
-            id: 'mod_002',
-            type: 'user_review',
-            content: 'New user registration',
-            user: 'NewUser123',
-            priority: 'low',
-            waitingTime: '1 hour',
-            autoFlagged: true
-          }
-        ];
-
-        setSystemStats(mockSystemStats);
-        setRecentReports(mockRecentReports);
-        setUserActivity(mockUserActivity);
-        setModerationQueue(mockModerationQueue);
-        
-      } catch (error) {
-        console.error('Error fetching admin data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchAdminData();
   }, []);
+
+  // Handle user actions
+  const handleUserAction = async (userId, action, updates = {}) => {
+    setIsActionLoading(true);
+    try {
+      switch (action) {
+        case 'update':
+          await updateUser(userId, updates);
+          showSuccess('User updated successfully');
+          break;
+        case 'delete':
+          if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            await deleteUser(userId);
+            showSuccess('User deleted successfully');
+          }
+          break;
+        case 'suspend':
+          await updateUser(userId, { status: 'suspended' });
+          showSuccess('User suspended successfully');
+          break;
+        case 'activate':
+          await updateUser(userId, { status: 'active' });
+          showSuccess('User activated successfully');
+          break;
+        default:
+          break;
+      }
+      fetchAdminData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to ${action} user:`, error);
+      showError(`Failed to ${action} user`);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Handle report actions
+  const handleReportAction = async (reportId, action, resolution = {}) => {
+    setIsActionLoading(true);
+    try {
+      await resolveReport(reportId, { action, resolution });
+      showSuccess(`Report ${action} successfully`);
+      fetchAdminData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to ${action} report:`, error);
+      showError(`Failed to ${action} report`);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Handle content moderation
+  const handleContentModeration = async (contentId, contentType, action, reason = '') => {
+    setIsActionLoading(true);
+    try {
+      if (action === 'approve') {
+        await approveContent(contentId, contentType);
+        showSuccess('Content approved successfully');
+      } else if (action === 'reject') {
+        await rejectContent(contentId, contentType, reason);
+        showSuccess('Content rejected successfully');
+      }
+      fetchAdminData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to ${action} content:`, error);
+      showError(`Failed to ${action} content`);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Handle system maintenance
+  const handleSystemMaintenance = async (action) => {
+    setIsActionLoading(true);
+    try {
+      switch (action) {
+        case 'cleanup':
+          await runSystemCleanup();
+          showSuccess('System cleanup completed');
+          break;
+        case 'cleanup-proofs':
+          await cleanupExpiredProofs();
+          showSuccess('Expired proofs cleanup completed');
+          break;
+        default:
+          break;
+      }
+      fetchAdminData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to run ${action}:`, error);
+      showError(`Failed to run ${action}`);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Search functionality
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    try {
+      const results = await fetchUsers(1, 20, searchTerm);
+      setUsers(results.users || []);
+      setTotalPages(results.pagination?.pages || 1);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error('Search failed:', error);
+      showError('Search failed');
+    }
+  };
+
+  // Pagination
+  const handlePageChange = async (page) => {
+    setCurrentPage(page);
+    try {
+      const results = await fetchUsers(page, 20, searchTerm);
+      setUsers(results.users || []);
+    } catch (error) {
+      console.error('Failed to fetch page:', error);
+      showError('Failed to load page');
+    }
+  };
 
   const getSeverityColor = (severity) => {
     const colors = {
@@ -212,9 +323,19 @@ const ModernAdmin = () => {
               <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
               <p className="text-neutral-400">System management and moderation tools</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-green-400 text-sm font-medium">System Online</span>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={fetchAdminData}
+                disabled={isLoading}
+                className="flex items-center space-x-2 px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 text-sm font-medium">System Online</span>
+              </div>
             </div>
           </div>
         </div>
@@ -267,6 +388,46 @@ const ModernAdmin = () => {
                 <FlagIcon className="w-6 h-6 text-red-400" />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button
+              onClick={() => handleSystemMaintenance('cleanup')}
+              disabled={isActionLoading}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CogIcon className="w-6 h-6 text-blue-400" />
+              <span className="text-white text-sm">System Cleanup</span>
+            </button>
+            
+            <button
+              onClick={() => handleSystemMaintenance('cleanup-proofs')}
+              disabled={isActionLoading}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <TrashIcon className="w-6 h-6 text-yellow-400" />
+              <span className="text-white text-sm">Clean Expired Proofs</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('reports')}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200"
+            >
+              <FlagIcon className="w-6 h-6 text-red-400" />
+              <span className="text-white text-sm">Review Reports</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('users')}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200"
+            >
+              <UsersIcon className="w-6 h-6 text-green-400" />
+              <span className="text-white text-sm">Manage Users</span>
+            </button>
           </div>
         </div>
 
@@ -378,6 +539,73 @@ const ModernAdmin = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Moderation Queue Preview */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400" />
+                    <span>Moderation Queue</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {moderationQueue.slice(0, 3).map((item) => (
+                      <div key={item.id} className="flex items-center justify-between p-3 bg-neutral-600/30 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            item.priority === 'high' ? 'bg-red-500' :
+                            item.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`}></div>
+                          <div>
+                            <p className="text-white text-sm font-medium">{item.content}</p>
+                            <p className="text-neutral-400 text-xs">by {item.user}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className={`text-xs font-medium ${
+                            item.priority === 'high' ? 'text-red-400' :
+                            item.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'
+                          }`}>
+                            {item.priority}
+                          </span>
+                          <p className="text-neutral-400 text-xs">{item.waitingTime}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('moderation')}
+                    className="w-full mt-4 px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white text-sm rounded-lg transition-colors duration-200"
+                  >
+                    View Moderation Queue
+                  </button>
+                </div>
+
+                {/* Real-time Activity Feed */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                    <BellIcon className="w-5 h-5 text-blue-400" />
+                    <span>Real-time Activity</span>
+                  </h3>
+                  <div className="space-y-3">
+                    {auditLogs.slice(0, 5).map((log) => (
+                      <div key={log._id} className="flex items-center space-x-3 p-3 bg-neutral-600/30 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <div className="flex-1">
+                          <p className="text-white text-sm">
+                            <span className="font-medium">{log.user?.username || 'System'}</span>
+                            <span className="text-neutral-400"> {log.action}</span>
+                          </p>
+                          <p className="text-neutral-400 text-xs">{formatDate(log.createdAt)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab('analytics')}
+                    className="w-full mt-4 px-4 py-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-white text-sm rounded-lg transition-colors duration-200"
+                  >
+                    View Full Activity Log
+                  </button>
+                </div>
               </div>
             )}
 
@@ -392,30 +620,126 @@ const ModernAdmin = () => {
                 </div>
                 
                 <div className="bg-neutral-700/30 rounded-lg p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-neutral-600/30 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-neutral-600 rounded-full flex items-center justify-center">
-                          <UsersIcon className="w-5 h-5 text-neutral-400" />
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">User123</p>
-                          <p className="text-neutral-400 text-sm">user123@example.com</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg">
-                          View
-                        </button>
-                        <button className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg">
-                          Edit
-                        </button>
-                        <button className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg">
-                          Suspend
-                        </button>
-                      </div>
-                    </div>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <MagnifyingGlassIcon className="w-5 h-5 text-neutral-400" />
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSearch();
+                        }
+                      }}
+                      className="flex-1 bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <button
+                      onClick={handleSearch}
+                      disabled={isActionLoading}
+                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Search
+                    </button>
                   </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-neutral-700">
+                      <thead className="bg-neutral-800/50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            Username
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            Email
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-neutral-800/30 divide-y divide-neutral-700">
+                        {users.map((user) => (
+                          <tr key={user._id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                              {user.username}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                              {user.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                user.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                                user.status === 'suspended' ? 'bg-red-500/20 text-red-400' :
+                                'bg-yellow-500/20 text-yellow-400'
+                              }`}>
+                                {user.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                              <button
+                                onClick={() => handleUserAction(user._id, 'update', { username: 'NewUsername' })}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <PencilIcon className="w-4 h-4 mr-1" /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleUserAction(user._id, 'delete')}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <TrashIcon className="w-4 h-4 mr-1" /> Delete
+                              </button>
+                              {user.status === 'suspended' && (
+                                <button
+                                  onClick={() => handleUserAction(user._id, 'activate')}
+                                  disabled={isActionLoading}
+                                  className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <PlayIcon className="w-4 h-4 mr-1" /> Activate
+                                </button>
+                              )}
+                              {user.status === 'active' && (
+                                <button
+                                  onClick={() => handleUserAction(user._id, 'suspend')}
+                                  disabled={isActionLoading}
+                                  className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <PauseIcon className="w-4 h-4 mr-1" /> Suspend
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="flex justify-center mt-4">
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        <button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-neutral-700/50 text-neutral-400 hover:bg-neutral-700/50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          Previous
+                        </button>
+                        <span className="relative inline-flex items-center px-4 py-2 border border-neutral-700/50 text-neutral-400">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-neutral-700/50 text-neutral-400 hover:bg-neutral-700/50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          Next
+                        </button>
+                      </nav>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -452,10 +776,18 @@ const ModernAdmin = () => {
                               Auto-flagged
                             </span>
                           )}
-                          <button className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg">
+                          <button
+                            onClick={() => handleContentModeration(item.id, item.type, 'approve')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             Approve
                           </button>
-                          <button className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg">
+                          <button
+                            onClick={() => handleContentModeration(item.id, item.type, 'reject', 'Rejected for inappropriate content')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             Reject
                           </button>
                         </div>
@@ -496,13 +828,25 @@ const ModernAdmin = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <button className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg">
+                          <button
+                            onClick={() => handleReportAction(report.id, 'investigate', { status: 'investigating', assignedTo: 'AdminUser' })}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             Investigate
                           </button>
-                          <button className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg">
+                          <button
+                            onClick={() => handleReportAction(report.id, 'resolve', { status: 'resolved', resolution: 'Resolved by Admin' })}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             Resolve
                           </button>
-                          <button className="px-3 py-1 bg-gray-500/20 text-gray-400 text-sm rounded-lg">
+                          <button
+                            onClick={() => handleReportAction(report.id, 'dismiss', { status: 'dismissed', resolution: 'Dismissed by Admin' })}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-gray-500/20 text-gray-400 text-sm rounded-lg hover:bg-gray-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             Dismiss
                           </button>
                         </div>
@@ -553,21 +897,77 @@ const ModernAdmin = () => {
                         <input type="checkbox" className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
                         <span className="text-neutral-300">Require manual review for new users</span>
                       </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Auto-flag suspicious content</span>
+                      </label>
                     </div>
                   </div>
                   
                   <div className="bg-neutral-700/30 rounded-lg p-6">
                     <h4 className="text-white font-medium mb-4">System Maintenance</h4>
                     <div className="space-y-3">
-                      <button className="px-4 py-2 bg-blue-500/20 text-blue-400 text-sm rounded-lg">
-                        Run System Backup
+                      <button
+                        onClick={() => handleSystemMaintenance('cleanup')}
+                        disabled={isActionLoading}
+                        className="px-4 py-2 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Run System Cleanup
                       </button>
-                      <button className="px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg">
-                        Clear Cache
+                      <button
+                        onClick={() => handleSystemMaintenance('cleanup-proofs')}
+                        disabled={isActionLoading}
+                        className="px-4 py-2 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg hover:bg-yellow-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Clean Expired Proofs
                       </button>
-                      <button className="px-4 py-2 bg-red-500/20 text-red-400 text-sm rounded-lg">
-                        Emergency Shutdown
+                      <button
+                        onClick={() => handleSystemMaintenance('backup')}
+                        disabled={isActionLoading}
+                        className="px-4 py-2 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Create System Backup
                       </button>
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">Notification Preferences</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" defaultChecked className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Email notifications for high-priority reports</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" defaultChecked className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">System health alerts</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">User registration notifications</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" defaultChecked className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Content moderation alerts</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">Security Settings</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" defaultChecked className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Require 2FA for admin accounts</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" defaultChecked className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Session timeout after 30 minutes</span>
+                      </label>
+                      <label className="flex items-center space-x-3">
+                        <input type="checkbox" className="w-4 h-4 text-primary bg-neutral-700/50 border-neutral-600/50 rounded focus:ring-primary focus:ring-2" />
+                        <span className="text-neutral-300">Log all admin actions</span>
+                      </label>
                     </div>
                   </div>
                 </div>
