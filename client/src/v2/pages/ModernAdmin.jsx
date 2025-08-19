@@ -1729,13 +1729,13 @@ const ModernAdmin = () => {
                     <h4 className="text-white font-medium mb-4">System Health</h4>
                     <div className="text-center">
                       <div className={`text-4xl font-bold mb-2 ${
-                        systemStats.systemHealth === 'healthy' ? 'text-green-400' :
-                        systemStats.systemHealth === 'warning' ? 'text-yellow-400' : 'text-red-400'
+                        (systemStats.systemHealth || 'unknown') === 'healthy' ? 'text-green-400' :
+                        (systemStats.systemHealth || 'unknown') === 'warning' ? 'text-yellow-400' : 'text-red-400'
                       }`}>
-                        {systemStats.systemHealth === 'healthy' ? '✓' : 
-                         systemStats.systemHealth === 'warning' ? '⚠' : '✗'}
+                        {(systemStats.systemHealth || 'unknown') === 'healthy' ? '✓' : 
+                         (systemStats.systemHealth || 'unknown') === 'warning' ? '⚠' : '✗'}
                       </div>
-                      <p className="text-neutral-400 text-sm capitalize">{systemStats.systemHealth}</p>
+                      <p className="text-neutral-400 text-sm capitalize">{systemStats.systemHealth || 'unknown'}</p>
                     </div>
                   </div>
 
@@ -1750,7 +1750,7 @@ const ModernAdmin = () => {
                   <div className="bg-neutral-700/30 rounded-lg p-6">
                     <h4 className="text-white font-medium mb-4">Pending Reports</h4>
                     <div className="text-center">
-                      <div className="text-4xl font-bold text-red-400 mb-2">{systemStats.pendingReports}</div>
+                      <div className="text-4xl font-bold text-red-400 mb-2">{systemStats.pendingReports || 0}</div>
                       <p className="text-neutral-400 text-sm">Awaiting Review</p>
                     </div>
                   </div>
