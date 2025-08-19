@@ -265,26 +265,68 @@ export default function NotificationDropdown() {
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      <span className="relative inline-block">
-        <span
-          ref={dropdownRef}
-          className="cursor-pointer select-none"
-          onClick={() => setOpen(v => !v)}
-          tabIndex={0}
-          aria-haspopup="true"
-          aria-expanded={open}
-          role="button"
-        >
-          <BellIcon className="h-6 w-6 text-white hover:text-primary transition-colors" />
-          {unseenCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center" aria-label={`${unseenCount} unread notifications`}>{unseenCount}</span>
-          )}
-        </span>
-      </span>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="relative p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
+        aria-haspopup="true"
+        aria-expanded={open}
+        role="button"
+      >
+        <BellIcon className="h-6 w-6" />
+        {unseenCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium" aria-label={`${unseenCount} unread notifications`}>
+            {unseenCount}
+          </span>
+        )}
+      </button>
       {open && (
-        <ul className="absolute right-0 mt-2 min-w-[300px] max-h-[400px] overflow-y-auto bg-neutral-800 border border-neutral-700/50 rounded-xl shadow-xl z-50 p-4 text-white" role="menu">
-          {items}
-        </ul>
+        <div className="absolute right-0 mt-2 w-80 bg-neutral-800 rounded-xl border border-neutral-700/50 shadow-xl z-50">
+          <div className="p-4 border-b border-neutral-700/50">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Notifications</h3>
+              {unseenCount > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <div
+                  key={notification._id}
+                  className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 ${
+                    !notification.read ? 'bg-primary/5' : ''
+                  }`}
+                  onClick={() => handleMarkAsRead(notification._id)}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <BellIcon className="w-5 h-5 text-neutral-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm">
+                        <span className="font-medium text-primary">{getNotificationMessage(notification)}</span>
+                      </p>
+                      <p className="text-neutral-500 text-xs mt-2">{timeAgo(notification.createdAt)}</p>
+                    </div>
+                    {!notification.read && (
+                      <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-neutral-400">
+                No notifications
+              </div>
+            )}
+          </div>
+        </div>
       )}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
