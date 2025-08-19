@@ -370,10 +370,6 @@ const ModernNavigation = () => {
                 )}
                 
                 <div className="w-px h-6 bg-neutral-700 mx-2" />
-                <button onClick={() => handleNavigation('/news')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                  <NewspaperIcon className="w-5 h-5" />
-                  <span>News</span>
-                </button>
               </div>
             </div>
 
@@ -530,7 +526,7 @@ const ModernNavigation = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
                 <FireIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">OSA</span>
+              <span className="text-lg font-bold text-white">Deviant Dare</span>
             </div>
 
             {/* Mobile Menu Button */}
