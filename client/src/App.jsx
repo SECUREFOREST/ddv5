@@ -58,7 +58,7 @@ const ModernDashboard = React.lazy(() => import('./v2/components/ModernDashboard
 const ModernTaskCreator = React.lazy(() => import('./v2/components/ModernTaskCreator'));
 const ModernTaskBrowser = React.lazy(() => import('./v2/components/ModernTaskBrowser'));
 // const ModernProfile = React.lazy(() => import('./v2/components/ModernProfile'));
-const ModernNavigation = React.lazy(() => import('./v2/components/ModernNavigation'));
+// const ModernNavigation = React.lazy(() => import('./v2/components/ModernNavigation')); // Already imported statically above
 const ModernRouteNavigation = React.lazy(() => import('./v2/components/ModernRouteNavigation'));
 const ModernActiveTasks = React.lazy(() => import('./v2/components/ModernActiveTasks'));
 const ModernUserAnalytics = React.lazy(() => import('./v2/components/ModernUserAnalytics'));
