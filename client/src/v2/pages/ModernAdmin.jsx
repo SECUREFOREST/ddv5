@@ -21,12 +21,14 @@ import {
   ArrowDownTrayIcon,
   ServerIcon,
   CpuChipIcon,
-  DatabaseIcon,
+  CircleStackIcon,
   BellIcon,
   FlagIcon,
   SparklesIcon,
   PlayIcon,
-  PauseIcon
+  PauseIcon,
+  UserGroupIcon,
+  TrophyIcon
 } from '@heroicons/react/24/outline';
 import {
   fetchSiteStats,
@@ -1956,7 +1958,7 @@ const ModernAdmin = () => {
                 {databaseStats && (
                   <div className="bg-neutral-700/30 rounded-lg p-6">
                     <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
-                      <DatabaseIcon className="w-5 h-5 text-indigo-400" />
+                      <CircleStackIcon className="w-5 h-5 text-indigo-400" />
                       <span>Database Statistics</span>
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
