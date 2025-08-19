@@ -38,7 +38,7 @@ import {
   fetchReports,
   resolveReport,
   fetchModerationQueue,
-  fetchSystemHealth,
+  getSystemHealth,
   fetchAuditLogs,
   approveContent,
   rejectContent,
@@ -708,7 +708,7 @@ const ModernAdmin = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm">Total Users</p>
-                <p className="text-2xl font-bold text-white">{systemStats.totalUsers.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-white">{(systemStats.totalUsers || 0).toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
                 <UsersIcon className="w-6 h-6 text-blue-400" />
@@ -719,8 +719,8 @@ const ModernAdmin = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-neutral-400 text-sm">Active Users</p>
-                <p className="text-2xl font-bold text-white">{systemStats.activeUsers.toLocaleString()}</p>
+                <p className="text-neutral-400 text-sm">Active Dares</p>
+                <p className="text-2xl font-bold text-white">{(systemStats.activeDares || 0).toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <UserGroupIcon className="w-6 h-6 text-green-400" />
@@ -731,8 +731,8 @@ const ModernAdmin = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-neutral-400 text-sm">Total Tasks</p>
-                <p className="text-2xl font-bold text-white">{systemStats.totalTasks.toLocaleString()}</p>
+                <p className="text-neutral-400 text-sm">Total Dares</p>
+                <p className="text-2xl font-bold text-white">{(systemStats.totalDares || 0).toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
                 <TrophyIcon className="w-6 h-6 text-purple-400" />
@@ -744,7 +744,7 @@ const ModernAdmin = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-neutral-400 text-sm">Pending Reports</p>
-                <p className="text-2xl font-bold text-white">{systemStats.pendingReports}</p>
+                <p className="text-2xl font-bold text-white">{systemStats.pendingReports || 0}</p>
               </div>
               <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
                 <FlagIcon className="w-6 h-6 text-red-400" />
@@ -902,17 +902,15 @@ const ModernAdmin = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400 mb-1">{systemStats.uptime}</div>
-                      <div className="text-neutral-400 text-sm">Uptime</div>
+                      <div className="text-2xl font-bold text-green-400 mb-1">{systemStats.uptime || 'N/A'}</div>
+                      <p className="text-neutral-400 text-sm">System Uptime</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-400 mb-1">{systemStats.systemHealth}</div>
-                      <div className="text-neutral-400 text-sm">Status</div>
+                      <div className="text-2xl font-bold text-blue-400 mb-1">{systemStats.systemHealth || 'unknown'}</div>
+                      <p className="text-neutral-400 text-sm">System Health</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-400 mb-1">
-                        {formatDate(systemStats.lastBackup)}
-                      </div>
+                      <div className="text-2xl font-bold text-purple-400 mb-1">{formatDate(systemStats.lastBackup || new Date())}</div>
                       <div className="text-neutral-400 text-sm">Last Backup</div>
                     </div>
                   </div>
@@ -1698,28 +1696,28 @@ const ModernAdmin = () => {
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                       <div>
-                        <p className="text-2xl font-bold text-green-400">{systemStats.totalUsers}</p>
+                        <p className="text-2xl font-bold text-green-400">{systemStats.totalUsers || 0}</p>
                         <p className="text-neutral-400 text-sm">Total Users</p>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-blue-400">{systemStats.activeUsers}</p>
-                        <p className="text-neutral-400 text-sm">Active Users</p>
+                        <p className="text-2xl font-bold text-blue-400">{systemStats.activeDares || 0}</p>
+                        <p className="text-neutral-400 text-sm">Active Dares</p>
                       </div>
                     </div>
                   </div>
                   
                   <div className="bg-neutral-700/30 rounded-lg p-6">
-                    <h4 className="text-white font-medium mb-4">Task Completion</h4>
+                    <h4 className="text-white font-medium mb-4">Dare Completion</h4>
                     <div className="h-32 bg-neutral-600/30 rounded-lg flex items-center justify-center">
                       <ChartBarIcon className="w-12 h-12 text-neutral-400" />
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                       <div>
-                        <p className="text-2xl font-bold text-purple-400">{systemStats.totalTasks}</p>
-                        <p className="text-neutral-400 text-sm">Total Tasks</p>
+                        <p className="text-2xl font-bold text-purple-400">{systemStats.totalDares || 0}</p>
+                        <p className="text-neutral-400 text-sm">Total Dares</p>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-green-400">{systemStats.completedTasks}</p>
+                        <p className="text-2xl font-bold text-green-400">{systemStats.completedTasks || 0}</p>
                         <p className="text-neutral-400 text-sm">Completed</p>
                       </div>
                     </div>
@@ -1744,7 +1742,7 @@ const ModernAdmin = () => {
                   <div className="bg-neutral-700/30 rounded-lg p-6">
                     <h4 className="text-white font-medium mb-4">Uptime</h4>
                     <div className="text-center">
-                      <div className="text-4xl font-bold text-green-400 mb-2">{systemStats.uptime}</div>
+                      <div className="text-4xl font-bold text-green-400 mb-2">{systemStats.uptime || 'N/A'}</div>
                       <p className="text-neutral-400 text-sm">System Uptime</p>
                     </div>
                   </div>
