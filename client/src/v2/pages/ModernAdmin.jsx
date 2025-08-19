@@ -886,6 +886,295 @@ const ModernAdmin = () => {
               </div>
             )}
 
+            {/* Dares Tab */}
+            {activeTab === 'dares' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">Dare Management</h3>
+                  <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200">
+                    Create Dare
+                  </button>
+                </div>
+
+                {/* Filters */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Status</label>
+                      <select
+                        value={dareFilters.status}
+                        onChange={(e) => setDareFilters(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Difficulty</label>
+                      <select
+                        value={dareFilters.difficulty}
+                        onChange={(e) => setDareFilters(prev => ({ ...prev, difficulty: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Difficulties</option>
+                        <option value="titillating">Titillating</option>
+                        <option value="arousing">Arousing</option>
+                        <option value="explicit">Explicit</option>
+                        <option value="edgy">Edgy</option>
+                        <option value="hardcore">Hardcore</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Type</label>
+                      <select
+                        value={dareFilters.type}
+                        onChange={(e) => setDareFilters(prev => ({ ...prev, type: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Types</option>
+                        <option value="submission">Submission</option>
+                        <option value="domination">Domination</option>
+                        <option value="switch">Switch</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Search</label>
+                      <input
+                        type="text"
+                        placeholder="Search dares..."
+                        value={dareFilters.search || ''}
+                        onChange={(e) => setDareFilters(prev => ({ ...prev, search: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => fetchDaresData()}
+                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dares List */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <div className="space-y-4">
+                    {dares.map((dare) => (
+                      <div key={dare._id} className="flex items-center justify-between p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              dare.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                              dare.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                              dare.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {dare.status}
+                            </span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              dare.difficulty === 'hardcore' ? 'bg-red-500/20 text-red-400' :
+                              dare.difficulty === 'explicit' ? 'bg-orange-500/20 text-orange-400' :
+                              dare.difficulty === 'edgy' ? 'bg-yellow-500/20 text-yellow-400' :
+                              dare.difficulty === 'arousing' ? 'bg-purple-500/20 text-purple-400' :
+                              'bg-pink-500/20 text-pink-400'
+                            }`}>
+                              {dare.difficulty}
+                            </span>
+                            <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
+                              {dare.dareType}
+                            </span>
+                          </div>
+                          <p className="text-white font-medium mb-1">{dare.description}</p>
+                          <p className="text-neutral-400 text-sm">by {dare.creator?.username || 'Unknown'}</p>
+                          <p className="text-neutral-500 text-xs">{formatDate(dare.createdAt)}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {dare.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleDareAction(dare._id, 'approve')}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleDareAction(dare._id, 'reject', 'Rejected by admin')}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleDareAction(dare._id, 'edit')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <PencilIcon className="w-4 h-4 mr-1" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDareAction(dare._id, 'delete')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <TrashIcon className="w-4 h-4 mr-1" /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Switch Games Tab */}
+            {activeTab === 'switchgames' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">Switch Game Management</h3>
+                  <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200">
+                    Create Switch Game
+                  </button>
+                </div>
+
+                {/* Filters */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Status</label>
+                      <select
+                        value={switchGameFilters.status}
+                        onChange={(e) => setSwitchGameFilters(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Type</label>
+                      <select
+                        value={switchGameFilters.type}
+                        onChange={(e) => setSwitchGameFilters(prev => ({ ...prev, type: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Types</option>
+                        <option value="submission">Submission</option>
+                        <option value="domination">Domination</option>
+                        <option value="switch">Switch</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Search</label>
+                      <input
+                        type="text"
+                        placeholder="Search switch games..."
+                        value={switchGameFilters.search || ''}
+                        onChange={(e) => setSwitchGameFilters(prev => ({ ...prev, search: e.target.value }))}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => fetchSwitchGamesData()}
+                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
+                </div>
+
+                {/* Switch Games List */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <div className="space-y-4">
+                    {switchGames.map((game) => (
+                      <div key={game._id} className="flex items-center justify-between p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              game.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                              game.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                              game.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {game.status}
+                            </span>
+                            <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs">
+                              {game.type}
+                            </span>
+                            {game.public && (
+                              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">
+                                Public
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-white font-medium mb-1">{game.title}</p>
+                          <p className="text-neutral-400 text-sm mb-1">{game.description}</p>
+                          <p className="text-neutral-400 text-sm">by {game.creator?.username || 'Unknown'}</p>
+                          <p className="text-neutral-500 text-xs">{formatDate(game.createdAt)}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {game.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleSwitchGameAction(game._id, 'approve')}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleSwitchGameAction(game._id, 'reject', 'Rejected by admin')}
+                                disabled={isActionLoading}
+                                className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleSwitchGameAction(game._id, 'fix-state')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg hover:bg-yellow-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <CogIcon className="w-4 h-4 mr-1" /> Fix State
+                          </button>
+                          <button
+                            onClick={() => handleSwitchGameAction(game._id, 'edit')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <PencilIcon className="w-4 h-4 mr-1" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleSwitchGameAction(game._id, 'delete')}
+                            disabled={isActionLoading}
+                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <TrashIcon className="w-4 h-4 mr-1" /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Analytics Tab */}
             {activeTab === 'analytics' && (
               <div className="space-y-6">
