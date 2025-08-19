@@ -121,27 +121,63 @@ const ModernNavigation = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Set up WebSocket connection for real-time notifications
-    const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`);
-    
-    socket.onmessage = (event) => {
+    // Check if WebSocket is supported
+    if (!('WebSocket' in window)) {
+      console.log('WebSocket not supported, skipping real-time notifications');
+      return;
+    }
+
+    let socket = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+
+    const connectWebSocket = () => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'notification') {
-          setNotifications(prev => [data.notification, ...prev]);
-          showSuccess('New notification received!');
-        }
+        // Set up WebSocket connection for real-time notifications
+        socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`);
+        
+        socket.onopen = () => {
+          console.log('WebSocket connected successfully');
+          reconnectAttempts = 0;
+        };
+
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'notification') {
+              setNotifications(prev => [data.notification, ...prev]);
+              showSuccess('New notification received!');
+            }
+          } catch (error) {
+            console.error('Failed to parse WebSocket message:', error);
+          }
+        };
+
+        socket.onerror = (error) => {
+          console.warn('WebSocket connection error:', error);
+        };
+
+        socket.onclose = (event) => {
+          console.log('WebSocket connection closed:', event.code, event.reason);
+          
+          // Attempt to reconnect if not a normal closure and under max attempts
+          if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`Attempting to reconnect WebSocket (${reconnectAttempts}/${maxReconnectAttempts})...`);
+            setTimeout(connectWebSocket, 2000 * reconnectAttempts); // Exponential backoff
+          }
+        };
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        console.error('Failed to create WebSocket connection:', error);
       }
     };
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+    connectWebSocket();
 
     return () => {
-      socket.close();
+      if (socket) {
+        socket.close(1000, 'Component unmounting');
+      }
     };
   }, [user, showSuccess]);
 
