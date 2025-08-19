@@ -17,7 +17,9 @@ import {
   CogIcon,
   ArrowRightOnRectangleIcon,
   CheckCircleIcon,
-  StarIcon
+  StarIcon,
+  PlayIcon,
+  NewspaperIcon
 } from '@heroicons/react/24/solid';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -178,6 +180,41 @@ const ModernNavigation = () => {
                 <button onClick={() => handleNavigation('/leaderboard')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                   <ChartBarIcon className="w-5 h-5" />
                   <span>Leaderboard</span>
+                </button>
+                
+                {/* Additional Navigation Links */}
+                {user && (
+                  <>
+                    <div className="w-px h-6 bg-neutral-700 mx-2" />
+                    <button onClick={() => handleNavigation('/dare/select')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <PlayIcon className="w-5 h-5" />
+                      <span>Perform Dare</span>
+                    </button>
+                    <button onClick={() => handleNavigation('/switches')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <SparklesIcon className="w-5 h-5" />
+                      <span>Switch Games</span>
+                    </button>
+                    <button onClick={() => handleNavigation('/user-activity')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <ChartBarIcon className="w-5 h-5" />
+                      <span>Activity</span>
+                    </button>
+                    <button onClick={() => handleNavigation('/performer-dashboard')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <UserIcon className="w-5 h-5" />
+                      <span>Performer Dashboard</span>
+                    </button>
+                    {user.roles?.includes('admin') && (
+                      <button onClick={() => handleNavigation('/admin')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                        <CogIcon className="w-5 h-5" />
+                        <span>Admin</span>
+                      </button>
+                    )}
+                  </>
+                )}
+                
+                <div className="w-px h-6 bg-neutral-700 mx-2" />
+                <button onClick={() => handleNavigation('/news')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                  <NewspaperIcon className="w-5 h-5" />
+                  <span>News</span>
                 </button>
               </div>
             </div>
@@ -380,6 +417,58 @@ const ModernNavigation = () => {
                 <ChartBarIcon className="w-5 h-5" />
                 <span>Leaderboard</span>
               </button>
+              
+              {/* Additional Navigation Links for Mobile */}
+              {user && (
+                <>
+                  <button
+                    onClick={() => handleNavigation('/dare/select')}
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                  >
+                    <PlayIcon className="w-5 h-5" />
+                    <span>Perform Dare</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigation('/switches')}
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                  >
+                    <SparklesIcon className="w-5 h-5" />
+                    <span>Switch Games</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigation('/user-activity')}
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                  >
+                    <ChartBarIcon className="w-5 h-5" />
+                    <span>Activity</span>
+                  </button>
+                  <button
+                    onClick={() => handleNavigation('/performer-dashboard')}
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    <span>Performer Dashboard</span>
+                  </button>
+                  {user.roles?.includes('admin') && (
+                    <button
+                      onClick={() => handleNavigation('/admin')}
+                      className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                    >
+                      <CogIcon className="w-5 h-5" />
+                      <span>Admin</span>
+                    </button>
+                  )}
+                </>
+              )}
+              
+              <button
+                onClick={() => handleNavigation('/news')}
+                className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+              >
+                <NewspaperIcon className="w-5 h-5" />
+                <span>News</span>
+              </button>
+              
               {user && (
                 <>
                   <button

@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import ModernNavigation from './v2/components/ModernNavigation';
-import BottomNavigation from './components/BottomNavigation';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
@@ -152,7 +151,7 @@ function AppContent() {
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-[#060606]">
         {showNavbar && <ModernNavigation />}
-        <main className="flex-1 pb-20 lg:pb-0">
+        <main className="flex-1">
           <div className="w-full">
             <Suspense fallback={
               <div className="flex items-center justify-center min-h-[50vh]">
@@ -343,8 +342,6 @@ function AppContent() {
       </main>
       <Footer />
       
-      {/* Bottom Navigation for Mobile */}
-      {user && <BottomNavigation />}
     </div>
     </ErrorBoundary>
   );
