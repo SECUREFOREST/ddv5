@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import Avatar from './Avatar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   FireIcon, 
   SparklesIcon, 
@@ -54,43 +54,7 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  // Enhanced navigation groups with icons
-  const navGroups = [
-    {
-      title: 'Main',
-      links: [
-        { to: '/dom-demand/create', label: 'Dom Demand', auth: true, icon: <PlusIcon className="w-5 h-5" /> },
-        { to: '/dare/select', label: 'Perform Dare', auth: true, icon: <PlayIcon className="w-5 h-5" /> },
-      ]
-    },
-    {
-      title: 'Community',
-      links: [
-        { to: '/switches', label: 'Switch Games', auth: true, icon: <UserGroupIcon className="w-5 h-5" /> },
-        { to: '/leaderboard', label: 'Leaderboard', auth: true, icon: <ChartBarIcon className="w-5 h-5" /> },
-        { to: '/user-activity', label: 'Activity', auth: true, icon: <SparklesIcon className="w-5 h-5" /> },
-        { to: '/news', label: 'News', auth: false, icon: <NewspaperIcon className="w-5 h-5" /> },
-      ]
-    },
-    {
-      title: 'Special',
-      links: [
-        { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true, icon: <FireIcon className="w-5 h-5" /> },
-        { to: '/admin', label: 'Admin', admin: true, icon: <ShieldCheckIcon className="w-5 h-5" /> },
-      ]
-    }
-  ];
-
-  // Helper for link classes
-  const currentPath = window.location.pathname;
-  function linkClass(link) {
-    return (
-      'flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ' +
-      (currentPath === link.to ? 'bg-primary/20 text-primary border border-primary/30' : '')
-    );
-  }
-
-  // Get role-based styling
+  // Get role color and icon
   const getRoleColor = (role) => {
     const colors = {
       dominant: 'from-primary to-primary-dark',
@@ -109,6 +73,21 @@ export default function Navbar() {
     return icons[role] || <UserIcon className="w-5 h-5" />;
   };
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setIsProfileDropdownOpen(false);
+    };
+
+    if (isProfileDropdownOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isProfileDropdownOpen]);
+
   return (
     <>
       {/* Desktop Navigation */}
@@ -121,32 +100,53 @@ export default function Navbar() {
                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
                   <FireIcon className="w-6 h-6 text-white" />
                 </div>
-                <Link className="text-xl font-bold text-white hover:text-primary transition-colors" to="/">
+                <Link to="/" className="text-xl font-bold text-white hover:text-primary transition-colors">
                   Deviant Dare
                 </Link>
               </div>
 
               {/* Main Navigation */}
               <div className="flex items-center space-x-1">
-                {navGroups.map(group => (
-                  <div key={group.title} className="flex items-center space-x-1">
-                    {group.links.map(link => {
-                      if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-                      if (link.auth && !user) return null;
-                      return (
-                        <Link 
-                          key={link.to} 
-                          to={link.to} 
-                          className={linkClass(link)}
-                        >
-                          {link.icon}
-                          <span>{link.label}</span>
-                        </Link>
-                      );
-                    })}
-                    {group.title !== 'Special' && <div className="w-px h-6 bg-neutral-700 mx-2" />}
-                  </div>
-                ))}
+                {user && (
+                  <>
+                    <Link to="/dashboard" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <HomeIcon className="w-5 h-5" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link to="/dom-demand/create" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <PlusIcon className="w-5 h-5" />
+                      <span>Create</span>
+                    </Link>
+                    <Link to="/dare/select" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <PlayIcon className="w-5 h-5" />
+                      <span>Perform</span>
+                    </Link>
+                    <Link to="/switches" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <UserGroupIcon className="w-5 h-5" />
+                      <span>Games</span>
+                    </Link>
+                    <Link to="/leaderboard" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <ChartBarIcon className="w-5 h-5" />
+                      <span>Leaderboard</span>
+                    </Link>
+                    <Link to="/user-activity" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <SparklesIcon className="w-5 h-5" />
+                      <span>Activity</span>
+                    </Link>
+                    <Link to="/news" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <NewspaperIcon className="w-5 h-5" />
+                      <span>News</span>
+                    </Link>
+                  </>
+                )}
+                {!user && (
+                  <>
+                    <Link to="/news" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                      <NewspaperIcon className="w-5 h-5" />
+                      <span>News</span>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
@@ -156,7 +156,7 @@ export default function Navbar() {
                 <>
                   {/* Notifications */}
                   <NotificationDropdown />
-                  
+
                   {/* Profile Dropdown */}
                   <div className="relative">
                     <button
@@ -164,7 +164,7 @@ export default function Navbar() {
                       className="flex items-center space-x-3 p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
                     >
                       <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center">
-                        <Avatar user={user} size={32} border shadow />
+                        <Avatar user={user} size={32} border={false} shadow={false} />
                       </div>
                       <span className="hidden xl:block">{user.fullName || user.username}</span>
                       {user.role && (
@@ -181,7 +181,7 @@ export default function Navbar() {
                         <div className="p-4 border-b border-neutral-700/50">
                           <div className="flex items-center space-x-3">
                             <div className="w-12 h-12 bg-neutral-600 rounded-full flex items-center justify-center">
-                              <Avatar user={user} size={48} border shadow />
+                              <Avatar user={user} size={48} border={false} shadow={false} />
                             </div>
                             <div>
                               <p className="text-white font-medium">{user.fullName || user.username}</p>
@@ -190,20 +190,22 @@ export default function Navbar() {
                           </div>
                         </div>
                         <div className="p-2">
-                          <button
-                            onClick={() => navigate('/profile')}
-                            className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
+                          <Link
+                            to="/profile"
+                            className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
                           >
                             <UserIcon className="w-5 h-5" />
                             <span>Profile</span>
-                          </button>
-                          <button
-                            onClick={() => navigate('/settings')}
-                            className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
-                          >
-                            <CogIcon className="w-5 h-5" />
-                            <span>Settings</span>
-                          </button>
+                          </Link>
+                          {user.roles?.includes('admin') && (
+                            <Link
+                              to="/admin"
+                              className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                            >
+                              <ShieldCheckIcon className="w-5 h-5" />
+                              <span>Admin</span>
+                            </Link>
+                          )}
                           <hr className="border-neutral-700/50 my-2" />
                           <button 
                             onClick={handleLogout}
@@ -219,7 +221,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <Link className="text-neutral-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-neutral-800/50" to="/login">
+                  <Link className="text-neutral-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-neutral-700/50" to="/login">
                     Login
                   </Link>
                   <Link className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105" to="/register">
@@ -241,9 +243,7 @@ export default function Navbar() {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
                 <FireIcon className="w-5 h-5 text-white" />
               </div>
-              <Link className="text-lg font-bold text-white" to="/">
-                Deviant Dare
-              </Link>
+              <Link to="/" className="text-lg font-bold text-white">Deviant Dare</Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -264,58 +264,99 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-neutral-800 border-t border-neutral-700/50">
             <div className="px-4 py-2 space-y-1">
-              {navGroups.map(group => (
-                <div key={group.title}>
-                  <div className="px-3 py-2 text-xs font-semibold text-neutral-400 uppercase tracking-wider">
-                    {group.title}
-                  </div>
-                  {group.links.map(link => {
-                    if (link.admin && !(user && user.roles?.includes('admin'))) return null;
-                    if (link.auth && !user) return null;
-                    return (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {link.icon}
-                        <span>{link.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ))}
               {user && (
                 <>
-                  <hr className="border-neutral-700/50 my-2" />
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <HomeIcon className="w-5 h-5" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    to="/dom-demand/create"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    <span>Create</span>
+                  </Link>
+                  <Link
+                    to="/dare/select"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <PlayIcon className="w-5 h-5" />
+                    <span>Perform</span>
+                  </Link>
+                  <Link
+                    to="/switches"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <UserGroupIcon className="w-5 h-5" />
+                    <span>Games</span>
+                  </Link>
+                  <Link
+                    to="/leaderboard"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <ChartBarIcon className="w-5 h-5" />
+                    <span>Leaderboard</span>
+                  </Link>
+                  <Link
+                    to="/user-activity"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <SparklesIcon className="w-5 h-5" />
+                    <span>Activity</span>
+                  </Link>
                   <Link
                     to="/profile"
                     className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <UserIcon className="w-5 h-5" />
                     <span>Profile</span>
                   </Link>
-                  <Link
-                    to="/settings"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <CogIcon className="w-5 h-5" />
-                    <span>Settings</span>
-                  </Link>
+                  {user.roles?.includes('admin') && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                    >
+                      <ShieldCheckIcon className="w-5 h-5" />
+                      <span>Admin</span>
+                    </Link>
+                  )}
                   <hr className="border-neutral-700/50 my-2" />
                   <button 
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
+                    onClick={handleLogout}
                     className="flex items-center space-x-3 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors duration-200 w-full"
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                     <span>Sign Out</span>
                   </button>
+                </>
+              )}
+              {!user && (
+                <>
+                  <Link
+                    to="/news"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <NewspaperIcon className="w-5 h-5" />
+                    <span>News</span>
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    <span>Login</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex items-center space-x-3 px-3 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    <span>Register</span>
+                  </Link>
                 </>
               )}
             </div>
@@ -339,14 +380,6 @@ export default function Navbar() {
             )}
           </div>
         </div>
-      )}
-
-      {/* Click outside handlers */}
-      {isProfileDropdownOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsProfileDropdownOpen(false)}
-        />
       )}
     </>
   );
