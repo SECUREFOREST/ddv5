@@ -104,14 +104,18 @@ const ModernAdmin = () => {
         moderationData,
         usersData,
         auditData,
-        healthData
+        healthData,
+        daresData,
+        switchGamesData
       ] = await Promise.all([
         fetchSiteStats(),
         fetchReports(1, 10),
         fetchModerationQueue(),
         fetchUsers(1, 20),
         fetchAuditLogs(1, 20),
-        fetchSystemHealth()
+        fetchSystemHealth(),
+        fetchDares(1, 10, {}),
+        fetchSwitchGames(1, 10, {})
       ]);
 
       setSystemStats({
@@ -129,6 +133,8 @@ const ModernAdmin = () => {
       setModerationQueue(moderationData.reports || []);
       setUsers(usersData.users || []);
       setAuditLogs(auditData.logs || []);
+      setDares(daresData.dares || []);
+      setSwitchGames(switchGamesData.switchGames || []);
       setTotalPages(reportsData.pagination?.pages || 1);
 
       // Generate user activity from audit logs
@@ -273,6 +279,100 @@ const ModernAdmin = () => {
     } catch (error) {
       console.error('Failed to fetch page:', error);
       showError('Failed to load page');
+    }
+  };
+
+  // Dares Management
+  const fetchDaresData = async () => {
+    try {
+      const results = await fetchDares(1, 20, dareFilters);
+      setDares(results.dares || []);
+    } catch (error) {
+      console.error('Failed to fetch dares:', error);
+      showError('Failed to load dares');
+    }
+  };
+
+  const handleDareAction = async (dareId, action, reason = '') => {
+    setIsActionLoading(true);
+    try {
+      switch (action) {
+        case 'approve':
+          await approveDare(dareId);
+          showSuccess('Dare approved successfully');
+          break;
+        case 'reject':
+          await rejectDare(dareId, reason);
+          showSuccess('Dare rejected successfully');
+          break;
+        case 'delete':
+          if (window.confirm('Are you sure you want to delete this dare? This action cannot be undone.')) {
+            await deleteDare(dareId);
+            showSuccess('Dare deleted successfully');
+          }
+          break;
+        case 'edit':
+          // TODO: Implement edit modal
+          showSuccess('Edit functionality coming soon');
+          break;
+        default:
+          break;
+      }
+      fetchDaresData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to ${action} dare:`, error);
+      showError(`Failed to ${action} dare`);
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Switch Games Management
+  const fetchSwitchGamesData = async () => {
+    try {
+      const results = await fetchSwitchGames(1, 20, switchGameFilters);
+      setSwitchGames(results.switchGames || []);
+    } catch (error) {
+      console.error('Failed to fetch switch games:', error);
+      showError('Failed to load switch games');
+    }
+  };
+
+  const handleSwitchGameAction = async (gameId, action, reason = '') => {
+    setIsActionLoading(true);
+    try {
+      switch (action) {
+        case 'approve':
+          await approveSwitchGame(gameId);
+          showSuccess('Switch game approved successfully');
+          break;
+        case 'reject':
+          await rejectSwitchGame(gameId, reason);
+          showSuccess('Switch game rejected successfully');
+          break;
+        case 'delete':
+          if (window.confirm('Are you sure you want to delete this switch game? This action cannot be undone.')) {
+            await deleteSwitchGame(gameId);
+            showSuccess('Switch game deleted successfully');
+          }
+          break;
+        case 'fix-state':
+          await fixGameState(gameId);
+          showSuccess('Game state fixed successfully');
+          break;
+        case 'edit':
+          // TODO: Implement edit modal
+          showSuccess('Edit functionality coming soon');
+          break;
+        default:
+          break;
+      }
+      fetchSwitchGamesData(); // Refresh data
+    } catch (error) {
+      console.error(`Failed to ${action} switch game:`, error);
+      showError(`Failed to ${action} switch game`);
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -456,6 +556,22 @@ const ModernAdmin = () => {
             >
               <UsersIcon className="w-6 h-6 text-green-400" />
               <span className="text-white text-sm">Manage Users</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('dares')}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200"
+            >
+              <TrophyIcon className="w-6 h-6 text-purple-400" />
+              <span className="text-white text-sm">Manage Dares</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('switchgames')}
+              className="flex items-center space-x-3 p-4 bg-neutral-800/50 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-lg transition-colors duration-200"
+            >
+              <SparklesIcon className="w-6 h-6 text-indigo-400" />
+              <span className="text-white text-sm">Manage Switch Games</span>
             </button>
           </div>
         </div>
