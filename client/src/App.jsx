@@ -169,12 +169,12 @@ function AppContent() {
               <Route path="/modern-ui" element={<ModernUIDemo />} />
               <Route path="/modern/routes" element={<ModernRouteNavigation />} />
               
-              {/* Modern Landing & Auth Routes */}
-              <Route path="/" element={<ModernLanding />} />
-              <Route path="/register" element={<ModernRegister />} />
-              <Route path="/login" element={<ModernLogin />} />
-              <Route path="/forgot-password" element={<ModernForgotPassword />} />
-              <Route path="/reset-password" element={<ModernResetPassword />} />
+              {/* Landing & Auth Routes - Reverted to Old Versions */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               
               {/* Modern Dashboard Routes */}
               <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
@@ -207,10 +207,6 @@ function AppContent() {
               <Route path="/dares/:id" element={<PrivateRoute><DareDetails /></PrivateRoute>} />
               <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
               
               {/* Modern OSA Integration Routes */}
