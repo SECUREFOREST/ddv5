@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   FireIcon, 
   SparklesIcon, 
@@ -24,42 +24,19 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { DIFFICULTY_OPTIONS } from '../../constants';
+import api from '../../api/axios';
+import { useToast } from '../../context/ToastContext';
 
 const ModernNavigation = () => {
   const { user, logout } = useAuth();
+  const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'submission',
-      user: 'Alex',
-      action: 'submitted to your demand',
-      task: 'Sensual massage challenge',
-      time: '2 hours ago',
-      read: false
-    },
-    {
-      id: 2,
-      type: 'fulfillment',
-      user: 'Jordan',
-      action: 'fulfilled your demand',
-      task: 'Photo challenge',
-      time: '1 day ago',
-      read: false
-    },
-    {
-      id: 3,
-      type: 'grading',
-      user: 'Sam',
-      action: 'graded your task',
-      task: 'Dance performance',
-      time: '3 days ago',
-      read: true
-    }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Use real user data from AuthContext
   const currentUser = user || {
@@ -69,6 +46,60 @@ const ModernNavigation = () => {
     role: 'guest',
     unreadNotifications: 0
   };
+
+  // Fetch notifications from API
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get('/notifications');
+      
+      if (response.data) {
+        setNotifications(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      setError('Failed to load notifications');
+      showError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  }, [user, showError]);
+
+  // Load notifications when component mounts or user changes
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Real-time notifications via WebSocket (if available)
+  useEffect(() => {
+    if (!user) return;
+
+    // Set up WebSocket connection for real-time notifications
+    const socket = new WebSocket(`${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`);
+    
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'notification') {
+          setNotifications(prev => [data.notification, ...prev]);
+          showSuccess('New notification received!');
+        }
+      } catch (error) {
+        console.error('Failed to parse WebSocket message:', error);
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [user, showSuccess]);
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -112,25 +143,152 @@ const ModernNavigation = () => {
     return icons[role] || <UserIcon className="w-5 h-5" />;
   };
 
-  const markNotificationAsRead = (notificationId) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    );
+  const markNotificationAsRead = async (notificationId) => {
+    try {
+      await api.put(`/notifications/${notificationId}/read`);
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif._id === notificationId ? { ...notif, read: true } : notif
+        )
+      );
+      
+      showSuccess('Notification marked as read');
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      showError('Failed to mark notification as read');
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+  const markAllAsRead = async () => {
+    try {
+      await api.post('/notifications/read', { all: true });
+      
+      // Update local state
+      setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+      
+      showSuccess('All notifications marked as read');
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+      showError('Failed to mark all notifications as read');
+    }
   };
 
   const getNotificationIcon = (type) => {
     const icons = {
       submission: <PlusIcon className="w-5 h-5 text-info" />,
       fulfillment: <CheckCircleIcon className="w-5 h-5 text-success" />,
-      grading: <StarIcon className="w-5 h-5 text-warning" />
+      grading: <StarIcon className="w-5 h-5 text-warning" />,
+      dare_created: <PlusIcon className="w-5 h-5 text-primary" />,
+      dare_completed: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      dare_assigned: <UserIcon className="w-5 h-5 text-info" />,
+      dare_accepted: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      dare_rejected: <XMarkIcon className="w-5 h-5 text-danger" />,
+      dare_claimed: <SparklesIcon className="w-5 h-5 text-primary" />,
+      dare_performed: <PlayIcon className="w-5 h-5 text-warning" />,
+      grade_given: <StarIcon className="w-5 h-5 text-warning" />,
+      grade_received: <StarIcon className="w-5 h-5 text-warning" />,
+      switch_game_joined: <CheckCircleIcon className="w-5 h-5 text-primary" />,
+      switch_game_created: <PlusIcon className="w-5 h-5 text-primary" />,
+      switch_game_completed: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      switch_game_started: <PlayIcon className="w-5 h-5 text-info" />,
+      proof_submitted: <CheckCircleIcon className="w-5 h-5 text-warning" />,
+      proof_approved: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      proof_rejected: <XMarkIcon className="w-5 h-5 text-danger" />,
+      offer_submitted: <PlusIcon className="w-5 h-5 text-info" />,
+      offer_accepted: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      offer_rejected: <XMarkIcon className="w-5 h-5 text-danger" />,
+      profile_updated: <UserIcon className="w-5 h-5 text-info" />,
+      avatar_uploaded: <UserIcon className="w-5 h-5 text-info" />,
+      login: <CheckCircleIcon className="w-5 h-5 text-success" />,
+      logout: <UserIcon className="w-5 h-5 text-neutral-400" />
     };
     return icons[type] || <BellIcon className="w-5 h-5 text-neutral-400" />;
+  };
+
+  const getNotificationMessage = (notification) => {
+    // Use the notification message if available, otherwise generate one
+    if (notification.message) {
+      return notification.message;
+    }
+
+    // Generate message based on type and sender
+    const senderName = notification.sender?.fullName || notification.sender?.username || 'Someone';
+    
+    switch (notification.type) {
+      case 'submission':
+        return `${senderName} submitted to your demand`;
+      case 'fulfillment':
+        return `${senderName} fulfilled your demand`;
+      case 'grading':
+        return `${senderName} graded your task`;
+      case 'dare_created':
+        return `${senderName} created a new dare`;
+      case 'dare_completed':
+        return `${senderName} completed a dare`;
+      case 'dare_assigned':
+        return `A dare has been assigned to you`;
+      case 'dare_accepted':
+        return `${senderName} accepted your dare`;
+      case 'dare_rejected':
+        return `${senderName} rejected your dare`;
+      case 'dare_claimed':
+        return `${senderName} claimed your dare`;
+      case 'dare_performed':
+        return `${senderName} performed a dare`;
+      case 'grade_given':
+        return `${senderName} gave you a grade`;
+      case 'grade_received':
+        return `You received a grade from ${senderName}`;
+      case 'switch_game_joined':
+        return `${senderName} joined your switch game`;
+      case 'switch_game_created':
+        return `${senderName} created a new switch game`;
+      case 'switch_game_completed':
+        return `Switch game completed`;
+      case 'switch_game_started':
+        return `Switch game started`;
+      case 'proof_submitted':
+        return `${senderName} submitted proof`;
+      case 'proof_approved':
+        return `Your proof was approved`;
+      case 'proof_rejected':
+        return `Your proof was rejected`;
+      case 'offer_submitted':
+        return `${senderName} submitted an offer`;
+      case 'offer_accepted':
+        return `Your offer was accepted`;
+      case 'offer_rejected':
+        return `Your offer was rejected`;
+      case 'profile_updated':
+        return `Profile updated`;
+      case 'avatar_uploaded':
+        return `Avatar uploaded`;
+      case 'login':
+        return `Login successful`;
+      case 'logout':
+        return `Logout successful`;
+      default:
+        return notification.type || 'New notification';
+    }
+  };
+
+  const formatNotificationTime = (createdAt) => {
+    const now = new Date();
+    const notificationTime = new Date(createdAt);
+    const diffInMinutes = Math.floor((now - notificationTime) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    
+    return notificationTime.toLocaleDateString();
   };
 
   const handleLogout = () => {
@@ -147,6 +305,9 @@ const ModernNavigation = () => {
   if (!user && ['/login', '/register', '/forgot-password', '/reset-password', '/'].includes(window.location.pathname)) {
     return null;
   }
+
+  // Calculate unread count
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <>
@@ -169,10 +330,7 @@ const ModernNavigation = () => {
                   <HomeIcon className="w-5 h-5" />
                   <span>Dashboard</span>
                 </button>
-                <button onClick={() => handleNavigation('/public-dares')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                  <MagnifyingGlassIcon className="w-5 h-5" />
-                  <span>Browse</span>
-                </button>
+
                 <button onClick={() => handleNavigation('/dom-demand/create')} className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                   <PlusIcon className="w-5 h-5" />
                   <span>Create</span>
@@ -229,9 +387,9 @@ const ModernNavigation = () => {
                     className="relative p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
                   >
                     <BellIcon className="w-6 h-6" />
-                    {currentUser.unreadNotifications > 0 && (
+                    {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
-                        {currentUser.unreadNotifications}
+                        {unreadCount}
                       </span>
                     )}
                   </button>
@@ -251,14 +409,18 @@ const ModernNavigation = () => {
                         </div>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
-                        {notifications.length > 0 ? (
+                        {loading ? (
+                          <div className="p-4 text-center text-neutral-400">Loading notifications...</div>
+                        ) : error ? (
+                          <div className="p-4 text-center text-red-400">{error}</div>
+                        ) : notifications.length > 0 ? (
                           notifications.map((notification) => (
                             <div
-                              key={notification.id}
+                              key={notification._id}
                               className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 ${
                                 !notification.read ? 'bg-primary/5' : ''
                               }`}
-                              onClick={() => markNotificationAsRead(notification.id)}
+                              onClick={() => markNotificationAsRead(notification._id)}
                             >
                               <div className="flex items-start space-x-3">
                                 <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -266,11 +428,11 @@ const ModernNavigation = () => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-white text-sm">
-                                    <span className="font-medium text-primary">{notification.user}</span>{' '}
-                                    {notification.action}
+                                    <span className="font-medium text-primary">{notification.sender?.fullName || notification.sender?.username}</span>{' '}
+                                    {getNotificationMessage(notification)}
                                   </p>
                                   <p className="text-neutral-400 text-sm mt-1">{notification.task}</p>
-                                  <p className="text-neutral-500 text-xs mt-2">{notification.time}</p>
+                                  <p className="text-neutral-500 text-xs mt-2">{formatNotificationTime(notification.createdAt)}</p>
                                 </div>
                                 {!notification.read && (
                                   <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
@@ -397,13 +559,6 @@ const ModernNavigation = () => {
                 <span>Dashboard</span>
               </button>
               <button
-                onClick={() => handleNavigation('/public-dares')}
-                className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
-              >
-                <MagnifyingGlassIcon className="w-5 h-5" />
-                <span>Browse</span>
-              </button>
-              <button
                 onClick={() => handleNavigation('/dom-demand/create')}
                 className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
               >
@@ -460,14 +615,6 @@ const ModernNavigation = () => {
                   )}
                 </>
               )}
-              
-              <button
-                onClick={() => handleNavigation('/news')}
-                className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200 w-full"
-              >
-                <NewspaperIcon className="w-5 h-5" />
-                <span>News</span>
-              </button>
               
               {user && (
                 <>
