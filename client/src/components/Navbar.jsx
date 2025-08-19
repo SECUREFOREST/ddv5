@@ -2,50 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import Avatar from './Avatar';
-import { useState, useEffect } from 'react';
-import { 
-  FireIcon, 
-  SparklesIcon, 
-  EyeDropperIcon, 
-  ExclamationTriangleIcon, 
-  RocketLaunchIcon,
-  Bars3Icon,
-  XMarkIcon,
-  UserIcon,
-  HomeIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
-  ChartBarIcon,
-  HeartIcon,
-  BellIcon,
-  CogIcon,
-  ArrowRightOnRectangleIcon,
-  PlayIcon,
-  UserGroupIcon,
-  NewspaperIcon,
-  ShieldCheckIcon
-} from '@heroicons/react/24/solid';
-
-
-// Missing icon components (from v2)
-const CheckCircleIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const StarIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-  </svg>
-); 
+import { useState } from 'react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [impersonationError, setImpersonationError] = useState(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   // Impersonation banner logic
   const isImpersonating = Boolean(localStorage.getItem('impersonatorToken'));
@@ -68,384 +30,127 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  // Get role color and icon
-  const getRoleColor = (role) => {
-    const colors = {
-      dominant: 'from-primary to-primary-dark',
-      submissive: 'from-info to-info-dark',
-      switch: 'from-success to-success-dark'
-    };
-    return colors[role] || 'from-neutral-600 to-neutral-700';
-  };
-
-  const getRoleIcon = (role) => {
-    const icons = {
-      dominant: <FireIcon className="w-5 h-5" />,
-      submissive: <HeartIcon className="w-5 h-5" />,
-      switch: <SparklesIcon className="w-5 h-5" />
-    };
-    return icons[role] || <UserIcon className="w-5 h-5" />;
-  };
-
-  // Get difficulty color and icon (from v2)
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  };
-
-  // Get notification icon (from v2)
-  const getNotificationIcon = (type) => {
-    const icons = {
-      submission: <PlusIcon className="w-5 h-5 text-info" />,
-      fulfillment: <CheckCircleIcon className="w-5 h-5 text-success" />,
-      grading: <StarIcon className="w-5 h-5 text-warning" />
-    };
-    return icons[type] || <BellIcon className="w-5 h-5 text-neutral-400" />;
-  };
-
-  // Mark notification as read (from v2)
-  const markNotificationAsRead = (notificationId) => {
-    // This function is now handled by the NotificationDropdown component
-    // Keeping it for v2 compatibility
-  };
-
-  // Mark all notifications as read (from v2)
-  const markAllAsRead = () => {
-    // This function is now handled by the NotificationDropdown component
-    // Keeping it for v2 compatibility
-  };
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setIsProfileDropdownOpen(false);
-    };
-
-    if (isProfileDropdownOpen) {
-      document.addEventListener('click', handleClickOutside);
+  // Grouped navigation links for better organization
+  const navGroups = [
+    {
+      title: 'Main',
+      links: [
+    { to: '/dom-demand/create', label: 'Dom Demand', auth: true },
+        { to: '/dare/select', label: 'Perform Dare', auth: true },
+      ]
+    },
+    {
+      title: 'Community',
+      links: [
+    { to: '/switches', label: 'Switch Games', auth: true },
+    { to: '/leaderboard', label: 'Leaderboard', auth: true },
+    { to: '/user-activity', label: 'Activity', auth: true },
+    { to: '/news', label: 'News', auth: false },
+      ]
+    },
+    {
+      title: 'Special',
+      links: [
+    { to: '/performer-dashboard', label: 'Performer Dashboard', auth: true },
+    { to: '/admin', label: 'Admin', admin: true },
+      ]
     }
+  ];
 
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isProfileDropdownOpen]);
+  // Helper for link classes
+  const currentPath = window.location.pathname;
+  function linkClass(link) {
+    return (
+      'text-neutral-300 hover:text-white transition-all duration-200 px-4 py-3 rounded-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ' +
+      (currentPath === link.to ? 'bg-primary/20 text-primary border border-primary/30' : 'hover:bg-neutral-800/50')
+    );
+  }
 
   return (
-    <>
-      {/* Desktop Navigation */}
-      <nav className="hidden lg:block bg-neutral-800/80 backdrop-blur-md border-b border-neutral-700/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FireIcon className="w-6 h-6 text-white" />
-                </div>
-                <Link to="/" className="text-xl font-bold text-white hover:text-primary transition-colors">
-                  Deviant Dare
-                </Link>
-              </div>
-
-              {/* Main Navigation */}
-              <div className="flex items-center space-x-2">
-                {user && (
-                  <>
-                    <Link to="/dashboard" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <HomeIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link to="/dom-demand/create" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <PlusIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Create</span>
-                    </Link>
-                    <Link to="/dare/select" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <PlayIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Perform</span>
-                    </Link>
-                    <Link to="/switches" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <UserGroupIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Games</span>
-                    </Link>
-                    <Link to="/leaderboard" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <ChartBarIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Leaderboard</span>
-                    </Link>
-                    <Link to="/user-activity" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <SparklesIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Activity</span>
-                    </Link>
-                    <Link to="/news" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>News</span>
-                    </Link>
-                  </>
-                )}
-                {!user && (
-                  <>
-                    <Link to="/news" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
-                      <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>News</span>
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Right Side - User Menu */}
-            <div className="flex items-center space-x-3">
-              {user ? (
-                <>
-                  {/* Notifications */}
-                  <div className="flex items-center">
-                    <NotificationDropdown />
-                  </div>
-
-                  {/* Profile Dropdown */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                      className="flex items-center space-x-3 p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50 min-h-[40px]"
-                    >
-                      <div className="flex-shrink-0">
-                        <Avatar user={user} size={32} border={false} shadow={false} />
-                      </div>
-                      <div className="hidden xl:flex xl:flex-col xl:items-start xl:min-w-0">
-                        <span className="text-sm font-medium truncate">{user.fullName || user.username}</span>
-                        {user.role && (
-                          <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getRoleColor(user.role)} text-white`}>
-                            {getRoleIcon(user.role)}
-                            <span className="capitalize">{user.role}</span>
-                          </span>
-                        )}
-                      </div>
-                    </button>
-
-                    {/* Profile Dropdown Menu */}
-                    {isProfileDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-64 bg-neutral-800 rounded-xl border border-neutral-700/50 shadow-xl z-50">
-                        <div className="p-4 border-b border-neutral-700/50">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0">
-                              <Avatar user={user} size={48} border={false} shadow={false} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-white font-medium truncate">{user.fullName || user.username}</p>
-                              <p className="text-neutral-400 text-sm truncate">@{user.username}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="p-2">
-                          <Link
-                            to="/profile"
-                            className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                          >
-                            <UserIcon className="w-5 h-5 flex-shrink-0" />
-                            <span>Profile</span>
-                          </Link>
-                          {user.roles?.includes('admin') && (
-                            <Link
-                              to="/admin"
-                              className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                            >
-                              <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
-                              <span>Admin</span>
-                            </Link>
-                          )}
-                          <hr className="border-neutral-700/50 my-2" />
-                          <button 
-                            onClick={handleLogout}
-                            className="flex items-center space-x-3 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors duration-200 w-full"
-                          >
-                            <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-                            <span>Sign Out</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <Link className="text-neutral-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-neutral-700/50" to="/login">
-                    Login
-                  </Link>
-                  <Link className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105" to="/register">
-                    Register
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
+    <nav className="bg-neutral-900/95 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between px-4 py-3">
+        <div className="flex items-center space-x-4">
+          <Link className="text-xl font-bold tracking-tight text-white hover:text-primary transition-colors" to="/">
+            Deviant Dare
+          </Link>
         </div>
-      </nav>
-
-      {/* Mobile Navigation */}
-      <nav className="lg:hidden bg-neutral-800/80 backdrop-blur-md border-b border-neutral-700/50 sticky top-0 z-50">
-        <div className="px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
-                <FireIcon className="w-6 h-6 text-white" />
-              </div>
-              <Link to="/" className="text-lg font-bold text-white">Deviant Dare</Link>
+        
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center space-x-1">
+          {navGroups.map(group => (
+            <div key={group.title} className="flex items-center space-x-1">
+              {group.links.map(link => {
+            if (link.admin && !(user && user.roles?.includes('admin'))) return null;
+            if (link.auth && !user) return null;
+            return (
+                  <Link 
+                    key={link.to} 
+                    to={link.to} 
+                    className={linkClass(link)}
+                  >
+                    {link.label}
+                  </Link>
+            );
+          })}
+              {group.title !== 'Special' && <div className="w-px h-6 bg-neutral-700 mx-2" />}
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-white hover:text-primary transition-colors duration-200"
-            >
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="w-6 h-6" />
-              ) : (
-                <Bars3Icon className="w-6 h-6" />
-              )}
-            </button>
-          </div>
+          ))}
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden bg-neutral-800 border-t border-neutral-700/50">
-            <div className="px-4 py-2 space-y-1">
-              {user && (
-                <>
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <HomeIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Dashboard</span>
-                  </Link>
-                  <Link
-                    to="/dom-demand/create"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <PlusIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Create</span>
-                  </Link>
-                  <Link
-                    to="/dare/select"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <PlayIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Perform</span>
-                  </Link>
-                  <Link
-                    to="/switches"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <UserGroupIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Games</span>
-                  </Link>
-                  <Link
-                    to="/leaderboard"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <ChartBarIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Leaderboard</span>
-                  </Link>
-                  <Link
-                    to="/user-activity"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <SparklesIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Activity</span>
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <UserIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Profile</span>
-                  </Link>
-                  {user.roles?.includes('admin') && (
-                    <Link
-                      to="/admin"
-                      className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                    >
-                      <ShieldCheckIcon className="w-5 h-5 flex-shrink-0" />
-                      <span>Admin</span>
-                    </Link>
-                  )}
-                  <hr className="border-neutral-700/50 my-2" />
-                  <button 
-                    onClick={handleLogout}
-                    className="flex items-center space-x-3 px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors duration-200 w-full"
-                  >
-                    <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              )}
-              {!user && (
-                <>
-                  <Link
-                    to="/news"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>News</span>
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="flex items-center space-x-3 px-3 py-2 text-white hover:bg-neutral-700/50 rounded-lg transition-colors duration-200"
-                  >
-                    <UserIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Login</span>
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="flex items-center space-x-3 px-3 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200"
-                  >
-                    <PlusIcon className="w-5 h-5 flex-shrink-0" />
-                    <span>Register</span>
-                  </Link>
-                </>
-              )}
+        {/* User section (desktop) */}
+        <div className="hidden lg:flex items-center space-x-4">
+          {user ? (
+            <>
+              <NotificationDropdown />
+              <button
+                onClick={() => navigate('/profile')}
+                className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full"
+                aria-label="Go to profile"
+              >
+                <Avatar user={user} size={40} border shadow />
+              </button>
+              <button 
+                onClick={handleLogout} 
+                className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <Link className="text-neutral-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-neutral-800/50" to="/login">
+                Login
+              </Link>
+              <Link className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105" to="/register">
+                Register
+              </Link>
             </div>
-          </div>
-        )}
-      </nav>
+          )}
+        </div>
+
+        {/* Mobile menu button - hidden since we use bottom navigation */}
+        <div className="lg:hidden w-12" />
+      </div>
 
       {/* Impersonation banner */}
       {isImpersonating && (
-        <div className="bg-yellow-500/20 border-b border-yellow-500/30">
-          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-3">
-            <div className="flex items-center justify-between">
-              <span className="text-yellow-200 text-sm font-medium">You are impersonating another user.</span>
-              <button
-                className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-3 py-1 text-sm font-medium transition-all duration-200"
-                onClick={handleReturnToAdmin}
-              >
-                Return to Admin
-              </button>
-              {impersonationError && (
-                <div className="bg-red-500 text-white rounded-lg px-3 py-1 text-sm">{impersonationError}</div>
-              )}
-            </div>
+        <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-3">
+          <div className="container mx-auto flex items-center justify-between">
+            <span className="text-yellow-200 text-sm font-medium">You are impersonating another user.</span>
+          <button
+              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-3 py-1 text-sm font-medium transition-all duration-200"
+            onClick={handleReturnToAdmin}
+          >
+            Return to Admin
+          </button>
+          {impersonationError && (
+              <div className="bg-red-500 text-white rounded-lg px-3 py-1 text-sm">{impersonationError}</div>
+          )}
           </div>
         </div>
       )}
-    </>
+
+      {/* Mobile menu overlay - removed since we use bottom navigation */}
+    </nav>
   );
-}
+} 

@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import ModernNavigation from './v2/components/ModernNavigation';
 import BottomNavigation from './components/BottomNavigation';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -151,7 +151,7 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-[#060606]">
-        {showNavbar && <Navbar />}
+        {showNavbar && <ModernNavigation />}
         <main className="flex-1 pb-20 lg:pb-0">
           <div className="w-full">
             <Suspense fallback={
