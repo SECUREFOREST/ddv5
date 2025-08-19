@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import {
@@ -126,7 +126,8 @@ const ModernAdmin = () => {
   const [exportLoading, setExportLoading] = useState(false);
 
   // Fetch all admin data
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async () => {
+    console.log('fetchAdminData called');
     setIsLoading(true);
     try {
       // Fetch all data in parallel
@@ -149,6 +150,17 @@ const ModernAdmin = () => {
         fetchSwitchGames(1, 20),
         getSystemHealth()
       ]);
+
+      console.log('API calls completed:', {
+        siteStatsData: siteStatsData.status,
+        reportsData: reportsData.status,
+        moderationData: moderationData.status,
+        usersData: usersData.status,
+        auditData: auditData.status,
+        daresData: daresData.status,
+        switchGamesData: switchGamesData.status,
+        healthData: healthData.status
+      });
 
       // Extract data with fallbacks
       const siteStats = siteStatsData.status === 'fulfilled' ? siteStatsData.value : {};
@@ -184,31 +196,39 @@ const ModernAdmin = () => {
         lastBackup: new Date().toISOString()
       });
 
-      setRecentReports(reports.reports || []);
-      setModerationQueue(moderation.reports || []);
-      setUsers(users.users || []);
-      setAuditLogs(audit.logs || []);
-      setDares(dares.dares || []);
-      setSwitchGames(switchGames.switchGames || []);
-      setTotalPages(reports.pagination?.pages || 1);
+      // Use setTimeout to ensure state updates happen in order
+      setTimeout(() => {
+        setRecentReports(reports.reports || []);
+        setModerationQueue(moderation.reports || []);
+        setUsers(users.users || []);
+        setAuditLogs(audit.logs || []);
+        setDares(dares.dares || []);
+        setSwitchGames(switchGames.switchGames || []);
+        setTotalPages(reports.pagination?.pages || 1);
 
-      // Generate user activity from audit logs
-      const activity = (audit.logs || []).slice(0, 5).map(log => ({
-        id: log._id,
-        user: log.user?.username || 'System',
-        action: log.action,
-        details: log.details || log.action,
-        timestamp: log.createdAt,
-        impact: 'low'
-      }));
-      setUserActivity(activity);
+        // Generate user activity from audit logs
+        const activity = (audit.logs || []).slice(0, 5).map(log => ({
+          id: log._id,
+          user: log.user?.username || 'System',
+          action: log.action,
+          details: log.details || log.action,
+          timestamp: log.createdAt,
+          impact: 'low'
+        }));
+        setUserActivity(activity);
+      }, 0);
 
+      console.log('State updates completed, calling fetchSystemData');
       // Fetch additional system monitoring data
       fetchSystemData();
 
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      showError('Failed to load admin data');
+      try {
+        showError('Failed to load admin data');
+      } catch (toastError) {
+        console.error('Error showing toast:', toastError);
+      }
       
       // Set fallback data on error
       setSystemStats({
@@ -232,11 +252,16 @@ const ModernAdmin = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchSystemData]);
 
   useEffect(() => {
-    fetchAdminData();
-  }, []);
+    // Add a small delay to ensure component is fully mounted
+    const timer = setTimeout(() => {
+      fetchAdminData();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [fetchAdminData]);
 
   // Handle user actions
   const handleUserAction = async (userId, action, updates = {}) => {
@@ -653,7 +678,8 @@ const ModernAdmin = () => {
   };
 
   // System Monitoring Functions
-  const fetchSystemData = async () => {
+  const fetchSystemData = useCallback(async () => {
+    console.log('fetchSystemData called');
     setSystemLoading(true);
     try {
       const [health, api, performance, db, server] = await Promise.allSettled([
@@ -664,17 +690,21 @@ const ModernAdmin = () => {
         getServerMetrics()
       ]);
 
-      if (health.status === 'fulfilled') setSystemHealth(health.value);
-      if (api.status === 'fulfilled') setApiStatus(api.value);
-      if (performance.status === 'fulfilled') setPerformanceMetrics(performance.value);
-      if (db.status === 'fulfilled') setDatabaseStats(db.value);
-      if (server.status === 'fulfilled') setServerMetrics(server.value);
+      // Use setTimeout to ensure state updates happen in order
+      setTimeout(() => {
+        if (health.status === 'fulfilled') setSystemHealth(health.value);
+        if (api.status === 'fulfilled') setApiStatus(api.value);
+        if (performance.status === 'fulfilled') setPerformanceMetrics(performance.value);
+        if (db.status === 'fulfilled') setDatabaseStats(db.value);
+        if (server.status === 'fulfilled') setServerMetrics(server.value);
+      }, 0);
+
     } catch (error) {
       console.error('Failed to fetch system data:', error);
     } finally {
       setSystemLoading(false);
     }
-  };
+  }, []);
 
   // Export Functions
   const handleExportDares = async () => {
