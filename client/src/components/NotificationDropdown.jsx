@@ -217,16 +217,16 @@ export default function NotificationDropdown() {
       >
         <div className="flex items-start space-x-3">
           <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <BellIcon className="w-5 h-5 text-neutral-400" />
+            <BellIcon className="w-4 h-4 text-neutral-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm">
+            <p className="text-white text-sm leading-relaxed">
               <span className="font-medium">{getNotificationMessage(n)}</span>
             </p>
-            <p className="text-neutral-500 text-xs mt-2">{timeAgo(n.createdAt)}</p>
+            <p className="text-neutral-500 text-xs mt-1">{timeAgo(n.createdAt)}</p>
           </div>
           {!n.read && (
-            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>
           )}
         </div>
       </div>

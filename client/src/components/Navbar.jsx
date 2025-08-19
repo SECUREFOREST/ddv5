@@ -106,34 +106,34 @@ export default function Navbar() {
               </div>
 
               {/* Main Navigation */}
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-2">
                 {user && (
                   <>
-                    <Link to="/dashboard" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/dashboard" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <HomeIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Dashboard</span>
                     </Link>
-                    <Link to="/dom-demand/create" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/dom-demand/create" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <PlusIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Create</span>
                     </Link>
-                    <Link to="/dare/select" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/dare/select" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <PlayIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Perform</span>
                     </Link>
-                    <Link to="/switches" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/switches" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <UserGroupIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Games</span>
                     </Link>
-                    <Link to="/leaderboard" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/leaderboard" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <ChartBarIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Leaderboard</span>
                     </Link>
-                    <Link to="/user-activity" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/user-activity" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <SparklesIcon className="w-5 h-5 flex-shrink-0" />
                       <span>Activity</span>
                     </Link>
-                    <Link to="/news" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/news" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
                       <span>News</span>
                     </Link>
@@ -141,7 +141,7 @@ export default function Navbar() {
                 )}
                 {!user && (
                   <>
-                    <Link to="/news" className="flex items-center space-x-2 px-4 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
+                    <Link to="/news" className="flex items-center space-x-2 px-3 py-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50">
                       <NewspaperIcon className="w-5 h-5 flex-shrink-0" />
                       <span>News</span>
                     </Link>
@@ -151,11 +151,13 @@ export default function Navbar() {
             </div>
 
             {/* Right Side - User Menu */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               {user ? (
                 <>
                   {/* Notifications */}
-                  <NotificationDropdown />
+                  <div className="flex items-center">
+                    <NotificationDropdown />
+                  </div>
 
                   {/* Profile Dropdown */}
                   <div className="relative">
