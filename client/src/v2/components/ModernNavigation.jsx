@@ -365,7 +365,7 @@ const ModernNavigation = () => {
                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-lg flex items-center justify-center">
                   <FireIcon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">OSA</span>
+                <span className="text-xl font-bold text-white">Deviant Dare</span>
               </div>
 
               {/* Main Navigation */}
