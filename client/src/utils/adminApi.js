@@ -137,6 +137,85 @@ export const getAuditStatistics = async () => {
   }
 };
 
+// Site Statistics
+export const fetchSiteStats = async () => {
+  try {
+    const response = await api.get('/stats/site');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch site stats:', error);
+    throw error;
+  }
+};
+
+// Reports Management
+export const fetchReports = async (page = 1, limit = 20, search = '') => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    if (search) params.append('search', search);
+    
+    const response = await api.get(`/reports?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch reports:', error);
+    throw error;
+  }
+};
+
+export const resolveReport = async (reportId, resolution) => {
+  try {
+    const response = await api.patch(`/reports/${reportId}`, resolution);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to resolve report:', error);
+    throw error;
+  }
+};
+
+// Moderation Queue
+export const fetchModerationQueue = async () => {
+  try {
+    // This would need to be implemented on the backend
+    // For now, we'll use a combination of reports and pending content
+    const [reports, pendingDares] = await Promise.all([
+      fetchReports(1, 10),
+      api.get('/dares?status=pending&limit=10').then(res => res.data)
+    ]);
+    
+    return {
+      reports: reports.reports || [],
+      pendingDares: pendingDares.dares || []
+    };
+  } catch (error) {
+    console.error('Failed to fetch moderation queue:', error);
+    throw error;
+  }
+};
+
+// Content Moderation
+export const approveContent = async (contentId, contentType) => {
+  try {
+    const response = await api.post(`/${contentType}/${contentId}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to approve content:', error);
+    throw error;
+  }
+};
+
+export const rejectContent = async (contentId, contentType, reason) => {
+  try {
+    const response = await api.post(`/${contentType}/${contentId}/reject`, { reason });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to reject content:', error);
+    throw error;
+  }
+};
+
 // System Monitoring & Health
 export const getSystemHealth = async () => {
   try {
@@ -258,29 +337,6 @@ export const fixGameState = async (gameId) => {
   }
 };
 
-// Content Moderation
-export const approveContent = async (contentId, contentType) => {
-  try {
-    const endpoint = contentType === 'dare' ? 'dares' : 'switches';
-    const response = await api.post(`/${endpoint}/${contentId}/approve`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to approve content:', error);
-    throw error;
-  }
-};
-
-export const rejectContent = async (contentId, contentType, reason) => {
-  try {
-    const endpoint = contentType === 'dare' ? 'dares' : 'switches';
-    const response = await api.post(`/${endpoint}/${contentId}/reject`, { reason });
-    return response.data;
-  } catch (error) {
-    console.error('Failed to reject content:', error);
-    throw error;
-  }
-};
-
 // Bulk Operations
 export const bulkUpdateUsers = async (userIds, updates) => {
   try {
@@ -316,7 +372,7 @@ export const fetchAnalytics = async (period = '7d') => {
 // System Maintenance
 export const runSystemCleanup = async () => {
   try {
-    const response = await api.post('/dares/cleanup');
+    const response = await api.post('/admin/system-cleanup');
     return response.data;
   } catch (error) {
     console.error('Failed to run system cleanup:', error);
@@ -326,7 +382,7 @@ export const runSystemCleanup = async () => {
 
 export const cleanupExpiredProofs = async () => {
   try {
-    const response = await api.post('/dares/cleanup-expired');
+    const response = await api.post('/admin/cleanup-expired-proofs');
     return response.data;
   } catch (error) {
     console.error('Failed to cleanup expired proofs:', error);
@@ -344,7 +400,7 @@ export const fetchDares = async (page = 1, limit = 20, filters = {}) => {
     
     if (filters.status) params.append('status', filters.status);
     if (filters.difficulty) params.append('difficulty', filters.difficulty);
-    if (filters.type) params.append('dareType', filters.type);
+    if (filters.type) params.append('type', filters.type);
     if (filters.search) params.append('search', filters.search);
     
     const response = await api.get(`/dares?${params.toString()}`);
