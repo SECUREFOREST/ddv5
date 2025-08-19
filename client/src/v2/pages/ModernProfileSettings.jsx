@@ -16,7 +16,7 @@ import {
   XMarkIcon,
   ArrowLeftIcon,
   TrashIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
@@ -621,7 +621,7 @@ const ModernProfileSettings = () => {
                               <p className="text-neutral-400 text-sm">Download a copy of your data</p>
                             </div>
                             <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2">
-                              <DownloadIcon className="w-4 h-4" />
+                              <ArrowDownTrayIcon className="w-4 h-4" />
                               <span>Export</span>
                             </button>
                           </div>

@@ -2181,7 +2181,7 @@ const ModernAdmin = () => {
                       disabled={exportLoading}
                       className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <DownloadIcon className="w-4 h-4 mr-2" />
+                      <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
                       Export
                     </button>
                   </div>
