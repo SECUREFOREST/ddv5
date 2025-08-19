@@ -14,7 +14,7 @@ import {
   ArrowUpIcon,
   CogIcon,
   TrashIcon,
-  DownloadIcon
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
 const ModernPrivacyPolicy = () => {
@@ -348,7 +348,7 @@ const ModernPrivacyPolicy = () => {
                         <p className="text-green-200 text-sm">Account Settings</p>
                       </div>
                       <div className="text-center">
-                        <DownloadIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                        <ArrowDownTrayIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
                         <p className="text-green-200 text-sm">Data Export</p>
                       </div>
                       <div className="text-center">
