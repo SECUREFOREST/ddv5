@@ -47,6 +47,50 @@ const ModernNavigation = () => {
     unreadNotifications: 0
   };
 
+  // Helper function to get avatar URL
+  const getAvatarUrl = (avatar) => {
+    if (!avatar) return null;
+    
+    // If it's already a full URL, return as is
+    if (avatar.startsWith('http')) {
+      return avatar;
+    }
+    
+    // Convert relative URL to full URL using API domain
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://api.deviantdare.com';
+    return `${baseUrl.replace(/\/$/, '')}${avatar.startsWith('/') ? avatar : '/' + avatar}`;
+  };
+
+  // Helper function to get user initials
+  const getUserInitials = (user) => {
+    if (!user) return '?';
+    const name = user.fullName || user.username || '';
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || '?';
+  };
+
+  // Helper function to get user color
+  const getUserColor = (user) => {
+    if (!user) return 'neutral-600';
+    
+    const id = user._id || user.id || user.username || '';
+    const colors = [
+      'red', 'blue', 'green', 'yellow', 'purple', 'pink', 
+      'indigo', 'teal', 'orange', 'cyan', 'emerald', 'violet'
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    return colors[Math.abs(hash) % colors.length] + '-600';
+  };
+
   // Fetch notifications from API
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -453,12 +497,24 @@ const ModernNavigation = () => {
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                   className="flex items-center space-x-3 p-2 text-white hover:text-primary transition-colors duration-200 rounded-lg hover:bg-neutral-700/50"
                 >
-                  <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center overflow-hidden">
                     {currentUser.avatar ? (
-                      <img src={currentUser.avatar} alt={currentUser.fullName} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <UserIcon className="w-5 h-5" />
-                    )}
+                      <img 
+                        src={getAvatarUrl(currentUser.avatar)} 
+                        alt={currentUser.fullName} 
+                        className="w-full h-full rounded-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className={`w-full h-full rounded-full flex items-center justify-center text-xs font-semibold text-white ${getUserColor(currentUser)}`}
+                      style={{ display: currentUser.avatar ? 'none' : 'flex' }}
+                    >
+                      {getUserInitials(currentUser)}
+                    </div>
                   </div>
                   <span className="hidden xl:block">{currentUser.fullName}</span>
                   <span className={`hidden xl:inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getRoleColor(currentUser.role)} text-white`}>
@@ -472,12 +528,24 @@ const ModernNavigation = () => {
                   <div className="absolute right-0 mt-2 w-64 bg-neutral-800 rounded-xl border border-neutral-700/50 shadow-xl z-50">
                     <div className="p-4 border-b border-neutral-700/50">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-neutral-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-neutral-600 rounded-full flex items-center justify-center overflow-hidden">
                           {currentUser.avatar ? (
-                            <img src={currentUser.avatar} alt={currentUser.fullName} className="w-full h-full rounded-full object-cover" />
-                          ) : (
-                            <UserIcon className="w-6 h-6" />
-                          )}
+                            <img 
+                              src={getAvatarUrl(currentUser.avatar)} 
+                              alt={currentUser.fullName} 
+                              className="w-full h-full rounded-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`w-full h-full rounded-full flex items-center justify-center text-sm font-semibold text-white ${getUserColor(currentUser)}`}
+                            style={{ display: currentUser.avatar ? 'none' : 'flex' }}
+                          >
+                            {getUserInitials(currentUser)}
+                          </div>
                         </div>
                         <div>
                           <p className="text-white font-medium">{currentUser.fullName}</p>
