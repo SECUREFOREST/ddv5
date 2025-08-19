@@ -230,31 +230,39 @@ export default function NotificationDropdown() {
   } else if (notifications.length === 0) {
     items = [<div key="none" className="p-4 text-center text-neutral-400">No notifications</div>];
   } else {
-    items = notifications.map((n) => (
-      <div
-        key={n._id}
-        className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 cursor-pointer ${
-          !n.read ? 'bg-primary/5' : ''
-        }`}
-        onClick={() => handleMarkAsRead(n._id)}
-      >
-        <div className="flex items-start space-x-3">
-          <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
-            {getNotificationIcon(n.type)}
+    items = notifications.map((n) => {
+      // Extract user and action from notification message for v2 compatibility
+      const message = getNotificationMessage(n);
+      const user = n.sender?.fullName || n.sender?.username || 'Someone';
+      const action = message.replace(user, '').trim();
+      
+      return (
+        <div
+          key={n._id}
+          className={`p-4 border-b border-neutral-700/50 hover:bg-neutral-700/30 transition-colors duration-200 cursor-pointer ${
+            !n.read ? 'bg-primary/5' : ''
+          }`}
+          onClick={() => handleMarkAsRead(n._id)}
+        >
+          <div className="flex items-start space-x-3">
+            <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center flex-shrink-0">
+              {getNotificationIcon(n.type)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm">
+                <span className="font-medium text-primary">{user}</span>{' '}
+                {action}
+              </p>
+              <p className="text-neutral-400 text-sm mt-1">{n.dareTitle || n.task || 'Task'}</p>
+              <p className="text-neutral-500 text-xs mt-2">{timeAgo(n.createdAt)}</p>
+            </div>
+            {!n.read && (
+              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm">
-              <span className="font-medium text-primary">{getNotificationMessage(n)}</span>
-            </p>
-            <p className="text-neutral-400 text-sm mt-1">{n.dareTitle || n.task || 'Task'}</p>
-            <p className="text-neutral-500 text-xs mt-2">{timeAgo(n.createdAt)}</p>
-          </div>
-          {!n.read && (
-            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
-          )}
         </div>
-      </div>
-    ));
+      );
+    });
   }
 
   return (
@@ -278,14 +286,12 @@ export default function NotificationDropdown() {
           <div className="p-4 border-b border-neutral-700/50">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Notifications</h3>
-              {unseenCount > 0 && (
-                <button
-                  onClick={handleMarkAllAsRead}
-                  className="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
-                >
-                  Mark all as read
-                </button>
-              )}
+              <button
+                onClick={handleMarkAllAsRead}
+                className="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
+              >
+                Mark all as read
+              </button>
             </div>
           </div>
           <div className="max-h-96 overflow-y-auto">
