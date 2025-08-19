@@ -125,6 +125,35 @@ const ModernAdmin = () => {
   // Export State
   const [exportLoading, setExportLoading] = useState(false);
 
+  // System Monitoring Functions
+  const fetchSystemData = useCallback(async () => {
+    console.log('fetchSystemData called');
+    setSystemLoading(true);
+    try {
+      const [health, api, performance, db, server] = await Promise.allSettled([
+        getSystemHealth(),
+        getApiStatus(),
+        getPerformanceMetrics(),
+        getDatabaseStats(),
+        getServerMetrics()
+      ]);
+
+      // Use setTimeout to ensure state updates happen in order
+      setTimeout(() => {
+        if (health.status === 'fulfilled') setSystemHealth(health.value);
+        if (api.status === 'fulfilled') setApiStatus(api.value);
+        if (performance.status === 'fulfilled') setPerformanceMetrics(performance.value);
+        if (db.status === 'fulfilled') setDatabaseStats(db.value);
+        if (server.status === 'fulfilled') setServerMetrics(server.value);
+      }, 0);
+
+    } catch (error) {
+      console.error('Failed to fetch system data:', error);
+    } finally {
+      setSystemLoading(false);
+    }
+  }, []);
+
   // Fetch all admin data
   const fetchAdminData = useCallback(async () => {
     console.log('fetchAdminData called');
@@ -676,35 +705,6 @@ const ModernAdmin = () => {
       setExportLoading(false);
     }
   };
-
-  // System Monitoring Functions
-  const fetchSystemData = useCallback(async () => {
-    console.log('fetchSystemData called');
-    setSystemLoading(true);
-    try {
-      const [health, api, performance, db, server] = await Promise.allSettled([
-        getSystemHealth(),
-        getApiStatus(),
-        getPerformanceMetrics(),
-        getDatabaseStats(),
-        getServerMetrics()
-      ]);
-
-      // Use setTimeout to ensure state updates happen in order
-      setTimeout(() => {
-        if (health.status === 'fulfilled') setSystemHealth(health.value);
-        if (api.status === 'fulfilled') setApiStatus(api.value);
-        if (performance.status === 'fulfilled') setPerformanceMetrics(performance.value);
-        if (db.status === 'fulfilled') setDatabaseStats(db.value);
-        if (server.status === 'fulfilled') setServerMetrics(server.value);
-      }, 0);
-
-    } catch (error) {
-      console.error('Failed to fetch system data:', error);
-    } finally {
-      setSystemLoading(false);
-    }
-  }, []);
 
   // Export Functions
   const handleExportDares = async () => {
