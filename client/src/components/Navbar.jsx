@@ -166,13 +166,15 @@ export default function Navbar() {
                       <div className="flex-shrink-0">
                         <Avatar user={user} size={32} border={false} shadow={false} />
                       </div>
-                      <span className="hidden xl:block">{user.fullName || user.username}</span>
-                      {user.role && (
-                        <span className={`hidden xl:inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getRoleColor(user.role)} text-white`}>
-                          {getRoleIcon(user.role)}
-                          <span className="capitalize">{user.role}</span>
-                        </span>
-                      )}
+                      <div className="hidden xl:flex xl:flex-col xl:items-start xl:min-w-0">
+                        <span className="text-sm font-medium truncate">{user.fullName || user.username}</span>
+                        {user.role && (
+                          <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getRoleColor(user.role)} text-white`}>
+                            {getRoleIcon(user.role)}
+                            <span className="capitalize">{user.role}</span>
+                          </span>
+                        )}
+                      </div>
                     </button>
 
                     {/* Profile Dropdown Menu */}
