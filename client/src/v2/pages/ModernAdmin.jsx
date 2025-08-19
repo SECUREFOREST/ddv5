@@ -1,53 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FireIcon, 
-  SparklesIcon, 
-  EyeDropperIcon, 
-  ExclamationTriangleIcon, 
-  RocketLaunchIcon,
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import {
+  ShieldCheckIcon,
   UsersIcon,
-  ClockIcon,
-  CalendarIcon,
-  EyeIcon,
-  HeartIcon,
-  PlusIcon,
-  GlobeAltIcon,
-  LockClosedIcon,
-  UserGroupIcon,
-  StarIcon,
-  PlayIcon,
-  PauseIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ChatBubbleLeftIcon,
-  FlagIcon,
-  ShareIcon,
+  ChartBarIcon,
+  ExclamationTriangleIcon,
   CogIcon,
-  ArrowRightIcon,
-  UserPlusIcon,
-  TrophyIcon,
-  ExclamationCircleIcon,
-  ArrowPathIcon,
+  FireIcon,
+  GamepadIcon,
+  DocumentTextIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
   CheckIcon,
   XMarkIcon,
-  DocumentTextIcon,
-  PhotoIcon,
-  VideoCameraIcon,
-  PaperAirplaneIcon,
-  ChartBarIcon,
-  ShieldCheckIcon,
-  ChartBarIcon as ChartBarIconSolid,
-  UserMinusIcon,
-  NoSymbolIcon,
-  EyeSlashIcon,
-  Cog6ToothIcon,
-  BellIcon,
-  ExclamationTriangleIcon as ExclamationTriangleIconSolid,
+  ArrowPathIcon,
   MagnifyingGlassIcon,
-  TrashIcon,
-  PencilIcon
+  FunnelIcon,
+  DownloadIcon,
+  ServerIcon,
+  CpuChipIcon,
+  DatabaseIcon,
+  BellIcon,
+  FlagIcon,
+  SparklesIcon,
+  PlayIcon,
+  PauseIcon
 } from '@heroicons/react/24/outline';
-import { useToast } from '../../context/ToastContext';
 import {
   fetchSiteStats,
   fetchUsers,
@@ -72,7 +52,24 @@ import {
   rejectSwitchGame,
   deleteSwitchGame,
   updateSwitchGame,
-  fixGameState
+  fixGameState,
+  // Enhanced User Management
+  updateUserRoles,
+  suspendUser,
+  activateUser,
+  bulkUserAction,
+  // Advanced Audit System
+  logAdminAction,
+  getAuditStatistics,
+  // System Monitoring
+  getApiStatus,
+  getPerformanceMetrics,
+  getDatabaseStats,
+  getServerMetrics,
+  // Export Functions
+  exportDares,
+  exportUsers,
+  exportAuditLogsCsv
 } from '../../utils/adminApi';
 
 const ModernAdmin = () => {
@@ -93,36 +90,70 @@ const ModernAdmin = () => {
   const [switchGames, setSwitchGames] = useState([]);
   const [dareFilters, setDareFilters] = useState({ status: '', difficulty: '', type: '' });
   const [switchGameFilters, setSwitchGameFilters] = useState({ status: '', type: '' });
+  
+  // Enhanced User Management State
+  const [editUserModal, setEditUserModal] = useState(false);
+  const [editUserData, setEditUserData] = useState({});
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserError, setEditUserError] = useState('');
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  
+  // Advanced Audit System State
+  const [auditFilters, setAuditFilters] = useState({ action: '', user: '', dateRange: '' });
+  const [auditStats, setAuditStats] = useState(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+  
+  // System Monitoring State
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [apiStatus, setApiStatus] = useState({
+    users: 'unknown',
+    dares: 'unknown',
+    reports: 'unknown',
+    auditLog: 'unknown',
+    switchGames: 'unknown',
+    siteStats: 'unknown'
+  });
+  const [performanceMetrics, setPerformanceMetrics] = useState(null);
+  const [databaseStats, setDatabaseStats] = useState(null);
+  const [serverMetrics, setServerMetrics] = useState(null);
+  const [systemLoading, setSystemLoading] = useState(false);
+  
+  // Export State
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Fetch all admin data
   const fetchAdminData = async () => {
     setIsLoading(true);
     try {
+      // Fetch all data in parallel
       const [
-        siteStats,
+        siteStatsData,
         reportsData,
         moderationData,
         usersData,
         auditData,
-        healthData,
         daresData,
-        switchGamesData
+        switchGamesData,
+        healthData
       ] = await Promise.all([
         fetchSiteStats(),
-        fetchReports(1, 10),
+        fetchReports(1, 20),
         fetchModerationQueue(),
         fetchUsers(1, 20),
         fetchAuditLogs(1, 20),
-        fetchSystemHealth(),
-        fetchDares(1, 10, {}),
-        fetchSwitchGames(1, 10, {})
+        fetchDares(1, 20),
+        fetchSwitchGames(1, 20),
+        getSystemHealth()
       ]);
 
+      // Set system stats
       setSystemStats({
-        totalUsers: siteStats.totalUsers || 0,
-        activeUsers: siteStats.activeUsers || 0,
-        totalTasks: (siteStats.totalDares || 0) + (siteStats.totalSwitchGames || 0),
-        completedTasks: siteStats.completedDares || 0,
+        totalUsers: siteStatsData.totalUsers || 0,
+        totalDares: siteStatsData.totalDares || 0,
+        activeDares: siteStatsData.activeDares || 0,
+        completedTasks: siteStatsData.completedDares || 0,
         pendingReports: reportsData.pagination?.total || 0,
         systemHealth: healthData.status || 'unknown',
         uptime: healthData.uptime || 'unknown',
@@ -147,6 +178,9 @@ const ModernAdmin = () => {
         impact: 'low'
       }));
       setUserActivity(activity);
+
+      // Fetch additional system monitoring data
+      fetchSystemData();
 
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -428,6 +462,203 @@ const ModernAdmin = () => {
     );
   }
 
+  // Enhanced User Management Functions
+  const handleEditUser = (userId) => {
+    const user = users.find(u => u._id === userId);
+    if (user) {
+      setEditUserId(userId);
+      setEditUserData({
+        username: user.username || '',
+        email: user.email || '',
+        roles: user.roles || [],
+        fullName: user.fullName || ''
+      });
+      setEditUserError('');
+      setEditUserModal(true);
+    }
+  };
+
+  const closeEditUserModal = () => {
+    setEditUserModal(false);
+    setEditUserId(null);
+    setEditUserData({ username: '', email: '', roles: [], fullName: '' });
+    setEditUserError('');
+  };
+
+  const handleEditUserChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'roles') {
+      const roles = value.split(',').map(r => r.trim()).filter(r => r);
+      setEditUserData(prev => ({ ...prev, roles }));
+    } else {
+      setEditUserData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleEditUserSave = async () => {
+    if (!editUserId) return;
+
+    setEditUserLoading(true);
+    setEditUserError('');
+
+    try {
+      await updateUser(editUserId, editUserData);
+      showSuccess('User updated successfully!');
+      fetchUsers();
+      closeEditUserModal();
+    } catch (error) {
+      setEditUserError(error.response?.data?.error || 'Failed to update user');
+    } finally {
+      setEditUserLoading(false);
+    }
+  };
+
+  const handleUserRoleUpdate = async (userId, newRoles) => {
+    try {
+      await updateUserRoles(userId, newRoles);
+      showSuccess('User roles updated successfully!');
+      fetchUsers();
+    } catch (error) {
+      showError('Failed to update user roles');
+    }
+  };
+
+  const handleSuspendUser = async (userId, reason) => {
+    try {
+      await suspendUser(userId, reason);
+      showSuccess('User suspended successfully!');
+      fetchUsers();
+    } catch (error) {
+      showError('Failed to suspend user');
+    }
+  };
+
+  const handleActivateUser = async (userId) => {
+    try {
+      await activateUser(userId);
+      showSuccess('User activated successfully!');
+      fetchUsers();
+    } catch (error) {
+      showError('Failed to activate user');
+    }
+  };
+
+  const handleBulkUserAction = async (action, userIds) => {
+    setBulkActionLoading(true);
+    try {
+      await bulkUserAction(action, userIds);
+      showSuccess(`Bulk ${action} completed successfully!`);
+      setSelectedUsers([]);
+      fetchUsers();
+    } catch (error) {
+      showError(`Failed to perform bulk ${action}`);
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const toggleUserSelection = (userId) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const selectAllUsers = () => {
+    setSelectedUsers(users.map(u => u._id));
+  };
+
+  const clearUserSelection = () => {
+    setSelectedUsers([]);
+  };
+
+  // Advanced Audit System Functions
+  const fetchAuditData = async () => {
+    setAuditLoading(true);
+    try {
+      const [logs, stats] = await Promise.all([
+        fetchAuditLogs(1, 50, auditFilters),
+        getAuditStatistics()
+      ]);
+      setAuditLogs(logs.logs || []);
+      setAuditStats(stats);
+    } catch (error) {
+      console.error('Failed to fetch audit data:', error);
+      showError('Failed to load audit data');
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  const handleAuditFilterChange = (filterType, value) => {
+    setAuditFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+
+  const exportAuditData = async () => {
+    setExportLoading(true);
+    try {
+      await exportAuditLogsCsv(auditFilters);
+      showSuccess('Audit logs exported successfully!');
+    } catch (error) {
+      console.error('Failed to export audit logs:', error);
+      showError('Failed to export audit logs');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // System Monitoring Functions
+  const fetchSystemData = async () => {
+    setSystemLoading(true);
+    try {
+      const [health, api, performance, db, server] = await Promise.allSettled([
+        getSystemHealth(),
+        getApiStatus(),
+        getPerformanceMetrics(),
+        getDatabaseStats(),
+        getServerMetrics()
+      ]);
+
+      if (health.status === 'fulfilled') setSystemHealth(health.value);
+      if (api.status === 'fulfilled') setApiStatus(api.value);
+      if (performance.status === 'fulfilled') setPerformanceMetrics(performance.value);
+      if (db.status === 'fulfilled') setDatabaseStats(db.value);
+      if (server.status === 'fulfilled') setServerMetrics(server.value);
+    } catch (error) {
+      console.error('Failed to fetch system data:', error);
+    } finally {
+      setSystemLoading(false);
+    }
+  };
+
+  // Export Functions
+  const handleExportDares = async () => {
+    setExportLoading(true);
+    try {
+      await exportDares(dareFilters);
+      showSuccess('Dares exported successfully!');
+    } catch (error) {
+      console.error('Failed to export dares:', error);
+      showError('Failed to export dares');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleExportUsers = async () => {
+    setExportLoading(true);
+    try {
+      await exportUsers({ search: searchTerm });
+      showSuccess('Users exported successfully!');
+    } catch (error) {
+      console.error('Failed to export users:', error);
+      showError('Failed to export users');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 py-8">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
@@ -581,7 +812,7 @@ const ModernAdmin = () => {
           {/* Tab Navigation */}
           <div className="border-b border-neutral-700/50">
             <nav className="flex space-x-8 px-6">
-              {['overview', 'users', 'moderation', 'reports', 'dares', 'switchgames', 'analytics', 'settings'].map((tab) => (
+              {['overview', 'users', 'moderation', 'reports', 'dares', 'switchgames', 'analytics', 'system', 'settings', 'audit'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -838,9 +1069,43 @@ const ModernAdmin = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">User Management</h3>
-                  <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200">
-                    Add User
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    {selectedUsers.length > 0 && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-neutral-400">
+                          {selectedUsers.length} selected
+                        </span>
+                        <button
+                          onClick={() => handleBulkUserAction('suspend', selectedUsers)}
+                          disabled={bulkActionLoading}
+                          className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg hover:bg-yellow-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Suspend Selected
+                        </button>
+                        <button
+                          onClick={() => handleBulkUserAction('activate', selectedUsers)}
+                          disabled={bulkActionLoading}
+                          className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Activate Selected
+                        </button>
+                        <button
+                          onClick={clearUserSelection}
+                          className="px-3 py-1 bg-neutral-500/20 text-neutral-400 text-sm rounded-lg hover:bg-neutral-500/30 transition-colors duration-200"
+                        >
+                          Clear Selection
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      onClick={handleExportUsers}
+                      disabled={exportLoading}
+                      className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <DownloadIcon className="w-4 h-4 mr-2" />
+                      Export Users
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="bg-neutral-700/30 rounded-lg p-6">
@@ -866,15 +1131,27 @@ const ModernAdmin = () => {
                       Search
                     </button>
                   </div>
+                  
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-neutral-700">
                       <thead className="bg-neutral-800/50">
                         <tr>
                           <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
-                            Username
+                            <input
+                              type="checkbox"
+                              checked={selectedUsers.length === users.length && users.length > 0}
+                              onChange={selectedUsers.length === users.length ? clearUserSelection : selectAllUsers}
+                              className="w-4 h-4 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
+                            />
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            User
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                             Email
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                            Roles
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                             Status
@@ -886,12 +1163,40 @@ const ModernAdmin = () => {
                       </thead>
                       <tbody className="bg-neutral-800/30 divide-y divide-neutral-700">
                         {users.map((user) => (
-                          <tr key={user._id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                              {user.username}
+                          <tr key={user._id} className="hover:bg-neutral-700/30">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <input
+                                type="checkbox"
+                                checked={selectedUsers.includes(user._id)}
+                                onChange={() => toggleUserSelection(user._id)}
+                                className="w-4 h-4 text-primary bg-neutral-700 border-neutral-600 rounded focus:ring-primary focus:ring-2"
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div>
+                                <div className="text-sm font-medium text-white">
+                                  {user.fullName || user.username}
+                                </div>
+                                <div className="text-sm text-neutral-400">
+                                  @{user.username}
+                                </div>
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                               {user.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <div className="flex flex-wrap gap-1">
+                                {user.roles?.map((role) => (
+                                  <span key={role} className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    role === 'admin' ? 'bg-red-500/20 text-red-400' :
+                                    role === 'moderator' ? 'bg-blue-500/20 text-blue-400' :
+                                    'bg-green-500/20 text-green-400'
+                                  }`}>
+                                    {role}
+                                  </span>
+                                ))}
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -899,48 +1204,56 @@ const ModernAdmin = () => {
                                 user.status === 'suspended' ? 'bg-red-500/20 text-red-400' :
                                 'bg-yellow-500/20 text-yellow-400'
                               }`}>
-                                {user.status}
+                                {user.status || 'active'}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
-                              <button
-                                onClick={() => handleUserAction(user._id, 'update', { username: 'NewUsername' })}
-                                disabled={isActionLoading}
-                                className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <PencilIcon className="w-4 h-4 mr-1" /> Edit
-                              </button>
-                              <button
-                                onClick={() => handleUserAction(user._id, 'delete')}
-                                disabled={isActionLoading}
-                                className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <TrashIcon className="w-4 h-4 mr-1" /> Delete
-                              </button>
-                              {user.status === 'suspended' && (
+                              <div className="flex items-center space-x-2">
                                 <button
-                                  onClick={() => handleUserAction(user._id, 'activate')}
+                                  onClick={() => handleEditUser(user._id)}
                                   disabled={isActionLoading}
-                                  className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded-lg hover:bg-blue-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Edit User"
                                 >
-                                  <PlayIcon className="w-4 h-4 mr-1" /> Activate
+                                  <PencilIcon className="w-4 h-4" />
                                 </button>
-                              )}
-                              {user.status === 'active' && (
+                                
+                                {user.status === 'suspended' ? (
+                                  <button
+                                    onClick={() => handleActivateUser(user._id)}
+                                    disabled={isActionLoading}
+                                    className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-lg hover:bg-green-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Activate User"
+                                  >
+                                    <CheckIcon className="w-4 h-4" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleSuspendUser(user._id, 'Suspended by admin')}
+                                    disabled={isActionLoading}
+                                    className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded-lg hover:bg-yellow-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Suspend User"
+                                  >
+                                    <XMarkIcon className="w-4 h-4" />
+                                  </button>
+                                )}
+                                
                                 <button
-                                  onClick={() => handleUserAction(user._id, 'suspend')}
+                                  onClick={() => handleUserAction(user._id, 'delete')}
                                   disabled={isActionLoading}
                                   className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-lg hover:bg-red-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Delete User"
                                 >
-                                  <PauseIcon className="w-4 h-4 mr-1" /> Suspend
+                                  <TrashIcon className="w-4 h-4" />
                                 </button>
-                              )}
+                              </div>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                  
                   {totalPages > 1 && (
                     <div className="flex justify-center mt-4">
                       <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
@@ -1529,6 +1842,232 @@ const ModernAdmin = () => {
               </div>
             )}
 
+            {/* System Monitoring Tab */}
+            {activeTab === 'system' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">System Monitoring</h3>
+                  <button
+                    onClick={fetchSystemData}
+                    disabled={systemLoading}
+                    className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ArrowPathIcon className={`w-4 h-4 mr-2 ${systemLoading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </button>
+                </div>
+
+                {/* API Status Overview */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
+                    <ServerIcon className="w-5 h-5 text-blue-400" />
+                    <span>API Status</span>
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {Object.entries(apiStatus).map(([key, status]) => (
+                      <div key={key} className="text-center">
+                        <div className={`w-3 h-3 mx-auto mb-2 rounded-full ${
+                          status === 'success' ? 'bg-green-500' :
+                          status === 'error' ? 'bg-red-500' :
+                          status === 'loading' ? 'bg-yellow-500' :
+                          'bg-gray-500'
+                        }`}></div>
+                        <div className="text-xs text-neutral-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
+                        <div className={`text-sm font-medium ${
+                          status === 'success' ? 'text-green-400' :
+                          status === 'error' ? 'text-red-400' :
+                          status === 'loading' ? 'text-yellow-400' :
+                          'text-gray-400'
+                        }`}>
+                          {status}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* System Health Metrics */}
+                {systemHealth && (
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
+                      <ShieldCheckIcon className="w-5 h-5 text-green-400" />
+                      <span>System Health</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-green-400 mb-1">
+                          {systemHealth.status || 'Unknown'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Overall Status</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-400 mb-1">
+                          {systemHealth.uptime || 'Unknown'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Uptime</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-400 mb-1">
+                          {systemHealth.version || 'Unknown'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Version</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Performance Metrics */}
+                {performanceMetrics && (
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
+                      <CpuChipIcon className="w-5 h-5 text-yellow-400" />
+                      <span>Performance Metrics</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-400 mb-1">
+                          {performanceMetrics.responseTime || 'N/A'}ms
+                        </div>
+                        <div className="text-neutral-400 text-sm">Avg Response Time</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-green-400 mb-1">
+                          {performanceMetrics.requestsPerSecond || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Requests/Second</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-400 mb-1">
+                          {performanceMetrics.errorRate || 'N/A'}%
+                        </div>
+                        <div className="text-neutral-400 text-sm">Error Rate</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-400 mb-1">
+                          {performanceMetrics.activeConnections || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Active Connections</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Database Statistics */}
+                {databaseStats && (
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
+                      <DatabaseIcon className="w-5 h-5 text-indigo-400" />
+                      <span>Database Statistics</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-400 mb-1">
+                          {databaseStats.totalCollections || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Collections</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-green-400 mb-1">
+                          {databaseStats.totalDocuments || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Documents</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-400 mb-1">
+                          {databaseStats.storageSize || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Storage Size</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-400 mb-1">
+                          {databaseStats.indexes || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Indexes</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Server Metrics */}
+                {serverMetrics && (
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4 flex items-center space-x-2">
+                      <ServerIcon className="w-5 h-5 text-red-400" />
+                      <span>Server Metrics</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-400 mb-1">
+                          {serverMetrics.cpuUsage || 'N/A'}%
+                        </div>
+                        <div className="text-neutral-400 text-sm">CPU Usage</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-green-400 mb-1">
+                          {serverMetrics.memoryUsage || 'N/A'}%
+                        </div>
+                        <div className="text-neutral-400 text-sm">Memory Usage</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-400 mb-1">
+                          {serverMetrics.diskUsage || 'N/A'}%
+                        </div>
+                        <div className="text-neutral-400 text-sm">Disk Usage</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-400 mb-1">
+                          {serverMetrics.networkIO || 'N/A'}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Network I/O</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* System Actions */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">System Actions</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button
+                      onClick={() => handleSystemMaintenance('cleanup')}
+                      disabled={isActionLoading}
+                      className="p-4 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl font-bold mb-2">🧹</div>
+                        <div className="font-medium">System Cleanup</div>
+                        <div className="text-sm text-blue-300">Clean temporary files</div>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSystemMaintenance('cleanup-proofs')}
+                      disabled={isActionLoading}
+                      className="p-4 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl font-bold mb-2">⏰</div>
+                        <div className="font-medium">Clean Expired Proofs</div>
+                        <div className="text-sm text-yellow-300">Remove old proof data</div>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleSystemMaintenance('backup')}
+                      disabled={isActionLoading}
+                      className="p-4 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl font-bold mb-2">💾</div>
+                        <div className="font-medium">Create Backup</div>
+                        <div className="text-sm text-green-300">Backup system data</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Settings Tab */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
@@ -1622,9 +2161,294 @@ const ModernAdmin = () => {
                 </div>
               </div>
             )}
+
+            {/* Advanced Audit System Tab */}
+            {activeTab === 'audit' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">Advanced Audit System</h3>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={fetchAuditData}
+                      disabled={auditLoading}
+                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ArrowPathIcon className={`w-4 h-4 mr-2 ${auditLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </button>
+                    <button
+                      onClick={exportAuditData}
+                      disabled={exportLoading}
+                      className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <DownloadIcon className="w-4 h-4 mr-2" />
+                      Export
+                    </button>
+                  </div>
+                </div>
+
+                {/* Audit Filters */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">Audit Filters</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Action Type</label>
+                      <select
+                        value={auditFilters.action}
+                        onChange={(e) => handleAuditFilterChange('action', e.target.value)}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Actions</option>
+                        <option value="user_login">User Login</option>
+                        <option value="user_logout">User Logout</option>
+                        <option value="content_create">Content Created</option>
+                        <option value="content_update">Content Updated</option>
+                        <option value="content_delete">Content Deleted</option>
+                        <option value="admin_action">Admin Action</option>
+                        <option value="system_event">System Event</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">User</label>
+                      <input
+                        type="text"
+                        placeholder="Filter by username..."
+                        value={auditFilters.user}
+                        onChange={(e) => handleAuditFilterChange('user', e.target.value)}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">Date Range</label>
+                      <select
+                        value={auditFilters.dateRange}
+                        onChange={(e) => handleAuditFilterChange('dateRange', e.target.value)}
+                        className="w-full bg-neutral-600/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Audit Statistics */}
+                {auditStats && (
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">Audit Statistics</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-400 mb-1">
+                          {auditStats.totalLogs || 0}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Total Logs</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-green-400 mb-1">
+                          {auditStats.uniqueUsers || 0}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Unique Users</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-yellow-400 mb-1">
+                          {auditStats.todayLogs || 0}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Today's Logs</div>
+                      </div>
+                      <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-400 mb-1">
+                          {auditStats.avgLogsPerDay || 0}
+                        </div>
+                        <div className="text-neutral-400 text-sm">Avg/Day</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Audit Logs Table */}
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">Audit Logs</h4>
+                  {auditLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                      <p className="text-neutral-400">Loading audit logs...</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-neutral-700">
+                        <thead className="bg-neutral-800/50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                              Timestamp
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                              User
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                              Action
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                              Target
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                              Details
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-neutral-800/30 divide-y divide-neutral-700">
+                          {auditLogs.map((log) => (
+                            <tr key={log._id} className="hover:bg-neutral-700/30">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                                {formatDate(log.createdAt)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span className="text-white font-medium">
+                                  {log.user?.username || 'System'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  log.action.includes('create') ? 'bg-green-500/20 text-green-400' :
+                                  log.action.includes('update') ? 'bg-blue-500/20 text-blue-400' :
+                                  log.action.includes('delete') ? 'bg-red-500/20 text-red-400' :
+                                  'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                  {log.action.replace(/_/g, ' ')}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                                {log.target || 'N/A'}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-neutral-400">
+                                <div className="max-w-xs truncate">
+                                  {typeof log.details === 'object' ? (
+                                    <pre className="text-xs whitespace-pre-wrap">
+                                      {JSON.stringify(log.details, null, 2)}
+                                    </pre>
+                                  ) : (
+                                    log.details || 'No details'
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  
+                  {auditLogs.length === 0 && !auditLoading && (
+                    <div className="text-center py-8">
+                      <DocumentTextIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                      <p className="text-neutral-400">No audit logs found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* User Edit Modal */}
+      {editUserModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Edit User</h3>
+              <button
+                onClick={closeEditUserModal}
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={editUserData.username}
+                  onChange={handleEditUserChange}
+                  className="w-full bg-neutral-700/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={editUserData.fullName}
+                  onChange={handleEditUserChange}
+                  className="w-full bg-neutral-700/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editUserData.email}
+                  onChange={handleEditUserChange}
+                  className="w-full bg-neutral-700/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Roles (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  name="roles"
+                  value={Array.isArray(editUserData.roles) ? editUserData.roles.join(', ') : ''}
+                  onChange={handleEditUserChange}
+                  placeholder="admin, moderator, user"
+                  className="w-full bg-neutral-700/50 border border-neutral-600/50 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              
+              {editUserError && (
+                <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm">
+                  {editUserError}
+                </div>
+              )}
+              
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={closeEditUserModal}
+                  disabled={editUserLoading}
+                  className="flex-1 bg-neutral-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-neutral-600 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditUserSave}
+                  disabled={editUserLoading}
+                  className="flex-1 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {editUserLoading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
