@@ -332,6 +332,20 @@ const ModernAdmin = () => {
                 <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
               </button>
+              
+              {/* Admin Notifications */}
+              <div className="relative">
+                <button className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors duration-200">
+                  <BellIcon className="w-4 h-4" />
+                  <span>Alerts</span>
+                  {systemStats.pendingReports > 0 && (
+                    <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                      {systemStats.pendingReports > 99 ? '99+' : systemStats.pendingReports}
+                    </span>
+                  )}
+                </button>
+              </div>
+              
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-green-400 text-sm font-medium">System Online</span>
@@ -868,12 +882,86 @@ const ModernAdmin = () => {
                     <div className="h-32 bg-neutral-600/30 rounded-lg flex items-center justify-center">
                       <ChartBarIcon className="w-12 h-12 text-neutral-400" />
                     </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-green-400">{systemStats.totalUsers}</p>
+                        <p className="text-neutral-400 text-sm">Total Users</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-blue-400">{systemStats.activeUsers}</p>
+                        <p className="text-neutral-400 text-sm">Active Users</p>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="bg-neutral-700/30 rounded-lg p-6">
                     <h4 className="text-white font-medium mb-4">Task Completion</h4>
                     <div className="h-32 bg-neutral-600/30 rounded-lg flex items-center justify-center">
                       <ChartBarIcon className="w-12 h-12 text-neutral-400" />
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-purple-400">{systemStats.totalTasks}</p>
+                        <p className="text-neutral-400 text-sm">Total Tasks</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-green-400">{systemStats.completedTasks}</p>
+                        <p className="text-neutral-400 text-sm">Completed</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">System Health</h4>
+                    <div className="text-center">
+                      <div className={`text-4xl font-bold mb-2 ${
+                        systemStats.systemHealth === 'healthy' ? 'text-green-400' :
+                        systemStats.systemHealth === 'warning' ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {systemStats.systemHealth === 'healthy' ? '✓' : 
+                         systemStats.systemHealth === 'warning' ? '⚠' : '✗'}
+                      </div>
+                      <p className="text-neutral-400 text-sm capitalize">{systemStats.systemHealth}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">Uptime</h4>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-green-400 mb-2">{systemStats.uptime}</div>
+                      <p className="text-neutral-400 text-sm">System Uptime</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-700/30 rounded-lg p-6">
+                    <h4 className="text-white font-medium mb-4">Pending Reports</h4>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-red-400 mb-2">{systemStats.pendingReports}</div>
+                      <p className="text-neutral-400 text-sm">Awaiting Review</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-neutral-700/30 rounded-lg p-6">
+                  <h4 className="text-white font-medium mb-4">Recent Activity Summary</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-400 mb-1">{userActivity.length}</div>
+                      <p className="text-neutral-400 text-sm">Recent Actions</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-green-400 mb-1">{moderationQueue.length}</div>
+                      <p className="text-neutral-400 text-sm">Moderation Items</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-400 mb-1">{recentReports.length}</div>
+                      <p className="text-neutral-400 text-sm">Active Reports</p>
+                    </div>
+                    <div className="text-center p-4 bg-neutral-600/30 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-400">{auditLogs.length}</div>
+                      <p className="text-neutral-400 text-sm">Audit Logs</p>
                     </div>
                   </div>
                 </div>
