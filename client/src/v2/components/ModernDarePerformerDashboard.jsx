@@ -1227,6 +1227,29 @@ const DareCard = ({ dare, onLikeToggle }) => {
     navigate(`/profile/${dare.performer?._id}`);
   };
 
+  const handleShareDare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this dare!',
+        text: dare.description?.substring(0, 100) || 'Interesting dare',
+        url: `${window.location.origin}/dare/${dare._id}`
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
+    // You could add a toast notification here
+  };
+
+  const handleReportDare = () => {
+    navigate(`/report?type=dare&id=${dare._id}`);
+  };
+
   // Determine user's relationship to the dare
   const isCreator = user?._id === dare.creator?._id;
   const isPerformer = user?._id === dare.performer?._id;
@@ -1235,6 +1258,8 @@ const DareCard = ({ dare, onLikeToggle }) => {
   const canEdit = isCreator && ['waiting_for_participant', 'approved'].includes(dare.status);
   const canViewCreatorProfile = !isCreator && dare.creator?._id;
   const canViewPerformerProfile = !isPerformer && dare.performer?._id;
+  const canShare = dare.public;
+  const canReport = !isCreator; // Can't report your own content
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -1410,6 +1435,21 @@ const DareCard = ({ dare, onLikeToggle }) => {
                 View Performer Profile
               </button>
             )}
+            {canShare && (
+              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareDare}>
+                Share
+              </button>
+            )}
+            {canShare && (
+              <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
+                Copy Link
+              </button>
+            )}
+            {canReport && (
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportDare}>
+                Report
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1455,6 +1495,29 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
     navigate(`/profile/${game.participant?._id}`);
   };
 
+  const handleShareGame = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this switch game!',
+        text: game.creatorDare?.description?.substring(0, 100) || 'Interesting switch game',
+        url: `${window.location.origin}/switch-game/${game._id}`
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
+    // You could add a toast notification here
+  };
+
+  const handleReportGame = () => {
+    navigate(`/report?type=switch-game&id=${game._id}`);
+  };
+
   // Determine user's relationship to the game
   const isCreator = user?._id === game.creator?._id;
   const isParticipant = user?._id === game.participant?._id;
@@ -1463,6 +1526,8 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
   const canEdit = isCreator && game.status === 'waiting_for_participant';
   const canViewCreatorProfile = !isCreator && game.creator?._id;
   const canViewParticipantProfile = !isParticipant && game.participant?._id;
+  const canShare = game.public;
+  const canReport = !isCreator; // Can't report your own content
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -1639,6 +1704,21 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
                 View Participant Profile
               </button>
             )}
+            {canShare && (
+              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareGame}>
+                Share
+              </button>
+            )}
+            {canShare && (
+              <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
+                Copy Link
+              </button>
+            )}
+            {canReport && (
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportGame}>
+                Report
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1684,6 +1764,29 @@ const DareListItem = ({ dare, onLikeToggle }) => {
     navigate(`/profile/${dare.performer?._id}`);
   };
 
+  const handleShareDare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this dare!',
+        text: dare.description?.substring(0, 100) || 'Interesting dare',
+        url: `${window.location.origin}/dare/${dare._id}`
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
+    // You could add a toast notification here
+  };
+
+  const handleReportDare = () => {
+    navigate(`/report?type=dare&id=${dare._id}`);
+  };
+
   // Determine user's relationship to the dare
   const isCreator = user?._id === dare.creator?._id;
   const isPerformer = user?._id === dare.performer?._id;
@@ -1692,6 +1795,8 @@ const DareListItem = ({ dare, onLikeToggle }) => {
   const canEdit = isCreator && ['waiting_for_participant', 'approved'].includes(dare.status);
   const canViewCreatorProfile = !isCreator && dare.creator?._id;
   const canViewPerformerProfile = !isPerformer && dare.performer?._id;
+  const canShare = dare.public;
+  const canReport = !isCreator; // Can't report your own content
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -1819,6 +1924,21 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               View Performer Profile
             </button>
           )}
+          {canShare && (
+            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareDare}>
+              Share
+            </button>
+          )}
+          {canShare && (
+            <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
+              Copy Link
+            </button>
+          )}
+          {canReport && (
+            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportDare}>
+              Report
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -1863,6 +1983,29 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
     navigate(`/profile/${game.participant?._id}`);
   };
 
+  const handleShareGame = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out this switch game!',
+        text: game.creatorDare?.description?.substring(0, 100) || 'Interesting switch game',
+        url: `${window.location.origin}/switch-game/${game._id}`
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
+    // You could add a toast notification here
+  };
+
+  const handleReportGame = () => {
+    navigate(`/report?type=switch-game&id=${game._id}`);
+  };
+
   // Determine user's relationship to the game
   const isCreator = user?._id === game.creator?._id;
   const isParticipant = user?._id === game.participant?._id;
@@ -1871,6 +2014,8 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
   const canEdit = isCreator && game.status === 'waiting_for_participant';
   const canViewCreatorProfile = !isCreator && game.creator?._id;
   const canViewParticipantProfile = !isParticipant && game.participant?._id;
+  const canShare = game.public;
+  const canReport = !isCreator; // Can't report your own content
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -2002,6 +2147,21 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               onClick={handleViewParticipantProfile}
             >
               View Participant Profile
+            </button>
+          )}
+          {canShare && (
+            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareGame}>
+              Share
+            </button>
+          )}
+          {canShare && (
+            <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
+              Copy Link
+            </button>
+          )}
+          {canReport && (
+            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportGame}>
+              Report
             </button>
           )}
         </div>
