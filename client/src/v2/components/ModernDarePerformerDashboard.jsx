@@ -1,41 +1,53 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { fetchDashboardData, fetchDashboardActivityFeed } from '../../utils/dashboardApi';
-import { handleApiError } from '../../utils/errorHandler';
-import { useDashboardRealtimeUpdates } from '../../hooks/useRealtimeUpdates';
 import { 
-  FireIcon, 
-  SparklesIcon, 
-  EyeDropperIcon, 
-  ExclamationTriangleIcon, 
-  RocketLaunchIcon,
+  HeartIcon, 
+  UserIcon, 
+  ClockIcon, 
+  TrophyIcon, 
+  UserGroupIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  HeartIcon,
+  ArrowsUpDownIcon,
   EyeIcon,
-  ClockIcon,
-  UserIcon,
+  ListBulletIcon,
+  PlusIcon,
+  FireIcon,
+  UserCircleIcon,
+  BoltIcon,
+  StarIcon
+} from '@heroicons/react/24/outline';
+import { 
   CheckCircleIcon,
   XCircleIcon,
-  TrophyIcon,
   PlayIcon,
-  PlusIcon,
   DocumentPlusIcon,
-  UserGroupIcon,
-  BoltIcon,
   ShieldCheckIcon,
   ChartBarIcon,
   PuzzlePieceIcon,
   ArrowPathIcon,
-  WifiIcon
+  WifiIcon,
+  SparklesIcon,
+  EyeDropperIcon,
+  ExclamationTriangleIcon,
+  RocketLaunchIcon
 } from '@heroicons/react/24/solid';
+import { 
+  fetchDashboardData, 
+  fetchQuickStats, 
+  fetchDashboardActivityFeed, 
+  fetchUserStats, 
+  fetchGeneralStats,
+  likeDare,
+  unlikeDare
+} from '../../utils/dashboardApi';
+import { handleApiError } from '../../utils/errorHandler';
+import { useDashboardRealtimeUpdates } from '../../hooks/useRealtimeUpdates';
+import Avatar from '../Avatar';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../../constants';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import {
-  // ... existing imports ...
-} from '@heroicons/react/24/outline';
 
 const ModernDarePerformerDashboard = () => {
   const navigate = useNavigate();
@@ -1261,7 +1273,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
         {/* Dare Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
-            <UserIcon className="w-4 h-4" />
+            <Avatar user={dare.creator} size="xs" />
             <span 
               className="cursor-pointer hover:text-white transition-colors duration-200"
               onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
@@ -1275,7 +1287,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
           </div>
           {dare.performer && (
             <div className="flex items-center space-x-2 text-neutral-400">
-              <UserIcon className="w-4 h-4" />
+              <Avatar user={dare.performer} size="xs" />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
@@ -1397,7 +1409,7 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
         {/* Game Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
-            <UserIcon className="w-4 h-4" />
+            <Avatar user={game.creator} size="xs" />
             <span 
               className="cursor-pointer hover:text-white transition-colors duration-200"
               onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
@@ -1428,6 +1440,7 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
             <div className="flex items-center justify-center space-x-2">
               <TrophyIcon className="w-5 h-5 text-green-400" />
+              <Avatar user={game.winner} size="xs" />
               <span 
                 className="text-green-400 font-semibold cursor-pointer hover:text-green-300 transition-colors duration-200"
                 onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
@@ -1513,7 +1526,7 @@ const DareListItem = ({ dare, onLikeToggle }) => {
           
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
-              <UserIcon className="w-4 h-4" />
+              <Avatar user={dare.creator} size="xs" />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
@@ -1527,7 +1540,7 @@ const DareListItem = ({ dare, onLikeToggle }) => {
             </span>
             {dare.performer && (
               <span className="flex items-center space-x-1">
-                <UserIcon className="w-4 h-4" />
+                <Avatar user={dare.performer} size="xs" />
                 <span 
                   className="cursor-pointer hover:text-white transition-colors duration-200"
                   onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
@@ -1616,7 +1629,7 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
           
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
-              <UserIcon className="w-4 h-4" />
+              <Avatar user={game.creator} size="xs" />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
