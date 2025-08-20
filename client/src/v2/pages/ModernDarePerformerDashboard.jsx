@@ -662,56 +662,70 @@ const ModernDarePerformerDashboard = () => {
                   
                   // Grid view - existing detailed layout
                   return (
-                    <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                          {/* Difficulty Badge */}
-                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
-                            <DifficultyIcon className="w-4 h-4" />
-                            {dare.difficulty}
+                    <div key={dare._id} className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
+                      {/* Header */}
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
+                              {dare.title || 'Untitled Dare'}
+                            </h3>
+                            {dare.description && (
+                              <p className="text-neutral-400 text-sm line-clamp-2">{dare.description}</p>
+                            )}
                           </div>
-                          
-                          {/* Creator Info */}
+                        </div>
+
+                        {/* Difficulty Badge */}
+                        <div className="flex items-center space-x-2 mb-4">
+                          <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${color} text-white`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            <span className="capitalize">{dare.difficulty}</span>
+                          </span>
+                        </div>
+
+                        {/* Task Info */}
+                        <div className="grid grid-cols-2 gap-4 text-sm">
                           {dare.creator && (
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
-                              <span className="text-neutral-400 text-sm">Created by</span>
-                              <Link 
-                                to={`/modern/profile/${dare.creator?._id || dare.creator?.id}`} 
-                                className="flex items-center gap-2 group-hover:underline"
-                                aria-label={`View profile of ${dare.creator?.fullName || 'User'}`}
-                              >
-                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
-                                  <UserIcon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
-                              </Link>
+                            <div className="flex items-center space-x-2 text-neutral-400">
+                              <UserIcon className="w-4 h-4" />
+                              <span>{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                            </div>
+                          )}
+                          {dare.timeLimit && (
+                            <div className="flex items-center space-x-2 text-neutral-400">
+                              <ClockIcon className="w-4 h-4" />
+                              <span>{dare.timeLimit}h</span>
+                            </div>
+                          )}
+                          {dare.participants && (
+                            <div className="flex items-center space-x-2 text-neutral-400">
+                              <UserIcon className="w-4 h-4" />
+                              <span>{dare.participants.length}</span>
+                            </div>
+                          )}
+                          {dare.createdAt && (
+                            <div className="flex items-center space-x-2 text-neutral-400">
+                              <ClockIcon className="w-4 h-4" />
+                              <span>{new Date(dare.createdAt).toLocaleDateString()}</span>
                             </div>
                           )}
                         </div>
-                        
-                        {/* Action Button */}
-                        <Link to={dare.claimToken ? `/modern/claim/${dare.claimToken}` : `/modern/dares/${dare._id}/consent`}>
-                          <button 
-                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center" 
-                            aria-label={`Participate in dare by ${dare.creator?.fullName || 'User'}`}
-                          >
-                            {dare.claimToken ? (
-                              <>
-                                <CheckCircleIcon className="w-5 h-5" />
-                                Claim & Perform
-                              </>
-                            ) : (
-                              <>
-                                <PlayIcon className="w-5 h-5" />
-                                Participate
-                              </>
-                            )}
-                          </button>
-                        </Link>
                       </div>
-                      
-                      {/* Tags */}
-                      {renderTags(dare.tags)}
+
+                      {/* Footer */}
+                      <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-neutral-500">
+                            {dare.isPublic ? 'Public' : 'Private'}
+                          </span>
+                          <Link to={dare.claimToken ? `/modern/claim/${dare.claimToken}` : `/modern/dares/${dare._id}/consent`}>
+                            <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                              {dare.claimToken ? 'Claim & Perform' : 'Participate'}
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
