@@ -661,15 +661,6 @@ const ModernDarePerformerDashboard = () => {
                             {dare.difficulty}
                           </div>
                           
-                          {/* Status Badge */}
-                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
-                            dare.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                            dare.status === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                            'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                          }`}>
-                            {dare.status.replace(/_/g, ' ')}
-                          </div>
-                          
                           {/* Creator Info */}
                           {dare.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
@@ -687,7 +678,7 @@ const ModernDarePerformerDashboard = () => {
                         {/* Action Button */}
                         <button
                           onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                          className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
                           <EyeIcon className="w-5 h-5" />
                           View Details
@@ -838,11 +829,6 @@ const ModernDarePerformerDashboard = () => {
                             {dare.difficulty}
                           </div>
                           
-                          {/* Status Badge */}
-                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
-                            {dare.status.replace(/_/g, ' ')}
-                          </div>
-                          
                           {/* Creator Info */}
                           {dare.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
@@ -869,16 +855,6 @@ const ModernDarePerformerDashboard = () => {
                       
                       {/* Tags */}
                       {renderTags(dare.tags)}
-                      
-                      {/* Completion Info */}
-                      {dare.completedAt && (
-                        <div className="mt-3 pt-3 border-t border-neutral-600/30">
-                          <div className="flex items-center gap-2 text-sm text-neutral-400">
-                            <CheckCircleIcon className="w-4 h-4 text-green-400" />
-                            <span>Completed on {new Date(dare.completedAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -1081,21 +1057,7 @@ const ModernDarePerformerDashboard = () => {
                             {game.creatorDare?.difficulty || game.difficulty}
                           </div>
                           
-                          {/* Status Badge */}
-                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
-                            game.status === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                            game.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                            game.status === 'awaiting_proof' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                            game.status === 'proof_submitted' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                            'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
-                          }`}>
-                            {game.status.replace(/_/g, ' ')}
-                          </div>
-                          
-                          {/* Game Type Badge */}
-                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
-                            Switch Game
-                          </div>
+
                           
                           {/* Creator Info */}
                           {game.creator && (
@@ -1310,15 +1272,7 @@ const ModernDarePerformerDashboard = () => {
                             {dare.difficulty}
                           </div>
                           
-                          {/* Dare Type Badge */}
-                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
-                            dare.dareType === 'submission' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                            dare.dareType === 'domination' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                            dare.dareType === 'switch' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                            'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
-                          }`}>
-                            {dare.dareType || 'Unknown'}
-                          </div>
+
                           
                           {/* Creator Info */}
                           {dare.creator && (
@@ -1511,10 +1465,7 @@ const ModernDarePerformerDashboard = () => {
                             {game.creatorDare?.difficulty || game.difficulty}
                           </div>
                           
-                          {/* Game Type Badge */}
-                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
-                            Switch Game
-                          </div>
+
                           
                           {/* Creator Info */}
                           {game.creator && (
@@ -1538,22 +1489,6 @@ const ModernDarePerformerDashboard = () => {
                           <UserGroupIcon className="w-5 h-5" />
                           Join Game
                         </button>
-                      </div>
-                      
-                      {/* Game Info */}
-                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-400">
-                        {game.createdAt && (
-                          <div className="flex items-center gap-2">
-                            <ClockIcon className="w-4 h-4" />
-                            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                        {game.participants && game.participants.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <UserGroupIcon className="w-4 h-4" />
-                            <span>Participants: {game.participants.length}</span>
-                          </div>
-                        )}
                       </div>
                       
                       {/* Tags */}
