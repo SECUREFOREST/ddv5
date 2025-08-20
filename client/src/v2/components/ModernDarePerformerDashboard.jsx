@@ -45,7 +45,7 @@ import {
 } from '../../utils/dashboardApi';
 import { handleApiError } from '../../utils/errorHandler';
 import { useDashboardRealtimeUpdates } from '../../hooks/useRealtimeUpdates';
-import Avatar from '../Avatar';
+import Avatar from '../../components/Avatar';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../../constants';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
