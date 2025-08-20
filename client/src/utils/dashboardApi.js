@@ -115,4 +115,114 @@ export const refreshDashboardData = async (currentFilters = {}, options = {}) =>
     ...currentFilters,
     ...options
   });
+};
+
+/**
+ * Fetches quick statistics for the dashboard
+ * @returns {Promise<Object>} - Quick stats data
+ */
+export const fetchQuickStats = async () => {
+  try {
+    const response = await api.get('/stats/dashboard/quick-stats');
+    return response.data;
+  } catch (error) {
+    console.error('Quick stats API fetch failed:', error);
+    return {
+      dares: { active: 0, pending: 0, completedToday: 0, totalCompleted: 0 },
+      switchGames: { active: 0, pending: 0, totalCompleted: 0 },
+      summary: { totalActive: 0, totalPending: 0, totalCompleted: 0 }
+    };
+  }
+};
+
+/**
+ * Fetches personalized activity feed for the dashboard
+ * @param {Object} options - Activity feed options
+ * @param {number} options.limit - Number of activities to fetch
+ * @returns {Promise<Object>} - Activity feed data
+ */
+export const fetchDashboardActivityFeed = async (options = {}) => {
+  try {
+    const { limit = 20 } = options;
+    const response = await api.get(`/stats/dashboard/activity-feed?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error('Dashboard activity feed API fetch failed:', error);
+    return {
+      activities: [],
+      total: 0
+    };
+  }
+};
+
+/**
+ * Fetches comprehensive user statistics
+ * @param {string} userId - User ID to fetch stats for
+ * @returns {Promise<Object>} - User statistics data
+ */
+export const fetchUserStats = async (userId) => {
+  try {
+    const response = await api.get(`/stats/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('User stats API fetch failed:', error);
+    return {
+      user: userId,
+      statistics: {
+        dares: { created: 0, completed: 0, participated: 0, completionRate: 0 },
+        switchGames: { created: 0, participated: 0 },
+        performance: { averageGrade: null, totalCompleted: 0 }
+      },
+      recentActivity: []
+    };
+  }
+};
+
+/**
+ * Fetches general site statistics (public)
+ * @returns {Promise<Object>} - General site statistics
+ */
+export const fetchGeneralStats = async () => {
+  try {
+    const response = await api.get('/stats/general');
+    return response.data;
+  } catch (error) {
+    console.error('General stats API fetch failed:', error);
+    return {
+      totalUsers: 0,
+      totalDares: 0,
+      totalSwitchGames: 0,
+      totalComments: 0
+    };
+  }
+};
+
+/**
+ * Likes a dare
+ * @param {string} dareId - The dare ID to like
+ * @returns {Promise<Object>} - Response with like status
+ */
+export const likeDare = async (dareId) => {
+  try {
+    const response = await api.post(`/dares/${dareId}/like`);
+    return response.data;
+  } catch (error) {
+    console.error('Like dare API failed:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unlikes a dare
+ * @param {string} dareId - The dare ID to unlike
+ * @returns {Promise<Object>} - Response with like status
+ */
+export const unlikeDare = async (dareId) => {
+  try {
+    const response = await api.delete(`/dares/${dareId}/like`);
+    return response.data;
+  } catch (error) {
+    console.error('Unlike dare API failed:', error);
+    throw error;
+  }
 }; 

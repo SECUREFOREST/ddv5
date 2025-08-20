@@ -65,6 +65,114 @@ async function checkSlotAndCooldownAtomic(userId) {
 // Helper: cleanup orphaned dares (admin only)
 const { cleanupOrphanedDares } = require('../utils/cleanup');
 
+// POST /api/dares/:id/like - like a dare
+router.post('/:id/like', auth, [
+  param('id').isMongoId().withMessage('Dare ID must be a valid MongoDB ObjectId.')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
+    }
+
+    const dareId = req.params.id;
+    const userId = req.userId;
+
+    const dare = await Dare.findById(dareId);
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+
+    // Check if user has already liked this dare
+    if (!dare.likes) {
+      dare.likes = [];
+    }
+
+    if (dare.likes.includes(userId)) {
+      return res.status(400).json({ error: 'You have already liked this dare.' });
+    }
+
+    // Add like
+    dare.likes.push(userId);
+    await dare.save();
+
+    // Log activity
+    await logActivity({
+      user: userId,
+      type: 'dare_liked',
+      description: `Liked dare: ${dare.description}`,
+      dare: dareId
+    });
+
+    res.json({ 
+      message: 'Dare liked successfully',
+      likesCount: dare.likes.length,
+      isLiked: true
+    });
+
+  } catch (err) {
+    console.error('Like dare error:', err);
+    res.status(500).json({ error: 'Failed to like dare.' });
+  }
+});
+
+// DELETE /api/dares/:id/like - unlike a dare
+router.delete('/:id/like', auth, [
+  param('id').isMongoId().withMessage('Dare ID must be a valid MongoDB ObjectId.')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
+    }
+
+    const dareId = req.params.id;
+    const userId = req.userId;
+
+    const dare = await Dare.findById(dareId);
+    if (!dare) {
+      return res.status(404).json({ error: 'Dare not found.' });
+    }
+
+    if (!dare.likes) {
+      return res.status(400).json({ error: 'No likes found for this dare.' });
+    }
+
+    // Remove like
+    const likeIndex = dare.likes.indexOf(userId);
+    if (likeIndex === -1) {
+      return res.status(400).json({ error: 'You have not liked this dare.' });
+    }
+
+    dare.likes.splice(likeIndex, 1);
+    await dare.save();
+
+    // Log activity
+    await logActivity({
+      user: userId,
+      type: 'dare_unliked',
+      description: `Unliked dare: ${dare.description}`,
+      dare: dareId
+    });
+
+    res.json({ 
+      message: 'Dare unliked successfully',
+      likesCount: dare.likes.length,
+      isLiked: false
+    });
+
+  } catch (err) {
+    console.error('Unlike dare error:', err);
+    res.status(500).json({ error: 'Failed to unlike dare.' });
+  }
+});
+
 // POST /api/dares/cleanup - cleanup orphaned dares (admin only)
 router.post('/cleanup', auth, async (req, res) => {
   try {

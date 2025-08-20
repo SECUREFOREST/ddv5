@@ -727,11 +727,12 @@ router.get('/activities', async (req, res) => {
   }
 });
 
-// GET /api/stats/dashboard - general dashboard stats
-router.get('/dashboard', async (req, res) => {
+// GET /api/stats/general - general site statistics (public)
+router.get('/general', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalDares = await Dare.countDocuments();
+    const totalSwitchGames = await SwitchGame.countDocuments();
     // If you have a Comment model, include it; otherwise, skip or add your own
     let totalComments = 0;
     try {
@@ -740,10 +741,11 @@ router.get('/dashboard', async (req, res) => {
     res.json({
       totalUsers,
       totalDares,
+      totalSwitchGames,
       totalComments,
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to get dashboard stats.' });
+    res.status(500).json({ error: 'Failed to get general statistics.' });
   }
 });
 
@@ -947,6 +949,249 @@ router.get('/admin/server-metrics', auth, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get server metrics.' });
+  }
+});
+
+// GET /api/stats/user/:id - get comprehensive user statistics
+router.get('/user/:id', auth, [
+  param('id').isMongoId().withMessage('User ID must be a valid MongoDB ObjectId.')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
+    }
+
+    const userId = req.params.id;
+    const requestingUserId = req.userId;
+
+    // Check if requesting user can view this profile
+    const requestingUser = await User.findById(requestingUserId).select('blockedUsers').lean();
+    if (requestingUser?.blockedUsers?.includes(userId)) {
+      return res.status(403).json({ error: 'Cannot view blocked user statistics.' });
+    }
+
+    // Get user's dare statistics
+    const [daresCreated, daresCompleted, daresParticipated, switchGamesCreated, switchGamesParticipated] = await Promise.all([
+      Dare.countDocuments({ creator: userId }),
+      Dare.countDocuments({ performer: userId, status: 'completed' }),
+      Dare.countDocuments({ performer: userId }),
+      SwitchGame.countDocuments({ creator: userId }),
+      SwitchGame.countDocuments({ participant: userId })
+    ]);
+
+    // Get average grades for completed dares
+    const completedDares = await Dare.find({ 
+      performer: userId, 
+      status: 'completed',
+      'grades.grade': { $exists: true, $ne: null }
+    }).select('grades.grade').lean();
+
+    let averageGrade = null;
+    if (completedDares.length > 0) {
+      const allGrades = completedDares.flatMap(dare => 
+        dare.grades.filter(grade => grade.target?.toString() === userId).map(g => g.grade)
+      ).filter(grade => grade !== null && grade !== undefined);
+      
+      if (allGrades.length > 0) {
+        averageGrade = Math.round((allGrades.reduce((sum, grade) => sum + grade, 0) / allGrades.length) * 10) / 10;
+      }
+    }
+
+    // Get recent activity
+    const recentActivity = await Activity.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate('dare', 'description difficulty')
+      .populate('switchGame', 'creatorDare.description')
+      .lean();
+
+    res.json({
+      user: userId,
+      statistics: {
+        dares: {
+          created: daresCreated,
+          completed: daresCompleted,
+          participated: daresParticipated,
+          completionRate: daresParticipated > 0 ? Math.round((daresCompleted / daresParticipated) * 100) : 0
+        },
+        switchGames: {
+          created: switchGamesCreated,
+          participated: switchGamesParticipated
+        },
+        performance: {
+          averageGrade,
+          totalCompleted: daresCompleted + switchGamesParticipated
+        }
+      },
+      recentActivity: recentActivity.map(activity => ({
+        id: activity._id,
+        type: activity.type,
+        description: activity.description,
+        createdAt: activity.createdAt,
+        dare: activity.dare ? {
+          description: activity.dare.description,
+          difficulty: activity.dare.difficulty
+        } : null,
+        switchGame: activity.switchGame ? {
+          description: activity.switchGame.creatorDare?.description
+        } : null
+      }))
+    });
+
+  } catch (err) {
+    console.error('User stats error:', err);
+    res.status(500).json({ error: 'Failed to get user statistics.' });
+  }
+});
+
+// GET /api/stats/dashboard/quick-stats - get quick dashboard statistics for performance
+router.get('/dashboard/quick-stats', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    
+    // Get quick stats for the current user
+    const [activeDares, pendingDares, completedToday, totalCompleted] = await Promise.all([
+      Dare.countDocuments({
+        $or: [{ creator: userId }, { performer: userId }],
+        status: { $in: ['in_progress', 'approved'] }
+      }),
+      Dare.countDocuments({
+        $or: [{ creator: userId }, { performer: userId }],
+        status: 'waiting_for_participant'
+      }),
+      Dare.countDocuments({
+        performer: userId,
+        status: 'completed',
+        updatedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      }),
+      Dare.countDocuments({
+        performer: userId,
+        status: 'completed'
+      })
+    ]);
+
+    // Get switch game stats
+    const [activeSwitchGames, pendingSwitchGames, completedSwitchGames] = await Promise.all([
+      SwitchGame.countDocuments({
+        $or: [{ creator: userId }, { participant: userId }],
+        status: 'in_progress'
+      }),
+      SwitchGame.countDocuments({
+        $or: [{ creator: userId }, { participant: userId }],
+        status: 'waiting_for_participant'
+      }),
+      SwitchGame.countDocuments({
+        $or: [{ creator: userId }, { participant: userId }],
+        status: 'completed'
+      })
+    ]);
+
+    res.json({
+      dares: {
+        active: activeDares,
+        pending: pendingDares,
+        completedToday,
+        totalCompleted
+      },
+      switchGames: {
+        active: activeSwitchGames,
+        pending: pendingSwitchGames,
+        totalCompleted: completedSwitchGames
+      },
+      summary: {
+        totalActive: activeDares + activeSwitchGames,
+        totalPending: pendingDares + pendingSwitchGames,
+        totalCompleted: totalCompleted + completedSwitchGames
+      }
+    });
+
+  } catch (err) {
+    console.error('Quick stats error:', err);
+    res.status(500).json({ error: 'Failed to get quick statistics.' });
+  }
+});
+
+// GET /api/stats/dashboard/activity-feed - get personalized activity feed for dashboard
+router.get('/dashboard/activity-feed', auth, [
+  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be between 1 and 50')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+      });
+    }
+
+    const userId = req.userId;
+    const limit = parseInt(req.query.limit) || 20;
+
+    // Get user's recent activity and related activities
+    const [userActivities, relatedActivities] = await Promise.all([
+      Activity.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .limit(limit / 2)
+        .populate('dare', 'description difficulty status')
+        .populate('switchGame', 'creatorDare.description status')
+        .lean(),
+      
+      Activity.find({
+        user: { $ne: userId },
+        $or: [
+          { 'dare.creator': userId },
+          { 'dare.performer': userId },
+          { 'switchGame.creator': userId },
+          { 'switchGame.participant': userId }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit / 2)
+        .populate('user', 'username fullName avatar')
+        .populate('dare', 'description difficulty status')
+        .populate('switchGame', 'creatorDare.description status')
+        .lean()
+    ]);
+
+    // Combine and sort activities
+    const allActivities = [...userActivities, ...relatedActivities]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, limit);
+
+    res.json({
+      activities: allActivities.map(activity => ({
+        id: activity._id,
+        type: activity.type,
+        description: activity.description,
+        createdAt: activity.createdAt,
+        user: activity.user ? {
+          id: activity.user._id,
+          username: activity.user.username,
+          fullName: activity.user.fullName,
+          avatar: activity.user.avatar
+        } : null,
+        dare: activity.dare ? {
+          id: activity.dare._id,
+          description: activity.dare.description,
+          difficulty: activity.dare.difficulty,
+          status: activity.dare.status
+        } : null,
+        switchGame: activity.switchGame ? {
+          id: activity.switchGame._id,
+          description: activity.switchGame.creatorDare?.description,
+          status: activity.switchGame.status
+        } : null
+      })),
+      total: allActivities.length
+    });
+
+  } catch (err) {
+    console.error('Activity feed error:', err);
+    res.status(500).json({ error: 'Failed to get activity feed.' });
   }
 });
 

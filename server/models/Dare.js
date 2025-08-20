@@ -41,6 +41,8 @@ const DareSchema = new mongoose.Schema({
   consentedAt: { type: Date },
   // Content deletion preference for OSA-style privacy
   contentDeletion: { type: String, enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'], default: 'delete_after_30_days' },
+  // Likes array to track user likes
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
 module.exports = mongoose.model('Dare', DareSchema); 
