@@ -86,7 +86,7 @@ const ModernDarePerformerDashboard = () => {
     mySwitchGames: false
   });
 
-  const [sortBy, setSortBy] = useState('deadline');
+  const [sortBy, setSortBy] = useState('updatedAt');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -322,20 +322,19 @@ const ModernDarePerformerDashboard = () => {
     
     return [...filteredData].sort((a, b) => {
       switch (sortBy) {
-        case 'deadline':
-          if (a.deadline && b.deadline) {
-            return new Date(a.deadline) - new Date(b.deadline);
+        case 'updatedAt':
+          if (a.updatedAt && b.updatedAt) {
+            return new Date(b.updatedAt) - new Date(a.updatedAt);
           }
           return 0;
-        case 'newest':
-          return new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt);
-        case 'oldest':
-          return new Date(a.createdAt || a.updatedAt) - new Date(b.createdAt || b.updatedAt);
         case 'difficulty':
-          const difficultyOrder = { titillating: 1, arousing: 2, explicit: 3, edgy: 4, hardcore: 5 };
+          const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
           return (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
-        case 'progress':
-          return (b.progress || 0) - (a.progress || 0);
+        case 'status':
+          const statusOrder = { waiting_for_participant: 1, in_progress: 2, completed: 3 };
+          return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
+        case 'creator':
+          return (a.creator?.username || '').localeCompare(b.creator?.username || '');
         default:
           return 0;
       }
@@ -874,16 +873,15 @@ const ModernDarePerformerDashboard = () => {
                 </div>
 
                 {/* Sort */}
-                <select
-                  value={sortBy}
+                <select 
+                  value={sortBy} 
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                  className="bg-neutral-700 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="deadline">By Deadline</option>
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
+                  <option value="updatedAt">By Date Updated</option>
                   <option value="difficulty">By Difficulty</option>
-                  <option value="progress">By Progress</option>
+                  <option value="status">By Status</option>
+                  <option value="creator">By Creator</option>
                 </select>
               </div>
 
@@ -1113,14 +1111,12 @@ const ModernDarePerformerDashboard = () => {
 
 // Shared utility functions for card components
 const getDifficultyColor = (difficulty) => {
-  const colors = {
-    titillating: 'from-pink-400 to-pink-600',
-    arousing: 'from-purple-500 to-purple-700',
-    explicit: 'from-red-500 to-red-700',
-    edgy: 'from-yellow-400 to-yellow-600',
-    hardcore: 'from-gray-800 to-black'
-  };
-  return colors[difficulty] || 'from-gray-500 to-gray-700';
+  switch (difficulty) {
+    case 'easy': return 'from-green-500 to-green-600';
+    case 'medium': return 'from-yellow-500 to-yellow-600';
+    case 'hard': return 'from-red-500 to-red-600';
+    default: return 'from-neutral-500 to-neutral-600';
+  }
 };
 
 const getDifficultyIcon = (difficulty) => {
@@ -1156,19 +1152,6 @@ const getStatusIcon = (status) => {
     approved: <CheckCircleIcon className="w-4 h-4" />
   };
   return icons[status] || <EyeIcon className="w-4 h-4" />;
-};
-
-const formatDeadline = (deadline) => {
-  if (!deadline) return 'No deadline';
-  const date = new Date(deadline);
-  const now = new Date();
-  const diffTime = date - now;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays < 0) return 'Overdue';
-  if (diffDays === 0) return 'Due today';
-  if (diffDays === 1) return 'Due tomorrow';
-  return `Due in ${diffDays} days`;
 };
 
 // Shared navigation handlers
@@ -1298,10 +1281,6 @@ const DareCard = ({ dare, onLikeToggle }) => {
               </span>
             </div>
           )}
-          <div className="flex items-center space-x-2 text-neutral-400">
-            <ClockIcon className="w-4 h-4" />
-            <span>{formatDeadline(dare.deadline)}</span>
-          </div>
         </div>
 
         {/* Grade for Completed Dares */}
