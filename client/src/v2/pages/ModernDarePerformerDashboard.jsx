@@ -36,6 +36,12 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../../constants.jsx';
+import { ListSkeleton } from '../../components/Skeleton';
+import { usePagination, Pagination } from '../../utils/pagination.jsx';
+import { retryApiCall } from '../../utils/retry';
+import { ERROR_MESSAGES, API_RESPONSE_TYPES } from '../../constants.jsx';
+import { validateApiResponse } from '../../utils/apiValidation';
+import { handleApiError } from '../../utils/errorHandler';
 import api from '../../api/axios';
 
 // Add difficulty constants to match ModernPublicDares exactly
@@ -140,29 +146,85 @@ const ModernDarePerformerDashboard = () => {
       setIsLoading(true);
       setError(null);
       
-      // Fetch dashboard data from stats API
-      const response = await api.get('/api/stats/dashboard');
-      const { data, summary: summaryData } = response.data;
+      // Fetch data using the same endpoints as ModernPublicDares
+      const [ongoingRes, completedRes, switchGamesRes, publicDaresRes, publicSwitchGamesRes] = await Promise.allSettled([
+        retryApiCall(() => api.get('/dares', { params: { user: user._id, status: 'in_progress' } })),
+        retryApiCall(() => api.get('/dares', { params: { user: user._id, status: 'completed' } })),
+        retryApiCall(() => api.get('/switches', { params: { user: user._id } })),
+        retryApiCall(() => api.get('/dares', { params: { public: true, status: 'waiting_for_participant' } })),
+        retryApiCall(() => api.get('/switches', { params: { public: true, status: 'waiting_for_participant' } }))
+      ]);
       
-      // Set data with fallbacks
-      setOngoing(Array.isArray(data?.activeDares) ? data.activeDares : []);
-      setCompleted(Array.isArray(data?.completedDares) ? data.completedDares : []);
-      setMySwitchGames(Array.isArray(data?.switchGames) ? data.switchGames : []);
-      setPublicDares(Array.isArray(data?.publicDares) ? data.publicDares : []);
-      setPublicSwitchGames(Array.isArray(data?.publicSwitchGames) ? data.publicSwitchGames : []);
+      // Handle ongoing dares response
+      if (ongoingRes.status === 'fulfilled') {
+        const responseData = ongoingRes.value.data;
+        const dares = responseData.dares || responseData;
+        const daresData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        setOngoing(daresData);
+      } else {
+        console.error('Failed to load ongoing dares:', ongoingRes.reason);
+        setOngoing([]);
+      }
       
-      // Set summary data
-      setSummary(summaryData || {
-        totalActiveDares: data?.activeDares?.length || 0,
-        totalCompletedDares: data?.completedDares?.length || 0,
-        totalSwitchGames: data?.switchGames?.length || 0,
-        totalPublicDares: data?.publicDares?.length || 0,
-        totalPublicSwitchGames: data?.publicSwitchGames?.length || 0
-      });
+      // Handle completed dares response
+      if (completedRes.status === 'fulfilled') {
+        const responseData = completedRes.value.data;
+        const dares = responseData.dares || responseData;
+        const daresData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        setCompleted(daresData);
+      } else {
+        console.error('Failed to load completed dares:', completedRes.reason);
+        setCompleted([]);
+      }
+      
+      // Handle switch games response
+      if (switchGamesRes.status === 'fulfilled') {
+        const responseData = switchGamesRes.value.data;
+        const games = responseData.games || responseData;
+        const switchesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        setMySwitchGames(switchesData);
+      } else {
+        console.error('Failed to load switch games:', switchGamesRes.reason);
+        setMySwitchGames([]);
+      }
+      
+      // Handle public dares response
+      if (publicDaresRes.status === 'fulfilled') {
+        const responseData = publicDaresRes.value.data;
+        const dares = responseData.dares || responseData;
+        const daresData = validateApiResponse(dares, API_RESPONSE_TYPES.DARE_ARRAY);
+        setPublicDares(daresData);
+      } else {
+        console.error('Failed to load public dares:', publicDaresRes.reason);
+        setPublicDares([]);
+      }
+      
+      // Handle public switch games response
+      if (publicSwitchGamesRes.status === 'fulfilled') {
+        const responseData = publicSwitchGamesRes.value.data;
+        const games = responseData.games || responseData;
+        const switchesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
+        setPublicSwitchGames(switchesData);
+      } else {
+        console.error('Failed to load public switch games:', publicSwitchGamesRes.reason);
+        setPublicSwitchGames([]);
+      }
+      
+      // Update summary data
+      const summaryData = {
+        totalActiveDares: ongoingRes.status === 'fulfilled' ? (ongoingRes.value.data.dares || ongoingRes.value.data).length : 0,
+        totalCompletedDares: completedRes.status === 'fulfilled' ? (completedRes.value.data.dares || completedRes.value.data).length : 0,
+        totalSwitchGames: switchGamesRes.status === 'fulfilled' ? (switchGamesRes.value.data.games || switchGamesRes.value.data).length : 0,
+        totalPublicDares: publicDaresRes.status === 'fulfilled' ? (publicDaresRes.value.data.dares || publicDaresRes.value.data).length : 0,
+        totalPublicSwitchGames: publicSwitchGamesRes.status === 'fulfilled' ? (publicSwitchGamesRes.value.data.games || publicSwitchGamesRes.value.data).length : 0
+      };
+      setSummary(summaryData);
       
     } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      const errorMessage = handleApiError(err, 'dashboard data');
+      setError(errorMessage);
+      showError(errorMessage);
+      console.error('Dashboard data loading error:', err);
       
       // Set empty arrays on error
       setOngoing([]);
@@ -180,7 +242,7 @@ const ModernDarePerformerDashboard = () => {
         publicSwitch: false,
       });
     }
-  }, [user?._id]);
+  }, [user?._id, showError]);
 
   // Handle filter changes
   const handleDareFilterChange = (filterType, value) => {
@@ -206,16 +268,16 @@ const ModernDarePerformerDashboard = () => {
           navigate('/modern/dares/select');
           break;
         case 'submit-offer':
-          navigate('/subs/new');
+          navigate('/modern/subs/new');
           break;
         case 'create-switch':
-          navigate('/switches/create');
+          navigate('/modern/switches/create');
           break;
         case 'join-game':
-          navigate('/switches');
+          navigate('/modern/switches');
           break;
         case 'view-profile':
-          navigate(`/profile/${user?._id}`);
+          navigate(`/modern/profile/${user?._id}`);
           break;
         default:
           console.warn('Unknown action:', action);
@@ -263,6 +325,39 @@ const ModernDarePerformerDashboard = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <div className="text-white text-lg">Loading Dashboard</div>
           <p className="text-neutral-400 text-sm mt-2">Please wait while we load your data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ExclamationTriangleIcon className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
+          <p className="text-white/70 mb-6">
+            {error}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => {
+                setError(null);
+                fetchData();
+              }}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl px-6 py-3 font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => navigate('/modern/dashboard')}
+              className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-xl px-6 py-3 font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            >
+              Go to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -439,7 +534,11 @@ const ModernDarePerformerDashboard = () => {
               </div>
             </div>
             
-            {ongoing.length === 0 ? (
+            {dataLoading.ongoing ? (
+              <div className="grid gap-4">
+                <ListSkeleton count={3} />
+              </div>
+            ) : ongoing.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ClockIcon className="w-8 h-8 text-blue-400" />
@@ -517,7 +616,11 @@ const ModernDarePerformerDashboard = () => {
               Completed Dares ({completed.length})
             </h3>
             
-            {completed.length === 0 ? (
+            {dataLoading.completed ? (
+              <div className="grid gap-4">
+                <ListSkeleton count={2} />
+              </div>
+            ) : completed.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrophyIcon className="w-8 h-8 text-green-400" />
@@ -636,7 +739,11 @@ const ModernDarePerformerDashboard = () => {
               </div>
             </div>
             
-            {mySwitchGames.length === 0 ? (
+            {dataLoading.switchGames ? (
+              <div className="grid gap-4">
+                <ListSkeleton count={2} />
+              </div>
+            ) : mySwitchGames.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FireIcon className="w-8 h-8 text-purple-400" />
@@ -772,7 +879,11 @@ const ModernDarePerformerDashboard = () => {
               </div>
             </div>
             
-            {publicDares.length === 0 ? (
+            {dataLoading.public ? (
+              <div className="grid gap-4">
+                <ListSkeleton count={3} />
+              </div>
+            ) : publicDares.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <SparklesIcon className="w-6 h-6 text-orange-400" />
@@ -866,7 +977,11 @@ const ModernDarePerformerDashboard = () => {
               </div>
             </div>
             
-            {publicSwitchGames.length === 0 ? (
+            {dataLoading.publicSwitch ? (
+              <div className="grid gap-4">
+                <ListSkeleton count={2} />
+              </div>
+            ) : publicSwitchGames.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <FireIcon className="w-6 h-6 text-purple-400" />
@@ -973,6 +1088,17 @@ const ModernDarePerformerDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  setError(null);
+                  fetchData();
+                }}
+                disabled={isLoading}
+                className="p-2 bg-neutral-700/50 hover:bg-neutral-600/50 disabled:bg-neutral-800/50 disabled:cursor-not-allowed text-white rounded-lg transition-colors duration-200"
+                title="Refresh Dashboard"
+              >
+                <ArrowPathIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              </button>
               <div className="px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-sm font-medium">
                 <div className="flex items-center space-x-1">
                   <UserIcon className="w-4 h-4" />
