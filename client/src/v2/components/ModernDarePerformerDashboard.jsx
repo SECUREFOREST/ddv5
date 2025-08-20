@@ -767,15 +767,32 @@ const ModernDarePerformerDashboard = () => {
               {/* Recent Activity Feed */}
               <div className="bg-neutral-700/30 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-white">Recent Activity</h4>
-                  <button
-                    onClick={fetchActivityFeed}
-                    disabled={isLoadingActivity}
-                    className="flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary rounded-lg text-sm hover:bg-primary/30 transition-colors disabled:opacity-50"
-                  >
-                    <ArrowPathIcon className={`w-4 h-4 ${isLoadingActivity ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-lg font-semibold text-white">Recent Activity</h4>
+                    {activityFeed.length > 0 && (
+                      <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full">
+                        {activityFeed.length} activities
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={fetchActivityFeed}
+                      disabled={isLoadingActivity}
+                      className="flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary rounded-lg text-sm hover:bg-primary/30 transition-colors disabled:opacity-50"
+                    >
+                      <ArrowPathIcon className={`w-4 h-4 ${isLoadingActivity ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </button>
+                    {activityFeed.length > 5 && (
+                      <button
+                        onClick={() => navigate('/activity-feed')}
+                        className="px-3 py-1 bg-neutral-600/50 text-neutral-300 rounded-lg text-sm hover:bg-neutral-600/70 transition-colors"
+                      >
+                        View All
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {isLoadingActivity ? (
@@ -786,23 +803,57 @@ const ModernDarePerformerDashboard = () => {
                 ) : activityFeed.length > 0 ? (
                   <div className="space-y-3">
                     {activityFeed.slice(0, 5).map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-3 p-3 bg-neutral-600/20 rounded-lg">
+                      <div key={activity.id} className="flex items-start gap-3 p-3 bg-neutral-600/20 rounded-lg hover:bg-neutral-600/30 transition-colors">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm">
-                            {activity.description}
-                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            {activity.type === 'dare_created' && (
+                              <PlusIcon className="w-4 h-4 text-green-400" />
+                            )}
+                            {activity.type === 'dare_completed' && (
+                              <TrophyIcon className="w-4 h-4 text-yellow-400" />
+                            )}
+                            {activity.type === 'dare_claimed' && (
+                              <UserIcon className="w-4 h-4 text-blue-400" />
+                            )}
+                            {activity.type === 'switch_game_created' && (
+                              <FireIcon className="w-4 h-4 text-orange-400" />
+                            )}
+                            {activity.type === 'switch_game_joined' && (
+                              <UserGroupIcon className="w-4 h-4 text-purple-400" />
+                            )}
+                            {activity.type === 'proof_submitted' && (
+                              <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                            )}
+                            <p className="text-white text-sm font-medium">
+                              {activity.description}
+                            </p>
+                          </div>
                           <div className="flex items-center gap-2 mt-1 text-xs text-neutral-400">
                             {activity.user && (
                               <span className="flex items-center gap-1">
-                                <UserIcon className="w-3 h-3" />
-                                {activity.user.fullName || activity.user.username}
+                                <Avatar user={activity.user} size={16} />
+                                <span className="cursor-pointer hover:text-white transition-colors">
+                                  {activity.user.fullName || activity.user.username}
+                                </span>
                               </span>
                             )}
                             <span className="flex items-center gap-1">
                               <ClockIcon className="w-3 h-3" />
                               {new Date(activity.createdAt).toLocaleDateString()}
                             </span>
+                            {activity.dare && (
+                              <span className="flex items-center gap-1 text-blue-400">
+                                <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                                Dare
+                              </span>
+                            )}
+                            {activity.switchGame && (
+                              <span className="flex items-center gap-1 text-orange-400">
+                                <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                Switch Game
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -810,7 +861,11 @@ const ModernDarePerformerDashboard = () => {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-neutral-400">
-                    <p>No recent activity</p>
+                    <div className="flex flex-col items-center gap-2">
+                      <ClockIcon className="w-8 h-8 text-neutral-500" />
+                      <p>No recent activity</p>
+                      <p className="text-xs">Activities will appear here as they happen</p>
+                    </div>
                   </div>
                 )}
               </div>
