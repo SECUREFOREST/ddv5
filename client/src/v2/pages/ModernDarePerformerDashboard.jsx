@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   ChartBarIcon, 
   ClockIcon, 
@@ -622,13 +622,15 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <button
-                            onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
-                          >
-                            <EyeIcon className="w-4 h-4" />
-                            View
-                          </button>
+                          <Link to={`/modern/dares/${dare._id}`}>
+                            <button 
+                              className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                              aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                            >
+                              <PlayIcon className="w-5 h-5" />
+                              Participate
+                            </button>
+                          </Link>
                         </div>
                         
                         {/* Tags - only show in list view if there are tags */}
@@ -666,28 +668,30 @@ const ModernDarePerformerDashboard = () => {
                           {dare.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
                               <span className="text-neutral-400 text-sm">Created by</span>
-                              <div 
-                                className="flex items-center gap-2 group-hover:underline cursor-pointer"
-                                onClick={() => navigate(`/modern/profile/${dare.creator?._id || dare.creator?.id}`)}
+                              <Link 
+                                to={`/modern/profile/${dare.creator?._id || dare.creator?.id}`} 
+                                className="flex items-center gap-2 group-hover:underline"
                                 aria-label={`View profile of ${dare.creator?.fullName || 'User'}`}
                               >
                                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
                                   <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
-                              </div>
+                              </Link>
                             </div>
                           )}
                         </div>
                         
                         {/* Action Button */}
-                        <button
-                          onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                        >
-                          <EyeIcon className="w-5 h-5" />
-                          View Details
-                        </button>
+                        <Link to={`/modern/dares/${dare._id}`}>
+                          <button 
+                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                            aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                          >
+                            <PlayIcon className="w-5 h-5" />
+                            Participate
+                          </button>
+                        </Link>
                       </div>
                       
                       {/* Tags */}
@@ -794,13 +798,15 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <button
-                            onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
-                          >
-                            <EyeIcon className="w-4 h-4" />
-                            View
-                          </button>
+                          <Link to={`/modern/dares/${dare._id}`}>
+                            <button 
+                              className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                              aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                            >
+                              <PlayIcon className="w-4 h-4" />
+                              View
+                            </button>
+                          </Link>
                         </div>
                         
                         {/* Tags - only show in list view if there are tags */}
@@ -838,28 +844,30 @@ const ModernDarePerformerDashboard = () => {
                           {dare.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
                               <span className="text-neutral-400 text-sm">Created by</span>
-                              <div 
-                                className="flex items-center gap-2 group-hover:underline cursor-pointer"
-                                onClick={() => navigate(`/modern/profile/${dare.creator?._id || dare.creator?.id}`)}
+                              <Link 
+                                to={`/modern/profile/${dare.creator?._id || dare.creator?.id}`} 
+                                className="flex items-center gap-2 group-hover:underline"
                                 aria-label={`View profile of ${dare.creator?.fullName || 'User'}`}
                               >
                                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
                                   <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
-                              </div>
+                              </Link>
                             </div>
                           )}
                         </div>
                         
                         {/* Action Button */}
-                        <button
-                          onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                        >
-                          <EyeIcon className="w-5 h-5" />
-                          View Details
-                        </button>
+                        <Link to={`/modern/dares/${dare._id}`}>
+                          <button 
+                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                            aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                          >
+                            <PlayIcon className="w-5 h-5" />
+                            Participate
+                          </button>
+                        </Link>
                       </div>
                       
                       {/* Tags */}
@@ -1010,13 +1018,15 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <button
-                            onClick={() => navigate(`/modern/switches/${game._id}`)}
-                            className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                          >
-                            <UsersIcon className="w-5 h-5" />
-                            View Details
-                          </button>
+                          <Link to={`/modern/switches/${game._id}`}>
+                            <button 
+                              className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                              aria-label={`View switch game by ${game.creator?.fullName || 'User'}`}
+                            >
+                              <UsersIcon className="w-5 h-5" />
+                              View Details
+                            </button>
+                          </Link>
                         </div>
                         
                         {/* Game Info - compact in list view */}
@@ -1072,28 +1082,30 @@ const ModernDarePerformerDashboard = () => {
                           {game.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
                               <span className="text-neutral-400 text-sm">Created by</span>
-                              <div 
-                                className="flex items-center gap-2 group-hover:underline cursor-pointer"
-                                onClick={() => navigate(`/modern/profile/${game.creator?._id || game.creator?.id}`)}
+                              <Link 
+                                to={`/modern/profile/${game.creator?._id || game.creator?.id}`} 
+                                className="flex items-center gap-2 group-hover:underline"
                                 aria-label={`View profile of ${game.creator?.fullName || 'User'}`}
                               >
                                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
                                   <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
-                              </div>
+                              </Link>
                             </div>
                           )}
                         </div>
                         
                         {/* Action Button */}
-                        <button
-                          onClick={() => navigate(`/modern/switches/${game._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                        >
-                          <UsersIcon className="w-5 h-5" />
-                          View Details
-                        </button>
+                        <Link to={`/modern/switches/${game._id}`}>
+                          <button 
+                            className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                            aria-label={`View switch game by ${game.creator?.fullName || 'User'}`}
+                          >
+                            <UsersIcon className="w-5 h-5" />
+                            View Details
+                          </button>
+                        </Link>
                       </div>
                       
                       {/* Game Info */}
@@ -1245,13 +1257,15 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <button
-                            onClick={() => navigate(`/modern/claim/${dare.claimToken || dare._id}`)}
-                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                          >
-                            <PlayIcon className="w-5 h-5" />
-                            Claim & Perform
-                          </button>
+                          <Link to={`/modern/claim/${dare.claimToken || dare._id}`}>
+                            <button 
+                              className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                              aria-label={`Claim and perform dare by ${dare.creator?.fullName || 'User'}`}
+                            >
+                              <PlayIcon className="w-5 h-5" />
+                              Claim & Perform
+                            </button>
+                          </Link>
                         </div>
                         
                         {/* Tags - only show in list view if there are tags */}
@@ -1291,28 +1305,30 @@ const ModernDarePerformerDashboard = () => {
                           {dare.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
                               <span className="text-neutral-400 text-sm">Created by</span>
-                              <div 
-                                className="flex items-center gap-2 group-hover:underline cursor-pointer"
-                                onClick={() => navigate(`/modern/profile/${dare.creator?._id || dare.creator?.id}`)}
+                              <Link 
+                                to={`/modern/profile/${dare.creator?._id || dare.creator?.id}`} 
+                                className="flex items-center gap-2 group-hover:underline"
                                 aria-label={`View profile of ${dare.creator?.fullName || 'User'}`}
                               >
                                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
                                   <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
-                              </div>
+                              </Link>
                             </div>
                           )}
                         </div>
                         
                         {/* Action Button */}
-                        <button
-                          onClick={() => navigate(`/modern/claim/${dare.claimToken || dare._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                        >
-                          <PlayIcon className="w-5 h-5" />
-                          Claim & Perform
-                        </button>
+                        <Link to={`/modern/claim/${dare.claimToken || dare._id}`}>
+                          <button 
+                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                            aria-label={`Claim and perform dare by ${dare.creator?.fullName || 'User'}`}
+                          >
+                            <PlayIcon className="w-5 h-5" />
+                            Claim & Perform
+                          </button>
+                        </Link>
                       </div>
                       
                       {/* Tags */}
@@ -1432,13 +1448,15 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <button
-                            onClick={() => navigate(`/modern/switches/claim/${game._id}`)}
-                            className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                          >
-                            <UsersIcon className="w-5 h-5" />
-                            Join Game
-                          </button>
+                          <Link to={`/modern/switches/claim/${game._id}`}>
+                            <button 
+                              className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                              aria-label={`Join switch game by ${game.creator?.fullName || 'User'}`}
+                            >
+                              <UsersIcon className="w-5 h-5" />
+                              Join Game
+                            </button>
+                          </Link>
                         </div>
                         
                         {/* Game Info - compact in list view */}
@@ -1488,28 +1506,30 @@ const ModernDarePerformerDashboard = () => {
                           {game.creator && (
                             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
                               <span className="text-neutral-400 text-sm">Created by</span>
-                              <div 
-                                className="flex items-center gap-2 group-hover:underline cursor-pointer"
-                                onClick={() => navigate(`/modern/profile/${game.creator?._id || game.creator?.id}`)}
+                              <Link 
+                                to={`/modern/profile/${game.creator?._id || game.creator?.id}`} 
+                                className="flex items-center gap-2 group-hover:underline"
                                 aria-label={`View profile of ${game.creator?.fullName || 'User'}`}
                               >
                                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
                                   <UserIcon className="w-5 h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
-                              </div>
+                              </Link>
                             </div>
                           )}
                         </div>
                         
                         {/* Action Button */}
-                        <button
-                          onClick={() => navigate(`/modern/switches/claim/${game._id}`)}
-                          className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                        >
-                          <UsersIcon className="w-5 h-5" />
-                          Join Game
-                        </button>
+                        <Link to={`/modern/switches/claim/${game._id}`}>
+                          <button 
+                            className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                            aria-label={`Join switch game by ${game.creator?.fullName || 'User'}`}
+                          >
+                            <UsersIcon className="w-5 h-5" />
+                            Join Game
+                          </button>
+                        </Link>
                       </div>
                       
                       {/* Tags */}
