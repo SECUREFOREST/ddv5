@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { fetchDashboardData, fetchQuickStats, fetchDashboardActivityFeed, likeDare, unlikeDare } from '../../utils/dashboardApi';
+import { fetchDashboardData, fetchDashboardActivityFeed } from '../../utils/dashboardApi';
 import { handleApiError } from '../../utils/errorHandler';
 import { useDashboardRealtimeUpdates } from '../../hooks/useRealtimeUpdates';
 import { 
@@ -33,6 +33,9 @@ import {
 } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../../constants';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import {
+  // ... existing imports ...
+} from '@heroicons/react/24/outline';
 
 const ModernDarePerformerDashboard = () => {
   const navigate = useNavigate();
@@ -413,38 +416,28 @@ const ModernDarePerformerDashboard = () => {
   // Safe data access helper
   const getSafeData = useCallback(() => {
     try {
-      // Use mock data in test mode
-      if (testMode) {
-        return [...mockData.dares, ...mockData.switchGames];
-      }
       return getSortedData();
     } catch (error) {
       console.error('Error processing data:', error);
-      return testMode ? [...mockData.dares, ...mockData.switchGames] : [];
+      return [];
     }
-  }, [getSortedData, testMode, mockData]);
+  }, [getSortedData]);
 
   const sortedData = getSafeData();
 
   // Ensure we always have valid data structures
-  const safeSummary = testMode ? {
-    totalActiveDares: 1,
-    totalCompletedDares: 0,
-    totalSwitchGames: 1,
-    totalPublicDares: 1,
-    totalPublicSwitchGames: 1
-  } : (summary || {
+  const safeSummary = summary || {
     totalActiveDares: 0,
     totalCompletedDares: 0,
     totalSwitchGames: 0,
     totalPublicDares: 0,
     totalPublicSwitchGames: 0
-  });
+  };
 
-  const safeDares = testMode ? mockData.dares : (dares || []);
-  const safeSwitchGames = testMode ? mockData.switchGames : (switchGames || []);
-  const safePublicDares = testMode ? mockData.dares.filter(d => d.public) : (publicDares || []);
-  const safePublicSwitchGames = testMode ? mockData.switchGames.filter(g => g.public) : (publicSwitchGames || []);
+  const safeDares = dares || [];
+  const safeSwitchGames = switchGames || [];
+  const safePublicDares = publicDares || [];
+  const safePublicSwitchGames = publicSwitchGames || [];
 
   // Debug logging
   useEffect(() => {
@@ -460,66 +453,6 @@ const ModernDarePerformerDashboard = () => {
       sortedDataCount: sortedData?.length || 0
     });
   }, [user?._id, safeDares, safeSwitchGames, safePublicDares, safePublicSwitchGames, safeSummary, filters, activeTab, sortedData]);
-
-  // Test mode for debugging
-  const [testMode, setTestMode] = useState(false);
-  
-  // Toggle test mode
-  const toggleTestMode = useCallback(() => {
-    setTestMode(prev => !prev);
-    if (!testMode) {
-      console.log('Test mode enabled - showing mock data');
-    }
-  }, [testMode]);
-
-  // Mock data for testing
-  const mockData = {
-    dares: [
-      {
-        _id: 'mock-dare-1',
-        description: 'This is a test dare for debugging purposes. It should display correctly in the dashboard.',
-        difficulty: 'arousing',
-        status: 'waiting_for_participant',
-        creator: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
-        performer: null,
-        public: true,
-        dareType: 'submission',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likes: []
-      },
-      {
-        _id: 'mock-dare-2',
-        description: 'Another test dare to verify the dashboard functionality works correctly.',
-        difficulty: 'explicit',
-        status: 'in_progress',
-        creator: { _id: 'mock-user-2', username: 'TestCreator', fullName: 'Test Creator' },
-        performer: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
-        public: false,
-        dareType: 'domination',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        likes: ['mock-user-1']
-      }
-    ],
-    switchGames: [
-      {
-        _id: 'mock-game-1',
-        status: 'waiting_for_participant',
-        creator: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
-        participant: null,
-        creatorDare: {
-          description: 'Test switch game challenge for debugging',
-          difficulty: 'edgy',
-          move: 'rock'
-        },
-        public: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likes: []
-      }
-    ]
-  };
 
   // Quick action handlers
   const handleQuickAction = useCallback((action) => {
@@ -666,18 +599,6 @@ const ModernDarePerformerDashboard = () => {
             >
               <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh Data
-            </button>
-
-            {/* Test Mode Toggle */}
-            <button
-              onClick={toggleTestMode}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                testMode 
-                  ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
-                  : 'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
-              }`}
-            >
-              <span>{testMode ? 'Test Mode ON' : 'Test Mode'}</span>
             </button>
           </div>
         </div>
@@ -1178,6 +1099,107 @@ const ModernDarePerformerDashboard = () => {
   );
 };
 
+// Shared utility functions for card components
+const getDifficultyColor = (difficulty) => {
+  const colors = {
+    titillating: 'from-pink-400 to-pink-600',
+    arousing: 'from-purple-500 to-purple-700',
+    explicit: 'from-red-500 to-red-700',
+    edgy: 'from-yellow-400 to-yellow-600',
+    hardcore: 'from-gray-800 to-black'
+  };
+  return colors[difficulty] || 'from-gray-500 to-gray-700';
+};
+
+const getDifficultyIcon = (difficulty) => {
+  const icons = {
+    titillating: <SparklesIcon className="w-5 h-5" />,
+    arousing: <FireIcon className="w-5 h-5" />,
+    explicit: <EyeDropperIcon className="w-5 h-5" />,
+    edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
+    hardcore: <RocketLaunchIcon className="w-5 h-5" />
+  };
+  return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
+};
+
+const getStatusColor = (status) => {
+  const colors = {
+    waiting_for_participant: 'bg-info/20 text-info',
+    in_progress: 'bg-warning/20 text-warning',
+    completed: 'bg-success/20 text-success',
+    rejected: 'bg-danger/20 text-danger',
+    cancelled: 'bg-neutral-600/20 text-neutral-400',
+    approved: 'bg-blue-500/20 text-blue-400'
+  };
+  return colors[status] || 'bg-neutral-600/20 text-neutral-400';
+};
+
+const getStatusIcon = (status) => {
+  const icons = {
+    waiting_for_participant: <EyeIcon className="w-4 h-4" />,
+    in_progress: <ClockIcon className="w-4 h-4" />,
+    completed: <CheckCircleIcon className="w-4 h-4" />,
+    rejected: <XCircleIcon className="w-4 h-4" />,
+    cancelled: <XCircleIcon className="w-4 h-4" />,
+    approved: <CheckCircleIcon className="w-4 h-4" />
+  };
+  return icons[status] || <EyeIcon className="w-4 h-4" />;
+};
+
+const formatDeadline = (deadline) => {
+  if (!deadline) return 'No deadline';
+  const date = new Date(deadline);
+  const now = new Date();
+  const diffTime = date - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'Overdue';
+  if (diffDays === 0) return 'Due today';
+  if (diffDays === 1) return 'Due tomorrow';
+  return `Due in ${diffDays} days`;
+};
+
+// Shared navigation handlers
+const createNavigationHandlers = (navigate, itemId, itemType) => ({
+  handleViewDetails: () => navigate(`/${itemType}/${itemId}`),
+  handleClaim: () => navigate(`/${itemType}/claim/${itemId}`),
+  handleSubmitProof: () => navigate(`/${itemType}/proof/${itemId}`),
+  handleEdit: () => navigate(`/${itemType}/edit/${itemId}`),
+  handleViewCreatorProfile: (creatorId) => navigate(`/profile/${creatorId}`),
+  handleViewPerformerProfile: (performerId) => navigate(`/profile/${performerId}`),
+  handleShare: (url) => {
+    if (navigator.share) {
+      navigator.share({
+        title: `Check out this ${itemType}!`,
+        text: `Interesting ${itemType}`,
+        url
+      });
+    } else {
+      navigator.clipboard.writeText(url);
+    }
+  },
+  handleCopyLink: (url) => navigator.clipboard.writeText(url),
+  handleReport: (type, id) => navigate(`/report?type=${type}&id=${id}`)
+});
+
+// Shared permission logic
+const getItemPermissions = (user, item, itemType) => {
+  const isCreator = user?._id === item.creator?._id;
+  const isPerformer = user?._id === item.performer?._id;
+  const isParticipant = user?._id === item.participant?._id;
+  
+  return {
+    canClaim: !isCreator && !isPerformer && item.status === 'waiting_for_participant',
+    canSubmitProof: (isPerformer || isParticipant) && item.status === 'in_progress',
+    canEdit: isCreator && ['waiting_for_participant', 'approved'].includes(item.status),
+    canViewCreatorProfile: !isCreator && item.creator?._id,
+    canViewPerformerProfile: !isPerformer && item.performer?._id,
+    canViewParticipantProfile: !isParticipant && item.participant?._id,
+    canShare: item.public,
+    canReport: !isCreator
+  };
+};
+
 const DareCard = ({ dare, onLikeToggle }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -1203,121 +1225,10 @@ const DareCard = ({ dare, onLikeToggle }) => {
   };
 
   // Navigation handlers
-  const handleViewDetails = () => {
-    navigate(`/dare/${dare._id}`);
-  };
+  const { handleViewDetails, handleClaim, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewPerformerProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, dare._id, 'dare');
 
-  const handleClaimDare = () => {
-    navigate(`/dare/claim/${dare._id}`);
-  };
-
-  const handleSubmitProof = () => {
-    navigate(`/dare/proof/${dare._id}`);
-  };
-
-  const handleEditDare = () => {
-    navigate(`/dare/edit/${dare._id}`);
-  };
-
-  const handleViewCreatorProfile = () => {
-    navigate(`/profile/${dare.creator?._id}`);
-  };
-
-  const handleViewPerformerProfile = () => {
-    navigate(`/profile/${dare.performer?._id}`);
-  };
-
-  const handleShareDare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this dare!',
-        text: dare.description?.substring(0, 100) || 'Interesting dare',
-        url: `${window.location.origin}/dare/${dare._id}`
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
-      // You could add a toast notification here
-    }
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
-    // You could add a toast notification here
-  };
-
-  const handleReportDare = () => {
-    navigate(`/report?type=dare&id=${dare._id}`);
-  };
-
-  // Determine user's relationship to the dare
-  const isCreator = user?._id === dare.creator?._id;
-  const isPerformer = user?._id === dare.performer?._id;
-  const canClaim = !isCreator && !isPerformer && dare.status === 'waiting_for_participant';
-  const canSubmitProof = isPerformer && dare.status === 'in_progress';
-  const canEdit = isCreator && ['waiting_for_participant', 'approved'].includes(dare.status);
-  const canViewCreatorProfile = !isCreator && dare.creator?._id;
-  const canViewPerformerProfile = !isPerformer && dare.performer?._id;
-  const canShare = dare.public;
-  const canReport = !isCreator; // Can't report your own content
-
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      waiting_for_participant: 'bg-info/20 text-info',
-      in_progress: 'bg-warning/20 text-warning',
-      completed: 'bg-success/20 text-success',
-      rejected: 'bg-danger/20 text-danger',
-      cancelled: 'bg-neutral-600/20 text-neutral-400',
-      approved: 'bg-blue-500/20 text-blue-400'
-    };
-    return colors[status] || 'bg-neutral-600/20 text-neutral-400';
-  };
-
-  const getStatusIcon = (status) => {
-    const icons = {
-      waiting_for_participant: <EyeIcon className="w-4 h-4" />,
-      in_progress: <ClockIcon className="w-4 h-4" />,
-      completed: <CheckCircleIcon className="w-4 h-4" />,
-      rejected: <XCircleIcon className="w-4 h-4" />,
-      cancelled: <XCircleIcon className="w-4 h-4" />,
-      approved: <CheckCircleIcon className="w-4 h-4" />
-    };
-    return icons[status] || <EyeIcon className="w-4 h-4" />;
-  };
-
-  const formatDeadline = (deadline) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Due today';
-    if (diffDays === 1) return 'Due tomorrow';
-    return `Due in ${diffDays} days`;
-  };
+  // Get permissions for this dare
+  const permissions = getItemPermissions(user, dare, 'dare');
 
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
@@ -1410,43 +1321,43 @@ const DareCard = ({ dare, onLikeToggle }) => {
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
               View Details
             </button>
-            {canClaim && (
-              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleClaimDare}>
+            {permissions.canClaim && (
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleClaim}>
                 Claim
               </button>
             )}
-            {canSubmitProof && (
+            {permissions.canSubmitProof && (
               <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleSubmitProof}>
                 Submit Proof
               </button>
             )}
-            {canEdit && (
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEditDare}>
+            {permissions.canEdit && (
+              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEdit}>
                 Edit
               </button>
             )}
-            {canViewCreatorProfile && (
+            {permissions.canViewCreatorProfile && (
               <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewCreatorProfile}>
                 View Creator Profile
               </button>
             )}
-            {canViewPerformerProfile && (
+            {permissions.canViewPerformerProfile && (
               <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewPerformerProfile}>
                 View Performer Profile
               </button>
             )}
-            {canShare && (
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareDare}>
+            {permissions.canShare && (
+              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
                 Share
               </button>
             )}
-            {canShare && (
+            {permissions.canShare && (
               <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
                 Copy Link
               </button>
             )}
-            {canReport && (
-              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportDare}>
+            {permissions.canReport && (
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
                 Report
               </button>
             )}
@@ -1471,121 +1382,10 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const handleViewDetails = () => {
-    navigate(`/switch-game/${game._id}`);
-  };
+  const { handleViewDetails, handleJoin, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewParticipantProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, game._id, 'switch-game');
 
-  const handleJoinGame = () => {
-    navigate(`/switch-game/join/${game._id}`);
-  };
-
-  const handleSubmitProof = () => {
-    navigate(`/switch-game/proof/${game._id}`);
-  };
-
-  const handleEditGame = () => {
-    navigate(`/switch-game/edit/${game._id}`);
-  };
-
-  const handleViewCreatorProfile = () => {
-    navigate(`/profile/${game.creator?._id}`);
-  };
-
-  const handleViewParticipantProfile = () => {
-    navigate(`/profile/${game.participant?._id}`);
-  };
-
-  const handleShareGame = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this switch game!',
-        text: game.creatorDare?.description?.substring(0, 100) || 'Interesting switch game',
-        url: `${window.location.origin}/switch-game/${game._id}`
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
-      // You could add a toast notification here
-    }
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
-    // You could add a toast notification here
-  };
-
-  const handleReportGame = () => {
-    navigate(`/report?type=switch-game&id=${game._id}`);
-  };
-
-  // Determine user's relationship to the game
-  const isCreator = user?._id === game.creator?._id;
-  const isParticipant = user?._id === game.participant?._id;
-  const canJoin = !isCreator && !isParticipant && game.status === 'waiting_for_participant';
-  const canSubmitProof = (isCreator || isParticipant) && game.status === 'in_progress';
-  const canEdit = isCreator && game.status === 'waiting_for_participant';
-  const canViewCreatorProfile = !isCreator && game.creator?._id;
-  const canViewParticipantProfile = !isParticipant && game.participant?._id;
-  const canShare = game.public;
-  const canReport = !isCreator; // Can't report your own content
-
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      waiting_for_participant: 'bg-info/20 text-info',
-      in_progress: 'bg-warning/20 text-warning',
-      completed: 'bg-success/20 text-success',
-      rejected: 'bg-danger/20 text-danger',
-      cancelled: 'bg-neutral-600/20 text-neutral-400',
-      approved: 'bg-blue-500/20 text-blue-400'
-    };
-    return colors[status] || 'bg-neutral-600/20 text-neutral-400';
-  };
-
-  const getStatusIcon = (status) => {
-    const icons = {
-      waiting_for_participant: <EyeIcon className="w-4 h-4" />,
-      in_progress: <ClockIcon className="w-4 h-4" />,
-      completed: <CheckCircleIcon className="w-4 h-4" />,
-      rejected: <XCircleIcon className="w-4 h-4" />,
-      cancelled: <XCircleIcon className="w-4 h-4" />,
-      approved: <CheckCircleIcon className="w-4 h-4" />
-    };
-    return icons[status] || <EyeIcon className="w-4 h-4" />;
-  };
-
-  const formatDeadline = (deadline) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Due today';
-    if (diffDays === 1) return 'Due tomorrow';
-    return `Due in ${diffDays} days`;
-  };
+  // Get permissions for this game
+  const permissions = getItemPermissions(user, game, 'switch-game');
 
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
@@ -1679,43 +1479,43 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
               View Details
             </button>
-            {canJoin && (
-              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleJoinGame}>
+            {permissions.canJoin && (
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleJoin}>
                 Join Game
               </button>
             )}
-            {canSubmitProof && (
+            {permissions.canSubmitProof && (
               <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleSubmitProof}>
                 Submit Proof
               </button>
             )}
-            {canEdit && (
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEditGame}>
+            {permissions.canEdit && (
+              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEdit}>
                 Edit
               </button>
             )}
-            {canViewCreatorProfile && (
+            {permissions.canViewCreatorProfile && (
               <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewCreatorProfile}>
                 View Creator Profile
               </button>
             )}
-            {canViewParticipantProfile && (
+            {permissions.canViewParticipantProfile && (
               <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewParticipantProfile}>
                 View Participant Profile
               </button>
             )}
-            {canShare && (
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareGame}>
+            {permissions.canShare && (
+              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
                 Share
               </button>
             )}
-            {canShare && (
+            {permissions.canShare && (
               <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
                 Copy Link
               </button>
             )}
-            {canReport && (
-              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportGame}>
+            {permissions.canReport && (
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
                 Report
               </button>
             )}
@@ -1740,97 +1540,10 @@ const DareListItem = ({ dare, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const handleViewDetails = () => {
-    navigate(`/dare/${dare._id}`);
-  };
+  const { handleViewDetails, handleClaim, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewPerformerProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, dare._id, 'dare');
 
-  const handleClaimDare = () => {
-    navigate(`/dare/claim/${dare._id}`);
-  };
-
-  const handleSubmitProof = () => {
-    navigate(`/dare/proof/${dare._id}`);
-  };
-
-  const handleEditDare = () => {
-    navigate(`/dare/edit/${dare._id}`);
-  };
-
-  const handleViewCreatorProfile = () => {
-    navigate(`/profile/${dare.creator?._id}`);
-  };
-
-  const handleViewPerformerProfile = () => {
-    navigate(`/profile/${dare.performer?._id}`);
-  };
-
-  const handleShareDare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this dare!',
-        text: dare.description?.substring(0, 100) || 'Interesting dare',
-        url: `${window.location.origin}/dare/${dare._id}`
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
-      // You could add a toast notification here
-    }
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/dare/${dare._id}`);
-    // You could add a toast notification here
-  };
-
-  const handleReportDare = () => {
-    navigate(`/report?type=dare&id=${dare._id}`);
-  };
-
-  // Determine user's relationship to the dare
-  const isCreator = user?._id === dare.creator?._id;
-  const isPerformer = user?._id === dare.performer?._id;
-  const canClaim = !isCreator && !isPerformer && dare.status === 'waiting_for_participant';
-  const canSubmitProof = isPerformer && dare.status === 'in_progress';
-  const canEdit = isCreator && ['waiting_for_participant', 'approved'].includes(dare.status);
-  const canViewCreatorProfile = !isCreator && dare.creator?._id;
-  const canViewPerformerProfile = !isPerformer && dare.performer?._id;
-  const canShare = dare.public;
-  const canReport = !isCreator; // Can't report your own content
-
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  };
-
-  const formatDeadline = (deadline) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Due today';
-    if (diffDays === 1) return 'Due tomorrow';
-    return `Due in ${diffDays} days`;
-  };
+  // Get permissions for this dare
+  const permissions = getItemPermissions(user, dare, 'dare');
 
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
@@ -1884,15 +1597,15 @@ const DareListItem = ({ dare, onLikeToggle }) => {
           >
             View Details
           </button>
-          {canClaim && (
+          {permissions.canClaim && (
             <button 
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleClaimDare}
+              onClick={handleClaim}
             >
               Claim
             </button>
           )}
-          {canSubmitProof && (
+          {permissions.canSubmitProof && (
             <button 
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleSubmitProof}
@@ -1900,15 +1613,15 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               Submit Proof
             </button>
           )}
-          {canEdit && (
+          {permissions.canEdit && (
             <button 
               className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleEditDare}
+              onClick={handleEdit}
             >
               Edit
             </button>
           )}
-          {canViewCreatorProfile && (
+          {permissions.canViewCreatorProfile && (
             <button 
               className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleViewCreatorProfile}
@@ -1916,7 +1629,7 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               View Creator Profile
             </button>
           )}
-          {canViewPerformerProfile && (
+          {permissions.canViewPerformerProfile && (
             <button 
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleViewPerformerProfile}
@@ -1924,18 +1637,18 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               View Performer Profile
             </button>
           )}
-          {canShare && (
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareDare}>
+          {permissions.canShare && (
+            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
               Share
             </button>
           )}
-          {canShare && (
+          {permissions.canShare && (
             <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
               Copy Link
             </button>
           )}
-          {canReport && (
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportDare}>
+          {permissions.canReport && (
+            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
               Report
             </button>
           )}
@@ -1959,97 +1672,10 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const handleViewDetails = () => {
-    navigate(`/switch-game/${game._id}`);
-  };
+  const { handleViewDetails, handleJoin, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewParticipantProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, game._id, 'switch-game');
 
-  const handleJoinGame = () => {
-    navigate(`/switch-game/join/${game._id}`);
-  };
-
-  const handleSubmitProof = () => {
-    navigate(`/switch-game/proof/${game._id}`);
-  };
-
-  const handleEditGame = () => {
-    navigate(`/switch-game/edit/${game._id}`);
-  };
-
-  const handleViewCreatorProfile = () => {
-    navigate(`/profile/${game.creator?._id}`);
-  };
-
-  const handleViewParticipantProfile = () => {
-    navigate(`/profile/${game.participant?._id}`);
-  };
-
-  const handleShareGame = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Check out this switch game!',
-        text: game.creatorDare?.description?.substring(0, 100) || 'Interesting switch game',
-        url: `${window.location.origin}/switch-game/${game._id}`
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
-      // You could add a toast notification here
-    }
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/switch-game/${game._id}`);
-    // You could add a toast notification here
-  };
-
-  const handleReportGame = () => {
-    navigate(`/report?type=switch-game&id=${game._id}`);
-  };
-
-  // Determine user's relationship to the game
-  const isCreator = user?._id === game.creator?._id;
-  const isParticipant = user?._id === game.participant?._id;
-  const canJoin = !isCreator && !isParticipant && game.status === 'waiting_for_participant';
-  const canSubmitProof = (isCreator || isParticipant) && game.status === 'in_progress';
-  const canEdit = isCreator && game.status === 'waiting_for_participant';
-  const canViewCreatorProfile = !isCreator && game.creator?._id;
-  const canViewParticipantProfile = !isParticipant && game.participant?._id;
-  const canShare = game.public;
-  const canReport = !isCreator; // Can't report your own content
-
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  };
-
-  const formatDeadline = (deadline) => {
-    const date = new Date(deadline);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Due today';
-    if (diffDays === 1) return 'Due tomorrow';
-    return `Due in ${diffDays} days`;
-  };
+  // Get permissions for this game
+  const permissions = getItemPermissions(user, game, 'switch-game');
 
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
@@ -2109,15 +1735,15 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
           >
             View Details
           </button>
-          {canJoin && (
+          {permissions.canJoin && (
             <button 
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleJoinGame}
+              onClick={handleJoin}
             >
               Join Game
             </button>
           )}
-          {canSubmitProof && (
+          {permissions.canSubmitProof && (
             <button 
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleSubmitProof}
@@ -2125,15 +1751,15 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               Submit Proof
             </button>
           )}
-          {canEdit && (
+          {permissions.canEdit && (
             <button 
               className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleEditGame}
+              onClick={handleEdit}
             >
               Edit
             </button>
           )}
-          {canViewCreatorProfile && (
+          {permissions.canViewCreatorProfile && (
             <button 
               className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleViewCreatorProfile}
@@ -2141,7 +1767,7 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               View Creator Profile
             </button>
           )}
-          {canViewParticipantProfile && (
+          {permissions.canViewParticipantProfile && (
             <button 
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
               onClick={handleViewParticipantProfile}
@@ -2149,18 +1775,18 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               View Participant Profile
             </button>
           )}
-          {canShare && (
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShareGame}>
+          {permissions.canShare && (
+            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
               Share
             </button>
           )}
-          {canShare && (
+          {permissions.canShare && (
             <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
               Copy Link
             </button>
           )}
-          {canReport && (
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReportGame}>
+          {permissions.canReport && (
+            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
               Report
             </button>
           )}
