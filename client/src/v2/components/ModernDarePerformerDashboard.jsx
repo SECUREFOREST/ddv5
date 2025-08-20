@@ -1163,23 +1163,9 @@ const formatDeadline = (deadline) => {
 const createNavigationHandlers = (navigate, itemId, itemType) => ({
   handleViewDetails: () => navigate(`/${itemType}/${itemId}`),
   handleClaim: () => navigate(`/${itemType}/claim/${itemId}`),
+  handleJoin: () => navigate(`/${itemType}/join/${itemId}`),
   handleSubmitProof: () => navigate(`/${itemType}/proof/${itemId}`),
-  handleEdit: () => navigate(`/${itemType}/edit/${itemId}`),
-  handleViewCreatorProfile: (creatorId) => navigate(`/profile/${creatorId}`),
-  handleViewPerformerProfile: (performerId) => navigate(`/profile/${performerId}`),
-  handleShare: (url) => {
-    if (navigator.share) {
-      navigator.share({
-        title: `Check out this ${itemType}!`,
-        text: `Interesting ${itemType}`,
-        url
-      });
-    } else {
-      navigator.clipboard.writeText(url);
-    }
-  },
-  handleCopyLink: (url) => navigator.clipboard.writeText(url),
-  handleReport: (type, id) => navigate(`/report?type=${type}&id=${id}`)
+  handleViewProfile: (userId) => navigate(`/profile/${userId}`)
 });
 
 // Shared permission logic
@@ -1190,13 +1176,7 @@ const getItemPermissions = (user, item, itemType) => {
   
   return {
     canClaim: !isCreator && !isPerformer && item.status === 'waiting_for_participant',
-    canSubmitProof: (isPerformer || isParticipant) && item.status === 'in_progress',
-    canEdit: isCreator && ['waiting_for_participant', 'approved'].includes(item.status),
-    canViewCreatorProfile: !isCreator && item.creator?._id,
-    canViewPerformerProfile: !isPerformer && item.performer?._id,
-    canViewParticipantProfile: !isParticipant && item.participant?._id,
-    canShare: item.public,
-    canReport: !isCreator
+    canSubmitProof: (isPerformer || isParticipant) && item.status === 'in_progress'
   };
 };
 
@@ -1225,7 +1205,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
   };
 
   // Navigation handlers
-  const { handleViewDetails, handleClaim, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewPerformerProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, dare._id, 'dare');
+  const { handleViewDetails, handleClaim, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, dare._id, 'dare');
 
   // Get permissions for this dare
   const permissions = getItemPermissions(user, dare, 'dare');
@@ -1282,7 +1262,12 @@ const DareCard = ({ dare, onLikeToggle }) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
             <UserIcon className="w-4 h-4" />
-            <span>{dare.creator?.username || 'N/A'}</span>
+            <span 
+              className="cursor-pointer hover:text-white transition-colors duration-200"
+              onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
+            >
+              {dare.creator?.username || 'N/A'}
+            </span>
           </div>
           <div className="flex items-center space-x-2 text-neutral-400">
             <ClockIcon className="w-4 h-4" />
@@ -1291,7 +1276,12 @@ const DareCard = ({ dare, onLikeToggle }) => {
           {dare.performer && (
             <div className="flex items-center space-x-2 text-neutral-400">
               <UserIcon className="w-4 h-4" />
-              <span>Performer: {dare.performer?.username || 'N/A'}</span>
+              <span 
+                className="cursor-pointer hover:text-white transition-colors duration-200"
+                onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
+              >
+                Performer: {dare.performer?.username || 'N/A'}
+              </span>
             </div>
           )}
           <div className="flex items-center space-x-2 text-neutral-400">
@@ -1331,36 +1321,6 @@ const DareCard = ({ dare, onLikeToggle }) => {
                 Submit Proof
               </button>
             )}
-            {permissions.canEdit && (
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEdit}>
-                Edit
-              </button>
-            )}
-            {permissions.canViewCreatorProfile && (
-              <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewCreatorProfile}>
-                View Creator Profile
-              </button>
-            )}
-            {permissions.canViewPerformerProfile && (
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewPerformerProfile}>
-                View Performer Profile
-              </button>
-            )}
-            {permissions.canShare && (
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
-                Share
-              </button>
-            )}
-            {permissions.canShare && (
-              <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
-                Copy Link
-              </button>
-            )}
-            {permissions.canReport && (
-              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
-                Report
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -1382,7 +1342,7 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const { handleViewDetails, handleJoin, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewParticipantProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, game._id, 'switch-game');
+  const { handleViewDetails, handleJoin, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, game._id, 'switch-game');
 
   // Get permissions for this game
   const permissions = getItemPermissions(user, game, 'switch-game');
@@ -1438,7 +1398,12 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
             <UserIcon className="w-4 h-4" />
-            <span>{game.creator?.username || 'N/A'}</span>
+            <span 
+              className="cursor-pointer hover:text-white transition-colors duration-200"
+              onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+            >
+              {game.creator?.username || 'N/A'}
+            </span>
           </div>
           <div className="flex items-center space-x-2 text-neutral-400">
             <UserGroupIcon className="w-4 h-4" />
@@ -1463,7 +1428,12 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
             <div className="flex items-center justify-center space-x-2">
               <TrophyIcon className="w-5 h-5 text-green-400" />
-              <span className="text-green-400 font-semibold">Winner: {game.winner?.username || 'N/A'}</span>
+              <span 
+                className="text-green-400 font-semibold cursor-pointer hover:text-green-300 transition-colors duration-200"
+                onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
+              >
+                Winner: {game.winner?.username || 'N/A'}
+              </span>
             </div>
           </div>
         )}
@@ -1489,36 +1459,6 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
                 Submit Proof
               </button>
             )}
-            {permissions.canEdit && (
-              <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleEdit}>
-                Edit
-              </button>
-            )}
-            {permissions.canViewCreatorProfile && (
-              <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewCreatorProfile}>
-                View Creator Profile
-              </button>
-            )}
-            {permissions.canViewParticipantProfile && (
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewParticipantProfile}>
-                View Participant Profile
-              </button>
-            )}
-            {permissions.canShare && (
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
-                Share
-              </button>
-            )}
-            {permissions.canShare && (
-              <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
-                Copy Link
-              </button>
-            )}
-            {permissions.canReport && (
-              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
-                Report
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -1540,7 +1480,7 @@ const DareListItem = ({ dare, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const { handleViewDetails, handleClaim, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewPerformerProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, dare._id, 'dare');
+  const { handleViewDetails, handleClaim, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, dare._id, 'dare');
 
   // Get permissions for this dare
   const permissions = getItemPermissions(user, dare, 'dare');
@@ -1574,7 +1514,12 @@ const DareListItem = ({ dare, onLikeToggle }) => {
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
               <UserIcon className="w-4 h-4" />
-              <span>{dare.creator?.username || 'N/A'}</span>
+              <span 
+                className="cursor-pointer hover:text-white transition-colors duration-200"
+                onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
+              >
+                {dare.creator?.username || 'N/A'}
+              </span>
             </span>
             <span className="flex items-center space-x-1">
               <ClockIcon className="w-4 h-4" />
@@ -1583,7 +1528,12 @@ const DareListItem = ({ dare, onLikeToggle }) => {
             {dare.performer && (
               <span className="flex items-center space-x-1">
                 <UserIcon className="w-4 h-4" />
-                <span>Performer: {dare.performer?.username || 'N/A'}</span>
+                <span 
+                  className="cursor-pointer hover:text-white transition-colors duration-200"
+                  onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
+                >
+                  Performer: {dare.performer?.username || 'N/A'}
+                </span>
               </span>
             )}
           </div>
@@ -1613,45 +1563,6 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               Submit Proof
             </button>
           )}
-          {permissions.canEdit && (
-            <button 
-              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
-          )}
-          {permissions.canViewCreatorProfile && (
-            <button 
-              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleViewCreatorProfile}
-            >
-              View Creator Profile
-            </button>
-          )}
-          {permissions.canViewPerformerProfile && (
-            <button 
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleViewPerformerProfile}
-            >
-              View Performer Profile
-            </button>
-          )}
-          {permissions.canShare && (
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
-              Share
-            </button>
-          )}
-          {permissions.canShare && (
-            <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
-              Copy Link
-            </button>
-          )}
-          {permissions.canReport && (
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
-              Report
-            </button>
-          )}
         </div>
       </div>
     </div>
@@ -1672,7 +1583,7 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
   }
 
   // Navigation handlers
-  const { handleViewDetails, handleJoin, handleSubmitProof, handleEdit, handleViewCreatorProfile, handleViewParticipantProfile, handleShare, handleCopyLink, handleReport } = createNavigationHandlers(navigate, game._id, 'switch-game');
+  const { handleViewDetails, handleJoin, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, game._id, 'switch-game');
 
   // Get permissions for this game
   const permissions = getItemPermissions(user, game, 'switch-game');
@@ -1706,7 +1617,12 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
               <UserIcon className="w-4 h-4" />
-              <span>{game.creator?.username || 'N/A'}</span>
+              <span 
+                className="cursor-pointer hover:text-white transition-colors duration-200"
+                onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+              >
+                {game.creator?.username || 'N/A'}
+              </span>
             </span>
             <span className="flex items-center space-x-1">
               <UserGroupIcon className="w-4 h-4" />
@@ -1717,8 +1633,8 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
             </span>
             {game.creatorDare?.difficulty && (
-              <div className="flex-shrink-0">
-                <span className={`inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
+              <div className="flex items-center space-x-2 text-neutral-400">
+                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
                   {getDifficultyIcon(game.creatorDare.difficulty)}
                   <span className="capitalize">{game.creatorDare.difficulty}</span>
                 </span>
@@ -1749,45 +1665,6 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               onClick={handleSubmitProof}
             >
               Submit Proof
-            </button>
-          )}
-          {permissions.canEdit && (
-            <button 
-              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
-          )}
-          {permissions.canViewCreatorProfile && (
-            <button 
-              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleViewCreatorProfile}
-            >
-              View Creator Profile
-            </button>
-          )}
-          {permissions.canViewParticipantProfile && (
-            <button 
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleViewParticipantProfile}
-            >
-              View Participant Profile
-            </button>
-          )}
-          {permissions.canShare && (
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleShare}>
-              Share
-            </button>
-          )}
-          {permissions.canShare && (
-            <button className="bg-teal-400 hover:bg-teal-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleCopyLink}>
-              Copy Link
-            </button>
-          )}
-          {permissions.canReport && (
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleReport}>
-              Report
             </button>
           )}
         </div>
