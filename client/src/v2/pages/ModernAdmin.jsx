@@ -920,8 +920,8 @@ const ModernAdmin = () => {
                           <div className="flex items-center space-x-3">
                             <div className={`w-3 h-3 rounded-full ${getSeverityColor(report.severity)}`}></div>
                             <div>
-                              <p className="text-white text-sm font-medium">{report.type.replace('_', ' ')}</p>
-                              <p className="text-neutral-400 text-xs">by {report.reporter}</p>
+                              <p className="text-white text-sm font-medium">{typeof report.type === 'string' ? report.type.replace('_', ' ') : JSON.stringify(report.type)}</p>
+                              <p className="text-neutral-400 text-xs">by {typeof report.reporter === 'string' ? report.reporter : JSON.stringify(report.reporter)}</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -953,7 +953,7 @@ const ModernAdmin = () => {
                             </div>
                             <div>
                               <p className="text-white text-sm font-medium">{activity.user}</p>
-                              <p className="text-neutral-400 text-xs">{activity.details}</p>
+                              <p className="text-neutral-400 text-xs">{typeof activity.details === 'string' ? activity.details : JSON.stringify(activity.details)}</p>
                             </div>
                           </div>
                           <span className="text-neutral-400 text-xs">{formatDate(activity.timestamp)}</span>
@@ -1003,8 +1003,8 @@ const ModernAdmin = () => {
                             item.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                           }`}></div>
                           <div>
-                            <p className="text-white text-sm font-medium">{item.content}</p>
-                            <p className="text-neutral-400 text-xs">by {item.user}</p>
+                            <p className="text-white text-sm font-medium">{typeof item.content === 'string' ? item.content : JSON.stringify(item.content)}</p>
+                            <p className="text-neutral-400 text-sm">by {typeof item.user === 'string' ? item.user : JSON.stringify(item.user)}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -1012,9 +1012,9 @@ const ModernAdmin = () => {
                             item.priority === 'high' ? 'text-red-400' :
                             item.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'
                           }`}>
-                            {item.priority}
+                            {typeof item.priority === 'string' ? item.priority : JSON.stringify(item.priority)}
                           </span>
-                          <p className="text-neutral-400 text-xs">{item.waitingTime}</p>
+                          <p className="text-neutral-400 text-xs">{typeof item.waitingTime === 'string' ? item.waitingTime : JSON.stringify(item.waitingTime)}</p>
                         </div>
                       </div>
                     ))}
@@ -1040,7 +1040,7 @@ const ModernAdmin = () => {
                         <div className="flex-1">
                           <p className="text-white text-sm">
                             <span className="font-medium">{log.user?.username || 'System'}</span>
-                            <span className="text-neutral-400"> {log.action}</span>
+                            <span className="text-neutral-400"> {typeof log.action === 'string' ? log.action : JSON.stringify(log.action)}</span>
                           </p>
                           <p className="text-neutral-400 text-xs">{formatDate(log.createdAt)}</p>
                         </div>
@@ -1071,7 +1071,7 @@ const ModernAdmin = () => {
                             dare.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
                           }`}></div>
                           <div>
-                            <p className="text-white text-sm font-medium">{dare.description?.substring(0, 50)}...</p>
+                            <p className="text-white text-sm font-medium">{typeof dare.description === 'string' ? dare.description.substring(0, 50) : JSON.stringify(dare.description)}...</p>
                             <p className="text-neutral-400 text-xs">by {dare.creator?.username || 'Unknown'}</p>
                           </div>
                         </div>
@@ -1082,7 +1082,7 @@ const ModernAdmin = () => {
                             dare.difficulty === 'edgy' ? 'text-yellow-400' :
                             dare.difficulty === 'arousing' ? 'text-purple-400' : 'text-pink-400'
                           }`}>
-                            {dare.difficulty}
+                            {typeof dare.difficulty === 'string' ? dare.difficulty : JSON.stringify(dare.difficulty)}
                           </span>
                           <p className="text-neutral-400 text-xs">{formatDate(dare.createdAt)}</p>
                         </div>
@@ -1108,18 +1108,20 @@ const ModernAdmin = () => {
                       <div key={game._id} className="flex items-center justify-between p-3 bg-neutral-600/30 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div className={`w-3 h-3 rounded-full ${
-                            game.status === 'approved' ? 'bg-green-500' :
-                            game.status === 'rejected' ? 'bg-red-500' :
-                            game.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'
-                          }`}></div>
+                            game.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                            game.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                            game.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {game.status}
+                          </div>
                           <div>
-                            <p className="text-white text-sm font-medium">{game.title}</p>
+                            <p className="text-white text-sm font-medium">{typeof game.title === 'string' ? game.title : JSON.stringify(game.title)}</p>
                             <p className="text-neutral-400 text-xs">by {game.creator?.username || 'Unknown'}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <span className="text-xs font-medium text-indigo-400">
-                            {game.type}
+                            {typeof game.type === 'string' ? game.type : JSON.stringify(game.type)}
                           </span>
                           <p className="text-neutral-400 text-xs">{formatDate(game.createdAt)}</p>
                         </div>
@@ -1367,9 +1369,9 @@ const ModernAdmin = () => {
                             <DocumentTextIcon className="w-6 h-6 text-neutral-400" />
                           </div>
                           <div>
-                            <p className="text-white font-medium">{item.content}</p>
-                            <p className="text-neutral-400 text-sm">by {item.user}</p>
-                            <p className="text-neutral-500 text-xs">Waiting: {item.waitingTime}</p>
+                            <p className="text-white font-medium">{typeof item.content === 'string' ? item.content : JSON.stringify(item.content)}</p>
+                            <p className="text-neutral-400 text-sm">by {typeof item.user === 'string' ? item.user : JSON.stringify(item.user)}</p>
+                            <p className="text-neutral-500 text-xs">Waiting: {typeof item.waitingTime === 'string' ? item.waitingTime : JSON.stringify(item.waitingTime)}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -1378,7 +1380,7 @@ const ModernAdmin = () => {
                             item.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
                             'bg-green-500/20 text-green-400'
                           }`}>
-                            {item.priority}
+                            {typeof item.priority === 'string' ? item.priority : JSON.stringify(item.priority)}
                           </span>
                           {item.autoFlagged && (
                             <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs">
@@ -1428,11 +1430,11 @@ const ModernAdmin = () => {
                               {report.priority}
                             </span>
                           </div>
-                          <p className="text-white font-medium mb-2">{report.type.replace('_', ' ')}</p>
-                          <p className="text-neutral-400 text-sm mb-2">{report.content}</p>
+                          <p className="text-white font-medium mb-2">{typeof report.type === 'string' ? report.type.replace('_', ' ') : JSON.stringify(report.type)}</p>
+                          <p className="text-neutral-400 text-sm mb-2">{typeof report.content === 'string' ? report.content : JSON.stringify(report.content)}</p>
                           <div className="flex items-center space-x-4 text-sm text-neutral-500">
-                            <span>Reporter: {report.reporter}</span>
-                            <span>Reported: {report.reportedUser}</span>
+                            <span>Reporter: {typeof report.reporter === 'string' ? report.reporter : JSON.stringify(report.reporter)}</span>
+                            <span>Reported: {typeof report.reportedUser === 'string' ? report.reportedUser : JSON.stringify(report.reportedUser)}</span>
                             <span>{formatDate(report.createdAt)}</span>
                           </div>
                         </div>
@@ -1688,8 +1690,7 @@ const ModernAdmin = () => {
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               game.status === 'approved' ? 'bg-green-500/20 text-green-400' :
                               game.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                              game.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-blue-500/20 text-blue-400'
+                              game.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'
                             }`}>
                               {game.status}
                             </span>
