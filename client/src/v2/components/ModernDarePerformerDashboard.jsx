@@ -103,19 +103,78 @@ const ModernDarePerformerDashboard = () => {
     }
   ]);
 
+  const [switchGames, setSwitchGames] = useState([
+    {
+      id: 1,
+      title: 'Switch Challenge: Power Exchange',
+      description: 'A dynamic power exchange game where participants switch between dominant and submissive roles.',
+      difficulty: 'edgy',
+      status: 'in_progress',
+      creator: 'Alex',
+      participants: ['Jordan', 'Sam'],
+      maxParticipants: 4,
+      timeLimit: 72,
+      createdAt: '1 day ago',
+      isLiked: true,
+      isPublic: true,
+      progress: 45,
+      deadline: '2024-01-18T20:00:00Z',
+      currentRound: 2,
+      totalRounds: 5
+    },
+    {
+      id: 2,
+      title: 'Switch Game: Role Reversal',
+      description: 'Participants take turns in different roles, exploring new dynamics and boundaries.',
+      difficulty: 'arousing',
+      status: 'waiting_for_participant',
+      creator: 'Taylor',
+      participants: ['Jordan'],
+      maxParticipants: 3,
+      timeLimit: 48,
+      createdAt: '3 days ago',
+      isLiked: false,
+      isPublic: true,
+      progress: 0,
+      deadline: '2024-01-16T18:00:00Z',
+      currentRound: 0,
+      totalRounds: 3
+    },
+    {
+      id: 3,
+      title: 'Switch Challenge: BDSM Exploration',
+      description: 'Advanced BDSM switch game with multiple scenarios and role changes.',
+      difficulty: 'hardcore',
+      status: 'completed',
+      creator: 'Sam',
+      participants: ['Jordan', 'Alex', 'Taylor'],
+      maxParticipants: 4,
+      timeLimit: 96,
+      createdAt: '1 week ago',
+      isLiked: true,
+      isPublic: false,
+      progress: 100,
+      deadline: '2024-01-10T20:00:00Z',
+      completedAt: '2024-01-10T18:00:00Z',
+      winner: 'Jordan',
+      finalScore: 95
+    }
+  ]);
+
   const [filters, setFilters] = useState({
     search: '',
     difficulties: [],
     types: [],
     status: '',
     publicOnly: false,
-    myDares: false
+    myDares: false,
+    mySwitchGames: false
   });
 
   const [sortBy, setSortBy] = useState('deadline');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [showFilters, setShowFilters] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'active', 'completed', 'available'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'dares', 'switch-games', 'public'
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -181,10 +240,16 @@ const ModernDarePerformerDashboard = () => {
     }));
   };
 
-  const toggleLike = (dareId) => {
-    setDares(prev => prev.map(dare => 
-      dare.id === dareId ? { ...dare, isLiked: !dare.isLiked } : dare
-    ));
+  const toggleLike = (itemId, type) => {
+    if (type === 'dare') {
+      setDares(prev => prev.map(dare => 
+        dare.id === itemId ? { ...dare, isLiked: !dare.isLiked } : dare
+      ));
+    } else if (type === 'switchGame') {
+      setSwitchGames(prev => prev.map(game => 
+        game.id === itemId ? { ...game, isLiked: !game.isLiked } : game
+      ));
+    }
   };
 
   const filteredDares = dares.filter(dare => {
@@ -221,7 +286,54 @@ const ModernDarePerformerDashboard = () => {
     return true;
   });
 
+  const filteredSwitchGames = switchGames.filter(game => {
+    // Search filter
+    if (filters.search && !game.title.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    
+    // Difficulty filter
+    if (filters.difficulties.length > 0 && !filters.difficulties.includes(game.difficulty)) {
+      return false;
+    }
+    
+    // Status filter
+    if (filters.status && game.status !== filters.status) {
+      return false;
+    }
+    
+    // Public only filter
+    if (filters.publicOnly && !game.isPublic) {
+      return false;
+    }
+
+    // My switch games filter
+    if (filters.mySwitchGames && !game.participants.includes('Jordan')) {
+      return false;
+    }
+    
+    return true;
+  });
+
   const sortedDares = [...filteredDares].sort((a, b) => {
+    switch (sortBy) {
+      case 'deadline':
+        return new Date(a.deadline) - new Date(b.deadline);
+      case 'newest':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'oldest':
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'difficulty':
+        const difficultyOrder = { titillating: 1, arousing: 2, explicit: 3, edgy: 4, hardcore: 5 };
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      case 'progress':
+        return b.progress - a.progress;
+      default:
+        return 0;
+    }
+  });
+
+  const sortedSwitchGames = [...filteredSwitchGames].sort((a, b) => {
     switch (sortBy) {
       case 'deadline':
         return new Date(a.deadline) - new Date(b.deadline);
@@ -246,32 +358,45 @@ const ModernDarePerformerDashboard = () => {
       types: [],
       status: '',
       publicOnly: false,
-      myDares: false
+      myDares: false,
+      mySwitchGames: false
     });
   };
 
-  const getTabDares = () => {
+  const getTabContent = () => {
     switch (activeTab) {
-      case 'active':
-        return sortedDares.filter(dare => dare.status === 'in_progress' || dare.status === 'approved');
-      case 'completed':
-        return sortedDares.filter(dare => dare.status === 'completed');
-      case 'available':
-        return sortedDares.filter(dare => dare.status === 'waiting_for_participant');
-      default:
+      case 'dares':
         return sortedDares;
+      case 'switch-games':
+        return sortedSwitchGames;
+      case 'public':
+        return [...sortedDares.filter(d => d.isPublic), ...sortedSwitchGames.filter(g => g.isPublic)];
+      default:
+        return [];
     }
   };
 
-  const tabDares = getTabDares();
+  const tabContent = getTabContent();
 
   const getStats = () => {
-    const active = dares.filter(d => d.status === 'in_progress' || d.status === 'approved').length;
-    const completed = dares.filter(d => d.status === 'completed').length;
-    const available = dares.filter(d => d.status === 'waiting_for_participant').length;
-    const total = dares.length;
+    const activeDares = dares.filter(d => d.status === 'in_progress' || d.status === 'approved').length;
+    const completedDares = dares.filter(d => d.status === 'completed').length;
+    const availableDares = dares.filter(d => d.status === 'waiting_for_participant').length;
     
-    return { active, completed, available, total };
+    const activeSwitchGames = switchGames.filter(g => g.status === 'in_progress').length;
+    const completedSwitchGames = switchGames.filter(g => g.status === 'completed').length;
+    const availableSwitchGames = switchGames.filter(g => g.status === 'waiting_for_participant').length;
+    
+    return {
+      activeDares,
+      completedDares,
+      availableDares,
+      activeSwitchGames,
+      completedSwitchGames,
+      availableSwitchGames,
+      totalDares: dares.length,
+      totalSwitchGames: switchGames.length
+    };
   };
 
   const stats = getStats();
@@ -282,7 +407,7 @@ const ModernDarePerformerDashboard = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-4">Dare Performer Dashboard</h1>
-          <p className="text-neutral-400 text-lg">Manage your dares and track your performance</p>
+          <p className="text-neutral-400 text-lg">Manage your dares and switch games, track your performance</p>
         </div>
 
         {/* Stats Overview */}
@@ -290,8 +415,8 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{stats.active}</div>
-                <div className="text-sm text-neutral-400">Active Dares</div>
+                <div className="text-3xl font-bold text-white mb-1">{stats.activeDares + stats.activeSwitchGames}</div>
+                <div className="text-sm text-neutral-400">Active</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400">
                 <ClockIcon className="w-6 h-6" />
@@ -302,7 +427,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{stats.completed}</div>
+                <div className="text-3xl font-bold text-white mb-1">{stats.completedDares + stats.completedSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Completed</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400">
@@ -314,7 +439,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{stats.available}</div>
+                <div className="text-3xl font-bold text-white mb-1">{stats.availableDares + stats.availableSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Available</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-400">
@@ -326,8 +451,8 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{stats.total}</div>
-                <div className="text-sm text-neutral-400">Total Dares</div>
+                <div className="text-3xl font-bold text-white mb-1">{stats.totalDares + stats.totalSwitchGames}</div>
+                <div className="text-sm text-neutral-400">Total</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400">
                 <ChartBarIcon className="w-6 h-6" />
@@ -378,9 +503,9 @@ const ModernDarePerformerDashboard = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             {[
               { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-              { key: 'active', label: 'Active Dares', icon: ClockIcon },
-              { key: 'completed', label: 'Completed', icon: TrophyIcon },
-              { key: 'available', label: 'Available', icon: SparklesIcon }
+              { key: 'dares', label: 'My Dares', icon: ClockIcon },
+              { key: 'switch-games', label: 'Switch Games', icon: FireIcon },
+              { key: 'public', label: 'Public', icon: SparklesIcon }
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -402,6 +527,27 @@ const ModernDarePerformerDashboard = () => {
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-white">Dashboard Overview</h3>
               <p className="text-neutral-400">Welcome to your dare performer dashboard. Use the tabs above to navigate between different views.</p>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-neutral-700/30 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-white mb-3">Dares Summary</h4>
+                  <div className="space-y-2 text-sm text-neutral-300">
+                    <div>Active: {stats.activeDares}</div>
+                    <div>Completed: {stats.completedDares}</div>
+                    <div>Available: {stats.availableDares}</div>
+                  </div>
+                </div>
+                
+                <div className="bg-neutral-700/30 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-white mb-3">Switch Games Summary</h4>
+                  <div className="space-y-2 text-sm text-neutral-300">
+                    <div>Active: {stats.activeSwitchGames}</div>
+                    <div>Completed: {stats.completedSwitchGames}</div>
+                    <div>Available: {stats.availableSwitchGames}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -415,7 +561,7 @@ const ModernDarePerformerDashboard = () => {
                     <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                     <input
                       type="text"
-                      placeholder="Search dares..."
+                      placeholder="Search dares and games..."
                       value={filters.search}
                       onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                       className="w-full pl-10 pr-4 py-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
@@ -551,6 +697,15 @@ const ModernDarePerformerDashboard = () => {
                           />
                           <span className="text-neutral-300 text-sm">My Dares Only</span>
                         </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.mySwitchGames}
+                            onChange={(e) => setFilters(prev => ({ ...prev, mySwitchGames: e.target.checked }))}
+                            className="w-4 h-4 text-primary focus:ring-primary border-neutral-600 bg-neutral-700 rounded"
+                          />
+                          <span className="text-neutral-300 text-sm">My Games Only</span>
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -570,9 +725,9 @@ const ModernDarePerformerDashboard = () => {
               {/* Results Count */}
               <div className="flex justify-between items-center mb-6">
                 <p className="text-neutral-400">
-                  Showing {tabDares.length} of {dares.length} dares
+                  Showing {tabContent.length} items
                 </p>
-                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.status || filters.publicOnly || filters.myDares ? (
+                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.status || filters.publicOnly || filters.myDares || filters.mySwitchGames ? (
                   <div className="flex flex-wrap gap-2">
                     {filters.difficulties.map(difficulty => (
                       <span
@@ -603,31 +758,44 @@ const ModernDarePerformerDashboard = () => {
                         My Dares Only
                       </span>
                     )}
+                    {filters.mySwitchGames && (
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">
+                        My Games Only
+                      </span>
+                    )}
                   </div>
                 ) : null}
               </div>
 
-              {/* Dares Grid/List */}
+              {/* Content Grid/List */}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {tabDares.map((dare) => (
-                    <DareCard key={dare.id} dare={dare} onLikeToggle={toggleLike} />
-                  ))}
+                  {tabContent.map((item) => {
+                    if (activeTab === 'dares' || (activeTab === 'public' && 'type' in item)) {
+                      return <DareCard key={item.id} dare={item} onLikeToggle={(id) => toggleLike(id, 'dare')} />;
+                    } else {
+                      return <SwitchGameCard key={item.id} game={item} onLikeToggle={(id) => toggleLike(id, 'switchGame')} />;
+                    }
+                  })}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {tabDares.map((dare) => (
-                    <DareListItem key={dare.id} dare={dare} onLikeToggle={toggleLike} />
-                  ))}
+                  {tabContent.map((item) => {
+                    if (activeTab === 'dares' || (activeTab === 'public' && 'type' in item)) {
+                      return <DareListItem key={item.id} dare={item} onLikeToggle={(id) => toggleLike(id, 'dare')} />;
+                    } else {
+                      return <SwitchGameListItem key={item.id} game={item} onLikeToggle={(id) => toggleLike(id, 'switchGame')} />;
+                    }
+                  })}
                 </div>
               )}
 
-              {tabDares.length === 0 && (
+              {tabContent.length === 0 && (
                 <div className="text-center py-12">
                   <div className="w-24 h-24 bg-neutral-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MagnifyingGlassIcon className="w-12 h-12 text-neutral-500" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">No dares found</h3>
+                  <h3 className="text-xl font-semibold text-white mb-2">No items found</h3>
                   <p className="text-neutral-400">Try adjusting your filters or search terms</p>
                 </div>
               )}
@@ -710,7 +878,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
             <p className="text-neutral-400 text-sm line-clamp-2">{dare.description}</p>
           </div>
           <button
-            onClick={() => onLikeToggle(dare.id)}
+            onClick={() => onLikeToggle(dare.id, 'dare')}
             className={`p-2 rounded-lg transition-all duration-200 ${
               dare.isLiked
                 ? 'text-primary hover:text-primary-dark'
@@ -809,6 +977,176 @@ const DareCard = ({ dare, onLikeToggle }) => {
   );
 };
 
+const SwitchGameCard = ({ game, onLikeToggle }) => {
+  const getDifficultyColor = (difficulty) => {
+    const colors = {
+      titillating: 'from-pink-400 to-pink-600',
+      arousing: 'from-purple-500 to-purple-700',
+      explicit: 'from-red-500 to-red-700',
+      edgy: 'from-yellow-400 to-yellow-600',
+      hardcore: 'from-gray-800 to-black'
+    };
+    return colors[difficulty] || 'from-gray-500 to-gray-700';
+  };
+
+  const getDifficultyIcon = (difficulty) => {
+    const icons = {
+      titillating: <SparklesIcon className="w-5 h-5" />,
+      arousing: <FireIcon className="w-5 h-5" />,
+      explicit: <EyeDropperIcon className="w-5 h-5" />,
+      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
+      hardcore: <RocketLaunchIcon className="w-5 h-5" />
+    };
+    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      waiting_for_participant: 'bg-info/20 text-info',
+      in_progress: 'bg-warning/20 text-warning',
+      completed: 'bg-success/20 text-success',
+      rejected: 'bg-danger/20 text-danger',
+      cancelled: 'bg-neutral-600/20 text-neutral-400',
+      approved: 'bg-blue-500/20 text-blue-400'
+    };
+    return colors[status] || 'bg-neutral-600/20 text-neutral-400';
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      waiting_for_participant: <EyeIcon className="w-4 h-4" />,
+      in_progress: <ClockIcon className="w-4 h-4" />,
+      completed: <CheckCircleIcon className="w-4 h-4" />,
+      rejected: <XCircleIcon className="w-4 h-4" />,
+      cancelled: <XCircleIcon className="w-4 h-4" />,
+      approved: <CheckCircleIcon className="w-4 h-4" />
+    };
+    return icons[status] || <EyeIcon className="w-4 h-4" />;
+  };
+
+  const formatDeadline = (deadline) => {
+    const date = new Date(deadline);
+    const now = new Date();
+    const diffTime = date - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'Overdue';
+    if (diffDays === 0) return 'Due today';
+    if (diffDays === 1) return 'Due tomorrow';
+    return `Due in ${diffDays} days`;
+  };
+
+  return (
+    <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
+      {/* Header */}
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
+              {game.title}
+            </h3>
+            <p className="text-neutral-400 text-sm line-clamp-2">{game.description}</p>
+          </div>
+          <button
+            onClick={() => onLikeToggle(game.id, 'switchGame')}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              game.isLiked
+                ? 'text-primary hover:text-primary-dark'
+                : 'text-neutral-400 hover:text-neutral-300'
+            }`}
+          >
+            <HeartIcon className={`w-5 h-5 ${game.isLiked ? 'fill-current' : ''}`} />
+          </button>
+        </div>
+
+        {/* Difficulty and Status Badges */}
+        <div className="flex items-center space-x-2 mb-4">
+          <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
+            {getDifficultyIcon(game.difficulty)}
+            <span className="capitalize">{game.difficulty}</span>
+          </span>
+          <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
+            {getStatusIcon(game.status)}
+            <span className="capitalize">{game.status.replace('_', ' ')}</span>
+          </span>
+        </div>
+
+        {/* Progress Bar for Active Games */}
+        {game.status === 'in_progress' && game.progress > 0 && (
+          <div className="mb-4">
+            <div className="flex justify-between text-sm text-neutral-400 mb-1">
+              <span>Progress</span>
+              <span>{game.progress}%</span>
+            </div>
+            <div className="w-full bg-neutral-700 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${game.progress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* Game Info */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex items-center space-x-2 text-neutral-400">
+            <UserIcon className="w-4 h-4" />
+            <span>{game.creator}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-neutral-400">
+            <ClockIcon className="w-4 h-4" />
+            <span>{game.timeLimit}h</span>
+          </div>
+          {game.participants && game.participants.length > 0 && (
+            <div className="flex items-center space-x-2 text-neutral-400">
+              <UserGroupIcon className="w-4 h-4" />
+              <span>Participants: {game.participants.length}/{game.maxParticipants}</span>
+            </div>
+          )}
+          <div className="flex items-center space-x-2 text-neutral-400">
+            <ClockIcon className="w-4 h-4" />
+            <span>{formatDeadline(game.deadline)}</span>
+          </div>
+        </div>
+
+        {/* Winner for Completed Games */}
+        {game.status === 'completed' && game.winner && (
+          <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+            <div className="flex items-center justify-center space-x-2">
+              <TrophyIcon className="w-5 h-5 text-green-400" />
+              <span className="text-green-400 font-semibold">Winner: {game.winner}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-neutral-500">
+            {game.isPublic ? 'Public' : 'Private'}
+          </span>
+          <div className="flex gap-2">
+            <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+              View Details
+            </button>
+            {game.status === 'waiting_for_participant' && (
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                Join Game
+              </button>
+            )}
+            {game.status === 'in_progress' && (
+              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                Submit Proof
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DareListItem = ({ dare, onLikeToggle }) => {
   const getDifficultyColor = (difficulty) => {
     const colors = {
@@ -860,7 +1198,7 @@ const DareListItem = ({ dare, onLikeToggle }) => {
           <div className="flex items-start justify-between mb-2">
             <h3 className="text-lg font-semibold text-white truncate">{dare.title}</h3>
             <button
-              onClick={() => onLikeToggle(dare.id)}
+              onClick={() => onLikeToggle(dare.id, 'dare')}
               className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${
                 dare.isLiked
                   ? 'text-primary hover:text-primary-dark'
@@ -905,6 +1243,112 @@ const DareListItem = ({ dare, onLikeToggle }) => {
             </button>
           )}
           {dare.status === 'in_progress' && (
+            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+              Submit Proof
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SwitchGameListItem = ({ game, onLikeToggle }) => {
+  const getDifficultyColor = (difficulty) => {
+    const colors = {
+      titillating: 'from-pink-400 to-pink-600',
+      arousing: 'from-purple-500 to-purple-700',
+      explicit: 'from-red-500 to-red-700',
+      edgy: 'from-yellow-400 to-yellow-600',
+      hardcore: 'from-gray-800 to-black'
+    };
+    return colors[difficulty] || 'from-gray-500 to-gray-700';
+  };
+
+  const getDifficultyIcon = (difficulty) => {
+    const icons = {
+      titillating: <SparklesIcon className="w-5 h-5" />,
+      arousing: <FireIcon className="w-5 h-5" />,
+      explicit: <EyeDropperIcon className="w-5 h-5" />,
+      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
+      hardcore: <RocketLaunchIcon className="w-5 h-5" />
+    };
+    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
+  };
+
+  const formatDeadline = (deadline) => {
+    const date = new Date(deadline);
+    const now = new Date();
+    const diffTime = date - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'Overdue';
+    if (diffDays === 0) return 'Due today';
+    if (diffDays === 1) return 'Due tomorrow';
+    return `Due in ${diffDays} days`;
+  };
+
+  return (
+    <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
+      <div className="flex items-center space-x-6">
+        {/* Difficulty Badge */}
+        <div className="flex-shrink-0">
+          <span className={`inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
+            {getDifficultyIcon(game.difficulty)}
+            <span className="capitalize">{game.difficulty}</span>
+          </span>
+        </div>
+
+        {/* Game Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="text-lg font-semibold text-white truncate">{game.title}</h3>
+            <button
+              onClick={() => onLikeToggle(game.id, 'switchGame')}
+              className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${
+                game.isLiked
+                  ? 'text-primary hover:text-primary-dark'
+                  : 'text-neutral-400 hover:text-neutral-300'
+              }`}
+            >
+              <HeartIcon className={`w-5 h-5 ${game.isLiked ? 'fill-current' : ''}`} />
+            </button>
+          </div>
+          <p className="text-neutral-400 text-sm mb-3">{game.description}</p>
+          
+          <div className="flex items-center space-x-6 text-sm text-neutral-400">
+            <span className="flex items-center space-x-1">
+              <UserIcon className="w-4 h-4" />
+              <span>{game.creator}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <ClockIcon className="w-4 h-4" />
+              <span>{game.timeLimit}h limit</span>
+            </span>
+            {game.participants && game.participants.length > 0 && (
+              <span className="flex items-center space-x-1">
+                <UserGroupIcon className="w-4 h-4" />
+                <span>Participants: {game.participants.length}/{game.maxParticipants}</span>
+              </span>
+            )}
+            <span className="flex items-center space-x-1">
+              <ClockIcon className="w-4 h-4" />
+              <span>{formatDeadline(game.deadline)}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex-shrink-0 flex gap-2">
+          <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+            View Details
+          </button>
+          {game.status === 'waiting_for_participant' && (
+            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+              Join Game
+            </button>
+          )}
+          {game.status === 'in_progress' && (
             <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
               Submit Proof
             </button>
