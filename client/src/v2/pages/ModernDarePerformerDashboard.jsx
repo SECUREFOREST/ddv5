@@ -692,13 +692,22 @@ const ModernDarePerformerDashboard = () => {
                         </div>
                         
                         {/* Action Button */}
-                        <Link to={`/modern/dares/${dare._id}`}>
+                        <Link to={dare.claimToken ? `/modern/claim/${dare.claimToken}` : `/modern/dares/${dare._id}/consent`}>
                           <button 
-                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                            aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                            className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center" 
+                            aria-label={`Participate in dare by ${dare.creator?.fullName || 'User'}`}
                           >
-                            <PlayIcon className="w-5 h-5" />
-                            Participate
+                            {dare.claimToken ? (
+                              <>
+                                <CheckCircleIcon className="w-5 h-5" />
+                                Claim & Perform
+                              </>
+                            ) : (
+                              <>
+                                <PlayIcon className="w-5 h-5" />
+                                Participate
+                              </>
+                            )}
                           </button>
                         </Link>
                       </div>
@@ -807,13 +816,22 @@ const ModernDarePerformerDashboard = () => {
                           </div>
                           
                           {/* Action Button */}
-                          <Link to={`/modern/dares/${dare._id}`}>
+                          <Link to={dare.claimToken ? `/modern/claim/${dare.claimToken}` : `/modern/dares/${dare._id}/consent`}>
                             <button 
-                              className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                              aria-label={`View dare by ${dare.creator?.fullName || 'User'}`}
+                              className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center" 
+                              aria-label={`Participate in dare by ${dare.creator?.fullName || 'User'}`}
                             >
-                              <PlayIcon className="w-4 h-4" />
-                              View
+                              {dare.claimToken ? (
+                                <>
+                                  <CheckCircleIcon className="w-5 h-5" />
+                                  Claim & Perform
+                                </>
+                              ) : (
+                                <>
+                                  <PlayIcon className="w-5 h-5" />
+                                  Participate
+                                </>
+                              )}
                             </button>
                           </Link>
                         </div>
