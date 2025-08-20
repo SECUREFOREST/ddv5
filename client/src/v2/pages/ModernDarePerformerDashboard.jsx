@@ -31,7 +31,9 @@ import {
   SwatchIcon,
   PuzzlePieceIcon,
   ArrowTopRightOnSquareIcon,
-  TagIcon
+  TagIcon,
+  Squares2X2Icon,
+  Bars3Icon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -109,6 +111,9 @@ const ModernDarePerformerDashboard = () => {
     difficulty: '',
     dareType: ''
   });
+
+  // View toggle state
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   // Add helper functions to match ModernPublicDares exactly
   const getDifficultyInfo = (difficulty) => {
@@ -510,6 +515,32 @@ const ModernDarePerformerDashboard = () => {
               </h3>
 
               <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="List View"
+                  >
+                    <Bars3Icon className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <select
                   value={dareFilters.difficulty}
                   onChange={(e) => handleDareFilterChange('difficulty', e.target.value)}
@@ -535,7 +566,7 @@ const ModernDarePerformerDashboard = () => {
             </div>
             
             {dataLoading.ongoing ? (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 <ListSkeleton count={3} />
               </div>
             ) : ongoing.length === 0 ? (
@@ -553,10 +584,73 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 {ongoing.map((dare) => {
                   const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
                   
+                  if (viewMode === 'list') {
+                    // List view - more compact, horizontal layout
+                    return (
+                      <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Difficulty Badge */}
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                              <DifficultyIcon className="w-4 h-4" />
+                              {dare.difficulty}
+                            </div>
+                            
+                            {/* Status Badge */}
+                            <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                              dare.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                              dare.status === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                              'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            }`}>
+                              {dare.status.replace(/_/g, ' ')}
+                            </div>
+                            
+                            {/* Creator Info */}
+                            {dare.creator && (
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="font-medium text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button
+                            onClick={() => navigate(`/modern/dares/${dare._id}`)}
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                            View
+                          </button>
+                        </div>
+                        
+                        {/* Tags - only show in list view if there are tags */}
+                        {dare.tags && dare.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-600/30">
+                            {dare.tags.slice(0, 2).map((tag, index) => (
+                              <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+                                <TagIcon className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                            {dare.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+                                +{dare.tags.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Grid view - existing detailed layout
                   return (
                     <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -611,13 +705,41 @@ const ModernDarePerformerDashboard = () => {
 
           {/* Completed Dares */}
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-2xl border border-neutral-700/50 p-6 shadow-xl">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-              <TrophyIcon className="w-6 h-6 text-green-400" />
-              Completed Dares ({completed.length})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <TrophyIcon className="w-6 h-6 text-green-400" />
+                Completed Dares ({completed.length})
+              </h3>
+
+              {/* View Toggle */}
+              <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'grid' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                  }`}
+                  title="Grid View"
+                >
+                  <Squares2X2Icon className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'list' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                  }`}
+                  title="List View"
+                >
+                  <Bars3Icon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
             
             {dataLoading.completed ? (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 <ListSkeleton count={2} />
               </div>
             ) : completed.length === 0 ? (
@@ -635,10 +757,77 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 {completed.map((dare) => {
                   const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
                   
+                  if (viewMode === 'list') {
+                    // List view - more compact, horizontal layout
+                    return (
+                      <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Difficulty Badge */}
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                              <DifficultyIcon className="w-4 h-4" />
+                              {dare.difficulty}
+                            </div>
+                            
+                            {/* Status Badge */}
+                            <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                              {dare.status.replace(/_/g, ' ')}
+                            </div>
+                            
+                            {/* Creator Info */}
+                            {dare.creator && (
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="font-medium text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            )}
+                            
+                            {/* Completion Date */}
+                            {dare.completedAt && (
+                              <div className="flex items-center gap-2 text-sm text-neutral-400">
+                                <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                                <span>{new Date(dare.completedAt).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button
+                            onClick={() => navigate(`/modern/dares/${dare._id}`)}
+                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                            View
+                          </button>
+                        </div>
+                        
+                        {/* Tags - only show in list view if there are tags */}
+                        {dare.tags && dare.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-600/30">
+                            {dare.tags.slice(0, 2).map((tag, index) => (
+                              <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+                                <TagIcon className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                            {dare.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+                                +{dare.tags.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Grid view - existing detailed layout
                   return (
                     <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -713,6 +902,32 @@ const ModernDarePerformerDashboard = () => {
               </h3>
 
               <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="List View"
+                  >
+                    <Bars3Icon className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <select
                   value={switchGameFilters.difficulty}
                   onChange={(e) => handleSwitchGameFilterChange('difficulty', e.target.value)}
@@ -740,7 +955,7 @@ const ModernDarePerformerDashboard = () => {
             </div>
             
             {dataLoading.switchGames ? (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 <ListSkeleton count={2} />
               </div>
             ) : mySwitchGames.length === 0 ? (
@@ -759,17 +974,103 @@ const ModernDarePerformerDashboard = () => {
                   </button>
                   <button
                     onClick={() => handleQuickAction('create-switch')}
-                    className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-4 py-2 font-semibold shadow-lg hover:bg-neutral-700/90 hover:scale-105 active:scale-95 transition-all duration-200"
+                    className="bg-neutral-800/80 backdrop-blur-xl border border-white/20 text-white rounded-lg px-4 py-2 font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
                   >
                     Create a Game
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 {mySwitchGames.map((game) => {
                   const { Icon: DifficultyIcon, color } = getDifficultyInfo(game.creatorDare?.difficulty || game.difficulty);
                   
+                  if (viewMode === 'list') {
+                    // List view - more compact, horizontal layout
+                    return (
+                      <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Difficulty Badge */}
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                              <DifficultyIcon className="w-4 h-4" />
+                              {game.creatorDare?.difficulty || game.difficulty}
+                            </div>
+                            
+                            {/* Status Badge */}
+                            <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                              game.status === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                              game.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                              game.status === 'awaiting_proof' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                              game.status === 'proof_submitted' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                              'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
+                            }`}>
+                              {game.status.replace(/_/g, ' ')}
+                            </div>
+                            
+                            {/* Game Type Badge */}
+                            <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                              Switch Game
+                            </div>
+                            
+                            {/* Creator Info */}
+                            {game.creator && (
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="font-medium text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button
+                            onClick={() => navigate(`/modern/switches/${game._id}`)}
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <EyeIcon className="w-4 h-4" />
+                            View
+                          </button>
+                        </div>
+                        
+                        {/* Game Info - compact in list view */}
+                        <div className="mt-3 pt-3 border-t border-neutral-600/30 flex flex-wrap gap-4 text-sm text-neutral-400">
+                          {game.createdAt && (
+                            <div className="flex items-center gap-2">
+                              <ClockIcon className="w-4 h-4" />
+                              <span>{new Date(game.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          )}
+                          {game.participant && (
+                            <div className="flex items-center gap-2">
+                              <UserIcon className="w-4 h-4" />
+                              <span>vs {game.participant?.fullName || game.participant?.username || 'User'}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Tags - only show in list view if there are tags */}
+                        {game.creatorDare?.tags && game.creatorDare.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-600/30">
+                            {game.creatorDare.tags.slice(0, 2).map((tag, index) => (
+                              <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+                                <TagIcon className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                            {game.creatorDare.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+                                +{game.creatorDare.tags.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Grid view - existing detailed layout
                   return (
                     <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -795,6 +1096,19 @@ const ModernDarePerformerDashboard = () => {
                           <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
                             Switch Game
                           </div>
+                          
+                          {/* Creator Info */}
+                          {game.creator && (
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+                              <span className="text-neutral-400 text-sm">Created by</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                         
                         {/* Action Button */}
@@ -809,22 +1123,16 @@ const ModernDarePerformerDashboard = () => {
                       
                       {/* Game Info */}
                       <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-400">
-                        {game.creator && (
-                          <div className="flex items-center gap-2">
-                            <UserIcon className="w-4 h-4" />
-                            <span>Creator: {game.creator?.fullName || game.creator?.username || 'User'}</span>
-                          </div>
-                        )}
-                        {game.participant && (
-                          <div className="flex items-center gap-2">
-                            <UserIcon className="w-4 h-4" />
-                            <span>Participant: {game.participant?.fullName || game.participant?.username || 'User'}</span>
-                          </div>
-                        )}
                         {game.createdAt && (
                           <div className="flex items-center gap-2">
                             <ClockIcon className="w-4 h-4" />
                             <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {game.participants && game.participants.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <UserGroupIcon className="w-4 h-4" />
+                            <span>Participants: {game.participants.length}</span>
                           </div>
                         )}
                       </div>
@@ -853,8 +1161,34 @@ const ModernDarePerformerDashboard = () => {
                 <SparklesIcon className="w-6 h-6 text-orange-400" />
                 Public Dares ({publicDares.length})
               </h3>
-              
+
               <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="List View"
+                  >
+                    <Bars3Icon className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <select
                   value={publicFilters.difficulty}
                   onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
@@ -880,7 +1214,7 @@ const ModernDarePerformerDashboard = () => {
             </div>
             
             {dataLoading.public ? (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 <ListSkeleton count={3} />
               </div>
             ) : publicDares.length === 0 ? (
@@ -898,10 +1232,74 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 {publicDares.map((dare) => {
                   const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
                   
+                  if (viewMode === 'list') {
+                    // List view - more compact, horizontal layout
+                    return (
+                      <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Difficulty Badge */}
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                              <DifficultyIcon className="w-4 h-4" />
+                              {dare.difficulty}
+                            </div>
+                            
+                            {/* Dare Type Badge */}
+                            <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                              dare.dareType === 'submission' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                              dare.dareType === 'domination' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                              dare.dareType === 'switch' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                              'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
+                            }`}>
+                              {dare.dareType || 'Unknown'}
+                            </div>
+                            
+                            {/* Creator Info */}
+                            {dare.creator && (
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="font-medium text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button
+                            onClick={() => navigate(`/modern/claim/${dare.claimToken || dare._id}`)}
+                            className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <PlayIcon className="w-4 h-4" />
+                            Claim & Perform
+                          </button>
+                        </div>
+                        
+                        {/* Tags - only show in list view if there are tags */}
+                        {dare.tags && dare.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-600/30">
+                            {dare.tags.slice(0, 2).map((tag, index) => (
+                              <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+                                <TagIcon className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                            {dare.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+                                +{dare.tags.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Grid view - existing detailed layout
                   return (
                     <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -964,6 +1362,32 @@ const ModernDarePerformerDashboard = () => {
               </h3>
 
               <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="List View"
+                  >
+                    <Bars3Icon className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <select
                   value={publicFilters.difficulty}
                   onChange={(e) => handlePublicFilterChange('difficulty', e.target.value)}
@@ -978,7 +1402,7 @@ const ModernDarePerformerDashboard = () => {
             </div>
             
             {dataLoading.publicSwitch ? (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 <ListSkeleton count={2} />
               </div>
             ) : publicSwitchGames.length === 0 ? (
@@ -990,16 +1414,93 @@ const ModernDarePerformerDashboard = () => {
                 <p className="text-white/70 mb-4 text-sm">No public switch games are available at the moment.</p>
                 <button
                   onClick={() => handleQuickAction('create-switch')}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg px-4 py-4 text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
                 >
                   Create a Game
                 </button>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-4'}>
                 {publicSwitchGames.map((game) => {
                   const { Icon: DifficultyIcon, color } = getDifficultyInfo(game.creatorDare?.difficulty || game.difficulty);
                   
+                  if (viewMode === 'list') {
+                    // List view - more compact, horizontal layout
+                    return (
+                      <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01] group">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Difficulty Badge */}
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                              <DifficultyIcon className="w-4 h-4" />
+                              {game.creatorDare?.difficulty || game.difficulty}
+                            </div>
+                            
+                            {/* Game Type Badge */}
+                            <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                              Switch Game
+                            </div>
+                            
+                            {/* Creator Info */}
+                            {game.creator && (
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="font-medium text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+                              </div>
+                            )}
+                            
+                            {/* Creation Date */}
+                            {game.createdAt && (
+                              <div className="flex items-center gap-2 text-sm text-neutral-400">
+                                <ClockIcon className="w-4 h-4" />
+                                <span>{new Date(game.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button
+                            onClick={() => navigate(`/modern/switches/claim/${game._id}`)}
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-4 py-2 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                          >
+                            <UserGroupIcon className="w-4 h-4" />
+                            Join Game
+                          </button>
+                        </div>
+                        
+                        {/* Game Info - compact in list view */}
+                        <div className="mt-3 pt-3 border-t border-neutral-600/30 flex flex-wrap gap-4 text-sm text-neutral-400">
+                          {game.participants && game.participants.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              <UserGroupIcon className="w-4 h-4" />
+                              <span>{game.participants.length} participants</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Tags - only show in list view if there are tags */}
+                        {game.creatorDare?.tags && game.creatorDare.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-600/30">
+                            {game.creatorDare.tags.slice(0, 2).map((tag, index) => (
+                              <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+                                <TagIcon className="w-3 h-3" />
+                                {tag}
+                              </span>
+                            ))}
+                            {game.creatorDare.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+                                +{game.creatorDare.tags.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Grid view - existing detailed layout
                   return (
                     <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
