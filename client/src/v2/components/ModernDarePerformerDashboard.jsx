@@ -139,6 +139,8 @@ const ModernDarePerformerDashboard = () => {
 
       const filtersToUse = customFilters || filters;
       
+      console.log('Fetching dashboard data with filters:', filtersToUse);
+      
       const dashboardData = await fetchDashboardData({
         page,
         limit: 8,
@@ -159,14 +161,16 @@ const ModernDarePerformerDashboard = () => {
         }
       });
 
+      console.log('Received dashboard data:', dashboardData);
+
       // Update state with real data
       setDares([
-        ...(dashboardData.data.activeDares || []),
-        ...(dashboardData.data.completedDares || [])
+        ...(dashboardData.data?.activeDares || []),
+        ...(dashboardData.data?.completedDares || [])
       ]);
-      setSwitchGames(dashboardData.data.switchGames || []);
-      setPublicDares(dashboardData.data.publicDares || []);
-      setPublicSwitchGames(dashboardData.data.publicSwitchGames || []);
+      setSwitchGames(dashboardData.data?.switchGames || []);
+      setPublicDares(dashboardData.data?.publicDares || []);
+      setPublicSwitchGames(dashboardData.data?.publicSwitchGames || []);
       setSummary(dashboardData.summary || {});
       setPagination(dashboardData.pagination || {});
 
@@ -178,7 +182,7 @@ const ModernDarePerformerDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user?._id, filters]);
+  }, [user?._id, filters, showError]);
 
   // Initial data fetch
   useEffect(() => {
@@ -247,8 +251,9 @@ const ModernDarePerformerDashboard = () => {
       if (filters.search && data.length > 0) {
         data = data.filter(item => 
           item && (
-            item.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-            item.description?.toLowerCase().includes(filters.search.toLowerCase())
+            (item.title?.toLowerCase().includes(filters.search.toLowerCase())) ||
+            (item.description?.toLowerCase().includes(filters.search.toLowerCase())) ||
+            (item.creatorDare?.description?.toLowerCase().includes(filters.search.toLowerCase()))
           )
         );
       }
@@ -324,25 +329,25 @@ const ModernDarePerformerDashboard = () => {
 
   // Handle like/unlike
   const handleLikeToggle = useCallback(async (itemId, itemType) => {
-    if (!user?._id) return;
+    if (!user?._id) {
+      showError('You must be logged in to like items');
+      return;
+    }
 
     try {
       let response;
       if (itemType === 'dare') {
         // Check if already liked
         const dare = dares.find(d => d._id === itemId);
-        if (dare?.likes?.includes(user._id)) {
+        const isCurrentlyLiked = dare?.likes?.includes(user._id);
+        
+        if (isCurrentlyLiked) {
           response = await unlikeDare(itemId);
         } else {
           response = await likeDare(itemId);
         }
-      } else {
-        // Switch game like functionality can be added later
-        return;
-      }
 
-      // Update local state
-      if (itemType === 'dare') {
+        // Update local state immediately for better UX
         setDares(prev => prev.map(dare => {
           if (dare._id === itemId) {
             return {
@@ -354,12 +359,34 @@ const ModernDarePerformerDashboard = () => {
           }
           return dare;
         }));
+
+        // Also update public dares if this item is there
+        setPublicDares(prev => prev.map(dare => {
+          if (dare._id === itemId) {
+            return {
+              ...dare,
+              likes: response.isLiked 
+                ? [...(dare.likes || []), user._id]
+                : (dare.likes || []).filter(id => id !== user._id)
+            };
+          }
+          return dare;
+        }));
+
+      } else if (itemType === 'game') {
+        // Switch game like functionality can be added later
+        showError('Like functionality for switch games coming soon');
+        return;
       }
 
       showSuccess(response.message);
     } catch (err) {
+      console.error('Like toggle error:', err);
       const errorMessage = handleApiError(err, 'like');
       showError(errorMessage);
+      
+      // Revert optimistic update on error
+      // This would require more complex state management
     }
   }, [user?._id, dares, showSuccess, showError]);
 
@@ -386,29 +413,113 @@ const ModernDarePerformerDashboard = () => {
   // Safe data access helper
   const getSafeData = useCallback(() => {
     try {
+      // Use mock data in test mode
+      if (testMode) {
+        return [...mockData.dares, ...mockData.switchGames];
+      }
       return getSortedData();
     } catch (error) {
       console.error('Error processing data:', error);
-      return [];
+      return testMode ? [...mockData.dares, ...mockData.switchGames] : [];
     }
-  }, [getSortedData]);
+  }, [getSortedData, testMode, mockData]);
 
   const sortedData = getSafeData();
+
+  // Ensure we always have valid data structures
+  const safeSummary = testMode ? {
+    totalActiveDares: 1,
+    totalCompletedDares: 0,
+    totalSwitchGames: 1,
+    totalPublicDares: 1,
+    totalPublicSwitchGames: 1
+  } : (summary || {
+    totalActiveDares: 0,
+    totalCompletedDares: 0,
+    totalSwitchGames: 0,
+    totalPublicDares: 0,
+    totalPublicSwitchGames: 0
+  });
+
+  const safeDares = testMode ? mockData.dares : (dares || []);
+  const safeSwitchGames = testMode ? mockData.switchGames : (switchGames || []);
+  const safePublicDares = testMode ? mockData.dares.filter(d => d.public) : (publicDares || []);
+  const safePublicSwitchGames = testMode ? mockData.switchGames.filter(g => g.public) : (publicSwitchGames || []);
 
   // Debug logging
   useEffect(() => {
     console.log('Dashboard state:', {
       user: user?._id,
-      daresCount: dares?.length || 0,
-      switchGamesCount: switchGames?.length || 0,
-      publicDaresCount: publicDares?.length || 0,
-      publicSwitchGamesCount: publicSwitchGames?.length || 0,
-      summary,
+      daresCount: safeDares.length || 0,
+      switchGamesCount: safeSwitchGames.length || 0,
+      publicDaresCount: safePublicDares.length || 0,
+      publicSwitchGamesCount: safePublicSwitchGames.length || 0,
+      summary: safeSummary,
       filters,
       activeTab,
       sortedDataCount: sortedData?.length || 0
     });
-  }, [user?._id, dares, switchGames, publicDares, publicSwitchGames, summary, filters, activeTab, sortedData]);
+  }, [user?._id, safeDares, safeSwitchGames, safePublicDares, safePublicSwitchGames, safeSummary, filters, activeTab, sortedData]);
+
+  // Test mode for debugging
+  const [testMode, setTestMode] = useState(false);
+  
+  // Toggle test mode
+  const toggleTestMode = useCallback(() => {
+    setTestMode(prev => !prev);
+    if (!testMode) {
+      console.log('Test mode enabled - showing mock data');
+    }
+  }, [testMode]);
+
+  // Mock data for testing
+  const mockData = {
+    dares: [
+      {
+        _id: 'mock-dare-1',
+        description: 'This is a test dare for debugging purposes. It should display correctly in the dashboard.',
+        difficulty: 'arousing',
+        status: 'waiting_for_participant',
+        creator: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
+        performer: null,
+        public: true,
+        dareType: 'submission',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likes: []
+      },
+      {
+        _id: 'mock-dare-2',
+        description: 'Another test dare to verify the dashboard functionality works correctly.',
+        difficulty: 'explicit',
+        status: 'in_progress',
+        creator: { _id: 'mock-user-2', username: 'TestCreator', fullName: 'Test Creator' },
+        performer: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
+        public: false,
+        dareType: 'domination',
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        updatedAt: new Date().toISOString(),
+        likes: ['mock-user-1']
+      }
+    ],
+    switchGames: [
+      {
+        _id: 'mock-game-1',
+        status: 'waiting_for_participant',
+        creator: { _id: 'mock-user-1', username: 'TestUser', fullName: 'Test User' },
+        participant: null,
+        creatorDare: {
+          description: 'Test switch game challenge for debugging',
+          difficulty: 'edgy',
+          move: 'rock'
+        },
+        public: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likes: []
+      }
+    ]
+  };
 
   // Quick action handlers
   const handleQuickAction = useCallback((action) => {
@@ -479,7 +590,7 @@ const ModernDarePerformerDashboard = () => {
   }, []);
 
   // Loading state
-  if (isLoading && dares.length === 0 && switchGames.length === 0) {
+  if (isLoading && safeDares.length === 0 && safeSwitchGames.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 py-8">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
@@ -494,7 +605,7 @@ const ModernDarePerformerDashboard = () => {
   }
 
   // Error state
-  if (error && dares.length === 0 && switchGames.length === 0) {
+  if (error && safeDares.length === 0 && safeSwitchGames.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 py-8">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
@@ -556,6 +667,18 @@ const ModernDarePerformerDashboard = () => {
               <ArrowPathIcon className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh Data
             </button>
+
+            {/* Test Mode Toggle */}
+            <button
+              onClick={toggleTestMode}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                testMode 
+                  ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
+                  : 'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
+              }`}
+            >
+              <span>{testMode ? 'Test Mode ON' : 'Test Mode'}</span>
+            </button>
           </div>
         </div>
 
@@ -564,7 +687,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{summary.totalActiveDares + summary.totalSwitchGames}</div>
+                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalActiveDares + safeSummary.totalSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Active</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400">
@@ -576,7 +699,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{summary.totalCompletedDares + summary.totalSwitchGames}</div>
+                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalCompletedDares + safeSummary.totalSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Completed</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400">
@@ -588,7 +711,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{summary.totalPublicDares + summary.totalPublicSwitchGames}</div>
+                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalPublicDares + safeSummary.totalPublicSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Available</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-400">
@@ -600,7 +723,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-3xl font-bold text-white mb-1">{summary.totalActiveDares + summary.totalCompletedDares + summary.totalSwitchGames}</div>
+                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalActiveDares + safeSummary.totalCompletedDares + safeSummary.totalSwitchGames}</div>
                 <div className="text-sm text-neutral-400">Total</div>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400">
@@ -694,17 +817,17 @@ const ModernDarePerformerDashboard = () => {
                 <div className="bg-neutral-700/30 rounded-lg p-4">
                   <h4 className="text-lg font-semibold text-white mb-3">Dares Summary</h4>
                   <div className="space-y-2 text-sm text-neutral-300">
-                    <div>Active: {summary.totalActiveDares}</div>
-                    <div>Completed: {summary.totalCompletedDares}</div>
-                    <div>Available: {summary.totalPublicDares}</div>
+                    <div>Active: {safeSummary.totalActiveDares}</div>
+                    <div>Completed: {safeSummary.totalCompletedDares}</div>
+                    <div>Available: {safeSummary.totalPublicDares}</div>
                   </div>
                 </div>
                 
                 <div className="bg-neutral-700/30 rounded-lg p-4">
                   <h4 className="text-lg font-semibold text-white mb-3">Switch Games Summary</h4>
                   <div className="space-y-2 text-sm text-neutral-300">
-                    <div>Active: {summary.totalSwitchGames}</div>
-                    <div>Available: {summary.totalPublicSwitchGames}</div>
+                    <div>Active: {safeSummary.totalSwitchGames}</div>
+                    <div>Available: {safeSummary.totalPublicSwitchGames}</div>
                   </div>
                 </div>
               </div>
@@ -1143,9 +1266,9 @@ const DareCard = ({ dare, onLikeToggle }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
-              {dare.title}
+              {dare.description ? dare.description.substring(0, 50) + (dare.description.length > 50 ? '...' : '') : 'Untitled Dare'}
             </h3>
-            <p className="text-neutral-400 text-sm line-clamp-2">{dare.description}</p>
+            <p className="text-neutral-400 text-sm line-clamp-2">{dare.description || 'No description available'}</p>
           </div>
           <button
             onClick={handleLikeClick}
@@ -1192,7 +1315,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
           </div>
           <div className="flex items-center space-x-2 text-neutral-400">
             <ClockIcon className="w-4 h-4" />
-            <span>{dare.timeLimit}h</span>
+            <span>{dare.updatedAt ? new Date(dare.updatedAt).toLocaleDateString() : 'No date'}</span>
           </div>
           {dare.performer && (
             <div className="flex items-center space-x-2 text-neutral-400">
@@ -1321,9 +1444,9 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
-              {game.title}
+              {game.creatorDare?.description ? game.creatorDare.description.substring(0, 50) + (game.creatorDare.description.length > 50 ? '...' : '') : 'Switch Game'}
             </h3>
-            <p className="text-neutral-400 text-sm line-clamp-2">{game.description}</p>
+            <p className="text-neutral-400 text-sm line-clamp-2">{game.creatorDare?.description || 'No description available'}</p>
           </div>
           <button
             onClick={() => onLikeToggle(game._id, 'game')}
@@ -1366,6 +1489,14 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           <div className="flex items-center space-x-2 text-neutral-400">
             <UserIcon className="w-4 h-4" />
             <span>{game.creator?.username || 'N/A'}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-neutral-400">
+            <UserGroupIcon className="w-4 h-4" />
+            <span>{game.participant ? '2 Players' : '1 Player'}</span>
+          </div>
+          <div className="flex items-center space-x-2 text-neutral-400">
+            <ClockIcon className="w-4 h-4" />
+            <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
           </div>
           <div className="flex items-center space-x-2 text-neutral-400">
             <ClockIcon className="w-4 h-4" />
@@ -1481,7 +1612,9 @@ const DareListItem = ({ dare, onLikeToggle }) => {
         {/* Dare Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="text-lg font-semibold text-white truncate">{dare.title}</h3>
+            <h3 className="text-lg font-semibold text-white truncate">
+              {dare.description ? dare.description.substring(0, 50) + (dare.description.length > 50 ? '...' : '') : 'Untitled Dare'}
+            </h3>
             <button
               onClick={() => onLikeToggle(dare._id, 'dare')}
               className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${dare.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
@@ -1594,7 +1727,9 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
         {/* Game Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="text-lg font-semibold text-white truncate">{game.title}</h3>
+            <h3 className="text-lg font-semibold text-white truncate">
+              {game.description ? game.description.substring(0, 50) + (game.description.length > 50 ? '...' : '') : 'Untitled Game'}
+            </h3>
             <button
               onClick={() => onLikeToggle(game._id, 'game')}
               className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${game.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
@@ -1610,8 +1745,16 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               <span>{game.creator?.username || 'N/A'}</span>
             </span>
             <span className="flex items-center space-x-1">
+              <UserGroupIcon className="w-4 h-4" />
+              <span>{game.participant ? '2 Players' : '1 Player'}</span>
+            </span>
+            <span className="flex items-center space-x-1">
               <ClockIcon className="w-4 h-4" />
-              <span>{game.timeLimit}h limit</span>
+              <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <ClockIcon className="w-4 h-4" />
+              <span>{game.timeLimit}h</span>
             </span>
             {game.participants && game.participants.length > 0 && (
               <span className="flex items-center space-x-1">
