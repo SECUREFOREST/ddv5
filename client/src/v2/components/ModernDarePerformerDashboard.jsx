@@ -1228,10 +1228,16 @@ const DareCard = ({ dare, onLikeToggle }) => {
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
-              {dare.description ? dare.description.substring(0, 50) + (dare.description.length > 50 ? '...' : '') : 'Untitled Dare'}
-            </h3>
-            <p className="text-neutral-400 text-sm line-clamp-2">{dare.description || 'No description available'}</p>
+            <div className="flex items-center space-x-2 mb-2">
+              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
+                {getDifficultyIcon(dare.difficulty)}
+                <span className="capitalize">{dare.difficulty}</span>
+              </span>
+              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dare.status)}`}>
+                {getStatusIcon(dare.status)}
+                <span className="capitalize">{dare.status.replace('_', ' ')}</span>
+              </span>
+            </div>
           </div>
           <button
             onClick={handleLikeClick}
@@ -1240,18 +1246,6 @@ const DareCard = ({ dare, onLikeToggle }) => {
           >
             <HeartIcon className={`w-5 h-5 ${dare.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
           </button>
-        </div>
-
-        {/* Difficulty and Status Badges */}
-        <div className="flex items-center space-x-2 mb-4">
-          <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
-            {getDifficultyIcon(dare.difficulty)}
-            <span className="capitalize">{dare.difficulty}</span>
-          </span>
-          <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dare.status)}`}>
-            {getStatusIcon(dare.status)}
-            <span className="capitalize">{dare.status.replace('_', ' ')}</span>
-          </span>
         </div>
 
         {/* Progress Bar for Active Dares */}
@@ -1273,7 +1267,11 @@ const DareCard = ({ dare, onLikeToggle }) => {
         {/* Dare Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
-            <Avatar user={dare.creator} size="xs" />
+            <Avatar 
+              user={dare.creator} 
+              size="xs" 
+              onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
+            />
             <span 
               className="cursor-pointer hover:text-white transition-colors duration-200"
               onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
@@ -1287,7 +1285,11 @@ const DareCard = ({ dare, onLikeToggle }) => {
           </div>
           {dare.performer && (
             <div className="flex items-center space-x-2 text-neutral-400">
-              <Avatar user={dare.performer} size="xs" />
+              <Avatar 
+                user={dare.performer} 
+                size="xs" 
+                onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
+              />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
@@ -1365,10 +1367,16 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-200">
-              {game.creatorDare?.description ? game.creatorDare.description.substring(0, 50) + (game.creatorDare.description.length > 50 ? '...' : '') : 'Switch Game'}
-            </h3>
-            <p className="text-neutral-400 text-sm line-clamp-2">{game.creatorDare?.description || 'No description available'}</p>
+            <div className="flex items-center space-x-2 mb-2">
+              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
+                {getDifficultyIcon(game.difficulty)}
+                <span className="capitalize">{game.difficulty}</span>
+              </span>
+              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
+                {getStatusIcon(game.status)}
+                <span className="capitalize">{game.status.replace('_', ' ')}</span>
+              </span>
+            </div>
           </div>
           <button
             onClick={() => onLikeToggle(game._id, 'game')}
@@ -1376,18 +1384,6 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           >
             <HeartIcon className={`w-5 h-5 ${game.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
           </button>
-        </div>
-
-        {/* Difficulty and Status Badges */}
-        <div className="flex items-center space-x-2 mb-4">
-          <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
-            {getDifficultyIcon(game.difficulty)}
-            <span className="capitalize">{game.difficulty}</span>
-          </span>
-          <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
-            {getStatusIcon(game.status)}
-            <span className="capitalize">{game.status.replace('_', ' ')}</span>
-          </span>
         </div>
 
         {/* Progress Bar for Active Games */}
@@ -1409,7 +1405,11 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
         {/* Game Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
-            <Avatar user={game.creator} size="xs" />
+            <Avatar 
+              user={game.creator} 
+              size="xs" 
+              onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+            />
             <span 
               className="cursor-pointer hover:text-white transition-colors duration-200"
               onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
@@ -1425,14 +1425,6 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
             <ClockIcon className="w-4 h-4" />
             <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
           </div>
-          {game.creatorDare?.difficulty && (
-            <div className="flex items-center space-x-2 text-neutral-400">
-              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
-                {getDifficultyIcon(game.creatorDare.difficulty)}
-                <span className="capitalize">{game.creatorDare.difficulty}</span>
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Winner for Completed Games */}
@@ -1440,7 +1432,11 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
             <div className="flex items-center justify-center space-x-2">
               <TrophyIcon className="w-5 h-5 text-green-400" />
-              <Avatar user={game.winner} size="xs" />
+              <Avatar 
+                user={game.winner} 
+                size="xs" 
+                onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
+              />
               <span 
                 className="text-green-400 font-semibold cursor-pointer hover:text-green-300 transition-colors duration-200"
                 onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
@@ -1501,20 +1497,19 @@ const DareListItem = ({ dare, onLikeToggle }) => {
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
       <div className="flex items-center space-x-6">
-        {/* Difficulty Badge */}
-        <div className="flex-shrink-0">
-          <span className={`inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
-            {getDifficultyIcon(dare.difficulty)}
-            <span className="capitalize">{dare.difficulty}</span>
-          </span>
-        </div>
-
         {/* Dare Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="text-lg font-semibold text-white truncate">
-              {dare.description ? dare.description.substring(0, 50) + (dare.description.length > 50 ? '...' : '') : 'Untitled Dare'}
-            </h3>
+            <div className="flex items-center space-x-2">
+              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
+                {getDifficultyIcon(dare.difficulty)}
+                <span className="capitalize">{dare.difficulty}</span>
+              </span>
+              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dare.status)}`}>
+                {getStatusIcon(dare.status)}
+                <span className="capitalize">{dare.status.replace('_', ' ')}</span>
+              </span>
+            </div>
             <button
               onClick={() => onLikeToggle(dare._id, 'dare')}
               className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${dare.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
@@ -1522,11 +1517,14 @@ const DareListItem = ({ dare, onLikeToggle }) => {
               <HeartIcon className={`w-5 h-5 ${dare.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
             </button>
           </div>
-          <p className="text-neutral-400 text-sm mb-3">{dare.description}</p>
           
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
-              <Avatar user={dare.creator} size="xs" />
+              <Avatar 
+                user={dare.creator} 
+                size="xs" 
+                onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
+              />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
@@ -1540,7 +1538,11 @@ const DareListItem = ({ dare, onLikeToggle }) => {
             </span>
             {dare.performer && (
               <span className="flex items-center space-x-1">
-                <Avatar user={dare.performer} size="xs" />
+                <Avatar 
+                  user={dare.performer} 
+                  size="xs" 
+                  onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
+                />
                 <span 
                   className="cursor-pointer hover:text-white transition-colors duration-200"
                   onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
@@ -1604,20 +1606,19 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
       <div className="flex items-center space-x-6">
-        {/* Difficulty Badge */}
-        <div className="flex-shrink-0">
-          <span className={`inline-flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
-            {getDifficultyIcon(game.difficulty)}
-            <span className="capitalize">{game.difficulty}</span>
-          </span>
-        </div>
-
         {/* Game Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
-            <h3 className="text-lg font-semibold text-white truncate">
-              {game.creatorDare?.description ? game.creatorDare.description.substring(0, 50) + (game.creatorDare.description.length > 50 ? '...' : '') : 'Switch Game'}
-            </h3>
+            <div className="flex items-center space-x-2">
+              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
+                {getDifficultyIcon(game.difficulty)}
+                <span className="capitalize">{game.difficulty}</span>
+              </span>
+              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
+                {getStatusIcon(game.status)}
+                <span className="capitalize">{game.status.replace('_', ' ')}</span>
+              </span>
+            </div>
             <button
               onClick={() => onLikeToggle(game._id, 'game')}
               className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${game.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
@@ -1625,11 +1626,14 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               <HeartIcon className={`w-5 h-5 ${game.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
             </button>
           </div>
-          <p className="text-neutral-400 text-sm mb-3">{game.creatorDare?.description || 'No description available'}</p>
           
           <div className="flex items-center space-x-6 text-sm text-neutral-400">
             <span className="flex items-center space-x-1">
-              <Avatar user={game.creator} size="xs" />
+              <Avatar 
+                user={game.creator} 
+                size="xs" 
+                onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+              />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
                 onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
@@ -1645,14 +1649,6 @@ const SwitchGameListItem = ({ game, onLikeToggle }) => {
               <ClockIcon className="w-4 h-4" />
               <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
             </span>
-            {game.creatorDare?.difficulty && (
-              <div className="flex items-center space-x-2 text-neutral-400">
-                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
-                  {getDifficultyIcon(game.creatorDare.difficulty)}
-                  <span className="capitalize">{game.creatorDare.difficulty}</span>
-                </span>
-              </div>
-            )}
           </div>
         </div>
 
