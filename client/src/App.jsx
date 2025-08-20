@@ -82,7 +82,7 @@ const ModernDareConsent = React.lazy(() => import('./v2/pages/ModernDareConsent'
 const ModernDareReveal = React.lazy(() => import('./v2/pages/ModernDareReveal'));
 const ModernDarePerform = React.lazy(() => import('./v2/pages/ModernDarePerform'));
 const ModernDareShare = React.lazy(() => import('./v2/pages/ModernDareShare'));
-const ModernDarePerformerDashboard = React.lazy(() => import('./v2/pages/ModernDarePerformerDashboard'));
+const ModernDarePerformerDashboard = React.lazy(() => import('./v2/components/ModernDarePerformerDashboard'));
 const ModernOfferSubmission = React.lazy(() => import('./v2/pages/ModernOfferSubmission'));
 const ModernLeaderboard = React.lazy(() => import('./v2/pages/ModernLeaderboard'));
 const ModernProfileView = React.lazy(() => import('./v2/pages/ModernProfileView'));
