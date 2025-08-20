@@ -1073,10 +1073,8 @@ const ModernDarePerformerDashboard = () => {
                           {/* Difficulty Badge */}
                           <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
                             <DifficultyIcon className="w-4 h-4" />
-                            {game.creatorDare?.difficulty || game.difficulty}
+                            {game.creatorDare?.difficulty || 'Unknown'}
                           </div>
-                          
-
                           
                           {/* Creator Info */}
                           {game.creator && (
@@ -1106,22 +1104,6 @@ const ModernDarePerformerDashboard = () => {
                             View Details
                           </button>
                         </Link>
-                      </div>
-                      
-                      {/* Game Info */}
-                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-400">
-                        {game.createdAt && (
-                          <div className="flex items-center gap-2">
-                            <ClockIcon className="w-4 h-4" />
-                            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                        {game.participants && game.participants.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <UserGroupIcon className="w-4 h-4" />
-                            <span>Participants: {game.participants.length}</span>
-                          </div>
-                        )}
                       </div>
                       
                       {/* Tags */}
@@ -1497,10 +1479,8 @@ const ModernDarePerformerDashboard = () => {
                           {/* Difficulty Badge */}
                           <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
                             <DifficultyIcon className="w-4 h-4" />
-                            {game.creatorDare?.difficulty || game.difficulty}
+                            {game.creatorDare?.difficulty || 'Unknown'}
                           </div>
-                          
-
                           
                           {/* Creator Info */}
                           {game.creator && (
