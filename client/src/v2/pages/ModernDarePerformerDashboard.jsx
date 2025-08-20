@@ -30,12 +30,30 @@ import {
   HomeIcon,
   SwatchIcon,
   PuzzlePieceIcon,
-  ArrowTopRightOnSquareIcon
+  ArrowTopRightOnSquareIcon,
+  TagIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { DIFFICULTY_OPTIONS } from '../../constants.jsx';
 import api from '../../api/axios';
+
+// Add difficulty constants to match ModernPublicDares exactly
+const DIFFICULTY_COLORS = {
+  titillating: 'from-pink-400 to-pink-600',
+  arousing: 'from-purple-500 to-purple-700',
+  explicit: 'from-red-500 to-red-700',
+  edgy: 'from-yellow-400 to-yellow-600',
+  hardcore: 'from-gray-800 to-black'
+};
+
+const DIFFICULTY_ICONS = {
+  titillating: HeartIcon,
+  arousing: SparklesIcon,
+  explicit: FireIcon,
+  edgy: ExclamationTriangleIcon,
+  hardcore: ShieldCheckIcon
+};
 
 const ModernDarePerformerDashboard = () => {
   const navigate = useNavigate();
@@ -85,6 +103,34 @@ const ModernDarePerformerDashboard = () => {
     difficulty: '',
     dareType: ''
   });
+
+  // Add helper functions to match ModernPublicDares exactly
+  const getDifficultyInfo = (difficulty) => {
+    const Icon = DIFFICULTY_ICONS[difficulty] || StarIcon;
+    const color = DIFFICULTY_COLORS[difficulty] || 'from-neutral-500 to-neutral-600';
+    
+    return { Icon, color };
+  };
+
+  const renderTags = (tags) => {
+    if (!tags || tags.length === 0) return null;
+    
+    return (
+      <div className="flex flex-wrap gap-2 mt-3">
+        {tags.slice(0, 3).map((tag, index) => (
+          <span key={index} className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-600/50 text-neutral-300 border border-neutral-500/30 rounded-lg text-xs">
+            <TagIcon className="w-3 h-3" />
+            {tag}
+          </span>
+        ))}
+        {tags.length > 3 && (
+          <span className="px-2 py-1 bg-neutral-600/50 text-neutral-400 border border-neutral-500/30 rounded-lg text-xs">
+            +{tags.length - 3} more
+          </span>
+        )}
+      </div>
+    );
+  };
 
   // Fetch dashboard data
   const fetchData = useCallback(async () => {
@@ -408,29 +454,58 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {ongoing.map((dare) => (
-                  <div key={dare._id} className="bg-neutral-700/50 rounded-xl p-4 border border-neutral-600/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-white font-semibold mb-2">{dare.description}</h4>
-                        <div className="flex items-center gap-4 text-sm text-neutral-300">
-                          <span>Difficulty: {dare.difficulty}</span>
-                          <span>Status: {dare.status}</span>
+              <div className="grid gap-4">
+                {ongoing.map((dare) => {
+                  const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
+                  
+                  return (
+                    <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Difficulty Badge */}
+                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            {dare.difficulty}
+                          </div>
+                          
+                          {/* Status Badge */}
+                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                            dare.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                            dare.status === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                            'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                          }`}>
+                            {dare.status.replace(/_/g, ' ')}
+                          </div>
+                          
+                          {/* Creator Info */}
+                          {dare.creator && (
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+                              <span className="text-neutral-400 text-sm">Created by</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex gap-2">
+                        
+                        {/* Action Button */}
                         <button
                           onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
-                          <EyeIcon className="w-4 h-4" />
+                          <EyeIcon className="w-5 h-5" />
                           View Details
                         </button>
                       </div>
+                      
+                      {/* Tags */}
+                      {renderTags(dare.tags)}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -457,29 +532,64 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {completed.map((dare) => (
-                  <div key={dare._id} className="bg-neutral-700/50 rounded-xl p-4 border border-neutral-600/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-white font-semibold mb-2">{dare.description}</h4>
-                        <div className="flex items-center gap-4 text-sm text-neutral-300">
-                          <span>Difficulty: {dare.difficulty}</span>
-                          <span>Status: {dare.status}</span>
+              <div className="grid gap-4">
+                {completed.map((dare) => {
+                  const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
+                  
+                  return (
+                    <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Difficulty Badge */}
+                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            {dare.difficulty}
+                          </div>
+                          
+                          {/* Status Badge */}
+                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                            {dare.status.replace(/_/g, ' ')}
+                          </div>
+                          
+                          {/* Creator Info */}
+                          {dare.creator && (
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+                              <span className="text-neutral-400 text-sm">Created by</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex gap-2">
+                        
+                        {/* Action Button */}
                         <button
                           onClick={() => navigate(`/modern/dares/${dare._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          className="w-full lg:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
-                          <EyeIcon className="w-4 h-4" />
+                          <EyeIcon className="w-5 h-5" />
                           View Details
                         </button>
                       </div>
+                      
+                      {/* Tags */}
+                      {renderTags(dare.tags)}
+                      
+                      {/* Completion Info */}
+                      {dare.completedAt && (
+                        <div className="mt-3 pt-3 border-t border-neutral-600/30">
+                          <div className="flex items-center gap-2 text-sm text-neutral-400">
+                            <CheckCircleIcon className="w-4 h-4 text-green-400" />
+                            <span>Completed on {new Date(dare.completedAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -549,30 +659,74 @@ const ModernDarePerformerDashboard = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                {mySwitchGames.map((game) => (
-                  <div key={game._id} className="bg-neutral-700/50 rounded-xl p-4 border border-neutral-600/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-white font-semibold mb-2">{game.title || 'Switch Game'}</h4>
-                        <div className="flex items-center gap-4 text-sm text-neutral-300">
-                          <span>Difficulty: {game.difficulty}</span>
-                          <span>Status: {game.status}</span>
-                          <span>Participants: {game.participants?.length || 0}</span>
+              <div className="grid gap-4">
+                {mySwitchGames.map((game) => {
+                  const { Icon: DifficultyIcon, color } = getDifficultyInfo(game.creatorDare?.difficulty || game.difficulty);
+                  
+                  return (
+                    <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Difficulty Badge */}
+                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            {game.creatorDare?.difficulty || game.difficulty}
+                          </div>
+                          
+                          {/* Status Badge */}
+                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                            game.status === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                            game.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                            game.status === 'awaiting_proof' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                            game.status === 'proof_submitted' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                            'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
+                          }`}>
+                            {game.status.replace(/_/g, ' ')}
+                          </div>
+                          
+                          {/* Game Type Badge */}
+                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                            Switch Game
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2">
+                        
+                        {/* Action Button */}
                         <button
-                          onClick={() => navigate(`/switches/${game._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          onClick={() => navigate(`/modern/switches/${game._id}`)}
+                          className="w-full lg:w-auto bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
-                          <EyeIcon className="w-4 h-4" />
+                          <EyeIcon className="w-5 h-5" />
                           View Details
                         </button>
                       </div>
+                      
+                      {/* Game Info */}
+                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-400">
+                        {game.creator && (
+                          <div className="flex items-center gap-2">
+                            <UserIcon className="w-4 h-4" />
+                            <span>Creator: {game.creator?.fullName || game.creator?.username || 'User'}</span>
+                          </div>
+                        )}
+                        {game.participant && (
+                          <div className="flex items-center gap-2">
+                            <UserIcon className="w-4 h-4" />
+                            <span>Participant: {game.participant?.fullName || game.participant?.username || 'User'}</span>
+                          </div>
+                        )}
+                        {game.createdAt && (
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Tags */}
+                      {renderTags(game.creatorDare?.tags || game.tags)}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
