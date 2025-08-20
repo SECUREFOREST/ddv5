@@ -787,29 +787,59 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {publicDares.map((dare) => (
-                  <div key={dare._id} className="bg-neutral-700/50 rounded-xl p-4 border border-neutral-600/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-white font-semibold mb-2">{dare.description}</h4>
-                        <div className="flex items-center gap-4 text-sm text-neutral-300">
-                          <span>Difficulty: {dare.difficulty}</span>
-                          <span>Type: {dare.type || 'Unknown'}</span>
+              <div className="grid gap-4">
+                {publicDares.map((dare) => {
+                  const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
+                  
+                  return (
+                    <div key={dare._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Difficulty Badge */}
+                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            {dare.difficulty}
+                          </div>
+                          
+                          {/* Dare Type Badge */}
+                          <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${
+                            dare.dareType === 'submission' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                            dare.dareType === 'domination' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                            dare.dareType === 'switch' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                            'bg-neutral-500/20 text-neutral-400 border border-neutral-500/30'
+                          }`}>
+                            {dare.dareType || 'Unknown'}
+                          </div>
+                          
+                          {/* Creator Info */}
+                          {dare.creator && (
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+                              <span className="text-neutral-400 text-sm">Created by</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-white">{dare.creator?.fullName || dare.creator?.username || 'User'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex gap-2">
+                        
+                        {/* Action Button */}
                         <button
-                          onClick={() => navigate(`/claim/${dare.claimToken || dare._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          onClick={() => navigate(`/modern/claim/${dare.claimToken || dare._id}`)}
+                          className="w-full lg:w-auto bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
-                          <PlayIcon className="w-4 h-4" />
+                          <PlayIcon className="w-5 h-5" />
                           Claim & Perform
                         </button>
                       </div>
+                      
+                      {/* Tags */}
+                      {renderTags(dare.tags)}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -851,29 +881,70 @@ const ModernDarePerformerDashboard = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {publicSwitchGames.map((game) => (
-                  <div key={game._id} className="bg-neutral-700/50 rounded-xl p-4 border border-neutral-600/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-white font-semibold mb-2">{game.title || 'Switch Game'}</h4>
-                        <div className="flex items-center gap-4 text-sm text-neutral-300">
-                          <span>Difficulty: {game.difficulty}</span>
-                          <span>Participants: {game.participants?.length || 0}</span>
+              <div className="grid gap-4">
+                {publicSwitchGames.map((game) => {
+                  const { Icon: DifficultyIcon, color } = getDifficultyInfo(game.creatorDare?.difficulty || game.difficulty);
+                  
+                  return (
+                    <div key={game._id} className="bg-neutral-700/50 backdrop-blur-sm rounded-xl border border-neutral-600/30 p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] group">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Difficulty Badge */}
+                          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${color} text-white text-sm font-semibold`}>
+                            <DifficultyIcon className="w-4 h-4" />
+                            {game.creatorDare?.difficulty || game.difficulty}
+                          </div>
+                          
+                          {/* Game Type Badge */}
+                          <div className="px-3 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-sm font-semibold">
+                            Switch Game
+                          </div>
+                          
+                          {/* Creator Info */}
+                          {game.creator && (
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
+                              <span className="text-neutral-400 text-sm">Created by</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-dark rounded-full flex items-center justify-center">
+                                  <UserIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-white">{game.creator?.fullName || game.creator?.username || 'User'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="flex gap-2">
+                        
+                        {/* Action Button */}
                         <button
-                          onClick={() => navigate(`/switches/claim/${game._id}`)}
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                          onClick={() => navigate(`/modern/switches/claim/${game._id}`)}
+                          className="w-full lg:w-auto bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
                         >
-                          <UserGroupIcon className="w-4 h-4" />
+                          <UserGroupIcon className="w-5 h-5" />
                           Join Game
                         </button>
                       </div>
+                      
+                      {/* Game Info */}
+                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-400">
+                        {game.createdAt && (
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>Created: {new Date(game.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {game.participants && game.participants.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <UserGroupIcon className="w-4 h-4" />
+                            <span>Participants: {game.participants.length}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Tags */}
+                      {renderTags(game.creatorDare?.tags || game.tags)}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
