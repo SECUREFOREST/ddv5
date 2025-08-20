@@ -33,7 +33,7 @@ import {
   WifiSlashIcon
 } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../../constants';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const ModernDarePerformerDashboard = () => {
   const navigate = useNavigate();
