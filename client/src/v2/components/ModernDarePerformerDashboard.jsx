@@ -29,8 +29,7 @@ import {
   ChartBarIcon,
   PuzzlePieceIcon,
   ArrowPathIcon,
-  WifiIcon,
-  WifiSlashIcon
+  WifiIcon
 } from '@heroicons/react/24/solid';
 import { DIFFICULTY_OPTIONS, DARE_TYPE_OPTIONS, STATUS_OPTIONS } from '../../constants';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -508,7 +507,7 @@ const ModernDarePerformerDashboard = () => {
                 </>
               ) : (
                 <>
-                  <WifiSlashIcon className="w-4 h-4" />
+                  <ExclamationTriangleIcon className="w-4 h-4" />
                   <span>Offline</span>
                 </>
               )}
