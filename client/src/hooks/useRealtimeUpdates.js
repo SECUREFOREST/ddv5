@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { REALTIME_EVENTS } from '../utils/realtime';
@@ -16,10 +16,11 @@ import { REALTIME_EVENTS } from '../utils/realtime';
  * @returns {Object} - Real-time update methods and status
  */
 export const useDashboardRealtimeUpdates = (options = {}) => {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const { showToast } = useToast();
   const socketRef = useRef(null);
   const callbacksRef = useRef({});
+  const [isConnected, setIsConnected] = useState(false);
 
   const {
     enableDareUpdates = true,
@@ -43,88 +44,62 @@ export const useDashboardRealtimeUpdates = (options = {}) => {
 
   // Initialize real-time connection
   const initializeRealtime = useCallback(async () => {
-    if (!user?._id) return;
+    if (!user?._id || !accessToken) {
+      setIsConnected(false);
+      return;
+    }
 
     try {
-      // Dynamic import to avoid SSR issues
-      const { default: RealtimeManager } = await import('../utils/realtime');
-      const manager = new RealtimeManager();
+      // For now, we'll use a simple polling approach instead of WebSocket
+      // This ensures the dashboard works even without WebSocket support
+      console.log('Initializing dashboard real-time updates with polling fallback');
       
-      // Connect to real-time service
-      await manager.connect(user.token);
-      socketRef.current = manager;
+      // Set up polling for updates every 30 seconds
+      const pollInterval = setInterval(() => {
+        // Trigger refresh callbacks
+        callbacksRef.current.onDareUpdate?.('refresh');
+        callbacksRef.current.onSwitchGameUpdate?.('refresh');
+        callbacksRef.current.onActivityUpdate?.('refresh');
+      }, 30000);
 
-      // Set up event listeners
-      if (enableDareUpdates) {
-        manager.on(REALTIME_EVENTS.DARE_CREATED, (data) => {
-          callbacksRef.current.onDareUpdate?.('created', data);
-          showToast('New dare created!', 'info');
-        });
+      // Store the interval for cleanup
+      socketRef.current = { pollInterval, isPolling: true };
+      setIsConnected(true);
 
-        manager.on(REALTIME_EVENTS.DARE_UPDATED, (data) => {
-          callbacksRef.current.onDareUpdate?.('updated', data);
-        });
-
-        manager.on(REALTIME_EVENTS.DARE_COMPLETED, (data) => {
-          callbacksRef.current.onDareUpdate?.('completed', data);
-          showToast('Dare completed!', 'success');
-        });
-
-        manager.on(REALTIME_EVENTS.DARE_ACCEPTED, (data) => {
-          callbacksRef.current.onDareUpdate?.('accepted', data);
-          showToast('Dare accepted!', 'success');
-        });
-
-        manager.on(REALTIME_EVENTS.DARE_REJECTED, (data) => {
-          callbacksRef.current.onDareUpdate?.('rejected', data);
-          showToast('Dare rejected', 'warning');
-        });
-      }
-
-      if (enableSwitchGameUpdates) {
-        // Add switch game events when they're implemented
-        manager.on('switch_game_updated', (data) => {
-          callbacksRef.current.onSwitchGameUpdate?.('updated', data);
-        });
-
-        manager.on('switch_game_completed', (data) => {
-          callbacksRef.current.onSwitchGameUpdate?.('completed', data);
-          showToast('Switch game completed!', 'success');
-        });
-      }
-
-      if (enableActivityUpdates) {
-        manager.on(REALTIME_EVENTS.ACTIVITY_CREATED, (data) => {
-          callbacksRef.current.onActivityUpdate?.(data);
-        });
-      }
-
-      // Notification updates
-      manager.on(REALTIME_EVENTS.NOTIFICATION_CREATED, (data) => {
-        callbacksRef.current.onNotificationUpdate?.(data);
-        showToast('New notification!', 'info');
-      });
-
-      // Connection status
-      manager.on('connected', () => {
-        console.log('Dashboard real-time connected');
-      });
-
-      manager.on('disconnected', () => {
-        console.log('Dashboard real-time disconnected');
-      });
+      // TODO: Implement actual WebSocket connection when available
+      // const { default: RealtimeManager } = await import('../utils/realtime');
+      // const manager = new RealtimeManager();
+      // await manager.connect(accessToken);
+      // socketRef.current = manager;
 
     } catch (error) {
       console.error('Failed to initialize real-time updates:', error);
+      setIsConnected(false);
+      
+      // Fallback to polling
+      const pollInterval = setInterval(() => {
+        callbacksRef.current.onDareUpdate?.('refresh');
+        callbacksRef.current.onSwitchGameUpdate?.('refresh');
+        callbacksRef.current.onActivityUpdate?.('refresh');
+      }, 30000);
+      
+      socketRef.current = { pollInterval, isPolling: true };
+      setIsConnected(true);
     }
-  }, [user?._id, user?.token, enableDareUpdates, enableSwitchGameUpdates, enableActivityUpdates, showToast]);
+  }, [user?._id, accessToken]);
 
   // Cleanup real-time connection
   const cleanupRealtime = useCallback(() => {
     if (socketRef.current) {
-      socketRef.current.disconnect();
+      if (socketRef.current.pollInterval) {
+        clearInterval(socketRef.current.pollInterval);
+      }
+      if (socketRef.current.disconnect) {
+        socketRef.current.disconnect();
+      }
       socketRef.current = null;
     }
+    setIsConnected(false);
   }, []);
 
   // Initialize on mount
@@ -147,7 +122,7 @@ export const useDashboardRealtimeUpdates = (options = {}) => {
   }, []);
 
   return {
-    isConnected: !!socketRef.current?.isConnected,
+    isConnected,
     refreshDares,
     refreshSwitchGames,
     refreshActivities,

@@ -228,65 +228,72 @@ const ModernDarePerformerDashboard = () => {
   const getFilteredData = useCallback(() => {
     let data = [];
     
-    switch (activeTab) {
-      case 'dares':
-        data = dares;
-        break;
-      case 'switch-games':
-        data = switchGames;
-        break;
-      case 'public':
-        data = [...publicDares, ...publicSwitchGames];
-        break;
-      default:
-        data = [...dares, ...switchGames];
-    }
+    try {
+      switch (activeTab) {
+        case 'dares':
+          data = dares || [];
+          break;
+        case 'switch-games':
+          data = switchGames || [];
+          break;
+        case 'public':
+          data = [...(publicDares || []), ...(publicSwitchGames || [])];
+          break;
+        default:
+          data = [...(dares || []), ...(switchGames || [])];
+      }
 
-    // Apply search filter
-    if (filters.search) {
-      data = data.filter(item => 
-        item.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        item.description?.toLowerCase().includes(filters.search.toLowerCase())
-      );
-    }
+      // Apply search filter
+      if (filters.search && data.length > 0) {
+        data = data.filter(item => 
+          item && (
+            item.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
+            item.description?.toLowerCase().includes(filters.search.toLowerCase())
+          )
+        );
+      }
 
-    // Apply difficulty filter
-    if (filters.difficulties.length > 0) {
-      data = data.filter(item => filters.difficulties.includes(item.difficulty));
-    }
+      // Apply difficulty filter
+      if (filters.difficulties.length > 0 && data.length > 0) {
+        data = data.filter(item => item && filters.difficulties.includes(item.difficulty));
+      }
 
-    // Apply type filter (for dares)
-    if (filters.types.length > 0) {
-      data = data.filter(item => 
-        item.dareType ? filters.types.includes(item.dareType) : true
-      );
-    }
+      // Apply type filter (for dares)
+      if (filters.types.length > 0 && data.length > 0) {
+        data = data.filter(item => 
+          item && (item.dareType ? filters.types.includes(item.dareType) : true)
+        );
+      }
 
-    // Apply status filter
-    if (filters.status) {
-      data = data.filter(item => item.status === filters.status);
-    }
+      // Apply status filter
+      if (filters.status && data.length > 0) {
+        data = data.filter(item => item && item.status === filters.status);
+      }
 
-    // Apply public only filter
-    if (filters.publicOnly) {
-      data = data.filter(item => item.public === true);
-    }
+      // Apply public only filter
+      if (filters.publicOnly && data.length > 0) {
+        data = data.filter(item => item && item.public === true);
+      }
 
-    // Apply my dares filter
-    if (filters.myDares) {
-      data = data.filter(item => 
-        item.creator?._id === user?._id || item.performer?._id === user?._id
-      );
-    }
+      // Apply my dares filter
+      if (filters.myDares && data.length > 0) {
+        data = data.filter(item => 
+          item && (item.creator?._id === user?._id || item.performer?._id === user?._id)
+        );
+      }
 
-    // Apply my switch games filter
-    if (filters.mySwitchGames) {
-      data = data.filter(item => 
-        item.creator?._id === user?._id || item.participant?._id === user?._id
-      );
-    }
+      // Apply my switch games filter
+      if (filters.mySwitchGames && data.length > 0) {
+        data = data.filter(item => 
+          item && (item.creator?._id === user?._id || item.participant?._id === user?._id)
+        );
+      }
 
-    return data;
+      return data;
+    } catch (error) {
+      console.error('Error filtering data:', error);
+      return [];
+    }
   }, [activeTab, dares, switchGames, publicDares, publicSwitchGames, filters, user?._id]);
 
   // Sort filtered data
@@ -314,8 +321,6 @@ const ModernDarePerformerDashboard = () => {
       }
     });
   }, [getFilteredData, sortBy]);
-
-  const sortedData = getSortedData();
 
   // Handle like/unlike
   const handleLikeToggle = useCallback(async (itemId, itemType) => {
@@ -377,6 +382,33 @@ const ModernDarePerformerDashboard = () => {
       });
     }
   }, [handleLikeToggle, likeLoading]);
+
+  // Safe data access helper
+  const getSafeData = useCallback(() => {
+    try {
+      return getSortedData();
+    } catch (error) {
+      console.error('Error processing data:', error);
+      return [];
+    }
+  }, [getSortedData]);
+
+  const sortedData = getSafeData();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Dashboard state:', {
+      user: user?._id,
+      daresCount: dares?.length || 0,
+      switchGamesCount: switchGames?.length || 0,
+      publicDaresCount: publicDares?.length || 0,
+      publicSwitchGamesCount: publicSwitchGames?.length || 0,
+      summary,
+      filters,
+      activeTab,
+      sortedDataCount: sortedData?.length || 0
+    });
+  }, [user?._id, dares, switchGames, publicDares, publicSwitchGames, summary, filters, activeTab, sortedData]);
 
   // Quick action handlers
   const handleQuickAction = useCallback((action) => {
@@ -1027,8 +1059,17 @@ const DareCard = ({ dare, onLikeToggle }) => {
   const { user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   
+  // Safety check
+  if (!dare) {
+    return (
+      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+        <div className="text-center text-neutral-400">Invalid dare data</div>
+      </div>
+    );
+  }
+  
   const handleLikeClick = async () => {
-    if (isLiking) return;
+    if (isLiking || !dare._id) return;
     setIsLiking(true);
     try {
       await onLikeToggle(dare._id, 'dare');
@@ -1206,6 +1247,15 @@ const DareCard = ({ dare, onLikeToggle }) => {
 const SwitchGameCard = ({ game, onLikeToggle }) => {
   const { user } = useAuth();
   
+  // Safety check
+  if (!game) {
+    return (
+      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+        <div className="text-center text-neutral-400">Invalid switch game data</div>
+      </div>
+    );
+  }
+  
   const getDifficultyColor = (difficulty) => {
     const colors = {
       titillating: 'from-pink-400 to-pink-600',
@@ -1374,6 +1424,15 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
 const DareListItem = ({ dare, onLikeToggle }) => {
   const { user } = useAuth();
   
+  // Safety check
+  if (!dare) {
+    return (
+      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+        <div className="text-center text-neutral-400">Invalid dare data</div>
+      </div>
+    );
+  }
+  
   const getDifficultyColor = (difficulty) => {
     const colors = {
       titillating: 'from-pink-400 to-pink-600',
@@ -1477,6 +1536,15 @@ const DareListItem = ({ dare, onLikeToggle }) => {
 
 const SwitchGameListItem = ({ game, onLikeToggle }) => {
   const { user } = useAuth();
+  
+  // Safety check
+  if (!game) {
+    return (
+      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+        <div className="text-center text-neutral-400">Invalid switch game data</div>
+      </div>
+    );
+  }
   
   const getDifficultyColor = (difficulty) => {
     const colors = {
