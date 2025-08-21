@@ -169,6 +169,8 @@ const ModernDarePerformerDashboard = () => {
       });
 
       console.log('Received dashboard data:', dashboardData);
+      console.log('Switch games data:', dashboardData.data?.switchGames);
+      console.log('Switch games count:', dashboardData.data?.switchGames?.length || 0);
 
       // Update state with real data
       setDares([
@@ -243,6 +245,9 @@ const ModernDarePerformerDashboard = () => {
         case 'my-items':
           const myDaresWithType = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
           const mySwitchGamesWithType = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+          console.log('My items tab - dares count:', myDaresWithType.length);
+          console.log('My items tab - switch games count:', mySwitchGamesWithType.length);
+          console.log('Switch games state:', switchGames);
           data = [...myDaresWithType, ...mySwitchGamesWithType];
           break;
         case 'public':
@@ -286,7 +291,7 @@ const ModernDarePerformerDashboard = () => {
         }
 
         // Apply item type filter (dare vs switch-game)
-        if (filters.itemTypes.length > 0) {
+        if (filters.itemTypes && filters.itemTypes.length > 0) {
           filteredData = filteredData.filter(item => {
             return filters.itemTypes.includes(item.type);
           });
@@ -317,6 +322,8 @@ const ModernDarePerformerDashboard = () => {
         }
       }
 
+      console.log('Final filtered data count:', filteredData.length);
+      console.log('Final filtered data types:', filteredData.map(item => item.type));
       return filteredData;
     } catch (error) {
       console.error('Error filtering data:', error);
@@ -633,7 +640,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             {[
               { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-              { key: 'my-items', label: 'My Items', icon: ClockIcon },
+              { key: 'my-items', label: 'My Dares/Switch Games', icon: ClockIcon },
               { key: 'public', label: 'Public', icon: SparklesIcon }
             ].map((tab) => (
               <button
@@ -868,8 +875,12 @@ const ModernDarePerformerDashboard = () => {
               {/* Tab Header */}
               {activeTab === 'my-items' && (
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">My Items</h3>
+                  <h3 className="text-2xl font-bold text-white mb-2">My Dares/Switch Games</h3>
                   <p className="text-neutral-400">View and manage all your personal dares and switch games</p>
+                  {/* Debug info */}
+                  <div className="mt-2 text-xs text-neutral-500">
+                    Debug: Dares: {dares?.length || 0}, Switch Games: {switchGames?.length || 0}
+                  </div>
                 </div>
               )}
               
@@ -1021,6 +1032,10 @@ const ModernDarePerformerDashboard = () => {
                 <p className="text-neutral-400">
                   Showing {sortedData.length} items
                 </p>
+                {/* Debug info */}
+                <div className="text-xs text-neutral-500">
+                  Raw: Dares: {dares?.length || 0}, Switch Games: {switchGames?.length || 0}
+                </div>
                 {filters.difficulties.length > 0 || filters.types.length > 0 || filters.itemTypes.length > 0 || filters.status !== 'all' || filters.publicOnly ? (
                   <div className="flex flex-wrap gap-2">
                     {filters.difficulties.map(difficulty => (
