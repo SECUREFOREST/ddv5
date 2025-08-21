@@ -67,16 +67,14 @@ const ModernDarePerformerDashboard = () => {
     totalPublicSwitchGames: 0
   });
   const [pagination, setPagination] = useState({
-    activeDares: { page: 1, limit: 8, total: 0, pages: 1 },
-    completedDares: { page: 1, limit: 8, total: 0, pages: 1 },
-    switchGames: { page: 1, limit: 8, total: 0, pages: 1 },
-    publicDares: { page: 1, limit: 8, total: 0, pages: 1 },
-    publicSwitchGames: { page: 1, limit: 8, total: 0, pages: 1 }
+    'my-items': { page: 1, limit: 8, total: 0, pages: 1 },
+    'public': { page: 1, limit: 8, total: 0, pages: 1 }
   });
 
   const [filters, setFilters] = useState({
     difficulties: [],
     types: [],
+    itemTypes: [],
     status: 'all',
     publicOnly: false
   });
@@ -228,6 +226,7 @@ const ModernDarePerformerDashboard = () => {
     setFilters({
       difficulties: [],
       types: [],
+      itemTypes: [],
       status: 'all',
       publicOnly: false
     });
@@ -241,11 +240,10 @@ const ModernDarePerformerDashboard = () => {
     
     try {
       switch (activeTab) {
-        case 'dares':
-          data = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
-          break;
-        case 'switch-games':
-          data = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+        case 'my-items':
+          const myDaresWithType = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
+          const mySwitchGamesWithType = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+          data = [...myDaresWithType, ...mySwitchGamesWithType];
           break;
         case 'public':
           const publicDaresWithType = (publicDares || []).map(dare => ({ ...dare, type: 'dare' }));
@@ -253,9 +251,9 @@ const ModernDarePerformerDashboard = () => {
           data = [...publicDaresWithType, ...publicSwitchGamesWithType];
           break;
         default:
-          const daresWithType = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
-          const switchGamesWithType = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
-          data = [...daresWithType, ...switchGamesWithType];
+          const defaultDaresWithType = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
+          const defaultSwitchGamesWithType = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+          data = [...defaultDaresWithType, ...defaultSwitchGamesWithType];
       }
 
       // Initialize filteredData with data
@@ -284,6 +282,13 @@ const ModernDarePerformerDashboard = () => {
               return filters.types.includes(item.creatorDare?.dareType);
             }
             return false;
+          });
+        }
+
+        // Apply item type filter (dare vs switch-game)
+        if (filters.itemTypes.length > 0) {
+          filteredData = filteredData.filter(item => {
+            return filters.itemTypes.includes(item.type);
           });
         }
 
@@ -628,8 +633,7 @@ const ModernDarePerformerDashboard = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             {[
               { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-              { key: 'dares', label: 'My Dares', icon: ClockIcon },
-              { key: 'switch-games', label: 'Switch Games', icon: FireIcon },
+              { key: 'my-items', label: 'My Items', icon: ClockIcon },
               { key: 'public', label: 'Public', icon: SparklesIcon }
             ].map((tab) => (
               <button
@@ -861,6 +865,21 @@ const ModernDarePerformerDashboard = () => {
                 </select>
               </div>
 
+              {/* Tab Header */}
+              {activeTab === 'my-items' && (
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">My Items</h3>
+                  <p className="text-neutral-400">View and manage all your personal dares and switch games</p>
+                </div>
+              )}
+              
+              {activeTab === 'public' && (
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">Public Items</h3>
+                  <p className="text-neutral-400">Discover and join public dares and switch games</p>
+                </div>
+              )}
+
               {/* Expanded Filters */}
               {showFilters && (
                 <div className="mb-6 pt-6 border-t border-neutral-700/50">
@@ -910,6 +929,45 @@ const ModernDarePerformerDashboard = () => {
                             <span className="text-neutral-300 text-sm">{type.label}</span>
                           </label>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Item Type Filter */}
+                    <div>
+                      <h3 className="text-white font-medium mb-3">Item Type</h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.itemTypes?.includes('dare')}
+                            onChange={(e) => {
+                              const currentItemTypes = filters.itemTypes || [];
+                              if (e.target.checked) {
+                                handleFilterChange('itemTypes', [...currentItemTypes, 'dare']);
+                              } else {
+                                handleFilterChange('itemTypes', currentItemTypes.filter(t => t !== 'dare'));
+                              }
+                            }}
+                            className="w-4 h-4 text-primary focus:ring-primary border-neutral-600 bg-neutral-700 rounded"
+                          />
+                          <span className="text-neutral-300 text-sm">Dares</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.itemTypes?.includes('switch-game')}
+                            onChange={(e) => {
+                              const currentItemTypes = filters.itemTypes || [];
+                              if (e.target.checked) {
+                                handleFilterChange('itemTypes', [...currentItemTypes, 'switch-game']);
+                              } else {
+                                handleFilterChange('itemTypes', currentItemTypes.filter(t => t !== 'switch-game'));
+                              }
+                            }}
+                            className="w-4 h-4 text-primary focus:ring-primary border-neutral-600 bg-neutral-700 rounded"
+                          />
+                          <span className="text-neutral-300 text-sm">Switch Games</span>
+                        </label>
                       </div>
                     </div>
 
@@ -963,7 +1021,7 @@ const ModernDarePerformerDashboard = () => {
                 <p className="text-neutral-400">
                   Showing {sortedData.length} items
                 </p>
-                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.status !== 'all' || filters.publicOnly ? (
+                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.itemTypes.length > 0 || filters.status !== 'all' || filters.publicOnly ? (
                   <div className="flex flex-wrap gap-2">
                     {filters.difficulties.map(difficulty => (
                       <span
@@ -984,6 +1042,11 @@ const ModernDarePerformerDashboard = () => {
                         {filters.status}
                       </span>
                     )}
+                    {filters.itemTypes.map(itemType => (
+                      <span key={itemType} className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
+                        {itemType === 'dare' ? 'Dares' : 'Switch Games'}
+                      </span>
+                    ))}
                     {filters.publicOnly && (
                       <span className="px-2 py-1 bg-success/20 text-success rounded-full text-xs font-medium">
                         Public Only
