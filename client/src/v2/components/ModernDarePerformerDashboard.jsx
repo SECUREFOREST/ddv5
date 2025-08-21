@@ -251,6 +251,12 @@ const ModernDarePerformerDashboard = () => {
           console.log('My items tab - switch games count:', mySwitchGamesWithType.length);
           console.log('Switch games state:', switchGames);
           console.log('Switch games with type:', mySwitchGamesWithType);
+          console.log('Switch game difficulties:', mySwitchGamesWithType.map(game => ({
+            id: game._id,
+            difficulty: game.creatorDare?.difficulty || 'NOT SET',
+            hasCreatorDare: !!game.creatorDare,
+            creatorDareExists: !!game.creatorDare
+          })));
           data = [...myDaresWithType, ...mySwitchGamesWithType];
           break;
         case 'public':
@@ -272,32 +278,28 @@ const ModernDarePerformerDashboard = () => {
         // Apply difficulty filter
         if (filters.difficulties.length > 0) {
           filteredData = filteredData.filter(item => {
-            if (item.type === 'dare') {
-              return filters.difficulties.includes(item.difficulty);
-            } else if (item.type === 'switch-game') {
-              // Switch games store difficulty in creatorDare.difficulty
-              const switchGameDifficulty = item.creatorDare?.difficulty;
+            const itemDifficulty = item.type === 'dare' ? item.difficulty : item.creatorDare?.difficulty;
+            if (item.type === 'switch-game') {
               console.log('Switch game difficulty check:', { 
                 gameId: item._id, 
-                difficulty: switchGameDifficulty, 
+                difficulty: itemDifficulty, 
                 filters: filters.difficulties,
-                matches: filters.difficulties.includes(switchGameDifficulty)
+                matches: filters.difficulties.includes(itemDifficulty)
               });
-              return filters.difficulties.includes(switchGameDifficulty);
             }
-            return false;
+            // If no difficulty is set, don't filter it out (show all items without difficulty)
+            if (!itemDifficulty) {
+              return true;
+            }
+            return filters.difficulties.includes(itemDifficulty);
           });
         }
 
         // Apply type filter
         if (filters.types.length > 0) {
           filteredData = filteredData.filter(item => {
-            if (item.type === 'dare') {
-              return filters.types.includes(item.dareType);
-            } else if (item.type === 'switch-game') {
-              return filters.types.includes(item.creatorDare?.dareType);
-            }
-            return false;
+            const itemType = item.type === 'dare' ? item.dareType : item.creatorDare?.dareType;
+            return filters.types.includes(itemType);
           });
         }
 
@@ -366,7 +368,20 @@ const ModernDarePerformerDashboard = () => {
           return 0;
         case 'difficulty':
           const difficultyOrder = { titillating: 1, arousing: 2, explicit: 3, edgy: 4, hardcore: 5 };
-          return (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
+          const aDifficulty = a.type === 'dare' ? a.difficulty : a.creatorDare?.difficulty;
+          const bDifficulty = b.type === 'dare' ? b.difficulty : b.creatorDare?.difficulty;
+          
+          // If both have difficulty, sort by difficulty order
+          if (aDifficulty && bDifficulty) {
+            return (difficultyOrder[aDifficulty] || 0) - (difficultyOrder[bDifficulty] || 0);
+          }
+          
+          // If only one has difficulty, prioritize items with difficulty
+          if (aDifficulty && !bDifficulty) return -1;
+          if (!aDifficulty && bDifficulty) return 1;
+          
+          // If neither has difficulty, maintain original order
+          return 0;
         case 'status':
           const statusOrder = { waiting_for_participant: 1, in_progress: 2, completed: 3 };
           return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
@@ -1365,6 +1380,14 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
+  // Debug logging
+  console.log('SwitchGameCard render:', {
+    gameId: game?._id,
+    creatorDare: game?.creatorDare,
+    difficulty: game?.creatorDare?.difficulty,
+    status: game?.status
+  });
+  
   // Safety check
   if (!game) {
     return (
@@ -1387,10 +1410,17 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
-              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
-                {getDifficultyIcon(game.difficulty)}
-                <span className="capitalize">{game.difficulty}</span>
-              </span>
+                              {game.creatorDare?.difficulty ? (
+                                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
+                                  {getDifficultyIcon(game.creatorDare.difficulty)}
+                                  <span className="capitalize">{game.creatorDare.difficulty}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-neutral-600/20 text-neutral-400 border border-neutral-500/50">
+                                  <ClockIcon className="w-4 h-4" />
+                                  <span>No Difficulty Set</span>
+                                </span>
+                              )}
               <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
                 {getStatusIcon(game.status)}
                 <span className="capitalize">{game.status.replace('_', ' ')}</span>
