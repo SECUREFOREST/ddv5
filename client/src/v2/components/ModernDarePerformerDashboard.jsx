@@ -331,7 +331,7 @@ const ModernDarePerformerDashboard = () => {
           }
           return 0;
         case 'difficulty':
-          const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
+          const difficultyOrder = { titillating: 1, arousing: 2, explicit: 3, edgy: 4, hardcore: 5 };
           return (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
         case 'status':
           const statusOrder = { waiting_for_participant: 1, in_progress: 2, completed: 3 };
@@ -489,52 +489,7 @@ const ModernDarePerformerDashboard = () => {
     }
   }, [navigate]);
 
-  // Utility functions
-  const getDifficultyColor = useCallback((difficulty) => {
-    const colors = {
-      titillating: 'from-pink-400 to-pink-600',
-      arousing: 'from-purple-500 to-purple-700',
-      explicit: 'from-red-500 to-red-700',
-      edgy: 'from-yellow-400 to-yellow-600',
-      hardcore: 'from-gray-800 to-black'
-    };
-    return colors[difficulty] || 'from-gray-500 to-gray-700';
-  }, []);
 
-  const getDifficultyIcon = useCallback((difficulty) => {
-    const icons = {
-      titillating: <SparklesIcon className="w-5 h-5" />,
-      arousing: <FireIcon className="w-5 h-5" />,
-      explicit: <EyeDropperIcon className="w-5 h-5" />,
-      edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-      hardcore: <RocketLaunchIcon className="w-5 h-5" />
-    };
-    return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
-  }, []);
-
-  const getStatusColor = useCallback((status) => {
-    const colors = {
-      waiting_for_participant: 'bg-info/20 text-info',
-      in_progress: 'bg-warning/20 text-warning',
-      completed: 'bg-success/20 text-success',
-      rejected: 'bg-danger/20 text-danger',
-      cancelled: 'bg-neutral-600/20 text-neutral-400',
-      approved: 'bg-blue-500/20 text-blue-400'
-    };
-    return colors[status] || 'bg-neutral-600/20 text-neutral-400';
-  }, []);
-
-  const getStatusIcon = useCallback((status) => {
-    const icons = {
-      waiting_for_participant: <EyeIcon className="w-4 h-4" />,
-      in_progress: <ClockIcon className="w-4 h-4" />,
-      completed: <CheckCircleIcon className="w-4 h-4" />,
-      rejected: <XCircleIcon className="w-4 h-4" />,
-      cancelled: <XCircleIcon className="w-4 h-4" />,
-      approved: <CheckCircleIcon className="w-4 h-4" />
-    };
-    return icons[status] || <EyeIcon className="w-4 h-4" />;
-  }, []);
 
   // Loading state
   if (isLoading && safeDares.length === 0 && safeSwitchGames.length === 0) {
@@ -986,24 +941,7 @@ const ModernDarePerformerDashboard = () => {
                           />
                           <span className="text-neutral-300 text-sm">Public Only</span>
                         </label>
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={filters.myDares}
-                            onChange={(e) => handleFilterChange('myDares', e.target.checked)}
-                            className="w-4 h-4 text-primary focus:ring-primary border-neutral-600 bg-neutral-700 rounded"
-                          />
-                          <span className="text-neutral-300 text-sm">My Dares Only</span>
-                        </label>
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={filters.mySwitchGames}
-                            onChange={(e) => handleFilterChange('mySwitchGames', e.target.checked)}
-                            className="w-4 h-4 text-primary focus:ring-primary border-neutral-600 bg-neutral-700 rounded"
-                          />
-                          <span className="text-neutral-300 text-sm">My Games Only</span>
-                        </label>
+
                       </div>
                     </div>
                   </div>
@@ -1025,7 +963,7 @@ const ModernDarePerformerDashboard = () => {
                 <p className="text-neutral-400">
                   Showing {sortedData.length} items
                 </p>
-                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.status || filters.publicOnly || filters.myDares || filters.mySwitchGames ? (
+                {filters.difficulties.length > 0 || filters.types.length > 0 || filters.status !== 'all' || filters.publicOnly ? (
                   <div className="flex flex-wrap gap-2">
                     {filters.difficulties.map(difficulty => (
                       <span
@@ -1051,16 +989,7 @@ const ModernDarePerformerDashboard = () => {
                         Public Only
                       </span>
                     )}
-                    {filters.myDares && (
-                      <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
-                        My Dares Only
-                      </span>
-                    )}
-                    {filters.mySwitchGames && (
-                      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">
-                        My Games Only
-                      </span>
-                    )}
+
                   </div>
                 ) : null}
               </div>
@@ -1121,24 +1050,31 @@ const ModernDarePerformerDashboard = () => {
 // Shared utility functions for card components
 const getDifficultyColor = (difficulty) => {
   switch (difficulty) {
-    case 'easy': return 'from-green-500 to-green-600';
-    case 'medium': return 'from-yellow-500 to-yellow-600';
-    case 'hard': return 'from-red-500 to-red-600';
+    case 'titillating': return 'from-pink-400 to-pink-600';
+    case 'arousing': return 'from-purple-500 to-purple-700';
+    case 'explicit': return 'from-red-500 to-red-700';
+    case 'edgy': return 'from-yellow-400 to-yellow-600';
+    case 'hardcore': return 'from-gray-800 to-black';
     default: return 'from-neutral-500 to-neutral-600';
   }
 };
 
 const getDifficultyIcon = (difficulty) => {
   const icons = {
-    easy: <SparklesIcon className="w-5 h-5" />,
-    medium: <FireIcon className="w-5 h-5" />,
-    hard: <ExclamationTriangleIcon className="w-5 h-5" />
+    titillating: <SparklesIcon className="w-5 h-5" />,
+    arousing: <FireIcon className="w-5 h-5" />,
+    explicit: <EyeDropperIcon className="w-5 h-5" />,
+    edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
+    hardcore: <RocketLaunchIcon className="w-5 h-5" />
   };
   return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
 };
 
 const getStatusColor = (status) => {
   const colors = {
+    active: 'bg-green-500/20 text-green-400',
+    claimed: 'bg-blue-500/20 text-blue-400',
+    pending: 'bg-yellow-500/20 text-yellow-400',
     waiting_for_participant: 'bg-info/20 text-info',
     in_progress: 'bg-warning/20 text-warning',
     completed: 'bg-success/20 text-success',
@@ -1151,6 +1087,9 @@ const getStatusColor = (status) => {
 
 const getStatusIcon = (status) => {
   const icons = {
+    active: <PlayIcon className="w-4 h-4" />,
+    claimed: <DocumentPlusIcon className="w-4 h-4" />,
+    pending: <ClockIcon className="w-4 h-4" />,
     waiting_for_participant: <EyeIcon className="w-4 h-4" />,
     in_progress: <ClockIcon className="w-4 h-4" />,
     completed: <CheckCircleIcon className="w-4 h-4" />,

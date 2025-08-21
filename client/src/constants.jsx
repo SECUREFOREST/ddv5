@@ -87,11 +87,12 @@ export const ROLE_OPTIONS = [
 
 export const STATUS_OPTIONS = [
   { value: '', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'claimed', label: 'Claimed' },
+  { value: 'pending', label: 'Pending' },
   { value: 'in_progress', label: 'In Progress' },
-
   { value: 'completed', label: 'Completed' },
   { value: 'chickened_out', label: 'Chickened Out' }, // 'chickened_out' is the database status value
-
   { value: 'waiting_for_participant', label: 'Waiting For Participant' },
   { value: 'rejected', label: 'Rejected' },
   { value: 'cancelled', label: 'Cancelled' },
@@ -109,6 +110,21 @@ export const TYPE_OPTIONS = [
 
 // Comprehensive status mapping with consistent styling
 export const STATUS_MAP = {
+  active: { 
+    label: 'Active', 
+    color: 'bg-green-600/20 border border-green-500/50 text-green-300',
+    icon: '▶️'
+  },
+  claimed: { 
+    label: 'Claimed', 
+    color: 'bg-blue-600/20 border border-blue-500/50 text-blue-300',
+    icon: '📋'
+  },
+  pending: { 
+    label: 'Pending', 
+    color: 'bg-yellow-600/20 border border-yellow-500/50 text-yellow-300',
+    icon: '⏸️'
+  },
   waiting_for_participant: { 
     label: 'Waiting', 
     color: 'bg-blue-600/20 border border-blue-500/50 text-blue-300',
