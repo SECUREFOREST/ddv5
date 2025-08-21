@@ -8,11 +8,9 @@ import {
   ClockIcon, 
   TrophyIcon, 
   UserGroupIcon,
-  MagnifyingGlassIcon,
   FunnelIcon,
   ArrowsUpDownIcon,
   EyeIcon,
-  ListBulletIcon,
   PlusIcon,
   FireIcon,
   UserCircleIcon,
@@ -77,17 +75,13 @@ const ModernDarePerformerDashboard = () => {
   });
 
   const [filters, setFilters] = useState({
-    search: '',
     difficulties: [],
     types: [],
-    status: '',
-    publicOnly: false,
-    myDares: false,
-    mySwitchGames: false
+    status: 'all',
+    publicOnly: false
   });
 
   const [sortBy, setSortBy] = useState('updatedAt');
-  const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [currentPage, setCurrentPage] = useState(1);
@@ -232,13 +226,10 @@ const ModernDarePerformerDashboard = () => {
   // Clear all filters
   const clearFilters = useCallback(() => {
     setFilters({
-      search: '',
       difficulties: [],
       types: [],
-      status: '',
-      publicOnly: false,
-      myDares: false,
-      mySwitchGames: false
+      status: 'all',
+      publicOnly: false
     });
     setCurrentPage(1);
   }, []);
@@ -262,59 +253,63 @@ const ModernDarePerformerDashboard = () => {
           data = [...(dares || []), ...(switchGames || [])];
       }
 
-      // Apply search filter
-      if (filters.search && data.length > 0) {
-        data = data.filter(item => 
-          item && (
-            (item.title?.toLowerCase().includes(filters.search.toLowerCase())) ||
-            (item.description?.toLowerCase().includes(filters.search.toLowerCase())) ||
-            (item.creatorDare?.description?.toLowerCase().includes(filters.search.toLowerCase()))
-          )
-        );
+      // Apply filters
+      if (data.length > 0) {
+        // Apply difficulty filter
+        if (filters.difficulties.length > 0) {
+          filteredData = filteredData.filter(item => {
+            if (item.type === 'dare') {
+              return filters.difficulties.includes(item.difficulty);
+            } else if (item.type === 'switch-game') {
+              return filters.difficulties.includes(item.creatorDare?.difficulty);
+            }
+            return false;
+          });
+        }
+
+        // Apply type filter
+        if (filters.types.length > 0) {
+          filteredData = filteredData.filter(item => {
+            if (item.type === 'dare') {
+              return filters.types.includes(item.dareType);
+            } else if (item.type === 'switch-game') {
+              return filters.types.includes(item.creatorDare?.dareType);
+            }
+            return false;
+          });
+        }
+
+        // Apply status filter
+        if (filters.status !== 'all') {
+          filteredData = filteredData.filter(item => {
+            if (item.type === 'dare') {
+              return item.status === filters.status;
+            } else if (item.type === 'switch-game') {
+              return item.status === filters.status;
+            }
+            return false;
+          });
+        }
+
+        // Apply public/private filter
+        if (filters.publicOnly) {
+          filteredData = filteredData.filter(item => {
+            if (item.type === 'dare') {
+              return item.public === true;
+            } else if (item.type === 'switch-game') {
+              return item.public === true;
+            }
+            return false;
+          });
+        }
       }
 
-      // Apply difficulty filter
-      if (filters.difficulties.length > 0 && data.length > 0) {
-        data = data.filter(item => item && filters.difficulties.includes(item.difficulty));
-      }
-
-      // Apply type filter (for dares)
-      if (filters.types.length > 0 && data.length > 0) {
-        data = data.filter(item => 
-          item && (item.dareType ? filters.types.includes(item.dareType) : true)
-        );
-      }
-
-      // Apply status filter
-      if (filters.status && data.length > 0) {
-        data = data.filter(item => item && item.status === filters.status);
-      }
-
-      // Apply public only filter
-      if (filters.publicOnly && data.length > 0) {
-        data = data.filter(item => item && item.public === true);
-      }
-
-      // Apply my dares filter
-      if (filters.myDares && data.length > 0) {
-        data = data.filter(item => 
-          item && (item.creator?._id === user?._id || item.performer?._id === user?._id)
-        );
-      }
-
-      // Apply my switch games filter
-      if (filters.mySwitchGames && data.length > 0) {
-        data = data.filter(item => 
-          item && (item.creator?._id === user?._id || item.participant?._id === user?._id)
-        );
-      }
-
-      return data;
+      return filteredData;
     } catch (error) {
       console.error('Error filtering data:', error);
       return [];
     }
-  }, [activeTab, dares, switchGames, publicDares, publicSwitchGames, filters, user?._id]);
+  }, [activeTab, dares, switchGames, publicDares, publicSwitchGames, filters]);
 
   // Sort filtered data
   const getSortedData = useCallback(() => {
@@ -614,56 +609,7 @@ const ModernDarePerformerDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalActiveDares + safeSummary.totalSwitchGames}</div>
-                <div className="text-sm text-neutral-400">Active</div>
-              </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400">
-                <ClockIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalCompletedDares + safeSummary.totalSwitchGames}</div>
-                <div className="text-sm text-neutral-400">Completed</div>
-              </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400">
-                <TrophyIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalPublicDares + safeSummary.totalPublicSwitchGames}</div>
-                <div className="text-sm text-neutral-400">Available</div>
-              </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-400">
-                <SparklesIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-3xl font-bold text-white mb-1">{safeSummary.totalActiveDares + safeSummary.totalCompletedDares + safeSummary.totalSwitchGames}</div>
-                <div className="text-sm text-neutral-400">Total</div>
-              </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400">
-                <ChartBarIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Quick Actions */}
         <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50 mb-8">
@@ -742,24 +688,74 @@ const ModernDarePerformerDashboard = () => {
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-white">Dashboard Overview</h3>
-              <p className="text-neutral-400">Welcome to your dare performer dashboard. Use the tabs above to navigate between different views.</p>
+              <p className="text-neutral-400">Track your personal dare and switch game progress. Use the tabs above to navigate between different views.</p>
               
-              {/* Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-neutral-700/30 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-white mb-3">Dares Summary</h4>
-                  <div className="space-y-2 text-sm text-neutral-300">
-                    <div>Active: {safeSummary.totalActiveDares}</div>
-                    <div>Completed: {safeSummary.totalCompletedDares}</div>
-                    <div>Available: {safeSummary.totalPublicDares}</div>
+              {/* Stats Overview */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">
+                        {(safeDares.filter(dare => dare.status === 'active' || dare.status === 'claimed').length + 
+                          safeSwitchGames.filter(game => game.status === 'active' || game.status === 'waiting_for_participant').length)}
+                      </div>
+                      <div className="text-sm text-neutral-400">My Active</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400">
+                      <ClockIcon className="w-6 h-6" />
+                    </div>
                   </div>
                 </div>
                 
-                <div className="bg-neutral-700/30 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-white mb-3">Switch Games Summary</h4>
-                  <div className="space-y-2 text-sm text-neutral-300">
-                    <div>Active: {safeSummary.totalSwitchGames}</div>
-                    <div>Available: {safeSummary.totalPublicSwitchGames}</div>
+                <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">
+                        {(safeDares.filter(dare => dare.status === 'completed').length + 
+                          safeSwitchGames.filter(game => game.status === 'completed').length)}
+                      </div>
+                      <div className="text-sm text-neutral-400">My Completed</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400">
+                      <TrophyIcon className="w-6 h-6" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">
+                        {(safePublicDares.filter(dare => 
+                            dare.status === 'pending' && 
+                            dare.creator?._id !== user?._id &&
+                            !dare.performer
+                          ).length + 
+                          safePublicSwitchGames.filter(game => 
+                            game.status === 'waiting_for_participant' && 
+                            game.creator?._id !== user?._id &&
+                            !game.participant
+                          ).length)}
+                      </div>
+                      <div className="text-sm text-neutral-400">Available to Join</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30 text-purple-400">
+                      <SparklesIcon className="w-6 h-6" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-white mb-1">
+                        {safeDares.length + safeSwitchGames.length}
+                      </div>
+                      <div className="text-sm text-neutral-400">My Total</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400">
+                      <ChartBarIcon className="w-6 h-6" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -874,22 +870,8 @@ const ModernDarePerformerDashboard = () => {
 
           {activeTab !== 'overview' && (
             <>
-              {/* Search and Filters */}
-              <div className="flex flex-col lg:flex-row gap-6 mb-6">
-                {/* Search */}
-                <div className="flex-1">
-                  <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                    <input
-                      type="text"
-                      placeholder="Search dares and games..."
-                      value={filters.search}
-                      onChange={(e) => handleFilterChange('search', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
+              {/* Filters */}
+              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                 {/* Filter Toggle */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
@@ -902,30 +884,6 @@ const ModernDarePerformerDashboard = () => {
                   <FunnelIcon className="w-5 h-5" />
                   <span>Filters</span>
                 </button>
-
-                {/* View Mode Toggle */}
-                <div className="flex bg-neutral-700/50 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                      viewMode === 'grid'
-                        ? 'bg-primary text-white'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    Grid
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                      viewMode === 'list'
-                        ? 'bg-primary text-white'
-                        : 'text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    List
-                  </button>
-                </div>
 
                 {/* Sort */}
                 <select 
@@ -1000,7 +958,7 @@ const ModernDarePerformerDashboard = () => {
                         onChange={(e) => handleFilterChange('status', e.target.value)}
                         className="w-full px-3 py-2 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
-                        <option value="">All Statuses</option>
+                        <option value="all">All Statuses</option>
                         {STATUS_OPTIONS.slice(1).map((status) => (
                           <option key={status.value} value={status.value}>{status.label}</option>
                         ))}
@@ -1099,36 +1057,25 @@ const ModernDarePerformerDashboard = () => {
                 ) : null}
               </div>
 
-              {/* Content Grid/List */}
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedData.map((item) => {
-                    if (activeTab === 'dares' || (activeTab === 'public' && item.dareType)) {
-                      return <DareCard key={item._id} dare={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                    } else {
-                      return <SwitchGameCard key={item._id} game={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                    }
-                  })}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {sortedData.map((item) => {
-                    if (activeTab === 'dares' || (activeTab === 'public' && item.dareType)) {
-                      return <DareListItem key={item._id} dare={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                    } else {
-                      return <SwitchGameListItem key={item._id} game={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                    }
-                  })}
-                </div>
-              )}
+              {/* Content Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedData.map((item) => {
+                  if (item.type === 'dare') {
+                    return <DareCard key={item._id} dare={item} onLikeToggle={handleLikeToggleWithLoading} />;
+                  } else if (item.type === 'switch-game') {
+                    return <SwitchGameCard key={item._id} game={item} onLikeToggle={handleLikeToggleWithLoading} />;
+                  }
+                  return null;
+                })}
+              </div>
 
               {sortedData.length === 0 && (
                 <div className="text-center py-12">
                   <div className="w-24 h-24 bg-neutral-700/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MagnifyingGlassIcon className="w-12 h-12 text-neutral-500" />
+                    <FunnelIcon className="w-12 h-12 text-neutral-500" />
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">No items found</h3>
-                  <p className="text-neutral-400">Try adjusting your filters or search terms</p>
+                  <p className="text-neutral-400">Try adjusting your filters</p>
                 </div>
               )}
 
@@ -1503,213 +1450,6 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
               </button>
             )}
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const DareListItem = ({ dare, onLikeToggle }) => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Safety check
-  if (!dare) {
-    return (
-      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-        <div className="text-center text-neutral-400">Invalid dare data</div>
-      </div>
-    );
-  }
-
-  // Navigation handlers
-  const { handleViewDetails, handleClaim, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, dare._id, 'dare');
-
-  // Get permissions for this dare
-  const permissions = getItemPermissions(user, dare, 'dare');
-
-  return (
-    <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
-      <div className="flex items-center space-x-6">
-        {/* Dare Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
-                {getDifficultyIcon(dare.difficulty)}
-                <span className="capitalize">{dare.difficulty}</span>
-              </span>
-              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dare.status)}`}>
-                {getStatusIcon(dare.status)}
-                <span className="capitalize">{dare.status.replace('_', ' ')}</span>
-              </span>
-            </div>
-            <button
-              onClick={() => onLikeToggle(dare._id, 'dare')}
-              className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${dare.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
-            >
-              <HeartIcon className={`w-5 h-5 ${dare.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
-            </button>
-          </div>
-          
-          <div className="flex items-center space-x-6 text-sm text-neutral-400">
-            <span className="flex items-center space-x-1">
-              <Avatar 
-                user={dare.creator} 
-                size="xs" 
-                onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
-              />
-              <span 
-                className="cursor-pointer hover:text-white transition-colors duration-200"
-                onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
-              >
-                {dare.creator?.username || 'N/A'}
-              </span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <ClockIcon className="w-4 h-4" />
-              <span>{dare.updatedAt ? new Date(dare.updatedAt).toLocaleDateString() : 'No date'}</span>
-            </span>
-            {dare.performer && (
-              <span className="flex items-center space-x-1">
-                <Avatar 
-                  user={dare.performer} 
-                  size="xs" 
-                  onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
-                />
-                <span 
-                  className="cursor-pointer hover:text-white transition-colors duration-200"
-                  onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
-                >
-                  Performer: {dare.performer?.username || 'N/A'}
-                </span>
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex-shrink-0 flex gap-2">
-          <button 
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-            onClick={handleViewDetails}
-          >
-            View Details
-          </button>
-          {permissions.canClaim && (
-            <button 
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleClaim}
-            >
-              Claim
-            </button>
-          )}
-          {permissions.canSubmitProof && (
-            <button 
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleSubmitProof}
-            >
-              Submit Proof
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SwitchGameListItem = ({ game, onLikeToggle }) => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Safety check
-  if (!game) {
-    return (
-      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-        <div className="text-center text-neutral-400">Invalid switch game data</div>
-      </div>
-    );
-  }
-
-  // Navigation handlers
-  const { handleViewDetails, handleJoin, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, game._id, 'switch-game');
-
-  // Get permissions for this game
-  const permissions = getItemPermissions(user, game, 'switch-game');
-
-  return (
-    <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 p-6 hover:border-neutral-600/50 transition-all duration-200">
-      <div className="flex items-center space-x-6">
-        {/* Game Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.difficulty)} text-white`}>
-                {getDifficultyIcon(game.difficulty)}
-                <span className="capitalize">{game.difficulty}</span>
-              </span>
-              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
-                {getStatusIcon(game.status)}
-                <span className="capitalize">{game.status.replace('_', ' ')}</span>
-              </span>
-            </div>
-            <button
-              onClick={() => onLikeToggle(game._id, 'game')}
-              className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 text-neutral-400 hover:text-neutral-300 ${game.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
-            >
-              <HeartIcon className={`w-5 h-5 ${game.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
-            </button>
-          </div>
-          
-          <div className="flex items-center space-x-6 text-sm text-neutral-400">
-            <span className="flex items-center space-x-1">
-              <Avatar 
-                user={game.creator} 
-                size="xs" 
-                onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
-              />
-              <span 
-                className="cursor-pointer hover:text-white transition-colors duration-200"
-                onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
-              >
-                {game.creator?.username || 'N/A'}
-              </span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <UserGroupIcon className="w-4 h-4" />
-              <span>{game.participant ? '2 Players' : '1 Player'}</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <ClockIcon className="w-4 h-4" />
-              <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex-shrink-0 flex gap-2">
-          <button 
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-            onClick={handleViewDetails}
-          >
-            View Details
-          </button>
-          {permissions.canJoin && (
-            <button 
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleJoin}
-            >
-              Join Game
-            </button>
-          )}
-          {permissions.canSubmitProof && (
-            <button 
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-              onClick={handleSubmitProof}
-            >
-              Submit Proof
-            </button>
-          )}
         </div>
       </div>
     </div>
