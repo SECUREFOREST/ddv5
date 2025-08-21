@@ -156,8 +156,8 @@ const ModernDarePerformerDashboard = () => {
           status: filtersToUse.status || ''
         },
         switchGameFilters: {
-          difficulty: filtersToUse.difficulties.length > 0 ? filtersToUse.difficulties[0] : '',
-          status: filtersToUse.status || ''
+          difficulty: filtersToUse.difficulties.length > 0 ? filtersToUse.difficulties[0] : ''
+          // Don't apply status filter to switch games as they have different status values
         },
         publicFilters: {
           difficulty: filtersToUse.difficulties.length > 0 ? filtersToUse.difficulties[0] : '',
@@ -178,6 +178,8 @@ const ModernDarePerformerDashboard = () => {
         ...(dashboardData.data?.completedDares || [])
       ]);
       setSwitchGames(dashboardData.data?.switchGames || []);
+      console.log('Setting switch games:', dashboardData.data?.switchGames);
+      console.log('Switch games structure:', dashboardData.data?.switchGames?.[0]);
       setPublicDares(dashboardData.data?.publicDares || []);
       setPublicSwitchGames(dashboardData.data?.publicSwitchGames || []);
       setSummary(dashboardData.summary || {});
@@ -248,6 +250,7 @@ const ModernDarePerformerDashboard = () => {
           console.log('My items tab - dares count:', myDaresWithType.length);
           console.log('My items tab - switch games count:', mySwitchGamesWithType.length);
           console.log('Switch games state:', switchGames);
+          console.log('Switch games with type:', mySwitchGamesWithType);
           data = [...myDaresWithType, ...mySwitchGamesWithType];
           break;
         case 'public':
@@ -272,7 +275,15 @@ const ModernDarePerformerDashboard = () => {
             if (item.type === 'dare') {
               return filters.difficulties.includes(item.difficulty);
             } else if (item.type === 'switch-game') {
-              return filters.difficulties.includes(item.creatorDare?.difficulty);
+              // Switch games store difficulty in creatorDare.difficulty
+              const switchGameDifficulty = item.creatorDare?.difficulty;
+              console.log('Switch game difficulty check:', { 
+                gameId: item._id, 
+                difficulty: switchGameDifficulty, 
+                filters: filters.difficulties,
+                matches: filters.difficulties.includes(switchGameDifficulty)
+              });
+              return filters.difficulties.includes(switchGameDifficulty);
             }
             return false;
           });
@@ -303,7 +314,18 @@ const ModernDarePerformerDashboard = () => {
             if (item.type === 'dare') {
               return item.status === filters.status;
             } else if (item.type === 'switch-game') {
-              return item.status === filters.status;
+              // Switch games have different status values, so we need to map them
+              const statusMapping = {
+                'active': ['waiting_for_participant', 'in_progress', 'proof_submitted', 'awaiting_proof'],
+                'claimed': ['waiting_for_participant'],
+                'pending': ['waiting_for_participant'],
+                'in_progress': ['in_progress', 'proof_submitted', 'awaiting_proof'],
+                'completed': ['completed'],
+                'rejected': ['chickened_out'],
+                'cancelled': ['chickened_out']
+              };
+              const allowedStatuses = statusMapping[filters.status] || [];
+              return allowedStatuses.includes(item.status);
             }
             return false;
           });
@@ -877,10 +899,7 @@ const ModernDarePerformerDashboard = () => {
                 <div className="mb-6">
                   <h3 className="text-2xl font-bold text-white mb-2">My Dares/Switch Games</h3>
                   <p className="text-neutral-400">View and manage all your personal dares and switch games</p>
-                  {/* Debug info */}
-                  <div className="mt-2 text-xs text-neutral-500">
-                    Debug: Dares: {dares?.length || 0}, Switch Games: {switchGames?.length || 0}
-                  </div>
+
                 </div>
               )}
               
@@ -1032,10 +1051,7 @@ const ModernDarePerformerDashboard = () => {
                 <p className="text-neutral-400">
                   Showing {sortedData.length} items
                 </p>
-                {/* Debug info */}
-                <div className="text-xs text-neutral-500">
-                  Raw: Dares: {dares?.length || 0}, Switch Games: {switchGames?.length || 0}
-                </div>
+
                 {filters.difficulties.length > 0 || filters.types.length > 0 || filters.itemTypes.length > 0 || filters.status !== 'all' || filters.publicOnly ? (
                   <div className="flex flex-wrap gap-2">
                     {filters.difficulties.map(difficulty => (
