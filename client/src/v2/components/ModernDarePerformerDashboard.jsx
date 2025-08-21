@@ -1279,7 +1279,7 @@ const ItemCard = ({ item, onLikeToggle }) => {
       return {
         badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
         icon: <FireIcon className="w-4 h-4" />,
-        label: 'Switch Game',
+        label: 'Switch',
         difficulty: item.creatorDare?.difficulty,
         status: item.status,
         creator: item.creator,
