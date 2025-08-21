@@ -1321,10 +1321,7 @@ const DareCard = ({ dare, onLikeToggle }) => {
               {dare.creator?.username || 'N/A'}
             </span>
           </div>
-          <div className="flex items-center space-x-2 text-neutral-400">
-            <ClockIcon className="w-4 h-4" />
-            <span>{dare.updatedAt ? new Date(dare.updatedAt).toLocaleDateString() : 'No date'}</span>
-          </div>
+
           {dare.performer && (
             <div className="flex items-center space-x-2 text-neutral-400">
               <Avatar 
@@ -1356,9 +1353,11 @@ const DareCard = ({ dare, onLikeToggle }) => {
       {/* Footer */}
       <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-neutral-500">
-            {dare.public ? 'Public' : 'Private'}
-          </span>
+          <div className="flex items-center space-x-4 text-xs text-neutral-500">
+            <span>{dare.public ? 'Public' : 'Private'}</span>
+            <span>•</span>
+            <span>{dare.updatedAt ? new Date(dare.updatedAt).toLocaleDateString() : 'No date'}</span>
+          </div>
           <div className="flex gap-2">
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
               View Details
