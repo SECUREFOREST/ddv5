@@ -1267,6 +1267,10 @@ const DareCard = ({ dare, onLikeToggle }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
+              <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400 border border-blue-500/50">
+                <SparklesIcon className="w-4 h-4" />
+                <span>Dare</span>
+              </span>
               <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
                 {getDifficultyIcon(dare.difficulty)}
                 <span className="capitalize">{dare.difficulty}</span>
@@ -1409,21 +1413,27 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
-                              {game.creatorDare?.difficulty ? (
-                                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
-                                  {getDifficultyIcon(game.creatorDare.difficulty)}
-                                  <span className="capitalize">{game.creatorDare.difficulty}</span>
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-neutral-600/20 text-neutral-400 border border-neutral-500/50">
-                                  <ClockIcon className="w-4 h-4" />
-                                  <span>No Difficulty Set</span>
-                                </span>
-                              )}
+                        <div className="flex items-center space-x-2 mb-2">
+              <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400 border border-purple-500/50">
+                <FireIcon className="w-4 h-4" />
+                <span>Switch Game</span>
+              </span>
+              {game.creatorDare?.difficulty ? (
+                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
+                  {getDifficultyIcon(game.creatorDare.difficulty)}
+                  <span className="capitalize">{game.creatorDare.difficulty}</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-neutral-600/20 text-neutral-400 border border-neutral-500/50">
+                  <ClockIcon className="w-4 h-4" />
+                  <span>No Difficulty Set</span>
+                </span>
+              )}
               <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
                 {getStatusIcon(game.status)}
-                <span className="capitalize">{game.status.replace('_', ' ')}</span>
+                <span className="capitalize">
+                  {game.status === 'waiting_for_participant' ? 'New' : game.status.replace('_', ' ')}
+                </span>
               </span>
             </div>
           </div>
