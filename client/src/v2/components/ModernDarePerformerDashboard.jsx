@@ -1493,13 +1493,10 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
           ) : (
             <div className="flex items-center space-x-2 text-neutral-400">
               <UserGroupIcon className="w-4 h-4" />
-              <span>Waiting for participant</span>
+              <span>New</span>
             </div>
           )}
-          <div className="flex items-center space-x-2 text-neutral-400">
-            <ClockIcon className="w-4 h-4" />
-            <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
-          </div>
+
         </div>
 
         {/* Winner for Completed Games */}
@@ -1526,9 +1523,11 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
       {/* Footer */}
       <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-neutral-500">
-            {game.public ? 'Public' : 'Private'}
-          </span>
+          <div className="flex items-center space-x-4 text-xs text-neutral-500">
+            <span>{game.public ? 'Public' : 'Private'}</span>
+            <span>•</span>
+            <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
+          </div>
           <div className="flex gap-2">
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
               View Details
