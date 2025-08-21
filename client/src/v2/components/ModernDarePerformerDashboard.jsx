@@ -958,6 +958,21 @@ const ModernDarePerformerDashboard = () => {
                       </div>
                     </div>
 
+                    {/* Status Filter */}
+                    <div>
+                      <h3 className="text-white font-medium mb-3">Status</h3>
+                      <select
+                        value={filters.status}
+                        onChange={(e) => handleFilterChange('status', e.target.value)}
+                        className="w-full px-3 py-2 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="all">All Statuses</option>
+                        {STATUS_OPTIONS.slice(1).map((status) => (
+                          <option key={status.value} value={status.value}>{status.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
                     {/* Additional Filters */}
                     <div>
                       <h3 className="text-white font-medium mb-3">Options</h3>
