@@ -1466,10 +1466,26 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
               {game.creator?.username || 'N/A'}
             </span>
           </div>
-          <div className="flex items-center space-x-2 text-neutral-400">
-            <UserGroupIcon className="w-4 h-4" />
-            <span>{game.participant ? '2 Players' : '1 Player'}</span>
-          </div>
+          {game.participant ? (
+            <div className="flex items-center space-x-2 text-neutral-400">
+              <Avatar 
+                user={game.participant} 
+                size="xs" 
+                onClick={() => game.participant?._id && handleViewProfile(game.participant._id)}
+              />
+              <span 
+                className="cursor-pointer hover:text-white transition-colors duration-200"
+                onClick={() => game.participant?._id && handleViewProfile(game.participant._id)}
+              >
+                {game.participant?.username || 'N/A'}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 text-neutral-400">
+              <UserGroupIcon className="w-4 h-4" />
+              <span>Waiting for participant</span>
+            </div>
+          )}
           <div className="flex items-center space-x-2 text-neutral-400">
             <ClockIcon className="w-4 h-4" />
             <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
