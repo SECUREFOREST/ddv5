@@ -225,4 +225,34 @@ export const unlikeDare = async (dareId) => {
     console.error('Unlike dare API failed:', error);
     throw error;
   }
+};
+
+/**
+ * Likes a switch game
+ * @param {string} gameId - The switch game ID to like
+ * @returns {Promise<Object>} - Response with like status
+ */
+export const likeSwitchGame = async (gameId) => {
+  try {
+    const response = await api.post(`/switches/${gameId}/like`);
+    return response.data;
+  } catch (error) {
+    console.error('Like switch game API failed:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unlikes a switch game
+ * @param {string} gameId - The switch game ID to unlike
+ * @returns {Promise<Object>} - Response with like status
+ */
+export const unlikeSwitchGame = async (gameId) => {
+  try {
+    const response = await api.delete(`/switches/${gameId}/like`);
+    return response.data;
+  } catch (error) {
+    console.error('Unlike switch game API failed:', error);
+    throw error;
+  }
 }; 

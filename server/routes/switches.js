@@ -1332,4 +1332,88 @@ router.post('/:id/self-fix', auth, async (req, res) => {
 // Schedule cleanup of expired proofs every hour
 setInterval(cleanupExpiredProofs, 60 * 60 * 1000);
 
+// POST /api/switches/:id/like - like a switch game
+router.post('/:id/like', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const game = await SwitchGame.findById(req.params.id);
+    
+    if (!game) {
+      return res.status(404).json({ error: 'Switch game not found.' });
+    }
+    
+    // Check if user already liked this game
+    if (game.likes.includes(userId)) {
+      return res.status(400).json({ error: 'You have already liked this game.' });
+    }
+    
+    // Add user to likes array
+    game.likes.push(userId);
+    await game.save();
+    
+    // Log activity
+    await logActivity({
+      user: userId,
+      type: 'switchgame_liked',
+      description: `Liked switch game`,
+      switchGame: game._id
+    });
+    
+    // Populate creator and participant for response
+    await game.populate('creator participant');
+    
+    res.json({ 
+      message: 'Game liked successfully!',
+      isLiked: true,
+      likesCount: game.likes.length,
+      game
+    });
+  } catch (err) {
+    console.error('Error liking switch game:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/switches/:id/like - unlike a switch game
+router.delete('/:id/like', auth, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const game = await SwitchGame.findById(req.params.id);
+    
+    if (!game) {
+      return res.status(404).json({ error: 'Switch game not found.' });
+    }
+    
+    // Check if user has liked this game
+    if (!game.likes.includes(userId)) {
+      return res.status(400).json({ error: 'You have not liked this game.' });
+    }
+    
+    // Remove user from likes array
+    game.likes = game.likes.filter(id => !id.equals(userId));
+    await game.save();
+    
+    // Log activity
+    await logActivity({
+      user: userId,
+      type: 'switchgame_unliked',
+      description: `Unliked switch game`,
+      switchGame: game._id
+    });
+    
+    // Populate creator and participant for response
+    await game.populate('creator participant');
+    
+          res.json({ 
+        message: 'Game unliked successfully!',
+        isLiked: false,
+        likesCount: game.likes.length,
+        game
+      });
+  } catch (err) {
+    console.error('Error unliking switch game:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router; 

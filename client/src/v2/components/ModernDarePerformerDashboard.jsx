@@ -39,7 +39,9 @@ import {
   fetchUserStats, 
   fetchGeneralStats,
   likeDare,
-  unlikeDare
+  unlikeDare,
+  likeSwitchGame,
+  unlikeSwitchGame
 } from '../../utils/dashboardApi';
 import { handleApiError } from '../../utils/errorHandler';
 import { useDashboardRealtimeUpdates } from '../../hooks/useRealtimeUpdates';
@@ -439,10 +441,42 @@ const ModernDarePerformerDashboard = () => {
           return dare;
         }));
 
-      } else if (itemType === 'game') {
-        // Switch game like functionality can be added later
-        showError('Like functionality for switch games coming soon');
-        return;
+      } else if (itemType === 'switch-game') {
+        // Check if already liked
+        const switchGame = switchGames.find(g => g._id === itemId);
+        const isCurrentlyLiked = switchGame?.likes?.includes(user._id);
+        
+        if (isCurrentlyLiked) {
+          response = await unlikeSwitchGame(itemId);
+        } else {
+          response = await likeSwitchGame(itemId);
+        }
+
+        // Update local state immediately for better UX
+        setSwitchGames(prev => prev.map(game => {
+          if (game._id === itemId) {
+            return {
+              ...game,
+              likes: response.isLiked 
+                ? [...(game.likes || []), user._id]
+                : (game.likes || []).filter(id => id !== user._id)
+            };
+          }
+          return game;
+        }));
+
+        // Also update public switch games if this item is there
+        setPublicSwitchGames(prev => prev.map(game => {
+          if (game._id === itemId) {
+            return {
+              ...game,
+              likes: response.isLiked 
+                ? [...(game.likes || []), user._id]
+                : (game.likes || []).filter(id => id !== user._id)
+            };
+          }
+          return game;
+        }));
       }
 
       showSuccess(response.message);
@@ -1219,9 +1253,24 @@ const getItemPermissions = (user, item, itemType) => {
   const isPerformer = user?._id === item.performer?._id;
   const isParticipant = user?._id === item.participant?._id;
   
+  if (itemType === 'dare') {
+    return {
+      canClaim: !isCreator && !isPerformer && item.status === 'waiting_for_participant',
+      canJoin: false, // Dares don't have join functionality
+      canSubmitProof: (isPerformer || isParticipant) && item.status === 'in_progress'
+    };
+  } else if (itemType === 'switch-game') {
+    return {
+      canClaim: false, // Switch games don't have claim functionality
+      canJoin: !isCreator && !isParticipant && item.status === 'waiting_for_participant',
+      canSubmitProof: isParticipant && item.status === 'in_progress'
+    };
+  }
+  
   return {
-    canClaim: !isCreator && !isPerformer && item.status === 'waiting_for_participant',
-    canSubmitProof: (isPerformer || isParticipant) && item.status === 'in_progress'
+    canClaim: false,
+    canJoin: false,
+    canSubmitProof: false
   };
 };
 
@@ -1246,7 +1295,7 @@ const ItemCard = ({ item, onLikeToggle }) => {
     if (isLiking || !item._id) return;
     setIsLiking(true);
     try {
-      await onLikeToggle(item._id, isDare ? 'dare' : 'game');
+      await onLikeToggle(item._id, isDare ? 'dare' : 'switch-game');
     } finally {
       setIsLiking(false);
     }
@@ -1330,6 +1379,7 @@ const ItemCard = ({ item, onLikeToggle }) => {
             onClick={handleLikeClick}
             className={`p-2 rounded-lg transition-all duration-200 text-neutral-400 hover:text-neutral-300 ${item.likes?.includes(user?._id) ? 'text-red-400' : ''} ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isLiking}
+            title={isDare ? 'Like this dare' : 'Like this switch game'}
           >
             <HeartIcon className={`w-5 h-5 ${item.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
           </button>

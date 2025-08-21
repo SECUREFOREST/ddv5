@@ -53,6 +53,8 @@ const SwitchGameSchema = new mongoose.Schema({
   // OSA-style content expiration
   contentDeletion: { type: String, enum: ['delete_after_view', 'delete_after_30_days', 'never_delete'], default: 'delete_after_30_days' },
   contentExpiresAt: { type: Date },
+  // Likes array to track user likes
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 
 // Pre-save hook to ensure data consistency
