@@ -237,21 +237,29 @@ const ModernDarePerformerDashboard = () => {
   // Filter and sort data based on current tab and filters
   const getFilteredData = useCallback(() => {
     let data = [];
+    let filteredData = [];
     
     try {
       switch (activeTab) {
         case 'dares':
-          data = dares || [];
+          data = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
           break;
         case 'switch-games':
-          data = switchGames || [];
+          data = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
           break;
         case 'public':
-          data = [...(publicDares || []), ...(publicSwitchGames || [])];
+          const publicDaresWithType = (publicDares || []).map(dare => ({ ...dare, type: 'dare' }));
+          const publicSwitchGamesWithType = (publicSwitchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+          data = [...publicDaresWithType, ...publicSwitchGamesWithType];
           break;
         default:
-          data = [...(dares || []), ...(switchGames || [])];
+          const daresWithType = (dares || []).map(dare => ({ ...dare, type: 'dare' }));
+          const switchGamesWithType = (switchGames || []).map(game => ({ ...game, type: 'switch-game' }));
+          data = [...daresWithType, ...switchGamesWithType];
       }
+
+      // Initialize filteredData with data
+      filteredData = [...data];
 
       // Apply filters
       if (data.length > 0) {
@@ -1080,14 +1088,12 @@ const ModernDarePerformerDashboard = () => {
               )}
 
               {/* Pagination */}
-              {pagination[activeTab === 'dares' ? 'activeDares' : 
-                         activeTab === 'switch-games' ? 'switchGames' : 
-                         'publicDares']?.pages > 1 && (
-                <div className="mt-6 flex justify-center">
-                  <div className="flex gap-2">
-                    {Array.from({ length: pagination[activeTab === 'dares' ? 'activeDares' : 
-                                                   activeTab === 'switch-games' ? 'switchGames' : 
-                                                   'publicDares']?.pages || 1 }, (_, i) => i + 1).map(page => (
+              {(() => {
+                const currentPagination = pagination[activeTab] || { pages: 1, total: 0 };
+                return currentPagination.pages > 1 && (
+                  <div className="mt-6 flex justify-center">
+                    <div className="flex gap-2">
+                      {Array.from({ length: currentPagination.pages }, (_, i) => i + 1).map(page => (
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
@@ -1102,7 +1108,8 @@ const ModernDarePerformerDashboard = () => {
                     ))}
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </>
           )}
         </div>
@@ -1123,11 +1130,9 @@ const getDifficultyColor = (difficulty) => {
 
 const getDifficultyIcon = (difficulty) => {
   const icons = {
-    titillating: <SparklesIcon className="w-5 h-5" />,
-    arousing: <FireIcon className="w-5 h-5" />,
-    explicit: <EyeDropperIcon className="w-5 h-5" />,
-    edgy: <ExclamationTriangleIcon className="w-5 h-5" />,
-    hardcore: <RocketLaunchIcon className="w-5 h-5" />
+    easy: <SparklesIcon className="w-5 h-5" />,
+    medium: <FireIcon className="w-5 h-5" />,
+    hard: <ExclamationTriangleIcon className="w-5 h-5" />
   };
   return icons[difficulty] || <SparklesIcon className="w-5 h-5" />;
 };
