@@ -1105,14 +1105,9 @@ const ModernDarePerformerDashboard = () => {
 
               {/* Content Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedData.map((item) => {
-                  if (item.type === 'dare') {
-                    return <DareCard key={item._id} dare={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                  } else if (item.type === 'switch-game') {
-                    return <SwitchGameCard key={item._id} game={item} onLikeToggle={handleLikeToggleWithLoading} />;
-                  }
-                  return null;
-                })}
+                {sortedData.map((item) => (
+                  <ItemCard key={item._id} item={item} onLikeToggle={handleLikeToggleWithLoading} />
+                ))}
               </div>
 
               {sortedData.length === 0 && (
@@ -1230,35 +1225,76 @@ const getItemPermissions = (user, item, itemType) => {
   };
 };
 
-const DareCard = ({ dare, onLikeToggle }) => {
+const ItemCard = ({ item, onLikeToggle }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLiking, setIsLiking] = useState(false);
   
   // Safety check
-  if (!dare) {
+  if (!item) {
     return (
       <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-        <div className="text-center text-neutral-400">Invalid dare data</div>
+        <div className="text-center text-neutral-400">Invalid item data</div>
       </div>
     );
   }
   
+  const isDare = item.type === 'dare';
+  const isSwitchGame = item.type === 'switch-game';
+  
   const handleLikeClick = async () => {
-    if (isLiking || !dare._id) return;
+    if (isLiking || !item._id) return;
     setIsLiking(true);
     try {
-      await onLikeToggle(dare._id, 'dare');
+      await onLikeToggle(item._id, isDare ? 'dare' : 'game');
     } finally {
       setIsLiking(false);
     }
   };
 
   // Navigation handlers
-  const { handleViewDetails, handleClaim, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, dare._id, 'dare');
+  const { handleViewDetails, handleClaim, handleJoin, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, item._id, isDare ? 'dare' : 'switch-game');
 
-  // Get permissions for this dare
-  const permissions = getItemPermissions(user, dare, 'dare');
+  // Get permissions for this item
+  const permissions = getItemPermissions(user, item, isDare ? 'dare' : 'switch-game');
+
+  // Get item-specific data
+  const getItemTypeConfig = () => {
+    if (isDare) {
+      return {
+        badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+        icon: <SparklesIcon className="w-4 h-4" />,
+        label: 'Dare',
+        difficulty: item.difficulty,
+        status: item.status,
+        creator: item.creator,
+        performer: item.performer,
+        participant: null,
+        progress: item.progress,
+        grade: item.grade,
+        public: item.public,
+        updatedAt: item.updatedAt
+      };
+    } else {
+      return {
+        badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
+        icon: <FireIcon className="w-4 h-4" />,
+        label: 'Switch Game',
+        difficulty: item.creatorDare?.difficulty,
+        status: item.status,
+        creator: item.creator,
+        performer: null,
+        participant: item.participant,
+        progress: item.progress,
+        grade: null,
+        public: item.public,
+        updatedAt: item.updatedAt,
+        winner: item.winner
+      };
+    }
+  };
+
+  const config = getItemTypeConfig();
 
   return (
     <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
@@ -1267,160 +1303,14 @@ const DareCard = ({ dare, onLikeToggle }) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
-              <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400 border border-blue-500/50">
-                <SparklesIcon className="w-4 h-4" />
-                <span>Dare</span>
+              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${config.badgeColor} border`}>
+                {config.icon}
+                <span>{config.label}</span>
               </span>
-              <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(dare.difficulty)} text-white`}>
-                {getDifficultyIcon(dare.difficulty)}
-                <span className="capitalize">{dare.difficulty}</span>
-              </span>
-              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dare.status)}`}>
-                {getStatusIcon(dare.status)}
-                <span className="capitalize">{dare.status.replace('_', ' ')}</span>
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={handleLikeClick}
-            className={`p-2 rounded-lg transition-all duration-200 text-neutral-400 hover:text-neutral-300 ${dare.likes?.includes(user?._id) ? 'text-red-400' : ''} ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={isLiking}
-          >
-            <HeartIcon className={`w-5 h-5 ${dare.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
-          </button>
-        </div>
-
-        {/* Progress Bar for Active Dares */}
-        {dare.status === 'in_progress' && dare.progress > 0 && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm text-neutral-400 mb-1">
-              <span>Progress</span>
-              <span>{dare.progress}%</span>
-            </div>
-            <div className="w-full bg-neutral-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${dare.progress}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {/* Dare Info */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center space-x-2 text-neutral-400">
-            <Avatar 
-              user={dare.creator} 
-              size="xs" 
-              onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
-            />
-            <span 
-              className="cursor-pointer hover:text-white transition-colors duration-200"
-              onClick={() => dare.creator?._id && handleViewProfile(dare.creator._id)}
-            >
-              {dare.creator?.username || 'N/A'}
-            </span>
-          </div>
-
-          {dare.performer && (
-            <div className="flex items-center space-x-2 text-neutral-400">
-              <Avatar 
-                user={dare.performer} 
-                size="xs" 
-                onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
-              />
-              <span 
-                className="cursor-pointer hover:text-white transition-colors duration-200"
-                onClick={() => dare.performer?._id && handleViewProfile(dare.performer._id)}
-              >
-                Performer: {dare.performer?.username || 'N/A'}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Grade for Completed Dares */}
-        {dare.status === 'completed' && dare.grade && (
-          <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
-            <div className="flex items-center justify-center space-x-2">
-              <TrophyIcon className="w-5 h-5 text-green-400" />
-              <span className="text-green-400 font-semibold">Grade: {dare.grade}</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-xs text-neutral-500">
-            <span>{dare.public ? 'Public' : 'Private'}</span>
-            <span>•</span>
-            <span>{dare.updatedAt ? new Date(dare.updatedAt).toLocaleDateString() : 'No date'}</span>
-          </div>
-          <div className="flex gap-2">
-            <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
-              View Details
-            </button>
-            {permissions.canClaim && (
-              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleClaim}>
-                Claim
-              </button>
-            )}
-            {permissions.canSubmitProof && (
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleSubmitProof}>
-                Submit Proof
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SwitchGameCard = ({ game, onLikeToggle }) => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
-  // Debug logging
-  console.log('SwitchGameCard render:', {
-    gameId: game?._id,
-    creatorDare: game?.creatorDare,
-    difficulty: game?.creatorDare?.difficulty,
-    status: game?.status
-  });
-  
-  // Safety check
-  if (!game) {
-    return (
-      <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl p-6 border border-neutral-700/50">
-        <div className="text-center text-neutral-400">Invalid switch game data</div>
-      </div>
-    );
-  }
-
-  // Navigation handlers
-  const { handleViewDetails, handleJoin, handleSubmitProof, handleViewProfile } = createNavigationHandlers(navigate, game._id, 'switch-game');
-
-  // Get permissions for this game
-  const permissions = getItemPermissions(user, game, 'switch-game');
-
-  return (
-    <div className="bg-neutral-800/50 backdrop-blur-sm rounded-xl border border-neutral-700/50 overflow-hidden hover:border-neutral-600/50 transition-all duration-200 group">
-      {/* Header */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-              <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400 border border-purple-500/50">
-                <FireIcon className="w-4 h-4" />
-                <span>Switch Game</span>
-              </span>
-              {game.creatorDare?.difficulty ? (
-                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(game.creatorDare.difficulty)} text-white`}>
-                  {getDifficultyIcon(game.creatorDare.difficulty)}
-                  <span className="capitalize">{game.creatorDare.difficulty}</span>
+              {config.difficulty ? (
+                <span className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getDifficultyColor(config.difficulty)} text-white`}>
+                  {getDifficultyIcon(config.difficulty)}
+                  <span className="capitalize">{config.difficulty}</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium bg-neutral-600/20 text-neutral-400 border border-neutral-500/50">
@@ -1428,91 +1318,115 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
                   <span>No Difficulty Set</span>
                 </span>
               )}
-              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(game.status)}`}>
-                {getStatusIcon(game.status)}
+              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(config.status)}`}>
+                {getStatusIcon(config.status)}
                 <span className="capitalize">
-                  {game.status === 'waiting_for_participant' ? 'New' : game.status.replace('_', ' ')}
+                  {config.status === 'waiting_for_participant' ? 'New' : config.status.replace('_', ' ')}
                 </span>
               </span>
             </div>
           </div>
           <button
-            onClick={() => onLikeToggle(game._id, 'game')}
-            className={`p-2 rounded-lg transition-all duration-200 text-neutral-400 hover:text-neutral-300 ${game.likes?.includes(user?._id) ? 'text-red-400' : ''}`}
+            onClick={handleLikeClick}
+            className={`p-2 rounded-lg transition-all duration-200 text-neutral-400 hover:text-neutral-300 ${item.likes?.includes(user?._id) ? 'text-red-400' : ''} ${isLiking ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isLiking}
           >
-            <HeartIcon className={`w-5 h-5 ${game.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
+            <HeartIcon className={`w-5 h-5 ${item.likes?.includes(user?._id) ? 'fill-red-400' : ''}`} />
           </button>
         </div>
 
-        {/* Progress Bar for Active Games */}
-        {game.status === 'in_progress' && game.progress > 0 && (
+        {/* Progress Bar for Active Items */}
+        {config.status === 'in_progress' && config.progress > 0 && (
           <div className="mb-4">
             <div className="flex justify-between text-sm text-neutral-400 mb-1">
               <span>Progress</span>
-              <span>{game.progress}%</span>
+              <span>{config.progress}%</span>
             </div>
             <div className="w-full bg-neutral-700 rounded-full h-2">
               <div 
                 className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${game.progress}%` }}
+                style={{ width: `${config.progress}%` }}
               ></div>
             </div>
           </div>
         )}
 
-        {/* Game Info */}
+        {/* Item Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-neutral-400">
             <Avatar 
-              user={game.creator} 
+              user={config.creator} 
               size="xs" 
-              onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+              onClick={() => config.creator?._id && handleViewProfile(config.creator._id)}
             />
             <span 
               className="cursor-pointer hover:text-white transition-colors duration-200"
-              onClick={() => game.creator?._id && handleViewProfile(game.creator._id)}
+              onClick={() => config.creator?._id && handleViewProfile(config.creator._id)}
             >
-              {game.creator?.username || 'N/A'}
+              {config.creator?.username || 'N/A'}
             </span>
           </div>
-          {game.participant ? (
+
+          {isDare && config.performer ? (
             <div className="flex items-center space-x-2 text-neutral-400">
               <Avatar 
-                user={game.participant} 
+                user={config.performer} 
                 size="xs" 
-                onClick={() => game.participant?._id && handleViewProfile(game.participant._id)}
+                onClick={() => config.performer?._id && handleViewProfile(config.performer._id)}
               />
               <span 
                 className="cursor-pointer hover:text-white transition-colors duration-200"
-                onClick={() => game.participant?._id && handleViewProfile(game.participant._id)}
+                onClick={() => config.performer?._id && handleViewProfile(config.performer._id)}
               >
-                {game.participant?.username || 'N/A'}
+                Performer: {config.performer?.username || 'N/A'}
               </span>
             </div>
-          ) : (
+          ) : isSwitchGame && config.participant ? (
+            <div className="flex items-center space-x-2 text-neutral-400">
+              <Avatar 
+                user={config.participant} 
+                size="xs" 
+                onClick={() => config.participant?._id && handleViewProfile(config.participant._id)}
+              />
+              <span 
+                className="cursor-pointer hover:text-white transition-colors duration-200"
+                onClick={() => config.participant?._id && handleViewProfile(config.participant._id)}
+              >
+                {config.participant?.username || 'N/A'}
+              </span>
+            </div>
+          ) : isSwitchGame ? (
             <div className="flex items-center space-x-2 text-neutral-400">
               <UserGroupIcon className="w-4 h-4" />
               <span>New</span>
             </div>
-          )}
-
+          ) : null}
         </div>
 
-        {/* Winner for Completed Games */}
-        {game.status === 'completed' && game.winner && (
+        {/* Special Sections */}
+        {isDare && config.status === 'completed' && config.grade && (
+          <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+            <div className="flex items-center justify-center space-x-2">
+              <TrophyIcon className="w-5 h-5 text-green-400" />
+              <span className="text-green-400 font-semibold">Grade: {config.grade}</span>
+            </div>
+          </div>
+        )}
+
+        {isSwitchGame && config.status === 'completed' && config.winner && (
           <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
             <div className="flex items-center justify-center space-x-2">
               <TrophyIcon className="w-5 h-5 text-green-400" />
               <Avatar 
-                user={game.winner} 
+                user={config.winner} 
                 size="xs" 
-                onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
+                onClick={() => config.winner?._id && handleViewProfile(config.winner._id)}
               />
               <span 
                 className="text-green-400 font-semibold cursor-pointer hover:text-green-300 transition-colors duration-200"
-                onClick={() => game.winner?._id && handleViewProfile(game.winner._id)}
+                onClick={() => config.winner?._id && handleViewProfile(config.winner._id)}
               >
-                Winner: {game.winner?.username || 'N/A'}
+                Winner: {config.winner?.username || 'N/A'}
               </span>
             </div>
           </div>
@@ -1523,15 +1437,20 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
       <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-xs text-neutral-500">
-            <span>{game.public ? 'Public' : 'Private'}</span>
+            <span>{config.public ? 'Public' : 'Private'}</span>
             <span>•</span>
-            <span>{game.updatedAt ? new Date(game.updatedAt).toLocaleDateString() : 'No date'}</span>
+            <span>{config.updatedAt ? new Date(config.updatedAt).toLocaleDateString() : 'No date'}</span>
           </div>
           <div className="flex gap-2">
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleViewDetails}>
               View Details
             </button>
-            {permissions.canJoin && (
+            {isDare && permissions.canClaim && (
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleClaim}>
+                Claim
+              </button>
+            )}
+            {isSwitchGame && permissions.canJoin && (
               <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200" onClick={handleJoin}>
                 Join Game
               </button>
@@ -1547,5 +1466,8 @@ const SwitchGameCard = ({ game, onLikeToggle }) => {
     </div>
   );
 };
+
+
+
 
 export default ModernDarePerformerDashboard;
