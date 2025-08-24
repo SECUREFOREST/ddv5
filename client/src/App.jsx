@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Footer from './components/Footer';
+import Navigation from './components/Navigation';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -92,7 +93,7 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-[#060606]">
-        
+        {showNavbar && <Navigation />}
         <main className="flex-1">
           <div className="w-full">
             <Suspense fallback={
