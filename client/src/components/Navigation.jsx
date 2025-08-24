@@ -21,7 +21,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { DIFFICULTY_OPTIONS } from '../constants';
+
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 

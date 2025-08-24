@@ -69,6 +69,7 @@ import Tabs from '../components/Tabs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DareCard from '../components/DareCard';
 import SwitchGameCard from '../components/SwitchGameCard';
+import { ModernActiveDareCard, ModernCompletedDareCard, ModernSwitchGameCard } from '../components/ModernDareCard';
 import RecentActivityWidget from '../components/RecentActivityWidget';
 import DashboardChart from '../components/DashboardChart';
 import Accordion from '../components/Accordion';
@@ -155,6 +156,7 @@ export default function DarePerformerDashboard() {
   const [notification, setNotification] = useState(null);
 
   const [activeTab, setActiveTab] = useState('overview');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [dataLoading, setDataLoading] = useState({
     ongoing: true,
     completed: true,
@@ -1365,42 +1367,12 @@ export default function DarePerformerDashboard() {
                 </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                 {filteredOngoing.length > 0 && filteredOngoing.map((dare) => (
-                  <DareCard 
+                  <ModernActiveDareCard 
                     key={dare._id} 
-                    creator={dare.creator}
-                    performer={dare.performer}
-                    assignedSwitch={dare.assignedSwitch}
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    status={dare.status}
-                    tags={dare.tags}
-                    proof={dare.proof}
-                    grades={dare.grades}
-                    currentUserId={currentUserId}
-                    claimable={dare.claimable}
-                    claimToken={dare.claimToken}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/dare/${dare._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
-                        {dare.status === 'in_progress' && (
-                          <button
-                            onClick={() => navigate(`/dare/${dare._id}/participate`)}
-                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          >
-                            <CheckCircleIcon className="w-4 h-4" />
-                            Submit Proof
-                          </button>
-                        )}
-                      </div>
-                    }
+                    dare={dare}
+                    viewMode={viewMode}
                   />
                 ))}
                 
@@ -1469,42 +1441,12 @@ export default function DarePerformerDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                 {safeCompleted.length > 0 && safeCompleted.map((dare) => (
-                  <DareCard 
+                  <ModernCompletedDareCard 
                     key={dare._id} 
-                    creator={dare.creator}
-                    performer={dare.performer}
-                    assignedSwitch={dare.assignedSwitch}
-                    description={dare.description}
-                    difficulty={dare.difficulty}
-                    status={dare.status}
-                    tags={dare.tags}
-                    proof={dare.proof}
-                    grades={dare.grades}
-                    currentUserId={currentUserId}
-                    claimable={dare.claimable}
-                    claimToken={dare.claimToken}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/dare/${dare._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
-                        {dare.proof && !dare.proof.reviewed && dare.creator?._id === currentUserId && (
-                          <button
-                            onClick={() => navigate(`/dare/${dare._id}`)}
-                            className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                          >
-                            <StarIcon className="w-4 h-4" />
-                            Grade
-                          </button>
-                        )}
-                      </div>
-                    }
+                    dare={dare}
+                    viewMode={viewMode}
                   />
                 ))}
                 
@@ -1644,37 +1586,12 @@ export default function DarePerformerDashboard() {
                 </div>
               </div>
             ) : (
-            <div className="space-y-4">
+            <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                 {filteredMySwitchGames.length > 0 && filteredMySwitchGames.map((game) => (
-                  <SwitchGameCard 
+                  <ModernSwitchGameCard 
                     key={game._id} 
                     game={game}
-                    currentUserId={currentUserId}
-                    onSubmitProof={async (formData) => {
-                      try {
-                        await api.post(`/switches/${game._id}/proof`, formData, {
-                          headers: { 'Content-Type': 'multipart/form-data' },
-                        });
-                        showSuccess('Proof submitted successfully!');
-                        // Refresh the data
-                        fetchData();
-                      } catch (error) {
-                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                        showError(errorMessage);
-                        throw error; // Re-throw so the component can handle it
-                      }
-                    }}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/switches/${game._id}`)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <EyeIcon className="w-4 h-4" />
-                          View Details
-                        </button>
-                      </div>
-                    }
+                    viewMode={viewMode}
                   />
                 ))}
               
@@ -1771,37 +1688,12 @@ export default function DarePerformerDashboard() {
               }
               
               return (
-                <div className="space-y-4">
+                <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                   {completedGames.map((game, index) => (
-                      <SwitchGameCard 
+                      <ModernSwitchGameCard 
                         key={game._id} 
                         game={game}
-                        currentUserId={currentUserId}
-                        onSubmitProof={async (formData) => {
-                          try {
-                            await api.post(`/switches/${game._id}/proof`, formData, {
-                              headers: { 'Content-Type': 'multipart/form-data' },
-                            });
-                            showSuccess('Proof submitted successfully!');
-                            // Refresh the data
-                            fetchData();
-                          } catch (error) {
-                            const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                            showError(errorMessage);
-                            throw error; // Re-throw so the component can handle it
-                          }
-                        }}
-                        actions={
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => navigate(`/switches/${game._id}`)}
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                            >
-                              <EyeIcon className="w-4 h-4" />
-                              View Details
-                            </button>
-                          </div>
-                        }
+                        viewMode={viewMode}
                       />
                   ))}
                 
@@ -1892,7 +1784,7 @@ export default function DarePerformerDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                 {safePublicDares.length > 0 && safePublicDares.map((dare) => {
                   // Ensure public dares always go through consent flow
                   if (!dare.claimToken && (dare.status === 'waiting_for_participant' || !dare.performer)) {
@@ -1900,40 +1792,10 @@ export default function DarePerformerDashboard() {
                   }
                   
                   return (
-                    <DareCard 
+                    <ModernActiveDareCard 
                       key={dare._id} 
-                      creator={dare.creator}
-                      performer={dare.performer}
-                      assignedSwitch={dare.assignedSwitch}
-                      description={dare.description}
-                      difficulty={dare.difficulty}
-                      status={dare.status}
-                      tags={dare.tags}
-                      proof={dare.proof}
-                      grades={dare.grades}
-                      currentUserId={currentUserId}
-                      claimable={dare.claimable}
-                      claimToken={dare.claimToken}
-                      actions={
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              if (dare.claimToken) {
-                                navigate(`/claim/${dare.claimToken}`);
-                              } else {
-                                // If no claim token, this might be an error - log it
-                                // Still try to use claim URL with dare ID as fallback
-                                navigate(`/claim/${dare._id}`);
-                              }
-                            }}
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                            title="Start the consent and claim process to perform this dare"
-                          >
-                            <PlayIcon className="w-4 h-4" />
-                            Claim & Perform
-                          </button>
-                        </div>
-                      }
+                      dare={dare}
+                      viewMode={viewMode}
                     />
                   );
                 })}
@@ -2041,38 +1903,12 @@ export default function DarePerformerDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className={viewMode === 'grid' ? 'grid gap-4 grid-cols-1 lg:grid-cols-2' : 'space-y-4'}>
                 {safePublicSwitchGames.length > 0 && safePublicSwitchGames.map((game) => (
-                  <SwitchGameCard 
+                  <ModernSwitchGameCard 
                     key={game._id} 
                     game={game}
-                    currentUserId={currentUserId}
-                    hideShareButton={true}
-                    onSubmitProof={async (formData) => {
-                      try {
-                        await api.post(`/switches/${game._id}/proof`, formData, {
-                          headers: { 'Content-Type': 'multipart/form-data' },
-                        });
-                        showSuccess('Proof submitted successfully!');
-                        // Refresh the data
-                        fetchPublicDataWithFilters();
-                      } catch (error) {
-                        const errorMessage = error.response?.data?.error || 'Failed to submit proof.';
-                        showError(errorMessage);
-                        throw error; // Re-throw so the component can handle it
-                      }
-                    }}
-                    actions={
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/switches/claim/${game._id}`)}
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95"
-                        >
-                          <UserGroupIcon className="w-4 h-4" />
-                          Join Game
-                        </button>
-                      </div>
-                    }
+                    viewMode={viewMode}
                   />
                 ))}
                 
