@@ -56,7 +56,10 @@ import {
   HomeIcon,
   SwatchIcon,
   SparklesIcon as SparklesIconSolid,
-  PuzzlePieceIcon
+  PuzzlePieceIcon,
+  Squares2X2Icon,
+  Bars3Icon,
+  TagIcon
 } from '@heroicons/react/24/outline';
 import { DIFFICULTY_OPTIONS } from '../constants.jsx';
 import { 
@@ -1292,6 +1295,31 @@ export default function DarePerformerDashboard() {
               </h3>
 
               <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="Grid View"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list' 
+                        ? 'bg-primary text-white shadow-lg' 
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                    }`}
+                    title="List View"
+                  >
+                    <Bars3Icon className="w-4 h-4" />
+                  </button>
+                </div>
                 <FormSelect
                   label="Difficulty"
                   value={dareFilters.difficulty}
@@ -1394,16 +1422,44 @@ export default function DarePerformerDashboard() {
 
           {/* Completed Dares Section */}
           <NeumorphicCard variant="glass" className="p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-              <TrophyIcon className="w-6 h-6 text-green-400" />
-              Completed Dares ({completedTotalItems})
-              {dataLoading.completed && (
-                <div className="flex items-center gap-2 text-sm text-blue-400">
-                  <LoadingSpinner size="sm" />
-                  Loading...
-                </div>
-              )}
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <TrophyIcon className="w-6 h-6 text-green-400" />
+                Completed Dares ({completedTotalItems})
+                {dataLoading.completed && (
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <LoadingSpinner size="sm" />
+                    Loading...
+                  </div>
+                )}
+              </h3>
+
+              {/* View Toggle */}
+              <div className="flex items-center bg-neutral-700/50 rounded-lg p-1 border border-neutral-600/50">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'grid' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                  }`}
+                  title="Grid View"
+                >
+                  <Squares2X2Icon className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'list' 
+                      ? 'bg-primary text-white shadow-lg' 
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-600/50'
+                  }`}
+                  title="List View"
+                >
+                  <Bars3Icon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
             
             {/* Show loading state */}
             {dataLoading.completed ? (
