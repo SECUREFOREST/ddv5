@@ -1,6 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import ModernNavigation from './v2/components/ModernNavigation';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
@@ -48,63 +47,6 @@ const News = React.lazy(() => import('./pages/News'));
 const TermsOfService = React.lazy(() => import('./pages/TermsOfService'));
 const SafetyReport = React.lazy(() => import('./pages/SafetyReport'));
 
-// Modern UI Component imports
-const ModernUIDemo = React.lazy(() => import('./v2/components/ModernUIDemo'));
-const ModernLanding = React.lazy(() => import('./v2/pages/ModernLanding'));
-const ModernRegister = React.lazy(() => import('./v2/pages/ModernRegister'));
-const ModernLogin = React.lazy(() => import('./v2/pages/ModernLogin'));
-const ModernDashboard = React.lazy(() => import('./v2/components/ModernDashboard'));
-const ModernTaskCreator = React.lazy(() => import('./v2/components/ModernTaskCreator'));
-const ModernTaskBrowser = React.lazy(() => import('./v2/components/ModernTaskBrowser'));
-// const ModernProfile = React.lazy(() => import('./v2/components/ModernProfile'));
-// const ModernNavigation = React.lazy(() => import('./v2/components/ModernNavigation')); // Already imported statically above
-const ModernRouteNavigation = React.lazy(() => import('./v2/components/ModernRouteNavigation'));
-const ModernActiveTasks = React.lazy(() => import('./v2/components/ModernActiveTasks'));
-const ModernUserAnalytics = React.lazy(() => import('./v2/components/ModernUserAnalytics'));
-const ModernCommunity = React.lazy(() => import('./v2/components/ModernCommunity'));
-const ModernSwitchGameCreator = React.lazy(() => import('./v2/components/ModernSwitchGameCreator'));
-const ModernSwitchGameBrowser = React.lazy(() => import('./v2/components/ModernSwitchGameBrowser'));
-// const ModernSwitchGameDetails = React.lazy(() => import('./v2/components/ModernSwitchGameDetails'));
-const ModernSwitchGameTaskManager = React.lazy(() => import('./v2/components/ModernSwitchGameTaskManager'));
-const ModernSwitchGameResults = React.lazy(() => import('./v2/components/ModernSwitchGameResults'));
-// const ModernSwitchGameClaim = React.lazy(() => import('./v2/components/ModernSwitchGameClaim'));
-const ModernAdmin = React.lazy(() => import('./v2/pages/ModernAdmin'));
-const ModernSafetyReport = React.lazy(() => import('./v2/pages/ModernSafetyReport'));
-const ModernTaskHistory = React.lazy(() => import('./v2/pages/ModernTaskHistory'));
-const ModernEvidenceGallery = React.lazy(() => import('./v2/pages/ModernEvidenceGallery'));
-const ModernNotificationPreferences = React.lazy(() => import('./v2/pages/ModernNotificationPreferences'));
-const ModernUserProfile = React.lazy(() => import('./v2/pages/ModernUserProfile'));
-const ModernDomDemandCreator = React.lazy(() => import('./v2/pages/ModernDomDemandCreator'));
-const ModernDareDetails = React.lazy(() => import('./v2/pages/ModernDareDetails'));
-const ModernDareDifficultySelect = React.lazy(() => import('./v2/pages/ModernDareDifficultySelect'));
-const ModernDareParticipant = React.lazy(() => import('./v2/pages/ModernDareParticipant'));
-const ModernDareConsent = React.lazy(() => import('./v2/pages/ModernDareConsent'));
-const ModernDareReveal = React.lazy(() => import('./v2/pages/ModernDareReveal'));
-const ModernDarePerform = React.lazy(() => import('./v2/pages/ModernDarePerform'));
-const ModernDareShare = React.lazy(() => import('./v2/pages/ModernDareShare'));
-const ModernDarePerformerDashboard = React.lazy(() => import('./v2/components/ModernDarePerformerDashboard'));
-const ModernOfferSubmission = React.lazy(() => import('./v2/pages/ModernOfferSubmission'));
-const ModernLeaderboard = React.lazy(() => import('./v2/pages/ModernLeaderboard'));
-const ModernProfileView = React.lazy(() => import('./v2/pages/ModernProfileView'));
-const ModernProfile = React.lazy(() => import('./v2/pages/ModernProfile'));
-const ModernSwitchGames = React.lazy(() => import('./v2/pages/ModernSwitchGames'));
-const ModernSwitchGameCreate = React.lazy(() => import('./v2/pages/ModernSwitchGameCreate'));
-const ModernSwitchGameDetails = React.lazy(() => import('./v2/pages/ModernSwitchGameDetails'));
-const ModernSwitchGameParticipate = React.lazy(() => import('./v2/pages/ModernSwitchGameParticipate'));
-const ModernSwitchGameClaim = React.lazy(() => import('./v2/pages/ModernSwitchGameClaim'));
-const ModernClaimDare = React.lazy(() => import('./v2/pages/ModernClaimDare'));
-const ModernActivityFeed = React.lazy(() => import('./v2/pages/ModernActivityFeed'));
-const ModernNews = React.lazy(() => import('./v2/pages/ModernNews'));
-const ModernPublicDares = React.lazy(() => import('./v2/pages/ModernPublicDares'));
-const ModernUserActivity = React.lazy(() => import('./v2/pages/ModernUserActivity'));
-const ModernForgotPassword = React.lazy(() => import('./v2/pages/ModernForgotPassword'));
-const ModernResetPassword = React.lazy(() => import('./v2/pages/ModernResetPassword'));
-const ModernNotifications = React.lazy(() => import('./v2/pages/ModernNotifications'));
-// const ModernUIDemo = React.lazy(() => import('./v2/pages/ModernUIDemo'));
-const ModernNotFound = React.lazy(() => import('./v2/pages/ModernNotFound'));
-const ModernAdvertise = React.lazy(() => import('./v2/pages/ModernAdvertise'));
-const ModernTermsOfService = React.lazy(() => import('./v2/pages/ModernTermsOfService'));
-
 function AppContent() {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -150,7 +92,7 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-[#060606]">
-        {showNavbar && <ModernNavigation />}
+        
         <main className="flex-1">
           <div className="w-full">
             <Suspense fallback={
@@ -163,43 +105,13 @@ function AppContent() {
               </div>
             }>
             <Routes>
-              {/* Modern UI Routes */}
-              <Route path="/modern" element={<ModernUIDemo />} />
-              <Route path="/modern-ui" element={<ModernUIDemo />} />
-              <Route path="/modern/routes" element={<ModernRouteNavigation />} />
-              
-              {/* Landing & Auth Routes - Reverted to Old Versions */}
+              {/* Landing & Auth Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               
-              {/* Modern Dashboard Routes */}
-              <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
-              
-              {/* Modern Activity Feed Routes */}
-              <Route path="/modern/activity-feed" element={<PrivateRoute><ModernActivityFeed /></PrivateRoute>} />
-              
-              {/* Modern News Routes */}
-              <Route path="/modern/news" element={<ModernNews />} />
-              
-              {/* Modern Public Dares Routes */}
-              <Route path="/modern/public-dares" element={<PrivateRoute><ModernPublicDares /></PrivateRoute>} />
-              
-              {/* Modern User Activity Routes */}
-              <Route path="/modern/user-activity" element={<PrivateRoute><ModernUserActivity /></PrivateRoute>} />
-              
-              {/* Modern System Pages Routes */}
-              <Route path="/modern/advertise" element={<ModernAdvertise />} />
-              <Route path="/modern/terms" element={<ModernTermsOfService />} />
-              <Route path="/modern/safety/report" element={<PrivateRoute><ModernSafetyReport /></PrivateRoute>} />
-              <Route path="/modern/admin" element={<PrivateRoute><ModernAdmin /></PrivateRoute>} />
-              <Route path="/modern/notifications" element={<PrivateRoute><ModernNotifications /></PrivateRoute>} />
-              <Route path="/modern/ui-demo" element={<ModernUIDemo />} />
-              
-              {/* Modern 404 Route */}
-              <Route path="/modern/404" element={<ModernNotFound />} />
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/:userId" element={<PrivateRoute><ProfileView /></PrivateRoute>} />
@@ -207,108 +119,6 @@ function AppContent() {
               <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
               <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
               <Route path="/ui-demo" element={<PrivateRoute><UIDemo /></PrivateRoute>} />
-              
-              {/* Modern OSA Integration Routes */}
-              <Route path="/modern/dares" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
-              <Route path="/modern/dares/create" element={<PrivateRoute><ModernTaskCreator /></PrivateRoute>} />
-              <Route path="/modern/dares/:id" element={<PrivateRoute><ModernTaskBrowser /></PrivateRoute>} />
-              <Route path="/modern/leaderboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
-              <Route path="/modern/activity" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
-              
-              {/* Advanced Task Management Routes */}
-              <Route path="/modern/tasks/active" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
-              <Route path="/modern/tasks/completed" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
-              <Route path="/modern/tasks/expired" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
-              <Route path="/modern/tasks/cooldown" element={<PrivateRoute><ModernActiveTasks /></PrivateRoute>} />
-              
-              {/* User Management & Analytics Routes */}
-              <Route path="/modern/users/analytics" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute>} />
-              <Route path="/modern/users/statistics" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute>} />
-              <Route path="/modern/users/achievements" element={<PrivateRoute><ModernUserAnalytics /></PrivateRoute> } />
-              
-              {/* Community & Social Routes */}
-              <Route path="/modern/community" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
-              <Route path="/modern/community/feed" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
-              <Route path="/modern/community/public-doms" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
-              <Route path="/modern/community/public-subs" element={<PrivateRoute><ModernCommunity /></PrivateRoute>} />
-              
-              {/* Switch Game Routes */}
-              <Route path="/modern/switch-games" element={<PrivateRoute><ModernSwitchGameBrowser /></PrivateRoute>} />
-              <Route path="/modern/switch-games/create" element={<PrivateRoute><ModernSwitchGameCreator /></PrivateRoute>} />
-              <Route path="/modern/switch-games/:id" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
-              <Route path="/modern/switch-games/participate" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
-              <Route path="/modern/switch-games/tasks" element={<PrivateRoute><ModernSwitchGameTaskManager /></PrivateRoute>} />
-              <Route path="/modern/switch-games/results" element={<PrivateRoute><ModernSwitchGameResults /></PrivateRoute>} />
-          <Route path="/modern/switch-games/claim" element={<PrivateRoute><ModernSwitchGameClaim /></PrivateRoute>} />
-              <Route path="/modern/switch-games/claim/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
-              
-              {/* Modern UI Index Route */}
-              <Route path="/modern-ui" element={<PrivateRoute><ModernRouteNavigation /></PrivateRoute>} />
-              
-                             {/* Admin & Safety Routes */}
-               <Route path="/modern/admin" element={<PrivateRoute><ModernAdmin /></PrivateRoute>} />
-               <Route path="/modern/safety/report" element={<PrivateRoute><ModernSafetyReport /></PrivateRoute>} />
-               
-               {/* User Experience Routes */}
-               <Route path="/modern/tasks/history" element={<PrivateRoute><ModernTaskHistory /></PrivateRoute>} />
-               <Route path="/modern/tasks/evidence" element={<PrivateRoute><ModernEvidenceGallery /></PrivateRoute>} />
-               <Route path="/modern/profile/notifications" element={<PrivateRoute><ModernNotificationPreferences /></PrivateRoute>} />
-               
-               {/* User Profile Routes */}
-               <Route path="/modern/users/:userId" element={<PrivateRoute><ModernUserProfile /></PrivateRoute>} />
-               
-               {/* Modern Task Creation Routes */}
-               <Route path="/modern/dares/create/dom" element={<PrivateRoute><ModernDomDemandCreator /></PrivateRoute>} />
-               
-               {/* Modern Task Details Routes */}
-               <Route path="/modern/dares/:id" element={<PrivateRoute><ModernDareDetails /></PrivateRoute>} />
-               
-               {/* Modern Task Difficulty Selection Routes */}
-               <Route path="/modern/dares/select" element={<PrivateRoute><ModernDareDifficultySelect /></PrivateRoute>} />
-               
-               {/* Modern Task Participation Routes */}
-               <Route path="/modern/dares/:id/participate" element={<PrivateRoute><ModernDareParticipant /></PrivateRoute>} />
-               
-               {/* Modern Task Consent Routes */}
-               <Route path="/modern/dares/:id/consent" element={<PrivateRoute><ModernDareConsent /></PrivateRoute>} />
-               
-               {/* Modern Task Reveal Routes */}
-               <Route path="/modern/dares/:id/reveal" element={<PrivateRoute><ModernDareReveal /></PrivateRoute>} />
-               
-               {/* Modern Task Performance Routes */}
-               <Route path="/modern/dares/:id/perform" element={<PrivateRoute><ModernDarePerform /></PrivateRoute>} />
-               
-               {/* Modern Task Sharing Routes */}
-               <Route path="/modern/dares/:id/share" element={<PrivateRoute><ModernDareShare /></PrivateRoute>} />
-               
-               {/* Modern Performer Dashboard Routes */}
-               <Route path="/modern/performer-dashboard" element={<PrivateRoute><ModernDarePerformerDashboard /></PrivateRoute>} />
-               
-               {/* Modern Offer Submission Routes */}
-               <Route path="/modern/offer-submission" element={<PrivateRoute><ModernOfferSubmission /></PrivateRoute>} />
-               
-               {/* Modern Leaderboard Routes */}
-               <Route path="/modern/leaderboard" element={<PrivateRoute><ModernLeaderboard /></PrivateRoute>} />
-               
-               {/* Modern Profile View Routes */}
-               <Route path="/modern/profile/:userId" element={<PrivateRoute><ModernProfileView /></PrivateRoute>} />
-               
-               {/* Modern Profile Management Routes */}
-               <Route path="/modern/profile" element={<PrivateRoute><ModernProfile /></PrivateRoute>} />
-               
-               {/* Modern Dashboard Routes */}
-               <Route path="/modern/dashboard" element={<PrivateRoute><ModernDashboard /></PrivateRoute>} />
-               
-               {/* Modern Switch Game Routes */}
-               <Route path="/modern/switches" element={<PrivateRoute><ModernSwitchGames /></PrivateRoute>} />
-               <Route path="/modern/switches/create" element={<PrivateRoute><ModernSwitchGameCreate /></PrivateRoute>} />
-               <Route path="/modern/switches/:gameId" element={<PrivateRoute><ModernSwitchGameDetails /></PrivateRoute>} />
-               <Route path="/modern/switches/participate" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
-               <Route path="/modern/switches/participate/:gameId" element={<PrivateRoute><ModernSwitchGameParticipate /></PrivateRoute>} />
-               <Route path="/modern/switches/claim/:gameId" element={<ModernSwitchGameClaim />} />
-               
-               {/* Modern Dare Claim Routes */}
-               <Route path="/modern/claim/:claimToken" element={<ModernClaimDare />} />
               
               <Route path="/switches" element={<PrivateRoute><SwitchGames /></PrivateRoute>} />
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />

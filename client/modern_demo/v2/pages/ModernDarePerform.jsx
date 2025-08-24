@@ -26,7 +26,9 @@ import {
   XCircleIcon,
   PhotoIcon,
   VideoCameraIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  TrophyIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -61,6 +63,8 @@ const ModernDarePerform = () => {
   const [fetchingDare, setFetchingDare] = useState(false);
   const [fetchDareError, setFetchDareError] = useState('');
   const [privacy, setPrivacy] = useState('when_viewed');
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const [completedDare, setCompletedDare] = useState(null);
 
   const handleConsent = useCallback(async () => {
     setLoading(true);
@@ -70,6 +74,8 @@ const ModernDarePerform = () => {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    setShowCongratulations(false);
+    setCompletedDare(null);
     
     try {
       // Use retry mechanism for dare fetch
@@ -127,6 +133,8 @@ const ModernDarePerform = () => {
       setProofFile(null);
       setProofSuccess('Proof submitted successfully!');
       showSuccess('Proof submitted successfully!');
+      setShowCongratulations(true);
+      setCompletedDare(dare);
     } catch (err) {
       const errorMessage = err.response?.data?.error || 'Failed to submit proof.';
       setProofError(errorMessage);
@@ -144,6 +152,21 @@ const ModernDarePerform = () => {
     setProofFile(null);
     setProofError('');
     setProofSuccess('');
+    setShowCongratulations(false);
+    setCompletedDare(null);
+  };
+
+  const handlePerformAnotherDare = () => {
+    setShowCongratulations(false);
+    setCompletedDare(null);
+    setProof('');
+    setProofFile(null);
+    setProofError('');
+    setProofSuccess('');
+    // Reset to initial state to allow selecting new difficulty
+    setConsented(false);
+    setDare(null);
+    setNoDare(false);
   };
 
   const fetchDare = useCallback(async (dareId) => {
@@ -615,6 +638,43 @@ const ModernDarePerform = () => {
           </div>
         ) : null}
       </div>
+
+             {showCongratulations && completedDare && (
+         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+           <div className="bg-neutral-900/90 backdrop-blur-sm rounded-3xl p-10 shadow-2xl text-center max-w-2xl mx-4">
+             <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+               <TrophyIcon className="w-12 h-12 text-green-400" />
+             </div>
+             <h3 className="text-3xl font-bold text-white mb-4">Congratulations! 🎉</h3>
+             <p className="text-neutral-300 text-lg mb-4">
+               You have successfully completed the dare: <span className="text-white font-semibold">"{completedDare.content || completedDare.description}"</span>
+             </p>
+             <p className="text-neutral-400 text-base mb-8">
+               Great job! Ready for your next challenge?
+             </p>
+             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button
+                   onClick={handlePerformAnotherDare}
+                   className="px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-semibold transition-all duration-300 hover:from-primary-dark hover:to-primary transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                 >
+                   <PlusIcon className="w-5 h-5" />
+                   Perform Another Dare
+                 </button>
+               <button
+                 onClick={() => {
+                   setShowCongratulations(false);
+                   setCompletedDare(null);
+                   navigate('/modern/dashboard');
+                 }}
+                 className="px-8 py-4 bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 hover:text-white rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+               >
+                 <ArrowLeftIcon className="w-5 h-5" />
+                 Back to Dashboard
+               </button>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 };
