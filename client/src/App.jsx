@@ -125,6 +125,7 @@ function AppContent() {
               <Route path="/switches/create" element={<PrivateRoute><SwitchGameCreate /></PrivateRoute>} />
               <Route path="/switches/participate" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
               <Route path="/switches/participate/:gameId" element={<PrivateRoute><SwitchGameParticipate /></PrivateRoute>} />
+              <Route path="/switches/claim/token/:token" element={<SwitchGameClaim />} />
               <Route path="/switches/claim/:gameId" element={<SwitchGameClaim />} />
               <Route path="/switches/:id" element={<PrivateRoute><SwitchGameDetails /></PrivateRoute>} />
               <Route path="/activity-feed" element={<PrivateRoute><ActivityFeed /></PrivateRoute>} />

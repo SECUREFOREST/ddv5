@@ -130,7 +130,7 @@ export default function SwitchGameCreate() {
       
       if (res.data && res.data._id) {
         // Generate claim link for sharing
-        const claimLink = `${window.location.origin}/switches/claim/${res.data._id}`;
+        const claimLink = `${window.location.origin}/switches/claim/${res.data.claimToken || res.data._id}`;
         setClaimLink(claimLink);
         setCreatedGame(res.data);
         setShowModal(true);

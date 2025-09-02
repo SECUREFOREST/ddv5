@@ -134,18 +134,16 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
                   </button>
                 </Link>
               )}
-              {context === 'public' && (
-                <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`}>
-                  <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95">
-                    <PlayIcon className="w-4 h-4" />
-                    Claim & Perform
-                  </button>
+              {/* Default view details */}
+              {dare.claimToken ? (
+                <Link to={`/claim/${dare.claimToken}`}>
+                  <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Claim & Perform</button>
+                </Link>
+              ) : (
+                <Link to={context === 'public' ? `/dare/consent/${dare._id}` : `/dares/${dare._id}`}>
+                  <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">{context === 'public' ? 'Participate' : 'View Details'}</button>
                 </Link>
               )}
-              {/* Default view details */}
-              <Link to={`/dares/${dare._id}`}>
-                <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">View Details</button>
-              </Link>
             </div>
           </div>
         </div>
@@ -224,17 +222,15 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
                 </button>
               </Link>
             )}
-            {context === 'public' && (
-              <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`}>
-                <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95">
-                  <PlayIcon className="w-4 h-4" />
-                  Claim & Perform
-                </button>
+            {dare.claimToken ? (
+              <Link to={`/claim/${dare.claimToken}`}>
+                <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Claim & Perform</button>
+              </Link>
+            ) : (
+              <Link to={context === 'public' ? `/dare/consent/${dare._id}` : `/dares/${dare._id}`}>
+                <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">{context === 'public' ? 'Participate' : 'View Details'}</button>
               </Link>
             )}
-            <Link to={`/dares/${dare._id}`}>
-              <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">View Details</button>
-            </Link>
           </div>
         </div>
       </div>
@@ -385,9 +381,9 @@ export const ModernCompletedDareCard = ({ dare, viewMode = 'grid', context, curr
       <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
         <div className="flex items-center justify-between">
           <span className="text-xs text-neutral-500">
-            {dare.public ? 'Public' : 'Private'}
+            {isPublic ? 'Public' : 'Private'}
           </span>
-          <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dares/${dare._id}`}>
+          <Link to={`/dares/${dare._id}`}>
             <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
               View Details
             </button>

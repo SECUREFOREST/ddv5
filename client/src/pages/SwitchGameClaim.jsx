@@ -60,7 +60,7 @@ export default function SwitchGameClaim() {
       setLoading(true);
       setError('');
       
-      const response = await retryApiCall(() => api.get(`/switches/claim/${gameId}`));
+      const response = await retryApiCall(() => api.get(isNaN(Number(gameId)) && gameId.length > 20 ? `/switches/claim/token/${gameId}` : `/switches/claim/${gameId}`));
       
       if (response.data) {
         console.log('Switch game data received:', response.data);
@@ -103,7 +103,8 @@ export default function SwitchGameClaim() {
     
     setClaiming(true);
     try {
-      const response = await retryApiCall(() => api.post(`/switches/${gameId}/join`, {
+      const effectiveId = isNaN(Number(gameId)) && gameId.length > 20 && game?._id ? game._id : gameId;
+      const response = await retryApiCall(() => api.post(`/switches/${effectiveId}/join`, {
         difficulty: game?.creatorDare?.difficulty || 'titillating',
         move: gesture,
         consent: true,
@@ -111,7 +112,7 @@ export default function SwitchGameClaim() {
       }));
       
       showSuccess('Successfully joined the switch game!');
-      navigate(`/switches/${gameId}`);
+      navigate(`/switches/${effectiveId}`);
     } catch (err) {
       console.error('Failed to join switch game:', err);
       const errorMessage = handleApiError(err, 'joining switch game');

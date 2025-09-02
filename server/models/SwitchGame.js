@@ -55,6 +55,8 @@ const SwitchGameSchema = new mongoose.Schema({
   contentExpiresAt: { type: Date },
   // Likes array to track user likes
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  // Optional public claim token for tokenized claim flows (similar to Dare.claimToken)
+  claimToken: { type: String, unique: true, sparse: true },
 }, { timestamps: true });
 
 // Pre-save hook to ensure data consistency

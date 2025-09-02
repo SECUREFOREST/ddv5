@@ -62,7 +62,7 @@ export default function SwitchGameCard({ game, currentUserId, actions, className
   
   // Share functionality
   const handleShare = () => {
-    const link = `${window.location.origin}/switches/claim/${game._id}`;
+    const link = `${window.location.origin}/switches/claim/${game.claimToken || game._id}`;
     navigator.clipboard.writeText(link).then(() => {
       showSuccess('Game link copied to clipboard!');
     }).catch(() => {

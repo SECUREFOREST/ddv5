@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const SwitchGame = require('../models/SwitchGame');
+const { v4: uuidv4 } = require('uuid');
 const Dare = require('../models/Dare');
 const { sendNotification } = require('../utils/notification');
 const mongoose = require('mongoose');
@@ -164,7 +165,7 @@ router.get('/', auth, async (req, res) => {
       // Mark as claimable if it's public, waiting for participants, and not created by current user
       if (game.public && game.status === 'waiting_for_participant' && !game.participant && game.creator.toString() !== req.userId) {
         gameObj.claimable = true;
-        gameObj.claimRoute = `/switches/claim/${game._id}`;
+        gameObj.claimRoute = game.claimToken ? `/switches/claim/${game.claimToken}` : `/switches/claim/${game._id}`;
       }
       return gameObj;
     });
@@ -416,6 +417,42 @@ router.get('/:id',
   }
 );
 
+// GET /api/switches/claim/token/:token - claim by public token (public access)
+router.get('/claim/token/:token', async (req, res) => {
+  try {
+    const game = await SwitchGame.findOne({ claimToken: req.params.token })
+      .populate('creator', 'username fullName avatar')
+      .populate('participant', 'username fullName avatar');
+    if (!game) {
+      return res.status(404).json({ error: 'Switch game not found' });
+    }
+    if (game.status !== 'waiting_for_participant' || game.participant) {
+      return res.status(400).json({ error: 'This switch game is no longer available to join' });
+    }
+    res.json({
+      _id: game._id,
+      status: game.status,
+      creator: {
+        _id: game.creator._id,
+        username: game.creator.username,
+        fullName: game.creator.fullName,
+        avatar: game.creator.avatar,
+      },
+      creatorDare: {
+        description: game.creatorDare.description,
+        difficulty: game.creatorDare.difficulty,
+        move: game.creatorDare.move,
+        tags: game.creatorDare.tags || [],
+      },
+      public: game.public,
+      createdAt: game.createdAt,
+    });
+  } catch (err) {
+    console.error('Error fetching switch game for claiming by token:', err);
+    res.status(500).json({ error: 'Failed to fetch switch game' });
+  }
+});
+
 // GET /api/switches/claim/:id - get game details for claiming (public access)
 router.get('/claim/:id',
   require('express-validator').param('id').isMongoId().withMessage('Game ID must be a valid MongoDB ObjectId.'),
@@ -498,15 +535,20 @@ router.post('/',
       if (!description || !difficulty || !move) {
         return res.status(400).json({ error: 'Description, difficulty, and move are required.' });
       }
+      const claimToken = uuidv4();
       const game = new SwitchGame({
         status: 'waiting_for_participant',
         creator,
         creatorDare: { description, difficulty, move, tags: Array.isArray(tags) ? tags : [] },
+        claimToken
       });
       await game.save();
       await game.populate('creator');
       await logActivity({ type: 'switchgame_created', user: req.userId, switchGame: game._id });
-      res.status(201).json(game);
+      res.status(201).json({
+        ...game.toObject(),
+        claimLink: `${process.env.FRONTEND_URL || 'https://www.deviantdare.com'}/switches/claim/token/${claimToken}`
+      });
     } catch (err) {
       res.status(500).json({ error: err.message || 'Failed to create switch game.' });
     }
