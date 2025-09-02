@@ -18,12 +18,10 @@ import { ButtonLoading } from '../components/LoadingSpinner';
 import { ErrorAlert, SuccessAlert } from '../components/Alert';
 import { MainContent, ContentContainer } from '../components/Layout';
 
-
-
 const STATUS_STEPS = [
   { key: 'in_progress', label: 'In Progress', icon: <ClockIcon className="w-5 h-5" /> },
   { key: 'completed', label: 'Completed', icon: <CheckCircleIcon className="w-5 h-5" /> },
-          { key: 'chickened_out', label: 'Chickened Out', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
+  { key: 'chickened_out', label: 'Chickened Out', icon: <ExclamationTriangleIcon className="w-5 h-5" /> },
 ];
 
 export default function DareReveal() {
@@ -55,13 +53,13 @@ export default function DareReveal() {
       navigate('/dare/select');
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       // Use retry mechanism for dare fetch
       const response = await retryApiCall(() => api.get(`/dares/${dareId}`));
-      
+
       if (response.data && response.data._id) {
         const performerId = response.data.performer?._id || response.data.performer;
         if (!user || !performerId || String(performerId) !== String(user._id)) {
@@ -69,7 +67,7 @@ export default function DareReveal() {
           showError('You are not authorized to view this dare.');
         } else {
           setDare(response.data);
-  
+
 
         }
       } else {
@@ -105,13 +103,13 @@ export default function DareReveal() {
     setProofLoading(true);
     setProofError('');
     setProofSuccess('');
-    
+
     if (!proof && !proofFile) {
       showError('Please provide proof text or upload a file.');
       setProofLoading(false);
       return;
     }
-    
+
     try {
       let formData;
       if (proofFile) {
@@ -148,18 +146,18 @@ export default function DareReveal() {
       // Use retry mechanism for chicken out
       await retryApiCall(() => api.post(`/dares/${dare._id}/chicken-out`));
       setGeneralSuccess('Successfully chickened out!');
-              showSuccess('Successfully chickened out!');
-        // Memory-safe timeout for navigation
-        setTimeout(() => {
-          navigate('/dare/select');
-        }, 2000);
-      } catch (err) {
-        const errorMessage = err.response?.data?.error || 'Failed to chicken out.';
-        setChickenOutError(errorMessage);
-        showError(errorMessage);
-      } finally {
-        setChickenOutLoading(false);
-      }
+      showSuccess('Successfully chickened out!');
+      // Memory-safe timeout for navigation
+      setTimeout(() => {
+        navigate('/dare/select');
+      }, 2000);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to chicken out.';
+      setChickenOutError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setChickenOutLoading(false);
+    }
   };
 
   if (authLoading || loading) {
@@ -195,7 +193,7 @@ export default function DareReveal() {
     <div className="min-h-screen bg-black">
       <ContentContainer>
         <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-primary-contrast px-4 py-2 rounded z-50">Skip to main content</a>
-        
+
         <MainContent className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-12">
@@ -215,14 +213,12 @@ export default function DareReveal() {
             <div className="flex items-center justify-between mb-4">
               {STATUS_STEPS.map((step, index) => (
                 <div key={step.key} className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    dare.status === step.key ? 'bg-primary text-white' : 'bg-neutral-700 text-neutral-400'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${dare.status === step.key ? 'bg-primary text-white' : 'bg-neutral-700 text-neutral-400'
+                    }`}>
                     {step.icon}
                   </div>
-                  <span className={`text-sm font-semibold ${
-                    dare.status === step.key ? 'text-primary' : 'text-neutral-400'
-                  }`}>
+                  <span className={`text-sm font-semibold ${dare.status === step.key ? 'text-primary' : 'text-neutral-400'
+                    }`}>
                     {step.label}
                   </span>
                   {index < STATUS_STEPS.length - 1 && (
@@ -251,7 +247,7 @@ export default function DareReveal() {
                     <span>Created: {formatRelativeTimeWithTooltip(dare.createdAt).display}</span>
                   )}
                 </div>
-                
+
                 {/* Proof Expiration Info */}
                 {dare.proofExpiresAt && (
                   <div className="mt-4 p-4 bg-yellow-900/20 border border-yellow-800/30 rounded-xl">
@@ -264,7 +260,7 @@ export default function DareReveal() {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Consent Status for Dom Demands */}
                 {dare.dareType === 'domination' && dare.requiresConsent && (
                   <div className="mt-4 p-4 bg-green-900/20 border border-green-800/30 rounded-xl">
@@ -290,7 +286,7 @@ export default function DareReveal() {
                 <PhotoIcon className="w-5 h-5" />
                 Submit Proof
               </button>
-              
+
               <button
                 onClick={handleChickenOut}
                 disabled={chickenOutLoading}
@@ -318,13 +314,13 @@ export default function DareReveal() {
             className="relative z-50"
           >
             <div className="fixed inset-0 bg-neutral-800/50" aria-hidden="true" />
-            
+
             <div className="fixed inset-0 flex items-center justify-center p-4">
               <Dialog.Panel className="bg-neutral-800/95 rounded-2xl p-8 border border-neutral-700/50 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <Dialog.Title className="text-2xl font-bold text-white mb-6">
                   Submit Proof
                 </Dialog.Title>
-                
+
                 <form onSubmit={handleProofSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="proof-text" className="block font-semibold mb-2 text-white">
@@ -366,21 +362,20 @@ export default function DareReveal() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {PRIVACY_OPTIONS.map((option) => (
-                        <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                          contentDeletion === option.value 
-                            ? 'border-yellow-500 bg-yellow-500/10' 
+                        <label key={option.value} className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${contentDeletion === option.value
+                            ? 'border-yellow-500 bg-yellow-500/10'
                             : 'border-neutral-700 bg-neutral-800/30 hover:bg-neutral-800/50'
-                        }`}>
-                          <input 
-                            type="radio" 
-                            name="contentDeletion" 
-                            value={option.value} 
-                            checked={contentDeletion === option.value} 
-                            onChange={(e) => updateContentDeletion(e.target.value)} 
-                            className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2" 
+                          }`}>
+                          <input
+                            type="radio"
+                            name="contentDeletion"
+                            value={option.value}
+                            checked={contentDeletion === option.value}
+                            onChange={(e) => updateContentDeletion(e.target.value)}
+                            className="w-5 h-5 text-yellow-600 bg-neutral-700 border-neutral-600 rounded-full focus:ring-yellow-500 focus:ring-2"
                           />
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -402,7 +397,7 @@ export default function DareReveal() {
                     >
                       Cancel
                     </button>
-                    
+
                     <button
                       type="submit"
                       disabled={proofLoading || (!proof && !proofFile)}
@@ -444,7 +439,7 @@ export default function DareReveal() {
               {generalError}
             </ErrorAlert>
           )}
-          
+
           {generalSuccess && (
             <SuccessAlert>
               {generalSuccess}

@@ -1401,6 +1401,7 @@ export default function DarePerformerDashboard() {
                     key={dare._id} 
                     dare={dare}
                     viewMode={viewMode}
+                    context="ongoing"
                   />
                 ))}
                 
@@ -1503,6 +1504,8 @@ export default function DarePerformerDashboard() {
                     key={dare._id} 
                     dare={dare}
                     viewMode={viewMode}
+                    context="completed"
+                    currentUserId={currentUserId}
                   />
                 ))}
                 
@@ -1852,6 +1855,7 @@ export default function DarePerformerDashboard() {
                       key={dare._id} 
                       dare={dare}
                       viewMode={viewMode}
+                      context="public"
                     />
                   );
                 })}
