@@ -31,7 +31,8 @@ import {
 } from '@heroicons/react/24/solid';
 
 export default function SwitchGameClaim() {
-  const { gameId } = useParams();
+  const params = useParams();
+  const gameParam = params.gameId || params.token; // supports both /claim/:gameId and /claim/token/:token
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
@@ -50,17 +51,18 @@ export default function SwitchGameClaim() {
 
 
   useEffect(() => {
-    if (gameId) {
+    if (gameParam) {
       fetchGame();
     }
-  }, [gameId]);
+  }, [gameParam]);
 
   const fetchGame = async () => {
     try {
       setLoading(true);
       setError('');
       
-      const response = await retryApiCall(() => api.get(isNaN(Number(gameId)) && gameId.length > 20 ? `/switches/claim/token/${gameId}` : `/switches/claim/${gameId}`));
+      const isToken = typeof gameParam === 'string' && gameParam.length > 20 && !/^[a-f\d]{24}$/i.test(gameParam);
+      const response = await retryApiCall(() => api.get(isToken ? `/switches/claim/token/${gameParam}` : `/switches/claim/${gameParam}`));
       
       if (response.data) {
         console.log('Switch game data received:', response.data);
@@ -103,7 +105,11 @@ export default function SwitchGameClaim() {
     
     setClaiming(true);
     try {
-      const effectiveId = isNaN(Number(gameId)) && gameId.length > 20 && game?._id ? game._id : gameId;
+      const effectiveId = game?._id || (typeof gameParam === 'string' && /^[a-f\d]{24}$/i.test(gameParam) ? gameParam : undefined);
+      if (!effectiveId) {
+        showError('Unable to determine game id.');
+        return;
+      }
       const response = await retryApiCall(() => api.post(`/switches/${effectiveId}/join`, {
         difficulty: game?.creatorDare?.difficulty || 'titillating',
         move: gesture,

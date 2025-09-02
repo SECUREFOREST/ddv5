@@ -165,7 +165,7 @@ router.get('/', auth, async (req, res) => {
       // Mark as claimable if it's public, waiting for participants, and not created by current user
       if (game.public && game.status === 'waiting_for_participant' && !game.participant && game.creator.toString() !== req.userId) {
         gameObj.claimable = true;
-        gameObj.claimRoute = game.claimToken ? `/switches/claim/${game.claimToken}` : `/switches/claim/${game._id}`;
+        gameObj.claimRoute = game.claimToken ? `/switches/claim/token/${game.claimToken}` : `/switches/claim/${game._id}`;
       }
       return gameObj;
     });

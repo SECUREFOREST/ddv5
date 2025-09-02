@@ -79,7 +79,7 @@ export default function SwitchGameDetails() {
 
   // Share game function
   const handleShare = () => {
-    const link = `${window.location.origin}/switches/claim/${game.claimToken || game._id}`;
+    const link = `${window.location.origin}/switches/claim/${game.claimToken ? `token/${game.claimToken}` : game._id}`;
     setShareLink(link);
     setShowShareModal(true);
   };

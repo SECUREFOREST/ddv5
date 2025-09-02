@@ -99,7 +99,7 @@ export default function SwitchGameParticipate() {
         const gamesData = validateApiResponse(games, API_RESPONSE_TYPES.SWITCH_GAME_ARRAY);
         if (gamesData.length > 0 && gamesData[0]._id) {
           // Use claimable link instead of participate
-          navigate(gamesData[0].claimToken ? `/switches/claim/${gamesData[0].claimToken}` : `/switches/claim/${gamesData[0]._id}`);
+          navigate(gamesData[0].claimToken ? `/switches/claim/token/${gamesData[0].claimToken}` : `/switches/claim/${gamesData[0]._id}`);
         } else {
           showError('No open switch games available for this difficulty.');
         }
