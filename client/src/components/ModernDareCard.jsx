@@ -62,6 +62,7 @@ const renderTags = (tags) => {
 // Modern Dare Card Component for Active Dares
 export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, currentUserId, onAction }) => {
   const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
+  const isPublic = typeof dare?.isPublic === 'boolean' ? dare.isPublic : !!dare?.public;
   
   if (viewMode === 'list') {
     // List view - more compact, horizontal layout
@@ -121,7 +122,7 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
         <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
           <div className="flex items-center justify-between">
             <span className="text-xs text-neutral-500">
-              {dare.public ? 'Public' : 'Private'}
+              {isPublic ? 'Public' : 'Private'}
             </span>
             <div className="flex gap-2">
               {/* Preserve legacy actions based on context */}
@@ -134,7 +135,7 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
                 </Link>
               )}
               {context === 'public' && (
-                <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/claim/${dare._id}`}>
+                <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`}>
                   <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95">
                     <PlayIcon className="w-4 h-4" />
                     Claim & Perform
@@ -142,10 +143,8 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
                 </Link>
               )}
               {/* Default view details */}
-              <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dares/${dare._id}`}>
-                <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                  {dare.claimToken ? 'Claim & Perform' : 'View Details'}
-                </button>
+              <Link to={`/dares/${dare._id}`}>
+                <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">View Details</button>
               </Link>
             </div>
           </div>
@@ -214,7 +213,7 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
       <div className="px-6 py-4 bg-neutral-700/30 border-t border-neutral-700/50">
         <div className="flex items-center justify-between">
           <span className="text-xs text-neutral-500">
-            {dare.public ? 'Public' : 'Private'}
+            {isPublic ? 'Public' : 'Private'}
           </span>
           <div className="flex gap-2">
             {context === 'ongoing' && (
@@ -226,17 +225,15 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
               </Link>
             )}
             {context === 'public' && (
-              <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/claim/${dare._id}`}>
+              <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dare/consent/${dare._id}`}>
                 <button className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-lg flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 active:scale-95">
                   <PlayIcon className="w-4 h-4" />
                   Claim & Perform
                 </button>
               </Link>
             )}
-            <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dares/${dare._id}`}>
-              <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                {dare.claimToken ? 'Claim & Perform' : 'View Details'}
-              </button>
+            <Link to={`/dares/${dare._id}`}>
+              <button className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">View Details</button>
             </Link>
           </div>
         </div>
@@ -248,6 +245,7 @@ export const ModernActiveDareCard = ({ dare, viewMode = 'grid', context, current
 // Modern Dare Card Component for Completed Dares
 export const ModernCompletedDareCard = ({ dare, viewMode = 'grid', context, currentUserId, onAction }) => {
   const { Icon: DifficultyIcon, color } = getDifficultyInfo(dare.difficulty);
+  const isPublic = typeof dare?.isPublic === 'boolean' ? dare.isPublic : !!dare?.public;
   
   if (viewMode === 'list') {
     // List view - more compact, horizontal layout
@@ -295,7 +293,7 @@ export const ModernCompletedDareCard = ({ dare, viewMode = 'grid', context, curr
                 </button>
               </Link>
             )}
-            <Link to={dare.claimToken ? `/claim/${dare.claimToken}` : `/dares/${dare._id}`}>
+            <Link to={`/dares/${dare._id}`}>
               <button 
                 className="w-full lg:w-auto bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl px-6 py-3 font-bold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center" 
                 aria-label={`View completed dare by ${dare.creator?.fullName || 'User'}`}
